@@ -130,14 +130,6 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 	 g.update_go_to_atom_window_on_changed_mol(imol);
 	 graphics_draw();
       }
-
-      if (delete_item_widget_is_being_shown()) {
-	 if (delete_item_widget_keep_active_on()) { 
-	    // dont destroy it
-	 } else {
-	    store_delete_item_widget_position(); // and destroy it.
-	 }
-      }
    }
 
    std::string cmd = "delete-residue-sidechain";

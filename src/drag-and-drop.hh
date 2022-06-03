@@ -29,6 +29,8 @@
 
 enum { TARGET_STRING, TEXT_URL, TEXT_URI };
 
+#if 0 // 20220602-PE sigh. Let's comment out drag and drop stuff for now.
+
 gboolean
 on_gl_canvas_drag_drop(GtkWidget *widget,
 		       GdkDragContext *context,
@@ -45,6 +47,8 @@ on_drag_data_received (GtkWidget *widget,
 		       guint target_type, 
 		       guint time,
 		       gpointer data);
+
+#endif
 
 int handle_drag_and_drop_single_item(const std::string &file_name);
 

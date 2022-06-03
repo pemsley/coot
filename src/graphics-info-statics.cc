@@ -4,7 +4,6 @@
 #endif
 
 #include "graphics-info.h"
-#include "globjects.h"
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
 
@@ -174,8 +173,9 @@ short int graphics_info_t::quanta_like_zoom_flag = 0;
 int    graphics_info_t::go_to_ligand_animate_view_n_steps = 50;
 
 // graphics display size:
-int graphics_info_t::graphics_x_size = GRAPHICS_WINDOW_X_START_SIZE;
-int graphics_info_t::graphics_y_size = GRAPHICS_WINDOW_Y_START_SIZE;
+int graphics_info_t::graphics_x_size = 500; // 20220602-PE these are olden values
+int graphics_info_t::graphics_y_size = 500; // how do they tie into new graphics?
+
 int graphics_info_t::graphics_x_position = 0; // gets overwritten at start
 int graphics_info_t::graphics_y_position = 0;
 int graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = 1;

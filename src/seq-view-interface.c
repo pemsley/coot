@@ -29,7 +29,9 @@ seq_lookup_widget(GtkWidget       *widget,
 		  const gchar     *widget_name) {
 
   GtkWidget *parent = NULL, *found_widget = NULL;
-
+#if (GTK_MAJOR_VERSION >= 4)
+  // 20220602-PE FIXME in seq_lookup_widget() menus
+#else
   if (widget) { 
     for (;;)
       {
@@ -46,6 +48,7 @@ seq_lookup_widget(GtkWidget       *widget,
     if (!found_widget)
       g_warning ("Widget not found: %s", widget_name);
   }
+#endif
   return found_widget;
 }
 
@@ -71,15 +74,15 @@ create_sequence_view_dialog (void) {
   g_object_set_data (G_OBJECT (sequence_view_dialog), "dialog_vbox1", dialog_vbox1);
   gtk_widget_show (dialog_vbox1);
 
-  sequence_view_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+  sequence_view_scrolledwindow = gtk_scrolled_window_new ();
   g_object_ref (sequence_view_scrolledwindow);
   g_object_set_data_full(G_OBJECT (sequence_view_dialog),
 			 "sequence_view_scrolledwindow",
 			 sequence_view_scrolledwindow,
 			 NULL);
   gtk_widget_show (sequence_view_scrolledwindow);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-  // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+  gtk_box_append(GTK_BOX(dialog_vbox1), sequence_view_scrolledwindow);
 #else
   gtk_box_pack_start (GTK_BOX (dialog_vbox1), sequence_view_scrolledwindow, TRUE, TRUE, 0);
 #endif
@@ -127,7 +130,7 @@ on_sequence_view_close_button_clicked     (GtkButton *button,
 					   gpointer         user_data)
 {
    GtkWidget *window = seq_lookup_widget(GTK_WIDGET(button), "sequence_view_dialog");
-   gtk_widget_destroy(window);
+   /* gtk_widget_destroy(window); */
 }
 
 

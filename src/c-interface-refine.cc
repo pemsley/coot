@@ -239,9 +239,9 @@ void do_regularize(short int state) {
 
    g.set_in_range_define_for_regularize(state);  // TRUE or FALSE
    if (state) { 
-      g.untoggle_model_fit_refine_buttons_except("model_refine_dialog_regularize_zone_togglebutton");
+      // g.untoggle_model_fit_refine_buttons_except("model_refine_dialog_regularize_zone_togglebutton");
       // and kill the delete dialog if it is there
-      do_regularize_kill_delete_dialog();
+      // do_regularize_kill_delete_dialog(); // no longer
       std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
       g.pick_cursor_maybe();
       g.pick_pending_flag = 1;
@@ -260,9 +260,9 @@ void do_refine(short int state) {
    // std::cout << "DEBUG:: in do_refine" << std::endl;
    
    if (state) { 
-      g.untoggle_model_fit_refine_buttons_except("model_refine_dialog_refine_togglebutton");
+      // g.untoggle_model_fit_refine_buttons_except("model_refine_dialog_refine_togglebutton");
       // and kill the delete dialog if it is there
-      do_regularize_kill_delete_dialog();
+      // do_regularize_kill_delete_dialog(); // 20220602-PE no longer
       
       int imol_map = g.Imol_Refinement_Map();
       // std::cout << "DEBUG:: in do_refine, imol_map: " << imol_map << std::endl;

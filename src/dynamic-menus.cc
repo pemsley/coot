@@ -13,6 +13,10 @@ create_initial_validation_graph_submenu_generic(GtkWidget *widget, // window
 						const std::string &menu_name,
 						const std::string &sub_menu_name) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in create_initial_validation_graph_submenu_generic() FIXME" << std::endl;
+#else
+
    // GtkWidget *b_factor_menu_item = lookup_widget(widget, menu_name.c_str());
    GtkWidget *b_factor_menu_item = widget_from_builder(menu_name);
    GtkWidget *b_factor_sub_menu = gtk_menu_new();
@@ -26,6 +30,7 @@ create_initial_validation_graph_submenu_generic(GtkWidget *widget, // window
                 << " setting data for " << sub_menu_name << std::endl;
 
    g_object_set_data(G_OBJECT(b_factor_menu_item), sub_menu_name.c_str(), b_factor_sub_menu);
+#endif
 
 }
 
@@ -82,7 +87,7 @@ void create_dynamic_menus(GtkWidget *window1) {
 }
 
 
-void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_b_factor_mol_selector_activate (GMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -92,8 +97,8 @@ void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 }
 
 ////B B GRAPH
-void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
+void validation_graph_calc_b_factor_mol_selector_activate (GMenuItem     *menuitem,
+                                                           gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
 
@@ -103,7 +108,7 @@ void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menu
 }
 ////E B GRAPH
 
-void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_geometry_mol_selector_activate (GMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -112,7 +117,7 @@ void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
       g.geometric_distortion(imol);
 }
 
-void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_omega_mol_selector_activate (GMenuItem     *menuitem,
 						   gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -124,7 +129,7 @@ void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
 
 #include "cc-interface-scripting.hh"
 
-void pukka_puckers_mol_selector_activate (GtkMenuItem     *menuitem,
+void pukka_puckers_mol_selector_activate (GMenuItem     *menuitem,
                                           gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -136,7 +141,7 @@ void pukka_puckers_mol_selector_activate (GtkMenuItem     *menuitem,
 
 }
 
-void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_rotamer_mol_selector_activate (GMenuItem     *menuitem,
 						     gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -145,7 +150,7 @@ void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
 
 }
 
-void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_density_fit_mol_selector_activate (GMenuItem     *menuitem,
 							 gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -153,7 +158,7 @@ void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuit
    g.density_fit_graphs(imol);
 }
 
-void probe_mol_selector_activate (GtkMenuItem     *menuitem,
+void probe_mol_selector_activate (GMenuItem     *menuitem,
  				  gpointer         user_data) {
 
     int imol = GPOINTER_TO_INT(user_data);
@@ -179,7 +184,7 @@ int probe_available_p_py() {
 }
 #endif // USE_PYTHON
 
-void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
+void gln_and_asn_b_factor_outlier_mol_selector_activate (GMenuItem     *menuitem,
 							 gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
@@ -193,11 +198,17 @@ add_validation_mol_menu_item(int imol,
 			     GtkWidget *menu,
  			     GCallback callback) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   return nullptr;
+   // 20220602-PE FIXME menus
+   std::cout << "in add_validation_mol_menu_item() FIXME" << std::endl;
+#else
     GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
     gtk_container_add(GTK_CONTAINER(menu), menu_item);
     g_signal_connect(G_OBJECT(menu_item), "activate", callback, GINT_TO_POINTER(imol));
     gtk_widget_show(menu_item);
     return menu_item;
+#endif
 }
 
 // #include "c-interface-gtk-widgets.h" // for validation_graph_ncs_diffs_mol_selector_activate
@@ -207,13 +218,18 @@ add_validation_mol_menu_item(int imol,
 // -----------------------------------------------------
 
 
-void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
+void validation_graph_ncs_diffs_mol_selector_activate (GMenuItem     *menuitem,
 						       gpointer         user_data);
 
 // the menu here is the one set in the glade file - and extracted by name using widget_from_builder()
 // e.g. geometry_analysis1
 //
 void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
+
+#if (GTK_MAJOR_VERSION >= 4)
+   // 20220602-PE FIXME validation graphs - canvas
+   std::cout << "in add_on_validation_graph_mol_options() FIXME big job" << std::endl;
+#else
 
    graphics_info_t g;
    std::string validation_type(type_in);
@@ -311,5 +327,6 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       std::cout << "ERROR:: in add_on_validation_graph_mol_options() sub menu not found: "
                 << sub_menu_name << " for menu " << menu << std::endl;
    }
+#endif
 
 }

@@ -224,18 +224,22 @@ graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) {
    }
 }
 
+GtkWidget *
+graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
 
-// static
-void
-graphics_info_t::untoggle_model_fit_refine_buttons_except(const std::string &button_name) {
+   // GtkWidget *w = create_residue_type_chooser_window();
+   GtkWidget *w = widget_from_builder("residue_type_chooser_window");
+   GtkWidget *b = widget_from_builder("residue_type_chooser_stub_checkbutton");
 
-   std::vector<std::string> button_name_vec =
-      graphics_info_t::model_fit_refine_toggle_button_name_list();
-   for (unsigned int i=0; i<button_name_vec.size(); i++)
-      if (button_name_vec[i] != button_name)
-	 model_fit_refine_unactive_togglebutton(button_name_vec[i]);
+   if (show_stub_option_flag == 0) 
+      gtk_widget_hide(b);
+
+   return w;
 }
 
+#if 0 // -------------------------------------------------------------------------------------------------------------------
+
+// FIXME event button functions! 
 
 int
 graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
@@ -1586,18 +1590,6 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
    } 
 }
 
-GtkWidget *
-graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
-
-   // GtkWidget *w = create_residue_type_chooser_window();
-   GtkWidget *w = widget_from_builder("residue_type_chooser_window");
-   GtkWidget *b = widget_from_builder("residue_type_chooser_stub_checkbutton");
-
-   if (show_stub_option_flag == 0) 
-      gtk_widget_hide(b);
-
-   return w;
-} 
 
 void
 graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) { 
@@ -1965,8 +1957,9 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 
 	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
 
-	 add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
-         
+         // bye bye CCP4i interface.
+	 // add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
+
          add_filename_filter_button(w, COOT_COORDS_FILE_SELECTION);
 
 	 normal_cursor();
@@ -2146,3 +2139,4 @@ graphics_info_t::check_if_in_multi_residue_torsion_define(GdkEventButton *event)
    }
 }
 
+#endif

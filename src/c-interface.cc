@@ -408,16 +408,6 @@ short int python_at_prompt_at_startup_state() {
    return graphics_info_t::python_at_prompt_flag;
 }
 
-/*! \brief start Gtk (and graphics)
-
-   This function is useful if it was not started already (which can be
-   achieved by using the command line argument --no-graphics).
-
-   An interface for Ralf */
-void start_graphics_interface() {
-   add_to_history_simple("start-graphics-interface");
-   gtk_main();
-}
 
 #include "startup-scripts.hh"
 
@@ -1151,7 +1141,7 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
 	       if (graphics_info_t::glareas.size() == 2) {
-		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  gtk_widget_hide(graphics_info_t::glareas[1]); // was deleted
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
@@ -1164,7 +1154,8 @@ void zalman_stereo_mode() {
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
-	       gtk_widget_destroy(graphics_info_t::glareas[0]);
+	       // gtk_widget_destroy(graphics_info_t::glareas[0]);
+	       gtk_widget_hide(graphics_info_t::glareas[0]);
 	       graphics_info_t::glareas[0] = glarea;
 	       gtk_widget_show(glarea);
 	       // antialiasing?
@@ -2552,6 +2543,12 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gpointer   user_data) {
    // this is not used now, I think
 
+   // 20220602-PE delete it.
+
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in on_single_map_properties_colour_dialog_response() actually used!" << std::endl;
+#else
+   
    if (response_id == GTK_RESPONSE_OK) {
       GdkRGBA color;
       gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER (dialog), &color);
@@ -2565,7 +2562,9 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
          graphics_draw();
       }
    }
-   gtk_widget_destroy (GTK_WIDGET (dialog));
+
+   gtk_widget_hide(GTK_WIDGET (dialog)); // was destroy
+#endif
 }
 
 void
@@ -2573,6 +2572,9 @@ on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
                                        gint response_id,
                                        gpointer user_data) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in on_map_color_selection_dialog_response()   actually used!" << std::endl;
+#else
    if (response_id == GTK_RESPONSE_OK) {
       // nothing - because it's already been done on the color_changed handler.
    }
@@ -2591,6 +2593,7 @@ on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
       }
    }
    gtk_widget_destroy (GTK_WIDGET (color_selection_dialog));
+#endif
 }
 
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
@@ -3782,7 +3785,7 @@ int n_dots_sets(int imol) {
 std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) {
       float f = atof(txt);
       p.second = f;
@@ -3794,7 +3797,7 @@ std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 std::pair<short int, int> int_from_entry(GtkWidget *entry) {
 
    std::pair<short int, int> p(0,0);
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) {
       int i = atoi(txt);
       p.second = i;
@@ -5907,11 +5910,16 @@ post_display_control_window() {
 void
 clear_out_container(GtkWidget *vbox) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in clear_out_container() FIXME" << std::endl;
+#else
+   
    auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
                                     gtk_container_remove(GTK_CONTAINER(data), widget); };
 
    if (GTK_IS_CONTAINER(vbox))
       gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+#endif
 
 }
 
@@ -6074,6 +6082,9 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
 
    if (GTK_IS_BOX(display_control_vbox)) {
  
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "in set_display_control_button_state() FIXME container children" << std::endl;
+#else
       GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_control_vbox));
       GList *free_list = dlist;
 
@@ -6097,6 +6108,7 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
          dlist = dlist->next;
       }
       g_list_free(free_list);
+#endif
    }
 }
 

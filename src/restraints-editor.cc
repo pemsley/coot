@@ -1320,9 +1320,15 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
 
       filename += r.residue_info.comp_id;
       filename += ".cif";
+#if (GTK_MAJOR_VERSION >= 4)
+      // 20220602-PE FIXME overwrite confirmationn
+#else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
+#endif
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(ww), filename.c_str());
-      add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
+
+      // bye bye CCP4i interface.
+      // add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       add_filename_filter_button(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
       *ptr = r;
@@ -1335,7 +1341,14 @@ void save_monomer_restraints_by_widget(GtkDialog *chooser) {
 
    // recall the restraints come from reading the entries in the dialog
    // 
-   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+   // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+
+   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(chooser));
+   GError *error = NULL;
+   GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                            G_FILE_QUERY_INFO_NONE, NULL, &error);
+   const char *filename = g_file_info_get_name(file_info);
+   
    coot::dictionary_residue_restraints_t *t =
       (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
    t->write_cif(filename);

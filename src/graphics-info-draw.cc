@@ -2308,7 +2308,7 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
                                gl_widget_dimension_scale_factor * dimensions);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
-   gtk_box_pack_start(GTK_BOX(vbox), w);
+   gtk_box_append(GTK_BOX(vbox), w);
 #else
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
 #endif
@@ -5025,6 +5025,102 @@ graphics_info_t::step_screen_right() {
 #include <glm/gtx/rotate_vector.hpp>
 #include "matrix-utils.hh"
 
+// widget is the glarea.
+//
+gint
+graphics_info_t::idle_contour_function(gpointer data) {
+
+   gint continue_status = 0;
+   bool something_changed = false;
+
+   bool is_from_contour_level_change(GPOINTER_TO_INT(data));
+
+   // when there's nothing else to do, update the contour levels
+   //
+   // then update maps
+
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
+         int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
+
+         if (cc != 0) {
+
+	          if (cc < 0) {
+	             while (cc != 0) {
+	                cc++;
+	                graphics_info_t::molecules[imol].change_contour(-1);
+	             }
+	          }
+
+	          if (cc > 0) {
+	              while (cc != 0) {
+	                 cc--;
+	                 graphics_info_t::molecules[imol].change_contour(1);
+	              }
+	          }
+
+           graphics_info_t g;
+           bool really_change_the_map_contours = true;
+           if (! is_from_contour_level_change) really_change_the_map_contours = false;
+	   g.molecules[imol].update_map(really_change_the_map_contours);
+           float map_rmsd = g.molecules[imol].map_sigma();
+	   continue_status = 0;
+           float cl = g.molecules[imol].contour_level;
+           float r = cl/map_rmsd;
+           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+           g.set_density_level_string(imol, g.molecules[imol].contour_level);
+           std::string s = "Map " + std::to_string(imol) + "  contour_level " +
+              coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
+              coot::util::float_to_string_using_dec_pl(r, 3);
+           add_status_bar_text(s.c_str());
+           g.display_density_level_this_image = 1;
+           something_changed = true;
+         }
+      }
+   }
+   // std::cout << "Here with something_changed: " << something_changed << std::endl;
+
+   // is this needed?
+   // if (something_changed)
+   //    graphics_draw();
+   // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
+   return continue_status;
+}
+
+// can't be a lambda funtion because of capture issues
+
+void keypad_translate_xyz(short int axis, short int direction) {
+      
+      graphics_info_t g;
+      if (axis == 3) {
+         coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
+         v *= 0.05 * float(direction);
+         g.add_vector_to_RotationCentre(v);
+      } else {
+         gdouble x_diff, y_diff;
+         x_diff = y_diff = 0;
+         coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
+         if (axis == 1) x_diff = 1;
+         if (axis == 2) y_diff = 1;
+         g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
+                                 y_diff * 0.1 * float(direction));
+         if (g.GetActiveMapDrag() == 1) {
+            for (int ii=0; ii<g.n_molecules(); ii++) {
+               g.molecules[ii].update_map(true); // to take account
+               // of new rotation centre.
+            }
+         }
+         for (int ii=0; ii<g.n_molecules(); ii++) {
+            g.molecules[ii].update_symmetry();
+         }
+         g.graphics_draw();
+      }
+ }
+
+
+
+
 void
 graphics_info_t::setup_key_bindings() {
 
@@ -5422,6 +5518,8 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
    kb_vec.push_back(pdel);
 
+   // Direction is either +1 or -1 (in or out)
+   //
 
    // ctrl left
    auto lc4 = []() {
@@ -5570,12 +5668,16 @@ graphics_info_t::fullscreen() {
       gtk_widget_hide(tool_bar);
       gtk_window_fullscreen(GTK_WINDOW(window));
 
-      gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
-      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
-      // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
-      gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
-      gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
-      gtk_widget_grab_focus(glareas[0]);
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
+#else
+         gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
+         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
+         // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
+         gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
+         gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
+         gtk_widget_grab_focus(glareas[0]);
+
 
       if (false) {
          gtk_container_remove(GTK_CONTAINER(vbox), tool_bar);
@@ -5592,6 +5694,7 @@ graphics_info_t::fullscreen() {
          gtk_widget_set_halign(menu_bar_frame, GTK_ALIGN_START);
          gtk_widget_set_valign(menu_bar_frame, GTK_ALIGN_START);
       }
+#endif
 
       graphics_info_t g;
       g.add_status_bar_text(""); // clear it
@@ -5617,10 +5720,10 @@ graphics_info_t::unfullscreen() {
 
 #if (GTK_MAJOR_VERSION > 3)
       gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
-      gtk_container_add(GTK_CONTAINER(vbox), tool_bar);
+      gtk_box_append(GTK_BOX(vbox), tool_bar);
 
       gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), status_bar);
-      gtk_container_add(GTK_CONTAINER(vbox), status_bar);
+      gtk_box_append(GTK_BOX(vbox), status_bar);
 #endif
 
       std::cout << "show widget " << menu_bar << std::endl;

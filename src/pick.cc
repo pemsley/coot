@@ -258,7 +258,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
 
 // event can be null. if so Crtl key press check is not made.
 pick_info
-atom_pick(GdkEventButton *event) {
+atom_pick() {
 
    graphics_info_t g;
    return g.atom_pick_gtk3(false);

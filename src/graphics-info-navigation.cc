@@ -476,11 +476,11 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *
    if (window) {
       // entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_chain_entry"));
       entry = GTK_ENTRY(widget_from_builder("go_to_atom_chain_entry"));
-      gtk_entry_set_text(entry, go_to_atom_chain_.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(entry), go_to_atom_chain_.c_str());
 
       // entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_residue_entry"));
       entry = GTK_ENTRY(widget_from_builder("go_to_atom_residue_entry"));
-      gtk_entry_set_text(entry,res_str.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(entry), res_str.c_str());
 
       // entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_atom_name_entry"));
       entry = GTK_ENTRY(widget_from_builder("go_to_atom_atom_name_entry"));
@@ -491,7 +491,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *
 	    atom_name_txt += go_to_atom_atom_altLoc_;
 	 }
       }
-      gtk_entry_set_text(entry, atom_name_txt.c_str());
+      gtk_editable_set_text(GTK_EDITABLE(entry), atom_name_txt.c_str());
 
    } else {
       std::cout << "ERROR: Null window in update_widget_go_to_atom_values\n";
@@ -735,16 +735,16 @@ void
 graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 
    GtkEntry *entry = GTK_ENTRY(widget_from_builder("go_to_atom_chain_entry"));
-   const gchar *chain_str = gtk_entry_get_text(entry);
+   const gchar *chain_str = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_entry"));
    entry = GTK_ENTRY(widget_from_builder("go_to_atom_residue_entry"));
-   const gchar *res_str = gtk_entry_get_text(entry);
+   const gchar *res_str = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    // entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry"));
    entry = GTK_ENTRY(widget_from_builder("go_to_atom_atom_name_entry"));
 
-   const gchar *txt =  gtk_entry_get_text(entry);
+   const gchar *txt =  gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) {
       std::pair<std::string, std::string> p =
          graphics_info_t::split_atom_name(std::string(txt));

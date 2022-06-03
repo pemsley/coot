@@ -488,7 +488,8 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
          if (accept_reject_dialog_docked_flag == coot::DIALOG) {
             save_accept_reject_dialog_window_position(accept_reject_dialog);
             // this calls clear_up_moving_atoms() and clears atom pull restraint.
-            gtk_widget_destroy(accept_reject_dialog);
+            // gtk_widget_destroy(accept_reject_dialog);
+            gtk_widget_hide(accept_reject_dialog); // 20220602-PE. Hmm.
             accept_reject_dialog = 0;
          } else {
             gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
@@ -4748,7 +4749,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    // for each rotamer do this:
 
    GSList *gr_group = NULL;
-   GtkWidget *rotamer_selection_radio_button;
+   GtkWidget *rotamer_selection_radio_button =  0;
    GtkWidget *rotamer_selection_dialog = window;
    // GtkWidget *rotamer_selection_button_vbox = lookup_widget(window, "rotamer_selection_button_vbox");
    GtkWidget *rotamer_selection_button_vbox = widget_from_builder("rotamer_selection_button_vbox");
@@ -4781,9 +4782,12 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
       std::string button_name = "rotamer_selection_button_rot_";
       button_name += int_to_string(i);
 
+#if (GTK_MAJOR_VERSION == 4)
+#else
       rotamer_selection_radio_button =
 	 gtk_radio_button_new_with_label (gr_group, button_label.c_str());
       gr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rotamer_selection_radio_button));
+#endif
       // gtk_widget_ref (rotamer_selection_radio_button);
       g_object_set_data_full(G_OBJECT (rotamer_selection_dialog),
 				button_name.c_str(), rotamer_selection_radio_button,
@@ -4797,7 +4801,8 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
 
        gtk_widget_show (rotamer_selection_radio_button);
        frame = gtk_frame_new(NULL);
-       gtk_container_add(GTK_CONTAINER(frame), rotamer_selection_radio_button);
+       gtk_frame_set_child(GTK_FRAME(frame), rotamer_selection_radio_button);
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
 #else
@@ -5478,7 +5483,8 @@ graphics_info_t::delete_sidechain_range(int imol,
 	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
 	    // don't destroy it.
 	 } else {
-	    gtk_widget_destroy(delete_item_widget);
+	    // gtk_widget_destroy(delete_item_widget);
+	    gtk_widget_hide(delete_item_widget); // 20220602-PE hmm.
 	    delete_item_widget = 0;
 	    normal_cursor();
 	 }

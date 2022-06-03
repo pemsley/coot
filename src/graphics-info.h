@@ -467,6 +467,14 @@ namespace coot {
 
 } // namespace coot
 
+enum { IN_STEREO_MONO = 0, 
+       IN_STEREO_HARDWARE_STEREO=1, 
+       IN_STEREO_ZALMAN_RIGHT=5, 
+       IN_STEREO_ZALMAN_LEFT=6, 
+       IN_STEREO_SIDE_BY_SIDE_LEFT=10,
+       IN_STEREO_SIDE_BY_SIDE_RIGHT=11
+};
+
 
 #include "view.hh"
 #include "lsq-dialog-values.hh"
@@ -1046,7 +1054,7 @@ public:
    static guint statusbar_context_id;
    static short int model_fit_refine_dialog_was_sucked;
    static std::string main_window_title;
-   void add_status_bar_text(const std::string &text) const;
+   static void add_status_bar_text(const std::string &text);
 
    static void statusbar_ctrl_key_info(); // Ctrl to rotate or pick?
    // -------------------------------------------------
@@ -1525,6 +1533,7 @@ public:
    // skeleton colour
    static double* skeleton_colour;
 
+   static gint idle_contour_function(gpointer data);
 
    // idle function token (holder)
    //

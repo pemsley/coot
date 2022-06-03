@@ -36,6 +36,7 @@
 #include "cc-interface.hh"
 #include "c-interface.h"
 
+#if 0 // 20220602-PE FIXME
 gboolean
 on_gl_canvas_drag_drop(GtkWidget *widget,
 		       GdkDragContext *context,
@@ -62,7 +63,9 @@ on_gl_canvas_drag_drop(GtkWidget *widget,
    return  is_valid_drop_site;
 #endif
 }
+#endif
 
+#if 0 // 20220602-PE FIXME
 void
 on_drag_data_received (GtkWidget *widget, 
 		       GdkDragContext *context, 
@@ -122,6 +125,7 @@ on_drag_data_received (GtkWidget *widget,
    gtk_drag_finish (context, dnd_success, delete_selection_data, time);
 #endif
 }
+#endif
 
 
 //! \brief handle the string that get when an URL (or text from an url) is dropped.

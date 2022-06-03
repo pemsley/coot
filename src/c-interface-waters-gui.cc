@@ -114,7 +114,7 @@ GtkWidget *wrapped_create_unmodelled_blobs_dialog() {
    //
    GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
    char *txt = get_text_for_find_waters_sigma_cut_off();
-   gtk_entry_set_text(GTK_ENTRY(entry), txt);
+   gtk_editable_set_text(GTK_EDITABLE(entry), txt);
    free(txt);
 
    return dialog;
@@ -126,7 +126,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 
    // GtkWidget *entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
    GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) { 
       float f = coot::util::string_to_float(txt);
       if (f > 0.0 && f < 1000.0) { 
@@ -257,7 +257,7 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
    GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
 
    char *txt = get_text_for_find_waters_sigma_cut_off();
-   gtk_entry_set_text(GTK_ENTRY(entry), txt);
+   gtk_editable_set_text(GTK_EDITABLE(entry), txt);
    free(txt);
 
    // Now deal with the (new) entries for the distances to the protein
@@ -271,8 +271,8 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
    if (wd1 && wd2) {
       float max = graphics_info_t::ligand_water_to_protein_distance_lim_max;
       float min = graphics_info_t::ligand_water_to_protein_distance_lim_min;
-      gtk_entry_set_text(GTK_ENTRY(wd1), coot::util::float_to_string(max).c_str());
-      gtk_entry_set_text(GTK_ENTRY(wd2), coot::util::float_to_string(min).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(wd1), coot::util::float_to_string(max).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(wd2), coot::util::float_to_string(min).c_str());
    }
 }
 
@@ -302,25 +302,33 @@ execute_find_waters() {
    if (GTK_IS_BOX(map_vbox)) {
       int imol_map = -1;
       void *imol_ptr = &imol_map;
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "in execute_find_waters() FIXME container foreach A" << std::endl;
+#else
       gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
       if (is_valid_map_molecule(imol_map)) {
          find_waters_map_mol = imol_map;
       }
+#endif
    }
 
    if (GTK_IS_BOX(protein_vbox)) {
       int imol_protein = -1;
       void *imol_ptr = &imol_protein;
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "in execute_find_waters() FIXME container foreach B" << std::endl;
+#else
       gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
       if (is_valid_model_molecule(imol_protein)) {
          find_waters_protein_mol = imol_protein;
       }
+#endif
    }
 
    // now read the entry containing the cut-off
    // GtkWidget *entry = lookup_widget(dialog_ok_button, "find_waters_peak_level_entry");
    GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float f = atof(text);
    if (f > 0.0 && f < 100.0) {
       std::cout << "finding peaks above " << f << " sigma " << std::endl;
@@ -345,8 +353,8 @@ execute_find_waters() {
    GtkWidget *wd2 = widget_from_builder("find_waters_min_dist_to_protein_entry");
 
    if (wd1 && wd2) {
-      const gchar *t1 = gtk_entry_get_text(GTK_ENTRY(wd1));
-      const gchar *t2 = gtk_entry_get_text(GTK_ENTRY(wd2));
+      const gchar *t1 = gtk_editable_get_text(GTK_EDITABLE(wd1));
+      const gchar *t2 = gtk_editable_get_text(GTK_EDITABLE(wd2));
       float f1 = atof(t1);
       float f2 = atof(t2);
       // slam in the distances to the static vars directly (not as

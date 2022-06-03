@@ -42,13 +42,6 @@ GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero);
 // Gtk3
 GtkWidget* gl_gtk3_widget(GtkWidget* window, short int try_hardware_stero);
 
-enum { IN_STEREO_MONO = 0, 
-       IN_STEREO_HARDWARE_STEREO=1, 
-       IN_STEREO_ZALMAN_RIGHT=5, 
-       IN_STEREO_ZALMAN_LEFT=6, 
-       IN_STEREO_SIDE_BY_SIDE_LEFT=10,
-       IN_STEREO_SIDE_BY_SIDE_RIGHT=11};
-
 gint init(GtkWidget *widget); 
 gint init_gl_widget(GtkWidget *widget);
 void gdkglext_finish_frame(GtkWidget *widget);
@@ -104,8 +97,8 @@ void display_density_level_maybe();
 // colour helper function
 // double combine_colour(double v, int col_part_index); 
 
-std::vector<float> rotate_rgb(std::vector<float> &in_vals, 
-			      float amount); 
+std::vector<float> rotate_rgb(std::vector<float> &in_vals, float amount); 
+
 std::vector<float> convert_rgb_to_hsv(const std::vector<float> &rgb);
 std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
 

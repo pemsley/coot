@@ -907,7 +907,7 @@ void delete_chain(int imol, const char *chain_id_in) {
 	 if (delete_item_widget_keep_active_on()) {
 	    // dont destroy it
 	 } else {
-	    store_delete_item_widget_position(); // and destroy it.
+	    //store_delete_item_widget_position(); // and destroy it.
 	 }
       }
       if (! is_valid_model_molecule(imol))

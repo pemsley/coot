@@ -114,30 +114,6 @@ short int delete_item_widget_keep_active_on() {
    return r;
 }
 
-void store_delete_item_widget_position() {
-
-   gint upositionx, upositiony;
-   // gdk_window_get_root_origin (graphics_info_t::delete_item_widget->window,
-   // &upositionx, &upositiony);
-   gtk_window_get_position(GTK_WINDOW(graphics_info_t::delete_item_widget),
-			   &upositionx, &upositiony);
-   graphics_info_t::delete_item_widget_x_position = upositionx;
-   graphics_info_t::delete_item_widget_y_position = upositiony;
-   gtk_widget_destroy(graphics_info_t::delete_item_widget);
-   clear_delete_item_widget();
-}
-
-void clear_delete_item_widget() {
-
-   graphics_info_t::delete_item_widget = NULL;
-}
-
-
-void store_delete_item_widget(GtkWidget *widget) {
-   graphics_info_t::delete_item_widget = widget;
-}
-
-
 
 /*  find the molecule that the single map dialog applies to and set
     the contour level and redraw */
@@ -152,7 +128,7 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 
       // GtkWidget *entry = lookup_widget(w, "single_map_properties_contour_level_entry");
       GtkWidget *entry = widget_from_builder("single_map_properties_contour_level_entry");
-      const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+      const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
       float level = atof(txt);
       if (gtk_toggle_button_get_active(toggle_button)) {
 	 set_contour_level_in_sigma(imol, level);
@@ -190,10 +166,10 @@ void remarks_dialog(int imol) {
 	    // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
 	    GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
 	    GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	    GtkWidget *scrolled_window = gtk_scrolled_window_new ();
 	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 	    //     				  GTK_WIDGET(vbox_inner));
-	    gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+	    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
                   // 20220528-PE FIXME box packing
 #else
@@ -237,12 +213,15 @@ void remarks_dialog(int imol) {
 		  // std::cout << "REMARK number " << it->first << std::endl;
 		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
 		  GtkWidget *text_view = gtk_text_view_new();
+#if (GTK_MAJOR_VERSION >= 4)
+#else
 		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 						       GTK_TEXT_WINDOW_RIGHT, 10);
+#endif
 
 		  gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 
-		  gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+		  gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
 		  gtk_widget_show(GTK_WIDGET(text_view));
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
@@ -324,10 +303,13 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       }
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
+#if (GTK_MAJOR_VERSION == 4)
+#else
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
+#endif
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
-      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
@@ -381,10 +363,13 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
+#if (GTK_MAJOR_VERSION == 4)
+#else
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
+#endif
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
-      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
@@ -444,10 +429,13 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
+#if (GTK_MAJOR_VERSION == 4)
+#else
       gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					   GTK_TEXT_WINDOW_RIGHT, 10);
+#endif
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
-      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
@@ -500,10 +488,14 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 gtk_text_buffer_create_tag (text_buffer, "monospace",
 				     "family", "monospace", NULL);
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#else
 	 gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
 					      GTK_TEXT_WINDOW_RIGHT, 10);
+#endif
 	 gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
-	 gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+	 gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
+         
 	 gtk_widget_show(GTK_WIDGET(text_view));
 	 gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 	 gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
@@ -634,7 +626,10 @@ GdkRGBA remark_number_to_colour(int remark_number) {
 
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 						 GtkWidget *dialog) {
-   gtk_widget_destroy(dialog);
+
+   // What is this?
+   std::cout << "on_simple_text_dialog_close_button_pressed() FIXME" << std::endl;
+   // gtk_widget_destroy(dialog);
 }
 
 
@@ -649,10 +644,10 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 
       GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d)); // new method to get vbox fromm dialog
       GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-      GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+      GtkWidget *scrolled_window = gtk_scrolled_window_new();
       //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
       // GTK_WIDGET(vbox_inner));
-      gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
 #else
@@ -663,7 +658,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 
       GtkWidget *text_widget = gtk_text_view_new ();
       gtk_widget_show (text_widget);
-      gtk_container_add (GTK_CONTAINER (vbox_inner), text_widget);
+      gtk_box_append (GTK_BOX (vbox_inner), text_widget);
       gtk_text_view_set_editable (GTK_TEXT_VIEW (text_widget), FALSE);
       gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
       gtk_text_buffer_set_text (gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_widget)),
@@ -700,8 +695,8 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
    }
    if (res_no_1_widget && res_no_2_widget) {
       if (text_widget && label_widget) {
-	 std::string rn_1_str = gtk_entry_get_text(GTK_ENTRY(res_no_1_widget));
-	 std::string rn_2_str = gtk_entry_get_text(GTK_ENTRY(res_no_2_widget));
+	 std::string rn_1_str = gtk_editable_get_text(GTK_EDITABLE(res_no_1_widget));
+	 std::string rn_2_str = gtk_editable_get_text(GTK_EDITABLE(res_no_2_widget));
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_widget));
 	 GtkTextIter startiter;
 	 GtkTextIter enditer;

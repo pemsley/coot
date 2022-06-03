@@ -14,6 +14,8 @@
 void
 stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
+#if 0 // 20220602-PE ancient code
+
    bool do_first  = false;
    bool do_second = false;
 
@@ -106,14 +108,15 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
          }
       }
    }
+#endif
 }
 
 
 
+#if 0 // historical reasons - remove this function when useless
+
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
-
-#if 0 // historical reasons - remove this function when useless
 
    // std::cout << "draw_mono() with widget " << widget << std::endl;
 
@@ -563,9 +566,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
 
    gdkglext_finish_frame(widget);
 
-#endif
    return TRUE;
 }
+#endif
 
 void draw_molecular_triangles(GtkWidget *widget) {
 
@@ -690,6 +693,7 @@ display_density_level_maybe() {
 }
 
 /* When widget is exposed it's contents are redrawn. */
+#if 0
 gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 //    GtkWidget *w = graphics_info_t::glarea;
@@ -730,13 +734,14 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
    }
    return TRUE;
 }
+#endif
 
+
+#if 0 // maybe useful future? but remove for now 20220228-PE
 
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
    if (graphics_info_t::stereo_style_2010) {
-
-#if 0 // maybe useful future? but remove for now 20220228-PE
 
       // tinker with graphics_info_t::quat, rotate it left, draw it,
       // rotate it right, draw it.
@@ -767,8 +772,6 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
       gdk_gl_drawable_swap_buffers(gldrawable);
 
-#endif
-
    } else {
 
       // do the skew thing in draw_mono() depending on which stereo eye.
@@ -786,18 +789,18 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
       // reset the viewing angle:
       graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
 
-#if 0 // OpenGL interface
       // show it
       GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
       gdk_gl_drawable_swap_buffers(gldrawable);
-#endif
    }
    return TRUE;
 }
+#endif
 
-gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
 #if 0
+
+gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
    // tinker with graphics_info_t::quat, rotate it left, draw it,
    // rotate it right, draw it.
@@ -880,10 +883,10 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
-#endif
-
    return TRUE;
 }
+#endif
+
 
 
 #include "c-interface-generic-objects.h"

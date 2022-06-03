@@ -1917,36 +1917,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    return TRUE;
 }
 
-// Direction is either +1 or -1 (in or out)
-//
-void keypad_translate_xyz(short int axis, short int direction) {
-
-  graphics_info_t g;
-  if (axis == 3) {
-    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
-    v *= 0.05 * float(direction);
-    g.add_vector_to_RotationCentre(v);
-  } else {
-    gdouble x_diff, y_diff;
-    x_diff = y_diff = 0;
-    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
-    if (axis == 1) x_diff = 1;
-    if (axis == 2) y_diff = 1;
-    g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
-                            y_diff * 0.1 * float(direction));
-    if (g.GetActiveMapDrag() == 1) {
-      for (int ii=0; ii<g.n_molecules(); ii++) {
-        g.molecules[ii].update_map(true); // to take account
-        // of new rotation centre.
-      }
-    }
-    for (int ii=0; ii<g.n_molecules(); ii++) {
-      g.molecules[ii].update_symmetry();
-    }
-    g.graphics_draw();
-
-  }
-}
 
 #include "idles.hh"
 
@@ -2955,47 +2925,6 @@ set_bond_colour(int i) {
 	 glColor3f (0.3, 0.4, 0.4);
       }
    }
-}
-
-// amount is not in degrees, it is in fractions of a circle, e.g. 10/360.
-//
-std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
-
-#if 0
-   if (true) { // print a rotation to colour table
-      int n_cols = 100; // either side
-      for (int i = -n_cols; i<n_cols; i++) {
-         float rotation_size = 0.01f * static_cast<float>(i);
-         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
-         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-         std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
-                   << " using rotation_size " << rotation_size << std::endl;
-      }
-
-      // Result:
-      //
-      // if we start at solid green then rotation_size for "no rotation" is 0.0
-      //                                 rotation_size for full rotation is -0.33 (solid red)
-   }
-#endif
-
-   std::vector<float> hsv = coot::convert_rgb_to_hsv(rgb);
-
-   // add 20 degrees to hue (or whatever)
-   // std::cout << "adding " << amount << " to hue " << std::endl;
-   hsv[0] += amount;
-   while  (hsv[0] > 1.0) {
-      hsv[0] -= 1.0;
-   }
-
-   std::vector<float> r = coot::convert_hsv_to_rgb(hsv);
-   //     std::cout << "rotate from ("
-   // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n"
-   //  	     << "         to ("
-   // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n";
-   return r;
-   // return convert_hsv_to_rgb(hsv);
-
 }
 
 

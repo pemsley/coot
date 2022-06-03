@@ -34,6 +34,7 @@ lookup_widget                          (GtkWidget       *widget,
 {
   GtkWidget *parent = 0, *found_widget = 0;
 
+#if 0
   if (widget) { 
     for (;;)
       {
@@ -52,7 +53,8 @@ lookup_widget                          (GtkWidget       *widget,
       g_warning ("Widget not found: %s", widget_name);
   } else { 
     g_warning ("Widget is NULL: %s", widget_name);
-  } 
+  }
+#endif
   return found_widget;
 }
 

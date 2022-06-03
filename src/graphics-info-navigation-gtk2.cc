@@ -106,7 +106,7 @@ void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
    // I think.
    std::string rt = coot::util::int_to_string(g.go_to_atom_residue());
 
-   gtk_entry_set_text(GTK_ENTRY(residue_entry), rt.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(residue_entry), rt.c_str());
 
    /* Now that the go to atom molecule has been set, we can use it
       to fill the molecule option menu */
@@ -121,7 +121,7 @@ void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
    // GtkWidget *chain_entry = lookup_widget(GTK_WIDGET(widget), "go_to_atom_chain_entry");
    GtkWidget *chain_entry = widget_from_builder("go_to_atom_chain_entry");
 
-   gtk_entry_set_text(GTK_ENTRY(chain_entry), g.go_to_atom_chain());
+   gtk_editable_set_text(GTK_EDITABLE(chain_entry), g.go_to_atom_chain());
 
 
    /* The Atom Name entry */
@@ -129,7 +129,7 @@ void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
    // atom_name_entry = lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry");
    GtkWidget *atom_name_entry = widget_from_builder("go_to_atom_atom_name_entry");
 
-   gtk_entry_set_text(GTK_ENTRY(atom_name_entry), g.go_to_atom_atom_name());
+   gtk_editable_set_text(GTK_EDITABLE(atom_name_entry), g.go_to_atom_atom_name());
 
    /* The Residue List */
 
@@ -166,6 +166,10 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    auto add_residue_tree_to_scrolled_window_if_needed = [] (GtkWidget *scrolled_window) {
 
                                                 GtkTreeView *residue_tree = nullptr; // return this
+                                                
+#if (GTK_MAJOR_VERSION >= 4)
+                                                std::cout << "in fill_go_to_atom_window_gtk2() A get children" << std::endl;
+#else
                                                 GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
                                                 GList *free_list = dlist;
                                                 while (dlist) {
@@ -179,8 +183,9 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 
                                                 if (! residue_tree) {
                                                    residue_tree = GTK_TREE_VIEW(gtk_tree_view_new());
-                                                   gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(residue_tree));
+                                                   gtk_scrolled_window_set_child( GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(residue_tree));
                                                 }
+#endif
                                                 return residue_tree;
                                              };
    
@@ -201,6 +206,11 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    auto add_atom_list_to_scrolled_window_if_needed = [] (GtkWidget *scrolled_window) {
 
                                                 GtkTreeView *atom_list = nullptr; // return this
+
+#if (GTK_MAJOR_VERSION >= 4)
+                                                std::cout << "in fill_go_to_atom_window_gtk2() B get children" << std::endl;
+#else
+                                                
                                                 GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
                                                 GList *free_list = dlist;
                                                 while (dlist) {
@@ -216,6 +226,7 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
                                                    atom_list = GTK_TREE_VIEW(gtk_tree_view_new());
                                                    gtk_container_add( GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_list));
                                                 }
+#endif
                                                 return atom_list;
                                              };
 
@@ -520,6 +531,10 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
    // if there is something alreay in scrolled_window, let's use that as the atom tree.
    // If not, make a new one and add it into scrolled_window.
 
+#if (GTK_MAJOR_VERSION >= 4)
+   // 20220602-PE FIXME container children
+   std::cout << "in fill_go_to_atom_atom_list_gtk2() get children" << std::endl;
+#else
    GList *dlist = gtk_container_get_children(GTK_CONTAINER(scrolled_window));
    GList *free_list = dlist;
    while (dlist) {
@@ -539,7 +554,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
       // GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window), "go_to_atom_atom_scrolledwindow");
       // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
       //   				    GTK_WIDGET(atom_tree));
-      gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET(atom_tree));
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(atom_tree));
    }
 
    std::string ins_code_str(ins_code);
@@ -585,6 +600,7 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
 					      graphics_info_t::atom_tree_selection_func,
 					      NULL, NULL);
    }
+#endif
 }
 
 // static

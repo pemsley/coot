@@ -175,7 +175,8 @@ PyObject *select_atom_under_pointer_py() {
 
    PyObject *r = Py_False;
    if (graphics_info_t::use_graphics_interface_flag) {
-      pick_info pi = atom_pick(NULL);
+      graphics_info_t g;
+      pick_info pi = g.atom_pick_gtk3(false);
       if (pi.success) {
 	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
 	 r = PyList_New(2);

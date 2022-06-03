@@ -976,16 +976,19 @@ on_map2_activate                       (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_attach_scroll_wheel_to_which_map_1_activate (GMenuItem     *menuitem,
-						gpointer         user_data)
-{
-  /* it doesn't matter what we pass back, a lookup is done to find the
-     submenu */
-  GtkWidget *menu = widget_from_builder("attach_scroll_wheel_to_which_map_1");
-  if (menu) {
-    add_on_map_scroll_wheel_choices(menu);
-  } else {
-    printf("ERROR:: failed to get menu in on_attach_scroll_wheel_to_which_map_1_activate\n");
-  }
+						gpointer         user_data) {
+
+#if 0 // 20220602-PE I don't think that this widget exists any more
+
+   /* it doesn't matter what we pass back, a lookup is done to find the
+      submenu */
+   GtkWidget *menu = widget_from_builder("attach_scroll_wheel_to_which_map_1");
+   if (menu) {
+      add_on_map_scroll_wheel_choices(menu);
+   } else {
+      printf("ERROR:: failed to get menu in on_attach_scroll_wheel_to_which_map_1_activate\n");
+   }
+#endif
 
 }
 
@@ -3132,16 +3135,15 @@ on_close_molecule_cancel_button_clicked (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_delete_item_cancel_button_clicked   (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget;
+                                        gpointer         user_data) {
 
-   widget = widget_from_builder("delete_item_dialog");
+   // 20220602-PE what does this do these days?
+   GtkWidget *widget = widget_from_builder("delete_item_dialog");
    clear_pending_delete_item();
    clear_pending_picks(); 	/* hmmm.. not sure 20050610 */
    normal_cursor();
    store_window_position(COOT_DELETE_WINDOW, widget);
-   store_delete_item_widget(NULL);
+   // store_delete_item_widget(NULL);
    gtk_widget_hide(widget);
 }
 
@@ -6949,16 +6951,20 @@ on_delete_item_keep_active_checkbutton_toggled
 }
 
 
+#if 0
 extern "C" G_MODULE_EXPORT
 void
 on_delete_item_dialog_destroy          (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+                                       gpointer         user_data) {
+
+   // this function should not be linked even
+
    clear_pending_delete_item();
    clear_pending_picks();
    normal_cursor();
    store_delete_item_widget(NULL);
 }
+#endif
 
 
 extern "C" G_MODULE_EXPORT

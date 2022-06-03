@@ -6300,7 +6300,11 @@ molecule_class_info_t::close_yourself() {
          GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
          if (GTK_IS_BOX(map_vbox)) {
             int imol_this = imol_no;
+#if (GTK_MAJOR_VERSION >= 4)
+            std::cout << "in close_yourself() fix container A foreach" << std::endl;
+#else
             gtk_container_foreach(GTK_CONTAINER(map_vbox), delete_mol_hbox_func, &imol_this);
+#endif
          }
       }
 
@@ -6308,7 +6312,11 @@ molecule_class_info_t::close_yourself() {
          GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
          if (GTK_IS_BOX(coords_vbox)) {
             int imol_this = imol_no;
+#if (GTK_MAJOR_VERSION >= 4)
+            std::cout << "in close_yourself() fix container B foreach" << std::endl;
+#else
             gtk_container_foreach(GTK_CONTAINER(coords_vbox), delete_mol_hbox_func, &imol_this);
+#endif
          }
       }
    }

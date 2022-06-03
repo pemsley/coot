@@ -312,10 +312,17 @@ f_button_select(GtkWidget *item, GtkPositionType pos) {
 GtkWidget *make_menu_item(gchar        *name,
                           GCallback callback,
                           gpointer      data ) {
+
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in make_menu_item() cmtz-interface.cc FIXME " << std::endl;
+   return 0;
+#else
+
     GtkWidget *item = gtk_menu_item_new_with_label(name);
     g_signal_connect (G_OBJECT (item), "activate", callback, data);
     gtk_widget_show (item);
     return(item);
+#endif
 }
 
 

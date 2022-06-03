@@ -771,7 +771,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(icons_tree), FALSE);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
   // icons_tree);
-  gtk_container_add(GTK_CONTAINER(scrolled_window), icons_tree);
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), icons_tree);
   // gtk_widget_ref(icons_tree);
   g_object_set_data_full(G_OBJECT(preferences),
                          tree_name,
@@ -814,11 +814,11 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
        //                                      GTK_ICON_SIZE_SMALL_TOOLBAR);
 
        
-       GtkIconLookupFlags icon_flags = GTK_ICON_LOOKUP_USE_BUILTIN;
-
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME icons
+       std::cout << "in fill_preferences_toolbar_icons() FIXME" << std::endl;
 #else
+       GtkIconLookupFlags icon_flags = GTK_ICON_LOOKUP_USE_BUILTIN;
        icon = gtk_icon_theme_load_icon(icon_theme, item.icon_filename.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR, icon_flags, NULL);
 #endif
        if (icon == NULL) {

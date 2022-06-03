@@ -149,7 +149,7 @@ on_symm_col_sel_ok_button_clicked (GtkButton       *button,
 				   gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w); // 20220602-PE was destroy
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -158,46 +158,35 @@ on_symm_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_destroy(w);
+   gtk_widget_hide(w); // 20220602-PE was destroy
 				/* we should put the colour back to
 				   how it used to be then. */
 }
 
-/* ----------------------------------------------------------------- */
-/* dynamic map color menu */
-/* ----------------------------------------------------------------- */
-
-void
-create_initial_map_color_submenu(GtkWidget *window1) {
-
-   GtkWidget *map_colour1 = widget_from_builder("map_colour1");
-   GtkWidget *map_colour1_menu = gtk_menu_new();
-
-   // gtk_widget_ref (map_colour1_menu);
-   g_object_set_data_full (G_OBJECT (window1), "map_colour1_menu", map_colour1_menu, NULL);
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (map_colour1), map_colour1_menu);
-}
-
-
-
 void
 create_initial_ramachandran_mol_submenu(GtkWidget *widget) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in create_initial_ramachandran_mol_submenu() FIXME" << std::endl;
+#else
    GtkWidget *window1 = widget;
 
    GtkWidget *rama_menu = widget_from_builder("ramachandran_plot1");
-   GtkWidget *rama_draw_submenu = gtk_menu_new();
+   // GtkWidget *rama_draw_submenu = gtk_menu_new();
+   GMenu *rama_draw_submenu = g_menu_new();
    g_object_set_data_full (G_OBJECT (window1), "rama_plot_submenu", rama_draw_submenu, NULL); // 20211002-PE what does this do now?
 
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_menu), rama_draw_submenu);
+   g_menu_item_set_submenu (G_MENU_ITEM (rama_menu), rama_draw_submenu);
    g_object_set_data(G_OBJECT(rama_menu), "rama_plot_submenu", rama_draw_submenu);
+
+#endif
 }
 
 
 
 void
-rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
-				 gpointer         user_data) {
+rama_plot_mol_selector_activate (GMenuItem     *menuitem,
+				 gpointer       user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
 
@@ -220,17 +209,26 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 /* And similar for sequence view: */
 void create_initial_sequence_view_mol_submenu(GtkWidget *widget) {
 
+#if (GTK_MAJOR_VERSION >= 4)
+
+   std::cout << "in create_initial_sequence_view_mol_submenu() FIXME" << std::endl;
+
+#else
+
    GtkWidget *seq_view_draw = widget_from_builder("sequence_view1");
    GtkWidget *seq_view_menu = gtk_menu_new();
 
    g_object_set_data_full(G_OBJECT(widget), "sequence_view_menu", seq_view_menu, NULL); // 20211002-PE what does this do (likewsie to rama)
    gtk_menu_item_set_submenu (GTK_MENU_ITEM(seq_view_draw), seq_view_menu);
    g_object_set_data(G_OBJECT(seq_view_draw), "sequence_view_submenu", seq_view_menu);
+#endif
 }
 
 void update_sequence_view_menu_manual(int imol, const char *name) {
 
    std::cout << "error:: update_sequence_view_menu_manual(): Don't use this " << std::endl;
+
+#if 0 // 20220602-PE and with GTK4 it doesn't compile either.
 
    // GtkWidget *window1 = lookup_widget(main_window(), "window1");
    GtkWidget *seq_view_menu = widget_from_builder("seq_view_menu");
@@ -249,9 +247,10 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
    g_signal_connect (G_OBJECT(menu_item), "activate",
 		     G_CALLBACK(sequence_view_mol_selector_activate),
 		     GINT_TO_POINTER(imol));
+#endif
 }
 
-void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
+void sequence_view_mol_selector_activate (GMenuItem     *menuitem,
 					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
@@ -291,7 +290,8 @@ on_skeleton_col_sel_ok_button_clicked (GtkButton       *button,
 				       gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_destroy(w);
+   // gtk_widget_destroy(w);
+   gtk_widget_hide(w); // 20220602-PE Hmm.
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -300,7 +300,8 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_destroy(w);
+   // gtk_widget_destroy(w);
+   gtk_widget_hide(w); // 20220602-PE Hmm.
 				/* we should put the colour back to
 				   how it used to be then. */
 }
@@ -492,7 +493,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
-   gtk_entry_set_text(GTK_ENTRY(entry), name.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_show(entry);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
@@ -617,8 +618,8 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    widget_name += coot::util::int_to_string(imol_no);
    g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name.c_str(), frame, NULL);
 
-   gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
-   gtk_container_add(GTK_CONTAINER(frame), vbox);
+   gtk_box_append(GTK_BOX(hbox_for_single_molecule), frame);
+   gtk_frame_set_child(GTK_FRAME(frame), vbox);
 
 }
 
@@ -670,7 +671,7 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
             << entry_name << std::endl;
 
   if (entry)
-    gtk_entry_set_text(GTK_ENTRY(entry), display_name);
+     gtk_editable_set_text(GTK_EDITABLE(entry), display_name);
 
 }
 
@@ -787,7 +788,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
-   gtk_entry_set_text(GTK_ENTRY(entry), name.c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_show(entry);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
@@ -809,11 +810,16 @@ display_control_map_combo_box(const std::string &name, int imol) {
    // 4: "Scroll" checkbutton
    GtkWidget *previous_radio_button = get_radio_button_in_scroll_group(imol);
    GtkWidget *scroll_button = nullptr;
+#if (GTK_MAJOR_VERSION == 4)
+   std::cout << "in display_control_map_combo_box() FIXME radio buttons " << std::endl;
+#else
    if (previous_radio_button)
       scroll_button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button), "Scroll");
    else
       scroll_button = gtk_radio_button_new_with_label(NULL, "Scroll");
    gtk_widget_show(scroll_button);
+#endif
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
 #else
@@ -869,11 +875,15 @@ on_display_control_map_scroll_radio_button_toggled (GtkToggleButton *button,
    }
 }
 
+#if (GTK_MAJOR_VERSION >= 4)
+   // 20220602-PE FIXME radio buttons
+#else
 void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data) {
    // do nothing these days. Scroll group is handled gtk-internally via radio buttons.
 }
+#endif
 
 GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
 
@@ -882,6 +892,10 @@ GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
 
    // check all the hboxes for a scroll radio button
 
+#if (GTK_MAJOR_VERSION >= 4)
+   // 20220602-PE FIXME container children
+   std::cout << "in get_radio_button_in_scroll_group() FIXME radio buttons " << std::endl;
+#else
    GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_map_vbox));
    GList *free_list = dlist;
 
@@ -905,8 +919,8 @@ GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
       dlist = dlist->next;
    }
    g_list_free(free_list);
+#endif
    return w;
-
 }
 
 // return NULL when there are no radio buttons found that have a group
@@ -1018,11 +1032,11 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   widget = gtk_drawing_area_new();
   //  widget_thing = lookup_widget(GTK_WIDGET(patch_frame), "single_map_colour_hbox");
   widget_thing = widget_from_builder("single_map_colour_hbox");
-  widget_thing = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  widget_thing = gtk_window_new();
 
 
   printf("adding widget to patch_frame\n");
-  gtk_container_add(GTK_CONTAINER(widget_thing), widget);
+  gtk_window_set_child(GTK_WINDOW(widget_thing), widget);
 
   // printf("gdk_gc_new\n");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
@@ -1122,7 +1136,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   GtkWidget *vbox39;
   GtkWidget *phs_cell_chooser_vbox;
   GtkWidget *hbox33;
-  GtkWidget *phs_cell_radiobutton_1;
+  GtkWidget *phs_cell_radiobutton_1 = nullptr;
   GtkWidget *label53;
   GtkWidget *phs_cell_symm_entry_1;
   GtkWidget *label54;
@@ -1138,7 +1152,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   GtkWidget *label59;
   GtkWidget *phs_cell_gamma_entry_1;
   GtkWidget *hbox34;
-  GtkWidget *phs_cell_none_radiobutton;
+  GtkWidget *phs_cell_none_radiobutton = nullptr;
   GtkWidget *hbox32;
   GtkWidget *phs_cell_choice_ok_button;
   GtkWidget *phs_cell_choice_cancel_button;
@@ -1169,8 +1183,12 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   snprintf(tmp_name, 4, "%-d", n);
 
 
+#if (GTK_MAJOR_VERSION >= 4)
+  // 20220602-PE FIXME radio buttons
+#else
   phs_cell_radiobutton_1 = gtk_radio_button_new_with_label (phs_cell_group, "");
   phs_cell_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (phs_cell_radiobutton_1));
+#endif
   // gtk_widget_ref (phs_cell_radiobutton_1);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_radiobutton_1,
@@ -1404,8 +1422,7 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   GtkWidget *hbox34;
   GtkWidget *phs_cell_chooser_vbox;
-  GtkWidget *phs_cell_none_radiobutton;
-
+  GtkWidget *phs_cell_none_radiobutton = nullptr;
 
   phs_cell_chooser_vbox = widget_from_builder("phs_cell_chooser_vbox");
 
@@ -1420,8 +1437,12 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_container_set_border_width (GTK_CONTAINER (hbox34), 6);
 #endif
 
+#if (GTK_MAJOR_VERSION >= 4)
+  // 20220602-PE FIXME radio buttons
+#else
   phs_cell_none_radiobutton = gtk_radio_button_new_with_label (phs_cell_group, _("None of the Above"));
   phs_cell_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (phs_cell_none_radiobutton));
+#endif
   // gtk_widget_ref (phs_cell_none_radiobutton);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "phs_cell_none_radiobutton",
 			  phs_cell_none_radiobutton,
@@ -1580,13 +1601,18 @@ create_splash_screen_window_for_file(const char *file_name) {
 
    // I have another version of this in main.cc? Hmm...
 
-   GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
+   GtkWidget *splash_screen_window = gtk_window_new();
    gtk_widget_set_name (splash_screen_window, "splash_screen_window");
    gtk_window_set_title (GTK_WINDOW (splash_screen_window), _("Coot"));
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in create_splash_screen_window_for_file() set position " << std::endl;
+#else
    gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
+#endif
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
+   std::cout << "in create_splash_screen_window_for_file() what has this become now?" << std::endl;
+   // gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
 #else
    gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 #endif
@@ -1594,7 +1620,7 @@ create_splash_screen_window_for_file(const char *file_name) {
    GtkWidget *image6807 = create_pixmap(splash_screen_window, file_name); // create_pixmap() I can keep/copy over
    gtk_widget_show (image6807);
 
-   gtk_container_add (GTK_CONTAINER (splash_screen_window), image6807);
+   gtk_window_set_child(GTK_WINDOW(splash_screen_window), image6807);
 
    return splash_screen_window;
 }

@@ -92,11 +92,9 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // std::cout << "DEBUG in state: " << graphics_x_size << " " << graphics_y_size
    // << std::endl;
 
-   if ( ! ((graphics_x_size == GRAPHICS_WINDOW_X_START_SIZE) &&
-	   (graphics_y_size != GRAPHICS_WINDOW_Y_START_SIZE)) ) {
-      commands.push_back(state_command("set-graphics-window-size",
-				       graphics_x_size, graphics_y_size, il));
-   }
+   commands.push_back(state_command("set-graphics-window-size",
+                                    graphics_x_size, graphics_y_size, il));
+
    commands.push_back(state_command("set-graphics-window-position",
 				    graphics_x_position, graphics_y_position, il));
 

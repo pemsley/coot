@@ -22,7 +22,7 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
 
    if (add_from_file_status) {
       single_map_properties_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "single_map_properties_dialog"));
-      gtk_builder_connect_signals(builder, single_map_properties_dialog); // if "nothing happens" then you've missed this call
+      // gtk_builder_connect_signals(builder, single_map_properties_dialog); // automatic now (gtk4)
    } else {
       std::cout << "ERROR:: create_single_map_properties_dialog_gtk3() failed to get builder file for single-map-properties dialog" << std::endl;
    }
@@ -55,7 +55,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                                                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(level_type_radiobutton), FALSE);
                                                 g_object_set_data(G_OBJECT(level_type_radiobutton), "contour_level_entry", cl_entry);
                                                 std::string entry_text = coot::util::float_to_string_using_dec_pl(contour_rmsd_step, 2);
-                                                gtk_entry_set_text(GTK_ENTRY(cl_entry), entry_text.c_str());
+                                                gtk_editable_set_text(GTK_EDITABLE(cl_entry), entry_text.c_str());
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "imol", GINT_TO_POINTER(imol));
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "contour_level_entry", cl_entry);
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "single_map_properties_absolute_radiobutton", level_type_radiobutton);
@@ -178,8 +178,8 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       g_object_set_data(G_OBJECT(strength_entry),  "imol", GINT_TO_POINTER(imol));
       g_object_set_data(G_OBJECT(shininess_entry), "imol", GINT_TO_POINTER(imol));
 
-      gtk_entry_set_text(GTK_ENTRY(strength_entry),  coot::util::float_to_string_using_dec_pl(specular_strength, 1).c_str());
-      gtk_entry_set_text(GTK_ENTRY(shininess_entry), coot::util::float_to_string_using_dec_pl(shininess, 1).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(strength_entry),  coot::util::float_to_string_using_dec_pl(specular_strength, 1).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(shininess_entry), coot::util::float_to_string_using_dec_pl(shininess, 1).c_str());
 
       std::cout << "debug:: fill_single_map_properties_dialog_gtk3() imol " << imol
                 << " m.material_for_maps.do_specularity " << m.material_for_maps.do_specularity << std::endl;
@@ -217,9 +217,9 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       g_object_set_data(G_OBJECT(scale_entry), "imol", GINT_TO_POINTER(imol));
       g_object_set_data(G_OBJECT(power_entry), "imol", GINT_TO_POINTER(imol));
 
-      gtk_entry_set_text(GTK_ENTRY(bias_entry),  coot::util::float_to_string_using_dec_pl(bias,  2).c_str());
-      gtk_entry_set_text(GTK_ENTRY(scale_entry), coot::util::float_to_string_using_dec_pl(scale, 1).c_str());
-      gtk_entry_set_text(GTK_ENTRY(power_entry), coot::util::float_to_string_using_dec_pl(power, 1).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(bias_entry),  coot::util::float_to_string_using_dec_pl(bias,  2).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(scale_entry), coot::util::float_to_string_using_dec_pl(scale, 1).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(power_entry), coot::util::float_to_string_using_dec_pl(power, 1).c_str());
 
       if (m.fresnel_settings.state)
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fresnel_checkbutton), TRUE);
@@ -247,7 +247,7 @@ void
 on_single_map_properties_dialog_response_gtkbuilder_callback (GtkDialog *dialog,
                                                               gint       response_id,
                                                               gpointer   user_data) {
-   gtk_widget_destroy(GTK_WIDGET(dialog));
+   gtk_widget_hide(GTK_WIDGET(dialog)); // hmm.
 }
 
 #include "gtk-manual.h"

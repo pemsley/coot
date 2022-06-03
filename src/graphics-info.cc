@@ -2099,9 +2099,10 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
       display_frame_name += int_to_string(imol);
       // GtkWidget *display_frame = lookup_widget(dc_window, display_frame_name.c_str());
       GtkWidget *display_frame = 0;
-      std::cout << "FIXME in delete_molecule_from_from_display_manager()  correctly set teh display_frame " << std::endl;
+      std::cout << "FIXME in delete_molecule_from_from_display_manager()  correctly set the display_frame " << std::endl;
       if (display_frame) {
-         gtk_widget_destroy(display_frame);
+         // gtk_widget_destroy(display_frame);
+         gtk_widget_hide(display_frame); // Hmm...
       }
    } else {
       // std::cout << "close: display_control_window is not active" << std::endl;

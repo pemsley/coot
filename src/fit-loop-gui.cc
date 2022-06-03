@@ -32,6 +32,8 @@ fill_mutate_sequence_dialog_gtkbuilder_version() {
                                 return imol;
                              };
 
+#if (GTK_MAJOR_VERSION >= 4)
+#else
    auto clear_box = [] (GtkWidget *box) {
                        GList *dlist = gtk_container_get_children(GTK_CONTAINER(box));
                        GList *free_list = dlist;
@@ -42,14 +44,19 @@ fill_mutate_sequence_dialog_gtkbuilder_version() {
                        }
                        g_list_free(free_list);
                     };
+#endif
 
    GtkWidget *hbox_mol   = widget_from_builder("mutate_sequence_hbox_for_molecule_combobox");
    GtkWidget *hbox_chain = widget_from_builder("mutate_sequence_hbox_for_molecule_chain_combobox_text");
 
    // clear out hbox_mol and hbox_chain
    //
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "in fill_mutate_sequence_dialog_gtkbuilder_version() clear boxes" << std::endl;
+#else
    clear_box(hbox_mol);
    clear_box(hbox_chain);
+#endif
 
    GtkWidget *combobox_molecule = gtk_combo_box_new();   // number and name
    GtkWidget *combobox_chain = gtk_combo_box_text_new(); // just the chain id
@@ -103,11 +110,15 @@ void
 fit_loop_using_dialog()  {
 
    auto get_first_child = [] (GtkWidget *box) {
+#if (GTK_MAJOR_VERSION >= 4)
+      return gtk_widget_get_first_child(box);
+#else
                              GtkWidget *first_child = 0;
                              GList *dlist = gtk_container_get_children(GTK_CONTAINER(box));
                              first_child = static_cast<GtkWidget *>(dlist->data);
                              g_list_free(dlist);
                              return first_child;
+#endif
                           };
 
    auto get_sequence = [] () {
@@ -129,8 +140,8 @@ fit_loop_using_dialog()  {
    GtkWidget *entry_1 = widget_from_builder("mutate_molecule_resno_1_entry");
    GtkWidget *entry_2 = widget_from_builder("mutate_molecule_resno_2_entry");
 
-   const gchar *entry_1_text = gtk_entry_get_text(GTK_ENTRY(entry_1));
-   const gchar *entry_2_text = gtk_entry_get_text(GTK_ENTRY(entry_2));
+   const gchar *entry_1_text = gtk_editable_get_text(GTK_EDITABLE(entry_1));
+   const gchar *entry_2_text = gtk_editable_get_text(GTK_EDITABLE(entry_2));
 
    GtkWidget *hbox_mol   = widget_from_builder("mutate_sequence_hbox_for_molecule_combobox");
    GtkWidget *hbox_chain = widget_from_builder("mutate_sequence_hbox_for_molecule_chain_combobox_text");
