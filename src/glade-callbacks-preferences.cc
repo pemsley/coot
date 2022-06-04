@@ -59,7 +59,7 @@ typedef const char entry_char_type;
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_general_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_general_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                          gpointer         user_data) {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GENERAL_PREFERENCES);
@@ -68,7 +68,7 @@ on_preferences_general_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_bond_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
@@ -78,7 +78,7 @@ on_preferences_bond_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_map_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
@@ -89,7 +89,7 @@ on_preferences_map_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_geometry_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_geometry_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
@@ -101,7 +101,7 @@ on_preferences_geometry_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_colour_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_colour_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
@@ -113,7 +113,7 @@ on_preferences_colour_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_other_radiotoolbutton_toggled_gtkbuilder_callback
+on_preferences_other_radiotoolbutton_toggled
                                         (GtkToggleButton *toggletoolbutton,
                                         gpointer         user_data)
 {
@@ -123,7 +123,7 @@ on_preferences_other_radiotoolbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_ok_button_clicked_gtkbuilder_callback       (GtkButton       *button,
+on_preferences_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences");
@@ -135,7 +135,7 @@ on_preferences_ok_button_clicked_gtkbuilder_callback       (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_reset_button_clicked_gtkbuilder_callback    (GtkButton       *button,
+on_preferences_reset_button_clicked    (GtkButton       *button,
                                                             gpointer         user_data)
 {
   reset_preferences();
@@ -143,7 +143,7 @@ on_preferences_reset_button_clicked_gtkbuilder_callback    (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_destroy_gtkbuilder_callback                 (GtkWidget       *object,
+on_preferences_destroy                 (GtkWidget       *object,
                                         gpointer         user_data)
 {
   clear_preferences();
@@ -151,7 +151,7 @@ on_preferences_destroy_gtkbuilder_callback                 (GtkWidget       *obj
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled_gtkbuilder_callback
+on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -163,7 +163,7 @@ on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled_gtkbuilder_callb
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled_gtkbuilder_callback
+on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -175,7 +175,7 @@ on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled_gtkbuilder_callba
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_colours_hscale_value_changed_gtkbuilder_callback
+on_preferences_bond_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
@@ -189,7 +189,7 @@ on_preferences_bond_colours_hscale_value_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_colours_checkbutton_toggled_gtkbuilder_callback
+on_preferences_bond_colours_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -206,7 +206,7 @@ on_preferences_bond_colours_checkbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_black_radiobutton_toggled_gtkbuilder_callback
+on_preferences_bg_colour_black_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -219,7 +219,7 @@ on_preferences_bg_colour_black_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_white_radiobutton_toggled_gtkbuilder_callback
+on_preferences_bg_colour_white_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -233,7 +233,7 @@ on_preferences_bg_colour_white_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
+on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -262,7 +262,7 @@ on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback
+on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
 
@@ -290,7 +290,7 @@ on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_colorbutton_clicked_gtkbuilder_callback
+on_preferences_bg_colour_colorbutton_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
@@ -304,7 +304,7 @@ on_preferences_bg_colour_colorbutton_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_radius_entry_activate_gtkbuilder_callback
+on_preferences_map_radius_entry_activate
                                         (GtkEntry        *entry,
 					 gpointer         user_data)
 {
@@ -321,13 +321,13 @@ on_preferences_map_radius_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_radius_entry_changed_gtkbuilder_callback
+on_preferences_map_radius_entry_changed
                                         (GtkEditable     *editable,
 					 gpointer         user_data)
 {
    //GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_radius_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_radius_entry"));
-   std::cout << "debug:: on_preferences_map_radius_entry_changed_gtkbuilder_callback() entry " << entry << std::endl;
+   std::cout << "debug:: on_preferences_map_radius_entry_changed() entry " << entry << std::endl;
    if (entry) {
       const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
       float fval = 0;
@@ -337,7 +337,7 @@ on_preferences_map_radius_entry_changed_gtkbuilder_callback
          set_map_radius(fval);
       }
    } else {
-      std::cout << "ERROR:: in on_preferences_map_radius_entry_changed_gtkbuilder_callback() failed to lookup "
+      std::cout << "ERROR:: in on_preferences_map_radius_entry_changed() failed to lookup "
                 << "preferences_map_radius_entry" << std::endl;
    }
 
@@ -346,7 +346,7 @@ on_preferences_map_radius_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_increment_size_entry_activate_gtkbuilder_callback
+on_preferences_map_increment_size_entry_activate
                                         (GtkEntry        *entry,
 					 gpointer         user_data)
 {
@@ -363,7 +363,7 @@ on_preferences_map_increment_size_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_increment_size_entry_changed_gtkbuilder_callback
+on_preferences_map_increment_size_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -382,7 +382,7 @@ on_preferences_map_increment_size_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_diff_increment_entry_activate_gtkbuilder_callback
+on_preferences_map_diff_increment_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -399,7 +399,7 @@ on_preferences_map_diff_increment_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_diff_increment_entry_changed_gtkbuilder_callback
+on_preferences_map_diff_increment_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -418,7 +418,7 @@ on_preferences_map_diff_increment_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_sampling_entry_activate_gtkbuilder_callback
+on_preferences_map_sampling_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -435,7 +435,7 @@ on_preferences_map_sampling_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_sampling_entry_changed_gtkbuilder_callback
+on_preferences_map_sampling_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -454,7 +454,7 @@ on_preferences_map_sampling_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_dynamic_sampling_checkbutton_toggled_gtkbuilder_callback
+on_preferences_map_dynamic_sampling_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -471,7 +471,7 @@ on_preferences_map_dynamic_sampling_checkbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_dynamic_size_checkbutton_toggled_gtkbuilder_callback
+on_preferences_map_dynamic_size_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -488,7 +488,7 @@ on_preferences_map_dynamic_size_checkbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_diff_map_colours_coot_radiobutton_toggled_gtkbuilder_callback
+on_preferences_diff_map_colours_coot_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -502,7 +502,7 @@ on_preferences_diff_map_colours_coot_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_diff_map_colours_o_radiobutton_toggled_gtkbuilder_callback
+on_preferences_diff_map_colours_o_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -516,7 +516,7 @@ on_preferences_diff_map_colours_o_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_colours_hscale_value_changed_gtkbuilder_callback
+on_preferences_map_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
@@ -531,7 +531,7 @@ on_preferences_map_colours_hscale_value_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_smooth_scroll_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data)
 {
@@ -545,7 +545,7 @@ on_preferences_smooth_scroll_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_smooth_scroll_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -559,7 +559,7 @@ on_preferences_smooth_scroll_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_steps_entry_activate_gtkbuilder_callback
+on_preferences_smooth_scroll_steps_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -576,7 +576,7 @@ on_preferences_smooth_scroll_steps_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_steps_entry_changed_gtkbuilder_callback
+on_preferences_smooth_scroll_steps_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -595,7 +595,7 @@ on_preferences_smooth_scroll_steps_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_limit_entry_activate_gtkbuilder_callback
+on_preferences_smooth_scroll_limit_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -612,7 +612,7 @@ on_preferences_smooth_scroll_limit_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_limit_entry_changed_gtkbuilder_callback
+on_preferences_smooth_scroll_limit_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -631,7 +631,7 @@ on_preferences_smooth_scroll_limit_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_drag_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_map_drag_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -645,7 +645,7 @@ on_preferences_map_drag_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_drag_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_map_drag_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -659,7 +659,7 @@ on_preferences_map_drag_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_antialias_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_antialias_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -673,7 +673,7 @@ on_preferences_antialias_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_antialias_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_antialias_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -687,7 +687,7 @@ on_preferences_antialias_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_hid_spherical_radiobutton_toggled_gtkbuilder_callback
+on_preferences_hid_spherical_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -701,7 +701,7 @@ on_preferences_hid_spherical_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_hid_flat_radiobutton_toggled_gtkbuilder_callback
+on_preferences_hid_flat_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -715,7 +715,7 @@ on_preferences_hid_flat_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_filechooser_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_filechooser_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -729,7 +729,7 @@ on_preferences_filechooser_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_filechooser_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_filechooser_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -743,7 +743,7 @@ on_preferences_filechooser_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_overwrite_yes_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_overwrite_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -758,7 +758,7 @@ on_preferences_file_overwrite_yes_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_overwrite_no_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_overwrite_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -772,7 +772,7 @@ on_preferences_file_overwrite_no_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_filter_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_filter_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -786,7 +786,7 @@ on_preferences_file_filter_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_filter_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_filter_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -799,7 +799,7 @@ on_preferences_file_filter_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_sort_by_date_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_sort_by_date_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -813,7 +813,7 @@ on_preferences_file_sort_by_date_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_file_sort_by_date_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_file_sort_by_date_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -826,7 +826,7 @@ on_preferences_file_sort_by_date_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_docked_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_docked_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -853,7 +853,7 @@ on_preferences_dialog_accept_docked_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_detouched_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_detouched_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -873,7 +873,7 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_docked_show_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_docked_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -887,7 +887,7 @@ on_preferences_dialog_accept_docked_show_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_docked_hide_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_docked_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -901,7 +901,7 @@ on_preferences_dialog_accept_docked_hide_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -915,7 +915,7 @@ on_preferences_dialog_accept_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_dialog_accept_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_dialog_accept_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -929,7 +929,7 @@ on_preferences_dialog_accept_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_recentre_pdb_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_recentre_pdb_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -943,7 +943,7 @@ on_preferences_recentre_pdb_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_recentre_pdb_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_recentre_pdb_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -957,7 +957,7 @@ on_preferences_recentre_pdb_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_console_info_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_console_info_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -971,7 +971,7 @@ on_preferences_console_info_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_console_info_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_console_info_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -985,7 +985,7 @@ on_preferences_console_info_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_tips_on_radiobutton_toggled_gtkbuilder_callback
+on_preferences_tips_on_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -999,7 +999,7 @@ on_preferences_tips_on_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_tips_off_radiobutton_toggled_gtkbuilder_callback
+on_preferences_tips_off_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1013,7 +1013,7 @@ on_preferences_tips_off_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_molasses_radiobutton_toggled_gtkbuilder_callback
+on_preferences_refinement_speed_molasses_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1027,7 +1027,7 @@ on_preferences_refinement_speed_molasses_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_crock_radiobutton_toggled_gtkbuilder_callback
+on_preferences_refinement_speed_crock_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1041,7 +1041,7 @@ on_preferences_refinement_speed_crock_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_default_radiobutton_toggled_gtkbuilder_callback
+on_preferences_refinement_speed_default_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1055,7 +1055,7 @@ on_preferences_refinement_speed_default_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_own_radiobutton_toggled_gtkbuilder_callback
+on_preferences_refinement_speed_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1078,7 +1078,7 @@ on_preferences_refinement_speed_own_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_entry_activate_gtkbuilder_callback
+on_preferences_refinement_speed_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data) {
 
@@ -1100,7 +1100,7 @@ on_preferences_refinement_speed_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_refinement_speed_entry_changed_gtkbuilder_callback
+on_preferences_refinement_speed_entry_changed
                                         (GtkEditable     *editable,
 					 gpointer         user_data)
 {
@@ -1127,7 +1127,7 @@ on_preferences_refinement_speed_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_spin_speed_entry_activate_gtkbuilder_callback
+on_preferences_spin_speed_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -1146,7 +1146,7 @@ on_preferences_spin_speed_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_spin_speed_entry_changed_gtkbuilder_callback
+on_preferences_spin_speed_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -1166,7 +1166,7 @@ on_preferences_spin_speed_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_size_small_radiobutton_toggled_gtkbuilder_callback
+on_preferences_font_size_small_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1180,7 +1180,7 @@ on_preferences_font_size_small_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_size_medium_radiobutton_toggled_gtkbuilder_callback
+on_preferences_font_size_medium_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1194,7 +1194,7 @@ on_preferences_font_size_medium_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_size_large_radiobutton_toggled_gtkbuilder_callback
+on_preferences_font_size_large_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1207,7 +1207,7 @@ on_preferences_font_size_large_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_size_others_radiobutton_toggled_gtkbuilder_callback
+on_preferences_font_size_others_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1223,7 +1223,7 @@ on_preferences_font_size_others_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_size_combobox_changed_gtkbuilder_callback
+on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
@@ -1238,7 +1238,7 @@ on_preferences_font_size_combobox_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_default_radiobutton_toggled_gtkbuilder_callback
+on_preferences_font_colour_default_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1251,7 +1251,7 @@ on_preferences_font_colour_default_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_preferences_font_colour_own_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                        gpointer         user_data) {
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
@@ -1287,7 +1287,7 @@ on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback(GtkToggle
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colorbutton_color_set_gtkbuilder_callback
+on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data)
 {
@@ -1323,7 +1323,7 @@ on_preferences_font_colorbutton_color_set_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colorbutton_clicked_gtkbuilder_callback
+on_preferences_font_colorbutton_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
@@ -1333,7 +1333,7 @@ on_preferences_font_colorbutton_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_pink_pointer_entry_activate_gtkbuilder_callback
+on_preferences_pink_pointer_entry_activate
                                         (GtkEntry        *entry,
                                         gpointer         user_data)
 {
@@ -1352,7 +1352,7 @@ on_preferences_pink_pointer_entry_activate_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_pink_pointer_entry_changed_gtkbuilder_callback
+on_preferences_pink_pointer_entry_changed
                                         (GtkEditable     *editable,
                                         gpointer         user_data)
 {
@@ -1372,7 +1372,7 @@ on_preferences_pink_pointer_entry_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_width_combobox_changed_gtkbuilder_callback
+on_preferences_bond_width_combobox_changed
                                         (GtkComboBox     *combobox,
                                         gpointer         user_data)
 {
@@ -1386,7 +1386,7 @@ on_preferences_bond_width_combobox_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_show_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1400,7 +1400,7 @@ on_preferences_model_toolbar_show_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_right_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_right_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1414,7 +1414,7 @@ on_preferences_model_toolbar_right_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_left_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_left_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1428,7 +1428,7 @@ on_preferences_model_toolbar_left_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_top_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_top_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1441,7 +1441,7 @@ on_preferences_model_toolbar_top_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_bottom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1454,7 +1454,7 @@ on_preferences_model_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_hide_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1468,7 +1468,7 @@ on_preferences_model_toolbar_hide_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_main_icons_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_main_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1478,7 +1478,7 @@ on_preferences_model_toolbar_main_icons_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_all_icons_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_all_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1488,7 +1488,7 @@ on_preferences_model_toolbar_all_icons_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1502,7 +1502,7 @@ on_preferences_model_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_style_both_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1516,7 +1516,7 @@ on_preferences_model_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_style_text_radiobutton_toggled_gtkbuilder_callback
+on_preferences_model_toolbar_style_text_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1530,7 +1530,7 @@ on_preferences_model_toolbar_style_text_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_show_icon_all_button_clicked_gtkbuilder_callback
+on_preferences_model_toolbar_show_icon_all_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
@@ -1541,7 +1541,7 @@ on_preferences_model_toolbar_show_icon_all_button_clicked_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_model_toolbar_show_icon_selection_button_clicked_gtkbuilder_callback
+on_preferences_model_toolbar_show_icon_selection_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
@@ -1551,7 +1551,7 @@ on_preferences_model_toolbar_show_icon_selection_button_clicked_gtkbuilder_callb
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_show_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_show_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1565,7 +1565,7 @@ on_preferences_main_toolbar_show_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_hide_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_hide_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1580,7 +1580,7 @@ on_preferences_main_toolbar_hide_radiobutton_toggled_gtkbuilder_callback
 /* not used currently */
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_top_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_top_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1590,7 +1590,7 @@ on_preferences_main_toolbar_top_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_bottom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1600,7 +1600,7 @@ on_preferences_main_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_right_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_right_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1610,7 +1610,7 @@ on_preferences_main_toolbar_right_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_left_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_left_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1620,7 +1620,7 @@ on_preferences_main_toolbar_left_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_style_icons_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1634,7 +1634,7 @@ on_preferences_main_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_style_both_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
@@ -1648,7 +1648,7 @@ on_preferences_main_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_style_text_radiobutton_toggled_gtkbuilder_callback
+on_preferences_main_toolbar_style_text_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {

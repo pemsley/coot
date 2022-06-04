@@ -29,7 +29,7 @@
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
+on_shader_settings_dialog_response(GtkDialog       *dialog,
                                                        gint             response_id,
                                                        gpointer         user_data) {
 
@@ -40,7 +40,7 @@ on_shader_settings_dialog_response_gtkbuilder_callback(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_do_depth_fog_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_do_depth_fog_checkbutton_toggled(GtkToggleButton *togglebutton,
                                                                         gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_fog(1);
@@ -51,7 +51,7 @@ on_shader_settings_do_depth_fog_checkbutton_toggled_gtkbuilder_callback(GtkToggl
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_do_depth_blur_checkbutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_do_depth_blur_checkbutton_toggled(GtkToggleButton *togglebutton,
                                                                          gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -64,7 +64,7 @@ on_shader_settings_do_depth_blur_checkbutton_toggled_gtkbuilder_callback(GtkTogg
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_off_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_depth_blur_outline_off_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                   gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -77,7 +77,7 @@ on_shader_settings_depth_blur_outline_off_radiobutton_toggled_gtkbuilder_callbac
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -90,7 +90,7 @@ on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled_gtkbuilder_
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_outline_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_depth_blur_outline_outline_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                       gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -104,7 +104,7 @@ on_shader_settings_depth_blur_outline_outline_radiobutton_toggled_gtkbuilder_cal
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_strength_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_depth_blur_strength_scale_value_changed(GtkRange        *range,
                                                                                gpointer         user_data) {
 
    gdouble f = gtk_range_get_value(range);
@@ -113,7 +113,7 @@ on_shader_settings_depth_blur_strength_scale_value_changed_gtkbuilder_callback(G
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_focus_depth_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_depth_blur_focus_depth_scale_value_changed(GtkRange        *range,
                                                                                   gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_focus_blur_z_depth(f);
@@ -121,7 +121,7 @@ on_shader_settings_depth_blur_focus_depth_scale_value_changed_gtkbuilder_callbac
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                                   gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(6);
@@ -130,7 +130,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(5);
@@ -139,7 +139,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(4);
@@ -148,7 +148,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(3);
@@ -158,7 +158,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(2);
@@ -167,7 +167,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                          gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_texture_resolution_multiplier(1);
@@ -177,7 +177,7 @@ on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled_gt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_softness_3_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_softness_3_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                              gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_softness(3);
@@ -187,7 +187,7 @@ on_shader_settings_shadow_softness_3_radiobutton_toggled_gtkbuilder_callback(Gtk
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_softness_2_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_softness_2_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                              gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_softness(2);
@@ -196,7 +196,7 @@ on_shader_settings_shadow_softness_2_radiobutton_toggled_gtkbuilder_callback(Gtk
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_softness_1_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_softness_1_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                              gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_softness(1);
@@ -206,7 +206,7 @@ on_shader_settings_shadow_softness_1_radiobutton_toggled_gtkbuilder_callback(Gtk
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_softness_0_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_shadow_softness_0_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                              gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_shadow_softness(0);
@@ -216,7 +216,7 @@ on_shader_settings_shadow_softness_0_radiobutton_toggled_gtkbuilder_callback(Gtk
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_shadow_strength_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_shadow_strength_scale_value_changed(GtkRange        *range,
                                                                            gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_shadow_strength(f);
@@ -225,7 +225,7 @@ on_shader_settings_shadow_strength_scale_value_changed_gtkbuilder_callback(GtkRa
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                              gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_ssao_blur_size(2);
@@ -235,7 +235,7 @@ on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled_gtkbuilder_cal
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                       gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -246,7 +246,7 @@ on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled_gtkbuilder_cal
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                                       gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_ssao_blur_size(0);
@@ -256,7 +256,7 @@ on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled_gtkbuilder_cal
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_n_kernel_samples_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_ssao_n_kernel_samples_scale_value_changed(GtkRange        *range,
                                                                                  gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    unsigned int n = static_cast<int>(f);
@@ -266,7 +266,7 @@ on_shader_settings_ssao_n_kernel_samples_scale_value_changed_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_radius_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_ssao_radius_scale_value_changed(GtkRange        *range,
                                                                        gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_ssao_radius(f);
@@ -274,7 +274,7 @@ on_shader_settings_ssao_radius_scale_value_changed_gtkbuilder_callback(GtkRange 
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_bias_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_ssao_bias_scale_value_changed(GtkRange        *range,
                                                                      gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_ssao_bias(f);
@@ -283,7 +283,7 @@ on_shader_settings_ssao_bias_scale_value_changed_gtkbuilder_callback(GtkRange   
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_ssao_strength_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_ssao_strength_scale_value_changed(GtkRange        *range,
                                                                          gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_ssao_strength(f);
@@ -292,7 +292,7 @@ on_shader_settings_ssao_strength_scale_value_changed_gtkbuilder_callback(GtkRang
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_fancy_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_fancy_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                       gpointer         user_data) {
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
@@ -307,7 +307,7 @@ on_shader_settings_fancy_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleB
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_standard_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_standard_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                           gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -332,7 +332,7 @@ on_shader_settings_standard_mode_radiobutton_toggled_gtkbuilder_callback(GtkTogg
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_brightness_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_brightness_scale_value_changed(GtkRange        *range,
                                                                       gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_effects_shader_brightness(f);
@@ -340,7 +340,7 @@ on_shader_settings_brightness_scale_value_changed_gtkbuilder_callback(GtkRange  
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_gamma_scale_value_changed_gtkbuilder_callback(GtkRange        *range,
+on_shader_settings_gamma_scale_value_changed(GtkRange        *range,
                                                                  gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_effects_shader_gamma(f);
@@ -348,7 +348,7 @@ on_shader_settings_gamma_scale_value_changed_gtkbuilder_callback(GtkRange       
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_basic_mode_radiobutton_toggled_gtkbuilder_callback(GtkToggleButton *togglebutton,
+on_shader_settings_basic_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
                                                                       gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {

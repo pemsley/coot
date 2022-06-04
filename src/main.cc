@@ -388,7 +388,7 @@ bool init_from_gtkbuilder() {
             GtkWidget *w = gtk_label_new("Some Test Label");
             gtk_widget_show(w);
 #if (GTK_MAJOR_VERSION >=4)
-            gtk_box_pack_append(GTK_BOX(graphics_hbox), w);
+            gtk_box_append(GTK_BOX(graphics_hbox), w);
 #else
             gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
 #endif
