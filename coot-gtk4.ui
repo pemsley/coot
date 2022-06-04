@@ -318,7 +318,7 @@ Bernhard Lohkamp
   <object class="GtkDialog" id="add_alt_conf_dialog">
     <property name="title" translatable="yes">Add Alternate Conformation</property>
     <signal name="destroy" handler="on_add_alt_conf_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox27">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -388,24 +388,8 @@ Bernhard Lohkamp
   <object class="GtkDialog" id="add_reps_dialog">
     <signal name="close" handler="on_add_reps_dialog_close" swapped="no"/>
     <signal name="response" handler="on_add_reps_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="add_rep_add_rep_button">
-                <property name="label" translatable="yes">Add Representation</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            <child>
-              <object class="GtkButton" id="add_rep_cancel_button">
-                <property name="label">Close</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
-        </child>
         <child>
           <object class="GtkBox" id="add_reps_vbox">
             <property name="orientation">vertical</property>
@@ -631,17 +615,13 @@ Bernhard Lohkamp
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-5">add_rep_add_rep_button</action-widget>
-      <action-widget response="-7">add_rep_cancel_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="add_terminal_residue_finds_none_dialog">
     <property name="title" translatable="yes">No Acceptable Terminal Residue </property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox51">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -674,7 +654,7 @@ any acceptable configuration here.</property>
   <object class="GtkDialog" id="align_and_mutate_dialog">
     <property name="title" translatable="yes">Align and Mutate</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox82">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -926,7 +906,6 @@ any acceptable configuration here.</property>
               <object class="GtkButton" id="show_aniso_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_show_aniso_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -940,14 +919,13 @@ any acceptable configuration here.</property>
   <object class="GtkDialog" id="antialiasing_dialog">
     <property name="title" translatable="yes">Antialiasing</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox74">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="antialiasing_dialog_ok_button">
                 <property name="label" translatable="yes">   OK   </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_antialiasing_dialog_ok_button_clicked" swapped="no"/>
               </object>
@@ -1182,7 +1160,6 @@ any acceptable configuration here.</property>
                   <object class="GtkButton" id="baton_mode_calculate_skeleton_ok_button">
                     <property name="label" translatable="yes">   Calculate   </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_baton_mode_calculate_skeleton_ok_button_clicked" swapped="no"/>
                   </object>
@@ -1359,14 +1336,13 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="centre_atom_label_dialog">
     <property name="title" translatable="yes">Centre Atom Label</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox45">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="centre_atom_label_ok_button">
                 <property name="label" translatable="yes">  Dismiss  </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_centre_atom_label_ok_button_clicked" swapped="no"/>
               </object>
@@ -1419,7 +1395,7 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="change_chain_id_dialog">
     <property name="title" translatable="yes">Change Chain ID</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox86">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -1590,7 +1566,7 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="check_chiral_volumes_dialog">
     <property name="title" translatable="yes">Check Chiral Volumes molecule chooser:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox53">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -1599,7 +1575,6 @@ Calculate a skeleton now?
                   <object class="GtkButton" id="check_chiral_volumes_ok_button">
                     <property name="label" translatable="yes">   Check Volumes   </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_check_chiral_volumes_ok_button_clicked" swapped="no"/>
                   </object>
@@ -1640,7 +1615,7 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="check_waters_dialog">
     <property name="title" translatable="yes">Checking Waters:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox38">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -1896,7 +1871,7 @@ Calculate a skeleton now?
   </object>
   <object class="GtkDialog" id="check_waters_diff_map_dialog">
     <property name="title" translatable="yes">Check waters by difference map</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox70">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -1913,7 +1888,6 @@ Calculate a skeleton now?
                   <object class="GtkButton" id="check_waters_diff_map_ok_button">
                     <property name="label" translatable="yes">   Check Waters   </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_check_waters_diff_map_ok_button_clicked" swapped="no"/>
                   </object>
@@ -1990,13 +1964,12 @@ WARNING:: No Models with Waters Available!
   <object class="GtkDialog" id="checked_waters_baddies_dialog">
     <property name="title" translatable="yes">Questionable Waters</property>
     <property name="default-width">420</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox84">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="checked_waters_baddies_cancel_button">
                 <property name="label" translatable="yes">   Cancel   </property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_checked_waters_baddies_cancel_button_clicked" swapped="no"/>
               </object>
@@ -2028,7 +2001,7 @@ WARNING:: No Models with Waters Available!
   </object>
   <object class="GtkDialog" id="chi_angle_help_dialog">
     <property name="title" translatable="yes">Chi Angle Help</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox46">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2072,7 +2045,7 @@ the Ctrl key when moving the mouse.</property>
   </object>
   <object class="GtkDialog" id="chiral_restraints_problem_dialog">
     <property name="title" translatable="yes">Problem with restraints...</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox69">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2109,36 +2082,11 @@ the Ctrl key when moving the mouse.</property>
   <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select mmCIF Dictionary Filename</property>
-    <signal name="file-activated" handler="on_cif_dictionary_filechooser_dialog_file_activated" swapped="no"/>
     <signal name="response" handler="on_cif_dictionary_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="cif_dictionary_filechooser_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            <child>
-              <object class="GtkButton" id="cif_dictionary_filechooser_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="-6">cif_dictionary_filechooser_cancel_button</action-widget>
-      <action-widget response="-5">cif_dictionary_filechooser_ok_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="close_molecule_dialog">
     <property name="title" translatable="yes">Choose Molecule to Close:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox13">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2147,7 +2095,6 @@ the Ctrl key when moving the mouse.</property>
                   <object class="GtkButton" id="close_molecule_close_button">
                     <property name="label" translatable="yes">Close Molecule</property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_close_molecule_close_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -2437,7 +2384,6 @@ the Ctrl key when moving the mouse.</property>
               <object class="GtkButton" id="column_label_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_column_label_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -2459,7 +2405,7 @@ the Ctrl key when moving the mouse.</property>
     <property name="height-request">380</property>
     <property name="title" translatable="yes">Molecule Colours</property>
     <signal name="destroy" handler="on_coords_colour_control_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox93">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2610,142 +2556,31 @@ the Ctrl key when moving the mouse.</property>
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
     <property name="deletable">0</property>
-    <signal name="file-activated" handler="on_coords_filechooser_dialog_file_activated" swapped="no"/>
     <signal name="response" handler="on_coords_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="coords_filechooser_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            <child>
-              <object class="GtkButton" id="coords_filechooser_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <child>
-              <object class="GtkComboBoxText" id="coords_filechooserdialog_recentre_combobox">
-                <property name="width-request">220</property>
-                <property name="active">0</property>
-                <property name="has-entry">1</property>
-                <items>
-                  <item translatable="yes">Recentre on New Molecule</item>
-                  <item translatable="yes">Don&apos;t Recentre</item>
-                  <item translatable="yes">Move New Molecule Here</item>
-                </items>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="-6">coords_filechooser_cancel_button</action-widget>
-      <action-widget response="-5">coords_filechooser_ok_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="copy_fragment_dialog">
     <property name="title" translatable="yes">Coot Copy Fragment</property>
     <signal name="response" handler="on_copy_fragment_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="copy_fragment_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            <child>
-              <object class="GtkButton" id="copy_fragment_OK_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
-        </child>
-        <child>
-          <object class="GtkBox" id="copy_fragment_vbox">
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">Copy From Molecule</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label" translatable="yes"> Atom Selection for Fragment </property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="copy_fragment_atom_selection_entry">
-                    <property name="can-focus">1</property>
-                    <property name="placeholder-text" translatable="yes">//A/1-10</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="copy_fragment_move_molecule_here_checkbutton">
-                <property name="label" translatable="yes"> Move new moelcule here</property>
-                <property name="can-focus">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">copy_fragment_cancel_button</action-widget>
-      <action-widget response="-5">copy_fragment_OK_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <signal name="response" handler="on_dataset_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="dataset_filechooser_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            <child>
-              <object class="GtkButton" id="dataset_filechooser_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
-        </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">dataset_filechooser_cancel_button</action-widget>
-      <action-widget response="-5">dataset_filechooser_ok_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="delete_item_dialog">
     <property name="title" translatable="yes">Delete item</property>
-    <signal name="destroy" handler="on_delete_item_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox12">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2844,9 +2679,6 @@ that you wish to delete.               </property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">delete_item_cancel_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -2855,7 +2687,7 @@ that you wish to delete.               </property>
     <property name="height-request">240</property>
     <property name="title" translatable="yes">Difference Map Peaks</property>
     <signal name="destroy" handler="on_diff_map_peaks_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox78">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -2896,9 +2728,6 @@ that you wish to delete.               </property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">diff_map_peaks_dialog_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -2993,8 +2822,6 @@ that you wish to delete.               </property>
         <child>
           <object class="GtkFrame" id="frame32">
             <property name="can-focus">1</property>
-            <property name="has-focus">1</property>
-            <property name="has-default">1</property>
             <child>
               <object class="GtkButton" id="display_control_ok_button">
                 <property name="label" translatable="yes">OK</property>
@@ -3012,7 +2839,7 @@ that you wish to delete.               </property>
   </object>
   <object class="GtkDialog" id="doc_urls_dialog">
     <property name="title" translatable="yes">On Line Documentation</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox87">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3029,9 +2856,6 @@ that you wish to delete.               </property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">on_line_documentation_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -3109,7 +2933,6 @@ that you wish to delete.               </property>
               <object class="GtkButton" id="dynarama_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_dynarama_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -3123,7 +2946,7 @@ that you wish to delete.               </property>
   <object class="GtkDialog" id="edit_backbone_torsions_dialog">
     <property name="title" translatable="yes">Edit Backbone Torsions</property>
     <signal name="destroy" handler="on_edit_backbone_torsions_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox30">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3132,7 +2955,6 @@ that you wish to delete.               </property>
                   <object class="GtkButton" id="edit_backbone_torsion_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_edit_backbone_torsion_ok_button_clicked" swapped="no"/>
                   </object>
@@ -3200,7 +3022,7 @@ that you wish to delete.               </property>
   <object class="GtkDialog" id="edit_chi_angles_dialog">
     <property name="title" translatable="yes">Edit Chi Angles</property>
     <signal name="destroy" handler="on_edit_chi_angles_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox37">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3217,7 +3039,6 @@ that you wish to delete.               </property>
                   <object class="GtkButton" id="edit_chi_angles_dialog_ok_button">
                     <property name="label" translatable="yes">  Accept  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_edit_chi_angles_dialog_ok_button_clicked" swapped="no"/>
                   </object>
@@ -3271,14 +3092,13 @@ that you wish to delete.               </property>
   </object>
   <object class="GtkDialog" id="environment_distance_dialog">
     <property name="title" translatable="yes">Environment Distances</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox11">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="environment_distance_dialog_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_environment_distance_dialog_ok_button_clicked" swapped="no"/>
               </object>
         </child>
@@ -3371,15 +3191,12 @@ that you wish to delete.               </property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">environment_distance_dialog_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="export_map_dialog">
     <signal name="response" handler="on_export_map_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -3389,13 +3206,6 @@ that you wish to delete.               </property>
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button13">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkBox">
@@ -3428,10 +3238,6 @@ that you wish to delete.               </property>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button12</action-widget>
-      <action-widget response="-5">button13</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -3441,7 +3247,7 @@ that you wish to delete.               </property>
     <property name="deletable">0</property>
     <property name="action">save</property>
     <signal name="response" handler="on_export_map_file_chooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -3451,24 +3257,13 @@ that you wish to delete.               </property>
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button11">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button10</action-widget>
-      <action-widget response="-5">button11</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="find_ligand_dialog">
     <property name="title" translatable="yes">Find Ligands</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox2">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3487,7 +3282,6 @@ that you wish to delete.               </property>
                       <object class="GtkButton" id="find_ligand_ok_button">
                         <property name="label" translatable="yes">Find Ligands</property>
                         <property name="can-focus">1</property>
-                        <property name="has-focus">1</property>
                         <signal name="clicked" handler="on_find_ligand_ok_button_clicked" swapped="no"/>
                       </object>
                     </child>
@@ -3649,16 +3443,12 @@ that you wish to delete.               </property>
                             <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
                             <property name="justify">center</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label262">
                             <property name="label" translatable="yes">  Search Number of Top Sites:        </property>
                             <property name="justify">center</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">1</property>
                         </child>
                         <child>
                           <object class="GtkEntry" id="ligand_n_samples_entry">
@@ -3667,8 +3457,6 @@ that you wish to delete.               </property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkEntry" id="ligand_n_top_ligands_entry">
@@ -3677,8 +3465,6 @@ that you wish to delete.               </property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">1</property>
                         </child>
                       </object>
                     </child>
@@ -3708,7 +3494,7 @@ that you wish to delete.               </property>
   </object>
   <object class="GtkDialog" id="find_ligand_many_atoms_dialog">
     <property name="title" translatable="yes">May Atoms in Ligand Check</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox3">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3755,7 +3541,7 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="find_waters_dialog">
     <property name="title" translatable="yes">Coot: Find Waters</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox10">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -3773,7 +3559,6 @@ Do you want to continue?
                   <object class="GtkButton" id="find_waters_ok_button">
                     <property name="label" translatable="yes">Find Waters</property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -3885,7 +3670,7 @@ Do you want to continue?
     <property name="title" translatable="yes">Fixed Atoms for Refinement</property>
     <signal name="close" handler="on_fixed_atom_dialog_close" swapped="no"/>
     <signal name="response" handler="on_fixed_atom_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -3927,9 +3712,6 @@ Do you want to continue?
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-7">fixed_atom_dialog_close_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -3982,7 +3764,6 @@ Do you want to continue?
               <object class="GtkButton" id="font_size_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_font_size_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -4033,7 +3814,6 @@ Do you want to continue?
           <object class="GtkButton" id="fps_window_ok_button">
             <property name="label" translatable="yes">OK</property>
             <property name="can-focus">1</property>
-            <property name="has-focus">1</property>
             <signal name="clicked" handler="on_fps_window_ok_button_clicked" swapped="no"/>
           </object>
         </child>
@@ -4045,14 +3825,11 @@ Do you want to continue?
   <object class="GtkDialog" id="general_coot_molecule_chooser_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="general_coot_molecule_chooser_vbox">
         <property name="halign">center</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-          <object class="GtkButtonBox">
-          </object>
-        </child>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -4077,13 +3854,10 @@ Do you want to continue?
   <object class="GtkDialog" id="general_coot_molecule_chooser_with_entry_and_checkbutton_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-          <object class="GtkButtonBox">
-          </object>
-        </child>
         <child>
           <object class="GtkBox" id="general_coot_molecule_chooser_with_entry_and_checkbutton_vbox">
             <property name="orientation">vertical</property>
@@ -4126,7 +3900,7 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="generate_diff_map_peaks_dialog">
     <property name="title" translatable="yes">Difference Map Peak Analysis</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox79">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -4143,7 +3917,6 @@ Do you want to continue?
                   <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
                     <property name="label" translatable="yes">     OK     </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked" swapped="no"/>
                   </object>
@@ -4279,7 +4052,7 @@ Do you want to continue?
     <property name="default-width">400</property>
     <property name="default-height">360</property>
     <signal name="response" handler="on_generic_objects_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -4343,16 +4116,13 @@ Do you want to continue?
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-7">generic_objects_dialog_close_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="geometry_dialog">
     <property name="title" translatable="yes">Geometry</property>
     <signal name="destroy" handler="on_geometry_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox39">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -4422,9 +4192,6 @@ Do you want to continue?
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">geometry_dialog_close_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -4624,7 +4391,6 @@ Do you want to continue?
               <object class="GtkButton" id="density_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_density_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -4678,8 +4444,6 @@ Do you want to continue?
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkEntry" id="go_to_atom_residue_entry">
@@ -4688,8 +4452,6 @@ Do you want to continue?
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">1</property>
                         </child>
                         <child>
                           <object class="GtkEntry" id="go_to_atom_atom_name_entry">
@@ -4698,32 +4460,24 @@ Do you want to continue?
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">2</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label41">
                             <property name="label" translatable="yes"> Chain</property>
                             <property name="justify">center</property>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label42">
                             <property name="label" translatable="yes"> Residue Number</property>
                             <property name="justify">center</property>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">1</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label43">
                             <property name="label" translatable="yes"> Atom Name</property>
                             <property name="justify">center</property>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">2</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="update_go_to_atom_from_current_position_button">
@@ -4732,8 +4486,6 @@ Do you want to continue?
                             <property name="use-underline">1</property>
                             <signal name="clicked" handler="on_update_go_to_atom_from_current_position_button_clicked" swapped="no"/>
                           </object>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">0</property>
                         </child>
                       </object>
                     </child>
@@ -4803,7 +4555,7 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="hints_dialog">
     <property name="title" translatable="yes">Hints</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox15">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -4828,9 +4580,6 @@ Do you want to continue?
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">hints_dialog_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -4883,1491 +4632,6 @@ Do you want to continue?
         <child>
           <object class="GtkBox" id="main_window_vbox">
             <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkMenuBar" id="main_window_menubar">
-                <child>
-                  <object class="GtkMenuItem" id="file1">
-                    <property name="label" translatable="yes">_File</property>
-                    <property name="use-underline">1</property>
-                    <signal name="activate" handler="on_file1_activate" swapped="no"/>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="file1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="open_coordinates1">
-                            <property name="label" translatable="yes">Open Coordinates...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_open_coordinates1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="auto_open_mtz">
-                            <property name="label" translatable="yes">Auto Open MTZ...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_auto_open_mtz_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="open_dataset1">
-                            <property name="label" translatable="yes">Open MTZ, mmCIF, fcf or phs...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_open_dataset1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="open_map1">
-                            <property name="label" translatable="yes">Open Map...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_open_map1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="import_cif_dictionary1">
-                            <property name="label" translatable="yes">Import CIF dictionary...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_import_cif_dictionary1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="get_monomer1">
-                            <property name="label" translatable="yes">Get Monomer...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="search_monomer_library1">
-                            <property name="label" translatable="yes">Search Monomer Library...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_search_monomer_library1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="fetch_pdb_using_code1">
-                            <property name="label" translatable="yes">Fetch PDB using Accession Code...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_fetch_pdb_using_code1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="fetch_pdb_and_map_using_eds1">
-                            <property name="label" translatable="yes">Fetch PDB &amp; Map using EDS...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_fetch_pdb_and_map_using_eds1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="fetch_pdb_and_map_using_pdb_redo1">
-                            <property name="label" translatable="yes">Fetch PDB and Map Using PDB-REDO...</property>
-                            <signal name="activate" handler="on_fetch_pdb_and_map_using_pdb_redo1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="save_coordinates1">
-                            <property name="label" translatable="yes">Save Coordinates...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_save_coordinates1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="save_symmetry_coordinates1">
-                            <property name="label" translatable="yes">Save Symmetry Coordinates...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_save_symmetry_coordinates1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="save_state1">
-                            <property name="label" translatable="yes">Save State...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_save_state1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="recover_session1">
-                            <property name="label" translatable="yes">Recover Session...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_recover_session1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="file_export_map1">
-                            <property name="label" translatable="yes">Export Map...</property>
-                            <signal name="activate" handler="on_file_export_map1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="file_export_map_fragment1">
-                            <property name="label" translatable="yes">Export Map Fragment...</property>
-                            <signal name="activate" handler="on_file_export_map_fragment1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="close_molecule1">
-                            <property name="label" translatable="yes">Delete Molecules and Maps...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_close_molecule1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="curlew1">
-                            <property name="tooltip-text" translatable="yes">Coot Utility and Refinement Library Extension Wrangler</property>
-                            <property name="label" translatable="yes">Curlew...</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="exit1">
-                            <property name="label" translatable="yes">Exit</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_exit1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="edit1">
-                    <property name="label" translatable="yes">_Edit</property>
-                    <property name="use-underline">1</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="edit1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="change_chain_ids2">
-                            <property name="label" translatable="yes">Change Chain IDs...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_change_chain_ids2_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_copy_molecule">
-                            <property name="label" translatable="yes">Copy Molecule...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_copy_molecule_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_copy_fragment">
-                            <property name="label" translatable="yes">Copy Fragment...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_copy_fragment_activate" swapped="no"/>
-                            <signal name="activate" handler="on_edit_copy_molecule_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="merge_molecules1">
-                            <property name="label" translatable="yes">Merge Molecules...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_merge_molecules1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="move_molecule_here1">
-                            <property name="label" translatable="yes">Move Molecule Here...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_move_molecule_here1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="mutate_molecule1">
-                            <property name="label" translatable="yes">Mutate Residue Range...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_mutate_molecule1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_replace_fragment">
-                            <property name="label" translatable="yes">Replace Fragment...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_replace_fragment_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_replace_residue">
-                            <property name="label" translatable="yes">Replace Residue...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_replace_residue_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="renumber_residues1">
-                            <property name="label" translatable="yes">Renumber Residues...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_renumber_residues1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="residue_info2">
-                            <property name="label" translatable="yes">Residue Info...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_residue_info2_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_restraints">
-                            <property name="label" translatable="yes">Restraints...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_restraints_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorMenuItem">
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="preferences1">
-                            <property name="label" translatable="yes">Preferences...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_preferences1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="shader_preferences">
-                            <property name="label" translatable="yes">Shader Preferences...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_shader_preferences_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="edit_settings">
-                            <property name="label" translatable="yes">Settings...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_edit_settings_activate" swapped="no"/>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="calculate1">
-                    <property name="label" translatable="yes">_Calculate</property>
-                    <property name="use-underline">1</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="calculate1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_align_and_mutate">
-                            <property name="label" translatable="yes">Align &amp; Mutate...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_align_and_mutate_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_all_molecule">
-                            <property name="label" translatable="yes">All Molecule...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_all_molecule_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_find_ligands_item">
-                            <property name="label" translatable="yes">Find Ligands...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_find_ligands_item_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_find_waters_item">
-                            <property name="label" translatable="yes">Find Waters...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_find_waters_item_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="fit_loop1">
-                            <property name="label" translatable="yes">Fit Loop...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_fit_loop1_activate" swapped="no"/>
-                            <child type="submenu">
-                              <object class="GtkMenu">
-                                <child>
-                                  <object class="GtkMenuItem" id="fit_loop_by_database_search1">
-                                    <property name="label" translatable="yes">Fit Loop by Database Search...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_fit_loop_by_database_search1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="fit_loop_by_rama_search1">
-                                    <property name="label" translatable="yes">Fit Loop by Rama Search...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_fit_loop_by_rama_search1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_load_tutorial_model_and_data">
-                            <property name="label" translatable="yes">Load Tutorial Model &amp; Data</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_load_tutorial_model_and_data1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ligand_builder1">
-                            <property name="label" translatable="yes">Ligand Builder...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ligand_builder1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="lsq_superpose1">
-                            <property name="label" translatable="yes">LSQ Superpose...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_lsq_superpose1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_map_tools">
-                            <property name="label" translatable="yes">Map Tools...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_map_tools_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="map_sharpening1">
-                            <property name="label" translatable="yes">Map Sharpening/Blurring...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_map_sharpening1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="cowtan/foadi_skeleton1">
-                            <property name="label" translatable="yes">Map Skeleton...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_skeleton1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="modelling">
-                            <property name="label" translatable="yes">Modelling...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_modelling_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_modules">
-                            <property name="label" translatable="yes">Modules...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_ncs_tools">
-                            <property name="label" translatable="yes">NCS Model Tools...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_ncs_tools_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="other_modelling_tools1">
-                            <property name="label" translatable="yes">Other Modelling Tools...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="run_script1">
-                            <property name="label" translatable="yes">Run Script...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="scripting_testing1">
-                            <property name="label" translatable="yes">Scripting...</property>
-                            <property name="use-underline">1</property>
-                            <child type="submenu">
-                              <object class="GtkMenu">
-                                <child>
-                                  <object class="GtkMenuItem" id="calculate_scripting_python1">
-                                    <property name="label" translatable="yes">Python...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_calculate_scripting_python1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="calculate_scripting_scheme1">
-                                    <property name="label" translatable="yes">Scheme...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_calculate_scripting_scheme1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ssm_superposition1">
-                            <property name="label" translatable="yes">SSM Superpose...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ssm_superposition1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="calculate_updating_maps1">
-                            <property name="label" translatable="yes">Updating Maps...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_calculate_updating_maps1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="draw1">
-                    <property name="label" translatable="yes">_Draw</property>
-                    <property name="use-underline">1</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="draw1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="draw_additional_representations">
-                            <property name="label" translatable="yes">Additional Representations....</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_additional_representations_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="background_colour1">
-                            <property name="label" translatable="yes">Background Colour...</property>
-                            <property name="use-underline">1</property>
-                            <child type="submenu">
-                              <object class="GtkMenu" id="background_colour1_menu">
-                                <child>
-                                  <object class="GtkRadioMenuItem" id="background_black1">
-                                    <property name="label" translatable="yes">Black</property>
-                                    <property name="use-underline">1</property>
-                                    <property name="active">1</property>
-                                    <signal name="activate" handler="on_background_black1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioMenuItem" id="background_white1">
-                                    <property name="label" translatable="yes">White</property>
-                                    <property name="use-underline">1</property>
-                                    <property name="active">1</property>
-                                    <property name="group">background_black1</property>
-                                    <signal name="activate" handler="on_background_white1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="bond_colours1">
-                            <property name="label" translatable="yes">Bond Colours...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="bond_parameters1">
-                            <property name="label" translatable="yes">Bond Parameters...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="centre_atom_label1">
-                            <property name="label" translatable="yes">Centre Atom Label...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="show_symmetry1">
-                            <property name="label" translatable="yes">Cell &amp; Symmetry...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_central_atom_label">
-                            <property name="label" translatable="yes">Central Atom Label...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_central_atom_label_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_display_only_active">
-                            <property name="label" translatable="yes">Display Only Active</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_display_only_active_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="frames/sec1">
-                            <property name="label" translatable="yes">Frames/Sec...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_fullscreen">
-                            <property name="label" translatable="yes">Fullscreen</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_fullscreen_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="generic_display_objects1">
-                            <property name="label" translatable="yes">Generic Display Objects...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="go_to_atom1">
-                            <property name="label" translatable="yes">Go To Atom...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_label_atoms_in_residue">
-                            <property name="label" translatable="yes">Label Atoms in Residue</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_label_atoms_in_residue_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_label_CA_atoms">
-                            <property name="label" translatable="yes">Label CAs</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_label_CA_atoms_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_label_neighbours">
-                            <property name="label" translatable="yes">Label Neighbours</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_label_neighbours_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="density_size1">
-                            <property name="label" translatable="yes">Map Parameters...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ncs_ghost_control1">
-                            <property name="label" translatable="yes">NCS Ghost Control...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_representation_tools">
-                            <property name="label" translatable="yes">Representation Tools...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_representation_tools_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="skeleton_parameters1">
-                            <property name="label" translatable="yes">Projection...</property>
-                            <property name="use-underline">1</property>
-                            <child type="submenu">
-                              <object class="GtkMenu">
-                                <child>
-                                  <object class="GtkMenuItem" id="draw_perspective_orthographic_menu_item">
-                                    <property name="label" translatable="yes">Orthographic</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_draw_perspective_orthographic_menu_item_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="draw_perspective_perspective_menu_item">
-                                    <property name="label" translatable="yes">Perspective</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_draw_perspective_perspective_menu_item_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="spin_view_on/off1">
-                            <property name="label" translatable="yes">Spin View On/Off</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="draw_rock_view">
-                            <property name="label" translatable="yes">Rock View</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_draw_rock_view_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ribbons_colour_by_chain_menu_item">
-                            <property name="label" translatable="yes">Ribbons: By Chain</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ribbons_colour_by_chain_menu_item_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ribbons_colour_rainbow_menu_item">
-                            <property name="label" translatable="yes">Ribbons: Rainbow</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ribbons_colour_rainbow_menu_item_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ribbons_colour_by_secondary_structure_menu_item">
-                            <property name="label" translatable="yes">Ribbons: Sec. Struct.</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ribbons_colour_by_secondary_structure_menu_item_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="screenshot1">
-                            <property name="label" translatable="yes">Screenshot</property>
-                            <property name="use-underline">1</property>
-                            <child type="submenu">
-                              <object class="GtkMenu" id="screenshot1_menu">
-                                <child>
-                                  <object class="GtkMenuItem" id="simple1">
-                                    <property name="label" translatable="yes">Simple...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_simple1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkMenuItem" id="raster3d1">
-                                    <property name="label" translatable="yes">Raster3D...</property>
-                                    <property name="use-underline">1</property>
-                                    <signal name="activate" handler="on_raster3d1_activate" swapped="no"/>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="sequence_view1">
-                            <property name="label" translatable="yes">Sequence View</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="stereo1">
-                            <property name="label" translatable="yes">Stereo...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="undo_last_navigation1">
-                            <property name="label" translatable="yes">Undo Last Navigation</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="undo_symmetry_view1">
-                            <property name="label" translatable="yes">Undo Symmetry View</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_undo_symmetry_view1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="zoom1">
-                            <property name="label" translatable="yes">Zoom...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="main_menu_info">
-                    <property name="label" translatable="yes">_Measures</property>
-                    <property name="use-underline">1</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="main_menu_info_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="clear_atom_labels1">
-                            <property name="label" translatable="yes">Clear Atom Labels</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="distances_&amp;_angles1">
-                            <property name="label" translatable="yes">Distances &amp; Angles...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="environment_distances1">
-                            <property name="label" translatable="yes">Environment Distances...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="residue_info1">
-                            <property name="label" translatable="yes">Residue Info...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="plane_distances1">
-                            <property name="label" translatable="yes">Plane Distances...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="pointer_distances1">
-                            <property name="label" translatable="yes">Pointer Distances...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="validate1">
-                    <property name="label" translatable="yes">_Validate</property>
-                    <property name="use-underline">1</property>
-                    <signal name="activate" handler="on_validate1_activate" swapped="no"/>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="validate1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="check_waters1">
-                            <property name="label" translatable="yes">Check/Delete Waters...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="density_fit_analysis1">
-                            <property name="label" translatable="yes">Density fit analysis</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="difference_map_peaks1">
-                            <property name="label" translatable="yes">Difference Map Peaks...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="geometry_analysis1">
-                            <property name="label" translatable="yes">Geometry analysis</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="gln_and_asn_b_factor_outliers1">
-                            <property name="label" translatable="yes">GLN and ASN B-factor Outliers</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="incorrect_chiral_volumes1">
-                            <property name="label" translatable="yes">Incorrect Chiral Volumes...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ramachandran_differences_plot1">
-                            <property name="label" translatable="yes">Kleywegt Plot...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ncs_differences1">
-                            <property name="label" translatable="yes">NCS Differences...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_ncs_differences1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="peptide_flips_from_difference_map1">
-                            <property name="label" translatable="yes">Peptide Flips from Difference Map...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="peptide_omega_analysis1">
-                            <property name="label" translatable="yes">Peptide omega analysis</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="pukka_puckers_1">
-                            <property name="label" translatable="yes">Pukka Puckers</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_pukka_puckers_1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="ramachandran_plot1">
-                            <property name="label" translatable="yes">Ramachandran Plot</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="rotamer_analysis1">
-                            <property name="label" translatable="yes">Rotamer analysis</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="temp_fact_analysis1">
-                            <property name="label" translatable="yes">Temp. fact. analysis</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_temp_fact_analysis1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="temp_fact_variance_analysis1">
-                            <property name="label" translatable="yes">Temp. fact. variance analysis</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="unmodelled_blobs1">
-                            <property name="label" translatable="yes">Unmodelled blobs...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuItem" id="help1">
-                    <property name="label" translatable="yes">About</property>
-                    <property name="use-underline">1</property>
-                    <child type="submenu">
-                      <object class="GtkMenu" id="help1_menu">
-                        <child>
-                          <object class="GtkMenuItem" id="remarks_browser1">
-                            <property name="label" translatable="yes">Header/Remarks Browser...</property>
-                            <property name="use-underline">1</property>
-                            <signal name="activate" handler="on_remarks_browser1_activate" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuItem" id="about1">
-                            <property name="label" translatable="yes">About Coot...</property>
-                            <property name="use-underline">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkToolbar" id="main_window_toolbar">
-                <property name="toolbar-style">both</property>
-                <child>
-                  <object class="GtkToolItem" id="toolitem1">
-                    <child>
-                      <object class="GtkButton" id="reset_view_button">
-                        <property name="label" translatable="yes">Reset View</property>
-                        <property name="focus-on-click">0</property>
-                        <signal name="clicked" handler="on_reset_view_button_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolItem" id="toolitem2">
-                    <child>
-                      <object class="GtkButton" id="display_manager_button">
-                        <property name="label" translatable="yes">Display Manager</property>
-                        <property name="focus-on-click">0</property>
-                        <signal name="clicked" handler="on_display_manager_button_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolItem" id="toolitem3">
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolButton" id="go_to_atom_toolbutton">
-                    <property name="label" translatable="yes">Go To Atom</property>
-                    <property name="use-underline">1</property>
-                    <property name="icon-widget">image34</property>
-                    <signal name="clicked" handler="on_go_to_atom_toolbutton_clicked" swapped="no"/>
-                  </object>
-                    <property name="homogeneous">1</property>
-                </child>
-                <child>
-                  <object class="GtkToolButton" id="go_to_ligand_toolbutton">
-                    <property name="tooltip-text" translatable="yes">Go to (Next) Ligand</property>
-                    <property name="label" translatable="yes">Go To Ligand</property>
-                    <property name="use-underline">1</property>
-                    <property name="icon-widget">image35</property>
-                    <signal name="clicked" handler="on_go_to_ligand_toolbutton_clicked" swapped="no"/>
-                  </object>
-                    <property name="homogeneous">1</property>
-                </child>
-                <child>
-                  <object class="GtkToolButton" id="clear_atom_pull_restraints_toolbutton">
-                    <property name="label" translatable="yes">Clear Atom Pull Restraints</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_clear_atom_pull_restraints_toolbutton_clicked" swapped="no"/>
-                  </object>
-                    <property name="homogeneous">1</property>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="auto_clear_atom_pull_restraints_togglebutton">
-                    <property name="label" translatable="yes">Auto-clear Atom Pull Restraints</property>
-                    <property name="use-underline">1</property>
-                    <property name="active">1</property>
-                    <signal name="toggled" handler="on_auto_clear_atom_pull_restraints_togglebutton_toggled" swapped="no"/>
-                  </object>
-                    <property name="homogeneous">1</property>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="accept_reject_dialog_frame">
-              </object>
-            </child>
-            <child>
-              <object class="GtkPaned" id="main_window_vpaned">
-                <property name="can-focus">1</property>
-                <property name="orientation">vertical</property>
-                <property name="wide-handle">1</property>
-                <child>
-                  <object class="GtkLabel" id="main_window_deletable_label">
-                    <property name="label" translatable="yes">This gets deleted when the window is realized - it&apos;s needed to put
-the main_window_graphics_hbox in the right child pane (the second one).</property>
-                  </object>
-                    <property name="resize">0</property>
-                </child>
-                <child>
-                  <object class="GtkOverlay" id="main_window_graphics_overlay">
-                    <child>
-                      <object class="GtkBox" id="main_window_graphics_hbox">
-                      </object>
-                        <property name="index">-1</property>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkStatusbar" id="main_window_statusbar">
-                <signal name="text-popped" handler="on_main_window_statusbar_text_popped" swapped="no"/>
-                <signal name="text-pushed" handler="on_main_window_statusbar_text_pushed" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="main_window_model_fit_dialog_frame">
-            <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkFrame" id="main_window_meshes_frame">
-                    <child>
-                      <object class="GtkBox" id="main_window_meshes_vbox">
-                        <property name="orientation">vertical</property>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Mol Representations</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolbar" id="main_window_model_toolbar_top">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_refine_control_button">
-                        <property name="label" translatable="yes">R/RC</property>
-                        <property name="use-underline">1</property>
-                        <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_select_map_button">
-                        <property name="label" translatable="yes">Map...</property>
-                        <property name="use-underline">1</property>
-                        <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuBar" id="menubar_for_rsr">
-                    <child>
-                      <object class="GtkMenuItem" id="menubar_for_rsr_item_menuitem">
-                        <property name="margin-top">1</property>
-                        <property name="margin-bottom">1</property>
-                        <property name="label" translatable="yes">  Real Space Refinement</property>
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_sphere">
-                                <property name="label" translatable="yes">RSR Sphere</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_sphere_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_sphere_plus">
-                                <property name="label" translatable="yes">RSR Big Sphere</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_sphere_plus_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_tandem_3">
-                                <property name="label" translatable="yes">RSR Tandem ± 3</property>
-                                <signal name="activate" handler="on_menubar_rsr_tandem_3_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_tandem_5">
-                                <property name="label" translatable="yes">RSR Tandem ± 5</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_tandem_5_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_single_residue">
-                                <property name="label" translatable="yes">RSR Single Residue</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_single_residue_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_chain">
-                                <property name="label" translatable="yes">RSR Chain</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_chain_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_rsr_residue_range">
-                                <property name="label" translatable="yes">RSR Pick Range by Hand</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_rsr_residue_range_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_regularize_sphere">
-                                <property name="label" translatable="yes">Regularize Sphere</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_regularize_sphere_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_regularize_tandem_3">
-                                <property name="label" translatable="yes">Regualize Tandem ± 3</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_regularize_tandem_3_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="menubar_regularize_residue">
-                                <property name="label" translatable="yes">Regularize Residue</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_menubar_regularize_residue_activate" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolbar" id="main_window_model_toolbar_second_top">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_fixed_atoms_togglebutton">
-                        <property name="label" translatable="yes">Fixed Atoms...</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image18</property>
-                        <signal name="toggled" handler="on_model_toolbar_fixed_atoms_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_rigid_body_fit_togglebutton">
-                        <property name="label" translatable="yes">Rigid Body Fit</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image19</property>
-                        <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuBar" id="menubar_for_rotate_translate_items">
-                    <child>
-                      <object class="GtkMenuItem" id="rotate_translate_item_menu_item_top">
-                        <property name="label" translatable="yes">         Rotate/Translate</property>
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_residue_item">
-                                <property name="label" translatable="yes">Residue</property>
-                                <signal name="activate" handler="on_rotate_translate_item_residue_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_residue_range_item">
-                                <property name="label" translatable="yes">Residue Range</property>
-                                <signal name="activate" handler="on_rotate_translate_item_residue_range_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_chain_item">
-                                <property name="label" translatable="yes">Chain</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_rotate_translate_item_chain_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="rotate_translate_item_molecule_item">
-                                <property name="label" translatable="yes">Molecule</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_rotate_translate_item_molecule_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolbar" id="main_window_model_toolbar_lower">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_auto_fit_rotamer_togglebutton">
-                        <property name="label" translatable="yes">Autofit Rotamer</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image21</property>
-                        <signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_rotamers_togglebutton">
-                        <property name="label" translatable="yes">Rotamers</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image22</property>
-                        <signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_edit_chi_angles_togglebutton">
-                        <property name="label" translatable="yes">Edit Chi Angles</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image23</property>
-                        <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_torsion_general_toggletoolbutton">
-                        <property name="label" translatable="yes">Torsion General</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image24</property>
-                        <signal name="toggled" handler="on_model_toolbar_torsion_general_toggletoolbutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_flip_peptide_togglebutton">
-                        <property name="label" translatable="yes">Flip Peptide</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image25</property>
-                        <signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_sidechain_180_togglebutton">
-                        <property name="label" translatable="yes"> Sidechain 180° Flip</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image26</property>
-                        <signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_edit_backbone_torsions_toggletoolbutton">
-                        <property name="label" translatable="yes">Edit Backbone Torsions</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image27</property>
-                        <signal name="toggled" handler="on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorToolItem">
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_mutate_and_autofit_togglebutton">
-                        <property name="label" translatable="yes">Mutate &amp; Auto-fit</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image28</property>
-                        <signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_simple_mutate_togglebutton">
-                        <property name="label" translatable="yes">Simple Mutate</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image29</property>
-                        <signal name="toggled" handler="on_model_toolbar_simple_mutate_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_add_terminal_residue_togglebutton">
-                        <property name="label" translatable="yes">Add Terminal Residue</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image30</property>
-                        <signal name="toggled" handler="on_model_toolbar_add_terminal_residue_togglebutton_toggled" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_add_alt_conf_toolbutton">
-                        <property name="label" translatable="yes">Add Alt Conf...</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image31</property>
-                        <signal name="clicked" handler="on_model_toolbar_add_alt_conf_toolbutton_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_add_atom_button">
-                        <property name="label" translatable="yes">Place Atom at Pointer</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image32</property>
-                        <signal name="clicked" handler="on_model_toolbar_add_atom_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_clear_pending_picks_button">
-                        <property name="label" translatable="yes">Clear Pending Picks</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image37</property>
-                        <signal name="clicked" handler="on_model_toolbar_clear_pending_picks_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuBar" id="menubar_for_delete_items">
-                    <child>
-                      <object class="GtkMenuItem" id="menubar_for_delete_items_menu_item_top">
-                        <property name="label" translatable="yes">Delete</property>
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_atom_item">
-                                <property name="label" translatable="yes">Atom</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_atom_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_water_item">
-                                <property name="label" translatable="yes">Water</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_water_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_sidechain_item">
-                                <property name="label" translatable="yes">Sidechain</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_sidechain_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_sidechains_in_residue_range_item">
-                                <property name="label" translatable="yes">Sidechains in Residue Range</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_sidechains_in_residue_range_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_residue_hydrogen_atoms_item">
-                                <property name="label" translatable="yes">Residue Hydrogen Atoms</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_residue_hydrogen_atoms_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_residue_item">
-                                <property name="label" translatable="yes">Residue</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_residue_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_residue_range_item">
-                                <property name="label" translatable="yes">Residue Range</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_residue_range_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="delete_item_chain_item">
-                                <property name="label" translatable="yes">Chain</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_delete_item_chain_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToolbar" id="main_window_model_toolbar_bottom">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_refmac_button">
-                        <property name="label" translatable="yes">Refmac</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-widget">image1</property>
-                        <signal name="clicked" handler="on_model_toolbar_refmac_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_undo_button">
-                        <property name="label" translatable="yes">Undo</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-name">edit-undo</property>
-                        <signal name="clicked" handler="on_model_toolbar_undo_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="model_toolbar_redo_button">
-                        <property name="label" translatable="yes">Redo</property>
-                        <property name="use-underline">1</property>
-                        <property name="icon-name">edit-redo</property>
-                        <signal name="clicked" handler="on_model_toolbar_redo_button_clicked" swapped="no"/>
-                      </object>
-                        <property name="homogeneous">1</property>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuBar" id="model_toolbar_icons_menubar">
-                    <property name="pack-direction">ttb</property>
-                    <property name="child-pack-direction">ttb</property>
-                    <child>
-                      <object class="GtkMenuItem" id="model_toolbar_icons_menubar_top_item">
-                        <child type="submenu">
-                          <object class="GtkMenu">
-                            <child>
-                              <object class="GtkMenuItem" id="model_toolbar_icons_menubar_icons_and_text_item">
-                                <property name="label" translatable="yes">Icons &amp; Text</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_model_toolbar_icons_menubar_icons_and_text_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuItem" id="model_toolbar_icons_menubar_icons_item">
-                                <property name="label" translatable="yes">Icons</property>
-                                <property name="use-underline">1</property>
-                                <signal name="activate" handler="on_model_toolbar_icons_menubar_icons_item_activate" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox" id="main_window_resize_window_button_box">
-                    <child>
-                      <object class="GtkButton" id="main_window_resize_window_up_arrow">
-                        <property name="label" translatable="yes">↥</property>
-                        <property name="receives-default">1</property>
-                        <signal name="clicked" handler="on_main_window_resize_window_up_arrow_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="main_window_resize_window_down_arrow">
-                        <property name="label" translatable="yes">↧</property>
-                        <property name="receives-default">1</property>
-                        <signal name="clicked" handler="on_main_window_resize_window_down_arrow_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="main_window_resize_window_left_arrow">
-                        <property name="label" translatable="yes">↤</property>
-                        <property name="receives-default">1</property>
-                        <signal name="clicked" handler="on_main_window_resize_window_left_arrow_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="main_window_resize_window_right_arrow">
-                        <property name="label" translatable="yes"> ↦</property>
-                        <property name="receives-default">1</property>
-                        <signal name="clicked" handler="on_main_window_resize_window_right_arrow_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="gtk_frame_for_html_or_other_big_window_packed_widget">
-            <child>
-              <object class="GtkToolbar">
-              </object>
-            </child>
           </object>
         </child>
       </object>
@@ -6378,7 +4642,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   <object class="GtkDialog" id="drawing_options_dialog">
     <property name="title" translatable="yes">Coot Drawing Options</property>
     <property name="transient-for">main_window</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -6391,16 +4655,13 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-7">drawing_options_close_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="interesting_waters_by_difference_map_check_dialog">
     <property name="height-request">200</property>
     <property name="title" translatable="yes">Interesting/Strange Waters:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox71">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6426,9 +4687,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">interesting_waters_by_difference_map_check_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -6446,7 +4704,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   </object>
   <object class="GtkDialog" id="keyboard_mutate_dialog">
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -6463,7 +4721,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   </object>
   <object class="GtkDialog" id="least_squares_dialog">
     <property name="title" translatable="yes">Least Squares Fit</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox97">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6658,7 +4916,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
   </object>
   <object class="GtkDialog" id="libcheck_monomer_dialog">
     <property name="title" translatable="yes">Coot: Get monomer molecule</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox43">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6675,8 +4933,6 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                 <child>
                   <object class="GtkButton" id="libcheck_monomer_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_get_monomer_ok_button_clicked" swapped="no"/>
                   </object>
@@ -6724,7 +4980,7 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Coot: Unmodelled blobs of density</property>
     <signal name="destroy" handler="on_ligand_big_blob_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox36">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6765,15 +5021,12 @@ density (too big to be waters):
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">ligand_big_blob_dismiss_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="ligand_no_blobs_dialog">
     <property name="title" translatable="yes">Ligand - No Blobs Dialog</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox62">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6781,8 +5034,6 @@ density (too big to be waters):
                 <child>
                   <object class="GtkButton" id="ligand_no_blobs_OK_button">
                     <property name="label" translatable="yes">   OK!   </property>
-                    <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_ligand_no_blobs_OK_button_clicked" swapped="no"/>
                   </object>
@@ -6813,7 +5064,7 @@ density (too big to be waters):
   <object class="GtkDialog" id="lsq_plane_dialog">
     <property name="title" translatable="yes">LSQ Plane </property>
     <signal name="destroy" handler="on_lsq_plane_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox92">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -6881,9 +5132,6 @@ density (too big to be waters):
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">lsq_plane_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -6891,9 +5139,8 @@ density (too big to be waters):
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Map File Name</property>
     <property name="deletable">0</property>
-    <signal name="file-activated" handler="on_map_name_filechooser_dialog_file_activated" swapped="no"/>
     <signal name="response" handler="on_map_name_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -6903,13 +5150,6 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="map_name_filechooser_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkBox">
@@ -6928,15 +5168,11 @@ density (too big to be waters):
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">map_name_filechooser_cancel_button</action-widget>
-      <action-widget response="-5">map_name_filechooser_ok_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="map_sharpening_dialog">
     <property name="default-width">500</property>
     <signal name="response" handler="on_map_sharpening_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="map_sharpening_dialog_vbox_internal">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -6979,7 +5215,7 @@ density (too big to be waters):
   </object>
   <object class="GtkDialog" id="merge_molecules_dialog">
     <property name="title" translatable="yes">Merge Molecules</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox57">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7058,14 +5294,12 @@ into Molecule:
   <object class="GtkDialog" id="model_refine_dialog">
     <property name="title" translatable="yes">Model/Fit/Refine</property>
     <signal name="destroy" handler="on_model_refine_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="model_fit_refine_dialog_vbox">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="model_refine_dialog_dismiss_button">
                 <property name="label" translatable="yes">   Close   </property>
-                <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_model_refine_dialog_dismiss_button_clicked" swapped="no"/>
               </object>
@@ -7084,7 +5318,7 @@ into Molecule:
   </object>
   <object class="GtkDialog" id="monomer_search_dialog">
     <property name="title" translatable="yes">Search Monomer Library</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox96">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7183,7 +5417,7 @@ into Molecule:
   </object>
   <object class="GtkDialog" id="move_molecule_here_dialog">
     <property name="title" translatable="yes">Move Molecule Here</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox95">
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
@@ -7229,7 +5463,7 @@ Move Molecule Here:</property>
   </object>
   <object class="GtkDialog" id="mutate_sequence_dialog">
     <property name="title" translatable="yes">Mutate sequence</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox58">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7439,7 +5673,7 @@ search (this may not work well)</property>
     <property name="width-request">400</property>
     <property name="height-request">340</property>
     <property name="title" translatable="yes">NCS Control</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox91">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7591,7 +5825,7 @@ search (this may not work well)</property>
   </object>
   <object class="GtkDialog" id="ncs_maps_dialog">
     <property name="title" translatable="yes">NCS Maps Dialog</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox80">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7688,7 +5922,7 @@ search (this may not work well)</property>
   </object>
   <object class="GtkDialog" id="new_close_molecules_dialog">
     <property name="title" translatable="yes">Delete Molecules:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox67">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7756,7 +5990,7 @@ search (this may not work well)</property>
   </object>
   <object class="GtkDialog" id="new_ligands_info_dialog">
     <property name="title" translatable="yes">New Ligands</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox40">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7796,7 +6030,7 @@ new molecules</property>
   </object>
   <object class="GtkDialog" id="no_bad_chiral_volumes_dialog">
     <property name="title" translatable="yes">Clean!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox52">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7828,7 +6062,7 @@ in this molecule.</property>
   </object>
   <object class="GtkDialog" id="no_cif_dictionary_bonds_dialog">
     <property name="title" translatable="yes">No Restraints in Dictionary!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox35">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7859,7 +6093,7 @@ in this molecule.</property>
   </object>
   <object class="GtkDialog" id="no_new_ligands_info_dialog">
     <property name="title" translatable="yes">No New Ligands</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox41">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7891,7 +6125,7 @@ sigma level or the acceptable fit fraction.</property>
   </object>
   <object class="GtkDialog" id="no_restraints_info_dialog">
     <property name="title" translatable="yes">No Restraints!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox34">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -7937,14 +6171,12 @@ PDB file match those of the restraints?
   </object>
   <object class="GtkDialog" id="no_symmetry_warning_dialog">
     <property name="title" translatable="yes">No Symmetry!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox47">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="no_symmetry_warning_ok_button">
                 <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_no_symmetry_warning_ok_button_clicked" swapped="no"/>
               </object>
@@ -7974,14 +6206,13 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
   <object class="GtkDialog" id="nothing_bad_dialog">
     <property name="title" translatable="yes">Info:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="nothing_bad_ok_button">
                 <property name="label" translatable="yes">  OK  </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_nothing_bad_ok_button_clicked" swapped="no"/>
               </object>
@@ -8012,14 +6243,13 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
   <object class="GtkDialog" id="nothing_to_recover_dialog">
     <property name="title" translatable="yes">Nothing to Recover</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox48">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="nothing_to_recover_ok_button">
                 <property name="label" translatable="yes">  OK  </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_nothing_to_recover_ok_button_clicked" swapped="no"/>
               </object>
@@ -8045,7 +6275,7 @@ If you need symmetry, setup ccp4 before starting coot
   <object class="GtkDialog" id="nucleic_acid_base_chooser_dialog">
     <property name="title" translatable="yes">Base</property>
     <signal name="destroy" handler="on_nucleic_acid_base_chooser_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox85">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8115,7 +6345,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
   <object class="GtkDialog" id="nucleotide_builder_dialog">
     <property name="title" translatable="yes">Nucleotide Builder</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox94">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8229,7 +6459,7 @@ Nucleotide Builder
   <object class="GtkDialog" id="other_model_tools_dialog">
     <property name="title" translatable="yes">Other Modelling Tools</property>
     <signal name="destroy" handler="on_other_model_tools_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox89">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8267,14 +6497,6 @@ Nucleotide Builder
                     <property name="can-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_model_refine_dialog_baton_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="model_refine_dialog_db_main_togglebutton">
-                    <property name="label" translatable="yes">Ca Zone -&gt; Mainchain</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="toggled" handler="on_model_refine_dialog_db_main_togglebutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -8332,7 +6554,7 @@ Nucleotide Builder
   <object class="GtkDialog" id="pepflips_by_difference_map_dialog">
     <signal name="close" handler="on_pepflips_by_difference_map_dialog_close" swapped="no"/>
     <signal name="response" handler="on_pepflips_by_difference_map_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="pepflips_by_difference_map_dialog_internal_vbox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -8342,13 +6564,6 @@ Nucleotide Builder
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="pepflips_by_difference_map_dialog_apply_button">
-                <property name="label" translatable="yes">Apply</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkBox" id="pepflips_by_difference_map_dialog_vbox">
@@ -8381,10 +6596,6 @@ Nucleotide Builder
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">pepflips_by_difference_map_dialog_cancel_button</action-widget>
-      <action-widget response="-10">pepflips_by_difference_map_dialog_apply_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -8434,7 +6645,7 @@ Nucleotide Builder
   <object class="GtkFileChooserDialog" id="phs_coordinates_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select PHS</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -8444,13 +6655,6 @@ Nucleotide Builder
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
@@ -8490,7 +6694,6 @@ just the cell and symmetry)
                   <object class="GtkButton" id="phs_info_ok_button">
                     <property name="label" translatable="yes">OK</property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_phs_info_ok_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -8505,7 +6708,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="pointer_atom_type_dialog">
     <property name="title" translatable="yes">Pointer atom type</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox21">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8657,7 +6860,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="pointer_distances_dialog">
     <property name="title" translatable="yes">Pointer Distances</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox81">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8689,8 +6892,6 @@ just the cell and symmetry)
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
                       </object>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label234">
@@ -8698,8 +6899,6 @@ just the cell and symmetry)
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
                       </object>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_min_dist_entry">
@@ -8707,8 +6906,6 @@ just the cell and symmetry)
                         <property name="primary-icon-activatable">0</property>
                         <property name="secondary-icon-activatable">0</property>
                       </object>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_max_dist_entry">
@@ -8716,8 +6913,6 @@ just the cell and symmetry)
                         <property name="primary-icon-activatable">0</property>
                         <property name="secondary-icon-activatable">0</property>
                       </object>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">1</property>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label235">
@@ -8725,8 +6920,6 @@ just the cell and symmetry)
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
                       </object>
-                        <property name="left-attach">2</property>
-                        <property name="top-attach">0</property>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label236">
@@ -8734,8 +6927,6 @@ just the cell and symmetry)
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
                       </object>
-                        <property name="left-attach">2</property>
-                        <property name="top-attach">1</property>
                     </child>
                   </object>
                 </child>
@@ -8769,7 +6960,7 @@ just the cell and symmetry)
   <object class="GtkDialog" id="preferences">
     <property name="title" translatable="yes">Preferences</property>
     <signal name="destroy" handler="on_preferences_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox77">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8828,7 +7019,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="ramachandran_plot_differences_dialog">
     <property name="title" translatable="yes">Ramachandran Plot Differences</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox83">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8937,7 +7128,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="read_pdb_recentre_dialog">
     <property name="title" translatable="yes">Recentre Dialog</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox20">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -8995,7 +7186,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="recover_coordinates_dialog">
     <property name="title" translatable="yes">Recover Coordinates</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox44">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -9064,7 +7255,7 @@ just the cell and symmetry)
     <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property>
     <signal name="close" handler="on_refinement_and_regularization_parameters_dialog_close" swapped="no"/>
     <signal name="response" handler="on_refinement_and_regularization_parameters_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -9168,42 +7359,30 @@ just the cell and symmetry)
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Overall Weight</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Geman-McClure alpha</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">1</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Lennard-Jones epsilon</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">2</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Rama Restraints Weight </property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">3</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Torsion Weight</property>
                           </object>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">4</property>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_overall_weight_combobox">
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">0</property>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_geman_mcclure_alpha_combobox">
@@ -9220,8 +7399,6 @@ just the cell and symmetry)
                               <item translatable="yes">1.0</item>
                             </items>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">1</property>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_lennard_jones_epsilon_combobox">
@@ -9236,8 +7413,6 @@ just the cell and symmetry)
                               <item translatable="yes">10.0</item>
                             </items>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">2</property>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_rama_restraints_combobox">
@@ -9255,8 +7430,6 @@ just the cell and symmetry)
                               <item translatable="yes">100.0</item>
                             </items>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">3</property>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_torsion_weight_combobox">
@@ -9274,8 +7447,6 @@ just the cell and symmetry)
                               <item translatable="yes">100.0</item>
                             </items>
                           </object>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">4</property>
                         </child>
                       </object>
                     </child>
@@ -9312,7 +7483,7 @@ just the cell and symmetry)
   <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
     <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
     <signal name="response" handler="on_remarks_browser_molecule_chooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -9322,13 +7493,6 @@ just the cell and symmetry)
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="2remarks_browser_molecule_chooser_dialog_button">
-                <property name="label">gtk-cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkComboBoxText" id="remarks_browser_molecule_chooser_combobox_text">
@@ -9336,16 +7500,12 @@ just the cell and symmetry)
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-5">remarks_browser_molecule_chooser_dialog_button</action-widget>
-      <action-widget response="-6">2remarks_browser_molecule_chooser_dialog_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="renumber_residue_range_dialog">
     <property name="title" translatable="yes">Renumber Residue Range</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox60">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -9511,7 +7671,7 @@ just the cell and symmetry)
   <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
     <signal name="close" handler="on_residue_editor_select_monomer_type_dialog_close" swapped="no"/>
     <signal name="response" handler="on_residue_editor_select_monomer_type_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -9521,13 +7681,6 @@ just the cell and symmetry)
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkBox">
@@ -9545,17 +7698,13 @@ just the cell and symmetry)
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">residue_editor_select_monomer_type_cancel_button</action-widget>
-      <action-widget response="-5">residue_editor_select_monomer_type_ok_button</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="residue_info_dialog">
     <property name="title" translatable="yes">Residue Info</property>
     <signal name="destroy" handler="on_residue_info_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox14">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -9912,7 +8061,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkDialog" id="rigid_body_refinement_failed_dialog">
     <property name="title" translatable="yes">Rigid Body Refine Failed!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox55">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -9951,7 +8100,7 @@ Sorry.
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Select Rotamer</property>
     <signal name="destroy" handler="on_rotamer_selection_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox16">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -9968,7 +8117,6 @@ Sorry.
                   <object class="GtkButton" id="rotamer_selection_ok_button">
                     <property name="label">  OK  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_rotamer_selection_ok_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -10015,7 +8163,7 @@ Sorry.
     <property name="width-request">320</property>
     <property name="title" translatable="yes">Rotation &amp; Translation</property>
     <signal name="destroy" handler="on_rotate_translate_obj_dialog_destroy" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox6">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -10031,7 +8179,6 @@ Sorry.
                   <object class="GtkButton" id="rotate_translate_obj_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_rotate_translate_obj_ok_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -10179,7 +8326,6 @@ Sorry.
           <object class="GtkButton" id="rotation_centre_size_ok_button">
             <property name="label" translatable="yes">OK</property>
             <property name="can-focus">1</property>
-            <property name="has-focus">1</property>
             <property name="use-underline">1</property>
             <signal name="clicked" handler="on_rotation_centre_size_ok_button_clicked" swapped="no"/>
           </object>
@@ -10191,7 +8337,7 @@ Sorry.
   </object>
   <object class="GtkDialog" id="run_refmac_dialog">
     <property name="title" translatable="yes">Run Refmac</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox22">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -10301,7 +8447,7 @@ Sorry.
   </object>
   <object class="GtkDialog" id="run_refmac_help_dialog">
     <property name="title" translatable="yes">Help on Running Refmac:</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox33">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -10339,9 +8485,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
     <property name="use-header-bar">0</property>
-    <signal name="file-activated" handler="on_run_script_filechooser_dialog_file_activated" swapped="no"/>
     <signal name="response" handler="on_run_script_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -10351,24 +8496,13 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="run_script_filechooser_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">run_script_filechooser_cancel_button</action-widget>
-      <action-widget response="-5">run_script_filechooser_ok_button</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="run_state_file_dialog">
     <property name="title" translatable="yes">Coot Previously-Saved State</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox29">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -10384,7 +8518,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   <object class="GtkButton" id="run_state_file_ok_button">
                     <property name="label" translatable="yes">Yes</property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_run_state_file_ok_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -10429,7 +8562,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <property name="title" translatable="yes">Coot: Select Filename for Saving Coordinates</property>
     <property name="action">save</property>
     <signal name="response" handler="on_save_coordinates_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -10439,24 +8572,13 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button9">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button8</action-widget>
-      <action-widget response="-5">button9</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="save_coords_dialog">
     <property name="title" translatable="yes">Save Coordinates Molecule Selector</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox7">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -10496,7 +8618,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <object class="GtkFileChooserDialog" id="save_symmety_coords_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Saving Symmetry Coordinates</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -10506,13 +8628,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">button</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
@@ -10520,9 +8635,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="action">save</property>
-    <signal name="file-activated" handler="on_screendump_filechooser_dialog_file_activated" swapped="no"/>
     <signal name="response" handler="on_screendump_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -10532,31 +8646,19 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button15">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button14</action-widget>
-      <action-widget response="-5">button15</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="select_fitting_map_dialog">
     <property name="title" translatable="yes">Select Map for Fitting</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox32">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="select_map_for_fitting_button">
                 <property name="label" translatable="yes">  OK  </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_select_map_for_fitting_button_clicked" swapped="no"/>
               </object>
@@ -10621,7 +8723,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <signal name="close" handler="on_shader_settings_dialog_close" swapped="no"/>
     <signal name="destroy" handler="on_shader_settings_dialog_destroy" swapped="no"/>
     <signal name="response" handler="on_shader_settings_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="margin-start">8</property>
         <property name="margin-end">8</property>
@@ -11300,7 +9402,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
               <object class="GtkButton" id="show_symmetry_apply_button">
                 <property name="label" translatable="yes">Apply</property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <signal name="clicked" handler="on_show_symmetry_apply_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -11321,7 +9422,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <object class="GtkDialog" id="simple_refmac_dialog">
     <property name="title" translatable="yes">Coot: Refine with Refmac</property>
     <signal name="response" handler="on_simple_refmac_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -11331,13 +9432,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button5">
-                <property name="label">gtk-ok</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
         <child>
           <object class="GtkBox">
@@ -11376,10 +9470,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button3</action-widget>
-      <action-widget response="-5">button5</action-widget>
-    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
@@ -11387,7 +9477,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Refmac File Chooser</property>
     <signal name="response" handler="on_simple_refmac_filechooser_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -11397,29 +9487,16 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-            <child>
-              <object class="GtkButton" id="button7">
-                <property name="label">gtk-ok</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-            </child>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">button6</action-widget>
-      <action-widget response="-5">button7</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkDialog" id="skeleton_dialog">
     <property name="title" translatable="yes">Skeleton Dialog</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox25">
         <property name="orientation">vertical</property>
-          <object class="GtkButtonBox" id="dialog-action_area25">
-            <property name="homogeneous">1</property>
-            <child>
+         <child type="action">
               <object class="GtkBox" id="hbox59">
                 <child>
                   <object class="GtkButton" id="skeleton_cancel_button">
@@ -11438,8 +9515,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   </object>
                 </child>
               </object>
-            </child>
-          </object>
         </child>
         <child>
           <object class="GtkBox" id="vbox84">
@@ -11625,7 +9700,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
   <object class="GtkDialog" id="skeletonize_map_dialog">
     <property name="title" translatable="yes">Skeletonize Map</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox73">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -11765,7 +9840,6 @@ distances more than:</property>
           <object class="GtkButton" id="smooth_scrolling_window_ok_button">
             <property name="label" translatable="yes">  OK  </property>
             <property name="can-focus">1</property>
-            <property name="has-focus">1</property>
             <signal name="clicked" handler="on_smooth_scrolling_window_ok_button_clicked" swapped="no"/>
           </object>
         </child>
@@ -11775,9 +9849,7 @@ distances more than:</property>
     </child>
   </object>
   <object class="GtkWindow" id="splash_screen_window">
-    <property name="type">popup</property>
     <property name="title" translatable="yes">Coot</property>
-    <property name="window-position">center</property>
     <child>
       <object class="GtkImage" id="pixmap1">
       </object>
@@ -11787,7 +9859,7 @@ distances more than:</property>
   </object>
   <object class="GtkDialog" id="start_workflow_dialog">
     <property name="title" translatable="yes">What do you want to do?</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox31">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -11796,7 +9868,6 @@ distances more than:</property>
                   <object class="GtkButton" id="workflow_ok_button">
                     <property name="label" translatable="yes">  OK  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_workflow_ok_button_clicked" swapped="no"/>
                   </object>
@@ -11871,14 +9942,13 @@ distances more than:</property>
   </object>
   <object class="GtkDialog" id="stereo_dialog">
     <property name="title" translatable="yes">Stereo/Mono</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox76">
         <property name="orientation">vertical</property>
          <child type="action">
               <object class="GtkButton" id="stereo_dialog_ok_button">
                 <property name="label" translatable="yes">  OK  </property>
                 <property name="can-focus">1</property>
-                <property name="has-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_stereo_dialog_ok_button_clicked" swapped="no"/>
               </object>
@@ -11954,7 +10024,7 @@ View Mode</property>
   <object class="GtkDialog" id="superpose_dialog">
     <property name="title" translatable="yes">SSM Superpose</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox49">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -11971,7 +10041,6 @@ View Mode</property>
                   <object class="GtkButton" id="superpose_dialog_superpose_button">
                     <property name="label" translatable="yes">  Superpose  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_superpose_dialog_superpose_button_clicked" swapped="no"/>
                   </object>
@@ -12086,7 +10155,7 @@ View Mode</property>
   </object>
   <object class="GtkDialog" id="superpose_nonsense_dialog">
     <property name="title" translatable="yes">Nonsense!</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox50">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -12104,7 +10173,6 @@ View Mode</property>
                   <object class="GtkButton" id="superpose_nonsense_ok_button">
                     <property name="label" translatable="yes">   OK   </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_superpose_nonsense_ok_button_clicked" swapped="no"/>
                   </object>
@@ -12129,7 +10197,7 @@ Move a copy?</property>
   </object>
   <object class="GtkDialog" id="symmetry_controller_dialog">
     <property name="title" translatable="yes">Symmetry Controller</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox90">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -12190,7 +10258,7 @@ Move a copy?</property>
   <object class="GtkDialog" id="undo_molecule_chooser_dialog">
     <property name="title" translatable="yes">Choose molecule to Undo:</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox24">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -12227,7 +10295,7 @@ Move a copy?</property>
   <object class="GtkDialog" id="unmodelled_blobs_dialog">
     <property name="title" translatable="yes">Find Unmodelled Blobs of density</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox68">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -12244,7 +10312,6 @@ Move a copy?</property>
                   <object class="GtkButton" id="find_blobs_ok_button">
                     <property name="label" translatable="yes">  Find Blobs  </property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
                   </object>
@@ -12338,12 +10405,10 @@ Move a copy?</property>
   <object class="GtkDialog" id="unsaved_changes_dialog">
     <property name="title" translatable="yes">Unsaved Changes</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox17">
         <property name="orientation">vertical</property>
-          <object class="GtkButtonBox" id="dialog-action_area17">
-            <property name="homogeneous">1</property>
-            <child>
+         <child type="action">
               <object class="GtkBox" id="hbox51">
                 <child>
                   <object class="GtkButton" id="unsaved_changes_cancel_button">
@@ -12356,13 +10421,10 @@ Move a copy?</property>
                   <object class="GtkButton" id="unsaved_changes_continue_button">
                     <property name="label" translatable="yes">Continue Exit</property>
                     <property name="can-focus">1</property>
-                    <property name="has-focus">1</property>
                     <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
                   </object>
                 </child>
               </object>
-            </child>
-          </object>
         </child>
         <child>
           <object class="GtkFrame" id="frame54">
@@ -12398,7 +10460,7 @@ Move a copy?</property>
   <object class="GtkDialog" id="validation_dialog">
     <property name="title" translatable="yes">validation dialog</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox28">
         <property name="orientation">vertical</property>
          <child type="action">
@@ -12512,7 +10574,7 @@ Move a copy?</property>
   <object class="GtkDialog" id="zoom_dialog">
     <property name="title" translatable="yes">Zoom Control</property>
     <property name="deletable">0</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog-vbox42">
         <property name="orientation">vertical</property>
          <child type="action">
