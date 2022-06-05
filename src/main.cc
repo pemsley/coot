@@ -351,7 +351,9 @@ bool init_from_gtkbuilder() {
       GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
 
       GtkWidget *main_window_deletable_label = widget_from_builder("main_window_deletable_label");
-      gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
+
+      if (main_window_deletable_label) // it might not be looked up correctly when testing
+         gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
 
       if (false) {
          std::cout << "debug:: main_window "   << main_window << std::endl;
@@ -423,7 +425,8 @@ main(int argc, char *argv[]) {
 					                         // this expands the window fully in height - I don't want that.
                                         // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 #else
-                                        gtk_widget_hide(box);
+                                        if (box)
+                                           gtk_widget_hide(box);
 #endif
                                      };
 
@@ -596,7 +599,13 @@ main(int argc, char *argv[]) {
 
       std::cout << "-------------------------------------------------------------------" << std::endl;
       std::cout << "                 a replacement for gtk_main() here " << std::endl;
+      std::cout << "                 use GtkApplication" << std::endl;
       std::cout << "-------------------------------------------------------------------" << std::endl;
+
+      // 20220604-PE but for now...
+      while (g_list_model_get_n_items (gtk_window_get_toplevels ()) > 0)
+         g_main_context_iteration (NULL, TRUE);
+
 #else      
       gtk_main();
 #endif
