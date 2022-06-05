@@ -4634,6 +4634,11 @@ Do you want to continue?
             <property name="orientation">vertical</property>
           </object>
         </child>
+        <child>
+          <object class="GtkBox" id="main_window_graphics_hbox">
+            <property name="orientation">vertical</property>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
