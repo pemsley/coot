@@ -347,10 +347,9 @@ bool init_from_gtkbuilder() {
       graphics_info_t::set_gtkbuilder(builder); // store for future widget queries
 
       GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-
-      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-
+      GtkWidget *sb          = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
       GtkWidget *main_window_deletable_label = widget_from_builder("main_window_deletable_label");
+      graphics_info_t::statusbar = sb;
 
       if (main_window_deletable_label) // it might not be looked up correctly when testing
          gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
@@ -367,8 +366,6 @@ bool init_from_gtkbuilder() {
       std::string main_title = make_main_window_title();
       gtk_window_set_title(GTK_WINDOW(main_window), main_title.c_str());
 
-      graphics_info_t::statusbar = sb;
-
       create_dynamic_menus(main_window);
 
       GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
@@ -379,21 +376,14 @@ bool init_from_gtkbuilder() {
          if (err)
             std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
 
-#if (GTK_MAJOR_VERSION >=4)
-         // happens automatically now (sensible)
-#else
-         gtk_builder_connect_signals(builder, main_window);
-#endif
          gtk_widget_show(main_window);
+         std::cout << "realizing " << glarea << std::endl;
+         gtk_widget_realize(glarea);
 
-         if (false) {
+         if (true) {
             GtkWidget *w = gtk_label_new("Some Test Label");
             gtk_widget_show(w);
-#if (GTK_MAJOR_VERSION >=4)
             gtk_box_append(GTK_BOX(graphics_hbox), w);
-#else
-            gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
-#endif
          }
 
       } else {
@@ -513,10 +503,10 @@ main(int argc, char *argv[]) {
             do_window_resizing_widgets();
 
             GtkWidget *glarea = graphics_info_t::glareas[0];
-            gtk_widget_show(glarea);
             my_glarea_add_signals_and_events(glarea);
-            on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
-                                                    // without this.
+            gtk_widget_show(glarea);
+            // on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
+                                                       // without this.
 
             // We need to connect the submenu to the menus (which are
             // accessible via window1)

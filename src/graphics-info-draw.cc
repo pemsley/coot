@@ -2280,6 +2280,8 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
    // allow the user to set the major and minor version (for debugging)
 
+   std::cout << "-------------------------------------  create_and_pack_gtkglarea() " << std::endl;
+
    int opengl_major_version = 3;
    int opengl_minor_version = 3;
    char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
@@ -2293,21 +2295,21 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
       opengl_minor_version = std::stoi(e2s);
    }
 
-   if (false) // 20220501-PE we don't need to see on startup this anymore
+   if (false) // 20220501-PE we don't need to see this on startup this anymore
       std::cout << "DEBUG:: setting OpenGL required version to "
                 << opengl_major_version << " " << opengl_minor_version << std::endl;
 
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
 
-   unsigned int dimensions = 700;
-   if (! use_gtk_builder) dimensions = 900;
-   dimensions = 900;
+   unsigned int dimensions = 300;
+   // if (! use_gtk_builder) dimensions = 900;
    int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
    gtk_widget_set_size_request(w,
                                gl_widget_dimension_scale_factor * dimensions,
                                gl_widget_dimension_scale_factor * dimensions);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+
+#if (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME box packing
    gtk_box_append(GTK_BOX(vbox), w);
 #else
    gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
@@ -2375,7 +2377,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   shader_for_hud_geometry_bars.Use();
+   // shader_for_hud_geometry_bars.Use(); no need.
 
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
    mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
@@ -2410,6 +2412,8 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
+   std::cout << "---------- done setup_hud_geometry_bars" << std::endl;
+
 }
 
 void
@@ -2417,12 +2421,36 @@ graphics_info_t::setup_hud_buttons() {
 
    if (! glareas[0]) return;
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-   shader_for_hud_buttons.Use();
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: setup_hud_buttons() --start-- error " << err << std::endl;
+
+   std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
+             << " glareas[0] " << glareas[0] << std::endl;
+   attach_buffers();
+
+   GError* error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
+   if (error)
+      std::cout << "debug:: in setup_hud_buttons() current GError on glarea " << error->message << std::endl;
+   else
+      std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: setup_hud_buttons() post attach_buffers() error " << err << std::endl;
+   error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
+   if (error)
+      std::cout << "debug:: in setup_hud_buttons() 2 current GError on glarea " << error->message << std::endl;
+   else
+      std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
+
+   std::cout << "in setup_hud_buttons() 1 " << std::endl;
+   // shader_for_hud_buttons.Use(); // 20220605-PE I don't need to do this to setup the mesh.
+   std::cout << "in setup_hud_buttons() 2 " << std::endl;
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
+   std::cout << "in setup_hud_buttons() 3 " << std::endl;
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
    // maybe mesh_for_hud_buttons.close() ?
+   std::cout << "in setup_hud_buttons() done " << std::endl;
 }
 
 void
@@ -3253,11 +3281,11 @@ graphics_info_t::draw_hud_geometry_bars() {
       }
    }
 
+   std::cout << "in draw_hud_geometry_bars() " << new_bars.size() << std::endl;
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;
       mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
-      Shader &shader = shader_for_hud_geometry_bars;
-      mesh_for_hud_geometry.draw(&shader);
+      mesh_for_hud_geometry.draw(&shader_for_hud_geometry_bars);
    }
    glDisable(GL_BLEND);
 
@@ -4201,7 +4229,7 @@ graphics_info_t::setup_draw_for_particles() {
       shader_for_particles.Use();
 
       err = glGetError();
-      if (err) std::cout << "Error::- setup_draw_for_particles() Post Use() err is "
+      if (err) std::cout << "GL ERROR:: setup_draw_for_particles() Post Use() err is "
                          << err << std::endl;
 
       std::vector<glm::vec3> positions = get_particle_centre_positions();
@@ -4231,11 +4259,15 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
 
    // run this once - call from realize()
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() -- start -- "
+                      << std::endl;
+
    const unsigned int max_happy_faces = 200; // surely enough?
    
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   GLenum err = glGetError();
-   if (err) std::cout << "Error::- setup_draw_for_happy_face_residue_markers_init() "
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() "
                       << "Post attach buffers err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
@@ -4254,10 +4286,15 @@ graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
 
    // run this once - called from realize()
 
+   attach_buffers();
+   GLenum err = glGetError();
+   if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
+                      << "--- start --- err is " << err << std::endl;
+
    const unsigned int max_anchored_atoms = 200;
 
    attach_buffers();
-   GLenum err = glGetError();
+   err = glGetError();
    if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
                       << "Post attach_buffers() err is " << err << std::endl;
 

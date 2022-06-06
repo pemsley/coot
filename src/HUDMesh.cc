@@ -64,6 +64,10 @@ HUDMesh::setup_simple_camera_facing_quad() {
 void
 HUDMesh::setup_vertices_and_triangles_for_button() {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: in HUDMesh::setup_vertices_and_triangles_for_button() start err "
+                      << err << std::endl;
+
    vertices.clear();
    triangles.clear();
 
@@ -102,7 +106,14 @@ HUDMesh::setup_vertices_and_triangles_for_button() {
    triangles.push_back(g_triangle(2,3,0));
    //
 
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: in HUDMesh::setup_vertices_and_triangles_for_button() pre-setup_buffers() err "
+                      << err << std::endl;
    setup_buffers();
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: in HUDMesh::setup_vertices_and_triangles_for_button() post-setup_buffers() err "
+                      << err << std::endl;
 
    // now caller of this should now call setup_instancing_buffer(n_buttons_max)
 }

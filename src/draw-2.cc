@@ -184,7 +184,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    int h = allocation.height;
 
    // 1 and 1 here!
-   // std::cout << "in on_glarea_realize() " << w << " " << h << std::endl;
+
+   std::cout << "******************************************** in on_glarea_realize() " << w << " " << h << " ***************" << std::endl;
 
    // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
    gtk_gl_area_make_current(glarea);
@@ -376,7 +377,10 @@ on_glarea_realize(GtkGLArea *glarea) {
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
 
-   return graphics_info_t::render(false); // not to screendump framebuffer.
+   std::cout << "INFO:: in on_glarea_render() " << std::endl;
+
+   bool screen_dump_frame_buffer = false;
+   return graphics_info_t::render(screen_dump_frame_buffer);
 
 }
 
@@ -390,7 +394,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
-   std::cout << "INFO:: GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);
@@ -474,8 +478,16 @@ on_glarea_swipe(GtkGestureSwipe *gesture,
 void
 my_glarea_add_signals_and_events(GtkWidget *glarea) {
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#if (GTK_MAJOR_VERSION == 4)
+
    // 20220528-PE FIXME events
+   std::cout << "-------------------- signal-connect realize" << std::endl;
+   std::cout << "-------------------- signal-connect render" << std::endl;
+   std::cout << "-------------------- signal-connect resize" << std::endl;
+   g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
+   g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
+   g_signal_connect(glarea, "resize",  G_CALLBACK(on_glarea_resize),  NULL);
+
 #else
 
    gtk_widget_add_events(glarea, GDK_SCROLL_MASK);

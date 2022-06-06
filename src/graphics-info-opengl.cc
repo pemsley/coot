@@ -111,7 +111,7 @@ graphics_info_t::init_shaders() {
    shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
    shader_for_symmetry_atoms_bond_lines.init("symmetry-atoms-lines.shader", Shader::Entity_t::MAP);
-   shader_for_hud_buttons.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT); // ! needs a better name
+   shader_for_hud_buttons.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT); // ! needs a better name, c.f. shader_for_hud_geometry_bars
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);

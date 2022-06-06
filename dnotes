@@ -10609,3 +10609,32 @@ Sat 23 Apr 22:56:05 BST 2022
   In the Makefile
   CXXLD = $(CXX) -fuse-ld=gold
 
+-----
+Sun  5 Jun 18:02:01 BST 2022
+
+  How to set a GtkBox to style ToolBar
+
+  gtk_widget_add_css_class (toolbar, "toolbar");
+  same can be done in xml file too.
+
+  <object class="GtkBox">
+    ... childs here
+    <style>
+        <class name="toolbar"/>
+    </style>
+  </object>
+
+
+https://discourse.gnome.org/t/hope-gtktoolbar-back-to-gtk4/6201/5
+
+-----
+Sun  5 Jun 22:34:51 BST 2022
+
+  GNOME standard
+  
+  Ctrl ? to open keyboard shortcuts (do they mean Ctrl /?)
+
+  Ctrl + to open Preferences (Ctrl =?)
+
+
+https://developer.gnome.org/hig/reference/keyboard.html
