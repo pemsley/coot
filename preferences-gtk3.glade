@@ -18,103 +18,35 @@
     <property name="title" translatable="yes">Preferences</property>
     <property name="default-width">820</property>
     <property name="default-height">480</property>
-    <property name="type-hint">dialog</property>
-    <signal name="destroy" handler="on_preferences_destroy_gtkbuilder_callback" swapped="no"/>
-    <child internal-child="vbox">
+    <signal name="destroy" handler="on_preferences_destroy" swapped="no"/>
+    <child>
       <object class="GtkBox" id="dialog-vbox77">
         <property name="orientation">vertical</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="hbuttonbox5">
-            <property name="layout-style">end</property>
-            <child>
-              <object class="GtkHBox" id="hbox115">
+         <child type="action">
+              <object class="GtkBox" id="hbox115">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="border-width">2</property>
                 <child>
                   <object class="GtkButton" id="preferences_reset_button">
                     <property name="can-focus">1</property>
-                    <property name="border-width">2</property>
-                    <signal name="clicked" handler="on_preferences_reset_button_clicked_gtkbuilder_callback" swapped="no"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment110">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkHBox" id="hbox326">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image6181">
-                                <property name="stock">gtk-refresh</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label590">
-                                <property name="label" translatable="yes">   Reset Defaults   </property>
-                                <property name="use-underline">1</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
+                    <signal name="clicked" handler="on_preferences_reset_button_clicked" swapped="no"/>
                   </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">6</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="preferences_ok_button">
                     <property name="label">gtk-ok</property>
                     <property name="can-focus">1</property>
-                    <property name="border-width">2</property>
-                    <property name="use-stock">True</property>
-                    <signal name="clicked" handler="on_preferences_ok_button_clicked_gtkbuilder_callback" swapped="no"/>
+                    <signal name="clicked" handler="on_preferences_ok_button_clicked" swapped="no"/>
                   </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="padding">6</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack-type">end</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox114">
+          <object class="GtkBox" id="hbox114">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
               <object class="GtkFrame" id="frame137">
-                <property name="border-width">3</property>
                 <child>
                   <object class="GtkToolbar" id="preferences_toolbar">
                     <property name="orientation">vertical</property>
@@ -126,11 +58,8 @@
                         <property name="use-underline">1</property>
                         <property name="stock-id">gtk-preferences</property>
                         <property name="active">1</property>
-                        <signal name="toggled" handler="on_preferences_general_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_general_radiotoolbutton_toggled" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="homogeneous">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkRadioToolButton" id="preferences_bond_radiotoolbutton">
@@ -138,11 +67,8 @@
                         <property name="use-underline">1</property>
                         <property name="stock-id">gtk-properties</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
-                        <signal name="toggled" handler="on_preferences_bond_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_bond_radiotoolbutton_toggled" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="homogeneous">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkRadioToolButton" id="preferences_map_radiotoolbutton">
@@ -150,7 +76,7 @@
                         <property name="use-underline">1</property>
                         <property name="icon-name">application-community</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
-                        <signal name="toggled" handler="on_preferences_map_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_map_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="homogeneous">1</property>
@@ -162,7 +88,7 @@
                         <property name="use-underline">1</property>
                         <property name="stock-id">gtk-cut</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
-                        <signal name="toggled" handler="on_preferences_geometry_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_geometry_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="homogeneous">1</property>
@@ -174,7 +100,7 @@
                         <property name="use-underline">1</property>
                         <property name="stock-id">gtk-select-color</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
-                        <signal name="toggled" handler="on_preferences_colour_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_colour_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="homogeneous">1</property>
@@ -186,7 +112,7 @@
                         <property name="use-underline">1</property>
                         <property name="stock-id">gtk-dialog-question</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
-                        <signal name="toggled" handler="on_preferences_other_radiotoolbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="toggled" handler="on_preferences_other_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="homogeneous">1</property>
@@ -213,7 +139,6 @@
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame235">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox241">
                                 <property name="visible">True</property>
@@ -222,10 +147,9 @@
                                   <object class="GtkRadioButton" id="preferences_filechooser_off_radiobutton">
                                     <property name="label" translatable="yes">Classic File Selector</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_filechooser_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_filechooser_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -237,11 +161,10 @@
                                   <object class="GtkRadioButton" id="preferences_filechooser_on_radiobutton">
                                     <property name="label" translatable="yes">Modern File Chooser</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_filechooser_off_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_filechooser_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_filechooser_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -266,7 +189,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame251">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox258">
                                 <property name="visible">True</property>
@@ -275,10 +197,9 @@
                                   <object class="GtkRadioButton" id="preferences_file_filter_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_file_filter_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_filter_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -290,11 +211,10 @@
                                   <object class="GtkRadioButton" id="preferences_file_filter_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_file_filter_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_file_filter_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_filter_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -319,7 +239,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame247">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox254">
                                 <property name="visible">True</property>
@@ -328,10 +247,9 @@
                                   <object class="GtkRadioButton" id="preferences_file_sort_by_date_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_file_sort_by_date_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_sort_by_date_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -343,11 +261,10 @@
                                   <object class="GtkRadioButton" id="preferences_file_sort_by_date_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_file_sort_by_date_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_file_sort_by_date_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_sort_by_date_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -372,7 +289,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame236">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox242">
                                 <property name="visible">True</property>
@@ -381,10 +297,9 @@
                                   <object class="GtkRadioButton" id="preferences_file_overwrite_yes_radiobutton">
                                     <property name="label" translatable="yes">Ask before overwriting file</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_file_overwrite_yes_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_overwrite_yes_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -396,11 +311,10 @@
                                   <object class="GtkRadioButton" id="preferences_file_overwrite_no_radiobutton">
                                     <property name="label" translatable="yes">Do not ask when overwriting file</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_file_overwrite_yes_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_file_overwrite_no_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_file_overwrite_no_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -444,7 +358,6 @@
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame238">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox244">
                                 <property name="visible">True</property>
@@ -453,10 +366,9 @@
                                   <object class="GtkRadioButton" id="preferences_dialog_accept_docked_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_dialog_accept_docked_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_dialog_accept_docked_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -465,7 +377,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="preferences_dialog_accept_docked_hbox">
+                                  <object class="GtkBox" id="preferences_dialog_accept_docked_hbox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -488,7 +400,7 @@
                                             <property name="can-focus">1</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
-                                            <signal name="toggled" handler="on_preferences_dialog_accept_docked_show_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_dialog_accept_docked_show_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -503,7 +415,7 @@
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
                                             <property name="group">preferences_dialog_accept_docked_show_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_dialog_accept_docked_hide_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_dialog_accept_docked_hide_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -529,11 +441,10 @@
                                   <object class="GtkRadioButton" id="preferences_dialog_accept_detouched_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_dialog_accept_docked_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_dialog_accept_detouched_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_dialog_accept_detouched_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -558,7 +469,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame246">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox253">
                                 <property name="visible">True</property>
@@ -567,11 +477,10 @@
                                   <object class="GtkRadioButton" id="preferences_dialog_accept_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="active">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_dialog_accept_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_dialog_accept_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -583,11 +492,10 @@
                                   <object class="GtkRadioButton" id="preferences_dialog_accept_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_dialog_accept_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_dialog_accept_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_dialog_accept_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -630,7 +538,7 @@
                 <child>
                   <object class="GtkFrame" id="preferences_model_toolbar_style">
                     <child>
-                      <object class="GtkHBox" id="hbox380">
+                      <object class="GtkBox" id="hbox380">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
@@ -638,12 +546,11 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkHBox" id="hbox379">
+                              <object class="GtkBox" id="hbox379">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
                                   <object class="GtkFrame" id="frame279">
-                                    <property name="border-width">8</property>
                                     <child>
                                       <object class="GtkVBox" id="vbox285">
                                         <property name="visible">True</property>
@@ -652,10 +559,9 @@
                                           <object class="GtkRadioButton" id="preferences_model_toolbar_show_radiobutton">
                                             <property name="label" translatable="yes">Yes</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_show_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_show_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -664,7 +570,7 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkHBox" id="hbox356">
+                                          <object class="GtkBox" id="hbox356">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <child>
@@ -687,7 +593,7 @@
                                                     <property name="can-focus">1</property>
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
-                                                    <signal name="toggled" handler="on_preferences_model_toolbar_right_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_model_toolbar_right_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -702,7 +608,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_model_toolbar_right_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_model_toolbar_left_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_model_toolbar_left_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -717,7 +623,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_model_toolbar_right_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_model_toolbar_top_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_model_toolbar_top_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -732,7 +638,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_model_toolbar_right_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_model_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_model_toolbar_bottom_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -758,11 +664,10 @@
                                           <object class="GtkRadioButton" id="preferences_model_toolbar_hide_radiobutton">
                                             <property name="label" translatable="yes">No</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
                                             <property name="group">preferences_model_toolbar_show_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_hide_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_hide_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -787,7 +692,6 @@
                                 </child>
                                 <child>
                                   <object class="GtkFrame" id="frame284">
-                                    <property name="border-width">8</property>
                                     <child>
                                       <object class="GtkVBox" id="vbox295">
                                         <property name="visible">True</property>
@@ -796,10 +700,9 @@
                                           <object class="GtkRadioButton" id="preferences_model_toolbar_main_icons_radiobutton">
                                             <property name="label" translatable="yes">Main Icons (default)</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_main_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_main_icons_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -811,11 +714,10 @@
                                           <object class="GtkRadioButton" id="preferences_model_toolbar_all_icons_radiobutton">
                                             <property name="label" translatable="yes">All Icons</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
                                             <property name="group">preferences_model_toolbar_main_icons_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_all_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_all_icons_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -847,7 +749,6 @@
                             </child>
                             <child>
                               <object class="GtkFrame" id="frame278">
-                                <property name="border-width">8</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox284">
                                     <property name="visible">True</property>
@@ -856,10 +757,9 @@
                                       <object class="GtkRadioButton" id="preferences_model_toolbar_style_icons_radiobutton">
                                         <property name="label" translatable="yes">Icons only (default)</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
-                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_icons_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -871,11 +771,10 @@
                                       <object class="GtkRadioButton" id="preferences_model_toolbar_style_both_radiobutton">
                                         <property name="label" translatable="yes">Icons and Text</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_model_toolbar_style_icons_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_both_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -887,11 +786,10 @@
                                       <object class="GtkRadioButton" id="preferences_model_toolbar_style_text_radiobutton">
                                         <property name="label" translatable="yes">Text only</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_model_toolbar_style_icons_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_text_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_model_toolbar_style_text_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -927,13 +825,12 @@
                             <property name="can-focus">False</property>
                             <child>
                               <object class="GtkFrame" id="frame285">
-                                <property name="border-width">8</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox296">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
-                                      <object class="GtkHBox" id="hbox381">
+                                      <object class="GtkBox" id="hbox381">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
                                         <child>
@@ -958,9 +855,8 @@
                                       <object class="GtkButton" id="preferences_model_toolbar_show_icon_all_button">
                                         <property name="label" translatable="yes">Show all icons</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">2</property>
                                         <property name="use-underline">1</property>
-                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_all_button_clicked_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_all_button_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -973,9 +869,8 @@
                                       <object class="GtkButton" id="preferences_model_toolbar_show_icon_selection_button">
                                         <property name="label" translatable="yes">Show default icons (BKP setting)</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">2</property>
                                         <property name="use-underline">1</property>
-                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_selection_button_clicked_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_selection_button_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1037,7 +932,7 @@
                 <child>
                   <object class="GtkFrame" id="preferences_main_toolbar_style">
                     <child>
-                      <object class="GtkHBox" id="hbox418">
+                      <object class="GtkBox" id="hbox418">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
@@ -1045,12 +940,11 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkHBox" id="hbox419">
+                              <object class="GtkBox" id="hbox419">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
                                   <object class="GtkFrame" id="frame298">
-                                    <property name="border-width">8</property>
                                     <child>
                                       <object class="GtkVBox" id="vbox313">
                                         <property name="visible">True</property>
@@ -1059,10 +953,9 @@
                                           <object class="GtkRadioButton" id="preferences_main_toolbar_show_radiobutton">
                                             <property name="label" translatable="yes">Yes</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
-                                            <signal name="toggled" handler="on_preferences_main_toolbar_show_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_main_toolbar_show_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1071,7 +964,7 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkHBox" id="hbox420">
+                                          <object class="GtkBox" id="hbox420">
                                             <property name="can-focus">False</property>
                                             <child>
                                               <object class="GtkLabel" id="label762">
@@ -1093,7 +986,7 @@
                                                     <property name="can-focus">1</property>
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
-                                                    <signal name="toggled" handler="on_preferences_main_toolbar_top_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_main_toolbar_top_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -1108,7 +1001,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_main_toolbar_top_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_main_toolbar_bottom_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_main_toolbar_bottom_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -1123,7 +1016,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_main_toolbar_top_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_main_toolbar_right_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_main_toolbar_right_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -1138,7 +1031,7 @@
                                                     <property name="use-underline">1</property>
                                                     <property name="draw-indicator">1</property>
                                                     <property name="group">preferences_main_toolbar_top_radiobutton</property>
-                                                    <signal name="toggled" handler="on_preferences_main_toolbar_left_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                                    <signal name="toggled" handler="on_preferences_main_toolbar_left_radiobutton_toggled" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">False</property>
@@ -1164,11 +1057,10 @@
                                           <object class="GtkRadioButton" id="preferences_main_toolbar_hide_radiobutton">
                                             <property name="label" translatable="yes">No</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
                                             <property name="group">preferences_main_toolbar_show_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_main_toolbar_hide_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_main_toolbar_hide_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1193,7 +1085,6 @@
                                 </child>
                                 <child>
                                   <object class="GtkFrame" id="frame299">
-                                    <property name="border-width">8</property>
                                     <child>
                                       <object class="GtkVBox" id="vbox315">
                                         <property name="visible">True</property>
@@ -1202,10 +1093,9 @@
                                           <object class="GtkRadioButton" id="radiobutton15">
                                             <property name="label" translatable="yes">Main Icons (default)</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_main_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_main_icons_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1217,11 +1107,10 @@
                                           <object class="GtkRadioButton" id="radiobutton16">
                                             <property name="label" translatable="yes">All Icons</property>
                                             <property name="can-focus">1</property>
-                                            <property name="border-width">5</property>
                                             <property name="use-underline">1</property>
                                             <property name="draw-indicator">1</property>
                                             <property name="group">preferences_model_toolbar_main_icons_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_model_toolbar_all_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="toggled" handler="on_preferences_model_toolbar_all_icons_radiobutton_toggled" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1253,7 +1142,6 @@
                             </child>
                             <child>
                               <object class="GtkFrame" id="frame300">
-                                <property name="border-width">8</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox316">
                                     <property name="visible">True</property>
@@ -1262,10 +1150,9 @@
                                       <object class="GtkRadioButton" id="preferences_main_toolbar_style_icons_radiobutton">
                                         <property name="label" translatable="yes">Icons only</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
-                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_icons_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_icons_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1277,11 +1164,10 @@
                                       <object class="GtkRadioButton" id="preferences_main_toolbar_style_both_radiobutton">
                                         <property name="label" translatable="yes">Icons and Text (default)</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_main_toolbar_style_icons_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_both_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_both_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1293,11 +1179,10 @@
                                       <object class="GtkRadioButton" id="preferences_main_toolbar_style_text_radiobutton">
                                         <property name="label" translatable="yes">Text only</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_main_toolbar_style_icons_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_text_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_main_toolbar_style_text_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1333,13 +1218,12 @@
                             <property name="can-focus">False</property>
                             <child>
                               <object class="GtkFrame" id="frame301">
-                                <property name="border-width">8</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox318">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
-                                      <object class="GtkHBox" id="hbox421">
+                                      <object class="GtkBox" id="hbox421">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
                                         <child>
@@ -1364,9 +1248,8 @@
                                       <object class="GtkButton" id="button33">
                                         <property name="label" translatable="yes">Show all icons</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">2</property>
                                         <property name="use-underline">1</property>
-                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_all_button_clicked_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_all_button_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1379,9 +1262,8 @@
                                       <object class="GtkButton" id="button34">
                                         <property name="label" translatable="yes">Show default icons (BKP setting)</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">2</property>
                                         <property name="use-underline">1</property>
-                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_selection_button_clicked_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_model_toolbar_show_icon_selection_button_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1461,7 +1343,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame262">
-                            <property name="border-width">12</property>
                             <child>
                               <object class="GtkVBox" id="vbox264">
                                 <property name="visible">True</property>
@@ -1470,10 +1351,9 @@
                                   <object class="GtkRadioButton" id="preferences_recentre_pdb_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_recentre_pdb_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_recentre_pdb_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1485,11 +1365,10 @@
                                   <object class="GtkRadioButton" id="preferences_recentre_pdb_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_recentre_pdb_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_recentre_pdb_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_recentre_pdb_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1544,7 +1423,6 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame258">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox260">
                                 <property name="visible">True</property>
@@ -1553,10 +1431,9 @@
                                   <object class="GtkRadioButton" id="preferences_smooth_scroll_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_smooth_scroll_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_smooth_scroll_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1568,11 +1445,10 @@
                                   <object class="GtkRadioButton" id="preferences_smooth_scroll_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_smooth_scroll_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_smooth_scroll_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_smooth_scroll_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1596,9 +1472,8 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame254">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox327">
+                              <object class="GtkBox" id="hbox327">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -1618,8 +1493,8 @@
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_smooth_scroll_steps_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_smooth_scroll_steps_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_smooth_scroll_steps_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_smooth_scroll_steps_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1650,9 +1525,8 @@
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame255">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox328">
+                              <object class="GtkBox" id="hbox328">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -1673,8 +1547,8 @@ distances more than:</property>
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_smooth_scroll_limit_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_smooth_scroll_limit_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_smooth_scroll_limit_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_smooth_scroll_limit_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1741,7 +1615,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame233">
-                            <property name="border-width">12</property>
                             <child>
                               <object class="GtkVBox" id="vbox239">
                                 <property name="visible">True</property>
@@ -1750,10 +1623,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_hid_spherical_radiobutton">
                                     <property name="label" translatable="yes">Spherical Surface</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_hid_spherical_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_hid_spherical_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1765,11 +1637,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_hid_flat_radiobutton">
                                     <property name="label" translatable="yes">Turntable Mode (Flat)</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_hid_spherical_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_hid_flat_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_hid_flat_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1814,18 +1685,17 @@ distances more than:</property>
                             <property name="can-focus">False</property>
                             <child>
                               <object class="GtkFrame" id="frame212">
-                                <property name="border-width">8</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox224">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
-                                      <object class="GtkHBox" id="hbox304">
+                                      <object class="GtkBox" id="hbox304">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
                                         <child>
                                           <object class="GtkComboBox" id="preferences_bond_width_combobox">
-                                            <signal name="changed" handler="on_preferences_bond_width_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                                            <signal name="changed" handler="on_preferences_bond_width_combobox_changed" swapped="no"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1890,7 +1760,6 @@ distances more than:</property>
                 </child>
                 <child>
                   <object class="GtkFrame" id="preferences_bond_colours">
-                    <property name="border-width">4</property>
                     <child>
                       <object class="GtkVBox" id="vbox212">
                         <property name="visible">True</property>
@@ -1898,7 +1767,6 @@ distances more than:</property>
                         <property name="spacing">9</property>
                         <child>
                           <object class="GtkFrame" id="frame200">
-                            <property name="border-width">2</property>
                             <child>
                               <object class="GtkVBox" id="vbox213">
                                 <property name="visible">True</property>
@@ -1915,7 +1783,7 @@ distances more than:</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="hbox287">
+                                  <object class="GtkBox" id="hbox287">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -1935,7 +1803,7 @@ distances more than:</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="adjustment">adjustment1</property>
-                                        <signal name="value-changed" handler="on_preferences_bond_colours_hscale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="value-changed" handler="on_preferences_bond_colours_hscale_value_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1973,14 +1841,12 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame201">
-                            <property name="border-width">2</property>
                             <child>
                               <object class="GtkCheckButton" id="preferences_bond_colours_checkbutton">
                                 <property name="label" translatable="yes"> Change colour for Carbons only</property>
                                 <property name="can-focus">1</property>
-                                <property name="border-width">5</property>
                                 <property name="use-underline">1</property>
-                                <signal name="toggled" handler="on_preferences_bond_colours_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                <signal name="toggled" handler="on_preferences_bond_colours_checkbutton_toggled" swapped="no"/>
                               </object>
                             </child>
                           </object>
@@ -2032,9 +1898,8 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame223">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox316">
+                              <object class="GtkBox" id="hbox316">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -2054,8 +1919,8 @@ distances more than:</property>
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_map_radius_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_map_radius_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_map_radius_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_map_radius_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2098,9 +1963,8 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame224">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox317">
+                              <object class="GtkBox" id="hbox317">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -2120,8 +1984,8 @@ distances more than:</property>
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_map_increment_size_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_map_increment_size_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_map_increment_size_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_map_increment_size_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2153,9 +2017,8 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame225">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox318">
+                              <object class="GtkBox" id="hbox318">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -2175,8 +2038,8 @@ distances more than:</property>
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_map_diff_increment_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_map_diff_increment_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_map_diff_increment_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_map_diff_increment_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2207,9 +2070,8 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame226">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox319">
+                              <object class="GtkBox" id="hbox319">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -2229,8 +2091,8 @@ distances more than:</property>
                                     <property name="tooltip-text" translatable="yes">Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_map_sampling_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_map_sampling_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_map_sampling_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_map_sampling_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2249,7 +2111,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame227">
-                            <property name="border-width">5</property>
                             <child>
                               <object class="GtkVBox" id="vbox233">
                                 <property name="visible">True</property>
@@ -2258,9 +2119,8 @@ distances more than:</property>
                                   <object class="GtkCheckButton" id="preferences_map_dynamic_sampling_checkbutton">
                                     <property name="label" translatable="yes">Dynamic Map Sampling</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">1</property>
                                     <property name="use-underline">1</property>
-                                    <signal name="toggled" handler="on_preferences_map_dynamic_sampling_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_map_dynamic_sampling_checkbutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2273,7 +2133,7 @@ distances more than:</property>
                                     <property name="label" translatable="yes">Dynamic Map Display Size</property>
                                     <property name="can-focus">1</property>
                                     <property name="use-underline">1</property>
-                                    <signal name="toggled" handler="on_preferences_map_dynamic_size_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_map_dynamic_size_checkbutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2314,7 +2174,6 @@ distances more than:</property>
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame231">
-                            <property name="border-width">10</property>
                             <child>
                               <object class="GtkVBox" id="vbox237">
                                 <property name="visible">True</property>
@@ -2324,10 +2183,9 @@ distances more than:</property>
                                     <property name="label" translatable="yes">Coot colours</property>
                                     <property name="can-focus">1</property>
                                     <property name="tooltip-text" translatable="yes">positive - green; negative - red</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_diff_map_colours_coot_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_diff_map_colours_coot_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2340,11 +2198,10 @@ distances more than:</property>
                                     <property name="label" translatable="yes">O colours</property>
                                     <property name="can-focus">1</property>
                                     <property name="tooltip-text" translatable="yes">positive - red; negative - green</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_diff_map_colours_coot_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_diff_map_colours_o_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_diff_map_colours_o_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2368,13 +2225,12 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame294">
-                            <property name="border-width">2</property>
                             <child>
                               <object class="GtkVBox" id="vbox310">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox416">
+                                  <object class="GtkBox" id="hbox416">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -2394,7 +2250,7 @@ distances more than:</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="adjustment">adjustment2</property>
-                                        <signal name="value-changed" handler="on_preferences_map_colours_hscale_value_changed_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="value-changed" handler="on_preferences_map_colours_hscale_value_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -2472,7 +2328,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame260">
-                            <property name="border-width">12</property>
                             <child>
                               <object class="GtkVBox" id="vbox262">
                                 <property name="visible">True</property>
@@ -2481,10 +2336,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_map_drag_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_map_drag_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_map_drag_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2496,11 +2350,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_map_drag_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_map_drag_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_map_drag_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_map_drag_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2553,7 +2406,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame136">
-                            <property name="border-width">10</property>
                             <child>
                               <object class="GtkVBox" id="vbox140">
                                 <property name="visible">True</property>
@@ -2562,10 +2414,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_geometry_cis_peptide_bad_yes_radiobutton">
                                     <property name="label" translatable="yes"> Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2577,11 +2428,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_geometry_cis_peptide_bad_no_radiobutton">
                                     <property name="label" translatable="yes"> No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_geometry_cis_peptide_bad_yes_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2635,7 +2485,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame229">
-                            <property name="border-width">10</property>
                             <child>
                               <object class="GtkVBox" id="vbox235">
                                 <property name="visible">True</property>
@@ -2644,10 +2493,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_bg_colour_black_radiobutton">
                                     <property name="label" translatable="yes">Black</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_bg_colour_black_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_bg_colour_black_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2659,11 +2507,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_bg_colour_white_radiobutton">
                                     <property name="label" translatable="yes">White</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_bg_colour_black_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_bg_colour_white_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_bg_colour_white_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2672,7 +2519,7 @@ distances more than:</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="hbox322">
+                                  <object class="GtkBox" id="hbox322">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -2680,11 +2527,10 @@ distances more than:</property>
                                         <property name="label" translatable="yes">Own colour</property>
                                         <property name="can-focus">1</property>
                                         <property name="tooltip-text" translatable="yes">Select to choose you own colour</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_bg_colour_black_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_bg_colour_own_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_bg_colour_own_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2697,8 +2543,8 @@ distances more than:</property>
                                         <property name="can-focus">1</property>
                                         <property name="tooltip-text" translatable="yes">Press here to choose your own colour</property>
                                         <property name="title" translatable="yes">Pick a Background Colour</property>
-                                        <signal name="clicked" handler="on_preferences_bg_colour_colorbutton_clicked_gtkbuilder_callback" swapped="no"/>
-                                        <signal name="color-set" handler="on_preferences_bg_colour_colorbutton_color_set_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_bg_colour_colorbutton_clicked" swapped="no"/>
+                                        <signal name="color-set" handler="on_preferences_bg_colour_colorbutton_color_set" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2759,7 +2605,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame208">
-                            <property name="border-width">12</property>
                             <child>
                               <object class="GtkVBox" id="vbox217">
                                 <property name="visible">True</property>
@@ -2768,10 +2613,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_antialias_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_antialias_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_antialias_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2783,11 +2627,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_antialias_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_antialias_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_antialias_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_antialias_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2829,7 +2672,6 @@ distances more than:</property>
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame248">
-                            <property name="border-width">12</property>
                             <child>
                               <object class="GtkVBox" id="vbox256">
                                 <property name="visible">True</property>
@@ -2838,10 +2680,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_font_size_small_radiobutton">
                                     <property name="label" translatable="yes">Small</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_font_size_small_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_font_size_small_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2853,11 +2694,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_font_size_medium_radiobutton">
                                     <property name="label" translatable="yes">Medium</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_font_size_small_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_font_size_medium_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_font_size_medium_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2869,11 +2709,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_font_size_large_radiobutton">
                                     <property name="label" translatable="yes">Large</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_font_size_small_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_font_size_large_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_font_size_large_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2882,18 +2721,17 @@ distances more than:</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="hbox323">
+                                  <object class="GtkBox" id="hbox323">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkRadioButton" id="preferences_font_size_others_radiobutton">
                                         <property name="label" translatable="yes">Others</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_font_size_small_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_font_size_others_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_font_size_others_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2903,7 +2741,7 @@ distances more than:</property>
                                     </child>
                                     <child>
                                       <object class="GtkComboBox" id="preferences_font_size_combobox">
-                                        <signal name="changed" handler="on_preferences_font_size_combobox_changed_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="changed" handler="on_preferences_font_size_combobox_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2934,7 +2772,6 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame286">
-                            <property name="border-width">10</property>
                             <child>
                               <object class="GtkVBox" id="vbox298">
                                 <property name="visible">True</property>
@@ -2943,10 +2780,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_font_colour_default_radiobutton">
                                     <property name="label" translatable="yes">Default</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_font_colour_default_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_font_colour_default_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2955,7 +2791,7 @@ distances more than:</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="hbox382">
+                                  <object class="GtkBox" id="hbox382">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -2963,11 +2799,10 @@ distances more than:</property>
                                         <property name="label" translatable="yes">Own label colour</property>
                                         <property name="can-focus">1</property>
                                         <property name="tooltip-text" translatable="yes">Select to choose you own colour</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_font_colour_default_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_font_colour_own_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_font_colour_own_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2979,10 +2814,9 @@ distances more than:</property>
                                       <object class="GtkColorButton" id="preferences_font_colorbutton">
                                         <property name="can-focus">1</property>
                                         <property name="tooltip-text" translatable="yes">click here to change font colours</property>
-                                        <property name="border-width">5</property>
                                         <property name="title" translatable="yes">Pick a Font Colour</property>
-                                        <signal name="clicked" handler="on_preferences_font_colorbutton_clicked_gtkbuilder_callback" swapped="no"/>
-                                        <signal name="color-set" handler="on_preferences_font_colorbutton_color_set_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="clicked" handler="on_preferences_font_colorbutton_clicked" swapped="no"/>
+                                        <signal name="color-set" handler="on_preferences_font_colorbutton_color_set" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -3035,7 +2869,6 @@ distances more than:</property>
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame264">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox266">
                                 <property name="visible">True</property>
@@ -3044,10 +2877,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_tips_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_tips_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_tips_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3059,11 +2891,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_tips_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_tips_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_tips_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_tips_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3110,7 +2941,6 @@ distances more than:</property>
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame240">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox247">
                                 <property name="visible">True</property>
@@ -3119,10 +2949,9 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_console_info_on_radiobutton">
                                     <property name="label" translatable="yes">Yes</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_console_info_on_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_console_info_on_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3134,11 +2963,10 @@ distances more than:</property>
                                   <object class="GtkRadioButton" id="preferences_console_info_off_radiobutton">
                                     <property name="label" translatable="yes">No</property>
                                     <property name="can-focus">1</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_console_info_on_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_console_info_off_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_console_info_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3197,9 +3025,8 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame250">
-                            <property name="border-width">5</property>
                             <child>
-                              <object class="GtkHBox" id="hbox324">
+                              <object class="GtkBox" id="hbox324">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
@@ -3219,8 +3046,8 @@ distances more than:</property>
                                     <property name="can-focus">1</property>
                                     <property name="primary-icon-activatable">0</property>
                                     <property name="secondary-icon-activatable">0</property>
-                                    <signal name="activate" handler="on_preferences_pink_pointer_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                    <signal name="changed" handler="on_preferences_pink_pointer_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="activate" handler="on_preferences_pink_pointer_entry_activate" swapped="no"/>
+                                    <signal name="changed" handler="on_preferences_pink_pointer_entry_changed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3285,7 +3112,6 @@ distances more than:</property>
                         <property name="can-focus">False</property>
                         <child>
                           <object class="GtkFrame" id="frame244">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox251">
                                 <property name="visible">True</property>
@@ -3295,10 +3121,9 @@ distances more than:</property>
                                     <property name="label" translatable="yes">Molasses Refinement mode</property>
                                     <property name="can-focus">1</property>
                                     <property name="tooltip-text" translatable="yes">0.08 Emsley</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
-                                    <signal name="toggled" handler="on_preferences_refinement_speed_molasses_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_refinement_speed_molasses_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3311,11 +3136,10 @@ distances more than:</property>
                                     <property name="label" translatable="yes">Crock Refinement mode</property>
                                     <property name="can-focus">1</property>
                                     <property name="tooltip-text" translatable="yes">2.4 Emsley</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_refinement_speed_molasses_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_refinement_speed_crock_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_refinement_speed_crock_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3328,11 +3152,10 @@ distances more than:</property>
                                     <property name="label" translatable="yes">Default Refinement mode</property>
                                     <property name="can-focus">1</property>
                                     <property name="tooltip-text" translatable="yes">1 Emsley</property>
-                                    <property name="border-width">5</property>
                                     <property name="use-underline">1</property>
                                     <property name="draw-indicator">1</property>
                                     <property name="group">preferences_refinement_speed_molasses_radiobutton</property>
-                                    <signal name="toggled" handler="on_preferences_refinement_speed_default_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                    <signal name="toggled" handler="on_preferences_refinement_speed_default_radiobutton_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3341,18 +3164,17 @@ distances more than:</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkHBox" id="hbox320">
+                                  <object class="GtkBox" id="hbox320">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkRadioButton" id="preferences_refinement_speed_own_radiobutton">
                                         <property name="label" translatable="yes">Set own speed</property>
                                         <property name="can-focus">1</property>
-                                        <property name="border-width">5</property>
                                         <property name="use-underline">1</property>
                                         <property name="draw-indicator">1</property>
                                         <property name="group">preferences_refinement_speed_molasses_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_refinement_speed_own_radiobutton_toggled_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="toggled" handler="on_preferences_refinement_speed_own_radiobutton_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -3366,8 +3188,8 @@ distances more than:</property>
                                         <property name="invisible-char">•</property>
                                         <property name="primary-icon-activatable">0</property>
                                         <property name="secondary-icon-activatable">0</property>
-                                        <signal name="activate" handler="on_preferences_refinement_speed_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                        <signal name="changed" handler="on_preferences_refinement_speed_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="activate" handler="on_preferences_refinement_speed_entry_activate" swapped="no"/>
+                                        <signal name="changed" handler="on_preferences_refinement_speed_entry_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -3399,13 +3221,12 @@ distances more than:</property>
                         </child>
                         <child>
                           <object class="GtkFrame" id="frame245">
-                            <property name="border-width">8</property>
                             <child>
                               <object class="GtkVBox" id="vbox252">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox321">
+                                  <object class="GtkBox" id="hbox321">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
@@ -3427,8 +3248,8 @@ distances more than:</property>
                                         <property name="invisible-char">•</property>
                                         <property name="primary-icon-activatable">0</property>
                                         <property name="secondary-icon-activatable">0</property>
-                                        <signal name="activate" handler="on_preferences_spin_speed_entry_activate_gtkbuilder_callback" swapped="no"/>
-                                        <signal name="changed" handler="on_preferences_spin_speed_entry_changed_gtkbuilder_callback" swapped="no"/>
+                                        <signal name="activate" handler="on_preferences_spin_speed_entry_activate" swapped="no"/>
+                                        <signal name="changed" handler="on_preferences_spin_speed_entry_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
