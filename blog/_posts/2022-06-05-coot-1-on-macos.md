@@ -32,7 +32,7 @@ I thought it would be interesting to see if moving to GTK4 would solve the perfo
 So I extracted the new OpenGL code in _Coot_, i.e. the "Coot Render Engine" and built that into a new
 application with a rudimentary gui that would compile with Gtk+3 and, with some changes, also compile with GTK4.
 
-I made a [video about the results](https://www.youtube.com/watch?v=\_c7NO3\_8KNc).
+I made a [video about the results](https://www.youtube.com/watch?v=Xhonm4K1y0c).
 
 It was enough to show me that it was the GTK backend that was the problem for MacOS and a solution
 was available.
