@@ -18,10 +18,10 @@ on MacOS was terrible - close to unusable - if not actually unusable.
 Googling around, it seemed that other GTK-using applications that were
 targeting MacOS (such as the GIMP or Inkscape) were also very
 slow. This [Phoronix
-article](https://www.phoronix.com/scan.php?page=news\_item&px=GTK4-macOS-Improved)
+article](https://www.phoronix.com/scan.php?page=news_item&px=GTK4-macOS-Improved)
 was very interesting. It seems that Christian Hergert is the main
 developer of [the MacOS
-backend]([https://blogs.gnome.org/chergert/2020/12/15/gtk-4-got-a-new-macos-backend-now-with-opengl/).
+backend](https://blogs.gnome.org/chergert/2020/12/15/gtk-4-got-a-new-macos-backend-now-with-opengl/).
 
 Should I care that Coot 1 on MacOS is slow?
 
