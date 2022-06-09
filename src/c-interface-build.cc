@@ -903,6 +903,7 @@ void delete_chain(int imol, const char *chain_id_in) {
 	 graphics_draw();
       }
 
+#if 0 // 20220609-PE we don't need to do this sort of thing any more
       if (delete_item_widget_is_being_shown()) {
 	 if (delete_item_widget_keep_active_on()) {
 	    // dont destroy it
@@ -910,6 +911,7 @@ void delete_chain(int imol, const char *chain_id_in) {
 	    //store_delete_item_widget_position(); // and destroy it.
 	 }
       }
+#endif
       if (! is_valid_model_molecule(imol))
 	 g.delete_molecule_from_from_display_manager(imol, false);
 

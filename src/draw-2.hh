@@ -3,8 +3,9 @@
 #include <gtk/gtk.h>
 #include <glm/glm.hpp>
 
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder);
-void my_glarea_add_signals_and_events(GtkWidget *glarea);
+GtkWidget *create_gtkglarea_widget();
+
+// void my_glarea_add_signals_and_events(GtkWidget *glarea);
 
 // void init_central_cube();
 // void draw_central_cube(GtkGLArea *glarea);

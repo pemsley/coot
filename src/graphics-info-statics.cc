@@ -258,6 +258,13 @@ double graphics_info_t::mouse_current_y = 0.0;
 // float* graphics_info_t::quat = new float[4]; // gone. Use glm_quat
 float graphics_info_t::trackball_size = 12.8; // better for me for now. was 0.8
 
+// 20220606-PE new style mouse positioning - because of event controllers
+double graphics_info_t::drag_begin_x = 0.0;
+double graphics_info_t::drag_begin_y = 0.0;
+double graphics_info_t::mouse_x = 0.0;
+double graphics_info_t::mouse_y = 0.0;
+std::pair<double, double> graphics_info_t::mouse_previous_position = std::make_pair(0.0, 0.0);
+
 // residue reorientation on "space"
 bool graphics_info_t::reorienting_next_residue_mode = false;
 
@@ -1383,7 +1390,7 @@ graphics_ligand_mesh_molecule_t graphics_info_t::graphics_ligand_mesh_molecule;
 float *graphics_info_t::mvp = new float[16];
 int    graphics_info_t::mvp_location = -1;
 int    graphics_info_t::view_rotation_location = -1;
-glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
+glm::quat graphics_info_t::view_quaternion = glm::quat(1,0,0,0);
 GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
 GLuint graphics_info_t::central_cube_array_buffer_id = 0;
@@ -1541,7 +1548,7 @@ bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_rock = false;
 bool graphics_info_t::do_tick_boids = false;
-bool graphics_info_t::do_tick_constant_draw = false;
+bool graphics_info_t::do_tick_constant_draw = true; // 20220606-PE hack because keyboard controller not working yet
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 bool graphics_info_t::do_tick_happy_face_residue_markers = false;
 bool graphics_info_t::do_tick_outline_for_active_residue = false;
@@ -1709,8 +1716,8 @@ unsigned int graphics_info_t::shadow_texture_width  = graphics_info_t::shadow_te
 unsigned int graphics_info_t::shadow_texture_height = graphics_info_t::shadow_texture_multiplier * 1024;
 bool graphics_info_t::show_just_shadows = false; // show *just* the shadows in the texture-mesh-with-shadows shader
 
-// unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
-unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_BASIC_SCENE;
+unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
+// unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_BASIC_SCENE;
 
 GLuint graphics_info_t::screen_AO_quad_vertex_array_id = 0;
 GLuint graphics_info_t::screen_AO_quad_VBO = 0;

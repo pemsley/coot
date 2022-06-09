@@ -4624,26 +4624,48 @@ Do you want to continue?
   </object>
   <object class="GtkImage" id="image37">
   </object>
+
   <object class="GtkWindow" id="main_window">
     <property name="title" translatable="yes">Coot</property>
-    <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <child>
-      <object class="GtkBox" id="main_window_hbox">
+      <object class="GtkBox" id="main_window_vbox">
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkBox" id="main_window_vbox">
-            <property name="orientation">vertical</property>
+          <object class="GtkBox" id="main_window_toolbar_hbox">
+            <property name="orientation">horizontal</property>
+            <style>
+              <class name="toolbar"/>
+            </style>
+            <child>
+              <object class="GtkButton" id="toolbar_test_buton">
+                <property name="label" translatable="yes">TestButton</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="main_window_graphics_hbox">
-            <property name="orientation">vertical</property>
+          <object class="GtkBox" id="main_window_hbox">
+            <child>
+              <object class="GtkBox" id="main_window_vbox_inner">
+                <property name="orientation">vertical</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox" id="main_window_graphics_hbox">
+                <property name="orientation">horizontal</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStatusbar" id="main_window_statusbar">
+            <signal name="text-pushed" handler="on_main_window_statusbar_text_pushed" swapped="no"/>
           </object>
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="drawing_options_dialog">
     <property name="title" translatable="yes">Coot Drawing Options</property>
     <property name="transient-for">main_window</property>

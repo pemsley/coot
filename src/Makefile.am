@@ -495,6 +495,8 @@ libcootsumo_la_SOURCES = \
 	dynamic-menus.hh         \
 	dynamic-menus.cc         \
 	eyes.cc eyes.hh		 \
+	event-controller-callbacks.hh \
+	event-controller-callbacks.cc \
 	fit-loop-gui.cc          \
 	fit-loop-gui.hh          \
 	flev.hh			 \

@@ -1917,6 +1917,36 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    return TRUE;
 }
 
+// Direction is either +1 or -1 (in or out)
+//
+void keypad_translate_xyz(short int axis, short int direction) {
+
+  graphics_info_t g;
+  if (axis == 3) {
+    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
+    v *= 0.05 * float(direction);
+    g.add_vector_to_RotationCentre(v);
+  } else {
+    gdouble x_diff, y_diff;
+    x_diff = y_diff = 0;
+    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
+    if (axis == 1) x_diff = 1;
+    if (axis == 2) y_diff = 1;
+    g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
+                            y_diff * 0.1 * float(direction));
+    if (g.GetActiveMapDrag() == 1) {
+      for (int ii=0; ii<g.n_molecules(); ii++) {
+        g.molecules[ii].update_map(true); // to take account
+        // of new rotation centre.
+      }
+    }
+    for (int ii=0; ii<g.n_molecules(); ii++) {
+      g.molecules[ii].update_symmetry();
+    }
+    g.graphics_draw();
+
+  }
+}
 
 #include "idles.hh"
 

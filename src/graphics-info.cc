@@ -621,7 +621,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                         cr(1,0), cr(1,1), cr(1,2),
                         cr(2,0), cr(2,1), cr(2,2));
             glm::quat qq(m);
-            glm::quat target_quat = glm_quat * qq;
+            glm::quat target_quat = view_quaternion * qq;
 
             //  --------- target position - try the residue and change it if we started on a CA
 
@@ -652,7 +652,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
             if (smooth_scroll == 1) {
 
-               coot::view_info_t view1(glm_quat,    rot_centre, zoom, "current");
+               coot::view_info_t view1(view_quaternion,    rot_centre, zoom, "current");
                coot::view_info_t view2(target_quat, target_pos, zoom, "next");
                int nsteps = smooth_scroll_n_steps * 2;
 
@@ -1686,6 +1686,8 @@ graphics_info_t::accept_moving_atoms() {
 void
 graphics_info_t::run_post_read_model_hook(int imol) {
 
+#if 0 // 20220606-PE Python doesn't work yet
+
    std::string s;
 
 #ifdef USE_GUILE
@@ -1727,6 +1729,8 @@ graphics_info_t::run_post_read_model_hook(int imol) {
       std::cout << "INFO:: in run_post_read_model_hook() pDict " << pDict << " " << std::endl;
       std::cout << "INFO:: in run_post_read_model_hook() pModule " << pModule << " " << std::endl;
    }
+#endif
+
 #endif
 
 }

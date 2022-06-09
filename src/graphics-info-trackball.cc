@@ -56,8 +56,9 @@
 
 #include "graphics-info.h"
 
+// static
 float
-graphics_info_t::trackball_project_to_sphere(float r, float x, float y) const {
+graphics_info_t::trackball_project_to_sphere(float r, float x, float y) {
 
     float oor2 = 0.70710678118654752440;
     float d = sqrt(x*x + y*y);
@@ -70,8 +71,9 @@ graphics_info_t::trackball_project_to_sphere(float r, float x, float y) const {
     }
 }
 
+// static
 glm::quat
-graphics_info_t::trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size) const {
+graphics_info_t::trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size) {
 
    if (p1x == p2x && p1y == p2y) {
         /* Zero rotation */

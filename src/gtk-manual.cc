@@ -555,6 +555,12 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
 						short int is_map_molecule) {
 
+   if (! hbox32) {
+      std::cout << "ERROR:: in display_control_add_delete_molecule_button() null hbox32" << std::endl;
+      return;
+   }
+      
+
    std::string delete_button_name = "delete_molecule_";
    delete_button_name += coot::util::int_to_string(imol);
    std::string button_string = "Delete Model";
@@ -797,15 +803,21 @@ display_control_map_combo_box(const std::string &name, int imol) {
 #endif
 
    // 3: "Display" checkbutton
-   GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
-   gtk_widget_show(display_checkbutton);
+   GtkWidget *display_togglebutton = gtk_toggle_button_new_with_label("Display");
+   if (GTK_IS_TOGGLE_BUTTON(display_togglebutton))
+      std::cout << "----------------------- display_togglebutton is a toggle button "  << std::endl;
+   else
+      std::cout << "----------------------- display_togglebutton is NOT a toggle button "  << std::endl;
+   if (display_togglebutton) {
+      gtk_widget_show(display_togglebutton);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
 #else
-   gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
+      gtk_box_pack_start(GTK_BOX(hbox), display_togglebutton, FALSE, FALSE, 2);
 #endif
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), map_is_displayed(imol));
-   g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton); // for set_display_control_button_state()
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_togglebutton), map_is_displayed(imol));
+      g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_togglebutton); // for set_display_control_button_state()
+   }
 
    // 4: "Scroll" checkbutton
    GtkWidget *previous_radio_button = get_radio_button_in_scroll_group(imol);
@@ -828,18 +840,20 @@ display_control_map_combo_box(const std::string &name, int imol) {
 
    // 5: "Properties" button
    GtkWidget *properties_button = gtk_button_new_with_label("Properties");
-   gtk_widget_show(properties_button);
+   if (properties_button) {
+      gtk_widget_show(properties_button);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME box packing
 #else
-   gtk_box_pack_start(GTK_BOX(hbox), properties_button, FALSE, FALSE, 2);
+      gtk_box_pack_start(GTK_BOX(hbox), properties_button, FALSE, FALSE, 2);
 #endif
+   }
 
    // 6: "Delete" map button
    display_control_add_delete_molecule_button(imol, hbox, true);
 
    // connect signals to display, scroll and properties
-   g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
+   g_signal_connect(G_OBJECT(display_togglebutton), "toggled",
                     G_CALLBACK(on_display_control_map_displayed_button_toggled),
                     GINT_TO_POINTER(imol));
    g_signal_connect(G_OBJECT(scroll_button), "toggled",

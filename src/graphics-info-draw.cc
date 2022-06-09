@@ -282,7 +282,13 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
 
 // static
 void
-graphics_info_t::mouse_zoom(double delta_x, double delta_y) {
+graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
+
+   double current_mouse_x = drag_begin_x + delta_x_drag;
+   double current_mouse_y = drag_begin_y + delta_y_drag;
+
+   double delta_x = current_mouse_x - get_mouse_previous_position_x();
+   double delta_y = current_mouse_y - get_mouse_previous_position_y();
 
    // Zooming
    double fx = 1.0 + delta_x/300.0;
@@ -594,7 +600,7 @@ graphics_info_t::get_world_space_eye_position() {
       glm::vec3 up(0,1,0);
       glm::vec3 origin(0,0,0);
 
-      glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
+      glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::view_quaternion);
       glm::vec3 rc = graphics_info_t::get_rotation_centre();
       glm::mat4 model_matrix = glm::mat4(1.0);
       model_matrix = glm::translate(model_matrix, -rc);
@@ -652,7 +658,7 @@ graphics_info_t::get_model_rotation() {
 
    // need to be in the correct program (well, the model-drawing part)
 
-   return glm::toMat4(graphics_info_t::glm_quat);
+   return glm::toMat4(graphics_info_t::view_quaternion);
 
 }
 
@@ -1926,7 +1932,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    //std::cout << "mvp diag "
    // << mvp[0][0] << " " << mvp[1][1] << " " << mvp[2][2] << std::endl;
 
-   glm::mat3 vrm(glm::toMat4(graphics_info_t::glm_quat));
+   glm::mat3 vrm(glm::toMat4(graphics_info_t::view_quaternion));
 
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
@@ -2261,12 +2267,352 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 }
 
 
+void on_glarea_drag_begin(GtkGestureDrag *gesture,
+                          double          x,
+                          double          y,
+                          GtkWidget      *area) {
 
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
+   // display_info_t di;
+   // di.mouse_x = x;
+   // di.mouse_y = y;
+   // di.drag_begin_x = x;
+   // di.drag_begin_y = y;
+
+   std::cout << "drag begin! " << std::endl;
+   graphics_info_t g;
+   g.on_glarea_drag_begin(gesture, x, y, area);
+
+}
+
+void on_glarea_drag_update(GtkGestureDrag *gesture,
+                           double          delta_x,
+                           double          delta_y,
+                           GtkWidget      *area) {
+
+   // std::cout << "on_glarea_drag_update()" << std::endl;
+   GtkAllocation allocation;
+   graphics_info_t g;
+   gtk_widget_get_allocation(GTK_WIDGET(g.glareas[0]), &allocation);
+   // std::cout << "do this: g.update_view_quaterion(x_size, y_size, delta_x, delta_y);" << std::endl;
+   g.on_glarea_drag_update(gesture, delta_x, delta_y, area);
+
+}
+
+void on_glarea_drag_end(GtkGestureDrag *gesture,
+                          double          x,
+                          double          y,
+                          GtkWidget      *area) {
+
+   // std::cout << "drag end" << std::endl;
+   // do nothing at the moment.
+}
+
+gboolean
+on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
+                              guint                  keyval,
+                              guint                  keycode,
+                              guint                  modifiers,
+                              GtkButton             *button) {
+
+   std::cout << "on_glarea_key_controller_key_pressed()" << std::endl;
+
+   return TRUE;
+}
+
+void
+on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
+                               guint                  keyval,
+                               guint                  keycode,
+                               guint                  modifiers,
+                               GtkButton             *button) {
+
+   std::cout << "on_glarea_key_controller_key_released()" << std::endl;
+}
+
+
+// #include "event-controller-callbacks.hh"
+
+
+void
+on_glarea_realize(GtkGLArea *glarea) {
+
+   auto setup_test_texture = [] () {
+                                graphics_info_t g;
+                                // g.texture_for_camera_facing_quad.init("some-test-label.png");
+                                g.texture_for_camera_facing_quad.init("hud-label-rama.png");
+                                // camera facing quad test
+                                float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
+                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(image_apect_ratio, 1.0, 0.0, 0.0);
+                                GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+                                g.tmesh_for_hud_image_testing.setup_quad();
+                                err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
+                             };
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   // 1 and 1 here!
+
+   std::cout << "************************************** in on_glarea_realize() " << w << " " << h << " ***************" << std::endl;
+
+   // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
+   gtk_gl_area_make_current(glarea);
+   GLenum err = glGetError();
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
+   if (gtk_gl_area_get_error(glarea) != NULL) {
+      std::cout << "OOPS:: on_glarea_realize() error on gtk_gl_area_make_current()" << std::endl;
+      return;
+   }
+   if (gtk_gl_area_get_error(GTK_GL_AREA(glarea)) != NULL) {
+      std::cout << "ERROR:: GLArea in an error state - goodbye " << std::endl;
+      return;
+   }
+
+   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
+   // GLX_SAMPLE_BUFFERS_ARB
+   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_multisample.txt
+   // gdk/x11/gdkglcontext-x11.c
+   // glXGetConfig(dpy, &visual_list[0], GLX_SAMPLE_BUFFERS_ARB, &gl_info[i].num_multisample);
+
+   // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface
+
+   const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+   const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+   const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+   const char *s4 = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+   if (s1 && s2 && s3 && s4) {
+      std::string ss1(s1);
+      std::string ss2(s2);
+      std::string ss3(s3);
+      std::string ss4(s4);
+      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+   } else {
+      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
+   }
+
+   graphics_info_t g;
+   bool status = true; // was g.init_shaders();
+
+   if (status == true) {
+      // happy path
+
+      g.init_buffers();
+
+      err = glGetError();
+      if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
+
+      // graphics_info_t::shader_for_screen.Use(); // needed?
+
+      err = glGetError();
+      if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
+
+      // g.init_shaders(); // here are errors
+
+      if (graphics_info_t::use_framebuffers) {
+         unsigned int index_offset = 0;
+         graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 1;
+         graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 2;
+         graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 3;
+         graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
+                                                << err << std::endl;
+         index_offset = 4;
+         graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
+         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                                << err << std::endl;
+
+	 g.init_shaders();
+
+      }
+
+      // g.init_shaders();  - no validation failure here
+
+      // std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_hud_text.name << std::endl;
+      setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
+      // std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_atom_labels.name << std::endl;
+      setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
+
+      g.tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("HUD tmesh for refinement dialog arrow");
+      g.tmesh_for_hud_refinement_dialog_arrow.setup_quad();
+      g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png", Texture::DIFFUSE);
+      g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png", Texture::DIFFUSE);
+
+      g.tmesh_for_shadow_map.setup_quad();
+
+      gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
+      glEnable(GL_DEPTH_TEST);
+
+      // At some stage, enable this.  Currently (I think) the winding on the atoms is the wrong
+      // way around - replace with octaspheres and octahemispheres.
+      // I have just now changed the winding on the "solid" map triangles - and now it looks
+      // fine.
+      // 
+      // glEnable(GL_CULL_FACE); // if I enable this, then I get to see the back side
+      // of the atoms. It's a weird look.
+
+      // Make antialised lines - not in this
+      if (false) {
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_LINE_SMOOTH);
+      }
+
+      g.setup_lights();
+
+      float x_scale = 4.4;  // what are these numbers!?
+      float y_scale = 1.2;
+      x_scale = 1.002;
+      y_scale = 1.002;
+      g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale, 0.0, 0.0);
+
+      g.setup_hud_geometry_bars();
+
+      g.setup_hud_buttons();
+
+      g.setup_rama_balls();
+
+      g.setup_key_bindings();
+
+      float double_rama_size = 0.8; // scaled by 0.5 in the gl-rama draw call.
+      g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
+                                                      // and allow it to be set in the API
+
+      g.setup_draw_for_happy_face_residue_markers_init();
+
+      g.setup_draw_for_bad_nbc_atom_pair_markers();
+
+      g.setup_draw_for_anchored_atom_markers_init();
+
+      g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
+
+      if (false) { // testing how textures work
+         setup_test_texture();
+      }
+
+      g.init_framebuffers();
+      g.init_joey_ssao_stuff();
+
+      err = glGetError();
+      if (err) std::cout << "#### GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
+
+      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
+      graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
+
+      unsigned int frame_time_history_list_max_n_elements = 500;
+      std::vector<s_generic_vertex> empty_vertices(frame_time_history_list_max_n_elements + 40); // +40 for base and grid lines
+      std::vector<unsigned int> empty_indices(1500, 0); // or some number
+      g.lines_mesh_for_hud_lines.setup_vertices_and_indices(empty_vertices, empty_indices);
+
+      // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
+      // gboolean legacy_flag = gdk_gl_context_is_legacy(context);
+      // std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
+
+      Material dummy_material;
+      std::vector<s_generic_vertex> outline_empty_vertices(1000);
+      std::vector<g_triangle> outline_empty_triangles(1000);
+      g.mesh_for_outline_of_active_residue.import(outline_empty_vertices, outline_empty_triangles);
+      g.mesh_for_outline_of_active_residue.setup(dummy_material);
+
+      // Is this the place to set the window as unresizable?
+      // No, it isn't. As far as I can see gtk_window_set_resizable() expands
+      // the window in Y fully.  That's not what I want, of course.
+      if (false) {
+         GtkWidget *window = widget_from_builder("main_window");
+	 gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+      }
+
+
+      std::cout << "================= setting up GTK4 style event conrolllers ====================" << std::endl;
+
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+
+      g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_glarea_key_controller_key_pressed),  glarea);
+      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_glarea_key_controller_key_released), glarea);
+      gtk_widget_add_controller(GTK_WIDGET(glarea), key_controller);
+
+      GtkGesture *drag_controller = gtk_gesture_drag_new();
+
+      // #ifdef __APPLE__
+      //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
+      //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
+      // #endif
+
+      // gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller), GDK_BUTTON_PRIMARY);
+      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller), GDK_BUTTON_SECONDARY);
+
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller));
+      g_signal_connect(drag_controller, "drag-begin",  G_CALLBACK(on_glarea_drag_begin),  glarea);
+      g_signal_connect(drag_controller, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
+      g_signal_connect(drag_controller, "drag-end",    G_CALLBACK(on_glarea_drag_end),    glarea);
+
+      load_tutorial_model_and_data();
+
+   } else {
+      std::cout << "ERROR:: Shader compilation (init_shaders()) failed " << std::endl;
+      exit(1);
+   }
+}
+
+
+gboolean
+on_glarea_render(GtkGLArea *glarea) {
+
+   // std::cout << "INFO:: in on_glarea_render() " << std::endl;
+
+   bool screen_dump_frame_buffer = false;
+   return graphics_info_t::render(screen_dump_frame_buffer);
+
+}
+
+
+void
+on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
+
+   graphics_info_t g;
+
+   // for the GL widget, not the window.
+   g.graphics_x_size = width;
+   g.graphics_y_size = height;
+
+   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+
+   // why do I need to do this?
+   // setup_hud_text(width, height, g.shader_for_hud_text, false);
+   // setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
+
+   // g.setup_hud_geometry_bars(); // because they depend on the aspect ratio - but can't that be
+                                   // passed as a uniform?
+
+   // std::cout << "INFO:: Reset frame buffers " << width << "x" << height << std::endl;
+   g.reset_frame_buffers(width, height);
+
+   g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+
+   g.reset_hud_buttons_size_and_position();
+}
+
+
+GtkWidget *create_gtkglarea_widget() {
 
    // the use_gtk_builder flag really means "was invoked from the path that..."
 
-   GtkWidget *w = gtk_gl_area_new();
+   std::cout << "-------------------------------------  create_gtkglarea_widget() " << std::endl;
 
    auto get_gl_widget_dimension_scale_factor  = [] () {
                                                    int sf = 1;
@@ -2278,9 +2624,9 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
                                                    return sf;
                                                 };
 
-   // allow the user to set the major and minor version (for debugging)
+   GtkWidget *glarea = gtk_gl_area_new();
 
-   std::cout << "-------------------------------------  create_and_pack_gtkglarea() " << std::endl;
+   // allow the user to set the major and minor version (for debugging)
 
    int opengl_major_version = 3;
    int opengl_minor_version = 3;
@@ -2299,22 +2645,26 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
       std::cout << "DEBUG:: setting OpenGL required version to "
                 << opengl_major_version << " " << opengl_minor_version << std::endl;
 
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
+   gtk_gl_area_set_required_version(GTK_GL_AREA(glarea), opengl_major_version, opengl_minor_version);
+
+   g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
+   g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
+   g_signal_connect(glarea, "resize",  G_CALLBACK(on_glarea_resize),  NULL);
+
+   gtk_widget_set_can_focus(glarea, TRUE);
+   gtk_widget_set_focusable(glarea, TRUE);
 
    unsigned int dimensions = 300;
    // if (! use_gtk_builder) dimensions = 900;
    int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(w,
+   gtk_widget_set_size_request(glarea,
                                gl_widget_dimension_scale_factor * dimensions,
                                gl_widget_dimension_scale_factor * dimensions);
 
-#if (GTK_MAJOR_VERSION == 4)
-   // 20220528-PE FIXME box packing
-   gtk_box_append(GTK_BOX(vbox), w);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
-#endif
-   return w;
+   gtk_widget_set_hexpand(glarea, TRUE);
+   gtk_widget_set_vexpand(glarea, TRUE);
+
+   return glarea;
 }
 
 void
@@ -5377,7 +5727,7 @@ graphics_info_t::setup_key_bindings() {
                              std::string chain_id_next = chain_ids[idx_next];
                              clipper::Coord_orth current_position = coot::co(at);
                              bool forward_flag = true;
-                             glm::mat4 quat_mat = glm::toMat4(glm_quat);
+                             glm::mat4 quat_mat = glm::toMat4(view_quaternion);
                              clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
 
                              if (molecules[imol].ncs_ghosts_have_rtops_p() == 0)
@@ -5391,7 +5741,7 @@ graphics_info_t::setup_key_bindings() {
                              if (new_ori.first) {
                                 coot::util::quaternion q(new_ori.second.rot());
                                 glm::quat q_ncs = coot_quaternion_to_glm(q);
-                                glm_quat = glm::normalize(glm_quat * q_ncs); // wrong
+                                view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 

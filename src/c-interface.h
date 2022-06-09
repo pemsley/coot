@@ -604,14 +604,6 @@ short int use_graphics_interface_state();
 @return 1 for yes, 0 for no.*/
 short int python_at_prompt_at_startup_state();
 
-/*! \brief start Gtk (and graphics)
-
-   This function is useful if it was not started already (which can be
-   achieved by using the command line argument --no-graphics).
-
-   An interface for Ralf */
-void start_graphics_interface();
-
 /*! \brief "Reset" the view
 
 
@@ -3292,9 +3284,6 @@ PyObject *comp_id_to_name_py(const char *comp_id);
 void do_regularize(short int state); /* pass 0 for off (unclick togglebutton) */
 void do_refine(short int state);
 
-/* and a gui function used by those functions */
-void do_regularize_kill_delete_dialog();
-
 /*! \brief add a restraint on peptides to make them planar
 
   This adds a 5 atom restraint that includes both CA atoms of the
@@ -5266,10 +5255,6 @@ short int delete_item_mode_is_sidechain_p();
 short int delete_item_mode_is_sidechain_range_p();
 short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
-void clear_delete_item_widget();
-void store_delete_item_widget_position();
-short int delete_item_widget_is_being_shown();
-short int delete_item_widget_keep_active_on();
 
 
 /* \} */

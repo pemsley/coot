@@ -432,7 +432,7 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             const clipper::Coord_orth &rc = residue_centre.second;
             coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
             coot::Cartesian rot_centre = RotationCentre();
-            coot::view_info_t view1(g.glm_quat,  rot_centre,      zoom, "current");
+            coot::view_info_t view1(g.view_quaternion,  rot_centre,      zoom, "current");
             // target_quat in view2 has been wrongly calculated
             std::cout << "INFO:: perpendicular_ligand_view() calling interpolate with view2 position "
                       << res_centre << std::endl;

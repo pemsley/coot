@@ -8913,7 +8913,7 @@ int add_view_here(const char *view_name) {
    graphics_info_t g;
    coot::Cartesian rc = g.RotationCentre();
    float zoom = graphics_info_t::zoom;
-   coot::view_info_t view(graphics_info_t::glm_quat, rc, zoom, name);
+   coot::view_info_t view(graphics_info_t::view_quaternion, rc, zoom, name);
 
    std::cout << "------------ in add_view_here() made a view with name: " << view.view_name << std::endl;
    std::cout << "------------ in add_view_here() made a view: " << view << std::endl;
@@ -9026,7 +9026,7 @@ void play_views() {
 	       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 				  graphics_info_t::RotationCentre_y(),
 				  graphics_info_t::RotationCentre_z());
-	       coot::view_info_t current_view(graphics_info_t::glm_quat,
+	       coot::view_info_t current_view(graphics_info_t::view_quaternion,
 					      rc, graphics_info_t::zoom, "dummy");
 	       coot::view_info_t::interpolate(current_view, view2, nsteps);
 	       update_things_on_move_and_redraw();
@@ -9045,7 +9045,7 @@ void remove_this_view() {
 
    int r=0;
    bool found = false;
-   coot::view_info_t v(graphics_info_t::glm_quat, rc, zoom, "");
+   coot::view_info_t v(graphics_info_t::view_quaternion, rc, zoom, "");
 
    std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
    for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++) {
@@ -9097,9 +9097,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	    if (snap_to_view_flag) {
 	       g.setRotationCentre(view.rotation_centre);
 	       g.zoom = view.zoom;
-               g.glm_quat = view.quaternion;
+               g.view_quaternion = view.quaternion;
 	    } else {
-	       coot::view_info_t this_view(g.glm_quat, g.RotationCentre(), g.zoom, "");
+	       coot::view_info_t this_view(g.view_quaternion, g.RotationCentre(), g.zoom, "");
 	       int nsteps = 2000;
 	       if (graphics_info_t::views_play_speed > 0.000000001)
 		  nsteps = int(2000.0/graphics_info_t::views_play_speed);
@@ -9305,7 +9305,7 @@ void go_to_view_py(PyObject *view) {
       std::string name("Current Position");
       coot::Cartesian rc = g.RotationCentre();
       float zoom = graphics_info_t::zoom;
-      coot::view_info_t view_c(graphics_info_t::glm_quat, rc, zoom, name);
+      coot::view_info_t view_c(graphics_info_t::view_quaternion, rc, zoom, name);
 
       // view_target is where we want to go
       quat_python = PyList_GetItem(view, 0);

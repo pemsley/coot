@@ -302,6 +302,18 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
+gboolean
+on_label_widget_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                           guint                  keyval,
+                                           guint                  keycode,
+                                           guint                  modifiers,
+                                           GtkButton             *button) {
+
+   std::cout << "on_label_widget_controller_key_pressed()" << std::endl;
+   return gboolean(FALSE);
+ }
+
+
 // return success status
 bool init_from_gtkbuilder() {
 
@@ -368,10 +380,11 @@ bool init_from_gtkbuilder() {
 
       create_dynamic_menus(main_window);
 
-      GtkWidget *glarea = create_and_pack_gtkglarea(graphics_hbox, true);
+      GtkWidget *glarea = create_gtkglarea_widget();
       if (glarea) {
          graphics_info_t::glareas.push_back(glarea);
 
+         gtk_box_append(GTK_BOX(graphics_hbox), glarea);
          GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
          if (err)
             std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
@@ -379,12 +392,6 @@ bool init_from_gtkbuilder() {
          gtk_widget_show(main_window);
          std::cout << "realizing " << glarea << std::endl;
          gtk_widget_realize(glarea);
-
-         if (true) {
-            GtkWidget *w = gtk_label_new("Some Test Label");
-            gtk_widget_show(w);
-            gtk_box_append(GTK_BOX(graphics_hbox), w);
-         }
 
       } else {
          std::cout << "WARNING:: init_from_gtkbuilder(): glarea null" << std::endl;
@@ -503,7 +510,7 @@ main(int argc, char *argv[]) {
             do_window_resizing_widgets();
 
             GtkWidget *glarea = graphics_info_t::glareas[0];
-            my_glarea_add_signals_and_events(glarea);
+            // my_glarea_add_signals_and_events(glarea);
             gtk_widget_show(glarea);
             // on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
                                                        // without this.
@@ -517,7 +524,10 @@ main(int argc, char *argv[]) {
             // create_initial_sequence_view_mol_submenu(main_window);
 
             // 20220529-PE setting up python hangs at the moment
-            setup_python(argc, argv);
+
+            // 20220609-PE remove this for now - causing startup hang in
+            // g_registered_type_info_get_g_type() gdk_rgba_get_type() g_once_init_enter() g_cond_wait()
+            // setup_python(argc, argv);
 
          } else {
             std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;

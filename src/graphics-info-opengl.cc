@@ -1,13 +1,15 @@
 
-#include <random>
-
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
 
+#include <random>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>
+
+#define ENABLE_NLS // 20220606-PE fixes weird dcgettext() compiler errors
 #include "graphics-info.h"
 
 
@@ -506,27 +508,67 @@ graphics_info_t::set_view_quaternion(float i, float j, float k, float l) {
 
    // maybe the order will be wrong
    glm::quat q(i, j, k, l);
-   glm_quat = q;
+   view_quaternion = q;
 }
 
 
-//static
+// //static
+// void
+// graphics_info_t::update_view_quaternion(int area_width, int area_height) {
+
+//    graphics_info_t g;
+//    float tbs = g.get_trackball_size();
+
+//    glm::quat tb_quat =
+//       g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
+//                                 (area_height - 2.0*g.GetMouseBeginY())/area_height,
+//                                 (2.0*g.mouse_current_x - area_width)/area_width,
+//                                 (area_height - 2.0*g.mouse_current_y)/area_height,
+//                                 tbs);
+
+//    tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
+//    glm::quat product = tb_quat * glm_quat;
+//    glm_quat = glm::normalize(product);
+
+// }
+
+
+#include <iomanip>
+
 void
-graphics_info_t::update_view_quaternion(int area_width, int area_height) {
+graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
+                                        double delta_x_drag, double delta_y_drag) {
 
-   graphics_info_t g;
-   float tbs = g.get_trackball_size();
+   // deltas from when the drag started
 
-   glm::quat tb_quat =
-      g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
-                                (area_height - 2.0*g.GetMouseBeginY())/area_height,
-                                (2.0*g.mouse_current_x - area_width)/area_width,
-                                (area_height - 2.0*g.mouse_current_y)/area_height,
-                                tbs);
+   const float &tbs = trackball_size;
+   float w = static_cast<float>(glarea_width);
+   float h = static_cast<float>(glarea_height);
+   bool do_it = true;
+   if (mouse_x == 0.0 && mouse_y == 0) {
+      do_it = false;
+   }
+   double current_mouse_x = drag_begin_x + delta_x_drag;
+   double current_mouse_y = drag_begin_y + delta_y_drag;
+   if (false)
+      std::cout << "debug:: update_view_quaterion(): "
+                << "new-current-pos: " << std::setw(8) << current_mouse_x << " " << std::setw(8) << current_mouse_y
+                << " stored-pos " << std::setw(8) << mouse_x << " " << std::setw(8) << mouse_y
+                << " delta " << std::setw(8) << current_mouse_x - mouse_x << " "
+                << std::setw(8) << current_mouse_y - mouse_y << std::endl;
 
-   tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
-   glm::quat product = tb_quat * glm_quat;
-   glm_quat = glm::normalize(product);
+   // if (abs(current_mouse_y - mouse_y) > 50) do_it = false;
+   // if (abs(current_mouse_x - mouse_x) > 50) do_it = false;
+
+   if (do_it) {
+      glm::quat tb_quat = trackball_to_quaternion((2.0 * mouse_x - w)/w, (h - 2.0 * mouse_y)/h,
+                                                  (2.0 * current_mouse_x - w)/w, (h - 2.0 * current_mouse_y)/h, tbs);
+      tb_quat = glm::conjugate(tb_quat);
+      auto prod = tb_quat * view_quaternion;
+      view_quaternion = glm::normalize(prod);
+   }
+   mouse_x = current_mouse_x;
+   mouse_y = current_mouse_y;
 
 }
 

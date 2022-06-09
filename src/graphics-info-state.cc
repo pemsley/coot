@@ -624,10 +624,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //
    if (use_graphics_interface_flag) {
       command_strings.clear();
-      float i = glm_quat[0];
-      float j = glm_quat[1];
-      float k = glm_quat[2];
-      float l = glm_quat[3];
+      float i = view_quaternion[0];
+      float j = view_quaternion[1];
+      float k = view_quaternion[2];
+      float l = view_quaternion[3];
       command_strings.push_back("set-view-quaternion");
       command_strings.push_back(float_to_string_using_dec_pl(i, 5));
       command_strings.push_back(float_to_string_using_dec_pl(j, 5));

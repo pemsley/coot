@@ -822,6 +822,8 @@ class graphics_info_t {
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 
+
+
 #if (GTK_MAJOR_VERSION >= 4)
 #else
    int  check_if_in_regularize_define(GdkEventButton *event);
@@ -1245,6 +1247,15 @@ public:
 		   			              // middle-mouse recentring.  check for
 					              // unset_p() when used.
    static int current_residue_imol;
+
+
+   // -------------- gtk4 event controller -----------------------------
+
+   void on_glarea_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+   void on_glarea_drag_update(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
+   void on_glarea_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+   void do_drag_pan_gtk3(GtkWidget *widget);
+
 
    //
    static coot::colour_holder cell_colour;
@@ -4327,7 +4338,7 @@ string   static std::string sessionid;
    static float *mvp; // needed?
    static int mvp_location;            // GLSL
    static int view_rotation_location;  // GLSL
-   static glm::quat glm_quat;
+   // static glm::quat glm_quat;
    void set_view_quaternion(float i, float j, float k, float l);
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
@@ -4340,13 +4351,26 @@ string   static std::string sessionid;
      rotation_centre_y += offset.y;
      rotation_centre_z += offset.z;
    }
-   static void update_view_quaternion(int area_width, int area_height);
+
+   static double mouse_x;
+   static double mouse_y;
+   static double drag_begin_x; // gtk pixels
+   static double drag_begin_y;
+   static std::pair<double, double> mouse_previous_position;
+   static void set_mouse_previous_position(double x, double y) { mouse_previous_position.first = x; mouse_previous_position.second = y; }
+   static double get_mouse_previous_position_x() { return mouse_previous_position.first; }
+   static double get_mouse_previous_position_y() { return mouse_previous_position.second; }
+   static glm::quat view_quaternion;
+   // static void update_view_quaternion(int area_width, int area_height);
+   // let's copy the one from crows:
+   static void update_view_quaternion(int glarea_width, int glarea_height,
+                                      double delta_x_drag, double delta_y_drag);
 
    // static benny::Camera camera;
    // static Transform transform;
 
-   float trackball_project_to_sphere(float r, float x, float y) const;
-   glm::quat trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size) const;
+   static float trackball_project_to_sphere(float r, float x, float y);
+   static glm::quat trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size);
 
    // Shader things
    static bool draw_the_other_things;

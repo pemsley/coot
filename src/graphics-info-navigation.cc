@@ -1265,7 +1265,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
                              symm_mat(1,0), symm_mat(1,1), symm_mat(1,2),
                              symm_mat(2,0), symm_mat(2,1), symm_mat(2,2));
       glm::quat glm_sym_mat_quat = glm::toQuat(glm_symm_mat);
-      glm_quat *= glm_sym_mat_quat;
+      view_quaternion *= glm_sym_mat_quat;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
       graphics_draw();

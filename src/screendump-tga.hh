@@ -2,6 +2,8 @@
 #ifndef SCREENDUMP_TGA_HH
 #define SCREENDUMP_TGA_HH
 
+#include <string>
+#include <gtk/gtk.h>
 #include "framebuffer.hh"
 
 // There is an API function called screendump_tga now

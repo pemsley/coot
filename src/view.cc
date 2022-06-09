@@ -122,7 +122,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                      glm::quat quat_target(view2.quaternion);
                                      glm::quat mixed = glm::mix(quat_start, quat_target, f);
                                      // now update glm_quat
-                                     graphics_info_t::glm_quat = glm::normalize(mixed);
+                                     graphics_info_t::view_quaternion = glm::normalize(mixed);
 
                                      if (false) {
                                         std::cout << "lambda animation_func: this_step "
@@ -168,7 +168,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	       double frac = double(i)/double(n_steps);
 	       coot::Cartesian rct =
 		  view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
-               g.glm_quat = view1.quaternion;
+               g.view_quaternion = view1.quaternion;
 	       g.setRotationCentre(rct);
 	       g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
 	       graphics_info_t::graphics_draw();
