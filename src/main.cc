@@ -360,16 +360,17 @@ bool init_from_gtkbuilder() {
 
       GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
       GtkWidget *sb          = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      GtkWidget *main_window_deletable_label = widget_from_builder("main_window_deletable_label");
+      GtkWidget *main_window_deletable_label = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_deletable_label"));
       graphics_info_t::statusbar = sb;
+      add_status_bar_text("Locked and loaded.");
 
       if (main_window_deletable_label) // it might not be looked up correctly when testing
          gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
 
-      if (false) {
-         std::cout << "debug:: main_window "   << main_window << std::endl;
-         std::cout << "debug:: graphics_hbox " << graphics_hbox << std::endl;
-         std::cout << "debug:: statusbar "     << sb << std::endl;
+      if (true) {
+         std::cout << "debug:: main_window:   " << main_window << std::endl;
+         std::cout << "debug:: graphics_hbox: " << graphics_hbox << std::endl;
+         std::cout << "debug:: statusbar:     " << sb << std::endl;
       }
 
       if (main_window)

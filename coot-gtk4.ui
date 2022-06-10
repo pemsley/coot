@@ -4630,6 +4630,58 @@ Do you want to continue?
     <child>
       <object class="GtkBox" id="main_window_vbox">
         <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkBox" id="main_window_menubar_hbox">
+            <property name="orientation">horizontal</property>
+            <style>
+              <class name="toolbar"/>
+            </style>
+            <child>
+              <object class="GtkButton" id="menubar_file_test_button">
+                <property name="label" translatable="yes">File</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="menubar_edit_test_button">
+                <property name="label" translatable="yes">Edit</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="menubar_calculate_test_button">
+                <property name="label" translatable="yes">Calculate</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="menubar_draw_test_button">
+                <property name="label" translatable="yes">Draw</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="menubar_about_test_button">
+                <property name="label" translatable="yes">About</property>
+              </object>
+            </child>
+            <child>
+              <menu id="main_menubar_test_menu">
+                <section>
+                  <item>
+                    <attribute name="label" translatable="yes">Incendio</attribute>
+                    <attribute name="action">app.incendio</attribute>
+                  </item>
+                </section>
+                <section>
+                  <attribute name="label" translatable="yes">Defensive Charms</attribute>
+                  <item>
+                    <attribute name="label" translatable="yes">Expelliarmus</attribute>
+                    <attribute name="action">app.expelliarmus</attribute>
+                  </item>
+                </section>
+              </menu>
+            </child>
+          </object>
+        </child>
+
         <child>
           <object class="GtkBox" id="main_window_toolbar_hbox">
             <property name="orientation">horizontal</property>
@@ -4637,8 +4689,13 @@ Do you want to continue?
               <class name="toolbar"/>
             </style>
             <child>
-              <object class="GtkButton" id="toolbar_test_buton">
-                <property name="label" translatable="yes">TestButton</property>
+              <object class="GtkButton" id="toolbar_test_button">
+                <property name="label" translatable="yes">Reset View</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="toolbar_display_manager_button">
+                <property name="label" translatable="yes">Display Manager</property>
               </object>
             </child>
           </object>
