@@ -458,7 +458,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  gtk_frame_set_child(GTK_FRAME(frame), button);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+		  gtk_box_append(GTK_BOX(vbox), frame);
 #else
 		  gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
 		  gtk_container_set_border_width(GTK_CONTAINER(frame), 2);

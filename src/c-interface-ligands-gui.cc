@@ -275,7 +275,8 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 
 #if (GTK_MAJOR_VERSION >= 4)
                // 20220602-PE FIXME radio buttons
-               std::cout << "in fill_ligands_dialog_map_bits_by_dialog_name() FIXME radiobuttons" << std::endl;
+               std::cout << "in fill_ligands_dialog_map_bits_by_dialog_name() FIXME new radiobuttons - needs group" << std::endl;
+	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_check_button_new_with_label(map_button_label.c_str());
 #else
 	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_radio_button_new_with_label(find_ligand_map_group, map_button_label.c_str());
 	       find_ligand_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(find_ligand_map_radiobutton_imol));
@@ -288,7 +289,7 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-               // 20220528-PE FIXME box packing
+ 	       gtk_box_append(GTK_BOX(find_ligand_map_vbox), find_ligand_map_radiobutton_imol);
 #else
 	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
 				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
@@ -354,9 +355,12 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
 	    std::string protein_button_label = g.int_to_string(imol);
 	    protein_button_label += " ";
 	    protein_button_label += g.molecules[imol].name_;
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#if (GTK_MAJOR_VERSION == 4)
             // 20220602-PE FIXME radio buttons
             std::cout << "in fill_ligands_dialog_protein_bits_by_dialog_name() FIXME radiobuttons " << std::endl;
+	    GtkWidget *find_ligand_protein_radiobutton_imol =
+	       gtk_check_button_new_with_label(protein_button_label.c_str());
+	    gtk_box_append(GTK_BOX (find_ligand_protein_vbox), find_ligand_protein_radiobutton_imol);
 #else
 	    GtkWidget *find_ligand_protein_radiobutton_imol =
 	       gtk_radio_button_new_with_label (find_ligand_protein_group, protein_button_label.c_str());
@@ -369,7 +373,6 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
             //                (GDestroyNotify) NULL);
             g_object_set_data(G_OBJECT(find_ligand_protein_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
 	    gtk_widget_show (find_ligand_protein_radiobutton_imol);
-            // 20220528-PE FIXME box packing
 	    gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
 #endif
@@ -412,7 +415,7 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 	       protein_button_label += g.molecules[imol].name_;
 
 #if (GTK_MAJOR_VERSION >= 4)
-               // 20220528-PE FIXME box packing and radio buttons
+               // 20220528-PE FIXME radio buttons and box packing
 #else
 	       GtkWidget *find_ligand_protein_radiobutton_imol =
 		  gtk_radio_button_new_with_label (find_ligand_protein_group,
@@ -492,12 +495,15 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    gtk_widget_show (find_ligand_wligands_checkbutton_imol);
 	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-            // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+	    gtk_box_append(GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol);
+	    gtk_box_append(GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol);
+	    // pack the hbox into the ligands vbox
+	    gtk_box_append(GTK_BOX(find_ligand_ligands_vbox), hbox);
+
 #else
 	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol, FALSE, FALSE, 0);
 	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol, FALSE, FALSE, 0);
-
 	    // pack the hbox into the ligands vbox
 	    gtk_box_pack_start (GTK_BOX(find_ligand_ligands_vbox), hbox, FALSE, FALSE, 0);
 #endif
@@ -1459,7 +1465,6 @@ setup_ligands_progress_bar() {
    gtk_widget_show(label);
    gtk_widget_show(window);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-   // 20220528-PE FIXME box packing
    gtk_box_append(GTK_BOX(vbox), progress_bar);
    gtk_box_append(GTK_BOX(vbox), label);
 #else

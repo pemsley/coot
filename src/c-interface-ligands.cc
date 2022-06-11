@@ -1469,7 +1469,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       GtkWidget *button = gtk_button_new();
       GtkWidget *label  = gtk_label_new(l.c_str());
 
-      // GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
       GtkWidget *hbox_in_button = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
       gtk_button_set_child(GTK_BUTTON(button), hbox_in_button);
 
@@ -1483,13 +1483,13 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       if (wp) {
 	 gtk_widget_show(wp);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+	 gtk_box_append(GTK_BOX(button_hbox), wp);
 #else
 	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
 #endif
       }
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(button_hbox), label);
 #else
       gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
 #endif
@@ -1505,7 +1505,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       // gtk_widget_ref (button);
       g_object_set_data(G_OBJECT (dialog), button_name.c_str(), button);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX (vbox), button);
 #else
       gtk_box_pack_start(GTK_BOX (vbox), button, FALSE, FALSE, 0);
       gtk_container_set_border_width(GTK_CONTAINER (button), 2);

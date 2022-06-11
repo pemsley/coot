@@ -304,7 +304,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    gtk_box_append(GTK_BOX(symmetry_control_vbox), molecule_0_frame);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
-      // 20220528-PE FIXME box packing
+      // 20220528-PE FIXME set border width
    gtk_container_set_border_width (GTK_CONTAINER (molecule_0_frame), 6);
 #endif
 
@@ -322,7 +322,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 			     molecule_0_checkbutton, NULL);
    gtk_widget_show (molecule_0_checkbutton);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+   gtk_box_append (GTK_BOX (vbox168), molecule_0_checkbutton);
 #else
    gtk_box_pack_start (GTK_BOX (vbox168), molecule_0_checkbutton, FALSE, FALSE, 0);
 #endif
@@ -333,8 +333,8 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    // gtk_widget_ref (frame162);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "frame162", frame162, NULL);
    gtk_widget_show (frame162);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append (GTK_BOX (vbox168), frame162);
 #else
    gtk_box_pack_start (GTK_BOX (vbox168), frame162, TRUE, TRUE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (frame162), 4);
@@ -580,8 +580,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "frame_molecule_N",
 			     frame_molecule_N, NULL);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (ncs_control_vbox), frame_molecule_N);
 #else
    gtk_box_pack_start (GTK_BOX (ncs_control_vbox), frame_molecule_N, TRUE, TRUE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
@@ -604,8 +604,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 			     label_str.c_str(),
 			     ncs_controller_molecule_n_display_ncs_checkbutton, NULL);
    gtk_widget_show (ncs_controller_molecule_n_display_ncs_checkbutton);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if  (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (vbox176), ncs_controller_molecule_n_display_ncs_checkbutton);
 #else
    gtk_box_pack_start (GTK_BOX (vbox176),
 		       ncs_controller_molecule_n_display_ncs_checkbutton,
@@ -620,8 +620,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (hseparator11);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hseparator11", hseparator11, NULL);
    gtk_widget_show (hseparator11);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (vbox176), hseparator11);
 #else
    gtk_box_pack_start (GTK_BOX (vbox176), hseparator11, TRUE, TRUE, 2);
 #endif
@@ -630,8 +630,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (hbox134);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hbox134", hbox134, NULL);
    gtk_widget_show (hbox134);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (vbox176), hbox134);
 #else
    gtk_box_pack_start (GTK_BOX (vbox176), hbox134, TRUE, TRUE, 0);
 #endif
@@ -640,8 +640,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (vbox172);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox172", vbox172, NULL);
    gtk_widget_show (vbox172);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (hbox134), vbox172);
 #else
    gtk_box_pack_start (GTK_BOX (hbox134), vbox172, TRUE, TRUE, 0);
 #endif
@@ -650,8 +650,9 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (label264);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label264", label264, NULL);
    gtk_widget_show (label264);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if  (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME set alignment
+   gtk_box_append(GTK_BOX(vbox172), label264);
 #else
    gtk_box_pack_start (GTK_BOX (vbox172), label264, FALSE, FALSE, 0);
    gtk_misc_set_alignment (GTK_MISC (label264), 0.4, 0.5);
@@ -665,7 +666,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 			     ncs_controller_molecule_n_display_chain_vbox, NULL);
    gtk_widget_show (ncs_controller_molecule_n_display_chain_vbox);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+   gtk_box_append(GTK_BOX (vbox172), ncs_controller_molecule_n_display_chain_vbox);
 #else
    gtk_box_pack_start (GTK_BOX (vbox172), ncs_controller_molecule_n_display_chain_vbox,
 		       TRUE, TRUE, 0);
@@ -695,8 +696,9 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 				name.c_str(),
 				ncs_controller_molecule_n_display_chain_ich_checkbutton, NULL);
       gtk_widget_show (ncs_controller_molecule_n_display_chain_ich_checkbutton);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+      gtk_box_append(GTK_BOX(ncs_controller_molecule_n_display_chain_vbox),
+                     ncs_controller_molecule_n_display_chain_ich_checkbutton);
 #else
       gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_display_chain_vbox),
 		       ncs_controller_molecule_n_display_chain_ich_checkbutton,
@@ -742,8 +744,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (vbox174);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox174", vbox174, NULL);
    gtk_widget_show (vbox174);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (hbox134), vbox174);
 #else
    gtk_box_pack_start (GTK_BOX (hbox134), vbox174, TRUE, TRUE, 0);
 #endif
@@ -752,8 +754,9 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (label265);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label265", label265, NULL);
    gtk_widget_show (label265);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME set alignment
+   gtk_box_append(GTK_BOX (vbox174), label265);
 #else
    gtk_box_pack_start (GTK_BOX (vbox174), label265, FALSE, FALSE, 0);
    gtk_misc_set_alignment (GTK_MISC (label265), 0.4, 0.5);
@@ -764,8 +767,8 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "ncs_controller_molecule_n_vbox", ncs_controller_molecule_n_vbox, NULL);
    gtk_widget_show (ncs_controller_molecule_n_vbox);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX (vbox174), ncs_controller_molecule_n_vbox);
 #else
    gtk_box_pack_start (GTK_BOX (vbox174), ncs_controller_molecule_n_vbox, TRUE, TRUE, 0);
 #endif
@@ -791,8 +794,9 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 				name.c_str(),
 				ncs_controller_ncs_master_chain_ich_radiobutton, NULL);
       gtk_widget_show (ncs_controller_ncs_master_chain_ich_radiobutton);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+      gtk_box_append(GTK_BOX (ncs_controller_molecule_n_vbox),
+                     ncs_controller_ncs_master_chain_ich_radiobutton);
 #else
       gtk_box_pack_start (GTK_BOX (ncs_controller_molecule_n_vbox),
 			  ncs_controller_ncs_master_chain_ich_radiobutton, FALSE, FALSE, 0);

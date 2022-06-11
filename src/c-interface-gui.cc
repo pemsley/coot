@@ -218,7 +218,7 @@ add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection
       G_CALLBACK(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE-FIXME box packing
+   gtk_box_append(GTK_BOX(aa_hbox), frame);
 #else
    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
 #endif
@@ -820,7 +820,8 @@ void add_coot_references_button(GtkWidget *widget) {
    GtkWidget *hbox = gtk_dialog_get_header_bar(GTK_DIALOG(widget));
    GtkWidget *button = gtk_button_new_with_label("References");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE-FIXME box packing
+   // 20220528-PE-FIXME box packing and reorder and secondary                                                 
+   gtk_box_append(GTK_BOX(hbox), button);
 #else
    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(hbox), button, TRUE);
@@ -2461,7 +2462,7 @@ void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
       GtkWidget *combobox_new = gtk_combo_box_new();
       gtk_widget_show(combobox_new);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), combobox_new);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
 #endif
@@ -2495,7 +2496,8 @@ pepflips_by_difference_map_dialog() {
    GtkWidget *map_combobox   = gtk_combo_box_new();
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+   gtk_box_append(GTK_BOX(vbox),   map_combobox);
+   gtk_box_append(GTK_BOX(vbox), model_combobox);
 #else
    gtk_box_pack_start(GTK_BOX(vbox),   map_combobox, FALSE, FALSE, 6);
    gtk_box_pack_start(GTK_BOX(vbox), model_combobox, FALSE, FALSE, 6);
@@ -3845,9 +3847,9 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
          g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
 	 gtk_widget_show(checkbutton);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+         gtk_box_append(GTK_BOX(vbox), checkbutton);
 #else
-	 gtk_box_pack_start (GTK_BOX (vbox), checkbutton, FALSE, FALSE, 0);
+	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton, FALSE, FALSE, 0);
 #endif
       }
    }
@@ -4435,7 +4437,8 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
    gtk_widget_show(combobox);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing and reordering
+      // 20220528-PE FIXME reordering child
+   gtk_box_append(GTK_BOX(vbox), combobox);
 #else
    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
    gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);

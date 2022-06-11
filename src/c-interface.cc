@@ -7533,7 +7533,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 
       gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox_mols), label);
 #else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
@@ -7564,7 +7564,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()" << std::endl;
       // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox_mols), label);
 #else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif

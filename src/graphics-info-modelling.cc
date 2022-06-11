@@ -4803,8 +4803,8 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
        frame = gtk_frame_new(NULL);
        gtk_frame_set_child(GTK_FRAME(frame), rotamer_selection_radio_button);
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+       gtk_box_append(GTK_BOX(rotamer_selection_button_vbox), frame);
 #else
        gtk_box_pack_start (GTK_BOX (rotamer_selection_button_vbox), frame, FALSE, FALSE, 0);
        gtk_container_set_border_width (GTK_CONTAINER (frame), 2);

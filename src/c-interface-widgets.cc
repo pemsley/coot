@@ -170,8 +170,8 @@ void remarks_dialog(int imol) {
 	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 	    //     				  GTK_WIDGET(vbox_inner));
 	    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+	    gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
 #else
 	    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
 #endif
@@ -200,12 +200,12 @@ void remarks_dialog(int imol) {
 	    } else {
 
 	       std::map<int, std::vector<std::string> >::const_iterator it;
-	       for (it=remarks.begin(); it != remarks.end(); it++) {
+	       for (it=remarks.begin(); it != remarks.end(); ++it) {
 		  std::string remark_name = "REMARK ";
 		  remark_name += coot::util::int_to_string(it->first);
 		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+		  gtk_box_append(GTK_BOX(vbox_inner), frame);
 #else
 		  gtk_box_pack_start(GTK_BOX(vbox_inner), frame, FALSE, FALSE, 1);
 #endif
@@ -279,7 +279,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *label = gtk_label_new(title.c_str());
       gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), label);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 4);
 #endif
@@ -290,7 +290,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       std::string compound_label = "Compound";
       GtkWidget *frame = gtk_frame_new(compound_label.c_str());
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), frame);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
@@ -355,7 +355,7 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
    if (author_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Author");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), frame);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
@@ -421,7 +421,7 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
    if (journal_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Journal");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), frame);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
@@ -477,7 +477,7 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
       if (n_links > 0) {
 	 GtkWidget *frame = gtk_frame_new("Links");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-                  // 20220528-PE FIXME box packing
+	 gtk_box_append(GTK_BOX(vbox), frame);
 #else
 	 gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
@@ -649,7 +649,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       // GTK_WIDGET(vbox_inner));
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
 #else
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
 #endif

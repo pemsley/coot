@@ -419,8 +419,8 @@ graphics_info_t::show_refinement_and_regularization_parameters_dialog() {
       gtk_widget_hide(vbox_outer);
       
       gtk_widget_hide(dialog); // has nothing in it now.
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME show-all
+#if (GTK_MAJOR_VERSION == 4)
+      
 #else
       gtk_widget_show_all(vbox_outer);
 #endif
@@ -1018,7 +1018,7 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
       GtkWidget *button  = gtk_button_new_with_label(std::get<0>(buttons[i]).c_str());
       GCallback callback = std::get<1>(buttons[i]);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), button);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 1);
 #endif
@@ -1027,14 +1027,14 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
       gtk_widget_show(button);
    }
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+   gtk_box_append(GTK_BOX(vbox_outer), scrolled_window);
 #else
    gtk_box_pack_start(GTK_BOX(vbox_outer), scrolled_window, TRUE, TRUE, 2);
 #endif
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox);
    GtkWidget *aa = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+#if  (GTK_MAJOR_VERSION == 4)
+   gtk_box_append(GTK_BOX(aa), close_button);
 #else
    gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
 #endif
@@ -2951,7 +2951,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME box packing
+	    gtk_box_append(GTK_BOX(vbox), button);
 #else
 	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -4354,7 +4354,8 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 				"frame_molecule_N", frame_molecule_N,
 				NULL);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+	 gtk_box_append(GTK_BOX(coords_colours_vbox), frame_molecule_N);
+	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
 #else
 	 gtk_box_pack_start (GTK_BOX (coords_colours_vbox), frame_molecule_N, TRUE, TRUE, 0);
 	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
@@ -4373,8 +4374,8 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269,
 				NULL);
 	 gtk_widget_show (label269);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+	 gtk_box_append(GTK_BOX (hbox136), label269);
 #else
 	 gtk_box_pack_start (GTK_BOX (hbox136), label269, FALSE, FALSE, 0);
 #endif
@@ -4394,8 +4395,9 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 				coords_colour_hscale_mol_N,
 				NULL);
 	 gtk_widget_show (coords_colour_hscale_mol_N);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+
+#if (GTK_MAJOR_VERSION == 4)
+	 gtk_box_append(GTK_BOX (hbox136), coords_colour_hscale_mol_N);
 #else
 	 gtk_box_pack_start (GTK_BOX (hbox136), coords_colour_hscale_mol_N, TRUE, TRUE, 0);
 #endif
@@ -4405,10 +4407,10 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 g_object_set_data_full (G_OBJECT(coords_colour_control_dialog), "label270", label270,
 				 NULL);
 	 gtk_widget_show (label270);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+	 gtk_box_append(GTK_BOX(hbox136), label270);
 #else
-	 gtk_box_pack_start (GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
+	 gtk_box_pack_start(GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
 #endif
 	 // gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
          gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
@@ -4981,7 +4983,7 @@ wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::At
       s += coot::util::int_to_string(pairs[i].second->GetSeqNum());
       GtkWidget *button = gtk_button_new_with_label(s.c_str());
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME box packing
+      gtk_box_append(GTK_BOX(vbox), button);
 #else
       gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 2);
       gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -5204,8 +5206,8 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
             g_object_set_data(G_OBJECT(w), "mesh_idx", GINT_TO_POINTER(j));
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
             g_signal_connect(G_OBJECT(w), "toggled", G_CALLBACK(main_window_meshes_togglebutton_toggled), nullptr);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-            // 20220528-PE FIXME box packing
+#if (GTK_MAJOR_VERSION == 4)
+            gtk_box_append(GTK_BOX(vbox), w);
 #else
             gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
 #endif
