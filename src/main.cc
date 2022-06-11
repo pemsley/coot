@@ -391,7 +391,6 @@ bool init_from_gtkbuilder() {
             std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
 
          gtk_widget_show(main_window);
-         std::cout << "realizing " << glarea << std::endl;
          gtk_widget_realize(glarea);
 
       } else {
