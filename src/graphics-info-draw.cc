@@ -2278,7 +2278,6 @@ void on_glarea_drag_begin(GtkGestureDrag *gesture,
    // di.drag_begin_x = x;
    // di.drag_begin_y = y;
 
-   std::cout << "drag begin! " << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_begin(gesture, x, y, area);
 
@@ -2309,14 +2308,13 @@ void on_glarea_drag_end(GtkGestureDrag *gesture,
 
 gboolean
 on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
-                              guint                  keyval,
-                              guint                  keycode,
-                              guint                  modifiers,
-                              GtkButton             *button) {
+                                     guint                  keyval,
+                                     guint                  keycode,
+                                     guint                  modifiers,
+                                     GtkButton             *button) {
 
    std::cout << "on_glarea_key_controller_key_pressed()" << std::endl;
-
-   return TRUE;
+   return gboolean(FALSE); // allow other controllers to act (say TAB has been pressed)
 }
 
 void
@@ -2654,7 +2652,7 @@ GtkWidget *create_gtkglarea_widget() {
    gtk_widget_set_can_focus(glarea, TRUE);
    gtk_widget_set_focusable(glarea, TRUE);
 
-   unsigned int dimensions = 300;
+   unsigned int dimensions = 700; // was 300, before vertical toolbar
    // if (! use_gtk_builder) dimensions = 900;
    int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
    gtk_widget_set_size_request(glarea,
@@ -2685,10 +2683,9 @@ graphics_info_t::draw_measure_distance_and_angles() {
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (! labels_for_measure_distances_and_angles.empty()) {
-         Shader &shader = shader_for_atom_labels;
          for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
             const auto &label = labels_for_measure_distances_and_angles[i];
-            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
+            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
                                              mvp, model_rotation_matrix, bg_col,
                                              shader_do_depth_fog_flag, perspective_projection_flag);
          }
