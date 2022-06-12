@@ -2313,18 +2313,22 @@ on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
                                      guint                  modifiers,
                                      GtkButton             *button) {
 
-   std::cout << "on_glarea_key_controller_key_pressed()" << std::endl;
-   return gboolean(FALSE); // allow other controllers to act (say TAB has been pressed)
+   graphics_info_t g;
+   // allow other controllers to act (say TAB has been pressed)
+   gboolean handled = g.on_glarea_key_controller_key_pressed(controller, keyval, keycode, modifiers);
+   return gboolean(handled);
 }
 
 void
 on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
-                               guint                  keyval,
-                               guint                  keycode,
-                               guint                  modifiers,
-                               GtkButton             *button) {
+                                      guint                  keyval,
+                                      guint                  keycode,
+                                      guint                  modifiers,
+                                      GtkButton             *button) {
 
-   std::cout << "on_glarea_key_controller_key_released()" << std::endl;
+   graphics_info_t g;
+   g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
+
 }
 
 

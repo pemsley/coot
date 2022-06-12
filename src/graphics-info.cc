@@ -1777,6 +1777,10 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
+   std::cout << "FIXME:: ----- due to python setup problems not running run_post_manipulation_hook_py()"
+             << std::endl;
+   return;
+
    std::string pms = "coot_utils.post_manipulation_script";
    // pms = "print";
    std::string check_pms = "callable(" + pms + ")";

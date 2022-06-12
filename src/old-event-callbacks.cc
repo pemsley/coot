@@ -1,3 +1,6 @@
+
+#include <gtk/gtk.h>
+
 gboolean
 on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
@@ -520,8 +523,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 gboolean
 on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-   // 20220528-PE FIXME mouse
+#if (GTK_MAJOR_VERSION == 4)
    return 1;
 #else
    graphics_info_t g;

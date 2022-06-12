@@ -187,3 +187,48 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget) {
    g.update_things_on_move(); // 20211013-PE do I need the _and_redraw() version of this function?
 
 }
+
+
+
+gboolean
+graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                                      guint                  keyval,
+                                                      guint                  keycode,
+                                                      guint                  modifiers) {
+
+
+   gboolean handled = false;
+   control_is_pressed = (modifiers & GDK_CONTROL_MASK);
+   shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
+
+   keyboard_key_t kbk(keyval, control_is_pressed);
+   add_key_to_history(kbk);
+
+   bool found = false;
+   std::map<keyboard_key_t, key_bindings_t>::const_iterator it = key_bindings_map.find(kbk);
+   if (it != key_bindings_map.end()) {
+     const key_bindings_t &kb = it->second;
+     if (true)
+        std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
+                  << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     handled = kb.run();
+     found = true;
+   }
+
+   if (! found)
+      std::cout << "on_glarea_key_controller_key_pressed() key not found in map: " << keyval << std::endl;
+
+   graphics_draw();
+   return gboolean(handled);
+}
+
+void
+graphics_info_t::on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
+                                                       guint                  keyval,
+                                                       guint                  keycode,
+                                                       guint                  modifiers) {
+
+   control_is_pressed = (modifiers & GDK_CONTROL_MASK);
+   shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
+
+}

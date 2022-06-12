@@ -1256,6 +1256,14 @@ public:
    void on_glarea_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
    void do_drag_pan_gtk3(GtkWidget *widget);
 
+   gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                                 guint                  keyval,
+                                                 guint                  keycode,
+                                                 guint                  modifiers);
+   void on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
+                                              guint                  keyval,
+                                              guint                  keycode,
+                                              guint                  modifiers);
 
    //
    static coot::colour_holder cell_colour;
