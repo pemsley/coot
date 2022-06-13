@@ -2357,8 +2357,6 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    // 1 and 1 here!
 
-   std::cout << "************************************** in on_glarea_realize() " << w << " " << h << " ***************" << std::endl;
-
    // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
    gtk_gl_area_make_current(glarea);
    GLenum err = glGetError();
@@ -2563,6 +2561,7 @@ on_glarea_realize(GtkGLArea *glarea) {
       g_signal_connect(drag_controller, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
       g_signal_connect(drag_controller, "drag-end",    G_CALLBACK(on_glarea_drag_end),    glarea);
 
+      // add this while we are testing.
       load_tutorial_model_and_data();
 
    } else {
@@ -2613,8 +2612,6 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 GtkWidget *create_gtkglarea_widget() {
 
    // the use_gtk_builder flag really means "was invoked from the path that..."
-
-   std::cout << "-------------------------------------  create_gtkglarea_widget() " << std::endl;
 
    auto get_gl_widget_dimension_scale_factor  = [] () {
                                                    int sf = 1;

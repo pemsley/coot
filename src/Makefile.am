@@ -454,6 +454,8 @@ libcootsumo_la_SOURCES = \
 	command-line-extern.cc   \
 	command-line-extern.hh   \
 	command-line.hh		 \
+	coot-application.hh      \
+	coot-application.cc      \
 	coot-database.hh	 \
 	coot-colour.hh	 	 \
 	coot-colour.cc	 	 \
@@ -572,6 +574,8 @@ libcootsumo_la_SOURCES = \
 	HUDTextureMesh.hh        \
 	Instanced-Markup-Mesh.hh \
 	Instanced-Markup-Mesh.cc \
+	init-from-gtkbuilder.hh  \
+	init-from-gtkbuilder.cc  \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \
@@ -670,7 +674,7 @@ libcootsumo_la_SOURCES = \
 	screen-utils.cc		 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
-	sound.cc \
+	sound.cc                 \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -683,6 +687,8 @@ libcootsumo_la_SOURCES = \
         simple-distance-object.hh \
         sound.cc                 \
 	sound.hh                 \
+	startup-utils.hh         \
+	startup-utils.cc         \
 	startup-scripts.hh       \
 	support.c support.h      \
 	stb_image.h              \

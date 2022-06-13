@@ -176,7 +176,7 @@ my_create_splash_screen_window (void) {
    GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
    gtk_window_set_position(GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
 #endif
-   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot");
+   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot-Splash");
 
 #if (GTK_MAJOR_VERSION >=4)
    // gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
@@ -200,6 +200,10 @@ my_create_splash_screen_window (void) {
 GtkWidget *do_splash_screen(const command_line_data &cld) {
 
    // 20220313-PE this runs before builder is set.
+
+#if (GTK_MAJOR_VERSION >=4)
+   return nullptr; // just do nothing for now.
+#endif
 
    GtkWidget *splash_screen = 0;
    setup_splash_screen();
@@ -253,33 +257,6 @@ setup_pixmap_directory() {
 
 
 
-std::string
-make_main_window_title() {
-
-   std::string version_string = VERSION;
-   std::string main_title = "Coot " + version_string;
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   // main_title += " EL";
-#endif
-
-#ifdef COOT_MAIN_TITLE_EXTRA
-   main_title += COOT_MAIN_TITLE_EXTRA;
-#else
-   // if this is a pre-release, stick in the revision number too
-   if (version_string.find("-pre") != std::string::npos) {
-      main_title += " (revision count ";
-      main_title += coot::util::int_to_string(git_revision_count());
-      main_title += ")";
-   }
-#endif
-
-#ifdef WINDOWS_MINGW
-   main_title = "Win" + main_title;
-#endif
-
-   return main_title;
-}
-
 int
 do_self_tests() {
 
@@ -302,109 +279,22 @@ do_self_tests() {
 
 void on_glarea_realize(GtkGLArea *glarea);
 
-gboolean
-on_label_widget_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                           guint                  keyval,
-                                           guint                  keycode,
-                                           guint                  modifiers,
-                                           GtkButton             *button) {
+// gboolean
+// on_label_widget_key_controller_key_pressed(GtkEventControllerKey *controller,
+//                                            guint                  keyval,
+//                                            guint                  keycode,
+//                                            guint                  modifiers,
+//                                            GtkButton             *button) {
 
-   std::cout << "on_label_widget_controller_key_pressed()" << std::endl;
-   return gboolean(FALSE);
- }
+//    std::cout << "on_label_widget_controller_key_pressed()" << std::endl;
+//    return gboolean(FALSE);
+//  }
 
 
-// return success status
-bool init_from_gtkbuilder() {
-
-   // get the right file first...
-
-   bool status = true;
-
-   std::string dir = coot::package_data_dir();
-   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-   std::string ui_file_name = "coot-gtk4.ui";
-   // std::string ui_file_name = "test-fragment.ui";
-   std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
-
-   // local directory override
-   if (coot::file_exists(ui_file_name))
-      ui_file_full = ui_file_name;
-
-   const char *env = getenv("COOT_GLADE");
-   if (env)
-      ui_file_full = std::string(env);
-
-   GtkBuilder *builder = gtk_builder_new();
-
-   GError* error = NULL;
-   gboolean add_from_file_status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
-   if (add_from_file_status == FALSE) {
-      std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << ui_file_full
-                << " add_from_file_status: " << add_from_file_status << std::endl;
-      std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
-      std::cout << "ERROR:: " << error->message << std::endl;
-      exit(1);
-   }
-
-   GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
-
-   // 20220310-PE and the preferences builder too now
-
-   GtkBuilder *preferences_builder = get_builder_for_preferences_dialog();
-   graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
-
-   if (graphics_hbox) {
-
-      graphics_info_t::set_gtkbuilder(builder); // store for future widget queries
-
-      GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-      GtkWidget *sb          = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      GtkWidget *main_window_deletable_label = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_deletable_label"));
-      graphics_info_t::statusbar = sb;
-      add_status_bar_text("Locked and loaded.");
-
-      if (main_window_deletable_label) // it might not be looked up correctly when testing
-         gtk_widget_hide(main_window_deletable_label); // 20220531-PE GTK4: can't delete it.
-
-      if (true) {
-         std::cout << "debug:: main_window:   " << main_window << std::endl;
-         std::cout << "debug:: graphics_hbox: " << graphics_hbox << std::endl;
-         std::cout << "debug:: statusbar:     " << sb << std::endl;
-      }
-
-      if (main_window)
-         graphics_info_t::set_main_window(main_window);
-
-      std::string main_title = make_main_window_title();
-      gtk_window_set_title(GTK_WINDOW(main_window), main_title.c_str());
-
-      create_dynamic_menus(main_window);
-
-      GtkWidget *glarea = create_gtkglarea_widget();
-      if (glarea) {
-         graphics_info_t::glareas.push_back(glarea);
-
-         gtk_box_append(GTK_BOX(graphics_hbox), glarea);
-         GError *err = gtk_gl_area_get_error(GTK_GL_AREA(glarea));
-         if (err)
-            std::cout << "ERROR:: GL error in init_from_gtkbuilder()" << err << std::endl;
-
-         gtk_widget_show(main_window);
-         gtk_widget_realize(glarea);
-
-      } else {
-         std::cout << "WARNING:: init_from_gtkbuilder(): glarea null" << std::endl;
-         status = false;
-      }
-   } else {
-      std::cout << "WARNING:: init_from_gtkbuilder(): graphics_hbox was null" << std::endl;
-      status = false;
-   }
-   return status;
-}
 
 #include "widget-from-builder.hh"
+#include "coot-application.hh"
+
 
 // This main is used for both python/guile useage and unscripted.
 int
@@ -419,7 +309,7 @@ main(int argc, char *argv[]) {
                                         // 20220407-PE this causes a crash
                                         // gtk_window_set_has_resize_grip(GTK_WINDOW(main_window), FALSE);
 
-					                         // this expands the window fully in height - I don't want that.
+                                        // this expands the window fully in height - I don't want that.
                                         // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 #else
                                         if (box)
@@ -494,6 +384,17 @@ main(int argc, char *argv[]) {
 
    graphics_info.init();
 
+#if (GTK_MAJOR_VERSION >= 4)
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      // this should be the return value to the shell
+      int status = start_using_application(argc, argv); // doesn't return until quit.
+   } else {
+      // start-up in command line mode
+   }
+
+#else
+         
    if (graphics_info_t::use_graphics_interface_flag) {
 
       bool old_way_flag = true;
@@ -533,6 +434,7 @@ main(int argc, char *argv[]) {
             std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;
          }
       }
+
    }
 
    // Mac users often start somewhere where they can't write files
@@ -624,6 +526,8 @@ main(int argc, char *argv[]) {
 #endif // USE_PYTHON
 
 #endif // ! USE_GUILE
+
+#endif // GTKApplication startup
 
    return shell_exit_code;
 }
