@@ -1269,6 +1269,14 @@ public:
                         gdouble y,
                         gpointer user_data);
 
+   void on_glarea_scrolled(GtkEventControllerScroll *controller,
+                           double                    dx,
+                           double                    dy,
+                           gpointer                  user_data);
+
+   // step is usually 1 or -1, but can be 2 or 3 (with fast scrolling)
+   void change_model_molecule_representation_mode(int step);
+
    void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,

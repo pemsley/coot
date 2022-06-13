@@ -2415,6 +2415,17 @@ on_glarea_click(GtkGestureClick* click_gesture,
 
 }
 
+void
+on_glarea_scrolled(GtkEventControllerScroll *controller,
+                   double                    dx,
+                   double                    dy,
+                   gpointer                  user_data) {
+
+   graphics_info_t g;
+   g.on_glarea_scrolled(controller, dx, dy, user_data);
+
+}
+
 
 // #include "event-controller-callbacks.hh"
 
@@ -2635,6 +2646,9 @@ on_glarea_realize(GtkGLArea *glarea) {
       GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
       GtkGesture *click_controller          = gtk_gesture_click_new();
 
+      GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
+      GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
+
       // #ifdef __APPLE__
       //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
       //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
@@ -2663,6 +2677,9 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(click_controller));
       g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_glarea_click),  glarea);
+
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
+      g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
 
       // add this while we are testing.
       load_tutorial_model_and_data();

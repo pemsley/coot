@@ -341,8 +341,12 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
 
 
    gboolean handled = false;
+
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
+
+   std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
+             << " shift_is_pressed " << shift_is_pressed << std::endl;
 
    keyboard_key_t kbk(keyval, control_is_pressed);
    add_key_to_history(kbk);
@@ -374,4 +378,183 @@ graphics_info_t::on_glarea_key_controller_key_released(GtkEventControllerKey *co
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
 
+}
+
+
+void
+graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
+                                    double                    dx,
+                                    double                    dy,
+                                    gpointer                  user_data) {
+
+   GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+   control_is_pressed = (modifier & GDK_CONTROL_MASK);
+   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
+
+   bool handled = false;
+   std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
+             << " shift_is_pressed " << shift_is_pressed << std::endl;
+
+   if (control_is_pressed) {
+      if (shift_is_pressed) {
+         if (dy > 0)
+            change_model_molecule_representation_mode(-1);
+         else
+            change_model_molecule_representation_mode(1);
+         graphics_draw();
+         handled = true;
+      }
+   }
+
+   if (! handled) {
+      if (shift_is_pressed) {
+         graphics_info_t::scroll_zoom(dy);
+      } else {
+         // scroll density
+
+         // start the idle function - why is this needed? The contouring used to
+         // work (i.e. the idle function was added somewhere (else)).
+         if (graphics_info_t::glareas.size() > 0) {
+            g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
+         }
+         contour_level_scroll_scrollable_map(dy);
+      }
+   }
+}
+
+
+void
+graphics_info_t::change_model_molecule_representation_mode(int up_or_down) {
+
+   // enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
+   //        COLOUR_BY_CHAIN_BONDS=3,
+   //        CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+   //        BONDS_NO_HYDROGENS=15,
+   //        CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+   //        CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+   //        CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
+   //        COLOUR_BY_MOLECULE_BONDS=8,
+   //        COLOUR_BY_RAINBOW_BONDS=9,
+   //        COLOUR_BY_B_FACTOR_BONDS=10,
+   //        COLOUR_BY_OCCUPANCY_BONDS=11,
+   //        COLOUR_BY_USER_DEFINED_COLOURS_BONDS=12 };
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int bond_type = molecules[imol].Bonds_box_type();
+
+      // up_or_down  1 means scroll up
+      // up_or_down -1 means scroll down
+
+      if (up_or_down == 1) {
+         if (bond_type == coot::NORMAL_BONDS) { /* atom type bonds */
+            molecules[imol].occupancy_representation();
+         }
+         if (bond_type == coot::COLOUR_BY_CHAIN_BONDS) {
+            bool force_rebonding = false;
+            molecules[imol].bond_representation(Geom_p(), force_rebonding);
+         }
+         if (bond_type == coot::COLOUR_BY_MOLECULE_BONDS) {
+            // graphics_to_colour_by_chain(imol);
+            bool force_rebonding = false;
+            molecules[imol].make_colour_by_chain_bonds(force_rebonding);
+         }
+         if (bond_type == coot::CA_BONDS) {
+            // graphics_to_colour_by_molecule(imol);
+            bool force_rebonding = false;
+            molecules[imol].make_colour_by_molecule_bonds(force_rebonding);
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS) {
+            // graphics_to_ca_representation(imol);
+            bool force_rebonding = false;
+            molecules[imol].ca_representation(force_rebonding);
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
+            // graphics_to_ca_plus_ligands_representation(imol);
+            bool force_rebonding = false;
+            molecules[imol].ca_plus_ligands_representation(Geom_p(), force_rebonding);
+         }
+         if (bond_type == coot::COLOUR_BY_RAINBOW_BONDS) {
+            // graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+            molecules[imol].ca_plus_ligands_sec_struct_representation(Geom_p());
+         }
+         if (bond_type == coot::BONDS_SEC_STRUCT_COLOUR) {
+            // graphics_to_rainbow_representation(imol);
+            molecules[imol].ca_plus_ligands_rainbow_representation(Geom_p());
+         }
+         if (bond_type == coot::BONDS_NO_WATERS) {
+            // graphics_to_sec_struct_bonds_representation(imol);
+            molecules[imol].bonds_sec_struct_representation();
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+            // graphics_to_bonds_no_waters_representation(imol);
+            molecules[imol].bonds_no_waters_representation();
+         }
+         if (bond_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
+            // graphics_to_b_factor_cas_representation(imol);
+            molecules[imol].b_factor_representation_as_cas();
+         }
+         if (bond_type == coot::COLOUR_BY_OCCUPANCY_BONDS) {
+            // graphics_to_b_factor_representation(imol);
+            molecules[imol].b_factor_representation();
+         }
+      }
+
+      if (up_or_down == -1) {
+         if (bond_type == coot::NORMAL_BONDS) {
+            // graphics_to_colour_by_chain(imol);
+            bool force_rebonding = false;
+            molecules[imol].make_colour_by_chain_bonds(force_rebonding);
+         }
+         if (bond_type == coot::COLOUR_BY_CHAIN_BONDS) {
+            // graphics_to_colour_by_molecule(imol);
+            bool force_rebonding = false;
+            molecules[imol].make_colour_by_molecule_bonds(force_rebonding);
+         }
+         if (bond_type == coot::COLOUR_BY_MOLECULE_BONDS) {
+            // graphics_to_ca_representation(imol);
+            bool force_rebonding = false;
+            molecules[imol].ca_representation(force_rebonding);
+         }
+         if (bond_type == coot::CA_BONDS) {
+            // graphics_to_ca_plus_ligands_representation(imol);
+            bool force_rebonding = false;
+            molecules[imol].ca_plus_ligands_representation(Geom_p(), force_rebonding);
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS) {
+            // graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+            molecules[imol].ca_plus_ligands_sec_struct_representation(Geom_p());
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
+            // graphics_to_rainbow_representation(imol);
+            molecules[imol].ca_plus_ligands_rainbow_representation(Geom_p());
+         }
+         if (bond_type == coot::COLOUR_BY_RAINBOW_BONDS) {
+            // graphics_to_sec_struct_bonds_representation(imol);
+            molecules[imol].bonds_sec_struct_representation();
+         }
+         if (bond_type == coot::BONDS_SEC_STRUCT_COLOUR) {
+            // graphics_to_bonds_no_waters_representation(imol);
+            molecules[imol].bonds_no_waters_representation();
+         }
+         if (bond_type == coot::BONDS_NO_WATERS) {
+            //graphics_to_b_factor_cas_representation(imol);
+            molecules[imol].b_factor_representation_as_cas();
+         }
+         if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+            // graphics_to_b_factor_representation(imol);
+            molecules[imol].b_factor_representation();
+         }
+         if (bond_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
+            // graphics_to_occupancy_representation(imol);
+            molecules[imol].occupancy_representation();
+         }
+         if (bond_type == coot::COLOUR_BY_OCCUPANCY_BONDS) {
+            // graphics_to_bonds_representation(imol);
+            bool force_rebonding = false;
+            molecules[imol].bond_representation(Geom_p(), force_rebonding);
+         }
+      }
+   }
 }
