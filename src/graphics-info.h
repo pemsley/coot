@@ -1251,10 +1251,19 @@ public:
 
    // -------------- gtk4 event controller -----------------------------
 
-   void on_glarea_drag_begin(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
-   void on_glarea_drag_update(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
-   void on_glarea_drag_end(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
-   void do_drag_pan_gtk3(GtkWidget *widget);
+   void on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+   void on_glarea_drag_update_primary(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
+   void on_glarea_drag_end_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+
+   void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+   void on_glarea_drag_update_secondary(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
+   void on_glarea_drag_end_secondary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+
+   void on_glarea_drag_begin_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+   void on_glarea_drag_update_middle(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
+   void on_glarea_drag_end_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
+
+   void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
                                                  guint                  keyval,

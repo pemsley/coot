@@ -2267,7 +2267,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 }
 
 
-void on_glarea_drag_begin(GtkGestureDrag *gesture,
+void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                           double          x,
                           double          y,
                           GtkWidget      *area) {
@@ -2279,32 +2279,104 @@ void on_glarea_drag_begin(GtkGestureDrag *gesture,
    // di.drag_begin_y = y;
 
    graphics_info_t g;
-   g.on_glarea_drag_begin(gesture, x, y, area);
+   g.on_glarea_drag_begin_primary(gesture, x, y, area);
 
 }
 
-void on_glarea_drag_update(GtkGestureDrag *gesture,
+void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                            double          delta_x,
                            double          delta_y,
                            GtkWidget      *area) {
 
-   // std::cout << "on_glarea_drag_update()" << std::endl;
-   GtkAllocation allocation;
    graphics_info_t g;
-   gtk_widget_get_allocation(GTK_WIDGET(g.glareas[0]), &allocation);
-   // std::cout << "do this: g.update_view_quaterion(x_size, y_size, delta_x, delta_y);" << std::endl;
-   g.on_glarea_drag_update(gesture, delta_x, delta_y, area);
+   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
 
 }
 
-void on_glarea_drag_end(GtkGestureDrag *gesture,
+void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
+                                double          x,
+                                double          y,
+                                GtkWidget      *area) {
+
+   // std::cout << "drag end" << std::endl;
+   // do nothing at the moment.
+   graphics_info_t g;
+   g.on_glarea_drag_end_primary(gesture, x, y, area);
+}
+
+
+void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
                           double          x,
                           double          y,
                           GtkWidget      *area) {
 
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
+   graphics_info_t g;
+   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
+
 }
+
+void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
+                                     double          delta_x,
+                                     double          delta_y,
+                                     GtkWidget      *area) {
+
+   graphics_info_t g;
+   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
+
+}
+
+void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
+                                  double          x,
+                                  double          y,
+                                  GtkWidget      *area) {
+
+   graphics_info_t g;
+   g.on_glarea_drag_end_secondary(gesture, x, y, area);
+}
+
+
+
+void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
+                          double          x,
+                          double          y,
+                          GtkWidget      *area) {
+
+   graphics_info_t g;
+   g.on_glarea_drag_begin_middle(gesture, x, y, area);
+
+}
+
+void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
+                                  double          delta_x,
+                                  double          delta_y,
+                                  GtkWidget      *area) {
+
+   graphics_info_t g;
+   g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
+
+}
+
+void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
+                               double          x,
+                               double          y,
+                               GtkWidget      *area) {
+
+
+   graphics_info_t g;
+   g.on_glarea_drag_end_middle(gesture, x, y, area);
+}
+
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+//                            key press
+// ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+
 
 gboolean
 on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
@@ -2546,20 +2618,35 @@ on_glarea_realize(GtkGLArea *glarea) {
       g_signal_connect(key_controller, "key-released", G_CALLBACK(on_glarea_key_controller_key_released), glarea);
       gtk_widget_add_controller(GTK_WIDGET(glarea), key_controller);
 
-      GtkGesture *drag_controller = gtk_gesture_drag_new();
+      GtkGesture *drag_controller_secondary = gtk_gesture_drag_new();
+      GtkGesture *drag_controller_primary   = gtk_gesture_drag_new();
+      GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
 
       // #ifdef __APPLE__
       //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
       //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
       // #endif
 
-      // gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller), GDK_BUTTON_PRIMARY);
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller), GDK_BUTTON_SECONDARY);
+      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller));
-      g_signal_connect(drag_controller, "drag-begin",  G_CALLBACK(on_glarea_drag_begin),  glarea);
-      g_signal_connect(drag_controller, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
-      g_signal_connect(drag_controller, "drag-end",    G_CALLBACK(on_glarea_drag_end),    glarea);
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_primary));
+      g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_primary),  glarea);
+      g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_glarea_drag_update_primary), glarea);
+      g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_glarea_drag_end_primary),    glarea);
+
+      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_secondary), GDK_BUTTON_SECONDARY);
+
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_secondary));
+      g_signal_connect(drag_controller_secondary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_secondary),  glarea);
+      g_signal_connect(drag_controller_secondary, "drag-update", G_CALLBACK(on_glarea_drag_update_secondary), glarea);
+      g_signal_connect(drag_controller_secondary, "drag-end",    G_CALLBACK(on_glarea_drag_end_secondary),    glarea);
+
+      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_middle), GDK_BUTTON_MIDDLE);
+
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_middle));
+      g_signal_connect(drag_controller_middle, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_middle),  glarea);
+      g_signal_connect(drag_controller_middle, "drag-update", G_CALLBACK(on_glarea_drag_update_middle), glarea);
+      g_signal_connect(drag_controller_middle, "drag-end",    G_CALLBACK(on_glarea_drag_end_middle),    glarea);
 
       // add this while we are testing.
       load_tutorial_model_and_data();

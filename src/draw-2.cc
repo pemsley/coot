@@ -160,14 +160,6 @@ glarea_tick_func(GtkWidget *widget,
 }
 
 
-void
-do_drag_pan_gtk3(GtkWidget *widget) {
-
-   graphics_info_t g;
-   g.do_drag_pan_gtk3(widget);
-}
-
-
 // void on_glarea_drag_begin(GtkGestureDrag *gesture,
 //                           double          x,
 //                           double          y,
@@ -186,9 +178,9 @@ do_drag_pan_gtk3(GtkWidget *widget) {
 
 void
 on_glarea_swipe(GtkGestureSwipe *gesture,
-          gdouble          velocity_x,
-          gdouble          velocity_y,
-          GtkWidget        *widget) {
+                gdouble          velocity_x,
+                gdouble          velocity_y,
+                GtkWidget        *widget) {
    std::cout << "swipe" << std::endl;
 }
 
