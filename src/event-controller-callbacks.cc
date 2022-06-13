@@ -260,6 +260,26 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
 
 
 
+void
+graphics_info_t::on_glarea_click(GtkGestureClick* self,
+                                 gint n_press,
+                                 gdouble x,
+                                 gdouble y,
+                                 gpointer user_data) {
+
+   // n_press can go up to 20, 30...
+   //
+   if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
+      bool intermediate_atoms_only_flag = false;
+      pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+      int im = naii.imol;
+      molecules[im].add_to_labelled_atom_list(naii.atom_index);
+      add_picked_atom_info_to_status_bar(im, naii.atom_index);
+      graphics_draw();
+   }
+
+}
+
 
 
 void

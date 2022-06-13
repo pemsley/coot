@@ -1263,6 +1263,12 @@ public:
    void on_glarea_drag_update_middle(GtkGestureDrag *gesture, double delta_x, double delta_y, GtkWidget *gl_area);
    void on_glarea_drag_end_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area);
 
+   void on_glarea_click(GtkGestureClick* self,
+                        gint n_press,
+                        gdouble x,
+                        gdouble y,
+                        gpointer user_data);
+
    void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
