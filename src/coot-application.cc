@@ -30,6 +30,7 @@ application_activate(GtkApplication *app,
    };
 
    GtkWidget *app_window = gtk_application_window_new(app);
+   gtk_window_set_application(GTK_WINDOW(app_window), app);
    graphics_info_t::main_window = app_window;
 
    bool success = init_from_gtkbuilder(app_window);
@@ -63,18 +64,15 @@ int start_using_application(int argc, char **argv) {
       GError *error = NULL;
       GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
 
-      std::cout << "DEBUG:: startup is g_application " << G_IS_APPLICATION(app) << std::endl;
-      std::cout << "DEBUG:: startup is g_application argc " << argc << std::endl;
-      std::cout << "DEBUG:: startup is g_application argv " << argv << std::endl;
+      // std::cout << "DEBUG:: startup is g_application " << G_IS_APPLICATION(app) << std::endl;
+      // std::cout << "DEBUG:: startup is g_application argc " << argc << std::endl;
+      // std::cout << "DEBUG:: startup is g_application argv " << argv << std::endl;
 
       g_signal_connect(app, "activate", G_CALLBACK(application_activate), NULL);
       gboolean register_status = g_application_register(G_APPLICATION(app), NULL, &error);
-      std::cout << "g_application_register() return status " << register_status << std::endl;
       if (error)
          std::cout << "ERROR:: post-register error message " << error->message << std::endl;
-      std::cout << ":::::::::::::::::::::::::::::::::: calling g_application_run()" << std::endl;
       status = g_application_run(G_APPLICATION (app), argc, argv);
-      std::cout << "::::::::::::::::::::::::::::::::::::: done g_application_run()" << std::endl;
       std::cout << "---------------- g_application_run() returns " << status << std::endl;
       if (error)
          std::cout << "ERROR:: post run error message " << error->message << std::endl;
