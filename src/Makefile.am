@@ -64,6 +64,8 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
 #
+# add this back one day
+# $(top_builddir)/goograph/libcoot-goograph.la
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
@@ -71,7 +73,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
-	$(top_builddir)/goograph/libcoot-goograph.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
