@@ -7,6 +7,13 @@ void setup_application_icon(GtkWindow *window);
 #include "startup-utils.hh" // nothing yet
 
 void
+application_startup(GtkApplication *app,
+                     gpointer        user_data) {
+
+   std::cout << "application_startup" << std::endl;
+}
+
+void
 application_activate(GtkApplication *app,
                      gpointer        user_data) {
 
@@ -64,12 +71,10 @@ int start_using_application(int argc, char **argv) {
       GError *error = NULL;
       GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
 
-      // std::cout << "DEBUG:: startup is g_application " << G_IS_APPLICATION(app) << std::endl;
-      // std::cout << "DEBUG:: startup is g_application argc " << argc << std::endl;
-      // std::cout << "DEBUG:: startup is g_application argv " << argv << std::endl;
-
       g_signal_connect(app, "activate", G_CALLBACK(application_activate), NULL);
+      g_signal_connect(app, "startup",  G_CALLBACK(application_startup),  NULL);
       gboolean register_status = g_application_register(G_APPLICATION(app), NULL, &error);
+      std::cout << "register status " << register_status << std::endl;
       if (error)
          std::cout << "ERROR:: post-register error message " << error->message << std::endl;
       status = g_application_run(G_APPLICATION (app), argc, argv);
