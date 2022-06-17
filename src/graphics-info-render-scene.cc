@@ -709,7 +709,7 @@ graphics_info_t::render_scene() {
 #ifdef __APPLE__
                               sf = 2;
 #endif
-                              std::cout << "DEBUG:: in render_scene_basic() width is " << width << " and sf is " << sf << std::endl;
+                              // std::cout << "DEBUG:: in render_scene_basic() width is " << width << " and sf is " << sf << std::endl;
                               glViewport(0, 0, sf * width, sf * height);
                               attach_buffers(); // just GTK things
                               glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);

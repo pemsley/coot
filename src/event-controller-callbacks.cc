@@ -214,8 +214,6 @@ graphics_info_t::on_glarea_drag_end_secondary(GtkGestureDrag *gesture, double x,
 void
 graphics_info_t::on_glarea_drag_begin_middle(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
-   // 20220429-PE is this controller for left-mouse or right-mouse?
-
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
    mouse_x = x;
@@ -239,6 +237,11 @@ graphics_info_t::on_glarea_drag_update_middle(GtkGestureDrag *gesture,
                                               double drag_delta_x, double drag_delta_y,
                                               GtkWidget *gl_area) {
 
+   do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
+   graphics_draw();
+   double x = drag_begin_x + drag_delta_x;
+   double y = drag_begin_y + drag_delta_y;
+   set_mouse_previous_position(x, y);
 }
 
 void
