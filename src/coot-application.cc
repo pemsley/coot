@@ -14,7 +14,7 @@ application_startup(GtkApplication *app,
 }
 
 void
-application_activate(GtkApplication *app,
+application_activate(GtkApplication *application,
                      gpointer        user_data) {
 
 
@@ -36,8 +36,8 @@ application_activate(GtkApplication *app,
 #endif
    };
 
-   GtkWidget *app_window = gtk_application_window_new(app);
-   gtk_window_set_application(GTK_WINDOW(app_window), app);
+   GtkWidget *app_window = gtk_application_window_new(application);
+   gtk_window_set_application(GTK_WINDOW(app_window), application);
    graphics_info_t::main_window = app_window;
 
    bool success = init_from_gtkbuilder(app_window);
@@ -48,11 +48,19 @@ application_activate(GtkApplication *app,
       if (main_window_vbox) {
          std::cout << "-------------------- calling gtk_window_set_child " << app_window << std::endl;
          gtk_window_set_child(GTK_WINDOW(app_window), main_window_vbox);
+
+         GObject *menu = graphics_info_t::get_gobject_from_builder("main_window_menubar");
+         std::cout << "------------------ debug:: adding menu " << menu << " to application " << application << std::endl;
+         gtk_application_set_menubar(application, G_MENU_MODEL(menu));
+         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+
          setup_application_icon(GTK_WINDOW(app_window)); // put this in init_from_gtkbuilder()
+
          std::cout << "-------------------- calling do_window_resizing_widgets() " << main_window_vbox << std::endl;
          do_window_resizing_widgets();
          gtk_widget_show(main_window_vbox);
          gtk_widget_show(app_window);
+
       }
    }
 

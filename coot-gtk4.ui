@@ -4625,60 +4625,483 @@ Do you want to continue?
   <object class="GtkImage" id="image37">
   </object>
 
+      <menu id="main_window_menubar">
+        <submenu>
+          <attribute name="label">File</attribute>
+          <section>
+            <item>
+              <attribute name="label">Open Coordinates...</attribute>
+              <attribute name="action">on_open_coordinates1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Auto Open MTZ...</attribute>
+              <attribute name="action">on_auto_open_mtz_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Open MTZ, mmCIF, fcf or phs...</attribute>
+              <attribute name="action">on_open_dataset1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Open Map...</attribute>
+              <attribute name="action">on_open_map1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Import CIF dictionary...</attribute>
+              <attribute name="action">on_import_cif_dictionary1_activate</attribute>
+            </item>
+          </section>
+          <section>
+            <item>
+              <attribute name="label">Get Monomer...</attribute>
+              <attribute name="action">on_import_cif_dictionary1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Search Monomer Library...</attribute>
+              <attribute name="action">on_search_monomer_library1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fetch PDB using Accession Code...</attribute>
+              <attribute name="action">on_fetch_pdb_using_code1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fetch PDB &amp; Map using EDS...</attribute>
+              <attribute name="action">on_fetch_pdb_and_map_using_eds1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
+              <attribute name="action">on_fetch_pdb_and_map_using_pdb_redo1_activate</attribute>
+            </item>
+          </section>
+          <section>
+            <item>
+              <attribute name="label">Save Coordinates...</attribute>
+              <attribute name="action">on_save_coordinates1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Save Symmetry Coordinates...</attribute>
+              <attribute name="action">on_save_symmetry_coordinates1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Save State...</attribute>
+              <attribute name="action">on_save_state1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Recover Session...</attribute>
+              <attribute name="action">on_recover_session1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Export Map...</attribute>
+              <attribute name="action">on_file_export_map1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Export Map Fragment...</attribute>
+              <attribute name="action">on_file_export_map_fragment1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Delete Molecules and Maps...</attribute>
+              <attribute name="action">on_close_molecule1_activate</attribute>
+            </item>
+          </section>
+          <section>
+            <item>
+              <attribute name="label">Curlew...</attribute>
+              <attribute name="action">on_close_molecule1_activate</attribute>
+            </item>
+          </section>
+          <section>
+            <item>
+              <attribute name="label">Exit</attribute>
+              <attribute name="action">on_exit1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">Edit</attribute>
+          <section>
+            <item>
+              <attribute name="label">Change Chain IDs...</attribute>
+              <attribute name="action">on_change_chain_ids2_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Copy Molecule...</attribute>
+              <attribute name="action">on_edit_copy_molecule_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Copy Fragment...</attribute>
+              <attribute name="action">on_edit_copy_molecule_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Merge Molecules...</attribute>
+              <attribute name="action">on_merge_molecules1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Move Molecule Here...</attribute>
+              <attribute name="action">on_move_molecule_here1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Mutate Residue Range...</attribute>
+              <attribute name="action">on_mutate_molecule1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Replace Fragment...</attribute>
+              <attribute name="action">on_edit_replace_fragment_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Replace Residue...</attribute>
+              <attribute name="action">on_edit_replace_residue_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Renumber Residues...</attribute>
+              <attribute name="action">on_renumber_residues1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Residue Info...</attribute>
+              <attribute name="action">on_residue_info2_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Restraints...</attribute>
+              <attribute name="action">on_edit_restraints_activate</attribute>
+            </item>
+          </section>
+          <section>
+            <item>
+              <attribute name="label">Preferences...</attribute>
+              <attribute name="action">on_preferences1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Shader Preferences...</attribute>
+              <attribute name="action">on_shader_preferences_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Settings...</attribute>
+              <attribute name="action">on_edit_settings_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">Calculate</attribute>
+          <section>
+            <item>
+              <attribute name="label">Align and Mutate...</attribute>
+              <attribute name="action">on_calculate_align_and_mutate_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">All Molecule...</attribute>
+              <attribute name="action">on_calculate_all_molecule_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Find Ligands...</attribute>
+              <attribute name="action">on_calculate_find_ligands_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Find Waters...</attribute>
+              <attribute name="action">on_calculate_find_waters_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fit Loop...</attribute>
+              <attribute name="action">on_fit_loop1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Load Tutorial Model &amp; Data</attribute>
+              <attribute name="action">on_calculate_load_tutorial_model_and_data1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Ligand Builder...</attribute>
+              <attribute name="action">on_ligand_builder1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">LSQ Superpose...</attribute>
+              <attribute name="action">on_lsq_superpose1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Map Tools...</attribute>
+              <attribute name="action">on_calculate_map_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Map Sharpening/Blurring...</attribute>
+              <attribute name="action">on_map_sharpening1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Map Skeleton...</attribute>
+              <attribute name="action">on_skeleton1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Modelling...</attribute>
+              <attribute name="action">on_modelling_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Modules...</attribute>
+              <attribute name="action">on_modelling_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">NCS Model Tools...</attribute>
+              <attribute name="action">on_calculate_ncs_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Other Modelling Tools...</attribute>
+              <attribute name="action">on_calculate_ncs_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Run Script...</attribute>
+              <attribute name="action">on_calculate_ncs_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Scripting...</attribute>
+              <attribute name="action">on_calculate_ncs_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">SSM Superpose...</attribute>
+              <attribute name="action">on_ssm_superposition1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Updating Maps...</attribute>
+              <attribute name="action">on_calculate_updating_maps1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">Draw</attribute>
+          <section>
+            <item>
+              <attribute name="label">Additional Representations....</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Background Colour...</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Bond Colours...</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Bond Parameters...</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Centre Atom Label...</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Cell &amp; Symmetry...</attribute>
+              <attribute name="action">on_draw_additional_representations_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Central Atom Label...</attribute>
+              <attribute name="action">on_draw_central_atom_label_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Display Only Active</attribute>
+              <attribute name="action">on_draw_display_only_active_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Frames/Sec...</attribute>
+              <attribute name="action">on_draw_display_only_active_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fullscreen</attribute>
+              <attribute name="action">on_draw_fullscreen_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Generic Display Objects...</attribute>
+              <attribute name="action">on_draw_fullscreen_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Go To Atom...</attribute>
+              <attribute name="action">on_draw_fullscreen_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Label Atoms in Residue</attribute>
+              <attribute name="action">on_draw_label_atoms_in_residue_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Label CAs</attribute>
+              <attribute name="action">on_draw_label_CA_atoms_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Label Neighbours</attribute>
+              <attribute name="action">on_draw_label_neighbours_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Map Parameters...</attribute>
+              <attribute name="action">on_draw_label_neighbours_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">NCS Ghost Control...</attribute>
+              <attribute name="action">on_draw_label_neighbours_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Representation Tools...</attribute>
+              <attribute name="action">on_draw_representation_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Projection...</attribute>
+              <attribute name="action">on_draw_representation_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Spin View On/Off</attribute>
+              <attribute name="action">on_draw_representation_tools_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Rock View</attribute>
+              <attribute name="action">on_draw_rock_view_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Ribbons: By Chain</attribute>
+              <attribute name="action">on_ribbons_colour_by_chain_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Ribbons: Rainbow</attribute>
+              <attribute name="action">on_ribbons_colour_rainbow_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Ribbons: Sec. Struct.</attribute>
+              <attribute name="action">on_ribbons_colour_by_secondary_structure_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Screenshot</attribute>
+              <attribute name="action">on_ribbons_colour_by_secondary_structure_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Sequence View</attribute>
+              <attribute name="action">on_ribbons_colour_by_secondary_structure_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Stereo...</attribute>
+              <attribute name="action">on_ribbons_colour_by_secondary_structure_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Undo Last Navigation</attribute>
+              <attribute name="action">on_ribbons_colour_by_secondary_structure_menu_item_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Undo Symmetry View</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Zoom...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">Measures</attribute>
+          <section>
+            <item>
+              <attribute name="label">Clear Atom Labels</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Distances &amp; Angles...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Environment Distances...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Residue Info...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Plane Distances...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Pointer Distances...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">Validate</attribute>
+          <section>
+            <item>
+              <attribute name="label">Check/Delete Waters...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Density fit analysis</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Difference Map Peaks...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Geometry analysis</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">GLN and ASN B-factor Outliers</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Incorrect Chiral Volumes...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Kleywegt Plot...</attribute>
+              <attribute name="action">on_undo_symmetry_view1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">NCS Differences...</attribute>
+              <attribute name="action">on_ncs_differences1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Peptide Flips from Difference Map...</attribute>
+              <attribute name="action">on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade</attribute>
+            </item>
+            <item>
+              <attribute name="label">Peptide omega analysis</attribute>
+              <attribute name="action">on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade</attribute>
+            </item>
+            <item>
+              <attribute name="label">Pukka Puckers</attribute>
+              <attribute name="action">on_pukka_puckers_1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Ramachandran Plot</attribute>
+              <attribute name="action">on_pukka_puckers_1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Rotamer analysis</attribute>
+              <attribute name="action">on_pukka_puckers_1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Temp. fact. analysis</attribute>
+              <attribute name="action">on_temp_fact_analysis1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Temp. fact. variance analysis</attribute>
+              <attribute name="action">on_temp_fact_analysis1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">Unmodelled blobs...</attribute>
+              <attribute name="action">on_temp_fact_analysis1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+        <submenu>
+          <attribute name="label">About</attribute>
+          <section>
+            <item>
+              <attribute name="label">Header/Remarks Browser...</attribute>
+              <attribute name="action">on_remarks_browser1_activate</attribute>
+            </item>
+            <item>
+              <attribute name="label">About Coot...</attribute>
+              <attribute name="action">on_remarks_browser1_activate</attribute>
+            </item>
+          </section>
+        </submenu>
+      </menu>
+
+
+
   <!-- this vbox goes into the main application window -->
   <object class="GtkBox" id="main_window_vbox">
     <property name="orientation">vertical</property>
-
-    <child>
-      <object class="GtkBox" id="main_window_menubar_hbox">
-        <property name="orientation">horizontal</property>
-        <style>
-          <class name="toolbar"/>
-        </style>
-        <child>
-          <object class="GtkButton" id="menubar_file_test_button">
-            <property name="label" translatable="yes">File</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="menubar_edit_test_button">
-            <property name="label" translatable="yes">Edit</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="menubar_calculate_test_button">
-            <property name="label" translatable="yes">Calculate</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="menubar_draw_test_button">
-            <property name="label" translatable="yes">Draw</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="menubar_about_test_button">
-            <property name="label" translatable="yes">About</property>
-          </object>
-        </child>
-        <child>
-          <menu id="main_menubar_test_menu">
-            <section>
-              <item>
-                <attribute name="label" translatable="yes">Incendio</attribute>
-                <attribute name="action">app.incendio</attribute>
-              </item>
-            </section>
-            <section>
-              <attribute name="label" translatable="yes">Defensive Charms</attribute>
-              <item>
-                <attribute name="label" translatable="yes">Expelliarmus</attribute>
-                <attribute name="action">app.expelliarmus</attribute>
-              </item>
-            </section>
-          </menu>
-        </child>
-      </object>
-    </child>
 
     <child>
       <object class="GtkBox" id="main_window_toolbar_hbox">

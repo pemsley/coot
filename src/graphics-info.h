@@ -1021,6 +1021,7 @@ public:
    static GtkWidget *get_widget_from_builder(const std::string &w_name); // use gtkbuilder to do new-style lookup_widget();
    static GtkWidget *get_widget_from_preferences_builder(const std::string &w_name); // use gtkbuilder to do new-style lookup_widget();
    static bool gui_from_gtkbuilder() { return (gtkbuilder == NULL) ? false : true; }
+   static GObject *get_gobject_from_builder(const std::string &w_name); // use gtkbuilder but return a gobject (for menus)
 
    enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
 

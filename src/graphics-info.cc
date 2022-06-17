@@ -106,6 +106,15 @@ graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtk
 }
 
 // static
+GObject *
+graphics_info_t::get_gobject_from_builder(const std::string &w_name) { // use gtkbuilder but return a gobject (for menus)
+
+   GObject *o = G_OBJECT(gtk_builder_get_object(gtkbuilder, w_name.c_str()));
+   return o;
+}
+
+
+// static
 GtkWidget *
 graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
 
