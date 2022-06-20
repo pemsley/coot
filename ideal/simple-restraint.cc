@@ -3368,10 +3368,10 @@ coot::restraints_container_t::is_in_same_ring(int imol, mmdb::Residue *residue_p
    } else {
 
       // add it then
-      std::pair<bool, dictionary_residue_restraints_t> rest =
-	 geom.get_monomer_restraints(res_name, imol);
+      std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(res_name, imol);
+      const auto &dict = rest.second;
       if (rest.first) {
-	 std::vector<std::vector<std::string> > ri = rest.second.get_ligand_ring_list();
+	 std::vector<std::vector<std::string> > ri = dict.get_ligand_ring_list();
 	 residue_ring_map_cache[res_name].first = false; // not looked up before and failed	 
 	 for (unsigned int ii=0; ii<ri.size(); ii++) {
 	    std::list<std::string> l;

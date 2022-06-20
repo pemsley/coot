@@ -8,7 +8,7 @@
   o BUG-FIX:  Fix crash on picking intermediate atoms in Real Space Refinement
               [Nikos Pinotsis]
 
-  o BUG-FIX:  Hydrogen atoms are not pickable again in Rotation/Translation
+  o BUG-FIX:  Hydrogen atoms are now pickable again in Rotation/Translation
               [Taro Yamada]
 
 ----

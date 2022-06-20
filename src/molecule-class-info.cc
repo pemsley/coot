@@ -2646,6 +2646,19 @@ molecule_class_info_t::display_symmetry_bonds() {
    //
    glLineWidth(bond_width);
 
+   auto rtop_to_opengl_matrix = [] (const clipper::RTop_orth &rtop, float *mat_for_glm) {
+
+      // not used. Maybe useful one day (but not sure that it works as intended). c.f. gl_matrix class also.
+      for (unsigned int i=0; i<3; i++)
+         for (unsigned int j=0; j<3; j++)
+            mat_for_glm[i*4 + j] = rtop.rot()(i,j);
+      for (unsigned int i=0; i<3; i++)
+         mat_for_glm[i*4 + 3 ] = 0.0;
+      for (unsigned int i=0; i<3; i++)
+         mat_for_glm[i + 12] = rtop.trn()[i];
+      mat_for_glm[15] = 1.0f;
+   };
+
    auto display_molecular_symmetry = [] (const graphical_bonds_container &bonds_box,
                                          const std::vector<std::pair<clipper::Mat33<double>, clipper::Coord_orth> > &molecular_symmetry_matrices) {
 
@@ -2660,32 +2673,18 @@ molecule_class_info_t::display_symmetry_bonds() {
                                            glColor3f(rgb[0], rgb[1], rgb[2]);
                                            const clipper::Mat33<double> &mat(molecular_symmetry_matrices[i_ms].first);
                                            const clipper::Coord_orth  &trans(molecular_symmetry_matrices[i_ms].second);
+                                           const clipper::Coord_orth  minus_trans = -1.0 * trans;
+                                           // std::cout << i_ms  << " mat\n" << mat.format() << "\n trans " << trans.format() << std::endl;
                                            clipper::Coord_orth zero_trans(0.0, 0.0, 0.0);
-                                           clipper::RTop_orth rtop_mat(mat, zero_trans);
+                                           clipper::RTop_orth rtop_symm_rot(mat, zero_trans);
                                            clipper::Mat33<double> identity_m(clipper::Mat33<double>::identity());
                                            clipper::RTop_orth origin_shift(identity_m, trans);
-                                           clipper::RTop_orth back_origin_shift(identity_m, -trans);
-                                           clipper::RTop_orth rtop_A(origin_shift);
-                                           clipper::RTop_orth rtop_B(rtop_A * rtop_mat);
+                                           clipper::RTop_orth minus_origin_shift(identity_m, minus_trans);
+                                           clipper::RTop_orth back_origin_shift(identity_m, trans);
+                                           clipper::RTop_orth rtop_A(minus_origin_shift);
+                                           clipper::RTop_orth rtop_B(rtop_symm_rot * rtop_A);
                                            clipper::RTop_orth rtop_C(rtop_B * back_origin_shift);
-                                           clipper::RTop_orth rtop(rtop_C);
-                                           float mat_for_glm[16];
-                                           for (unsigned int i=0; i<3; i++)
-                                              for (unsigned int j=0; j<3; j++)
-                                                 mat_for_glm[i*4 + j] = rtop.rot()(i,j);
-                                           for (unsigned int i=0; i<3; i++)
-                                              mat_for_glm[i*4 + 3 ] = 0.0;
-                                           for (unsigned int i=0; i<3; i++)
-                                              mat_for_glm[i + 12] = rtop.trn()[i];
-                                           mat_for_glm[15] = 1.0f;
-                                           glPushMatrix();
-                                           glMultMatrixf(mat_for_glm);
-
-                                           if (false) {
-                                              for (unsigned int i=0; i<16; i++)
-                                                 std::cout << " " << mat_for_glm[i];
-                                              std::cout << std::endl;
-                                           }
+                                           clipper::RTop_orth rtop(rtop_B);
 
                                            glBegin(GL_LINES);
                                            for (int icol=0; icol<bonds_box.num_colours; icol++) {
@@ -2694,8 +2693,31 @@ molecule_class_info_t::display_symmetry_bonds() {
                                                  const coot::CartesianPair &pospair = ll.pair_list[j].positions;
                                                  const coot::Cartesian &p_1 = pospair.getStart();
                                                  const coot::Cartesian &p_2 = pospair.getFinish();
-                                                 glVertex3d(p_1.x(), p_1.y(), p_1.z());
-                                                 glVertex3d(p_2.x(), p_2.y(), p_2.z());
+
+                                                 clipper::Coord_orth pt_A_1(p_1.x(), p_1.y(), p_1.z());
+                                                 clipper::Coord_orth pt_A_2(p_2.x(), p_2.y(), p_2.z());
+
+                                                 clipper::Coord_orth pt_B_1 = pt_A_1.transform(rtop_A);
+                                                 clipper::Coord_orth pt_B_2 = pt_A_2.transform(rtop_A);
+
+                                                 clipper::Coord_orth pt_C_1 = pt_B_1.transform(rtop_symm_rot);
+                                                 clipper::Coord_orth pt_C_2 = pt_B_2.transform(rtop_symm_rot);
+
+                                                 clipper::Coord_orth pt_D_1 = pt_C_1 + trans;
+                                                 clipper::Coord_orth pt_D_2 = pt_C_2 + trans;
+
+                                                 if (false) {
+                                                    std::cout << i_ms << std::endl;
+                                                    std::cout << "pt_A_1 " << pt_A_1.format() << std::endl;
+                                                    std::cout << "pt_B_1 " << pt_B_1.format() << std::endl;
+                                                    std::cout << "rtop A " << std::endl;
+                                                    std::cout << rtop_A.format() << std::endl;
+                                                    std::cout << "rtop_rot " << std::endl;
+                                                    std::cout << rtop_B.format() << std::endl;
+                                                 }
+
+                                                 glVertex3d(pt_D_1.x(), pt_D_1.y(), pt_D_1.z());
+                                                 glVertex3d(pt_D_2.x(), pt_D_2.y(), pt_D_2.z());
                                               }
                                            }
                                            glEnd();
