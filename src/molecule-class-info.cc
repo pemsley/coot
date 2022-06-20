@@ -5060,7 +5060,8 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
             if (current_alt_conf == "") {
                std::string new_alt_conf("A");
                // force it down the atom's throat :)
-               strncpy(local_SelAtom[0]->altLoc, new_alt_conf.c_str(), 2);
+               strcpy(local_SelAtom[0]->altLoc, new_alt_conf.c_str()); // 20220620-PE changed from strncpy (new_alt_conf length is 15
+                                                                       //             says the compiler)
             }
          }
 
