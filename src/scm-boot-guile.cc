@@ -115,6 +115,19 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 
 void try_load_dot_coot_and_preferences() {
 
+   auto file_is_directory = [] (const std::string &file_name) {
+                               struct stat s;
+                               int status = stat(file_name.c_str(), &s);
+                               if (status == 0) {            /* the file existed */
+                                  if (S_ISDIR(s.st_mode)) {
+                                     return true;
+                                  }
+                               } else {
+                                  std::cout << "WARNING:: oops - stating " << file_name << " return non-zero status" << std::endl;
+                               }
+                               return false;
+                            };
+
    // python versionn in coot-setup-python.cc
 
    bool run_startup_scripts_flag = run_startup_scripts_state();
@@ -173,8 +186,11 @@ void try_load_dot_coot_and_preferences() {
 #if 0 // 20220507-PE old code, when coot was a file. Can be deleted when startup code works properly
 	 std::string fn = coot::util::append_dir_file(directory, ".coot");
 	 if (coot::file_exists(fn)) {
-	    std::cout << "Loading ~/.coot" << std::endl;
-	    scm_c_primitive_load(fn.c_str()); 
+            if (file_is_directory(fn)) {
+               std::cout << "INFO:: Not Loading ~/.coot - it's a directory " << std::endl;
+            } else {
+               scm_c_primitive_load(fn.c_str());
+            }
 	 }
 #endif
       }

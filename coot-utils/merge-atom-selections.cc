@@ -28,6 +28,7 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
 
    // mmdb::realtype max_dist = 2.2; // where did this number come from? Was I trying to force a merge?
    mmdb::realtype max_dist = 0.6; // I think that that's a better number.
+   max_dist = 0.8; // 20220529-PE with 7sc0 it was too fussy.
 
    if (mol) {
       mmdb::Contact *pscontact = NULL;
@@ -63,9 +64,13 @@ coot::mergeable_atom_selections(mmdb::Manager *mol, int selection_handle_1, int 
                std::string atom_name_1 = at_1->GetAtomName();
                std::string atom_name_2 = at_2->GetAtomName();
                if (atom_name_1 == atom_name_2) {
-                  std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
-                  // std::cout << "Adding pair " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
-                  match_set.add(at_1, at_2);
+                  // Mainchain oxygens can be splayed differently in the different fragment, or be
+                  // merely pepflipped - don't count them.
+                  if (atom_name_1 != " O  ") {
+                     std::pair<mmdb::Atom *, mmdb::Atom *> p(at_1, at_2);
+                     // std::cout << "Adding pair " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
+                     match_set.add(at_1, at_2);
+                  }
                }
             }
 

@@ -332,11 +332,11 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
 
 
 int
-graphics_info_t::check_if_in_refine_define(GdkEventButton *event) { 
+graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
 
    int iv = 0;
 
-   if (in_range_define_for_refine) { 
+   if (in_range_define_for_refine) {
 
       iv = 1;
 
@@ -345,47 +345,54 @@ graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
       if (naii.success == GL_TRUE) { 
 	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
-	 if (in_range_define_for_refine == 1) { 
-	    
-	    residue_range_atom_index_1 = naii.atom_index;
-	    residue_range_mol_no = naii.imol;
-	    in_range_define_for_refine = 2;
-	    // removed autorange code, on suggestion of Kevin.  Put
-	    // into A key callback now.
+         if (is_valid_model_molecule(naii.imol)) {
 
-	 } else { 
+            molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
-	    // (in_range_define_for_refine == 2)
+            if (in_range_define_for_refine == 1) {
 
-	    if (naii.imol == residue_range_mol_no) {
-	       watch_cursor();
-	       residue_range_atom_index_2 = naii.atom_index;
-	       int auto_range_flag = 0;
-	       rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
-						   // mouse behaviour (we
-						   // don't want to rotate
-						   // the atoms)
+               residue_range_atom_index_1 = naii.atom_index;
+               residue_range_mol_no = naii.imol;
+               in_range_define_for_refine = 2;
+               // removed autorange code, on suggestion of Kevin.  Put
+               // into A key callback now.
 
-	       residue_type_selection_was_user_picked_residue_range = true;
-	       refine(residue_range_mol_no,
-		      auto_range_flag,
-		      residue_range_atom_index_1,
-		      residue_range_atom_index_2);
-	    }
-	    
-	    in_range_define_for_refine = 0;
-	    normal_cursor();
-	    pick_pending_flag = 0;
-	    model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
-	 }
-	 graphics_draw(); // let's see the label
+            } else {
+
+               // (in_range_define_for_refine == 2)
+
+               if (naii.imol == residue_range_mol_no) {
+                  watch_cursor();
+                  residue_range_atom_index_2 = naii.atom_index;
+                  int auto_range_flag = 0;
+                  rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
+                  // mouse behaviour (we
+                  // don't want to rotate
+                  // the atoms)
+
+                  residue_type_selection_was_user_picked_residue_range = true;
+                  refine(residue_range_mol_no,
+                         auto_range_flag,
+                         residue_range_atom_index_1,
+                         residue_range_atom_index_2);
+               }
+
+               in_range_define_for_refine = 0;
+               normal_cursor();
+               pick_pending_flag = 0;
+               model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+            }
+            graphics_draw(); // let's see the label
+         }
+      } else {
+         std::cout << "WARNING:: that was a successful pick but not a valid molecule " << std::endl;
       }
    }
    return iv;
 }
 
-int 
-graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) { 
+int
+graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
 
    int iv = 0;
 

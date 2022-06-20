@@ -698,8 +698,6 @@ coot::chi_angles::change_by_internal(int ichi,
 				     int nResidueAtoms,
 				     const coot::atom_spec_t &tree_base_atom) {
 
-   // std::cout << "change_by_internal()..." << std::endl;
-   
    std::pair<short int, float> p(0, 0.0);
    
    // Let's make the coordinates:
@@ -717,7 +715,7 @@ coot::chi_angles::change_by_internal(int ichi,
 
 
    // debugging
-   if (0) {
+   if (false) {
       std::cout << " -----------   pairs ---------------- " << std::endl;
       for(unsigned int i=0; i<atom_index_pairs.size(); i++)
 	 std::cout << "pair " << i << ": " << atom_index_pairs[i].index1
@@ -831,7 +829,7 @@ coot::chi_angles::change_by_internal(int ichi,
       p.first = 1;
    } 
 
-   if (0) { 
+   if (0) {
       std::cout << "change_by_internal()... returns " << p.first << " "
 		<< p.second << std::endl;
    }

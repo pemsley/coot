@@ -587,6 +587,7 @@ cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *standard_residues_mol = g.standard_residues_asc.mol;
       g.molecules[imol].cis_trans_conversion(chain_id, resno, inscode, standard_residues_mol);
+      graphics_draw();
    }
 }
 
