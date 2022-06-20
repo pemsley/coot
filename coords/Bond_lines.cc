@@ -6477,8 +6477,8 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                               int col = atom_colour(residue_atoms[iat], atom_colour_type, atom_colour_map);
                               if (bt == "double") {
 
-                                 if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC)
-                                    std::cout << "double and aromatic and same-ele!" << std::endl;
+                                 // if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC)
+                                    // std::cout << "double and aromatic and same-ele!" << std::endl;
                               
                                  add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
                                                  atom_colour_type, atom_colour_map,

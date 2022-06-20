@@ -223,7 +223,7 @@ lbg_info_t::get_search_similarity() const {
    } 
    return r;
 }
-#endif 
+#endif
 
 
 

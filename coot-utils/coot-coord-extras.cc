@@ -125,32 +125,44 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
    int nResidueAtoms = residue->GetNumberOfAtoms();
    std::vector<std::vector<int> > contact_indices(nResidueAtoms);
    std::string restype(residue->name);
-   mmdb::Atom *atom_p;
 
-   int n_restr = geom_p->size();
+   int n_monomers = geom_p->size();
+
+   auto residue_has_deuterium_atoms = [] (mmdb::Residue *residue) {
+                                         int nResidueAtoms = residue->GetNumberOfAtoms();
+                                         bool has_deuterium_atoms = false;
+                                         for (int iat=0; iat<nResidueAtoms; iat++) {
+                                            mmdb::Atom *atom_p = residue->GetAtom(iat);
+                                            if (! atom_p->isTer()) {
+                                               std::string atom_ele(atom_p->element);
+                                               if (atom_ele == " D") {
+                                                  has_deuterium_atoms = true;
+                                                  break;
+                                               }
+                                            }
+                                         }
+                                         return has_deuterium_atoms;
+                                      };
 
    // this is a horrible and unconventional method of getting the restraints
 
-   for (int icomp=0; icomp<n_restr; icomp++) {
-      if ((*geom_p)[icomp].second.residue_info.comp_id == restype) {
-//          std::cout << "There are " << (*geom_p)[icomp].bond_restraint.size()
-//                    << " bond restraints " << "for " << restype << std::endl;
-         for (unsigned int ibr=0; ibr< (*geom_p)[icomp].second.bond_restraint.size(); ibr++) {
+   bool has_deuterium_atoms = residue_has_deuterium_atoms(residue);
+
+   for (int icomp=0; icomp<n_monomers; icomp++) {
+      const dictionary_residue_restraints_t&dict = (*geom_p)[icomp].second;
+      if (dict.residue_info.comp_id == restype) {
+         for (unsigned int ibr=0; ibr< dict.bond_restraint.size(); ibr++) {
             for (int iat=0; iat<nResidueAtoms; iat++) {
-               atom_p = residue->GetAtom(iat);
+               mmdb::Atom *atom_p = residue->GetAtom(iat);
                std::string at_name(atom_p->GetAtomName());
-               if ( (*geom_p)[icomp].second.bond_restraint[ibr].atom_id_1_4c() == at_name ) {
-//                   std::cout << "found a bond match "
-//                             << (*geom_p)[icomp].bond_restraint[ibr].atom_id_1_4c()
-//                             << " to "
-//                             << (*geom_p)[icomp].bond_restraint[ibr].atom_id_2_4c()
-//                             << std::endl;
+
+               if (dict.bond_restraint[ibr].atom_id_1_4c() == at_name) {
                   int ibond_to = -1;  // initially unassigned.
                   std::string at_name_2;
                   for (int iat2=0; iat2<nResidueAtoms; iat2++) {
                      atom_p = residue->GetAtom(iat2);
                      at_name_2 = atom_p->GetAtomName();
-                     if ( (*geom_p)[icomp].second.bond_restraint[ibr].atom_id_2_4c() == at_name_2 ) {
+                     if (dict.bond_restraint[ibr].atom_id_2_4c() == at_name_2) {
                         ibond_to = iat2;
                         break;
                      }
@@ -174,6 +186,43 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
 //                       std::cout << "failed to find bonded atom "
 //                                 << (*geom_p)[icomp].bond_restraint[ibr].atom_id_2_4c()
 //                                 << std::endl;
+               }
+
+
+               if (residue_has_deuterium_atoms) {
+                  // same again, but change the dictionary atom names on the fly
+
+                  std::string dict_atom_name_1 = dict.bond_restraint[ibr].atom_id_1_4c();
+                  if (dict_atom_name_1[0] == 'H') dict_atom_name_1[0] = 'D';
+                  if (dict_atom_name_1[1] == 'H') dict_atom_name_1[1] = 'D';
+                  if (dict_atom_name_1 == at_name) {
+                     int ibond_to = -1;  // initially unassigned.
+                     for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+                        atom_p = residue->GetAtom(iat2);
+                        std::string at_name_2 = atom_p->GetAtomName();
+                        std::string dict_atom_name_2 = dict.bond_restraint[ibr].atom_id_2_4c();
+                        if (dict_atom_name_2[0] == 'H') dict_atom_name_2[0] = 'D';
+                        if (dict_atom_name_2[1] == 'H') dict_atom_name_2[1] = 'D';
+                        if (dict_atom_name_2 == at_name_2) {
+                           ibond_to = iat2;
+                           break;
+                        }
+                     }
+                     if (ibond_to > -1 ) {
+                        if (add_reverse_contacts == 0) {
+                           if (regular_residue_flag) {
+                              contact_indices[iat].push_back(ibond_to);  // for ALA etc
+                           } else {
+                              contact_indices[ibond_to].push_back(iat);  // ligands
+                              // contact_indices[iat].push_back(ibond_to);  // ALA etc
+                           }
+                        } else {
+                           // add reverse contacts.
+                           contact_indices[ibond_to].push_back(iat);
+                           contact_indices[iat].push_back(ibond_to);
+                        }
+                     }
+                  }
                }
             }
          }

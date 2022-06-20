@@ -601,7 +601,7 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 	 std::cout << "debug in rotamer::GetResidue(): " << iat << " "
 		   << residue_atoms[iat] << std::endl;
       }
-   } 
+   }
 
    if ((rots.size() == 0) || (ui_rot >= rots.size())) { 
       return rres; // or should this be null? 

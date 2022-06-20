@@ -1166,7 +1166,6 @@ void
 coot::side_chain_densities::normalize_density_boxes_v3(const std::string &id) {
 
    for (std::size_t i=0; i<density_boxes.size(); i++) {
-      int nnn = density_boxes[i].nnn();
       density_box_t &db = density_boxes[i];
       db.normalize_using_ca_stats();
    }

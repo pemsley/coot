@@ -26,6 +26,8 @@ molecule_class_info_t::add_molecular_symmetry(const clipper::Mat33<double> &mol_
                                               const clipper::Coord_orth &mol_origin) {
 
    // std::cout << "#### pushing back mol_origin " << mol_origin.format() << std::endl;
+
+   std::cout << "debug:: add_molecular_symmetry() adding\n" << mol_symm.format() << " " << mol_origin.format() << std::endl;
    molecular_symmetry_matrices.push_back(std::make_pair(mol_symm, mol_origin));
 
 }

@@ -4870,8 +4870,8 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       if (p.first) {
 	 // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;
 	 // The magic happens here:
-	 mmdb::Residue *moving_res = d.GetResidue(p.second, irot);
-
+         const coot::dictionary_residue_restraints_t &dict = p.second;
+	 mmdb::Residue *moving_res = d.GetResidue(dict, irot);
 	 //
 	 if (moving_res == NULL) {
 	    std::cout << "Failure to find rotamer for residue type: "
