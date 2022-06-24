@@ -2204,6 +2204,8 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
 bool
 coot::protein_geometry::read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p) {
 
+   if (! mol) return false;
+
    std::vector<std::string> v = residue_names_with_no_dictionary(mol, imol);
    if (false) {
       std::cout << "-------------- debug residue names with no dictionary " << std::endl;

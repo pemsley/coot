@@ -638,6 +638,7 @@ libcootsumo_la_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
+   new-startup.cc \
 	oct.cc oct.hh            \
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \

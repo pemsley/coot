@@ -501,6 +501,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
          //
          if (bonds_box_type == coot::UNSET_TYPE)
             bonds_box_type = coot::NORMAL_BONDS;
+         std::cout << "debug:: ---- handle_read_draw_molecule() calls make_bonds_type_checked()" << std::endl;
          make_bonds_type_checked(__FUNCTION__);
       }
 
@@ -3716,7 +3717,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = false;
+   bool debug = true;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
@@ -3749,8 +3750,10 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    std::set<int> dummy;
 
-   if (bonds_box_type == coot::NORMAL_BONDS)
+   if (bonds_box_type == coot::NORMAL_BONDS){
+      std::cout << "debug:: plain make_bonds_type_checked() calls makebonds() with geom_p " << geom_p << std::endl;
       makebonds(geom_p, dummy);
+   }
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
       makebonds(geom_p, dummy);
    if (bonds_box_type == coot::CA_BONDS)
@@ -3878,6 +3881,7 @@ molecule_class_info_t::make_colour_table() const {
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
+   std::cout << "debug:: ---- in make_mesh_from_bonds_box() --- start ---" << std::endl;
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
 
@@ -3924,7 +3928,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
-         // std::cout << "in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
+         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
          bool draw_cis_peptide_markups = true; //
          int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
          if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
@@ -4006,10 +4010,13 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
+
+   std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
+
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start A --\n";
@@ -4216,6 +4223,9 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
 void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
+
+   std::cout << "debug:: ---- in make_bonds_type_checked() --- start ---" << std::endl;
+
 
    if (false) {
       std::string caller_s = "NULL";

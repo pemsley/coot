@@ -4625,6 +4625,10 @@ Do you want to continue?
   <object class="GtkImage" id="image37">
   </object>
 
+  <object class="GtkWindow" id="main_window">
+    <property name="title" translatable="yes">Coot Main Window</property>
+  </object>
+
       <menu id="main_window_menubar">
         <submenu>
           <attribute name="label">File</attribute>
@@ -5138,96 +5142,6 @@ Do you want to continue?
             <!-- <style> -->
             <!--   <class name="toolbar"/> -->
             <!-- </style> -->
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_1">
-                <property name="label" translatable="yes"> R/RC </property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_2">
-                <property name="label" translatable="yes">Map...</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_3">
-                <property name="label" translatable="yes">Refine...</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_4">
-                <property name="label" translatable="yes">Fixed Atoms...</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_5">
-                <property name="label" translatable="yes">Rigid Body</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_6">
-                <property name="label" translatable="yes">Rot/Trans</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_7">
-                <property name="label" translatable="yes">AutoFit Rotamer</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_8">
-                <property name="label" translatable="yes">Rotamers</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_9">
-                <property name="label" translatable="yes">Edit Chi Angles</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_10">
-                <property name="label" translatable="yes">Torsion General</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_11">
-                <property name="label" translatable="yes">Flip Peptide</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_12">
-                <property name="label" translatable="yes">Sidechain 180</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_13">
-                <property name="label" translatable="yes">Mutate/AutoFit</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_14">
-                <property name="label" translatable="yes">Simple Mutate</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_15">
-                <property name="label" translatable="yes">Add Residue</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_16">
-                <property name="label" translatable="yes">Add Alt Conf</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_17">
-                <property name="label" translatable="yes">Place Atom</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_18">
-                <property name="label" translatable="yes">Clear Picks</property>
-              </object>
-            </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_19">
                 <property name="label" translatable="yes">Delete...</property>

@@ -295,10 +295,14 @@ void on_glarea_realize(GtkGLArea *glarea);
 #include "widget-from-builder.hh"
 #include "coot-application.hh"
 
+int new_startup(int argc, char **argv);
 
 // This main is used for both python/guile useage and unscripted.
 int
 main(int argc, char *argv[]) {
+
+   new_startup(argc, argv);
+   return 0;
 
    auto do_window_resizing_widgets = [] () {
 

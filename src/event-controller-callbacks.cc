@@ -334,7 +334,39 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double
 
 }
 
+#include "c-interface.h"
 
+void load_tutorial_model_and_data_ec() {
+
+
+   std::string p = coot::package_data_dir();
+   std::string d = coot::util::append_dir_dir(p, "data");
+
+   std::string pdb_fn = coot::util::append_dir_file(d, "tutorial-modern.pdb");
+   std::string mtz_fn = coot::util::append_dir_file(d, "rnasa-1.8-all_refmac1.mtz");
+
+   // int imol = handle_read_draw_molecule_with_recentre(pdb_fn.c_str(), true);
+
+   graphics_info_t g;
+   int imol = g.create_molecule();
+   float bw = graphics_info_t::default_bond_width;
+   int bonds_box_type = graphics_info_t::default_bonds_box_type;
+   bool recentre_on_read_pdb_flag = true;
+   int istat = g.molecules[imol].handle_read_draw_molecule(imol, pdb_fn,
+							  coot::util::current_working_dir(),
+							  graphics_info_t::Geom_p(),
+							  recentre_on_read_pdb_flag, 0,
+							  g.allow_duplseqnum,
+							  g.convert_to_v2_atom_names_flag,
+							  bw, bonds_box_type, true);
+
+   // return; // for now
+
+   int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
+   int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
+
+
+}
 
 gboolean
 graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
@@ -350,6 +382,11 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
 
    std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
              << " shift_is_pressed " << shift_is_pressed << std::endl;
+
+   std::cout << "keyval: " << keyval << std::endl;
+
+   if (keyval == 113)
+      load_tutorial_model_and_data_ec();
 
    keyboard_key_t kbk(keyval, control_is_pressed);
    add_key_to_history(kbk);

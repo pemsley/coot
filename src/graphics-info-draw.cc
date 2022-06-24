@@ -817,6 +817,7 @@ graphics_info_t::draw_model_molecules() {
          float lw = m.get_bond_thickness(); // returns an int.
          m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
       } else {
+         // std::cout << "drawing model " << ii << std::endl;
          m.molecule_as_mesh.draw(shader_p, mvp, model_rotation, lights, eye_position, opacity, bgc,
                                  wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
       }
@@ -2266,6 +2267,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 }
 
+#if 0 // reproduced in new-startup.cc
 
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                           double          x,
@@ -2366,11 +2368,12 @@ void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
    g.on_glarea_drag_end_middle(gesture, x, y, area);
 }
 
+#endif // reproduced in new-startup.cc
 
 
 
 
-
+#if 0 // old
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
 //                            key press
@@ -2426,9 +2429,30 @@ on_glarea_scrolled(GtkEventControllerScroll *controller,
 
 }
 
+#endif // event handlers
 
 // #include "event-controller-callbacks.hh"
 
+void print_opengl_info() {
+
+   const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+   const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+   const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+   const char *s4 = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+   if (s1 && s2 && s3 && s4) {
+      std::string ss1(s1);
+      std::string ss2(s2);
+      std::string ss3(s3);
+      std::string ss4(s4);
+      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+   } else {
+      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
+   }
+
+}
 
 void
 on_glarea_realize(GtkGLArea *glarea) {
@@ -2474,22 +2498,7 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface
 
-   const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
-   const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
-   const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-   const char *s4 = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-   if (s1 && s2 && s3 && s4) {
-      std::string ss1(s1);
-      std::string ss2(s2);
-      std::string ss3(s3);
-      std::string ss4(s4);
-      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
-      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
-      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
-      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
-   } else {
-      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
-   }
+   print_opengl_info();
 
    graphics_info_t g;
    bool status = true; // was g.init_shaders();
@@ -2632,7 +2641,7 @@ on_glarea_realize(GtkGLArea *glarea) {
 	 gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
       }
 
-
+#if 0 // reproduced in new-startup.cc
       std::cout << "================= setting up GTK4 style event conrolllers ====================" << std::endl;
 
       GtkEventController *key_controller = gtk_event_controller_key_new();
@@ -2680,6 +2689,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
       g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
+
+#endif // reproduced in new-startup.cc
 
       // add this while we are testing.
       load_tutorial_model_and_data();
@@ -4336,6 +4347,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
          frame_time_history_list.pop_front();
    }
+
+   // std::cout << "DEBUG:: graphics_info_t::render()!" << std::endl;
 
    if (! to_screendump_framebuffer_flag) {
 
