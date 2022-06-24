@@ -79,6 +79,8 @@ new_startup_realize(GtkWidget *gl_area) {
    g.init_shaders();
    g.setup_lights();
 
+   g.setup_key_bindings();
+
    GLenum err = glGetError();
    if (err)
       std::cout << "ERROR:: new_startup_realize() --start-- err is " << err << std::endl;

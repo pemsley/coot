@@ -44,7 +44,7 @@ graphics_info_t::tick_function_is_active() {
    if (false)
       std::cout << "tick_function_is_active() " << do_tick_particles << " " << do_tick_spin << " " << do_tick_boids << " "
                 << do_tick_hydrogen_bonds_mesh << " " << do_tick_happy_face_residue_markers << " "
-                << do_tick_constant_draw << std::endl;
+                << " constant-draw "  << do_tick_constant_draw << std::endl;
 
    if (do_tick_particles ||
        do_tick_spin      ||

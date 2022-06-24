@@ -4695,6 +4695,8 @@ graphics_info_t::get_particle_centre_positions() {
 void
 graphics_info_t::setup_draw_for_particles() {
 
+   std::cout << "------------------ setup_draw_for_particles()!!!!!!!!!!!!!!!!! ---------" << std::endl;
+
    if (false) // from the days when particle drawing was a problem!
       std::cout << "setup_draw_for_particles(): -- start -- n_particles " << particles.size()
                 <<  std::endl;
@@ -5654,15 +5656,17 @@ graphics_info_t::setup_key_bindings() {
    auto l6 = []() {
 
                 if (do_tick_spin) {
+                  std::cout << "removing tick spin flag" << std::endl;
                    do_tick_spin = false;
                 } else {
+                   std::cout << "adding tick spin flag A" << std::endl;
                    if (! tick_function_is_active()) {
+                      std::cout << "adding tick spin flag B" << std::endl;
                       int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
                       // this is not a good name if we are storing a generic tick function id.
                       idle_function_spin_rock_token = spin_tick_id;
                    }
                    do_tick_spin = true;
-
                 }
                 return gboolean(TRUE);
              };
@@ -5978,8 +5982,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
