@@ -234,11 +234,12 @@ set_rotamer_check_clashes(int i) {
 // -99.9 in class function error
 // 
 float
-auto_fit_best_rotamer(int resno,
-		      const char *altloc,
-		      const char *insertion_code, 
-		      const char *chain_id, int imol_coords, int imol_map,
-		      int clash_flag, float lowest_probability) {
+auto_fit_best_rotamer(int imol_coords,
+                      const char *chain_id,
+                      int resno,
+                      const char *insertion_code,
+                      const char *altloc,
+                      int imol_map, int clash_flag, float lowest_probability) {
 
    float f = -999.9;
 
@@ -712,7 +713,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    return istate;
 }
 
-// return success status.  
+// return success status.
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type) {
    int istate = 0;
    graphics_info_t g;
@@ -721,7 +722,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
       istate = graphics_info_t::molecules[imol].mutate_base(r, res_type,
 							    g.convert_to_v2_atom_names_flag);
       graphics_draw();
-   } 
+   }
    std::string cmd = "mutate-base";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
@@ -730,8 +731,8 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    args.push_back(coot::util::single_quote(ins_code));
    args.push_back(coot::util::single_quote(res_type));
    add_to_history_typed(cmd, args);
-   
-   return istate; 
+
+   return istate;
 }
 
 
@@ -747,7 +748,7 @@ mutate_single_residue_by_serial_number(int ires_serial, const char *chain_id, in
 
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
    std::cout << "INFO:: mutate target_res_type :" << target_as_str << ":" << std::endl;
-      
+
    return mutate_internal(ires_serial, chain_id, imol, target_as_str);
 
 }
@@ -759,12 +760,11 @@ mutate_single_residue_by_serial_number(int ires_serial, const char *chain_id, in
 // the serial number is -1 (I don't know wny this happens but it does
 // in terminal residue addition).  So I will need new functionally
 // that does the residue at root by seqnum not serial_number.
-// 
-int mutate_single_residue_by_seqno(int ires, const char *inscode,
-				   const char *chain_id, 
-				   int imol, char target_res_type) { 
+//
+int mutate_single_residue_by_seqno(int imol, const char *chain_id, int ires, const char *inscode,
+				   char target_res_type) {
 
-   int status = -1; 
+   int status = -1;
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
 
    if (is_valid_model_molecule(imol)) {
@@ -774,6 +774,62 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
    }
    return status;
 }
+
+int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end,
+                         const std::string &target_sequence) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+
+      int delta_residue_range = res_no_end - res_no_start  + 1;
+      int target_sequence_length = target_sequence.length();
+      if (target_sequence_length == delta_residue_range) {
+         for (int ii=0; ii<target_sequence_length; ii++) {
+            int res_no = res_no_start + ii;
+            std::string ins_code;
+            char target_res_type = target_sequence[ii];
+            mutate_single_residue_by_seqno(imol, chain_id.c_str(), res_no, ins_code.c_str(), target_res_type);
+            status = 1;
+         }
+      } else {
+         // log this
+         std::cout << "WARNING:: in mutate_residue_range() mismatch sequence and range "
+                   << delta_residue_range << " " << target_sequence_length << std::endl;
+      }
+   }
+   return status;
+}
+
+int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_res_no, int stop_res_no,
+                                     const char *target_sequence) {
+
+  int status = 0;
+  if (is_valid_model_molecule(imol)) {
+     int imol_map = imol_refinement_map();
+     int delta_residue_range = stop_res_no - start_res_no  + 1;
+     int target_sequence_length = std::string(target_sequence).length();
+     if (target_sequence_length == delta_residue_range) {
+        int backup_mode = backup_state(imol);
+        if (backup_mode)
+           turn_off_backup(imol);
+        mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, std::string(target_sequence));
+        int clash_flag = true;
+        float lowest_probability = 0.3; // changed from 0.5
+        for (int ii=0; ii<target_sequence_length; ii++) {
+           int res_no = start_res_no + ii;
+           std::string ins_code;
+           std::string alt_conf;
+           auto_fit_best_rotamer(imol, chain_id, res_no, ins_code.c_str(), alt_conf.c_str(),
+                                 imol_map, clash_flag, lowest_probability);
+        }
+        if (backup_mode)
+           turn_on_backup(imol);
+     }
+  }
+  return status;
+}
+
+
 
 /* push the residues along a bit
 

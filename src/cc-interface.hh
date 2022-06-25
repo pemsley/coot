@@ -1230,6 +1230,9 @@ void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer use
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
 /*  ----------------------------------------------------------------------- */
+
+int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, const std::string &target_sequence);
+
 int mutate_internal(int ires, const char *chain_id,
                     int imol, std::string &target_res_type);
 /* a function for multimutate to make a backup and set
