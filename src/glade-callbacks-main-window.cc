@@ -512,7 +512,7 @@ on_open_dataset1_activate (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_auto_open_mtz_activate              (GMenuItem     *menuitem,
-                                                            gpointer         user_data) {
+                                        gpointer         user_data) {
 
    int is_auto_read_fileselection = 1;
    int is;

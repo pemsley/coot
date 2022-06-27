@@ -157,7 +157,7 @@ on_close_clicked(GSimpleAction *action,
 }
 
 
-GMenu *create_menu(const GtkApplication *application) {
+GMenu *create_menu_by_hand(const GtkApplication *application) {
    const GActionEntry entries[] = {
       { "open",  on_open_clicked,  NULL, NULL, NULL, { 0, 0, 0 } },
       { "close", on_close_clicked, NULL, NULL, NULL, { 0, 0, 0 } }
@@ -386,6 +386,78 @@ void setup_gestures(GtkWidget *glarea) {
 
 }
 
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+#include "coot-fileselections.h"
+
+void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   open_coords_dialog();
+
+}
+
+void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *dataset_chooser = widget_from_builder("coords_filechooser_dialog");
+   GtkWidget *main_window = graphics_info_t::get_main_window();
+   gtk_window_set_transient_for(GTK_WINDOW(dataset_chooser), GTK_WINDOW(main_window));
+
+   // set_directory_for_filechooser(dataset_chooser);
+   // set_file_selection_dialog_size(dataset_chooser);
+   // add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
+   // set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+   gtk_widget_show(dataset_chooser);
+
+}
+
+void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+
+
+   GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
+   // int is_auto_read_fileselection = 1;
+   // set_directory_for_filechooser(dataset_chooser);
+   // add_filename_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
+   // g_object_set_data(G_OBJECT(dataset_chooser), "imol", GINT_TO_POINTER(-1)); // 20220627-PE do I need this?
+   // g_object_set_data(G_OBJECT(dataset_chooser), "is_auto", GINT_TO_POINTER(is_auto_read_fileselection));
+   // set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+   gtk_widget_show(dataset_chooser);
+
+}
+
+void load_tutorial_model_and_data_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+   load_tutorial_model_and_data();
+}
+
+void
+create_actions(GtkApplication *application) {
+
+   GSimpleAction *simple_action;
+
+   simple_action = g_simple_action_new("open_coordinates_action", NULL);
+   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+   g_signal_connect(simple_action, "activate", G_CALLBACK(open_coordinates_action), NULL);
+
+   simple_action = g_simple_action_new("auto_open_mtz_action", NULL);
+   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+   g_signal_connect(simple_action, "activate", G_CALLBACK(auto_open_mtz_action), NULL);
+
+   simple_action = g_simple_action_new("open_dataset_action", NULL);
+   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+   g_signal_connect(simple_action, "activate", G_CALLBACK(open_dataset_action), NULL);
+
+   simple_action = g_simple_action_new("load_tutorial_model_and_data_action", NULL);
+   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+   g_signal_connect(simple_action, "activate", G_CALLBACK(load_tutorial_model_and_data_action), NULL);
+}
+
 void
 new_startup_application_activate(GtkApplication *application,
                                  gpointer        user_data) {
@@ -411,33 +483,34 @@ new_startup_application_activate(GtkApplication *application,
       exit(0);
    }
 
-
-
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
-   gtk_window_set_title(GTK_WINDOW(app_window), "Coot App Window");
+   gtk_window_set_title(GTK_WINDOW(app_window), "Coot App Main Window");
+   graphics_info_t::set_main_window(app_window);
 
    guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
-   std::cout << "Window id: " << id << std::endl;
-
-   GMenu *menu = create_menu(application);
-   gtk_application_set_menubar(application, G_MENU_MODEL(menu));
-   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+   std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
 
    graphics_info_t g;
    g.set_gtkbuilder(builder);
+
+   //GMenu *menu = create_menu_by_hand(application);
+   GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
+   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
+   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+
    // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
    // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
    GtkWidget *graphics_hbox = widget_from_builder("main_window_hbox", builder);
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
-   GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
+   // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
    gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
    gtk_window_present(GTK_WINDOW(app_window));
    // gtk_widget_show(window);
 
-   std::cout << "setting the menubar" << std::endl;
+   std::cout << "debug:: new_startup_application_activate(): setting the menubar: " << menubar << std::endl;
    gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
 
@@ -452,6 +525,8 @@ new_startup_application_activate(GtkApplication *application,
    gtk_widget_show(app_window);
 
    setup_gestures(gl_area);
+
+   create_actions(application);
 
    // load_tutorial_model_and_data();
 

@@ -23,7 +23,7 @@ libtoolize --copy
 aclocal_extras=
 
 # these need to correspond with the build directories
-dir_list="$HOME/autobuild/$OS-$HOST-pre-release-gtk3/share/aclocal $HOME/autobuild/$OS-$HOST-gtk3/share/aclocal"
+dir_list="$HOME/autobuild/$OS-$HOST-gtk4/share/aclocal $HOME/autobuild/$OS-$HOST-gtk3/share/aclocal"
 
 for dir in $dir_list
     do
