@@ -85,7 +85,7 @@
       <section>
         <item>
           <attribute name="label">Curlew...</attribute>
-          <attribute name="action">app.close_molecule_action</attribute>
+          <attribute name="action">app.curlew_action</attribute>
         </item>
       </section>
       <section>
@@ -3025,7 +3025,7 @@ the Ctrl key when moving the mouse.</property>
 
   <object class="GtkFileChooserDialog" id="coords_filechooser_dialog">
     <property name="width-request">600</property>
-    <property name="use-header-bar">0</property>
+    <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
     <property name="deletable">0</property>
     <signal name="response" handler="on_coords_filechooser_dialog_response" swapped="no"/>
@@ -5115,11 +5115,13 @@ Do you want to continue?
         <child>
           <object class="GtkButton" id="toolbar_test_button">
             <property name="label" translatable="yes">Reset View</property>
+            <signal name="clicked" handler="reset_view" swapped="no"/>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="toolbar_display_manager_button">
             <property name="label" translatable="yes">Display Manager</property>
+            <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
           </object>
         </child>
       </object>
@@ -5138,12 +5140,12 @@ Do you want to continue?
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
-            <!-- <style> -->
-            <!--   <class name="toolbar"/> -->
-            <!-- </style> -->
+            <style>
+              <class name="toolbar"/>
+            </style>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_19">
-                <property name="label" translatable="yes">Delete...x</property>
+                <property name="label" translatable="yes">Delete...</property>
               </object>
             </child>
             <child>

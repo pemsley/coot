@@ -120,6 +120,11 @@ void curlew() {
 
    // GtkWidget *w = create_curlew_dialog();
    GtkWidget *w = widget_from_builder("curlew_dialog");
+
+   if (!w) {
+      std::cout << "Failed to find curlew_dialog widget in builder (needs to be added to ui)" << std::endl;
+      return;
+   }
    graphics_info_t g;
 
    //  GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
