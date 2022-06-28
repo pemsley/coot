@@ -325,40 +325,29 @@ create_actions(GtkApplication *application) {
       g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
    };
 
-   simple_action = g_simple_action_new("open_coordinates_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(open_coordinates_action), application_window);
+   add_action("open_coordinates_action", open_coordinates_action);
+   add_action(   "auto_open_mtz_action",    auto_open_mtz_action);
+   add_action(    "open_dataset_action",     open_dataset_action);
+   add_action(        "open_map_action",         open_map_action);
 
-   simple_action = g_simple_action_new("auto_open_mtz_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(auto_open_mtz_action), application_window);
-
-   simple_action = g_simple_action_new("open_dataset_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(open_dataset_action), application_window);
-
-   simple_action = g_simple_action_new("load_tutorial_model_and_data_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(load_tutorial_model_and_data_action), NULL);
-
-   add_action(   "open_map_action",    open_map_action);
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
 
-   add_action("import_cif_dictionary_action", import_cif_dictionary_action);
-   add_action("toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
-   add_action("search_monomer_library_action", search_monomer_library_action);
-   add_action("fetch_pdb_using_code_action", fetch_pdb_using_code_action);
-   add_action("fetch_pdb_and_map_using_eds_action", fetch_pdb_and_map_using_eds_action);
-   add_action("fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
-   add_action("save_coordinates_action", save_coordinates_action);
-   add_action("save_symmetry_coordinates_action", save_symmetry_coordinates_action);
-   add_action("save_state_action", save_state_action);
-   add_action("recover_session_action", recover_session_action);
-   add_action("file_export_map_action", file_export_map_action);
-   add_action("file_export_map_fragment_action", file_export_map_action);
-   add_action("close_molecule_action", close_molecule_action);
+   add_action(            "import_cif_dictionary_action",            import_cif_dictionary_action);
+   add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
+   add_action(           "search_monomer_library_action",           search_monomer_library_action);
+   add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
+   add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
+   add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
+   add_action(                 "save_coordinates_action",                 save_coordinates_action);
+   add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
+   add_action(                       "save_state_action",                       save_state_action);
+   add_action(                  "recover_session_action",                  recover_session_action);
+   add_action(                  "file_export_map_action",                  file_export_map_action);
+   add_action(         "file_export_map_fragment_action",                  file_export_map_action);
+   add_action(                   "close_molecule_action",                   close_molecule_action);
 
+   add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
 }
 
