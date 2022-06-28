@@ -100,61 +100,60 @@
       <section>
         <item>
           <attribute name="label">Change Chain IDs...</attribute>
-          <attribute name="action">app.on_change_chain_ids2_action</attribute>
+          <attribute name="action">app.change_chain_ids_action</attribute>
         </item>
         <item>
           <attribute name="label">Copy Molecule...</attribute>
-          <attribute name="action">app.on_edit_copy_molecule_action</attribute>
+          <attribute name="action">app.copy_molecule_action</attribute>
         </item>
         <item>
           <attribute name="label">Copy Fragment...</attribute>
-          <attribute name="action">app.on_edit_copy_molecule_action</attribute>
+          <attribute name="action">app.copy_molecule_fragment_action</attribute>
         </item>
         <item>
           <attribute name="label">Merge Molecules...</attribute>
-          <attribute name="action">app.on_merge_molecules_action</attribute>
+          <attribute name="action">app.merge_molecules_action</attribute>
         </item>
         <item>
           <attribute name="label">Move Molecule Here...</attribute>
-          <attribute name="action">app.on_move_molecule_here_action</attribute>
+          <attribute name="action">app.move_molecule_here_action</attribute>
         </item>
         <item>
           <attribute name="label">Mutate Residue Range...</attribute>
-          <attribute name="action">app.on_mutate_molecule_action</attribute>
+          <attribute name="action">app.mutate_molecule_action</attribute>
         </item>
         <item>
           <attribute name="label">Replace Fragment...</attribute>
-          <attribute name="action">app.on_edit_replace_fragment_action</attribute>
+          <attribute name="action">app.edit_replace_fragment_action</attribute>
         </item>
         <item>
           <attribute name="label">Replace Residue...</attribute>
-          <attribute name="action">app.on_edit_replace_residue_action</attribute>
+          <attribute name="action">app.edit_replace_residue_action</attribute>
         </item>
         <item>
           <attribute name="label">Renumber Residues...</attribute>
-          <attribute name="action">app.on_renumber_residues1_action</attribute>
+          <attribute name="action">app.renumber_residues_action</attribute>
         </item>
         <item>
           <attribute name="label">Residue Info...</attribute>
-          <attribute name="action">app.on_residue_info2_action</attribute>
+          <attribute name="action">app.residue_info_action</attribute>
         </item>
         <item>
           <attribute name="label">Restraints...</attribute>
-          <attribute name="action">app.on_edit_restraints_action</attribute>
+          <attribute name="action">app.edit_restraints_action</attribute>
         </item>
       </section>
       <section>
         <item>
           <attribute name="label">Preferences...</attribute>
-          <attribute name="action">app.on_preferences1_action</attribute>
+          <attribute name="action">app.show_preferences_action</attribute>
         </item>
         <item>
           <attribute name="label">Shader Preferences...</attribute>
-          <attribute name="action">app.on_shader_preferences_action</attribute>
+          <attribute name="action">app.show_shader_preferences_action</attribute>
         </item>
         <item>
           <attribute name="label">Settings...</attribute>
-          <attribute name="action">app.on_edit_settings_action</attribute>
         </item>
       </section>
     </submenu>

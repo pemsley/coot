@@ -6417,10 +6417,7 @@ on_preferences1_activate               (GMenuItem     *menuitem,
   preferences();
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_shader_preferences_activate (GMenuItem     *menuitem,
-                                                    gpointer         user_data) {
+void fill_and_show_shader_preferences() {
 
    GtkWidget *w  = widget_from_builder("shader_settings_dialog");
    GtkWidget *r1 = widget_from_builder("shader_settings_ssao_strength_scale");
@@ -6531,6 +6528,14 @@ on_shader_preferences_activate (GMenuItem     *menuitem,
    gtk_range_set_value(GTK_RANGE(r9), v9);
 
    gtk_widget_show(w);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_shader_preferences_activate (GMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+   fill_and_show_shader_preferences();
 }
 
 

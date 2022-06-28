@@ -310,11 +310,109 @@ close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
+   gtk_widget_show(w);
+}
+
+void
+copy_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+   do_edit_copy_molecule();
+}
+
+void
+copy_molecule_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+   do_edit_copy_fragment();
+}
+
+void
+merge_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   gtk_widget_show(w);
+}
+
+void
+move_molecule_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+   fill_move_molecule_here_dialog(w);
+   gtk_widget_show(w);
+}
+
+void
+mutate_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_mutate_sequence_dialog();
+   gtk_widget_show(w);
+}
+
+void
+edit_replace_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+     do_edit_replace_fragment();
+}
+
+void
+edit_replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+     do_edit_replace_residue();
+}
+
+void
+renumber_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
+   gtk_widget_show(w);
+}
+
+void
+residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+   do_residue_info_dialog();
+}
+
+void
+edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
+   gtk_widget_show(w);
+}
+
+#include "c-interface-preferences.h"
+void
+show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+   show_preferences();
+   update_preference_gui();
+}
+
+void fill_and_show_shader_preferences(); // should this be in a header?
+
+void
+show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+   fill_and_show_shader_preferences();
+}
+
+void
 create_actions(GtkApplication *application) {
-
-   GSimpleAction *simple_action;
-
-   GtkWindow *application_window = gtk_application_get_active_window(application);
 
    auto add_action = [application] (const std::string &action_name,
                                     void (*action_function) (GSimpleAction *simple_action,
@@ -347,6 +445,20 @@ create_actions(GtkApplication *application) {
    add_action(                  "file_export_map_action",                  file_export_map_action);
    add_action(         "file_export_map_fragment_action",                  file_export_map_action);
    add_action(                   "close_molecule_action",                   close_molecule_action);
+
+   add_action(       "change_chain_ids_action",        change_chain_ids_action);
+   add_action(          "copy_molecule_action",           copy_molecule_action);
+   add_action( "copy_molecule_fragment_action",  copy_molecule_fragment_action);
+   add_action(        "merge_molecules_action",         merge_molecules_action);
+   add_action(     "move_molecule_here_action",      move_molecule_here_action);
+   add_action(        "mutate_molecule_action",         mutate_molecule_action);
+   add_action(  "edit_replace_fragment_action",   edit_replace_fragment_action);
+   add_action(   "edit_replace_residue_action",    edit_replace_residue_action);
+   add_action(      "renumber_residues_action",       renumber_residues_action);
+   add_action(           "residue_info_action",            residue_info_action);
+   add_action(        "edit_restraints_action",         edit_restraints_action);
+   add_action(       "show_preferences_action",        show_preferences_action);
+   add_action("show_shader_preferences_action", show_shader_preferences_action);
 
    add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
 }
