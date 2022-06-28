@@ -31,7 +31,7 @@
       <section>
         <item>
           <attribute name="label">Get Monomer...</attribute>
-          <attribute name="action">app.import_cif_dictionary_action</attribute>
+          <attribute name="action">app.get_monomer_action</attribute>
         </item>
         <item>
           <attribute name="label">Search Monomer Library...</attribute>
@@ -3713,7 +3713,7 @@ that you wish to delete.               </property>
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkFileChooserDialog" id="export_map_file_chooser_dialog">
+  <object class="GtkFileChooserDialog" id="export_map_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
     <property name="deletable">0</property>
@@ -5666,38 +5666,38 @@ density (too big to be waters):
     </child>
   </object>
   <object class="GtkFileChooserDialog" id="map_name_filechooser_dialog">
-    <property name="use-header-bar">0</property>
+    <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Map File Name</property>
     <property name="deletable">0</property>
     <signal name="response" handler="on_map_name_filechooser_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="map_name_filechooser_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes"> </property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="map_filechooser_is_difference_map_button">
-                <property name="label" translatable="yes">Is Difference Map   </property>
-                <property name="can-focus">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
+    <!-- <child> -->
+    <!--   <object class="GtkBox"> -->
+    <!--     <property name="orientation">vertical</property> -->
+    <!--     <property name="spacing">2</property> -->
+    <!--      <child type="action"> -->
+    <!--        <object class="GtkButton" id="map_name_filechooser_cancel_button"> -->
+    <!--          <property name="label" translatable="yes">Cancel</property> -->
+    <!--          <property name="can-focus">1</property> -->
+    <!--          <property name="receives-default">1</property> -->
+    <!--        </object> -->
+    <!--      </child> -->
+    <!--      <child> -->
+    <!--        <object class="GtkBox"> -->
+    <!--          <child> -->
+    <!--            <object class="GtkLabel"> -->
+    <!--              <property name="label" translatable="yes"> </property> -->
+    <!--            </object> -->
+    <!--          </child> -->
+    <!--          <child> -->
+    <!--            <object class="GtkCheckButton" id="map_filechooser_is_difference_map_button"> -->
+    <!--              <property name="label" translatable="yes">Is Difference Map   </property> -->
+    <!--              <property name="can-focus">1</property> -->
+    <!--            </object> -->
+    <!--          </child> -->
+    <!--        </object> -->
+    <!--      </child> -->
+    <!--   </object> -->
+    <!-- </child> -->
   </object>
   <object class="GtkDialog" id="map_sharpening_dialog">
     <property name="default-width">500</property>

@@ -79,6 +79,17 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
+   // void gtk_file_chooser_add_choice (GtkFileChooser* chooser,
+   //                                   const char* id,
+   //                                   const char* label,
+   //                                   const char** options,
+   //                                   const char** option_labels)
+
+
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "Centre on New Molecule", NULL, NULL);
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "No Recentre", NULL, NULL);
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "Move Molecule Here", NULL, NULL);
+
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
    gtk_widget_show(dialog);
 
@@ -104,7 +115,6 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
 
-
    GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
    int is_auto_read_fileselection = 1;
    set_directory_for_filechooser(dataset_chooser);
@@ -115,6 +125,17 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(dataset_chooser);
 
 }
+
+void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *dataset_chooser = widget_from_builder("map_name_filechooser_dialog");
+   set_directory_for_filechooser(dataset_chooser);
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
+   gtk_widget_show(dataset_chooser);
+}
+
 
 void load_tutorial_model_and_data_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                          G_GNUC_UNUSED GVariant *parameter,
@@ -136,12 +157,39 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    curlew();
 }
 
+void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
+  gtk_widget_show(dialog);
+}
+
+void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *chooser = widget_from_builder("cif_dictionary_filechooser_dialog");
+   set_directory_for_filechooser(chooser);
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
+   gtk_widget_show(chooser);
+}
+
 void
 create_actions(GtkApplication *application) {
 
    GSimpleAction *simple_action;
 
    GtkWindow *application_window = gtk_application_get_active_window(application);
+
+   auto add_action = [application] (const std::string &action_name,
+                                    void (*action_function) (GSimpleAction *simple_action,
+                                                             GVariant *parameter,
+                                                             gpointer user_data)) {
+      GSimpleAction *simple_action = g_simple_action_new(action_name.c_str(), NULL);
+      g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+      g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
+   };
 
    simple_action = g_simple_action_new("open_coordinates_action", NULL);
    g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
@@ -159,12 +207,12 @@ create_actions(GtkApplication *application) {
    g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
    g_signal_connect(simple_action, "activate", G_CALLBACK(load_tutorial_model_and_data_action), NULL);
 
-   simple_action = g_simple_action_new("curlew_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(curlew_action), NULL);
+   add_action(   "open_map_action",    open_map_action);
+   add_action(     "curlew_action",      curlew_action);
+   add_action(       "exit_action",        exit_action);
+   add_action("get_monomer_action", get_monomer_action);
 
-   simple_action = g_simple_action_new("exit_action", NULL);
-   g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
-   g_signal_connect(simple_action, "activate", G_CALLBACK(exit_action), NULL);
+   add_action("import_cif_dictionary_action", import_cif_dictionary_action);
+
 }
 

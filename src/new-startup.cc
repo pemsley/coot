@@ -180,16 +180,8 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                           double          x,
                           double          y,
                           GtkWidget      *area) {
-
-   // display_info_t di;
-   // di.mouse_x = x;
-   // di.mouse_y = y;
-   // di.drag_begin_x = x;
-   // di.drag_begin_y = y;
-
    graphics_info_t g;
    g.on_glarea_drag_begin_primary(gesture, x, y, area);
-
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
@@ -198,8 +190,8 @@ void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                            GtkWidget      *area) {
 
    graphics_info_t g;
+   // Hack for mac. Needs more thought.
    // g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
 
 }
@@ -208,9 +200,6 @@ void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
                                 double          x,
                                 double          y,
                                 GtkWidget      *area) {
-
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
    graphics_info_t g;
    g.on_glarea_drag_end_primary(gesture, x, y, area);
 }
@@ -220,27 +209,22 @@ void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
                           double          x,
                           double          y,
                           GtkWidget      *area) {
-
    graphics_info_t g;
    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-
 }
 
 void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                      double          delta_x,
                                      double          delta_y,
                                      GtkWidget      *area) {
-
    graphics_info_t g;
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-
 }
 
 void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
                                   double          x,
                                   double          y,
                                   GtkWidget      *area) {
-
    graphics_info_t g;
    g.on_glarea_drag_end_secondary(gesture, x, y, area);
 }
@@ -251,28 +235,22 @@ void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
                           double          x,
                           double          y,
                           GtkWidget      *area) {
-
    graphics_info_t g;
    g.on_glarea_drag_begin_middle(gesture, x, y, area);
-
 }
 
 void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
                                   double          delta_x,
                                   double          delta_y,
                                   GtkWidget      *area) {
-
    graphics_info_t g;
    g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
-
 }
 
 void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
                                double          x,
                                double          y,
                                GtkWidget      *area) {
-
-
    graphics_info_t g;
    g.on_glarea_drag_end_middle(gesture, x, y, area);
 }
