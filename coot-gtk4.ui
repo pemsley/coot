@@ -162,23 +162,19 @@
       <section>
         <item>
           <attribute name="label">Align and Mutate...</attribute>
-          <attribute name="action">app.on_calculate_align_and_mutate_action</attribute>
+          <attribute name="action">app.align_and_mutate_action</attribute>
         </item>
         <item>
           <attribute name="label">All Molecule...</attribute>
-          <attribute name="action">app.on_calculate_all_molecule_action</attribute>
         </item>
         <item>
           <attribute name="label">Find Ligands...</attribute>
-          <attribute name="action">app.on_calculate_find_ligands_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Find Waters...</attribute>
-          <attribute name="action">app.on_calculate_find_waters_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Fit Loop...</attribute>
-          <attribute name="action">app.on_fit_loop_action</attribute>
         </item>
         <item>
           <attribute name="label">Load Tutorial Model &amp; Data</attribute>
@@ -186,55 +182,49 @@
         </item>
         <item>
           <attribute name="label">Ligand Builder...</attribute>
-          <attribute name="action">app.on_ligand_builder1_action</attribute>
+          <attribute name="action">app.ligand_builder_action</attribute>
         </item>
         <item>
           <attribute name="label">LSQ Superpose...</attribute>
-          <attribute name="action">app.on_lsq_superpose_action</attribute>
+          <attribute name="action">app.lsq_superpose_action</attribute>
         </item>
         <item>
           <attribute name="label">Map Tools...</attribute>
-          <attribute name="action">app.on_calculate_map_tools_action</attribute>
         </item>
         <item>
           <attribute name="label">Map Sharpening/Blurring...</attribute>
-          <attribute name="action">app.on_map_sharpening_action</attribute>
         </item>
         <item>
           <attribute name="label">Map Skeleton...</attribute>
-          <attribute name="action">app.on_skeleton_action</attribute>
         </item>
         <item>
           <attribute name="label">Modelling...</attribute>
-          <attribute name="action">app.on_modelling_action</attribute>
         </item>
         <item>
           <attribute name="label">Modules...</attribute>
-          <attribute name="action">app.on_modelling_action</attribute>
         </item>
         <item>
           <attribute name="label">NCS Model Tools...</attribute>
-          <attribute name="action">app.on_calculate_ncs_tools_action</attribute>
         </item>
         <item>
           <attribute name="label">Other Modelling Tools...</attribute>
-          <attribute name="action">app.on_calculate_ncs_tools_action</attribute>
+          <!-- <attribute name="action">app.on_calculate_ncs_tools_action</attribute> -->
+          <attribute name="action">app.other_modelling_tools_action</attribute>
         </item>
         <item>
           <attribute name="label">Run Script...</attribute>
-          <attribute name="action">app.on_calculate_ncs_tools_action</attribute>
+          <attribute name="action">app.run_script_action</attribute>
         </item>
         <item>
           <attribute name="label">Scripting...</attribute>
-          <attribute name="action">app.on_calculate_ncs_tools_action</attribute>
         </item>
         <item>
           <attribute name="label">SSM Superpose...</attribute>
-          <attribute name="action">app.on_ssm_superposition1_action</attribute>
+          <attribute name="action">app.ssm_superposition_action</attribute>
         </item>
         <item>
           <attribute name="label">Updating Maps...</attribute>
-          <attribute name="action">app.on_calculate_updating_maps_action</attribute>
+          <attribute name="action">app.calculate_updating_maps_action</attribute>
         </item>
       </section>
     </submenu>

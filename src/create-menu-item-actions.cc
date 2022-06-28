@@ -411,6 +411,90 @@ show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    fill_and_show_shader_preferences();
 }
 
+
+void
+align_and_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_align_and_mutate_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+#if (GTK_MAJOR_VERSION >= 4)
+   std::cout << "FIXME:: start_ligand_builder_gui_internal() " << std::endl;
+#else
+   start_ligand_builder_gui_internal(menuitem, user_data);
+#endif
+}
+
+
+void
+run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *widget = coot_run_script_chooser();
+   add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
+   gtk_widget_show(widget);
+}
+
+
+
+
+void
+lsq_superpose_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_least_squares_dialog(); // uses builder
+   gtk_widget_show(w);
+}
+
+// ---------------- where is LSQ Plane? --------------------------
+
+
+void
+other_modelling_tools_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_other_model_tools_dialog();
+   gtk_widget_show(w);
+}
+
+
+
+void
+ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_superpose_dialog(); // uses builder
+
+   /* we get returned w = 0 when there is no MMDBSSM. (We are doing it
+      this way because we don't have to introduce HAVE_MMDBSSM into the
+      *c* compiler arguments (this is simpler)).  */
+  if (w)
+     gtk_widget_show(w);
+}
+
+
+void
+calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+   show_calculate_updating_maps_gui();
+}
+
+
+
+
+
 void
 create_actions(GtkApplication *application) {
 
@@ -459,6 +543,14 @@ create_actions(GtkApplication *application) {
    add_action(        "edit_restraints_action",         edit_restraints_action);
    add_action(       "show_preferences_action",        show_preferences_action);
    add_action("show_shader_preferences_action", show_shader_preferences_action);
+
+   add_action(       "align_and_mutate_action",        align_and_mutate_action);
+   add_action(         "ligand_builder_action",          ligand_builder_action);
+   add_action(          "lsq_superpose_action",           lsq_superpose_action);
+   add_action(             "run_script_action",              run_script_action);
+   add_action(      "ssm_superposition_action",       ssm_superposition_action);
+   add_action(  "other_modelling_tools_action",   other_modelling_tools_action);
+   add_action("calculate_updating_maps_action", calculate_updating_maps_action);
 
    add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
 }
