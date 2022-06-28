@@ -479,6 +479,8 @@ libcootsumo_la_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
+	create-menu-item-actions.cc \
+	create-menu-item-actions.hh \
         curlew.h                 \
         curlew.hh                \
 	cylinder.hh		 \

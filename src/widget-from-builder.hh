@@ -5,6 +5,8 @@
 #include <string>
 #include <gtk/gtk.h>
 
+GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder);
+
 GtkWidget *widget_from_builder(const std::string &w_name);
 
 GtkBuilder *get_builder_for_preferences_dialog();
