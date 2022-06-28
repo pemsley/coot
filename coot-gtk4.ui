@@ -112,15 +112,15 @@
         </item>
         <item>
           <attribute name="label">Merge Molecules...</attribute>
-          <attribute name="action">app.on_merge_molecules1_action</attribute>
+          <attribute name="action">app.on_merge_molecules_action</attribute>
         </item>
         <item>
           <attribute name="label">Move Molecule Here...</attribute>
-          <attribute name="action">app.on_move_molecule_here1_action</attribute>
+          <attribute name="action">app.on_move_molecule_here_action</attribute>
         </item>
         <item>
           <attribute name="label">Mutate Residue Range...</attribute>
-          <attribute name="action">app.on_mutate_molecule1_action</attribute>
+          <attribute name="action">app.on_mutate_molecule_action</attribute>
         </item>
         <item>
           <attribute name="label">Replace Fragment...</attribute>
@@ -142,6 +142,8 @@
           <attribute name="label">Restraints...</attribute>
           <attribute name="action">app.on_edit_restraints_action</attribute>
         </item>
+      </section>
+      <section>
         <item>
           <attribute name="label">Preferences...</attribute>
           <attribute name="action">app.on_preferences1_action</attribute>
@@ -274,7 +276,7 @@
         </item>
         <item>
           <attribute name="label">Frames/Sec...</attribute>
-          <attribute name="action">app.on_draw_display_only_active_action</attribute>
+          <attribute name="action">app.toggle_display_frames_per_second_action</attribute>
         </item>
         <item>
           <attribute name="label">Fullscreen</attribute>

@@ -175,6 +175,140 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(chooser);
 }
 
+void toggle_display_frames_per_second_action (G_GNUC_UNUSED GSimpleAction *simple_action,
+                                              G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+
+int state = get_fps_flag();
+if (state == 1)
+   set_show_fps(0);
+else
+   set_show_fps(1);
+}
+
+void
+search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = widget_from_builder("monomer_search_dialog");
+   gtk_widget_show(w);
+}
+
+void
+fetch_pdb_using_code_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+}
+
+void
+fetch_pdb_and_map_using_eds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+
+   int n = COOT_ACCESSION_CODE_WINDOW_EDS;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+}
+
+void
+fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+
+   int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+}
+
+void
+save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+      GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
+   int imol = first_coords_imol();
+   int imol_unsaved = first_unsaved_coords_imol();
+   if (imol_unsaved != -1)
+      imol = imol_unsaved;
+   std::cout << "DEBUG:: in on_save_coordinates1_activate() with imol_unsaved "
+             << imol_unsaved << std::endl;
+   set_save_molecule_number(imol); /* set *save* molecule number */
+
+   // this is the molecule chooser, not the file chooser
+   //
+   GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
+
+   if (combobox) {
+      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
+      gtk_widget_show(widget);
+      gtk_window_present(GTK_WINDOW(widget));
+   } else {
+      std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
+   }
+}
+
+void
+save_symmetry_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+
+   setup_save_symmetry_coords();
+
+}
+
+void
+save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *file_chooser = coot_save_state_chooser();
+   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
+   add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
+   set_file_selection_dialog_size(file_chooser);
+   gtk_widget_show(file_chooser);
+}
+
+void
+recover_session_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   recover_session();
+}
+
+void
+file_export_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   short int is_fragment = false;
+   export_map_gui(is_fragment);
+
+}
+
+void
+file_export_map_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+   short int is_fragment = true;
+   export_map_gui(is_fragment);
+
+}
+
+void
+close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
+   gtk_widget_show(widget);
+}
+
 void
 create_actions(GtkApplication *application) {
 
@@ -208,11 +342,23 @@ create_actions(GtkApplication *application) {
    g_signal_connect(simple_action, "activate", G_CALLBACK(load_tutorial_model_and_data_action), NULL);
 
    add_action(   "open_map_action",    open_map_action);
+   add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
-   add_action("get_monomer_action", get_monomer_action);
 
    add_action("import_cif_dictionary_action", import_cif_dictionary_action);
+   add_action("toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
+   add_action("search_monomer_library_action", search_monomer_library_action);
+   add_action("fetch_pdb_using_code_action", fetch_pdb_using_code_action);
+   add_action("fetch_pdb_and_map_using_eds_action", fetch_pdb_and_map_using_eds_action);
+   add_action("fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
+   add_action("save_coordinates_action", save_coordinates_action);
+   add_action("save_symmetry_coordinates_action", save_symmetry_coordinates_action);
+   add_action("save_state_action", save_state_action);
+   add_action("recover_session_action", recover_session_action);
+   add_action("file_export_map_action", file_export_map_action);
+   add_action("file_export_map_fragment_action", file_export_map_action);
+   add_action("close_molecule_action", close_molecule_action);
 
 }
 
