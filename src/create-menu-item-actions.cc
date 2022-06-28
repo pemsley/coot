@@ -60,6 +60,34 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
    gtk_window_close(GTK_WINDOW(dialog));
 }
 
+void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
+                                                 int        response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+      GFile *file = gtk_file_chooser_get_file(chooser);
+      char *file_name = g_file_get_path(file);
+      bool auto_read_flag = false, ismtz = false, ismtzauto = false, iscnsauto = false;
+      auto_read_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(chooser), "auto_read_flag"));
+      ismtz = is_mtz_file_p(file_name);
+
+      if (ismtz)
+         ismtzauto = mtz_file_has_phases_p(file_name);
+      else
+         iscnsauto = cns_file_has_phases_p(file_name);
+
+      if ( ismtzauto || iscnsauto ) {
+         if (auto_read_flag)
+            wrapped_auto_read_make_and_draw_maps(file_name);
+         else
+            manage_column_selector(file_name); /* calls create_column_label_window(), fills and displays.*/
+      } else {
+         manage_column_selector(file_name); // try read a cif (strangely)
+      }
+
+   }
+   gtk_window_close(GTK_WINDOW(dialog));
+}
 
 void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
@@ -86,9 +114,9 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    //                                   const char** option_labels)
 
 
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "Centre on New Molecule", NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "No Recentre", NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre", "Move Molecule Here", NULL, NULL);
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
    gtk_widget_show(dialog);
@@ -98,8 +126,8 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
-
-   GtkWidget *dataset_chooser = widget_from_builder("coords_filechooser_dialog");
+#if 0
+   GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
    GtkWidget *main_window = graphics_info_t::get_main_window();
    gtk_window_set_transient_for(GTK_WINDOW(dataset_chooser), GTK_WINDOW(main_window));
 
@@ -108,13 +136,27 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
    gtk_widget_show(dataset_chooser);
+#endif
 
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
+                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
+   g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(FALSE));
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.mtz");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_show(dialog);
 }
 
 void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
 
+#if 0
    GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
    int is_auto_read_fileselection = 1;
    set_directory_for_filechooser(dataset_chooser);
@@ -123,7 +165,20 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g_object_set_data(G_OBJECT(dataset_chooser), "is_auto", GINT_TO_POINTER(is_auto_read_fileselection));
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
    gtk_widget_show(dataset_chooser);
+#endif
 
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
+                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
+   g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(TRUE));
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.mtz");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_show(dialog);
 }
 
 void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -815,18 +870,18 @@ create_actions(GtkApplication *application) {
    add_action(     "background_colour_action",      background_colour_action);
    add_action(       "bond_parameters_action",        bond_parameters_action);
    add_action(          "bond_colours_action",           bond_colours_action);
-   add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
    add_action(            "fullscreen_action",             fullscreen_action);
-   add_action(       "generic_objects_action",        generic_objects_action);
    add_action(            "go_to_atom_action",             go_to_atom_action);
-   add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
+   add_action(       "generic_objects_action",        generic_objects_action);
    add_action(        "label_CA_atoms_action",         label_CA_atoms_action);
    add_action(      "label_neighbours_action",       label_neighbours_action);
    add_action(        "map_parameters_action",         map_parameters_action);
+   add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
+   add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
 
    add_action("ghost_control_action", ghost_control_action);
-   add_action("spin_view_action", spin_view_action);
-   add_action("rock_view_action", rock_view_action);
+   add_action(    "spin_view_action",     spin_view_action);
+   add_action(    "rock_view_action",     rock_view_action);
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);

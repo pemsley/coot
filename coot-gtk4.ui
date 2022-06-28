@@ -3010,15 +3010,15 @@ the Ctrl key when moving the mouse.</property>
     <property name="width-request">600</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
-    <property name="deletable">0</property>
+    <!-- <property name="deletable">0</property> -->
     <signal name="response" handler="on_coords_filechooser_dialog_response" swapped="no"/>
   </object>
 
   <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
     <property name="width-request">600</property>
-    <property name="use-header-bar">0</property>
+    <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Dataset Filename</property>
-    <property name="deletable">0</property>
+    <!-- <property name="deletable">0</property> -->
     <signal name="response" handler="on_dataset_filechooser_dialog_response" swapped="no"/>
   </object>
 
