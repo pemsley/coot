@@ -493,6 +493,256 @@ calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 
+void
+background_colour_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+   // black or white options
+   std::cout << "black or white options here" << std::endl;
+}
+
+
+void
+bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
+   graphics_info_t g;
+   g.fill_bond_colours_dialog_internal(w);
+   gtk_widget_show(w);
+
+}
+
+
+void
+bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_bond_parameters_dialog(); // uses builder
+   gtk_widget_show(w);
+}
+
+
+void
+draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
+   gtk_widget_show(show_symm_window);
+}
+
+
+void
+display_only_active_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   display_only_active();
+}
+
+#include "cc-interface.hh" // for fullscreen()
+
+void
+fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+   fullscreen();
+}
+
+
+#include "generic-display-objects-c.h"
+void
+generic_objects_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   generic_objects_gui_wrapper();
+}
+
+
+
+void
+go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *widget = wrapped_create_goto_atom_window(); // uses gtkbuilder
+
+				/* now we need to fill the entry boxes
+				   with default vaules and the option
+				   menu according to molecules that
+				   have coordinates. */
+
+   gtk_widget_show(widget);
+}
+
+
+void
+label_atoms_in_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   label_atoms_in_residue();
+}
+
+
+void
+label_CA_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   auto label_all_CAs = [] (int imol) {
+      graphics_info_t::molecules[imol].add_labels_for_all_CAs();
+   };
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      label_all_CAs(imol);
+      graphics_draw();
+   }
+}
+
+
+void
+label_neighbours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+   label_neighbours();
+}
+
+
+void show_map_parameters_dialog(); // in glade-callbacks
+
+void
+map_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+   show_map_parameters_dialog();
+}
+
+
+void
+ghost_control_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
+   gtk_widget_show(w);
+}
+
+
+void
+spin_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+   toggle_idle_spin_function();
+}
+
+
+void
+rock_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+   toggle_idle_rock_function();
+}
+
+
+void
+ribbons_colour_by_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "Chain";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+
+void
+ribbons_colour_rainbow_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "colorRampChainsScheme";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+
+void
+ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string colour_scheme = "colorBySecondaryScheme";
+      std::string atom_selection = "//";
+      std::string style = "Ribbon";
+      graphics_info_t g;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+   }
+}
+
+void
+screenshot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+    GtkWidget *file_chooser = coot_screendump_chooser();
+
+    set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);
+    g_object_set_data(G_OBJECT(file_chooser), "image_type", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.tga");
+    gtk_widget_show(file_chooser);
+    check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
+}
+
+
+
+void
+sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+
+   // 20220628-PE this is different now?
+
+   // add_on_sequence_view_choices()
+   std::cout << "add on sequence_view options here " << std::endl;
+}
+
+
+void
+undo_last_navigation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   undo_last_move();
+}
+
+
+void
+undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+   undo_symmetry_view();
+}
+
+
+
+
 
 
 void
@@ -507,17 +757,18 @@ create_actions(GtkApplication *application) {
       g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
    };
 
-   add_action("open_coordinates_action", open_coordinates_action);
-   add_action(   "auto_open_mtz_action",    auto_open_mtz_action);
-   add_action(    "open_dataset_action",     open_dataset_action);
-   add_action(        "open_map_action",         open_map_action);
+   // File
+
+   add_action(     "open_coordinates_action",      open_coordinates_action);
+   add_action(        "auto_open_mtz_action",         auto_open_mtz_action);
+   add_action(         "open_dataset_action",          open_dataset_action);
+   add_action(             "open_map_action",              open_map_action);
+   add_action("import_cif_dictionary_action", import_cif_dictionary_action);
 
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
 
-   add_action(            "import_cif_dictionary_action",            import_cif_dictionary_action);
-   add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
    add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
    add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
@@ -529,6 +780,8 @@ create_actions(GtkApplication *application) {
    add_action(                  "file_export_map_action",                  file_export_map_action);
    add_action(         "file_export_map_fragment_action",                  file_export_map_action);
    add_action(                   "close_molecule_action",                   close_molecule_action);
+
+   // Edit
 
    add_action(       "change_chain_ids_action",        change_chain_ids_action);
    add_action(          "copy_molecule_action",           copy_molecule_action);
@@ -544,6 +797,8 @@ create_actions(GtkApplication *application) {
    add_action(       "show_preferences_action",        show_preferences_action);
    add_action("show_shader_preferences_action", show_shader_preferences_action);
 
+   // Calculate
+
    add_action(       "align_and_mutate_action",        align_and_mutate_action);
    add_action(         "ligand_builder_action",          ligand_builder_action);
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
@@ -553,5 +808,38 @@ create_actions(GtkApplication *application) {
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
 
    add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
+
+   // Draw
+
+   add_action(   "display_only_active_action",    display_only_active_action);
+   add_action(     "background_colour_action",      background_colour_action);
+   add_action(       "bond_parameters_action",        bond_parameters_action);
+   add_action(          "bond_colours_action",           bond_colours_action);
+   add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
+   add_action(            "fullscreen_action",             fullscreen_action);
+   add_action(       "generic_objects_action",        generic_objects_action);
+   add_action(            "go_to_atom_action",             go_to_atom_action);
+   add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
+   add_action(        "label_CA_atoms_action",         label_CA_atoms_action);
+   add_action(      "label_neighbours_action",       label_neighbours_action);
+   add_action(        "map_parameters_action",         map_parameters_action);
+
+   add_action("ghost_control_action", ghost_control_action);
+   add_action("spin_view_action", spin_view_action);
+   add_action("rock_view_action", rock_view_action);
+
+   add_action("screenshot_action",                           screenshot_action);
+   add_action("sequence_view_action",                     sequence_view_action);
+   add_action("undo_symmetry_view_action",           undo_symmetry_view_action);
+   add_action("undo_last_navigation_action",       undo_last_navigation_action);
+   add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);
+   add_action("ribbons_colour_rainbow_action",   ribbons_colour_rainbow_action);
+   add_action("ribbons_colour_by_secondary_structure_action", ribbons_colour_by_secondary_structure_action);
+
+   add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
+
+   // Measure
+
+   // Validate
 }
 

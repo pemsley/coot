@@ -247,12 +247,9 @@ on_density_ok_button_clicked           (GtkButton       *button,
    gtk_widget_hide(dialog);
 
 }
-/* In the menubar, Edit Density size has been selected. */
-// this is now map_parameters "Map Parameters"
-extern "C" G_MODULE_EXPORT
+
 void
-on_density_size1_activate (GMenuItem     *menuitem,
-                                               gpointer         user_data) {
+show_map_parameters_dialog() {
 
    char *text;
    int imol = 0;		/* FIXME */
@@ -300,7 +297,17 @@ on_density_size1_activate (GMenuItem     *menuitem,
 
  /* Show the widget */
    gtk_widget_show(density_window);
+}
 
+
+/* In the menubar, Edit Density size has been selected. */
+// this is now map_parameters "Map Parameters"
+extern "C" G_MODULE_EXPORT
+void
+on_density_size1_activate (GMenuItem     *menuitem,
+                           gpointer         user_data) {
+
+   show_map_parameters_dialog();
 }
 
 
