@@ -47,6 +47,7 @@ void init_framebuffers(GtkWidget *glarea) {
 }
 
 
+#include "text-rendering-utils.hh"
 
 void
 new_startup_realize(GtkWidget *gl_area) {
@@ -54,13 +55,12 @@ new_startup_realize(GtkWidget *gl_area) {
    std::cout << "new_startup_realize() ------------------- start ------------------"
              << std::endl;
 
-   GdkGLContext *context;
    gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
 
    if (gtk_gl_area_get_error(GTK_GL_AREA (gl_area)) != NULL)
       return;
 
-   context = gtk_gl_area_get_context(GTK_GL_AREA(gl_area));
+   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gl_area));
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(gl_area), TRUE);
 
@@ -73,6 +73,40 @@ new_startup_realize(GtkWidget *gl_area) {
    g.init_joey_ssao_stuff();
    g.init_shaders();
    g.setup_lights();
+
+   float x_scale = 4.4;  // what are these numbers!?
+   float y_scale = 1.2;
+   x_scale = 1.002;
+   y_scale = 1.002;
+   g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale, 0.0, 0.0);
+   g.setup_hud_geometry_bars();
+   g.setup_hud_buttons();
+   g.setup_rama_balls();
+   g.setup_key_bindings();
+   float double_rama_size = 0.8; // scaled by 0.5 in the gl-rama draw call.
+   g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
+   // and allow it to be set in the API
+   g.setup_draw_for_happy_face_residue_markers_init();
+   g.setup_draw_for_bad_nbc_atom_pair_markers();
+   g.setup_draw_for_anchored_atom_markers_init();
+   g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
+   unsigned int frame_time_history_list_max_n_elements = 500;
+   // +40 for base and grid lines
+   std::vector<s_generic_vertex> empty_vertices(frame_time_history_list_max_n_elements + 40);
+   std::vector<unsigned int> empty_indices(1500, 0); // or some number
+   g.lines_mesh_for_hud_lines.setup_vertices_and_indices(empty_vertices, empty_indices);
+
+   int w = 500;
+   int h = 500;
+
+   setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
+   setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
+   g.tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("HUD tmesh for refinement dialog arrow");
+   g.tmesh_for_hud_refinement_dialog_arrow.setup_quad();
+   g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png", Texture::DIFFUSE);
+   g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png", Texture::DIFFUSE);
+
+   g.tmesh_for_shadow_map.setup_quad();
 
    g.setup_key_bindings();
 
@@ -290,6 +324,7 @@ on_glarea_click(GtkGestureClick* click_gesture,
                 gdouble y,
                 gpointer user_data) {
 
+   // std::cout << "click gesture " << std::endl;
    graphics_info_t g;
    g.on_glarea_click(click_gesture, n_press, x, y, user_data);
 
@@ -362,7 +397,7 @@ void setup_gestures(GtkWidget *glarea) {
 
 void
 new_startup_application_activate(GtkApplication *application,
-                                 gpointer        user_data) {
+                                 G_GNUC_UNUSED gpointer user_data) {
 
    GtkBuilder *builder = gtk_builder_new();
    if (GTK_IS_BUILDER(builder)) {
@@ -384,6 +419,9 @@ new_startup_application_activate(GtkApplication *application,
       std::cout << error->message << std::endl;
       exit(0);
    }
+
+   GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
+   graphics_info_t::statusbar = sb;
 
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
@@ -412,9 +450,6 @@ new_startup_application_activate(GtkApplication *application,
    gtk_window_present(GTK_WINDOW(app_window));
    // gtk_widget_show(window);
 
-   std::cout << "debug:: new_startup_application_activate(): setting the menubar: " << menubar << std::endl;
-   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
-   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
 
    GtkWidget *gl_area = new_startup_create_glarea_widget();
    graphics_info_t::glareas.push_back(gl_area);

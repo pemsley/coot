@@ -889,6 +889,8 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    int n_symm_atoms_to_label = m.labelled_symm_atom_index_list.size();
+
+   // std::cout << "draw_molecule_atom_labels " << n_atoms_to_label << " " << n_symm_atoms_to_label << std::endl;
    if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) return;
 
    m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
@@ -4208,6 +4210,8 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    // note: this function is called from render_scene_sans_depth_blur()
 
    //  ------------------- render scene ----------------------------
+
+   // std::cout << "render_3d_scene() start" << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 

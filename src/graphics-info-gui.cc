@@ -649,6 +649,7 @@ void
 graphics_info_t::add_status_bar_text(const std::string &text) {
 
    if (use_graphics_interface_flag) {
+
       if (statusbar) {
 	 std::string sbt = text;
 	 // If it is "too long" chop it down.
@@ -657,6 +658,11 @@ graphics_info_t::add_status_bar_text(const std::string &text) {
 	 // some conversion between the window width and the max text length
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          // 20220528-PE FIXME
+
+         gtk_statusbar_push(GTK_STATUSBAR(statusbar),
+                            statusbar_context_id,
+                            sbt.c_str());
+
 #else
 	 GdkWindow *window = 0;
          window = gtk_widget_get_window(main_window);

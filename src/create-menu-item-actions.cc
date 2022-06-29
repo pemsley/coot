@@ -230,8 +230,8 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(chooser);
 }
 
-void toggle_display_frames_per_second_action (G_GNUC_UNUSED GSimpleAction *simple_action,
-                                              G_GNUC_UNUSED GVariant *parameter,
+void toggle_display_frames_per_second_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
 
 int state = get_fps_flag();
@@ -1067,10 +1067,10 @@ create_actions(GtkApplication *application) {
    add_action(          "bond_colours_action",           bond_colours_action);
    add_action(            "fullscreen_action",             fullscreen_action);
    add_action(            "go_to_atom_action",             go_to_atom_action);
-   add_action(       "generic_objects_action",        generic_objects_action);
    add_action(        "label_CA_atoms_action",         label_CA_atoms_action);
-   add_action(      "label_neighbours_action",       label_neighbours_action);
    add_action(        "map_parameters_action",         map_parameters_action);
+   add_action(       "generic_objects_action",        generic_objects_action);
+   add_action(      "label_neighbours_action",       label_neighbours_action);
    add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
    add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
 
@@ -1088,7 +1088,7 @@ create_actions(GtkApplication *application) {
 
    add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
 
-   // Measure
+   // Measures
 
    add_action(    "clear_atom_labels_action",     clear_atom_labels_action);
    add_action(    "pointer_distances_action",     pointer_distances_action);
