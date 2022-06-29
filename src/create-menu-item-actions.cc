@@ -217,17 +217,48 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
-  gtk_widget_show(dialog);
+   gtk_widget_show(dialog);
+}
+
+
+void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
+                                                 int        response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+      GFile *file = gtk_file_chooser_get_file(chooser);
+      char *file_name = g_file_get_path(file);
+      int imol_enc = -999997;
+      short int new_molecule_checkbutton_state = 0;
+      handle_cif_dictionary_for_molecule(file_name, imol_enc, new_molecule_checkbutton_state);
+   }
+   gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
+#if 0
    GtkWidget *chooser = widget_from_builder("cif_dictionary_filechooser_dialog");
    set_directory_for_filechooser(chooser);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
    gtk_widget_show(chooser);
+#endif
+
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
+                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_cif_dictionary_filechooser_dialog_response_gtk4), NULL);
+   g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(FALSE));
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.cif");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_show(dialog);
+
 }
 
 void toggle_display_frames_per_second_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -778,7 +809,6 @@ sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    std::cout << "add on sequence_view options here " << std::endl;
 }
 
-
 void
 undo_last_navigation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
@@ -786,7 +816,6 @@ undo_last_navigation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    undo_last_move();
 }
-
 
 void
 undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -990,9 +1019,6 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_show(dialog);
    }
 }
-
-
-
 
 
 void
