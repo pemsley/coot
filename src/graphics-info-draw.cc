@@ -3762,7 +3762,7 @@ graphics_info_t::draw_hud_geometry_bars() {
       }
    }
 
-   std::cout << "in draw_hud_geometry_bars() " << new_bars.size() << std::endl;
+   // std::cout << "in draw_hud_geometry_bars() " << new_bars.size() << std::endl;
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;
       mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
@@ -5644,6 +5644,7 @@ void keypad_translate_xyz(short int axis, short int direction) {
 
 
 
+#include "rsr-functions.hh"
 
 void
 graphics_info_t::setup_key_bindings() {
@@ -5962,6 +5963,11 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l40 = [] () {
+      rsr_sphere_refine_plus();
+      return gboolean(TRUE);
+   };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -5992,6 +5998,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
+
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
 

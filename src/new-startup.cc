@@ -174,49 +174,6 @@ GtkWidget *new_startup_create_glarea_widget() {
 
 }
 
-void
-on_open_clicked(GSimpleAction *action,
-                GVariant *parameter,
-                gpointer data) {
-
-   std::cout << "open clicked" << std::endl;
-
-}
-
-void
-on_close_clicked(GSimpleAction *action,
-                 GVariant *parameter,
-                 gpointer data) {
-
-   std::cout << "close clicked" << std::endl;
-
-}
-
-
-GMenu *create_menu_by_hand(const GtkApplication *application) {
-   const GActionEntry entries[] = {
-      { "open",  on_open_clicked,  NULL, NULL, NULL, { 0, 0, 0 } },
-      { "close", on_close_clicked, NULL, NULL, NULL, { 0, 0, 0 } }
-   };
-
-   g_action_map_add_action_entries(G_ACTION_MAP(application), entries, G_N_ELEMENTS(entries), NULL);
-
-   GMenu *menu      = g_menu_new();
-   GMenu *file_menu = g_menu_new();
-
-   GMenuItem *item;
-   item = g_menu_item_new("Open", "app.open");
-   g_menu_append_item(file_menu, item);
-
-   item = g_menu_item_new("Close", "app.close");
-   g_menu_append_item(file_menu, item);
-
-   g_menu_append_submenu(menu, "File", G_MENU_MODEL(file_menu));
-
-   return menu;
-}
-
-
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                           double          x,
                           double          y,

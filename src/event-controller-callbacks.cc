@@ -271,35 +271,53 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
    SetMouseBegin(x,y);
 
-   // std::cout << "n_press " << n_press << std::endl;
-   // n_press can go up to 20, 30...
-   //
-   if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
+   bool clicked = check_if_hud_bar_clicked(x,y);
 
-      bool intermediate_atoms_only_flag = false;
-      pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-      int imol = naii.imol;
-      if (naii.success) {
-         molecules[imol].add_to_labelled_atom_list(naii.atom_index);
-         add_picked_atom_info_to_status_bar(imol, naii.atom_index);
-         graphics_draw();
-      }
-   }
+   std::cout << "status for HUD bar clicked: " << clicked << " x " << x << " y " << y << std::endl;
 
-   if (n_press == 1) {
-      GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-      // std::cout << "modifier: " << modifier << std::endl;
-      if (modifier == 8) {
-         bool intermediate_atoms_only_flag = false;
-         pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-         int imol = naii.imol;
-         if (naii.success) {
-            setRotationCentre(naii.atom_index, naii.imol);
-            add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+   if (clicked) {
+      // action occurs in above function
+   } else {
+
+      // 20220629-PE note to self: HUD button actions should happen on *release* not click,
+      // so move this at some stage.
+      //
+      clicked = check_if_hud_button_clicked(x,y);
+
+      if (clicked) {
+         // action occus in above
+      } else {
+
+         // std::cout << "n_press " << n_press << std::endl;
+         // n_press can go up to 20, 30...
+         //
+         if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
+
+            bool intermediate_atoms_only_flag = false;
+            pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+            int imol = naii.imol;
+            if (naii.success) {
+               molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+               add_picked_atom_info_to_status_bar(imol, naii.atom_index);
+               graphics_draw();
+            }
+         }
+
+         if (n_press == 1) {
+            GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+            std::cout << "modifier: " << modifier << std::endl;
+            if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
+               bool intermediate_atoms_only_flag = false;
+               pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+               int imol = naii.imol;
+               if (naii.success) {
+                  setRotationCentre(naii.atom_index, naii.imol);
+                  add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+               }
+            }
          }
       }
    }
-
 }
 
 
