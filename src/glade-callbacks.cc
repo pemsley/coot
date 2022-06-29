@@ -7028,6 +7028,7 @@ on_save_state1_activate_gtkbuilder_callback                (GtkMenuItem     *men
    /*    save_state(); old inteface - before DK. */
 
    GtkWidget *file_chooser = coot_save_state_chooser();
+
    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
    add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
    /* add_ccp4i_project_optionmenu(fileselection, COOT_SCRIPTS_FILE_SELECTION); */
