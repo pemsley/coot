@@ -795,6 +795,201 @@ undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    undo_symmetry_view();
 }
 
+void
+clear_atom_labels_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+   remove_all_atom_labels();
+}
+
+
+void
+distances_and_angles_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+  GtkWidget *widget = wrapped_create_geometry_dialog();
+  set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
+  store_geometry_dialog(widget); /* needed to deactivate the distance
+				    togglebutton after 2nd atoms
+				    clicked in graphics */
+  gtk_widget_show(widget);
+
+}
+
+void
+pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = widget_from_builder("pointer_distances_dialog");
+   fill_pointer_distances_widget(w);
+   gtk_widget_show(w);
+}
+
+void
+environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *widget = widget_from_builder("environment_distance_dialog");
+   fill_environment_widget(widget);
+   gtk_widget_show(widget);
+
+}
+
+
+void
+check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_check_waters_dialog();
+   int imol_map = imol_refinement_map();
+   gtk_widget_show(w);
+   if (imol_map < 0)
+      show_select_map_dialog();
+
+}
+
+
+void
+density_fit_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for density fit" << std::endl;
+}
+
+
+void
+difference_map_peaks_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for difference map peaks fit" << std::endl;
+}
+
+void
+geometry_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for geometry analysis" << std::endl;
+}
+
+void
+gln_and_asn_b_factor_outlier_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for GLN ASN" << std::endl;
+}
+
+void
+chiral_volumes_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for chiral volumes" << std::endl;
+}
+
+void
+ncs_differences_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for ncs differences" << std::endl;
+}
+
+
+void
+peptide_flips_from_diff_map_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for peptide flips from difference map" << std::endl;
+}
+
+void
+peptide_omega_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for omega analysis " << std::endl;
+}
+
+void
+pukka_puckers_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for Pukka Puckers" << std::endl;
+}
+
+void
+ramachandran_plot_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for ramachandran plot" << std::endl;
+}
+
+void
+rotamer_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for rotamer analysis" << std::endl;
+}
+
+void
+temp_factor_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for temperature factor analysis" << std::endl;
+}
+
+void
+temp_factor_variance_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus for temperature factor variance analysis" << std::endl;
+}
+
+void
+unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "dynamic menus unmodelled blobs" << std::endl;
+}
+
+
+void
+remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "About Coot" << std::endl;
+
+   GtkWidget *dialog = widget_from_builder("about_dialog");
+   if (dialog) {
+      gtk_widget_show(dialog);
+   }
+}
 
 
 
@@ -895,6 +1090,32 @@ create_actions(GtkApplication *application) {
 
    // Measure
 
+   add_action(    "clear_atom_labels_action",     clear_atom_labels_action);
+   add_action(    "pointer_distances_action",     pointer_distances_action);
+   add_action( "distances_and_angles_action",  distances_and_angles_action);
+   add_action("environment_distances_action", environment_distances_action);
+
    // Validate
+
+   add_action(                  "unmodelled_blobs_action",                   unmodelled_blobs_action);
+   add_action(               "check_delete_waters_action",                check_delete_waters_action);
+   add_action(         "density_fit_analysis_item_action",          density_fit_analysis_item_action);
+   add_action(         "difference_map_peaks_item_action",          difference_map_peaks_item_action);
+   add_action(            "geometry_analysis_item_action",             geometry_analysis_item_action);
+   add_action(               "chiral_volumes_item_action",                chiral_volumes_item_action);
+   add_action(              "ncs_differences_item_action",               ncs_differences_item_action);
+   add_action(                "pukka_puckers_item_action",                 pukka_puckers_item_action);
+   add_action(            "ramachandran_plot_item_action",             ramachandran_plot_item_action);
+   add_action(             "rotamer_analysis_item_action",              rotamer_analysis_item_action);
+   add_action(         "temp_factor_analysis_item_action",          temp_factor_analysis_item_action);
+   add_action(       "peptide_omega_analysis_item_action",        peptide_omega_analysis_item_action);
+   add_action(  "peptide_flips_from_diff_map_item_action",   peptide_flips_from_diff_map_item_action);
+   add_action( "gln_and_asn_b_factor_outlier_item_action",  gln_and_asn_b_factor_outlier_item_action);
+   add_action("temp_factor_variance_analysis_item_action", temp_factor_variance_analysis_item_action);
+
+   // About
+
+   add_action("remarks_browser_action", remarks_browser_action);
+   add_action("about_coot_action", about_coot_action);
 }
 

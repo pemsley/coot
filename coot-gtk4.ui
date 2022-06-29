@@ -354,10 +354,11 @@
         </item>
         <item>
           <attribute name="label">Distances &amp; Angles...</attribute>
+          <attribute name="action">app.distances_and_angles_action</attribute>
         </item>
         <item>
           <attribute name="label">Environment Distances...</attribute>
-          <attribute name="action">app.environmet_distances_action</attribute>
+          <attribute name="action">app.environment_distances_action</attribute>
         </item>
         <item>
           <attribute name="label">Residue Info...</attribute>
@@ -370,7 +371,7 @@
         <!-- </item> -->
         <item>
           <attribute name="label">Pointer Distances...</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="action">app.pointer_distances_action</attribute>
         </item>
       </section>
     </submenu>
@@ -379,67 +380,68 @@
       <section>
         <item>
           <attribute name="label">Check/Delete Waters...</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
         <item>
-          <attribute name="label">Density fit analysis</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="label">Density fit analysis...</attribute>
+          <attribute name="action">app.density_fit_analysis_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Difference Map Peaks...</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="action">app.difference_map_peaks_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Geometry analysis</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="label">Geometry analysis...</attribute>
+          <attribute name="action">app.geometry_analysis_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">GLN and ASN B-factor Outliers</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="label">GLN and ASN B-factor Outliers...</attribute>
+          <attribute name="action">app.gln_and_asn_b_factor_outlier_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Incorrect Chiral Volumes...</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
+          <attribute name="action">app.chiral_volumes_item_action</attribute>
         </item>
-        <item>
-          <attribute name="label">Kleywegt Plot...</attribute>
-          <attribute name="action">app.on_undo_symmetry_view1_action</attribute>
-        </item>
+        <!-- restore this one day -->
+        <!-- <item> -->
+        <!--   <attribute name="label">Kleywegt Plot...</attribute> -->
+        <!--   <attribute name="action">app.on_undo_symmetry_view1_action</attribute> -->
+        <!-- </item> -->
         <item>
           <attribute name="label">NCS Differences...</attribute>
-          <attribute name="action">app.on_ncs_differences1_action</attribute>
+          <attribute name="action">app.ncs_differences_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Peptide Flips from Difference Map...</attribute>
-          <attribute name="action">app.on_peptide_flips_from_difference_map1_action_gtkbuilder_glade</attribute>
+          <attribute name="action">app.peptide_flips_from_diff_map_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Peptide omega analysis</attribute>
-          <attribute name="action">app.on_peptide_flips_from_difference_map1_action_gtkbuilder_glade</attribute>
+          <attribute name="label">Peptide omega analysis...</attribute>
+          <attribute name="action">app.peptide_omega_analysis_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Pukka Puckers</attribute>
-          <attribute name="action">app.on_pukka_puckers_1_action</attribute>
+          <attribute name="label">Pukka Puckers...</attribute>
+          <attribute name="action">app.pukka_puckers_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Ramachandran Plot</attribute>
-          <attribute name="action">app.on_pukka_puckers_1_action</attribute>
+          <attribute name="label">Ramachandran Plot...</attribute>
+          <attribute name="action">app.ramachandran_plot_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Rotamer analysis</attribute>
-          <attribute name="action">app.on_pukka_puckers_1_action</attribute>
+          <attribute name="label">Rotamer analysis...</attribute>
+          <attribute name="action">app.rotamer_analysis_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Temp. fact. analysis</attribute>
-          <attribute name="action">app.on_temp_fact_analysis1_action</attribute>
+          <attribute name="label">Temp. fact. analysis...</attribute>
+          <attribute name="action">app.temp_factor_analysis_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Temp. fact. variance analysis</attribute>
-          <attribute name="action">app.on_temp_fact_analysis1_action</attribute>
+          <attribute name="label">Temp. fact. variance analysis...</attribute>
+          <attribute name="action">app.temp_factor_variance_analysis_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>
-          <attribute name="action">app.on_temp_fact_analysis1_action</attribute>
+          <attribute name="action">app.unmodelled_blobs_action</attribute>
         </item>
       </section>
     </submenu>
@@ -448,11 +450,11 @@
       <section>
         <item>
           <attribute name="label">Header/Remarks Browser...</attribute>
-          <attribute name="action">app.on_remarks_browser1_action</attribute>
+          <attribute name="action">app.remarks_browser_action</attribute>
         </item>
         <item>
           <attribute name="label">About Coot...</attribute>
-          <attribute name="action">app.on_remarks_browser1_action</attribute>
+          <attribute name="action">app.about_coot_action</attribute>
         </item>
       </section>
     </submenu>
@@ -486,21 +488,22 @@
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkAboutDialog" id="aboutdialog1">
+
+  <object class="GtkAboutDialog" id="about_dialog">
     <property name="title" translatable="yes">About Coot</property>
     <property name="resizable">0</property>
     <property name="destroy-with-parent">1</property>
-    <property name="deletable">0</property>
-    <property name="version">0.4-pre</property>
+    <property name="deletable">1</property>
+    <property name="version">1.0</property>
     <property name="copyright" translatable="yes">Copyright 2000, 2007 by Paul Emsley
 Copyright 2002, 2003, 2004, 2005, 2006, 2007
 by The University of York
 Copyright 2007 by The University of Oxford
 
-</property>
-    <property name="comments" translatable="yes">Pre-release Version (Revision 426)</property>
-    <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>
-    <property name="website-label">The Coot Website</property>
+    </property>
+    <property name="comments" translatable="yes">Version 1</property>
+    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</property>
+    <property name="website-label">The Home of Coot</property>
     <property name="license" translatable="yes">GNU GPL version 3</property>
     <property name="authors">Paul Emsley
     Kevin Cowtan
@@ -521,6 +524,7 @@ Copyright 2007 by The University of Oxford
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="accept_reject_refinement_dialog">
     <property name="title" translatable="yes">Accept Refinement?</property>
     <property name="deletable">0</property>
