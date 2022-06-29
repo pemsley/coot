@@ -7,6 +7,8 @@
 #include "graphics-info.h"
 #include "create-menu-item-actions.hh"
 
+#include "coot-setup-python.hh"
+
 void print_opengl_info();
 
 void init_framebuffers(GtkWidget *glarea) {
@@ -113,6 +115,10 @@ new_startup_realize(GtkWidget *gl_area) {
    GLenum err = glGetError();
    if (err)
       std::cout << "ERROR:: new_startup_realize() --start-- err is " << err << std::endl;
+
+   // Hmm! - causes weird graphics problems
+   // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
+                             // 20220629-PE not at the moment though - I removed the gobject parts from the code path
 }
 
 
@@ -145,6 +151,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_y_size = height;
    // g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
    g.init_shaders();
+
 }
 
 // void on_glarea_realize(GtkWidget *widget); // using this give linking problems.
@@ -394,7 +401,6 @@ void setup_gestures(GtkWidget *glarea) {
 
 }
 
-
 void
 new_startup_application_activate(GtkApplication *application,
                                  G_GNUC_UNUSED gpointer user_data) {
@@ -466,7 +472,6 @@ new_startup_application_activate(GtkApplication *application,
    create_actions(application);
 
    // load_tutorial_model_and_data();
-
 }
 
 // move these to the top.
@@ -483,6 +488,8 @@ int new_startup(int argc, char **argv) {
 
    // set this by parsing the command line arguments
    graphics_info.use_graphics_interface_flag = true;
+
+   // setup_python(argc, argv) needs to called after GTK has started - because it depends on gtk
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 

@@ -116,11 +116,14 @@ void setup_python(int argc, char **argv) {
    if (! coot) {
       std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
-      initcoot_python_gobject(); // this is not a good name for this function. We need to say
-                                 // this this is the module that wraps the glue to get
-                                 // the status-bar, menu-bar etc.
-      PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
-      PyImport_ImportModule("extensions");
+
+      if (false) {
+         initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                                    // this this is the module that wraps the glue to get
+                                    // the status-bar, menu-bar etc.
+         PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
+         PyImport_ImportModule("extensions");
+      }
    }
    PyErr_PrintEx(0);
    std::string home_directory = coot::get_home_dir();
