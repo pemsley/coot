@@ -65,6 +65,11 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
    float dist = -999.9;
    pick_info p_i;
 
+   if (false)
+      std::cout << "pick_atom_from_atom_selection() imol " << imol
+                << " n_selected_atoms " << SelAtom.n_selected_atoms << " "
+                << front << " " << back << " " << pick_mode << std::endl;
+
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
       if (! SelAtom.atom_selection[i]->isTer()) {
@@ -126,10 +131,10 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 
                         if (verbose_mode) {
                            std::cout << "   DEBUG:: imol " << imol << " "
-                           << " atom index " << nearest_atom_index << std::endl;
+                                     << " atom index " << nearest_atom_index << std::endl;
                            std::cout << "   DEBUG:: imol " << imol << " "
-                           << SelAtom.atom_selection[i] << " " << min_dist
-                           << std::endl;
+                                     << SelAtom.atom_selection[i] << " " << min_dist
+                                     << std::endl;
                         }
                      }
                   }
@@ -205,6 +210,10 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
    float w_scale_b = 1.0/worldPos_b.w;
    coot::Cartesian front(worldPos_f.x * w_scale_f, worldPos_f.y * w_scale_f, worldPos_f.z * w_scale_f);
    coot::Cartesian  back(worldPos_b.x * w_scale_b, worldPos_b.y * w_scale_b, worldPos_b.z * w_scale_b);
+   if (false)
+      std::cout << mouseX << " " << real_y << " screen pos "
+                << glm::to_string(screenPos_f) << " " << glm::to_string(screenPos_b)
+                << " " << std::endl;
 
    // atom_pick() allows event to be null, in that case we don't check pick.
    // I don't follow what that is about at the moment.

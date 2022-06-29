@@ -226,7 +226,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    unsigned int n_triangles = triangles.size();
    GLuint n_verts = 3 * n_triangles;
 
-   std::cout << "debug:: in draw_atom_label() n-trianges: " << n_triangles << " n-verts: " << n_verts  << std::endl;
+   // std::cout << "debug:: in draw_atom_label() n-trianges: " << n_triangles << " n-verts: " << n_verts  << std::endl;
 
    if (n_triangles == 0) return;
 

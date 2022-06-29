@@ -300,9 +300,21 @@
         <item>
           <attribute name="label">Representation Tools...</attribute>
         </item>
-        <item>
-          <attribute name="label">Projection...</attribute>
-        </item>
+
+        <section>
+             <submenu>
+              <attribute name="label">Projection...</attribute>
+              <item>
+                <attribute name="label">Orthographic</attribute>
+                <attribute name="action">app.orthographic_view_action</attribute>
+              </item>
+              <item>
+                <attribute name="label">Perspective</attribute>
+                <attribute name="action">app.perspective_view_action</attribute>
+              </item>
+            </submenu>
+        </section>
+
         <item>
           <attribute name="label">Spin View</attribute>
           <attribute name="action">app.spin_view_action</attribute>

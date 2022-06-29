@@ -258,19 +258,20 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
          }
       }
    }
-
 }
 
 
 
 void
-graphics_info_t::on_glarea_click(G_GNUC_UNUSED GtkGestureClick* self,
+graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                                  gint n_press,
                                  G_GNUC_UNUSED gdouble x,
                                  G_GNUC_UNUSED gdouble y,
                                  G_GNUC_UNUSED gpointer user_data) {
 
+   SetMouseBegin(x,y);
 
+   // std::cout << "n_press " << n_press << std::endl;
    // n_press can go up to 20, 30...
    //
    if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
@@ -282,6 +283,20 @@ graphics_info_t::on_glarea_click(G_GNUC_UNUSED GtkGestureClick* self,
          molecules[imol].add_to_labelled_atom_list(naii.atom_index);
          add_picked_atom_info_to_status_bar(imol, naii.atom_index);
          graphics_draw();
+      }
+   }
+
+   if (n_press == 1) {
+      GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+      // std::cout << "modifier: " << modifier << std::endl;
+      if (modifier == 8) {
+         bool intermediate_atoms_only_flag = false;
+         pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+         int imol = naii.imol;
+         if (naii.success) {
+            setRotationCentre(naii.atom_index, naii.imol);
+            add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+         }
       }
    }
 

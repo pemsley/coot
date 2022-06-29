@@ -1020,6 +1020,21 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
+void
+orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+   set_use_perspective_projection(0);
+}
+
+
+void
+perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+G_GNUC_UNUSED GVariant *parameter,
+G_GNUC_UNUSED gpointer user_data) {
+   set_use_perspective_projection(1);
+}
+
 
 void
 create_actions(GtkApplication *application) {
@@ -1100,9 +1115,11 @@ create_actions(GtkApplication *application) {
    add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
    add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
 
-   add_action("ghost_control_action", ghost_control_action);
-   add_action(    "spin_view_action",     spin_view_action);
-   add_action(    "rock_view_action",     rock_view_action);
+   add_action(   "ghost_control_action",      ghost_control_action);
+   add_action(        "spin_view_action",         spin_view_action);
+   add_action(        "rock_view_action",         rock_view_action);
+   add_action( "perspective_view_action",  perspective_view_action);
+   add_action("orthographic_view_action", orthographic_view_action);
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);
