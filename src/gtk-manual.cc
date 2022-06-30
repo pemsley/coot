@@ -833,7 +833,10 @@ display_control_map_combo_box(const std::string &name, int imol) {
 #endif
 
 #if (GTK_MAJOR_VERSION == 4)
-   gtk_box_append(GTK_BOX(hbox), scroll_button);
+   if (scroll_button)
+      gtk_box_append(GTK_BOX(hbox), scroll_button);
+   else
+      std::cout << "FIXME A in display_control_map_combo_box() " << std::endl;
 #else
    gtk_box_pack_start(GTK_BOX(hbox), scroll_button, FALSE, FALSE, 2);
 #endif
@@ -856,9 +859,10 @@ display_control_map_combo_box(const std::string &name, int imol) {
    g_signal_connect(G_OBJECT(display_togglebutton), "toggled",
                     G_CALLBACK(on_display_control_map_displayed_button_toggled),
                     GINT_TO_POINTER(imol));
-   g_signal_connect(G_OBJECT(scroll_button), "toggled",
-                    G_CALLBACK(on_display_control_map_scroll_radio_button_toggled),
-                    GINT_TO_POINTER(imol));
+   if (scroll_button) // 20220629-PE
+      g_signal_connect(G_OBJECT(scroll_button), "toggled",
+                       G_CALLBACK(on_display_control_map_scroll_radio_button_toggled),
+                       GINT_TO_POINTER(imol));
    g_signal_connect(G_OBJECT(properties_button), "clicked",
 		     G_CALLBACK (on_display_control_map_properties_button_clicked),
 		     GINT_TO_POINTER(imol));

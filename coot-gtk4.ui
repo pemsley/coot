@@ -9275,24 +9275,26 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkBox">
                     <child>
-                      <object class="GtkCheckButton" id="shader_settings_basic_mode_radiobutton">
+                      <object class="GtkToggleButton" id="shader_settings_basic_mode_togglebutton">
                         <property name="label" translatable="yes">Basic   </property>
                         <property name="can-focus">1</property>
                         <property name="active">1</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="shader_settings_standard_mode_radiobutton">
+                      <object class="GtkToggleButton" id="shader_settings_standard_mode_togglebutton">
                         <property name="label" translatable="yes">Plain   </property>
                         <property name="can-focus">1</property>
-                        <property name="group">shader_settings_basic_mode_radiobutton</property>
+                        <property name="group">shader_settings_basic_mode_togglebutton</property>
+                        <signal name="toggled" handler="on_shader_settings_standard_mode_togglebutton_toggled" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="shader_settings_fancy_mode_radiobutton">
+                      <object class="GtkToggleButton" id="shader_settings_fancy_mode_togglebutton">
                         <property name="label" translatable="yes">Fancy   </property>
                         <property name="can-focus">1</property>
-                        <property name="group">shader_settings_basic_mode_radiobutton</property>
+                        <property name="group">shader_settings_basic_mode_togglebutton</property>
+                        <signal name="toggled" handler="on_shader_settings_fancy_mode_togglebutton_toggled" swapped="no"/>
                       </object>
                     </child>
                   </object>

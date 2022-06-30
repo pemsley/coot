@@ -2633,7 +2633,7 @@ if test -n "$build_python" ; then
      fi
    fi
    # test it
-   echo test thew new python
+   echo test ctypes in the new python
    $install_top_dir/bin/python3 <<EOF
 import ctypes
 print('post ctypes test')
@@ -2787,6 +2787,7 @@ if test "$build_gobject_introspection" = true ; then
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
 
    ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
    tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
@@ -2857,6 +2858,10 @@ if [ true ] ; then
 
    date
    pwd
+
+   # 20220630-PE note to self: pygobject is tested for and build_pygobject is set above
+   # either that or this is not needed.
+   #
    skip_build=false
    if [ $test_for_already_installed_dependencies = true ] ; then
       if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
@@ -2881,7 +2886,7 @@ if [ true ] ; then
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
-	 echo :::: inn directory $(pwd)
+	 echo :::: in directory $(pwd)
 	 echo :::: building meson with -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
             echo :::: meson passed

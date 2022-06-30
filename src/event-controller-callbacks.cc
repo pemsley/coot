@@ -41,76 +41,9 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
 void
 graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
 
-#if 0 // 20220613-PE why is this here now?
-   auto check_for_hud_bar_tooltip = [gl_area] (double event_x, double event_y) {
-                               graphics_info_t g;
-                               std::pair<bool, mmdb::Atom *> handled_pair = g.check_if_moused_over_hud_bar(event_x, event_y);
-
-                               if (handled_pair.first) {
-                                  g.draw_hud_tooltip_flag = true;
-
-                                  // gtk mouse position to OpenGL (clip?) coordinates
-                                  GtkAllocation allocation;
-                                  gtk_widget_get_allocation(gl_area, &allocation);
-                                  int w = allocation.width;
-                                  int h = allocation.height;
-                                  float xx =    2.0 * g.mouse_current_x/static_cast<float>(w) - 1.0f;
-                                  float yy = - (2.0 * g.mouse_current_y/static_cast<float>(h) - 1.0f);
-                                  glm::vec2 pos(xx, yy);
-                                  // this makes the top-left of the tooltip bubble point at the hud geometry bar box (mouse position)
-                                  // without it, the tooltip middle is at the cursor position
-                                  // 0.1  too much to the left
-                                  // 0.07 too much to the left
-                                  // 0.05 too much to the left (not much)
-                                  // 0.0  too much to the right
-                                  float ww = 0.04f * (static_cast<float>(w)/900.0 - 1.0); //  hard-coded inital width - hmmm.
-                                  glm::vec2 background_texture_offset(0.08f - ww, -0.058f);
-                                  glm::vec2 label_texture_offset(0.0f, -0.086f);
-                                  glm::vec2 background_texture_pos = pos + background_texture_offset;
-                                  glm::vec2 atom_label_position = pos + label_texture_offset;
-                                  g.mesh_for_hud_tooltip_background.set_position(background_texture_pos); // used in uniforms
-                                  g.tmesh_for_hud_geometry_tooltip_label.set_position(atom_label_position);
-
-                                  mmdb::Atom *at = handled_pair.second;
-                                  coot::atom_spec_t at_spec(at);
-                                  g.label_for_hud_geometry_tooltip = at_spec.simple_label(at->residue->GetResName()); // e.g. A 65 CA
-                                  g.active_atom_for_hud_geometry_bar = at;
-                                  graphics_draw();
-                                  // return TRUE;
-                               } else {
-                                  g.draw_hud_tooltip_flag = false;
-                               }
-                            };
-
-   auto check_for_hud_refinemement_dialog_arrow_mouse_over = [gl_area] (double mouse_x, double mouse_y) {
-                                                                 graphics_info_t g;
-                                                                 // set hud_refinement_dialog_arrow_is_moused_over as needed.
-                                                                 g.hud_refinement_dialog_arrow_is_moused_over = false; // initially
-                                                                 if (g.showing_intermediate_atoms_from_refinement()) {
-                                                                    GtkAllocation allocation;
-                                                                    gtk_widget_get_allocation(gl_area, &allocation);
-                                                                    int w = allocation.width;
-                                                                    int h = allocation.height;
-                                                                    float xx =    2.0 * mouse_x/static_cast<float>(w) - 1.0f;
-                                                                    float yy = - (2.0 * mouse_y/static_cast<float>(h) - 1.0f);
-                                                                    // std::cout << "xx " << xx << " yy " << yy << std::endl;
-                                                                    float arrow_size = 0.04;
-                                                                    if (xx > (1.0 - 2.0 * arrow_size)) {
-                                                                       if (yy > (0.9-arrow_size)) {
-                                                                          if (yy < (0.9+arrow_size)) {
-                                                                             g.hud_refinement_dialog_arrow_is_moused_over = true;
-                                                                          }
-                                                                       }
-                                                                    }
-                                                                 }
-                                                             };
-#endif
-
-
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
-
    if (control_is_pressed) {
       do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
       graphics_draw();
@@ -197,6 +130,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
    set_mouse_previous_position(x, y);
+
 }
 
 void
@@ -242,6 +176,7 @@ graphics_info_t::on_glarea_drag_update_middle(GtkGestureDrag *gesture,
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
    set_mouse_previous_position(x, y);
+   std::cout << "update_middle: " << x << " " << y << std::endl;
 }
 
 void

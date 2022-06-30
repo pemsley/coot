@@ -6456,54 +6456,61 @@ void fill_and_show_shader_preferences() {
    GtkWidget *do_outline_checkbutton      = widget_from_builder("shader_settings_depth_blur_outline_outline_radiobutton");
    GtkWidget *do_blur_outline_checkbutton = widget_from_builder("shader_settings_depth_blur_outline_off_radiobutton");
 
-   GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
-   GtkWidget    *fancy_mode_checkbutton = widget_from_builder("shader_settings_fancy_mode_radiobutton");
-   GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
+   GtkWidget    *basic_mode_togglebutton = widget_from_builder("shader_settings_basic_mode_togglebutton");
+   GtkWidget    *fancy_mode_togglebutton = widget_from_builder("shader_settings_fancy_mode_togglebutton");
+   GtkWidget *standard_mode_togglebutton = widget_from_builder("shader_settings_standard_mode_togglebutton");
 
    GtkWidget *do_depth_fog_checkbutton = widget_from_builder("shader_settings_do_depth_fog_checkbutton");
 
    graphics_info_t g;
 
+   std::cout << "fill_and_show_shader_preferences()    fancy_mode_togglebutton " << fancy_mode_togglebutton << std::endl;
+   std::cout << "fill_and_show_shader_preferences() standard_mode_togglebutton " << standard_mode_togglebutton << std::endl;
+
    // oh dear... labels and variables inconsistent
-   if (g.displayed_image_type == g.SHOW_AO_SCENE)    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fancy_mode_checkbutton), TRUE);
-   if (g.displayed_image_type == g.SHOW_BASIC_SCENE) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton), TRUE);
+   if (g.displayed_image_type == g.SHOW_AO_SCENE)    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fancy_mode_togglebutton), TRUE);
+   if (g.displayed_image_type == g.SHOW_BASIC_SCENE) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(standard_mode_togglebutton), TRUE);
 
-   if (g.ssao_blur_size == 0) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_0), TRUE);
-   if (g.ssao_blur_size == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_1), TRUE);
-   if (g.ssao_blur_size == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sssb_2), TRUE);
+   if (g.ssao_blur_size == 0) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_0), TRUE);
+   if (g.ssao_blur_size == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_1), TRUE);
+   if (g.ssao_blur_size == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_2), TRUE);
 
-   if (g.shadow_softness == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_1), TRUE);
-   if (g.shadow_softness == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_2), TRUE);
-   if (g.shadow_softness == 3) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sss_3), TRUE);
+   if (g.shadow_softness == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_1), TRUE);
+   if (g.shadow_softness == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_2), TRUE);
+   if (g.shadow_softness == 3) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_3), TRUE);
 
-   if (g.shadow_texture_multiplier == 1) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_1), TRUE);
-   if (g.shadow_texture_multiplier == 2) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_2), TRUE);
-   if (g.shadow_texture_multiplier == 3) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_3), TRUE);
-   if (g.shadow_texture_multiplier == 4) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_4), TRUE);
-   if (g.shadow_texture_multiplier == 5) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_5), TRUE);
-   if (g.shadow_texture_multiplier == 6) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(strm_6), TRUE);
+   if (g.shadow_texture_multiplier == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_1), TRUE);
+   if (g.shadow_texture_multiplier == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_2), TRUE);
+   if (g.shadow_texture_multiplier == 3) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_3), TRUE);
+   if (g.shadow_texture_multiplier == 4) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_4), TRUE);
+   if (g.shadow_texture_multiplier == 5) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_5), TRUE);
+   if (g.shadow_texture_multiplier == 6) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_6), TRUE);
 
    if (! g.shader_do_outline_flag && !g.shader_do_depth_of_field_blur_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_outline_checkbutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_blur_outline_checkbutton), TRUE);
 
    if (g.shader_do_depth_of_field_blur_flag) // not shader_do_depth_blur_flag (what's that used for? - delete it)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_blur_checkbutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_blur_checkbutton), TRUE);
 
    if (g.shader_do_outline_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_outline_checkbutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_outline_checkbutton), TRUE);
 
    if (graphics_info_t::shader_do_depth_fog_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_depth_fog_checkbutton), TRUE);
    else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(do_depth_fog_checkbutton), FALSE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_depth_fog_checkbutton), FALSE);
 
    // make this insensitve if mode is not fancy
-   GtkWidget *fancy_vbox = widget_from_builder("shader_settings_fancy_vbox");
+   GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+   GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
+   std::cout << "fill_and_show_shader_preferences() fancy_vbox1 " << fancy_vbox1 << std::endl;
    bool is_fancy_mode = true;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_checkbutton)))    is_fancy_mode = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton))) is_fancy_mode = false;
-   if (! is_fancy_mode)
-      gtk_widget_set_sensitive(fancy_vbox, FALSE);
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_togglebutton)))    is_fancy_mode = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_togglebutton))) is_fancy_mode = false;
+   if (! is_fancy_mode) {
+      gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+      gtk_widget_set_sensitive(fancy_vbox2, FALSE);
+   }
 
    double v1 = graphics_info_t::ssao_strength;
    double v2 = graphics_info_t::SSAO_radius;

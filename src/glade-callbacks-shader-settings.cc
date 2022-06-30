@@ -292,8 +292,11 @@ on_shader_settings_ssao_strength_scale_value_changed(GtkRange        *range,
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_fancy_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                      gpointer         user_data) {
+on_shader_settings_fancy_mode_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                                   gpointer         user_data) {
+
+   std::cout << "on_shader_settings_fancy_mode_togglebutton_toggled() " << std::endl;
+
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
       set_use_fancy_lighting(1);
@@ -301,14 +304,21 @@ on_shader_settings_fancy_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
       GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       gtk_widget_set_sensitive(fancy_vbox1, TRUE);
       gtk_widget_set_sensitive(fancy_vbox2, TRUE);
+   } else {
+      std::cout << "in on_shader_settings_fancy_mode_radiobutton_toggled() button was not a togglebutton" << std::endl;
    }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_standard_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                          gpointer         user_data) {
+on_shader_settings_standard_mode_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                                      gpointer         user_data) {
+
+   std::cout << "in on_shader_settings_standard_mode_radiobutton_toggled()"
+             << " is-toggle " << GTK_IS_TOGGLE_BUTTON(togglebutton)
+             << " is-check " << GTK_IS_CHECK_BUTTON(togglebutton)
+             << std::endl;
 
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(0);
@@ -318,11 +328,11 @@ on_shader_settings_standard_mode_radiobutton_toggled(GtkToggleButton *togglebutt
       gtk_widget_set_sensitive(fancy_vbox1, FALSE);
       gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    } else {
-      GtkWidget    *basic_mode_checkbutton = widget_from_builder("shader_settings_basic_mode_radiobutton");
+      GtkWidget *basic_mode_togglebutton = widget_from_builder("shader_settings_basic_mode_togglebutton");
       GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
       GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       bool is_fancy_mode = true;
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_checkbutton))) is_fancy_mode = false;
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_togglebutton))) is_fancy_mode = false;
       if (! is_fancy_mode) {
          gtk_widget_set_sensitive(fancy_vbox1, FALSE);
          gtk_widget_set_sensitive(fancy_vbox2, FALSE);
@@ -333,7 +343,7 @@ on_shader_settings_standard_mode_radiobutton_toggled(GtkToggleButton *togglebutt
 extern "C" G_MODULE_EXPORT
 void
 on_shader_settings_brightness_scale_value_changed(GtkRange        *range,
-                                                                      gpointer         user_data) {
+                                                  gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_effects_shader_brightness(f);
 }
@@ -341,15 +351,15 @@ on_shader_settings_brightness_scale_value_changed(GtkRange        *range,
 extern "C" G_MODULE_EXPORT
 void
 on_shader_settings_gamma_scale_value_changed(GtkRange        *range,
-                                                                 gpointer         user_data) {
+                                             gpointer         user_data) {
    gdouble f = gtk_range_get_value(range);
    set_effects_shader_gamma(f);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_basic_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                      gpointer         user_data) {
+on_shader_settings_basic_mode_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                                   gpointer         user_data) {
 
    if (gtk_toggle_button_get_active(togglebutton)) {
       set_use_simple_lines_for_model_molecules(1);
@@ -359,7 +369,7 @@ on_shader_settings_basic_mode_radiobutton_toggled(GtkToggleButton *togglebutton,
       gtk_widget_set_sensitive(fancy_vbox1, FALSE);
       gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    } else {
-      GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_radiobutton");
+      GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_checkbutton");
       GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
       GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       bool is_fancy_mode = true;

@@ -179,7 +179,12 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                           double          y,
                           GtkWidget      *area) {
    graphics_info_t g;
+
+#ifdef __APPLE__
+   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
+#else
    g.on_glarea_drag_begin_primary(gesture, x, y, area);
+#endif
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
@@ -188,9 +193,13 @@ void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                            GtkWidget      *area) {
 
    graphics_info_t g;
+
+#ifdef __APPLE__
    // Hack for mac. Needs more thought.
-   // g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
+#else
+   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
+#endif
 
 }
 

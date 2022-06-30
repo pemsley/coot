@@ -3301,8 +3301,14 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
 
-      gtk_widget_show(button_1);
-      gtk_widget_show(button_2);
+      if (button_1)
+         gtk_widget_show(button_1);
+      else
+         std::cout << "in show_atom_pull_toolbar_buttons() missing button1" << std::endl;
+      if (button_2)
+         gtk_widget_show(button_2);
+      else
+         std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
 }
 
@@ -3314,8 +3320,10 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
       
-      gtk_widget_hide(button_1);
-      gtk_widget_hide(button_2);
+      if (button_1)
+         gtk_widget_hide(button_1);
+      if (button_2)
+         gtk_widget_hide(button_2);
    }
 }
 

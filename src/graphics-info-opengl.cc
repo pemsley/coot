@@ -942,9 +942,11 @@ graphics_info_t::init_joey_ssao_stuff() {
 
    glEnable(GL_DEPTH_TEST);
 
-   shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
-   shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
-   shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
+   // the SSAO shaders are done with the others
+   // shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
+   // shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
+   // shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
+
    // shader_for_effects is done in regular init_shaders()
 
    // glGenFramebuffers(1, &gBufferFBO);
