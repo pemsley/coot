@@ -5378,6 +5378,11 @@ graphics_info_t::setup_key_bindings() {
 
    // control keys
 
+   auto lc_copy = [] () { graphics_info_t g; g.copy_active_atom_molecule(); return gboolean(TRUE); };
+   key_bindings_t copy_mol_key_binding(lc_copy, "Copy Model Molecule");
+   std::pair<keyboard_key_t, key_bindings_t> p_copy(keyboard_key_t(GDK_KEY_c, true), copy_mol_key_binding);
+   kb_vec.push_back(p_copy);
+
    auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); return gboolean(TRUE); };
    key_bindings_t go_to_residue_key_binding(lc1, "Show Go To Residue Keyboarding Window");
    std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_residue_key_binding);

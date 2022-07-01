@@ -7023,9 +7023,9 @@ on_delete_item_dialog_destroy_gtkbuilder_callback          (GtkWidget       *obj
 extern "C" G_MODULE_EXPORT
 void
 on_save_state1_activate_gtkbuilder_callback                (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-/*    save_state(); old inteface - before DK. */
+                                                            gpointer         user_data) {
+
+   /*    save_state(); old inteface - before DK. */
 
    GtkWidget *file_chooser = coot_save_state_chooser();
    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
@@ -7034,6 +7034,27 @@ on_save_state1_activate_gtkbuilder_callback                (GtkMenuItem     *men
    set_file_selection_dialog_size(file_chooser);
    gtk_widget_show(file_chooser);
 }
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_save_state_filechooser_dialog_response(GtkDialog       *dialog,
+                                          gint             response_id,
+                                          gpointer         user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+
+      const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      save_state_file(filename);    /* write the file */
+      set_save_state_file_name(filename); /* save as a static in graphics_info_t */
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+
 
 
 extern "C" G_MODULE_EXPORT

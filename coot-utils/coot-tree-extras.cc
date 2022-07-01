@@ -126,6 +126,22 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
                                        mmdb::Residue *res,
                                        const std::string &altconf) {
 
+   auto residue_has_deuterium_atoms = [] (mmdb::Residue *residue) {
+                                         int nResidueAtoms = residue->GetNumberOfAtoms();
+                                         bool has_deuterium_atoms = false;
+                                         for (int iat=0; iat<nResidueAtoms; iat++) {
+                                            mmdb::Atom *atom_p = residue->GetAtom(iat);
+                                            if (! atom_p->isTer()) {
+                                               std::string atom_ele(atom_p->element);
+                                               if (atom_ele == " D") {
+                                                  has_deuterium_atoms = true;
+                                                  break;
+                                               }
+                                            }
+                                         }
+                                         return has_deuterium_atoms;
+                                      };
+
    if (! res) {
       std::string mess = "Null residue in atom tree constructor";
       throw std::runtime_error(mess);
@@ -143,24 +159,54 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
    int n_residue_atoms;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    // fill the bonds
+   bool has_deuterium_atoms = residue_has_deuterium_atoms(residue);
    for (unsigned int i=0; i<rest.bond_restraint.size(); i++) {
       int idx1 = -1;
       int idx2 = -1;
       for (int iat=0; iat<n_residue_atoms; iat++) {
          std::string atom_name = residue_atoms[iat]->name;
          std::string atom_altl = residue_atoms[iat]->altLoc;
-//          std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
-//                    << ":" << std::endl;
-         if (atom_name == rest.bond_restraint[i].atom_id_1())
+         //          std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
+         //                    << ":" << std::endl;
+         if (atom_name == rest.bond_restraint[i].atom_id_1_4c())
             if (atom_altl == "" || atom_altl == altconf)
                idx1 = iat;
-         if (atom_name == rest.bond_restraint[i].atom_id_2())
+         if (atom_name == rest.bond_restraint[i].atom_id_2_4c())
             if (atom_altl == "" || atom_altl == altconf)
                idx2 = iat;
          // OK, we have found them, no need to go on searching.
          if ((idx1 != -1) && (idx2 != -1))
             break;
       }
+
+      if (has_deuterium_atoms) {
+
+         std::cout << "::::::::::::::::::::::::::::::: in construct_internal() has_deuterium_atoms" << std::endl;
+         // same again with dictionary atom name changes
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            std::string atom_name = residue_atoms[iat]->name;
+            std::string atom_altl = residue_atoms[iat]->altLoc;
+            //          std::cout << "comparing :" << atom_name << ": with :" << rest.bond_restraint[i].atom_id_1()
+            //                    << ":" << std::endl;
+            std::string bond_restraint_atom_name_1 = rest.bond_restraint[i].atom_id_1_4c();
+            std::string bond_restraint_atom_name_2 = rest.bond_restraint[i].atom_id_2_4c();
+            if (bond_restraint_atom_name_1[0] == 'H') bond_restraint_atom_name_1[0] = 'D';
+            if (bond_restraint_atom_name_1[1] == 'H') bond_restraint_atom_name_1[1] = 'D';
+            if (bond_restraint_atom_name_2[0] == 'H') bond_restraint_atom_name_2[0] = 'D';
+            if (bond_restraint_atom_name_2[1] == 'H') bond_restraint_atom_name_2[1] = 'D';
+            if (atom_name == bond_restraint_atom_name_1)
+               if (atom_altl == "" || atom_altl == altconf)
+                  idx1 = iat;
+            if (atom_name == bond_restraint_atom_name_2)
+               if (atom_altl == "" || atom_altl == altconf)
+                  idx2 = iat;
+            // OK, we have found them, no need to go on searching.
+            if ((idx1 != -1) && (idx2 != -1))
+               break;
+         }
+      }
+
+      // std::cout << "bond restraint " << i << " " << rest.bond_restraint[i] << " " << idx1 << " " << idx2 << std::endl;
 
       if ((idx1 != -1) && (idx2 != -1)) {
          bonds.push_back(std::pair<int,int>(idx1, idx2));
@@ -944,7 +990,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 double
 coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool reversed_flag) {
 
-   bool debug = 0;
+   bool debug = false;
    double new_torsion = 0.0;
 
    // throw exception if not sane passed indices
@@ -974,16 +1020,16 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
    // reversed_flag flag *is* set, do the reversal (if both are set
    // they cancel each other out).  Now we do not pre-reverse the
    // indices in the calling function. The reverse is done here.
-   bool internal_reversed = 0;
+   bool internal_reversed = false;
 
    // is index3 in the forward atoms of index2?
    // if not, then swap and test again.
    //
-   bool index3_is_forward = 0;
+   bool index3_is_forward = false;
 
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index2].forward.size(); ifo++) {
       if (atom_vertex_vec[index2].forward[ifo] == index3) {
-         index3_is_forward = 1;
+         index3_is_forward = true;
          break;
       }
    }
@@ -993,7 +1039,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
       bool index2_is_forward = 0;
       for (unsigned int ifo=0; ifo<atom_vertex_vec[index3].forward.size(); ifo++) {
          if (atom_vertex_vec[index3].forward[ifo] == index2) {
-            index2_is_forward = 1;
+            index2_is_forward = true;
             break;
          }
       }
@@ -1006,8 +1052,8 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
             std::cout << "    index2 was the forward atom of index3 - swapping "
                       << "and setting internal_reversed" << std::endl;
          std::swap(index2, index3);
-         index3_is_forward = 1;
-         internal_reversed = 1;
+         index3_is_forward = true;
+         internal_reversed = true;
       }
    }
 
@@ -1015,7 +1061,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
       std::pair<int, std::vector<coot::map_index_t> > moving_atom_indices_pair =
          get_forward_atoms(map_index_t(index3), map_index_t(index3));
       std::vector<coot::map_index_t> moving_atom_indices = moving_atom_indices_pair.second;
-      
+
       if (debug) 
          std::cout << " in rotate_about(int, int) get_forward_atoms() called "
                    << moving_atom_indices_pair.first
@@ -1331,6 +1377,7 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
 
 // can throw an exception
 //
+// pass an atom name quad.
 double
 coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &atom2,
                                 const std::string &atom3, const std::string &atom4,
@@ -1339,7 +1386,7 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
     // debugging
     if (false) {
        std::map<std::string, map_index_t, std::less<std::string> >::const_iterator it;
-       for (it=name_to_index.begin(); it!= name_to_index.end(); it++) {
+       for (it=name_to_index.begin(); it!= name_to_index.end(); ++it) {
           std::cout << "set_dihedral() :" << it->first << ": -> " <<  it->second.index() << std::endl;
        }
    }
@@ -1381,7 +1428,9 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 //
 // i1, i2, i3, i4 are not checked for having been assigned.  We
 // presume that that has been done before we get here.
-// 
+//
+// pass an atom index quad.
+//
 double
 coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
                                 const coot::map_index_t &i2,

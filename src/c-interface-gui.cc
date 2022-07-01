@@ -2185,14 +2185,27 @@ GtkWidget *coot_run_script_chooser() {
 
 GtkWidget *coot_save_state_chooser() {
 
-   GtkWidget *w = widget_from_builder("save_state_filechooserdialog");
+   GtkWidget *w = widget_from_builder("save_state_filechooser_dialog");
+
+   std::cout << "debug:: in coot_save_state_chooser() with w " << w << std::endl;
+   std::cout << "debug:: is a file_chooser: " << GTK_IS_FILE_CHOOSER(w) << std::endl;
+   gtk_widget_set_can_default(w, TRUE);
    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
 
 GtkWidget *coot_save_symmetry_chooser() {
 
+   // 20220625-PE
+   // dialog widgets need to be able to default so that gtk_widget_grab_default(), which
+   // is called by gtk_file_chooser_set_do_overwrite_confirmation(), can work
+   // without a critcal (console) error.
+   //
+   // Does that need to be set in the glade file? I did so and it seemed to work
+   // (whereas setting it here did not).
+
    GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooser_dialog");
+   gtk_widget_set_can_default(w, TRUE);
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }
@@ -2200,6 +2213,7 @@ GtkWidget *coot_save_symmetry_chooser() {
 GtkWidget *coot_screendump_chooser() {
 
    GtkWidget *w = widget_from_builder("screendump_filechooser_dialog");
+   gtk_widget_set_can_default(w, TRUE);
    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);
    return w;
 }

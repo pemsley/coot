@@ -3972,8 +3972,8 @@ INFO::
 	How to do a release
 	How to make a release
 
-   o make check
    o Run the damn tests - don't be lazy
+   o make check
    o try the build on the virtual machines - ubuntu at work, debian at home.
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
@@ -4021,9 +4021,9 @@ INFO::
                    cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
                    cd ~/fuse/ftp/coot/binaries/release/
                    give-read-permission to the new files
-
    o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
-   o on charybdis: Update latest version info on coot web page, Projects/coot/web/index.html
+   o on charybdis: Update latest version info on coot web page:
+                   cd Projects/coot/web/index.html
                    bash transfer-the-file.sh
    o Blog post
    o Mail mailing list
@@ -10608,4 +10608,13 @@ Sat 23 Apr 22:56:05 BST 2022
 
   In the Makefile
   CXXLD = $(CXX) -fuse-ld=gold
+
+----
+Thu  9 Jun 01:00:03 BST 2022
+
+   Structures for "Let's Build"
+
+   7SC0
+   7P8V
+   catalase: https://www.ebi.ac.uk/emdb/EMD-13256
 

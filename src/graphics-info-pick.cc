@@ -477,8 +477,11 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
    //           << std::endl;
 
    short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
-   if (! moving_atoms_have_hydrogens_displayed)
+
+   if (! moving_atoms_have_hydrogens_displayed) {
       atom_pick_mode = PICK_ATOM_NON_HYDROGEN;
+   }
+
    pick_info pi = moving_atoms_atom_pick(atom_pick_mode);
    if (pi.success == GL_TRUE) {
 

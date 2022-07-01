@@ -129,7 +129,9 @@
 ;; This presumes a protein sequence (not nucleic acid).
 ;; 
 ;; The sequence is a string of one letter codes
-;; 
+;;
+;; This has been replaced by an internal function now
+;;
 (define (mutate-and-autofit-residue-range imol chain-id start-res-no stop-res-no sequence)
 
   (mutate-residue-range imol chain-id start-res-no stop-res-no sequence) ;; does nucleic acids now too
@@ -147,9 +149,8 @@
                    (inscode ""))
                (format #t "auto-fit-best-rotamer ~s ~s ~s ~s ~s ~s ~s 0.5~%"
                        resno altloc inscode chain-id imol mol-for-map clash)
-               (let ((score (auto-fit-best-rotamer resno altloc inscode
-						       chain-id imol mol-for-map
-						       clash 0.5)))
+               (let ((score (auto-fit-best-rotamer imol chain-id resno inscode altloc
+						       mol-for-map clash 0.5)))
 		     (format #t "   Best score: ~s~%" score))))
 	       (number-list start-res-no stop-res-no))
 	      (if (= backup-mode 1)
@@ -165,7 +166,8 @@
 (define (mutate-and-auto-fit residue-number chain-id mol mol-for-map residue-type)
 
   (mutate mol chain-id residue-number "" residue-type)
-  (auto-fit-best-rotamer residue-number "" "" chain-id mol mol-for-map 0 0.5))
+;;  (auto-fit-best-rotamer residue-number "" "" chain-id mol mol-for-map 0 0.5))
+  (auto-fit-best-rotamer mol chain-id residue-number "" "" mol-for-map 0 0.5))
 
 ;; a short-hand for mutate-and-auto-fit
 ;; 

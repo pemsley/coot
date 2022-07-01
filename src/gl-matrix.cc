@@ -453,7 +453,7 @@ GL_matrix::mat_mult(GL_matrix in) const {
        << in.mat[0] << "*" << mat[0] << " + "
        << in.mat[1] << "*" << mat[4] << " + "
        << in.mat[2] << "*" << mat[8] << " = " << res.mat[0] << std::endl;
-  
+
   return res; 
 } 
 
@@ -481,11 +481,11 @@ GL_matrix::print_matrix() const {
 float
 GL_matrix::matrix_element(int icol, int irow) const {
 
-   float f = 0;
    if (icol<3 && icol>=0 && irow<3 && irow>=0) { 
       return mat[4*irow + icol];
    } else {
       std::cout << "ERROR in GL_matrix index " << icol << " " << irow << std::endl;
+      float f = 0;
       return f;
    }
    

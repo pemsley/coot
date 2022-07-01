@@ -186,6 +186,20 @@ major version every year or so.
 
 ----
 
+  Release 0.9.8.2
+
+  o CHANGE:   Don't try to read ~/.coot on startup if it is a directory
+
+  o BUG-FIX:  Regenerate the bonds after a cis-trans conversion
+
+  o BUG-FIX:  Fix crash on picking intermediate atoms in Real Space Refinement
+              [Nikos Pinotsis]
+
+  o BUG-FIX:  Hydrogen atoms are now pickable again in Rotation/Translation
+              [Taro Yamada]
+
+----
+
   Release 0.9.8.1
 
   o BUG-FIX:  Python test for averaged maps fixed

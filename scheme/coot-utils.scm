@@ -1739,6 +1739,41 @@
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
 
 
+;; Add molecular symmetry to a model molecule - the rotation is an n-fold rotation
+;; around the middle of the map (this is typically the way symmetry is *imposed* during
+;; reconstruction in cryo-EM).
+;; 
+(define (add-z-axis-model-molecular-symmetry imol-model imol-map n-fold)
+
+  (let* ((unit-cell (cell imol-map))
+         (angle-deg (/ 360 n-fold))
+         (angle-rad (* 3.14159226 0.00555555555 angle-deg))
+         (box-centre (map (lambda (x) (* x 0.5)) (list-head unit-cell 3))))
+
+    (for-each (lambda (n-copy)
+
+                (let* ((theta (* angle-rad n-copy))
+                       (cos-theta (cos theta))
+                       (sin-theta (sin theta))
+                       (r00 cos-theta) (r01 (- sin-theta)) (r02 0)
+                       (r10 sin-theta) (r11 cos-theta)     (r12 0)
+                       (r20 0)         (r21 0)             (r22 1)
+                       )
+
+                  (format #t "theta: ~s n-copy ~s~%" theta n-copy)
+
+                  (add-molecular-symmetry imol-model
+                                          r00 r01 r02
+                                          r10 r11 r12
+                                          r20 r21 r22
+                                          (list-ref box-centre 0)
+                                          (list-ref box-centre 1)
+                                          (list-ref box-centre 2))))
+              (cdr (range n-fold))))) ;; by-pass self (angle is zero)
+
+
+
+
 ;; Make the imol-th map brighter.
 ;; 
 (define (brighten-map imol scale-factor)

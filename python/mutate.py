@@ -104,12 +104,13 @@ def mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence):
 #
 
 
+# this has been replaced by an internal coot function now.
+#
 def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
                                      sequence):
 
     # does nucleic acids now too
-    mutate_residue_range(imol, chain_id, start_res_no,
-                         stop_res_no, sequence.upper())
+    coot.mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence.upper())
     mol_for_map = coot.imol_refinement_map()
     if (mol_for_map >= 0):
         backup_mode = coot.backup_state(imol)
@@ -135,6 +136,8 @@ def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
 # This presumes a protein sequence (not nucleic acid).
 
 
+# this has been replaced by an internal coot function now.
+#
 def mutate_and_auto_fit(residue_number, chain_id, mol, mol_for_map,
                         residue_type):
 
