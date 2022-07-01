@@ -5371,7 +5371,7 @@ def auto_assign_sequence_from_map():
     resno_end   = max(residue_number_list)
     new_sequence = sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)
     set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-    mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
+    coot.mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
     backrub_rotamers_for_chain(imol, ch_id)
     refine_residues(imol, fragment_residues)
 
