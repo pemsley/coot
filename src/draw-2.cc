@@ -822,6 +822,10 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                   g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
                }
             }
+         } else {
+            if (g.in_edit_chi_mode_flag) {
+               g.rotate_chi(x_as_int, y_as_int);
+            }
          }
       }
    }
