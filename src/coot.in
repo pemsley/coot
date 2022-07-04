@@ -103,6 +103,7 @@ export LC_ALL
 export LC_NUMERIC
 
 export GUILE_WARN_DEPRECATED=no
+GUILE_LOAD_PATH=$COOT_PREFIX/share/guile/2.2:$COOT_PREFIX/share/guile/site:$COOT_PREFIX/share/guile-gnome-2/gnome
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
 GUILE_BIN=guile
