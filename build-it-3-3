@@ -1749,6 +1749,11 @@ case "$architecture" in
      ;;
 esac
 
+
+echo HERE A ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+echo HERE A ppppppppppppppp with gtk $gtk
+echo HERE A ppppppppppppppp with os_arch $os_arch
+
 if [ -z "$PKG_CONFIG_PATH" ] ; then
   # I think that the standard dir is not needed.
   # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
@@ -1765,17 +1770,23 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
      PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
   fi
 else
+   echo HERE B ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
-      if test -n "$gtk" ; then
+      echo HERE C ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+      if test -z "$gtk" ; then
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       fi
+      echo HERE D ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
    else
-      if test -n "$gtk" ; then
-         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      echo HERE E ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+      if test -z "$gtk" ; then
+         echo HERE F ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+         PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
+         echo HERE G ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
          #PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
          # glib-2.0.pc is found in $install_top_dir/lib64
          PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
@@ -1787,6 +1798,7 @@ if [ -e /opt/X11/lib/pkgconfig ] ; then
     PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
 
+echo HERE Z ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
 
 echo "COOT_CCP4_PACKAGES" "$COOT_CCP4_PACKAGES"
 if [ -n "$COOT_CCP4_PACKAGES" ] ; then
@@ -2486,6 +2498,8 @@ fi
 if true ; then
       echo BUILDING gemmi \(installing GEMMI\)
       (
+          save_dir=$(pwd)
+          cd $start_dir
           if [ -e gemmi ] ; then
               cd gemmi
               git fetch
@@ -2498,6 +2512,7 @@ if true ; then
           # note to self: fix this for Darwin - which has a crippled cp
           cp -a -r gemmi $install_top_dir/include
           cd -
+          cd $save_dir
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
 fi
 
@@ -2744,6 +2759,7 @@ fi
 if [ "$build_glib" = true ] ; then
     echo BUILDING glib:
     (
+    export -n PKG_CONFIG_PATH
     which ninja
     which meson
     echo ninja --version
@@ -2751,7 +2767,11 @@ if [ "$build_glib" = true ] ; then
     echo meson --version
     meson --version
     glib_version=2.64.3
-    ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.64.3/glib-$glib_version.tar.gz
+    glib_version=2.72.3
+    # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
+    if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
+       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
+    fi
     tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     cd glib-$glib_version
     # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
@@ -2772,21 +2792,26 @@ else
 fi
 
 ###############################################################################
-##########         gobject-introspection before python            #############
+##########         gobject-introspection                          #############
 ###############################################################################
 
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
    (
+   # just for gobject-introspection - depends on our glib installation
+   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
+   export LD_LIBRARY_PATH=$install_top_dir/lib64
    date
    echo BUILDING gobject-introspection:
 
    gobject_introspection_version=1.50.0
    gobject_introspection_version=1.68.0
    gobject_introspection_version=1.71.0
+   gobject_introspection_version=1.72.0
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
 
    ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
    tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
@@ -2851,9 +2876,10 @@ if [ true ] ; then
    pygobject_major_minor_version=3.29
    pygobject_major_minor_version=3.30
    pygobject_major_minor_version=3.36
+   pygobject_major_minor_version=3.42
    pygobject_version=3.29.1
    pygobject_version=3.30.5
-   pygobject_version=3.36.1
+   pygobject_version=3.42.1
 
    date
    pwd
@@ -2863,6 +2889,10 @@ if [ true ] ; then
          skip_build=true
       fi
    fi
+fi
+
+
+if [ true ] ; then
 
    if [ $skip_build = false ] ; then
 
@@ -3190,7 +3220,8 @@ fi
 #################################################################
 #
 
-if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
+# goocanvas-2.0.pc
+if [ -e $install_top_dir/lib/pkgconfig/goocanvas-2.0.pc ] ; then
    build_goocanvas=no
 fi
 
@@ -3203,6 +3234,8 @@ if [ "$build_goocanvas" != "no" ] ; then
     # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
     ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
     (date
+     export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
+     export LD_LIBRARY_PATH=$install_top_dir/lib64
      echo building in: $PWD
      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
      echo CFLAGS: $CFLAGS
@@ -3214,8 +3247,9 @@ if [ "$build_goocanvas" != "no" ] ; then
      cd goocanvas-$goocanvas_version
      # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
      # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     # we don't want python 2 bindings (they find/try to install with system python)
      echo ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS
-     if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
+     if ./configure $generic_prefix --enable-python=no $EXTRA_GOOCANVAS_CFLAGS ; then
         if ! $MAKE ; then
            echo make of goocanvas failed
         else
@@ -3225,6 +3259,9 @@ if [ "$build_goocanvas" != "no" ] ; then
         echo goocanvas configure failed
      fi
      ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
+else
+   echo not building goocanvas
+   echo not building goocanvasA 2>& 1
 fi
 
 
@@ -3238,6 +3275,7 @@ if [ -e $install_top_dir/bin/render ] ; then
 else
 
    raster3d_version=3.0-3
+   raster3d_version=3.0-7
    # raster3d depends on libgd to make png images
    ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
@@ -3448,7 +3486,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/17-a-numpy.log 2>&1
+      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
    fi
 fi
 
@@ -3803,7 +3841,7 @@ if [ "$build_unistring" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/20-libubunistring.txt 2>&1
+      ) > $HOSTLOGDIR/19-libubunistring.txt 2>&1
    else
       echo not building libunistring
    fi
@@ -3820,6 +3858,21 @@ if [ "$build_gc" = true ] ; then
       fi
    fi
 
+   if [ $skip_this = false ] ; then
+      (
+      echo BUILDING libatomic-ops:
+      if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
+         ${WGET} https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
+      fi
+      tar xf $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz
+      cd libatomic_ops-7.6.12
+      ./configure --prefix=$install_top_dir
+      $MAKE
+      make install
+      cd -
+      ) > $HOSTLOGDIR/20-libatomic-ops.txt 2>&1
+   fi
+
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
@@ -3827,13 +3880,21 @@ if [ "$build_gc" = true ] ; then
       (
       gc_version=7.2g
       gc_version_dir=7.2
+      gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
+      gc_version_dir=7.6.12 # I guess not.
       echo ========================= build gc =================================
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
-         tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+            tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         else
+            echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
+         fi
       fi
       cd gc-$gc_version_dir
       echo ./configure --prefix=$install_top_dir
@@ -3912,6 +3973,10 @@ if [ "$build_guile" = true ] ; then
          LIBS=-L$install_top_dir/lib CFLAGS=-I$install_top_dir/include ; then
          if $MAKE ; then
             make install
+            # this file causes problems on linking coot
+            if [ -e $install_top_dir/lib/libguile-2.2.so.1.4.2-gdb.scm ] ; then
+               mv $install_top_dir/lib/libguile-2.2.so.1.4.2-gdb.scm $install_top_dir/lib/script-libguile-2.2.so.1.4.2-gdb.scm
+            fi
          fi
       fi
       cd -
@@ -4144,7 +4209,7 @@ if [ -e coot ] ; then
    bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh
    cd -
-   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen 2>&1
+   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
 else
    echo CASE 2 coot directory not exists in $(pwd)
 
@@ -4156,7 +4221,7 @@ else
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
-   if git clone https://github.com/pemsley/coot.git -b gtk3 ; then
+   if git clone https://github.com/pemsley/coot.git -b gtk3 --depth 2 ; then
       echo git clone https://github.com/pemsley/coot.git -b gtk3 without error status
       echo done clone
       cd coot
@@ -4188,6 +4253,7 @@ fi
 ###############################################################################
 #
 echo BUILDING coot
+echo BUILDING coot 2>& 1
 
 (
 
@@ -4220,6 +4286,9 @@ if [ ! -d build-coot ] ; then
    mkdir build-coot
 fi
 cd build-coot
+
+
+export LD_LIBRARY_PATH=$install_top_dir/lib64
 
 echo From git repo now
 echo building in: $PWD
@@ -4272,6 +4341,7 @@ echo bash ../coot/configure $coot_prefix \
 $MAKE
 # No rule to make target 'coot.py', needed by 'all-am'. Stop.
 # but it's there! Timing problems?
+echo === make again ===
 make
 status=$?
 if [ "$status" != 0 ] ; then
@@ -4282,7 +4352,9 @@ else
    echo 1 ---------------------------------------------------------------
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
-   $MAKE install
+   make install
+   echo === make install again ===
+   make install
    # if [ "$python_scripting" = '--with-python' ] ; then
       # echo copying src/coot.py $install_top_dir/share/coot/python
       # cp src/coot.py $install_top_dir/share/coot/python
