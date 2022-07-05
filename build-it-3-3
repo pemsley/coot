@@ -1388,6 +1388,9 @@ if make --version ; then
                if [ "$np" -gt 8 ] ; then
                   np=8
                fi
+               if [ "$HOST" = hal.lmb.internal ] ; then
+                  np=64
+               fi
                echo using $np processors in compilation
                MAKE="make -j$np"
                echo MAKE set to $MAKE
@@ -2621,6 +2624,7 @@ if test -n "$build_python" ; then
    (
    date
    echo building in: $PWD
+   env
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
    cd Python-$pver
