@@ -300,6 +300,7 @@ bool init_from_gtkbuilder() {
    std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
    std::string glade_file_full = coot::util::append_dir_file(dir_glade, "a6.glade");
 
+   GtkBuilder *builder = gtk_builder_new();
    if (coot::file_exists("a6.glade"))  // Hack for now
       glade_file_full = "a6.glade";
 
@@ -307,17 +308,23 @@ bool init_from_gtkbuilder() {
    if (env)
       glade_file_full = std::string(env);
 
-   GtkBuilder *builder = gtk_builder_new();
+   if (coot::file_exists(glade_file_full)) {
+      std::cout << "debug:: file exists " << glade_file_full << std::endl;
 
-   gboolean add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
-   if (add_from_file_status == FALSE) {
-      std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+      GError *error = NULL;
+      gboolean add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+      if (add_from_file_status == FALSE) {
+         std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+         std::cout << "ERROR:: " << error->message << std::endl;
+         exit(0);
+      }
+      if (true)
+         std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
+                   << " add_from_file_status: " << add_from_file_status << std::endl;
+   } else {
+      std::cout << "debug:: file does not exist " << glade_file_full << std::endl;
       exit(0);
    }
-
-   if (false)
-      std::cout << "DEBUG:: init_from_gtkbuilder(): glade file: " << glade_file_full
-                << " add_from_file_status: " << add_from_file_status << std::endl;
 
    GtkWidget *graphics_hbox = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_graphics_hbox"));
 
