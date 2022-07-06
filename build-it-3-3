@@ -2533,7 +2533,7 @@ if test "$build_readline" = true ; then
     echo BUILDING readline:
     readline_version=6.2
     readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
     date
@@ -2596,7 +2596,7 @@ fi
 if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       (
-      ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+      ${WGET} htpps://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
       ./configure $generic_prefix
@@ -3359,7 +3359,7 @@ else
           # race condition? list.mod
           echo make render
           if make render ; then
-             echo $MAKE prefix=$install_top_dir install
+             echo make prefix=$install_top_dir install
   	     make prefix=$install_top_dir install
 	     # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
@@ -3965,7 +3965,7 @@ if [ "$build_guile" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
       else
          echo no file $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
-         ${WGET} ftp://ftp.gnu.org/pub/gnu/guile/guile-$guile_version.tar.xz
+         ${WGET} https://ftp.gnu.org/pub/gnu/guile/guile-$guile_version.tar.xz
          tar xf ${AUTOBUILD_SOURCES}/guile-$guile_version.tar.xz
       fi
       cd guile-$guile_version
