@@ -193,7 +193,12 @@ int main(int argc, char **argv) {
 
    gtk_init(&argc, &argv);
    Py_Initialize();
-   PySys_SetArgv(argc, argv);
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   for (int i=0; i<argc; i++) {
+      wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
+      _argv[i] = arg;
+   }
+   PySys_SetArgv(argc, _argv);
 
    int r = 0;
 
