@@ -389,7 +389,10 @@
 # 6.00 20200812 include glm
 # 6.01 20210430 pkg-config tweak and no remove rdkit libs for coot configure
 # 6.02 20220417 add ffi into Python setup.py
-script_version=6.02
+# 6.03 20220704 work on GLIB and python modules
+# 6.04 20220705 Python still doesn't build (on cluster) - add debugging
+# 6.05 20220706 Use https:: instead of ftp::
+script_version=6.05
 
 
 
