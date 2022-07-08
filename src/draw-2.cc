@@ -572,8 +572,14 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
          // std::cout << "debug event->state " << event->state << " mouse_pick_button_mask " << mouse_pick_button_mask << std::endl;
 
          if (state & mouse_pick_button_mask) {
-            // std::cout << "yes, was a mouse pick button" << std::endl;
-            handled = g.check_if_moving_atom_pull(was_a_double_click);
+
+            if (g.in_edit_chi_mode_flag) {
+               // atom picking in edit chi angle mode is not a thing
+            } else {
+               // std::cout << "yes, was a mouse pick button!!!!!!! " << std::endl;
+               handled = g.check_if_moving_atom_pull(was_a_double_click);
+            }
+
          } else {
             // std::cout << "no, was not a mouse pick button" << std::endl;
          }
@@ -759,6 +765,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                                                                     }
                                                                  }
                                                              };
+
 
 
    graphics_info_t g;
