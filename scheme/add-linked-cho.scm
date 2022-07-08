@@ -39,12 +39,12 @@
 (define (add-synthetic-pyranose-planes)
   (for-each (lambda(comp-id)
 	      (add-pyranose-pseudo-ring-plane-restraints comp-id))
-	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP" "BGC")))
 
 (define (use-unimodal-pyranose-ring-torsions)
   (for-each (lambda(tlc)
 	      (use-unimodal-ring-torsion-restraints tlc))
-	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP" "BGC")))
 
 ;; fill this later
 ;; (define (add-cho-restraints-for-residue imol new-res-spec)
