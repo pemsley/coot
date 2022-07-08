@@ -3292,6 +3292,31 @@ trim_molecule_by_map(int imol_coords, int imol_map,
 }
 
 
+/*! \brief trim the molecule by the value in the B-factor column */
+void trim_molecule_by_b_factor(int imol, float limit, short int keep_higher) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool keep_higher_flag = keep_higher;
+      std::cout << "calling trim_molecule_by_b_factor() " << limit << " " << keep_higher_flag << std::endl;
+      graphics_info_t::molecules[imol].trim_molecule_by_b_factor(limit, keep_higher_flag);
+   } else {
+      std::cout << "WARNING:: " << imol << " is not a valid model molecule" << std::endl;
+   }
+   graphics_draw();
+
+}
+
+/*! \brief convert the value in the B-factor column (typically pLDDT for AlphaFold models) to a temperature factor */
+void pLDDT_to_b_factor(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].pLDDT_to_b_factor();
+   } else {
+      std::cout << "WARNING:: " << imol << " is not a valid model molecule" << std::endl;
+   }
+   graphics_draw();
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*               Simplex Refinement                                         */

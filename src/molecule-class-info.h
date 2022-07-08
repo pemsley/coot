@@ -170,7 +170,8 @@ namespace coot {
 	  COLOUR_BY_RAINBOW_BONDS=9,
 	  COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11,
-	  COLOUR_BY_USER_DEFINED_COLOURS_BONDS=12 };
+	  COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
+	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
 
    enum { RESIDUE_NUMBER_UNSET = -1111};
 
@@ -185,6 +186,7 @@ namespace coot {
       std::string backup_file_name;
       backup_file_info() {
 	 status = 0; // initially no backup reported
+         imol = -1;
       }
    };
 
@@ -204,9 +206,8 @@ namespace coot {
 	 display_it_flag = false; }
       ghost_molecule_display_t(const clipper::RTop_orth &rtop_in,
 			       int SelHnd_in,
-			       const std::string &name_in) : rtop(rtop_in), name(name_in) {
-	 SelectionHandle = SelHnd_in;
-	 display_it_flag = true;
+			       const std::string &name_in) : rtop(rtop_in), SelectionHandle(SelHnd_in), name(name_in) {
+	 display_it_flag = 1;
       }
       void update_bonds(mmdb::Manager *mol); // the parent's mol
       void draw(Shader *shader,
@@ -237,11 +238,11 @@ namespace coot {
       bool operator==(const display_list_object_info &dloi) const {
 	 return (dloi.tag_1 == tag_1);
       }
-      display_list_object_info() {
+      display_list_object_info() : tag_1(0), tag_2(0) {
+         atom_selection_handle = -1;
+         type = 0;
 	 display_it = 1;
 	 is_closed = 0;
-	 tag_1 = 0;
-	 tag_2 = 0;
       }
       void close_yourself() {
 	 is_closed = 1;
@@ -2331,6 +2332,10 @@ public:        //                      public
    // a -other function (return the number of trimmed atoms):
    int trim_by_map(const clipper::Xmap<float> &xmap_in,
 		   float map_level, short int delete_or_zero_occ_flag);
+
+   int trim_molecule_by_b_factor(float limit, bool keep_higher_flag);
+
+   void pLDDT_to_b_factor();
 
    // logical_operator_and_or_flag 0 for AND 1 for OR.
    //

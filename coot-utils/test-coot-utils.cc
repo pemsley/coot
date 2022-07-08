@@ -1508,6 +1508,8 @@ test_compare_structure_factors(int argc, char **argv) {
 
 int main(int argc, char **argv) {
 
+
+
    if (false)
       test_all_atom_overlaps();
 
@@ -1552,7 +1554,7 @@ int main(int argc, char **argv) {
    if (false)
        test_cp();
 
-   if (false)
+   if (true)
       test_soi(argc, argv);
 
    if (false)
@@ -1612,7 +1614,7 @@ int main(int argc, char **argv) {
    if (false)
       test_merge_C_and_N_terminii(argc, argv);
 
-   if (true)
+   if (false)
       test_compare_structure_factors(argc, argv);
 
    return 0;

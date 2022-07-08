@@ -23,11 +23,11 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
         coot.set_monomer_restraints_py(comp_id, restraints)
 
 def add_synthetic_pyranose_planes():
-    for comp_id in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
+    for comp_id in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP", "BGC"]:
         add_pyranose_pseudo_ring_plane_restraints(comp_id)
 
 def use_unimodal_pyranose_ring_torsions():
-    for tlc in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
+    for tlc in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP", "BGC"]:
         coot.use_unimodal_ring_torsion_restraints(tlc)
 
 

@@ -10589,7 +10589,7 @@ Wed  2 Mar 11:33:42 GMT 2022
    as a user, to use the new compiler:
    $ scl enable devtoolset-8 tcsh
 
-   Thank you Charles.
+   Thank you Charles.  I chose devtoolset-11
 
 ---
 Wed  2 Mar 16:52:53 GMT 2022
@@ -10617,4 +10617,12 @@ Thu  9 Jun 01:00:03 BST 2022
    7SC0
    7P8V
    catalase: https://www.ebi.ac.uk/emdb/EMD-13256
+
+---
+Wed 29 Jun 04:10:16 BST 2022
+
+
+  Look for "maching learning exmples" here
+
+  https://www.neuraldesigner.com/blog - you will need to sign up first though.
 

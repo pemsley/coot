@@ -1312,7 +1312,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    bool done = false;
    int offset = 0; // blue starts at 0
 
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS || bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
       if (i == 0) {
          rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
          done = true;
@@ -1326,7 +1326,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
@@ -1373,7 +1373,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
    bool done = false;
    int offset = 0; // blue starts at 0
 
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) {
       if (icol == 0) {
          rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
          done = true;
@@ -1387,7 +1387,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << icol
-                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
@@ -3728,7 +3728,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 << caller_s << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
                 << std::endl;
    if (debug)
-      std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
+      std::cout << "--------- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
                 << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
                 << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
@@ -3736,6 +3736,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
                 << "CA_BONDS " << coot::CA_BONDS << " "
                 << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
+                << "COLOUR_BY_USER_DEFINED_COLOURS___BONDS " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS << " "
                 << std::endl;
 
    // Delete this in due course
@@ -3784,7 +3785,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
       b_factor_representation();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS)
       user_defined_colours_representation(g.Geom_p(), true, g.draw_missing_loops_flag); // hack,
                                                              // because we need to remeber somehow
                                                              // if this was called with all-atom or CA-only.
@@ -3793,6 +3794,9 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                                                              // Perhaps we need two functions
                                                              // user_defined_colours_representation_all()
                                                              // user_defined_colours_representation_Calpha() [+ ligands]
+
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS)
+      user_defined_colours_representation(g.Geom_p(), false, g.draw_missing_loops_flag); // hack,
 
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.

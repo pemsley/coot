@@ -163,7 +163,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
-bin_PROGRAMS = mmrrcc
+bin_PROGRAMS = mmrrcc test-coot-utils
 
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
@@ -220,16 +220,15 @@ testshelxreader_LDADD =  ./libcoot-coord-utils.la
 # 	$(CLIPPER_LIBS)
 
 # # other test binaries may need to be linked like this too
-# test_coot_utils_SOURCES = test-coot-utils.cc
-# test_coot_utils_LDADD = \
-# 	./libcoot-map-heavy.la    \
-# 	./libcoot-map-utils.la    \
-# 	./libcoot-coord-extras.la \
-# 	./libcoot-coord-utils.la  \
-# 	$(top_builddir)/coords/libcoot-coords.la \
-# 	$(top_builddir)/geometry/libcoot-geometry.la \
-# 	$(top_builddir)/utils/libcoot-utils.la \
-# 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+test_coot_utils_SOURCES = test-coot-utils.cc
+test_coot_utils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
 
 # test_segmap_SOURCES = test-segmap.cc
 # test_segmap_LDADD = \
