@@ -390,7 +390,7 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
    // GtkWidget *w = create_undo_molecule_chooser_dialog();
    // GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
    GtkWidget *w = widget_from_builder("undo_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
+   GtkWidget *combobox = widget_from_builder("undo_molecule_comboboxtext");
    graphics_info_t g;
 
    g.fill_combobox_with_undo_options(combobox);

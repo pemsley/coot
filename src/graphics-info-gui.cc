@@ -2583,9 +2583,13 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 #endif
 
 void
-graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
+graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox_molecule) {
 
    // make the first undo molecule (a molecule with changes) be the active one.
+
+   // 20220708-PE this is how to clear a combobox
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
+
    int imol_active = -1;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_model()) {
@@ -2599,7 +2603,7 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
    }
 
    GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
-   fill_combobox_with_coordinates_options(combobox, callback, imol_active);
+   fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
 }
 
 
