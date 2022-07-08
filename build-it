@@ -413,7 +413,8 @@
 # 5.56 20210816 Put libsqlite3 build into the proper log/txt file. Boost 1.72.0
 # 5.57 20211019 add another make for guile-lib. Add texinfo to the dependencies for debian
 # 5.58 20211019 Add a sort to the awk result when determining the tar file for the stable release
-script_version=5.58
+# 5.59 20220708 Use https:: instead of ftp:: for libccp4 and readline
+script_version=5.59
 
 
 
@@ -2527,7 +2528,7 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/martyn-extras.tar.gz
     # ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     # ${WGET} $extras_place/libccp4-6.4.0.tar.gz
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
+    ${WGET} https://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
@@ -3092,7 +3093,7 @@ if test -n "$build_readline" ; then
     echo BUILDING readline:
     readline_version=6.2
     readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
     date
@@ -4297,10 +4298,10 @@ else
           fi
 
           echo about to do this: $MAKE render
-          $MAKE render
+          make render
           ls -l render
 
-          if $MAKE render ; then 
+          if make render ; then
   	     make prefix=$install_top_dir install
 	     # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
@@ -4308,7 +4309,7 @@ else
   	        cp render $install_top_dir/bin/
              fi
           else
-             echo INFO:: $MAKE failed for render
+             echo INFO:: make failed for render
              # warning make exit status false, but the binary may well have been built
              if [ -e render ] ; then
                 if [ ! -e $install_top_dir/bin/render ] ; then
