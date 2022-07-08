@@ -705,3 +705,128 @@ molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residu
 }
 
 
+
+int
+molecule_class_info_t::trim_molecule_by_b_factor(float limit, bool keep_higher_flag) {
+
+   // delete residues if the B-factor is higher (or lower)
+
+   int status = 1;
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   std::set<mmdb::Residue *> deletable_residues;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float b_factor = at->tempFactor;
+                        if (keep_higher_flag) {
+                           if (b_factor < limit) {
+                              deletable_residues.insert(residue_p);
+                           }
+                        } else {
+                           if (b_factor > limit) {
+                              deletable_residues.insert(residue_p);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+#if 0
+   if (! deletable_residues.empty()) {
+      have_unsaved_changes_flag = true;
+      std::set<mmdb::Residue *>::const_iterator it;
+      unsigned int n_residues = deletable_residues.size();
+      unsigned int ith_residue = 0;
+      for (it=deletable_residues.begin(); it!=deletable_residues.end(); ++it) {
+         mmdb::Residue *r = *it;
+         if (true)
+            std::cout << "deleting " << ith_residue << " residue of " << n_residues << " " << r << " " << coot::residue_spec_t(r) << std::endl;
+         delete r;
+         ith_residue++;
+      }
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+#endif
+
+   if (! deletable_residues.empty()) {
+      std::vector<coot::residue_spec_t> residues;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (it=deletable_residues.begin(); it!=deletable_residues.end(); ++it) {
+         mmdb::Residue *r = *it;
+         coot::residue_spec_t spec(r);
+         residues.push_back(spec);
+      }
+      delete_residues(residues);
+   }
+   return status;
+}
+
+
+void
+molecule_class_info_t::pLDDT_to_b_factor() {
+
+   auto converter_function = [] (float b_in) {
+      float b_out = 2.0 * (100.0 - b_in);
+      if (b_out < 2.0) b_out = 2.0;
+      return b_out;
+   };
+
+   float m_b_factor_pre = coot::util::average_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 0, 1000, 0, 0);
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float b_factor = at->tempFactor;
+                        float new_b_factor = converter_function(b_factor);
+                        at->tempFactor = new_b_factor;
+                        if (true) {
+                           std::string atom_name = at->name;
+                           if (atom_name == " CA ") {
+                              std::cout << "converted b-factor " << b_factor << " " << new_b_factor << std::endl;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   float m_b_factor_post = coot::util::average_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 0, 1000, 0, 0);
+
+   std::cout << "INFO:: average b-factor-pre: " << m_b_factor_pre << " post: " << m_b_factor_post << std::endl;
+
+   have_unsaved_changes_flag = true;
+   make_bonds_type_checked(); // we might be looking at B-factor representation
+
+}

@@ -5919,6 +5919,14 @@ void remove_last_lsq_plane_atom();
 void trim_molecule_by_map(int imol_coords, int imol_map,
 			  float map_level, int delete_or_zero_occ_flag);
 
+/*! \brief trim the molecule by the value in the B-factor column.
+
+If an atom in a residue has a "B-factor" above (or below, if keep_higher is true) limit, then the whole residue is deleted */
+void trim_molecule_by_b_factor(int imol, float limit, short int keep_higher);
+
+/*! \brief convert the value in the B-factor column (typically pLDDT for AlphaFold models) to a temperature factor */
+void pLDDT_to_b_factor(int imol);
+
 /*! \} */
 
 

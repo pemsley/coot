@@ -309,11 +309,10 @@ public:
 				      const coot::Cartesian &pt_ca_2_in,
 				      bool is_pre_pro_cis_peptide_in,
 				      bool is_twisted_in,
-				      int model_number_in) {
-      pt_ca_1 = pt_ca_1_in;
-      pt_c_1  = pt_c_1_in;
-      pt_n_2  = pt_n_2_in;
-      pt_ca_2 = pt_ca_2_in;
+				      int model_number_in) : pt_ca_1(pt_ca_1_in),
+                                                             pt_c_1(pt_c_1_in),
+                                                             pt_n_2(pt_n_2_in),
+                                                             pt_ca_2(pt_ca_2_in) {
       is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
       is_twisted = is_twisted_in;
       model_number = model_number_in;
@@ -325,6 +324,8 @@ public:
 
    graphical_bonds_cis_peptide_markup() {
       is_pre_pro_cis_peptide = false;
+      is_twisted = false;
+      model_number = -1;
    } 
 };
 

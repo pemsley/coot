@@ -33,6 +33,8 @@
 #ifdef USE_PYTHON
 void set_user_defined_atom_colour_by_residue_py(int imol, PyObject *residue_specs_colour_index_tuple_list_py) {
 
+   // 20220707-PE You are passing a list of tuples, right?
+
    if (is_valid_model_molecule(imol)) {
       if (PyList_Check(residue_specs_colour_index_tuple_list_py)) {
 	 unsigned int l = PyObject_Length(residue_specs_colour_index_tuple_list_py);

@@ -14,7 +14,11 @@
 /*  ----------------------------------------------------------------------- */
 
 #ifdef USE_PYTHON
+//! \brief for the given molecule imol, pass a list of tuples of items with the first parameter begin the residue spec
+//!        and the second begin the colour index (an int).
 void set_user_defined_atom_colour_by_residue_py(int imol, PyObject *residue_specs_colour_index_tuple_list_py);
+//! \brief for the given molecule imol, pass a list of tuples of items with the first parameter begin the stom spec
+//!        and the second begin the colour index (an int).
 void set_user_defined_atom_colour_py(int imol, PyObject *atom_specs_colour_index_tuple_list_py);
 #endif // USE_PYTHON
 
