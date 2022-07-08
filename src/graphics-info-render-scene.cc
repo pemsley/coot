@@ -718,6 +718,7 @@ graphics_info_t::render_scene() {
                               glDepthFunc(GL_LESS);
                               graphics_info_t g;
                               g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
+                              draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
                               render_3d_scene(GTK_GL_AREA(gl_area));
                               if (show_fps_flag)
                                  draw_hud_fps();
