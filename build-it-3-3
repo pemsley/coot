@@ -397,6 +397,10 @@ script_version=6.06
 
 
 
+echo ==================================================== add test for SWIG version
+echo ==================================================== add test for CMake version
+
+
 # :: NOTE::
 # this "strange" construction of variable names: x=${x:=thing} sets the
 # variable x only if it has not previously been defined.
@@ -2172,10 +2176,10 @@ if [ -z "$build_mmdb" ] ; then
           # echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
              # echo $install_top_dir/include/clipper/contrib/sfscale.h exist
-	     build_clipper=
+             build_clipper=
           else
              echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
-  	     build_clipper=1
+             build_clipper=1
           fi
        else
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
@@ -2198,21 +2202,22 @@ else
     build_ccp4c=1
 fi
 
-# Here we can force the building of clipper because we don't
-# know if the dependency libccp4c.la was from 6.0 or 5.0.2
-# But, let's not do that any more.
-# build_clipper=
-# build_ccp4c=
-
 if [ -e $install_top_dir/bin/python3 ] ; then
    if $install_top_dir/bin/python3 -V ; then
-      echo we have python3
+      # test for ctypes - was it installed correctly?
+      if $install_top_dir/bin/python3 -c 'import ctypes' ; then
+         echo we have python3 with working ctypes
+      else
+         echo python3 ctypes failure
+         build_python=1
+      fi
    else
       build_python=1
    fi
 else
    build_python=1
 fi
+
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -2635,6 +2640,9 @@ if test -n "$build_python" ; then
 
    # stuff ffi into setup.py
    sed -ibackup -e 's/def detect_decimal/    ext.libraries.append("ffi")\n\n    &/' setup.py
+   ffilibdir=$install_top_dir/lib64
+   sed -ibackup2 -e "s?add_dir_to_list(self.compiler.library_dirs, ./usr/local/lib.)?add_dir_to_list(self.compiler.library_dirs, '$ffilibdir')?" setup.py
+
 
    # --with-ensurepip=install
    # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
@@ -2656,9 +2664,11 @@ if test -n "$build_python" ; then
      fi
    fi
    # test it
-   echo test thew new python
+   echo test cypes in the new python
+   # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
    $install_top_dir/bin/python3 <<EOF
 import ctypes
+print(dir(ctypes))
 print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
@@ -2697,6 +2707,8 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
+echo testing to see if meson exists in path yet
+echo testing to see if meson exists in path yet 2>&1
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
@@ -2767,7 +2779,12 @@ fi
 if [ "$build_glib" = true ] ; then
     echo BUILDING glib:
     (
+    # without this PKG_CONFIG_PATH jiggerypokery, libz is the wrong version i.e. is the 32 bit version (on hal)
     export -n PKG_CONFIG_PATH
+    export PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    echo $PKG_CONFIG_PATH
+    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     which ninja
     which meson
     echo ninja --version
@@ -2776,10 +2793,15 @@ if [ "$build_glib" = true ] ; then
     meson --version
     glib_version=2.64.3
     glib_version=2.72.3
+    echo the following is the result of: /bin/pkg-config --modversion libffi
+    /bin/pkg-config --modversion libffi
+
     # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
     if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
+       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
        ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
     fi
+    echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     cd glib-$glib_version
     # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
@@ -2787,7 +2809,10 @@ if [ "$build_glib" = true ] ; then
     # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
     # find out why now, so I installed ninja from the "hand-built" build.
     #
-    if meson -Dprefix=$install_top_dir build ; then
+    # meson can't find libffi on its own, so I will export the library here
+    export LDFLAGS=-L$install_top_dir/lib64
+    export CFLAGS=-I$install_top_dir/include
+    if CC=gcc meson -Dprefix=$install_top_dir build ; then
        cd build
        ninja
        ninja install
@@ -2807,10 +2832,21 @@ if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
    (
    # just for gobject-introspection - depends on our glib installation
-   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
+   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
    export LD_LIBRARY_PATH=$install_top_dir/lib64
    date
    echo BUILDING gobject-introspection:
+
+   echo environment variables
+   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PATH
+   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PKG_CONFIG_PATH
+   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $LD_LIBRARY_PATH
+   which gcc
+   which g++
+   gcc --version
 
    gobject_introspection_version=1.50.0
    gobject_introspection_version=1.68.0
@@ -2833,7 +2869,12 @@ if test "$build_gobject_introspection" = true ; then
    echo PKG_CONFIG_PATH is...
    echo $PKG_CONFIG_PATH
 
-   if meson -Dprefix=$install_top_dir build ; then
+   echo this is the result of /bin/pkg-config glib-2.0
+   /bin/pkg-config --modversion glib-2.0
+   /bin/pkg-config --cflags glib-2.0
+   /bin/pkg-config --libs glib-2.0
+
+   if CC=gcc meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -2866,7 +2907,7 @@ if [ true ] ; then
       ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
       (
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
-	 date
+         date
          echo building pycairo
          tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
          cd pycairo-$pycairo_version
@@ -2919,14 +2960,14 @@ if [ true ] ; then
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
-	 echo :::: inn directory $(pwd)
-	 echo :::: building meson with -Dprefix=$install_top_dir build
+         echo :::: in directory $(pwd)
+         echo :::: building meson with -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
-	    echo :::: ninja
+            echo :::: ninja
             ninja
-	    echo :::: ninja install
+            echo :::: ninja install
             ninja install
          else
             echo :::: meson failed
@@ -3364,10 +3405,10 @@ else
           echo make render
           if make render ; then
              echo make prefix=$install_top_dir install
-  	     make prefix=$install_top_dir install
-	     # did that work?  I doubt it. Let's do it by hand
+             make prefix=$install_top_dir install
+             # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
-  	        cp render $install_top_dir/bin/
+                cp render $install_top_dir/bin/
              fi
           else
              echo make render failed
@@ -3535,6 +3576,8 @@ if [ "$build_rdkit" = true ] ; then
       echo building ========================= rdkit ==============================
 
       # at last we get to actually compile rdkit
+      export CC=gcc
+      export CXX=g++
       RDKIT=$install_top_dir
       RDBASE=$install_top_dir
       CMAKE_INSTALL_PREFIX=$install_top_dir
