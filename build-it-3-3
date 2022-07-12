@@ -393,7 +393,8 @@
 # 6.04 20220705 Python still doesn't build (on cluster) - add debugging
 # 6.05 20220706 Use https:: instead of ftp::
 # 6.06 20220707 try export LD_LIBRARY_PATH=$install_top_dir/lib in Coot section
-script_version=6.06
+# 6.07 20220710 libffi fixes for python
+script_version=6.07
 
 
 
