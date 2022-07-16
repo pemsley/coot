@@ -252,7 +252,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 		  clipper::Coord_orth mc = cm.second; // just for alias
 		  int imol = graphics_info_t::create_molecule();
 		  istat = imol;
-		  std::string label = "Ideal-" + form_str;
+		  std::string label = form_str;
 		  label += "-form-";
 		  label += RNA_or_DNA_str;
 		  atom_selection_container_t asc = make_asc(mol);
