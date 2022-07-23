@@ -12,7 +12,7 @@ public:
    std::string label;
    glm::vec3 position;
    glm::vec4 colour;
-   atom_label_info_t(const std::string l, const glm::vec3 &p, const glm::vec4 c) : label(l), position(p), colour(c) {}
+   atom_label_info_t(const std::string &l, const glm::vec3 &p, const glm::vec4 c) : label(l), position(p), colour(c) {}
 };
 
 

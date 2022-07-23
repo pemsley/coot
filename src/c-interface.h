@@ -77,7 +77,9 @@ p  So we need to have this function external for c++ linking.
 #include "Python.h"
 #endif
 
+#ifdef EMSCRIPTEN_THING
 #include <gtk/gtk.h>
+#endif
 
 #ifndef BEGIN_C_DECLS
 
@@ -521,7 +523,7 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag);
 #endif	/* __cplusplus */
 /*! \brief set the molecule name of the imol-th molecule */
 void set_molecule_name(int imol, const char *new_name);
-gboolean coot_checked_exit(int retval);
+int coot_checked_exit(int retval);
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
 void coot_real_exit(int retval);
@@ -2480,12 +2482,17 @@ void set_use_stroke_characters(int state);
 /* section Rotation Centre */
 /*! \name  Rotation Centre */
 /* \{ */
+
+#ifdef EMSCRIPTEN_THING
+/* 20220723-PE I agree with my comments from earlier - these should not be here */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
-/*! \brief set rotoation centre marker size */
-void set_rotation_centre_size(float f); /* and redraw (maybe) */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size();
+#endif
+
+/*! \brief set rotoation centre marker size */
+void set_rotation_centre_size(float f); /* and redraw (maybe) */
 
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
@@ -2655,6 +2662,7 @@ void set_max_skeleton_search_depth(int v); /* for high resolution
 /*                  skeletonization level widgets                           */
 /*  ----------------------------------------------------------------------- */
 
+#ifdef EMSCRIPTEN_THING
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeletonization_level_entry();
 
@@ -2666,6 +2674,8 @@ gchar *get_text_for_skeleton_box_size_entry();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeleton_box_size_from_widget(const char *txt);
+#endif // EMSCRIPTEN
+
 
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
 void set_skeleton_box_size(float f);
@@ -2756,6 +2766,8 @@ given "x,y,z ; -x,y+1/2,-z" */
 /* char * */
 /* spacegroup_from_operators(const char *symm_operators_in_clipper_format);  */
 
+#ifdef EMSCRIPTEN_THING
+// 20220723-PE MOVE-ME!
 void
 graphics_store_phs_filename(const gchar *phs_filename);
 
@@ -2763,6 +2775,7 @@ short int possible_cell_symm_for_phs_file();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_phs_cell_chooser(int imol, char *field);
+#endif
 
 /* \} */
 
@@ -2848,9 +2861,12 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3,
 						     short int make_the_move_flag);
 
+#ifdef EMSCRIPTEN_THING
+// MOVE-ME!
 int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *t2,
 						   const gchar *txt);
+#endif
 
 
 /*! \brief update the Go To Atom widget entries to atom closest to
@@ -7235,7 +7251,7 @@ void run_update_self_maybe(); /* called when --update-self given at command line
 /*                    keyboarding mode                                      */
 /*  ----------------------------------------------------------------------- */
 void show_go_to_residue_keyboarding_mode_window();
-void    handle_go_to_residue_keyboarding_mode(const gchar *text);
+void handle_go_to_residue_keyboarding_mode(const char *text); /* should this be here? */
 
 /*  ----------------------------------------------------------------------- */
 /*                    graphics ligand view                                  */

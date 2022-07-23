@@ -25,7 +25,9 @@
 
 #include <Python.h>
 
+#ifdef EMSCRIPTEN_THING
 #include <gtk/gtk.h>
+#endif
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -105,6 +107,9 @@ std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
 
+#ifdef EMSCRIPTEN_THING
+// 20220723-PE these functions should not be in this header! - Move them to a widget header
+// MOVE-ME!
 GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
 
 std::pair<short int, float> float_from_entry(GtkWidget *entry);
@@ -122,6 +127,8 @@ std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 // GtkPositionType data.  A wrapper to a static graphics_info_t
 // function.
 std::string menu_item_label(GtkWidget *menu_item);
+
+#endif
 
 // CaBLAM
 std::vector<std::pair<coot::residue_spec_t, double> >
@@ -1224,8 +1231,13 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
+#ifdef EMSCRIPTEN_THING
+
+// 20220723-PE These functions should not be here. Move this functions to a widget header.
+//             MOVE-ME!
 void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
 void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
+#endif
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
@@ -1715,9 +1727,12 @@ void hole(int imol,
           std::string export_surface_dots_file_name);
 
 
-// GUI stuff
-void probe_radius_graph_close_callback( GtkWidget *button,
-                                         GtkWidget *dialog);
+#ifdef EMSCRIPTEN_THING
+// GUI stuff - Move these functions to a widget header
+// 20220723-PE MOVE-ME!
+void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
+#endif
+
 void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);

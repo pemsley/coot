@@ -27,7 +27,9 @@
 // We don't use gtkgraph these days
 // #include "libgtkgraph/gtkgraph.h"
 
+#ifdef EMSCRIPTEN_THING
 #include "goograph/goograph.hh"
+#endif
 
 #include "coot-utils/coot-map-utils.hh" // for variance map
 
@@ -49,6 +51,8 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	  float colour_map_multiplier, float colour_map_offset,
 	  int n_runs, bool show_probe_radius_graph_flag,
 	  std::string export_dots_file_name ) {
+
+#ifdef EMSCRIPTEN_THING
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -166,6 +170,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	 clipper::NXmap<float> nxmap = hole.carve_a_map(probe_path, "hole_nx.map");
       }
    }
+#endif // EMSCRIPTEN
 }
 
 void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
@@ -242,6 +247,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
+#ifdef EMSCRIPTEN_THING
    if (graphics_info_t::use_graphics_interface_flag) {
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
@@ -267,15 +273,18 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
       g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_LINE);
       g->show_dialog();
    }
+#endif // EMSCRIPTEN
 }
 
 
+#ifdef EMSCRIPTEN_THING
 
 void probe_radius_graph_close_callback( GtkWidget *button,
  					GtkWidget *dialog) {
 
    gtk_widget_destroy(dialog);
-} 
+}
+#endif
 
 
 #ifdef USE_GUILE
@@ -326,6 +335,8 @@ PyObject *model_composition_statistics_py(int imol) {
 
 
 void import_bild(const std::string &file_name) {
+
+#ifdef EMSCRIPTEN_THING
 
    class c_info_t {
    public:
@@ -420,5 +431,6 @@ void import_bild(const std::string &file_name) {
       std::cout << "WARNING:: file not found " << file_name << std::endl;
    }
 
+#endif
 
 }

@@ -55,14 +55,6 @@ class symm_atom_info_t {
 };
 
 namespace coot {
-   class clip_hybrid_atom {
-   public:
-      mmdb::Atom *atom;
-      // clipper::Coord_orth pos;
-      coot::Cartesian pos;
-      clip_hybrid_atom() { atom = NULL; }
-      clip_hybrid_atom(mmdb::Atom *mmdb_atom_p, const coot::Cartesian &p) : atom(mmdb_atom_p), pos(p) {}
-   };
 
    class Symm_Atom_Pick_Info_t {
    public:
