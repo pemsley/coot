@@ -1655,16 +1655,14 @@ public:
                                                   // button and function to see it.
    static std::vector<std::string> go_to_ligand_non_interesting_comp_ids;
 
-#ifdef EMSCRIPTEN_THING
-   // 20220723-PE these look like GUI callbacks
-   void set_go_to_atom_chain_residue_atom_name(const gchar *t1,
-					       int it2, const gchar *t3);
-   void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-					       int resno, const char *atom_name, const char *altLoc);
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 					      int resno, const char *ins_code,
 					      const char *atom_name, const char *altLoc);
-#endif
+   // 20220723-PE these look like GUI callbacks
+   void set_go_to_atom_chain_residue_atom_name(const char *t1,
+					       int it2, const char *t3);
+   void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
+					       int resno, const char *atom_name, const char *altLoc);
 
    void set_go_to_residue_intelligent(const std::string &chain_id, int resno,
 				      const std::string &ins_code);
@@ -2948,8 +2946,10 @@ public:
    // show citation?
    static short int show_citation_notice;
 
+   static void info_dialog(const std::string &s, bool use_markup=false);
+
 #ifdef EMSCRIPTEN_THING
-   static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
+   // static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
    void fill_unsaved_changes_dialog(GtkWidget *dialog) const;
 #endif
    // makes an info_dialog and writes text

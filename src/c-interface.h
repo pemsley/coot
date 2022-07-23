@@ -606,14 +606,6 @@ short int use_graphics_interface_state();
 @return 1 for yes, 0 for no.*/
 short int python_at_prompt_at_startup_state();
 
-/*! \brief start Gtk (and graphics)
-
-   This function is useful if it was not started already (which can be
-   achieved by using the command line argument --no-graphics).
-
-   An interface for Ralf */
-void start_graphics_interface();
-
 /*! \brief "Reset" the view
 
 

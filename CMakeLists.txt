@@ -261,6 +261,7 @@ add_library(coot STATIC
             ${coot_src}/compat/getopt1.cc
             ${coot_src}/src/gl-matrix.cc
             ${coot_src}/src/c-interface-analysis.cc
+            ${coot_src}/src/c-interface.cc
             ${coot_src}/src/c-interface-bonds.cc
             ${coot_src}/src/c-interface-build.cc
             ${coot_src}/src/c-interface-build-main-chain.cc
