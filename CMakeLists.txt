@@ -261,6 +261,8 @@ add_library(coot STATIC
             ${coot_src}/compat/getopt1.cc
             ${coot_src}/src/gl-matrix.cc
             ${coot_src}/src/c-interface-analysis.cc
+            ${coot_src}/src/c-interface-bonds.cc
+            ${coot_src}/src/c-interface-build.cc
 )
 
 # rget_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)

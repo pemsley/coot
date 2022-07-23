@@ -1680,6 +1680,14 @@ public:
 
    int try_centre_from_new_go_to_atom();
 
+   // 20220723-PE There functions have (will have) internals that are blanked out by
+   // EMSCRIPTEN conditional compilation
+   void update_go_to_atom_window_on_changed_mol(int imol);
+   void update_go_to_atom_window_on_new_mol();
+   void update_go_to_atom_window_on_other_molecule_chosen(int imol);
+   int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
+
+
 #ifdef EMSCRIPTEN_THING
    void update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *atom);
    void make_synthetic_select_on_residue_list(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
@@ -1687,10 +1695,6 @@ public:
    void make_synthetic_select_on_residue_tree(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
    void make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
 
-   void update_go_to_atom_window_on_changed_mol(int imol);
-   void update_go_to_atom_window_on_new_mol();
-   void update_go_to_atom_window_on_other_molecule_chosen(int imol);
-   int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
 
    static void fill_go_to_atom_window_gtk3(GtkWidget *widget);
@@ -4313,6 +4317,12 @@ string   static std::string sessionid;
 
    // replaced by
    //
+
+   // 20220723-PE There functions have (will have) internals that are blanked out by
+   // EMSCRIPTEN conditional compilation
+   void setup_graphics_ligand_view_using_active_atom(int imol);
+   void setup_graphics_ligand_view_using_active_atom();
+
 #ifdef EMSCRIPTEN_THING
    static graphics_ligand_mesh_molecule_t graphics_ligand_mesh_molecule;
    void setup_draw_for_ligand_view();
@@ -4320,8 +4330,6 @@ string   static std::string sessionid;
       if (graphics_ligand_mesh_molecule.imol == imol_in)
          graphics_ligand_view_flag = false;
    }
-   void setup_graphics_ligand_view_using_active_atom(int imol); // this function needs to be written
-   void setup_graphics_ligand_view_using_active_atom();         // this function needs to be written
    void setup_graphics_ligand_view(int imol, mmdb::Residue *residue, const std::string &alt_conf);
 
    static int show_graphics_ligand_view_flag; // user control, default 1 (on).
@@ -4868,9 +4876,6 @@ string   static std::string sessionid;
    // Let's base dynamic hydrogen bonds on how boids worked.
    static Mesh mesh_for_hydrogen_bonds; // with instancing, because dynamic
    void setup_draw_for_hydrogen_bonds();
-   // this can be made more sophisticated later
-   static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs;
-   static void update_hydrogen_bond_mesh(const std::string &label);
 
    static float focus_blur_z_depth;
    static float focus_blur_strength;
@@ -4886,6 +4891,10 @@ string   static std::string sessionid;
    static gboolean tick_function_is_active();
 
 #endif
+
+   static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs;
+   // this can be made more sophisticated later
+   static void update_hydrogen_bond_mesh(const std::string &label);
 
    static int tick_function_id; // store the return value from gtk_widget_add_tick_callback()
    static bool do_tick_particles;

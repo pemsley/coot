@@ -1,3 +1,4 @@
+
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -30,6 +31,11 @@
 #include "cc-interface-scripting.hh"
 
 #include "c-interface-bonds.hh"
+
+#include "coot-utils/coot-h-bonds.hh"
+#ifdef EMSCRIPTEN_THING
+#include "glarea_tick_function.hh"
+#endif
 
 #ifdef USE_PYTHON
 
@@ -167,13 +173,11 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "coot-utils/coot-h-bonds.hh"
-#include "glarea_tick_function.hh"
-
-
 void set_draw_hydrogen_bonds(int state) {
 
+#ifdef EMSCRIPTEN_THING
    graphics_info_t::mesh_for_hydrogen_bonds.set_draw_this_mesh(state);
+#endif
 
 }
 
