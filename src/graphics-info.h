@@ -2435,6 +2435,10 @@ public:
    // FIXME Needs to be implemented.  close window button callback and
    // destroy window need to set this to NULL.
    //
+
+   // 20220723-PE has (will have) internals blanked by EMSCRIPTEN
+   void model_fit_refine_unactive_togglebutton(const std::string &button_name) const;
+
 #ifdef EMSCRIPTEN_THING
    static GtkWidget *go_to_atom_window;
 
@@ -2462,7 +2466,6 @@ public:
    static float difference_map_peaks_max_closeness;
 
    //
-   void model_fit_refine_unactive_togglebutton(const std::string &button_name) const;
    void other_modelling_tools_unactive_togglebutton(const std::string &button_name) const;
 
 
@@ -3208,10 +3211,10 @@ public:
    static std::pair<int, int> multi_residue_torsion_rotating_atom_index_pair;
    static std::vector<coot::residue_spec_t> multi_residue_torsion_picked_residue_specs;
 
+   static int edit_chi_current_chi;
 
 #ifdef EMSCRIPTEN_THING
    // real values start at 1:
-   static int edit_chi_current_chi;
    static void on_change_current_chi_button_clicked(GtkButton *button,
 						    gpointer user_data);
    static void on_change_current_chi_button_entered(GtkButton *button,

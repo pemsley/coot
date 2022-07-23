@@ -54,7 +54,10 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
+#ifdef EMSCRIPTEN_THING
+// just delete it?
 #include "globjects.h" //includes gtk/gtk.h
+#endif
 
 #include "coords/mmdb-crystal.h"
 
@@ -79,7 +82,9 @@
 
 
 #include "c-interface.h"
+#ifdef EMSCRIPTEN_THING
 #include "c-interface-gtk-widgets.h"
+#endif
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 
