@@ -1434,10 +1434,11 @@ public:
 				 float target_zoom);
    void setRotationCentreSimple(const coot::Cartesian &c);
 
+   void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
+
 #ifdef EMSCRIPTEN_THING
    // old style: soon to be redundent
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
-   void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 #endif
 
    static void set_rotation_centre(const clipper::Coord_orth &pt);
@@ -1574,9 +1575,8 @@ public:
    static void add_drag_refine_idle_function();
    static void remove_drag_refine_idle_function();
 
-#ifdef EMSCRIPTEN_THING // 20220723-PE goodbye drag refine
-   static gint drag_refine_refine_intermediate_atoms();
-#endif
+   static int drag_refine_refine_intermediate_atoms();
+
    static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;
    static bool post_intermediate_atoms_moved_ready;

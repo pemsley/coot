@@ -449,6 +449,7 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	clipper-to-glm.hh        \
+	colour-functions.hh      \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
