@@ -74,7 +74,9 @@ const double pi = M_PI;
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
+#ifdef EMSCRIPTEN_THING
 #include "gtk-manual.hh"
+#endif
 
 // For stat, mkdir:
 #include <sys/types.h>
@@ -86,7 +88,11 @@ const double pi = M_PI;
 #include "graphics-info.h"
 
 #include "coords/Bond_lines_ext.h"
+
+#ifdef EMSCRIPTEN_THING
+// just delete this header?
 #include "globjects.h" // for set_bond_colour(), r_50
+#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
@@ -109,8 +115,10 @@ const double pi = M_PI;
 #include "oct.hh"
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
- 
 
+#ifdef EMSCRIPTEN_THING
+#include "widget-from-builder.hh"
+#endif
 
 glm::vec3
 cartesian_to_glm(const coot::Cartesian &c) {
@@ -267,15 +275,16 @@ molecule_class_info_t::setup_internal() {
    shader_shininess = 6.0;
    shader_specular_strength = 0.5;
 
+   map_mesh_first_time = true;
+   model_mesh_first_time = true;
+
+#ifdef EMSCRIPTEN_THING
    material_for_maps.do_specularity = false;
    material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
 
    material_for_models.do_specularity = true;
    material_for_models.specular_strength = 1.0;
-
-   map_mesh_first_time = true;
-   model_mesh_first_time = true;
-
+   
    map_as_mesh.set_name("empty map molecule mesh");
    molecule_as_mesh.set_name("empty model molecule mesh");
 
@@ -283,6 +292,7 @@ molecule_class_info_t::setup_internal() {
    molecule_as_mesh_atoms_1 = Mesh("molecule_as_mesh_atoms_1");
    molecule_as_mesh_atoms_2 = Mesh("molecule_as_mesh_atoms_2");
    molecule_as_mesh_bonds   = Mesh("molecule_as_mesh_bonds");
+#endif
 
    // draw vectors
    draw_vector_sets.reserve(120); // more than enough
@@ -324,8 +334,11 @@ molecule_class_info_t::setup_internal() {
    // single model view
    single_model_view_current_model_number = 0; // all models
 
+#ifdef EMSCRIPTEN_THING
    // mtz updating
    continue_watching_mtz = false;
+   continue_watching_coordinates_file = false;
+#endif
 
    previous_eye_position = clipper::Coord_orth(-999, -999, -999);
 
@@ -333,7 +346,6 @@ molecule_class_info_t::setup_internal() {
    radial_map_colour_invert_flag = false;
    radial_map_colour_radius_min =  5.0;
    radial_map_colour_radius_max = 65.0;
-   continue_watching_coordinates_file = false;
    draw_it_for_parallel_plane_restraints = false;
    bonds_rotate_colour_map_flag = false;
    bonds_colour_map_rotation = 0.0;
@@ -1300,6 +1312,7 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
 }
 
 
+#include "colour-functions.hh"
 
 // aka rainbow - or maybe b factor, occupancy or user defined colour index
 //
@@ -1659,12 +1672,15 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 void
 molecule_class_info_t::set_show_unit_cell(bool state) {
 
+#ifdef EMSCRIPTEN_THING
    if (state)
       setup_unit_cell();
+#endif
    show_unit_cell_flag = state;
 
 }
 
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::setup_unit_cell() {
 
@@ -1699,7 +1715,9 @@ molecule_class_info_t::setup_unit_cell() {
    }
 
 }
+#endif
 
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::draw_unit_cell(Shader *shader_p,
                                       const glm::mat4 &mvp) {
@@ -1725,6 +1743,7 @@ molecule_class_info_t::draw_unit_cell(Shader *shader_p,
 
 
 }
+#endif
 
 // --------------------------------------------------------------------
 //   Conversion functions
@@ -2007,15 +2026,17 @@ molecule_class_info_t::update_mol_in_display_control_widget() const {
 //    std::cout << "update_mol_in_display_control_widget() passed derefrerence imol_no_ptr: "
 //              << *imol_no_ptr << std::endl;
    std::string dmn = name_for_display_manager();
+#ifdef EMSCRIPTEN_THING
    if (g.display_control_window())
       update_name_in_display_control_molecule_combo_box(g.display_control_window(),
-   dmn.c_str(),
-   imol_no);
+                                                        dmn.c_str(),
+                                                        imol_no);
+#endif
 }
 
 void
 molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
-
+#ifdef EMSCRIPTEN_THING
    graphics_info_t g;
 
    // we don't want to add a display control hbox if we are simply
@@ -2041,7 +2062,7 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
          }
       }
    }
-
+#endif
 }
 
 std::string
@@ -2561,6 +2582,7 @@ molecule_class_info_t::draw_ghost_bonds(int ighost) {
    }
 #endif
 
+#ifdef EMSCRIPTEN_THING
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
          Shader *shader_p = &graphics_info_t::shader_for_meshes_with_shadows;
@@ -2573,6 +2595,7 @@ molecule_class_info_t::draw_ghost_bonds(int ighost) {
          ncs_ghosts[ighost].draw(shader_p, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
+#endif
 
 }
 
@@ -3103,7 +3126,7 @@ coot::additional_representations_t::info_string() const {
    return s;
 }
 
-
+#ifdef EMSCRIPTEN_THING
 int
 molecule_class_info_t::add_additional_representation(int representation_type,
                                                      const int &bonds_box_type,
@@ -3158,6 +3181,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 
    return n_rep;
 }
+#endif
 
 
 // representation_number should be an unsigned int.
@@ -3392,7 +3416,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
                                        const glm::vec4 &atom_label_colour,
                                        const glm::mat4 &mvp,
                                        const glm::mat4 &view_rotation) { // not used - removed this argument      
-
+#ifdef EMSCRIPTEN_THING
    if (has_model()) {
       if (atom_index < atom_sel.n_selected_atoms) {
          mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
@@ -3418,6 +3442,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
          unlabel_atom(atom_index);
       }
    }
+#endif
 }
 
 // Put a label at the ith atom of mol_class_info::atom_selection.
@@ -3428,7 +3453,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
                                             const glm::vec4 &atom_label_colour,
                                             const glm::mat4 &mvp,
                                             const glm::mat4 &view_rotation) {
-
+#ifdef EMSCRIPTEN_THING
    if (has_model()) {
       if (atom_index < atom_sel.n_selected_atoms) {
          mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
@@ -3454,6 +3479,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
          unlabel_atom(atom_index);
       }
    }
+#endif
 }
 
 
@@ -3802,6 +3828,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
    //
+#ifdef EMSCRIPTEN_THING
    gl_context_info_t glci = graphics_info_t::get_gl_context_info();
 
    // make glsl triangles
@@ -3819,6 +3846,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    update_fixed_atom_positions();
    update_ghosts();
    update_extra_restraints_representation();
+#endif
 
    if (debug) {
       std::cout << "debug:: -------------- make_bonds_type_checked() done " << std::endl;
@@ -3878,7 +3906,7 @@ molecule_class_info_t::make_colour_table() const {
    return colour_table;
 }
 
-
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
@@ -3945,10 +3973,10 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
    } else {
       std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
    }
-
 }
+#endif
 
-
+#ifdef EMSCRIPTEN_THING
 // instanced meshes, that is - clever but I couldn't get it to work - there's a branch
 // where I tried.
 void
@@ -3982,9 +4010,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
    } else {
       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
    }
-
 }
-
+#endif
 
 
 
@@ -4022,12 +4049,14 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
    // make_meshes_from_bonds_box(); // instanced meshes, that is. Not today.
 
+#ifdef EMSCRIPTEN_THING
    make_mesh_from_bonds_box(); // non-instanced version - add lots of vectors of vertices and triangles
                                //
                                // needs:
                                // cis peptides,
                                // missing residue loops
                                // and rama balls if intermediate atoms.
+#endif
 }
 
 void
@@ -4035,9 +4064,10 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
 
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
-
+#ifdef EMSCRIPTEN_THING
    graphics_info_t::attach_buffers();
    mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box); // boxes
+#endif
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4067,7 +4097,7 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
 
 
-
+#ifdef EMSCRIPTEN_THING
 // draw molecule as instanced meshes.
 void
 molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
@@ -4083,7 +4113,9 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
    molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
 
 }
+#endif
 
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::mat4 &mvp,
@@ -4099,8 +4131,9 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
             mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
                                                   eye_position, background_colour, do_depth_fog);
 }
+#endif
 
- 
+
 void
 molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
                                                  const std::vector<g_triangle> &triangles) {
@@ -4112,6 +4145,8 @@ molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_r
 void
 molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
                                                 const std::vector<g_triangle> &triangles) {
+
+#ifdef EMSCRIPTEN_THING
 
     if (false)
        std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
@@ -4214,6 +4249,7 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
    }
    err = glGetError(); if (err) std::cout << "GL error bonds --- end ---\n";
    model_mesh_first_time = false;
+#endif
 }
 
 // caller is an optional argument
@@ -4355,7 +4391,7 @@ molecule_class_info_t::single_model_view_next_model_number() {
    return model_no;
 }
 
-
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info,
                                                          const coot::protein_geometry *geom) {
@@ -4384,6 +4420,7 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
       }
    }
 }
+#endif
 
 
 void
@@ -6261,8 +6298,6 @@ molecule_class_info_t::quick_save() {
 }
 
 
-#include "widget-from-builder.hh"
-
 void
 molecule_class_info_t::close_yourself() {
 
@@ -6307,7 +6342,8 @@ molecule_class_info_t::close_yourself() {
 	 original_r_free_flags_p = 0;
       }
    }
-      
+
+#ifdef EMSCRIPTEN_THING
    // delete from display manager combo box
    //
    graphics_info_t g;
@@ -6339,6 +6375,7 @@ molecule_class_info_t::close_yourself() {
          }
       }
    }
+#endif
 
    if (was_coords) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
@@ -7313,8 +7350,8 @@ molecule_class_info_t::save_coordinates(const std::string filename,
       std::string ws = "WARNING:: export coords: There was an error ";
       ws += "in writing ";
       ws += filename;
-      GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
-      gtk_widget_show(w);
+      graphics_info_t g;
+      g.info_dialog(ws);
    } else {
       std::cout << "INFO:: saved coordinates " << filename << std::endl;
       have_unsaved_changes_flag = 0;
@@ -9003,12 +9040,20 @@ molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const {
 // if closed or is a coords
 // mol, 3 elements and 6
 // elements for a
-// difference map.
+// difference map
+#ifdef EMSCRIPTEN_THING
 std::pair<GdkRGBA, GdkRGBA>
 molecule_class_info_t::get_map_colours() const {
 
    return std::pair<GdkRGBA, GdkRGBA> (map_colour, map_colour_negative_level);
 }
+#else
+std::pair<coot::colour_holder, coot::colour_holder>
+molecule_class_info_t::get_map_colours() const {
+
+   return std::pair<coot::colour_holder, coot::colour_holder> (map_colour, map_colour_negative_level);
+}
+#endif
 
 // perhaps there is a better place for this?
 //
@@ -10068,7 +10113,7 @@ molecule_class_info_t::print_secondary_structure_info() {
 }
 
 
-
+#ifdef EMSCRIPTEN_THING
 // static
 int
 molecule_class_info_t::watch_coordinates_file(gpointer data) {
@@ -10082,10 +10127,11 @@ molecule_class_info_t::watch_coordinates_file(gpointer data) {
    status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
    return status;
 }
+#endif
 
 // bool continue_watching_coordinates_file;
 // updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
-
+#ifdef EMSCRIPTEN_THING
 int
 molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &ucp_in) {
 
@@ -10150,7 +10196,9 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
    }
    return status;
 }
+#endif
 
+#ifdef EMSCRIPTEN_THING
 // no redraw
 void
 molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
@@ -10172,15 +10220,19 @@ molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
                              false);
 
 }
+#endif
 
+#ifdef EMSCRIPTEN_THING
 void
 molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 
 }
+#endif
 
 // update this difference map if the coordinates of the other molecule have changed.
 //
 // static (!) - this is a callback function
+#ifdef EMSCRIPTEN_THING
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
@@ -10219,11 +10271,13 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
    }
    return status;
 }
+#endif
 
 // update this map if the coordinates of the other molecule have changed. Both maps use this function callback
 // looking for changes in the model molecule
 //
 // static (!) - this is a callback function
+#ifdef EMSCRIPTEN_THING
 int
 molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
 
@@ -10278,5 +10332,4 @@ molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
    }
    return status;
 }
-
-
+#endif

@@ -267,6 +267,7 @@ add_library(coot STATIC
             ${coot_src}/src/c-interface-build-main-chain.cc
             ${coot_src}/src/c-interface-build-morph.cc
             ${coot_src}/src/c-interface-build-side-chain.cc
+            ${coot_src}/src/molecule-class-info.cc
 )
 
 # rget_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)

@@ -1326,6 +1326,10 @@ public:        //                      public
    GdkRGBA map_colour;
    GdkRGBA map_colour_negative_level;
    GdkRGBA previous_map_colour;
+#else
+   coot::colour_holder map_colour;
+   coot::colour_holder map_colour_negative_level;
+   coot::colour_holder previous_map_colour;
 #endif
    void save_previous_map_colour();
    void restore_previous_map_colour();
@@ -2035,6 +2039,9 @@ public:        //                      public
 #ifdef EMSCRIPTEN_THING
    void set_map_colour(GdkRGBA col) { map_colour = col; update_map(true); /* for now */ }
    std::pair<GdkRGBA, GdkRGBA> get_map_colours() const;
+#else
+   void set_map_colour(coot::colour_holder col) { map_colour = col; update_map(true); /* for now */ }
+   std::pair<coot::colour_holder, coot::colour_holder> get_map_colours() const;
 #endif
    std::vector<std::string> set_map_colour_strings() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
@@ -3727,6 +3734,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
    std::vector<glm::vec4> make_colour_table() const;
 
+   static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
+
 #ifdef EMSCRIPTEN_THING
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
@@ -3737,7 +3746,6 @@ void draw_map_molecule(bool draw_transparent_maps,
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours
-   static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
    void draw_molecule_as_meshes(Shader *shader_p,
                                 const glm::mat4 &mvp,
                                 const glm::mat4 &view_rotation_matrix,
