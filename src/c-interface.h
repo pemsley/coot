@@ -79,7 +79,7 @@ p  So we need to have this function external for c++ linking.
 #include "Python.h"
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include <gtk/gtk.h>
 #endif
 
@@ -2477,7 +2477,7 @@ void set_use_stroke_characters(int state);
 /*! \name  Rotation Centre */
 /* \{ */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /* 20220723-PE I agree with my comments from earlier - these should not be here */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
@@ -2656,7 +2656,7 @@ void set_max_skeleton_search_depth(int v); /* for high resolution
 /*                  skeletonization level widgets                           */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeletonization_level_entry();
 
@@ -2760,7 +2760,7 @@ given "x,y,z ; -x,y+1/2,-z" */
 /* char * */
 /* spacegroup_from_operators(const char *symm_operators_in_clipper_format);  */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // 20220723-PE MOVE-ME!
 void
 graphics_store_phs_filename(const gchar *phs_filename);
@@ -2855,7 +2855,7 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3,
 						     short int make_the_move_flag);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // MOVE-ME!
 int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *t2,

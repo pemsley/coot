@@ -55,7 +55,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // just delete this header?
 #include "globjects.h" //includes gtk/gtk.h
 #endif
@@ -83,7 +83,7 @@
 
 
 #include "c-interface.h"
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "c-interface-gtk-widgets.h"
 #endif
 #include "cc-interface.hh"
@@ -631,7 +631,7 @@ do_mutation(const char *type, short int stub_button_state_flag) {
 
 void mutate_active_residue() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -672,7 +672,7 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
 // \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
    gtk_widget_show(w);
 #endif

@@ -27,7 +27,7 @@
 #include <clipper/core/coords.h>
 #include <mmdb2/mmdb_manager.h>
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "Instanced-Markup-Mesh.hh"
 #endif
 #include "coot-colour.hh"
@@ -43,17 +43,17 @@ namespace coot {
    public:
       dots_representation_info_t() {
 	 is_closed = false;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
 #endif
       }
       std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       Instanced_Markup_Mesh imm;
 #endif
       // 20111123 modern usage
       dots_representation_info_t(const std::string &name_in) : name_(name_in) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
 #endif
          is_closed = false;
@@ -61,7 +61,7 @@ namespace coot {
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
 	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
 	 is_closed = 0;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
 #endif
       }
@@ -75,7 +75,7 @@ namespace coot {
       void close_yourself() {
 	 points.clear();
 	 is_closed = 1;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          imm.clear();
 #endif
       }

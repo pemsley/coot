@@ -27,7 +27,7 @@
 // We don't use gtkgraph these days
 // #include "libgtkgraph/gtkgraph.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "goograph/goograph.hh"
 #endif
 
@@ -52,7 +52,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	  int n_runs, bool show_probe_radius_graph_flag,
 	  std::string export_dots_file_name ) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -247,7 +247,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (graphics_info_t::use_graphics_interface_flag) {
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
@@ -277,7 +277,7 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
 }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 void probe_radius_graph_close_callback( GtkWidget *button,
  					GtkWidget *dialog) {
@@ -336,7 +336,7 @@ PyObject *model_composition_statistics_py(int imol) {
 
 void import_bild(const std::string &file_name) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    class c_info_t {
    public:

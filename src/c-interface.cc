@@ -86,7 +86,7 @@
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "globjects.h" //includes gtk/gtk.h
 #endif
 
@@ -114,7 +114,7 @@
 
 
 #include "c-interface.h"
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "c-interface-gtk-widgets.h"
 #endif
 #include "cc-interface.hh"
@@ -123,7 +123,7 @@
 
 #include "coot-version.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "nsv.hh"
 #include "widget-headers.hh"
 #include "widget-from-builder.hh"
@@ -138,7 +138,7 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
 #include "dynamic-menus.hh"
@@ -184,7 +184,7 @@ std::string coot_version_extra_info() {
    version_string += " embedded]\n";
 #endif
    std::string s = "COOT_BUILD_INFO_STRING"; // FIXME
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    s = COOT_BUILD_INFO_STRING;
 #endif
    if (! s.empty()) {
@@ -200,7 +200,7 @@ std::string coot_version_extra_info() {
 
    if (! s.empty()) {
       std::string bt =  "COOT_SYS_BUILD_TYPE";  // FIXME
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       bt = COOT_SYS_BUILD_TYPE;
 #endif
       version_string += "Binary type: ";
@@ -383,7 +383,7 @@ void set_molecule_name(int imol, const char *new_name) {
 }
 
 void set_show_graphics_ligand_view(int state) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t::show_graphics_ligand_view_flag = state;
    graphics_draw();
 #endif
@@ -478,7 +478,7 @@ int make_updating_model_molecule(const char *filename) {
 
    int status = 1;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
 
@@ -528,7 +528,7 @@ void updating_refmac_refinement_files(const char *updating_refmac_refinement_fil
 #endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 int updating_refmac_refinement_json_timeout_function(gpointer data) {
 
    int status = 1; // keep going
@@ -823,7 +823,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 
 	 // if the go to atom widget exists, update its optionmenu to
 	 // reflect the existance of this new molecule.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.go_to_atom_window) {
 	    //
 	    // 20090620:
@@ -980,7 +980,7 @@ int first_unsaved_coords_imol() {
 
 
 void hardware_stereo_mode() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    // this should be a graphics-info function. Move me. FIXME
 
@@ -1011,7 +1011,7 @@ void hardware_stereo_mode() {
 }
 
 void zalman_stereo_mode() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
   // FIXME this is not really zalman!!!!!
    if (graphics_info_t::use_graphics_interface_flag) {
@@ -1063,7 +1063,7 @@ void zalman_stereo_mode() {
 }
 
 void mono_mode() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
@@ -1122,7 +1122,7 @@ void mono_mode() {
 
 /*! \brief turn on side bye side stereo mode */
 void side_by_side_stereo_mode(short int use_wall_eye_flag) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
@@ -1188,7 +1188,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 /* DTI stereo mode - undocumented, secret interface for testing, currently */
 // when it works, call it dti_side_by_side_stereo_mode()
 void set_dti_stereo_mode(short int state) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (state) {
@@ -1449,7 +1449,7 @@ int control_key_for_rotate_state() {
 /*  ------------------------------------------------------------------------ */
 void post_model_fit_refine_dialog() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
       gtk_widget_show(widget);
@@ -1462,7 +1462,7 @@ void post_model_fit_refine_dialog() {
 
 void post_other_modelling_tools_dialog() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
       gtk_widget_show(widget);
@@ -1490,7 +1490,7 @@ void set_auto_read_column_labels(const char *fwt, const char *phwt,
 
 void toggle_idle_spin_function() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
 
    if (g.do_tick_spin)
@@ -1512,7 +1512,7 @@ void toggle_idle_spin_function() {
 
 
 void toggle_idle_rock_function() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    graphics_info_t g;
 
@@ -1545,7 +1545,7 @@ void set_rocking_factors(float width, float freq_scale) {
 
 /* Turn on nice animated ligand interaction display */
 void toggle_flev_idle_ligand_interactions() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    graphics_info_t g;
    if (g.idle_function_ligand_interactions_token == 0) {
@@ -1558,7 +1558,7 @@ void toggle_flev_idle_ligand_interactions() {
 }
 
 void set_flev_idle_ligand_interactions(int state) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    if (state == 0) {
       // turn them off if they were on
@@ -1654,7 +1654,7 @@ void info_dialog_with_markup(const char *txt) {
 
 void
 set_main_window_title(const char *s) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    graphics_info_t g;
    if (s) {
@@ -1678,7 +1678,7 @@ set_main_window_title(const char *s) {
 /*! function to show or hide the vertical modelling toolbar */
 void set_show_modelling_toolbar(short int state) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string wn = "model_fit_refine_toolbar_handlebox";
@@ -1728,7 +1728,7 @@ void set_show_modelling_toolbar(short int state) {
    them for gtk2 move maybe  */
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 void
 set_directory_for_filechooser(GtkWidget *fileselection1) {
@@ -1758,7 +1758,7 @@ bool compare_mtimes(coot::str_mtime a, coot::str_mtime b) {
 
 
 void quanta_buttons() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    g.quanta_buttons();
    add_to_history_simple("quanta-buttons");
@@ -2259,7 +2259,7 @@ void set_symmetry_whole_chain(int imol, int state) {
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) {
          g.molecules[imol].symmetry_whole_chain_flag = state;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          if (! g.glareas.empty())
             g.update_things_on_move_and_redraw();
 #endif
@@ -2406,7 +2406,7 @@ handle_symmetry_colour_change(int mol, double* col) {
    graphics_draw();
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 GdkRGBA
 get_map_colour(int imol) {
 
@@ -2432,7 +2432,7 @@ get_map_colour(int imol) {
 #if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
 #else
    // can I remove this?
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 void
 on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
@@ -2444,7 +2444,7 @@ on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorsel
 #endif
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data) {
@@ -2467,7 +2467,7 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
                                        gint response_id,
@@ -2502,7 +2502,7 @@ SCM map_colour_components(int imol) {
 
    SCM r = SCM_BOOL(0);
    if (is_valid_map_molecule(imol)) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       double rc = graphics_info_t::molecules[imol].map_colour.red;
       double gc = graphics_info_t::molecules[imol].map_colour.green;
       double bc = graphics_info_t::molecules[imol].map_colour.blue;
@@ -2532,7 +2532,7 @@ PyObject *map_colour_components_py(int imol) {
    PyObject *r;
    r = Py_False;
    if (is_valid_map_molecule(imol)) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       double rc = graphics_info_t::molecules[imol].map_colour.red;
       double gc = graphics_info_t::molecules[imol].map_colour.green;
       double bc = graphics_info_t::molecules[imol].map_colour.blue;
@@ -2728,7 +2728,7 @@ bool export_molecule_as_gltf(int imol, const std::string &file_name) {
 
 // -------------------------------------------------------------------
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gdouble*
 get_symmetry_bonds_colour(int idummy) {
 
@@ -2853,7 +2853,7 @@ short int get_show_symmetry() {
 }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 set_clipping_front(float v) {
    graphics_info_t g;
@@ -2868,7 +2868,7 @@ set_clipping_front(float v) {
 #endif
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 set_clipping_back(float v) {
    graphics_info_t g;
@@ -2881,7 +2881,7 @@ set_clipping_back(float v) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! \brief get clipping plane front */
 float get_clipping_plane_front() {
    graphics_info_t g;
@@ -2889,7 +2889,7 @@ float get_clipping_plane_front() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! \brief get clipping plane back */
 float get_clipping_plane_back() {
    graphics_info_t g;
@@ -2897,7 +2897,7 @@ float get_clipping_plane_back() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! increase the *amount* of clipping, that is (independent of projection matrix)*/
 void increase_clipping_front() {
    graphics_info_t g;
@@ -2905,7 +2905,7 @@ void increase_clipping_front() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! increase the *amount* of clipping, that is (independent of projection matrix)*/
 void increase_clipping_back() {
    graphics_info_t g;
@@ -2913,7 +2913,7 @@ void increase_clipping_back() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
 void decrease_clipping_front() {
    graphics_info_t g;
@@ -2921,7 +2921,7 @@ void decrease_clipping_front() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
 void decrease_clipping_back() {
    graphics_info_t g;
@@ -3009,7 +3009,7 @@ int get_colour_map_rotation_on_read_pdb_c_only_flag() {
   return ret;
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /* widget work */
 GtkWidget *wrapped_create_coords_colour_control_dialog() {
 
@@ -3053,7 +3053,7 @@ void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 void set_rotation_centre(float x, float y, float z) {
    graphics_info_t g;
    g.setRotationCentre(coot::Cartesian(x,y,z));
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (! g.glareas.empty())
       g.update_things_on_move_and_redraw();
 #endif
@@ -3366,7 +3366,7 @@ int make_ball_and_stick(int imol,
                         int do_spheres_flag) {
 
    int i = imol;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       GtkWidget *glarea_0 = 0;
@@ -3415,7 +3415,7 @@ void set_model_molecule_representation_style(int imol, unsigned int mode) {
 /*! set show a ribbon/mesh for a given molecule */
 void set_show_molecular_representation(int imol, int mesh_index, short int state) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (is_valid_model_molecule(imol)) {
       if (mesh_index >= 0)
@@ -3480,7 +3480,7 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
 					float bond_width,
 					int draw_hydrogens_flag) {
    int r = -1;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (is_valid_model_molecule(imol)) {
       coot::atom_selection_info_t info(atom_selection_str);
@@ -3513,7 +3513,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int draw_hydrogens_flag) {
 
    int r = -1;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -3714,7 +3714,7 @@ int n_dots_sets(int imol) {
    return r;
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
@@ -3728,7 +3728,7 @@ std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 std::pair<short int, int> int_from_entry(GtkWidget *entry) {
 
    std::pair<short int, int> p(0,0);
@@ -3874,7 +3874,7 @@ void set_use_stroke_characters(int state) {
 /*                         Rotation Centre Cube Size                       */
 /*  ---------------------------------------------------------------------- */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 void set_rotation_centre_size_from_widget(const gchar *text) {
 
@@ -3897,7 +3897,7 @@ void set_rotation_centre_size(float f) {
    graphics_draw();
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gchar *get_text_for_rotation_centre_cube_size() {
 
    char *text;
@@ -3927,7 +3927,7 @@ void set_draw_axes(int i) {
 }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 GtkWidget *main_window() {
    return graphics_info_t::get_main_window();
@@ -4336,7 +4336,7 @@ int reset_view() {
 //                   Skeleton
 // ------------------------------------------------------
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 handle_skeleton_colour_change(int mol, gdouble* map_col) {
 
@@ -4348,7 +4348,7 @@ handle_skeleton_colour_change(int mol, gdouble* map_col) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gdouble*
 get_skeleton_colour() {
 
@@ -4589,7 +4589,7 @@ autobuild_ca_off() {
 
 void do_clipping1_activate() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    std::cout << "############## do_clipping1_activate() " << std::endl;
 
    GtkScale *hscale;
@@ -4615,7 +4615,7 @@ void do_clipping1_activate() {
 #endif
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window) {
 
    /*    printf("Clipping adjustment: %f\n", adj->value); */
@@ -4974,7 +4974,7 @@ short int possible_cell_symm_for_phs_file() {
    }
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // return a string to each of the cell parameters in molecule imol.
 //
 gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
@@ -5070,7 +5070,7 @@ int go_to_atom_molecule_number() {
    return g.go_to_atom_molecule();
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 // 20220723-PE make these strings
 // ---------------------------------------------------------------------------------------
@@ -5126,7 +5126,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3, 1);
    if (success) {
       mmdb::Atom *at = 0; // passed but not used, it seems.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -5148,7 +5148,7 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
    int success = g.try_centre_from_new_go_to_atom();
    if (success) {
       mmdb::Atom *at = 0; // passed but not used, it seems.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -5187,7 +5187,7 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
 
    }
    mmdb::Atom *at = 0; // passed but not used, it seems.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *window = graphics_info_t::go_to_atom_window;
    if (window)
       g.update_widget_go_to_atom_values(window, at);
@@ -5223,7 +5223,7 @@ int set_go_to_atom_chain_residue_atom_name_strings(const char *t1, const char *t
 // }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 int
 goto_next_atom_maybe_new(GtkWidget *goto_atom_window) {
 
@@ -5236,7 +5236,7 @@ goto_next_atom_maybe_new(GtkWidget *goto_atom_window) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 int
 goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
 
@@ -5749,7 +5749,7 @@ void set_ca_bonds_loop_params(float p1, float p2, float p3) {
 //                        skeletonization level
 // -------------------------------------------------------------------------
 //
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gchar *get_text_for_skeletonization_level_entry() {
 
    graphics_info_t g;
@@ -5784,7 +5784,7 @@ void set_skeletonization_level_from_widget(const char *txt) {
    graphics_draw();
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gchar *get_text_for_skeleton_box_size_entry() {
 
    graphics_info_t g;
@@ -5862,7 +5862,7 @@ void store_keyed_user_name(std::string key, std::string user_name, std::string p
 /*  ----------------------------------------------------------------------- */
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void save_display_control_widget_in_graphics(GtkWidget *widget) {
 
    graphics_info_t g;
@@ -5872,7 +5872,7 @@ void save_display_control_widget_in_graphics(GtkWidget *widget) {
 
 void
 post_display_control_window() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *widget = wrapped_create_display_control_window(); // uses gtkbuilder
    gtk_widget_show(widget);
    std::vector<std::string> command_strings;
@@ -5881,7 +5881,7 @@ post_display_control_window() {
 #endif
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 clear_out_container(GtkWidget *vbox) {
 
@@ -5896,7 +5896,7 @@ clear_out_container(GtkWidget *vbox) {
 
 
 void add_map_display_control_widgets() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
 
    GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
@@ -5912,7 +5912,7 @@ void add_map_display_control_widgets() {
 
 void add_mol_display_control_widgets() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
 
    GtkWidget *molecule_vbox = widget_from_builder("display_molecule_vbox");
@@ -5936,14 +5936,14 @@ void add_map_and_mol_display_control_widgets() {
 
 // resets to NULL the scroll group too.
 void reset_graphics_display_control_window() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    g.save_display_control_widget_in_graphics(NULL);
 #endif
 }
 
 void close_graphics_display_control_window() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    GtkWidget *w = g.display_control_window();
    if (w) {
@@ -5960,7 +5960,7 @@ void set_map_displayed(int imol, int state) {
    graphics_info_t g;
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].set_map_is_displayed(state);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Displayed", state);
       graphics_draw();
@@ -6047,7 +6047,7 @@ void display_maps_py(PyObject *pyo) {
 // button_type is "Displayed" or "Active"
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    //   button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
@@ -6096,7 +6096,7 @@ void set_mol_displayed(int imol, int state) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_displayed(state);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Displayed", state);
 #endif
@@ -6127,7 +6127,7 @@ void set_mol_active(int imol, int state) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_active(state);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       if (g.display_control_window())
 	 set_display_control_button_state(imol, "Active", state);
 #endif
@@ -6173,7 +6173,7 @@ void set_all_maps_displayed(int on_or_off) {
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_map_molecule(imol)) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.display_control_window()) {
 	    set_display_control_button_state(imol, "Displayed", on_or_off);
          }
@@ -6194,7 +6194,7 @@ void set_all_models_displayed_and_active(int on_or_off) {
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.display_control_window())
 	    set_display_control_button_state(imol, "Active", on_or_off);
 	 if (g.display_control_window())
@@ -6262,7 +6262,7 @@ void set_only_last_model_molecule_displayed() {
 
 	 g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
 	 g.molecules[turn_these_off[j]].set_mol_is_active(0);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.display_control_window())
 	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
 	 if (g.display_control_window())
@@ -6279,7 +6279,7 @@ void set_only_last_model_molecule_displayed() {
 
 	 g.molecules[imol_last].set_mol_is_displayed(1);
 	 g.molecules[imol_last].set_mol_is_active(1);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.display_control_window())
 	    set_display_control_button_state(imol_last, "Displayed", 1);
 #endif
@@ -6482,7 +6482,7 @@ void set_smooth_scroll_zoom_limit(float f) {
    graphics_info_t::smooth_scroll_zoom_limit = f;
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void set_zoom_adjustment(GtkWidget *w) {
    graphics_info_t::set_zoom_adjustment(w);
 }
@@ -6523,7 +6523,7 @@ void set_refine_ramachandran_torsion_angles(int state) {
 void set_refine_ramachandran_angles(int state) {
    graphics_info_t::do_rama_restraints = state;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // Adjust the GUI
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string w_name = "main_toolbar_restraints_rama_label";
@@ -7153,7 +7153,7 @@ void post_scripting_window() {
 
 /*! \brief pop-up a scripting window for scheming */
 void post_scheme_scripting_window() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
 #ifdef USE_GUILE
 
@@ -7197,7 +7197,7 @@ void post_scheme_scripting_window() {
 
 /*! \brief pop-up a scripting window for pythoning */
 void post_python_scripting_window() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #ifdef USE_PYTHON
 
    bool do_script_scripting_gui = false;
@@ -7475,7 +7475,7 @@ run_state_file_maybe() {
 	    run_script(filename.c_str());
 	    graphics_info_t::state_file_was_run_flag = true;
 	 } else {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
                if (dialog)
@@ -7489,7 +7489,7 @@ run_state_file_maybe() {
    }
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 GtkWidget *wrapped_create_run_state_file_dialog() {
 
 #ifdef USE_GUILE
@@ -7538,7 +7538,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #ifdef USE_PYTHON
 GtkWidget *wrapped_create_run_state_file_dialog_py() {
 
@@ -7643,7 +7643,7 @@ import_python_module(const char *module_name, int use_namespace) {
 
 
 void add_on_rama_choices() {  // the the menu
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
    add_on_validation_graph_mol_options(menu_item, "ramachandran");
 #endif
@@ -7652,7 +7652,7 @@ void add_on_rama_choices() {  // the the menu
 
 
 void destroy_edit_backbone_rama_plot() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    g.destroy_edit_backbone_rama_plot();
 #endif
@@ -8478,7 +8478,7 @@ void set_do_GL_lighting(int state) {
 
    // 20220724-PE  old function can be deleted.
   
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t::do_lighting_flag = state;
    setup_lighting(state);
    graphics_draw();
@@ -8547,7 +8547,7 @@ void rotate_cursor() {
 }
 
 void set_pick_cursor_index(int i) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t::pick_cursor_index = GdkCursorType(i);
 #endif
 }
@@ -8733,7 +8733,7 @@ void handle_online_coot_search_request(const char *entry_text) {
 /*  ----------------------------------------------------------------------- */
 /* section Remote Control */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // called by c_inner_main() if we have guile
 void make_socket_listener_maybe() {
 
@@ -8780,7 +8780,7 @@ int get_remote_control_port_number() {
   return graphics_info_t::remote_control_port_number;
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 gint coot_socket_listener_idle_func(gpointer data) {
 
 #ifdef USE_GUILE
@@ -8998,7 +8998,7 @@ void play_views() {
 	    if (! (view2.is_simple_spin_view_flag ||
 		   view2.is_action_view_flag)) {
 	       coot::view_info_t::interpolate(view1, view2, nsteps);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	       update_things_on_move_and_redraw();
 #endif
 	    }
@@ -9024,7 +9024,7 @@ void play_views() {
 	       coot::view_info_t current_view(graphics_info_t::glm_quat,
 					      rc, graphics_info_t::zoom, "dummy");
 	       coot::view_info_t::interpolate(current_view, view2, nsteps);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	       update_things_on_move_and_redraw();
 #endif
 	    }
@@ -9104,7 +9104,7 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 					      graphics_info_t::views[view_number], nsteps);
 	    }
 	 }
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 update_things_on_move_and_redraw();
 #endif
       }
@@ -9386,7 +9386,7 @@ float views_play_speed() {
 /*  ----------------------------------------------------------------------- */
 /*                  remote control                                          */
 /*  ----------------------------------------------------------------------- */
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void set_socket_string_waiting(const char *s) {
 
    // wait for lock:
@@ -9432,7 +9432,7 @@ void set_socket_string_waiting(const char *s) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 /*! \brief feed the main thread a python script to evaluate */
 void set_socket_python_string_waiting(const char *s) {
 

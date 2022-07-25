@@ -55,7 +55,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // 20220723-PE perhaps delete (the use of) this include file completely?
 #include "globjects.h" //includes gtk/gtk.h
 #endif
@@ -67,7 +67,7 @@
 
 #include "graphics-info.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "widget-headers.hh"
 #endif
 
@@ -87,7 +87,7 @@
 
 
 #include "c-interface.h"
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "c-interface-gtk-widgets.h"
 #endif
 #include "cc-interface.hh"
@@ -121,7 +121,7 @@
 /*                   model/fit/refine functions:                             */
 /*  ------------------------------------------------------------------------ */
  void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
    // if we have the dialog open we shall change the label
    if (graphics_info_t::model_fit_refine_dialog) {
@@ -2049,7 +2049,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 	 res_specs.push_back(r);
       }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       g.delete_residues_from_geometry_graphs(imol, res_specs);
       if (graphics_info_t::go_to_atom_window) {
 	 update_go_to_atom_window_on_changed_mol(imol);
@@ -2525,7 +2525,7 @@ void sort_chains(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].sort_chains();
       if (graphics_info_t::use_graphics_interface_flag) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 graphics_info_t g;
 	 if (g.go_to_atom_window) {
 	    g.update_go_to_atom_window_on_changed_mol(imol);
@@ -2541,7 +2541,7 @@ void sort_residues(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].sort_residues();
       if (graphics_info_t::use_graphics_interface_flag) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
         graphics_info_t g;
         if (g.go_to_atom_window) {
            g.update_go_to_atom_window_on_changed_mol(imol);
@@ -2928,7 +2928,7 @@ void set_add_alt_conf_split_type_number(short int i) {
 
 void unset_add_alt_conf_dialog()  { /* set the static dialog holder in
 				     graphics info to NULL */
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t::add_alt_conf_dialog = NULL;
 #endif
 }
@@ -4158,7 +4158,7 @@ int place_helix_here() {
 	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), mol_name, 1);
 	  }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	  if (g.go_to_atom_window) {
 	     g.set_go_to_atom_molecule(imol);
 	     g.update_go_to_atom_window_on_new_mol();
@@ -4243,7 +4243,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
 	 g.add_status_bar_text(si.failure_message);
       }
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       if (g.go_to_atom_window) {
 	 g.set_go_to_atom_molecule(imol);
 	 g.update_go_to_atom_window_on_new_mol();
@@ -4348,7 +4348,7 @@ int find_secondary_structure_local(
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol,asc,g.Geom_p(),"SecStruc",1);
 	 g.molecules[imol].ca_representation(true);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
 	    g.update_go_to_atom_window_on_new_mol();
@@ -4428,7 +4428,7 @@ int find_nucleic_acids_local(float radius) {
    graphics_info_t::molecules[imol].update_molecule_after_additions();
 
    if (success) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    	 if (g.go_to_atom_window) {
    	    g.set_go_to_atom_molecule(imol);
    	    g.update_go_to_atom_window_on_new_mol();
@@ -5211,7 +5211,7 @@ int read_shelx_ins_file(const char *filename, short int recentre_flag) {
       } else {
 	 std::cout << "Molecule " << imol << " read successfully\n";
 	 istat = imol; // for return status
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 	 if (g.go_to_atom_window) {
 
 	    // See comments in

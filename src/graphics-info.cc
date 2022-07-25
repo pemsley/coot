@@ -39,7 +39,7 @@
 #include <vector>
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #endif
 
@@ -98,14 +98,14 @@
 
 #include "geometry/dict-utils.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "interface.h"
 #include "widget-from-builder.hh"
 #include "draw-2.hh"
 #include "pick.hh"
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 GtkWidget *
 graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
@@ -115,7 +115,7 @@ graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtk
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 GtkWidget *
 graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
@@ -175,7 +175,7 @@ graphics_info_t::post_recentre_update_and_redraw() {
 }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 GdkRGBA colour_by_distortion(float dist) {
 
    GdkRGBA col;
@@ -211,7 +211,7 @@ GdkRGBA colour_by_distortion(float dist) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
    if (true)
@@ -326,7 +326,7 @@ void graphics_info_t::SetMouseClicked(double x, double y) {
    mouse_clicked_begin.second = y;
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
 
@@ -455,7 +455,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       if (use_graphics_interface_flag) {
          if (show_no_bonds_dialog_maybe_flag) {
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
             gtk_widget_show(widget);
 #endif
@@ -707,7 +707,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       }
    }
    if (! done_it) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       // Oops! Next residue was not found, back to normal/standard/old mode
       if (dir)
          intelligent_next_atom_centring(go_to_atom_window);
@@ -752,7 +752,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -766,7 +766,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
@@ -810,7 +810,7 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // get the centre residue from moving atoms when 1 or 3 residue are
    // being refined and call update_ramachandran_plot_point_maybe()
    // with the residue spec.
@@ -874,7 +874,7 @@ graphics_info_t::get_closest_atom() const {
    return std::pair<int, int>(index_close, imol_close);
 }
 
-#ifdef EMSCRIPTEN_THING // 20220724-PE for now (just to get things compiling - should be restored)
+#ifndef EMSCRIPTEN // 20220724-PE for now (just to get things compiling - should be restored)
 void
 graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 
@@ -929,7 +929,7 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 
 #include <glm/gtx/string_cast.hpp>
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
@@ -965,7 +965,7 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
@@ -999,7 +999,7 @@ graphics_info_t::smooth_sinusoidal_scroll_animation_func(GtkWidget *widget,
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 bool
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
@@ -1073,7 +1073,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
      short int do_zoom_and_move_flag,
@@ -1106,7 +1106,7 @@ graphics_info_t::display_all_model_molecules() {
       int state = 1;
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          if (display_control_window())
             set_display_control_button_state(i, "Displayed", state);
 #endif
@@ -1127,7 +1127,7 @@ graphics_info_t::undisplay_all_model_molecules_except(int imol) {
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state); // raw, no callbacks
          molecules[i].set_mol_is_active(state);    //
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          if (display_control_window()) {
             set_display_control_button_state(imol, "Displayed", state);
             set_display_control_button_state(imol, "Active",   state);
@@ -1156,7 +1156,7 @@ graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &ke
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state);
          molecules[i].set_mol_is_active(state);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          if (display_control_window())
             set_display_control_button_state(i, "Displayed", state);
          if (display_control_window())
@@ -1201,7 +1201,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
       return true;
    }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    // smooth_scroll_maybe
 
@@ -1332,7 +1332,7 @@ graphics_info_t::ShowFPS(){
 void
 graphics_info_t::SetShowFPS(int t) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    show_fps_flag = t;
    Frames = 0;
    if (t == 0) {
@@ -1657,7 +1657,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -1671,7 +1671,7 @@ graphics_info_t::accept_moving_atoms() {
    clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    hide_atom_pull_toolbar_buttons();
 #endif
 
@@ -2051,7 +2051,7 @@ graphics_info_t::clear_up_moving_atoms() {
    // 20220220-PE I will comment this out (because I think the answer to the below question is "yes"
    // graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    draw_gl_ramachandran_plot_flag = false;
 #endif
 
@@ -2083,7 +2083,7 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
 
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
@@ -2106,7 +2106,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void
 graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
 
@@ -2320,7 +2320,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                                  // radius adjustment in make_glsl_bonds_type_checked()
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_models.Use();
    moving_atoms_molecule.make_glsl_bonds_type_checked(__FUNCTION__);
@@ -2328,7 +2328,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    setup_atom_pull_restraints_glsl();
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    { // put this somewhere
       std::vector<Instanced_Markup_Mesh_attrib_t> balls;
       update_rama_balls(&balls);
@@ -2456,7 +2456,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 #include "utils/dodec.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // delete this function?
 std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
@@ -2506,7 +2506,7 @@ graphics_info_t::get_rotamer_dodecs() {
 // }
 
 
-#ifdef EMSCRIPTEN_THING // 20220724-PE no pick info.  Hmm...
+#ifndef EMSCRIPTEN // 20220724-PE no pick info.  Hmm...
 mmdb::Atom *
 graphics_info_t::get_moving_atom(const pick_info &pi) const {
    mmdb::Atom *at = 0;
@@ -3218,7 +3218,7 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
    environment_object_bonds_box = molecules[imol].make_environment_bonds_box(atom_index, geom_p);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
    mesh_for_environment_distances.init(environment_object_bonds_box, background_is_black_p());
 
@@ -3302,7 +3302,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
                                         labels_for_measure_distances_and_angles.push_back(ali);
                                      };
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
 #endif
 
@@ -3313,7 +3313,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
    measure_distance_object_vec.push_back(p);
    Material mat;
    glm::vec4 col(0.72, 0.79, 0.72, 1.0);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    mesh_for_measure_distance_object_vec.add_dashed_line(p, mat, col);
 #endif
    add_measure_distance_label(p, dist, col);
@@ -3344,7 +3344,7 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
 void
 graphics_info_t::add_measure_angle() const {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
 #endif
 
@@ -3381,7 +3381,7 @@ graphics_info_t::add_measure_angle() const {
    // p2 is the middle atom
    Material mat;
    glm::vec4 colour(0.6, 0.7, 0.5, 1.0); // 20211007-PE same as in add_dashed_line();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    mesh_for_measure_angle_object_vec.add_dashed_angle_markup(coord_orth_to_glm(p1),
                                                              coord_orth_to_glm(p2),
                                                              coord_orth_to_glm(p3), colour, mat);
@@ -3823,7 +3823,7 @@ graphics_info_t::start_baton_here() {
       std::vector<int> map_molecules = valid_map_molecules();
 
       if (map_molecules.size() > 0) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
          gtk_widget_show(w);
 #endif
@@ -3835,7 +3835,7 @@ graphics_info_t::start_baton_here() {
          // 20091218 It is as it was - No map.
          //
          // GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
          g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
          gtk_widget_show(w);
@@ -4429,7 +4429,7 @@ graphics_info_t::apply_undo() {
    // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
    if (umol == -2) {
       if (use_graphics_interface_flag) {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
          GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
@@ -4455,7 +4455,7 @@ graphics_info_t::apply_undo() {
                   update_go_to_atom_window_on_changed_mol(umol);
 
                   // update the ramachandran, if there was one
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
                   GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
                   if (w) {
                      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4502,7 +4502,7 @@ graphics_info_t::apply_redo() {
 
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
       GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
       GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
@@ -4527,7 +4527,7 @@ graphics_info_t::apply_redo() {
             // BL says:: from undo, maybe more should be updated!?!
             // update the ramachandran, if there was one
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
             GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
             if (w) {
                coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4560,7 +4560,7 @@ graphics_info_t::apply_redo() {
 void
 graphics_info_t::activate_redo_button() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *dialog = model_fit_refine_dialog;
    if (dialog) {
       // which it should be!
@@ -4654,7 +4654,7 @@ graphics_info_t::pick_cursor_maybe() {
 void
 graphics_info_t::pick_cursor_real() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (use_graphics_interface_flag) {
       //    GdkCursorType c = GDK_CROSSHAIR;
       GdkCursorType c = pick_cursor_index;
@@ -4674,7 +4674,7 @@ graphics_info_t::pick_cursor_real() {
 void
 graphics_info_t::normal_cursor() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (use_graphics_interface_flag) {
       if (control_key_for_rotate_flag) {
          GdkCursorType c = GDK_LEFT_PTR;
@@ -4694,7 +4694,7 @@ graphics_info_t::normal_cursor() {
 // static
 void
 graphics_info_t::watch_cursor() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
@@ -4716,7 +4716,7 @@ graphics_info_t::watch_cursor() {
 void
 graphics_info_t::fleur_cursor() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
@@ -4749,7 +4749,7 @@ graphics_info_t::alt_conf_split_type_number() {
 void
 graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4780,7 +4780,7 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 void
 graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4809,7 +4809,7 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 void
 graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4834,7 +4834,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 #endif
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // activated from the edit torsion angles cancel button (and OK button, I
 // suppose).
 //
@@ -5302,7 +5302,7 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
 void
 graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
-#ifdef EMSCRIPTEN_THING // 20220724-PE for now. This should be restored
+#ifndef EMSCRIPTEN // 20220724-PE for now. This should be restored
 
    // first find the last map:
    int imap = -1;
@@ -5574,7 +5574,7 @@ graphics_info_t::make_pointer_distance_objects() {
       }
 
       // Now add to the meshed-generic-display-object
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
       mesh_for_pointer_distances.clear();
       labels_for_pointer_distances.clear();
@@ -5634,7 +5634,7 @@ graphics_info_t::clear_last_measure_distance() {
          labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       mesh_for_measure_distance_object_vec.clear();
 #endif
       Material material;
@@ -5642,7 +5642,7 @@ graphics_info_t::clear_last_measure_distance() {
 
       for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
          const auto &sdo = measure_distance_object_vec[i];
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
          mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material, col);
 #endif
       }
@@ -5945,7 +5945,7 @@ graphics_info_t::remove_dictionary_glob_extension(const std::string &extension) 
 void
 graphics_info_t::check_chiral_volumes(int imol) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
          // return a pair: first is the residues for which no
@@ -5984,7 +5984,7 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 //    fill_bond_parameters_internals(w, pos); // pos is imol
 // }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 void graphics_info_t::bond_parameters_molecule_combobox_changed(GtkWidget *combobox_molecule, gpointer data) {
 
@@ -6019,7 +6019,7 @@ graphics_info_t::clear_diff_map_peaks() {
 void
 graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    if (g.rotamer_dialog) {
       // void *t  = (void *) (gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
@@ -6102,7 +6102,7 @@ void graphics_info_t::difference_map_peaks_previous_peak() {
 // static
 void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could be private
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    if (g.difference_map_peaks_dialog) {
       int n_peaks = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.difference_map_peaks_dialog), "n_peaks"));
@@ -6153,7 +6153,7 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
 void
 graphics_info_t::checked_waters_next_baddie(int dir) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    graphics_info_t g;
    GtkWidget *dialog = g.checked_waters_baddies_dialog;
    if (dialog) {
@@ -6401,7 +6401,7 @@ graphics_info_t::process_socket_string_waiting() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
@@ -6444,7 +6444,7 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 gboolean
 graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
@@ -6642,7 +6642,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                            molecules[imol_updating_difference_map].set_mean_and_sigma(false, ignore_pseudo_zeros_for_map_stats);
                            molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
 
-#ifdef EMSCRIPTEN_THING // maybe put the condition inside fill_difference_map_peaks_button_box()?
+#ifndef EMSCRIPTEN // maybe put the condition inside fill_difference_map_peaks_button_box()?
                            fill_difference_map_peaks_button_box(); // do nothing if widget not realized.
 #endif
 
@@ -6789,7 +6789,7 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
    }
 }
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // static
 void
 graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
@@ -6816,7 +6816,7 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
 }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 GtkWidget *
 graphics_info_t::wrapped_create_display_control_window() {
 

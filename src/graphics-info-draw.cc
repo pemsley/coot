@@ -4728,7 +4728,7 @@ graphics_info_t::draw_boids() {
 void
 graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    // caller fills static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs
    // before this function
@@ -4762,7 +4762,7 @@ graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 void
 graphics_info_t::draw_hydrogen_bonds_mesh() {
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
    // Fix that later.
 

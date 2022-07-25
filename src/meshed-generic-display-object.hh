@@ -14,7 +14,7 @@
 #include "g_triangle.hh"
 #include "Material.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "Mesh.hh"
 #endif
 #include "utils/colour-holder.hh"
@@ -126,11 +126,11 @@ public:
    meshed_generic_display_object() { imol = UNDEFINED; wireframe_mode = false; }
    explicit meshed_generic_display_object(const std::string &name_in) {
       imol = UNDEFINED;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       mesh.name = name_in;
 #endif
       wireframe_mode = false; }
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) {
       imol = UNDEFINED; wireframe_mode = false; }
 #endif
@@ -143,7 +143,7 @@ public:
    int get_imol() const { return imol; }
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
    bool is_intermediate_atoms_object() const { return imol == INTERMEDIATE_ATOMS; }
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    Mesh mesh;
 #endif
 
@@ -151,12 +151,12 @@ public:
    void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    void attach_to_molecule(int imol_in) { imol = imol_in; }
    void clear() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       mesh.clear();
 #endif
       imol = UNDEFINED; }
    void close_yourself() { clear();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       mesh.close();
 #endif
    }

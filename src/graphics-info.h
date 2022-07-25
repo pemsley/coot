@@ -30,7 +30,7 @@
 
 #include "compat/coot-sysdep.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 // need gtk things
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -53,7 +53,7 @@
 #include <CXXClasses/RendererGLSL.hpp>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "ft-character.hh"
 #endif
 
@@ -62,7 +62,7 @@
 #include "coords/Cartesian.h"
 #include "ccp4mg-utils/mgtree.h"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "pick.hh" // 20220723-PE no picking for WebAssembly build
 #endif
 
@@ -127,7 +127,7 @@
 
 #include "atom-pull.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "key-bindings.hh"
 #endif
 
@@ -142,7 +142,7 @@
 #endif // HAVE_CURL_H
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "Texture.hh"
 #include "TextureMesh.hh"
 #include "HUDMesh.hh"
@@ -170,7 +170,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "simple-distance-object.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "gl-rama-plot.hh"
 #include "glarea_tick_function.hh"
 #endif
@@ -473,7 +473,7 @@ namespace coot {
 
 #include "view.hh"
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 #include "lsq-dialog-values.hh"
 #include "select-atom-info.hh"
 #include "gl-bits.hh"
@@ -541,7 +541,7 @@ class graphics_info_t {
    static coot::Cartesian angle_tor_pos_3;
    static coot::Cartesian angle_tor_pos_4;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkBuilder *gtkbuilder; // use this for widget lookups
    static GtkBuilder *preferences_gtkbuilder; // use this for widget lookups in the preferences dialog
    //
@@ -554,7 +554,7 @@ class graphics_info_t {
    static graphical_bonds_container environment_object_bonds_box;
    static graphical_bonds_container symmetry_environment_object_bonds_box;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    //
    static GdkModifierType button_1_mask_;
    static GdkModifierType button_2_mask_;
@@ -718,7 +718,7 @@ class graphics_info_t {
    // rebuild the mesh if a distance is deleted. (Angle same should that happen one day)
    static std::vector<coot::simple_distance_object_t> measure_distance_object_vec;
    static std::vector<coot::coord_orth_triple> measure_angle_object_vec;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Mesh mesh_for_measure_distance_object_vec;
    static Mesh mesh_for_measure_angle_object_vec;
 #endif
@@ -787,7 +787,7 @@ class graphics_info_t {
    static ramachandrans_container_t ramachandrans_container;
 
    clipper::Coord_orth moving_atoms_centre() const;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void set_edit_backbone_adjustments(GtkWidget *widget);
    static void edit_backbone_peptide_changed_func (GtkAdjustment *adj, GtkWidget *window); // callback
    static void edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window); // callback
@@ -823,7 +823,7 @@ class graphics_info_t {
    }
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
@@ -962,7 +962,7 @@ public:
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
    static void graphics_draw() {
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
       if (! glareas.empty()) {
          for (unsigned int i=0; i<glareas.size(); i++) {
@@ -1018,7 +1018,7 @@ public:
    }
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // New-style gtkbuilder!
    static void set_gtkbuilder(GtkBuilder *builder) { gtkbuilder = builder; }
    static void set_preferences_gtkbuilder(GtkBuilder *builder) { preferences_gtkbuilder = builder; }
@@ -1032,7 +1032,7 @@ public:
    static void make_gl_context_current(bool gl_context_current_request_index);
 
    // ------------- main window -----------------------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *main_window;
    static void set_main_window(GtkWidget *w) { main_window = w; }
    static GtkWidget *get_main_window() { return main_window; }
@@ -1040,7 +1040,7 @@ public:
    // ------------- glareas -----------------------
    std::chrono::time_point<std::chrono::system_clock> tp_now;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::vector<GtkWidget *> glareas;
    static GtkAllocation get_glarea_allocation() {
       GtkAllocation allocation;
@@ -1065,7 +1065,7 @@ public:
    static short int model_fit_refine_dialog_was_sucked;
 
    // ------------- statusbar -----------------------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *statusbar;
    static guint statusbar_context_id;
 
@@ -1081,7 +1081,7 @@ public:
 				       // Coot architecture).  Sometimes
 				       // not, though.
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // To be used to (typically) get the menu item text label from chain
    // option menus (rather than the ugly/broken casting of
    // GtkPositionType data.
@@ -1232,7 +1232,7 @@ public:
    static short int quanta_like_zoom_flag;
    static void mouse_zoom(double delta_x, double delta_y);
    static void scroll_zoom(int direction);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void handle_delete_item_curor_change(GtkWidget *widget);
 #endif
 
@@ -1303,7 +1303,7 @@ public:
    //
    static short int show_symmetry;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // Clipping Planes:
    static float clipping_front;
    static float clipping_back;
@@ -1346,7 +1346,7 @@ public:
    static bool smooth_scroll_on_going;
    static int go_to_ligand_animate_view_n_steps; // 50 default
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static
    gboolean smooth_scroll_animation_func(GtkWidget *widget,
                                          GdkFrameClock *frame_clock,
@@ -1437,7 +1437,7 @@ public:
 
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // old style: soon to be redundent
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
 #endif
@@ -1570,7 +1570,7 @@ public:
    static double idle_function_rock_amplitude_scale_factor;
    static double idle_function_rock_freq_scale_factor;
    static double idle_function_rock_angle_previous;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static gint drag_refine_idle_function(GtkWidget *widget);
 #endif
    static void add_drag_refine_idle_function();
@@ -1687,7 +1687,7 @@ public:
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *atom);
    void make_synthetic_select_on_residue_list(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
 
@@ -1802,7 +1802,7 @@ public:
    static int gtk2_file_chooser_selector_flag;
    static int gtk2_chooser_overwrite_flag;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void apply_go_to_atom_from_widget(GtkWidget *widget);
    static void pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
@@ -1819,7 +1819,7 @@ public:
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
    mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    pick_info find_atom_index_from_goto_info(int imol);
    pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag) const;
    pick_info pick_moving_atoms(const coot::Cartesian &front, const coot::Cartesian &back) const;
@@ -1851,7 +1851,7 @@ public:
    void show_select_map_dialog_gtkbuilder();
    void show_select_map_dialog_old_style();
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // Map and molecule display.  We need this so that we can look up
    // the names of the boxes so that we can add extra entries to them
    // when we create new maps and molecules
@@ -1965,7 +1965,7 @@ public:
 
 
    void execute_rotate_translate_ready(); // manual movement
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void unsetup_rotate_translate_buttons(GtkWidget *window); /* delete the user data */
    void do_rot_trans_adjustments(GtkWidget *dialog);
    static void rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
@@ -2230,13 +2230,13 @@ public:
    // dynarama: a list of dynarama canvases, each of which has
    // attached a pointer to a rama_plot class object.
    //
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget **dynarama_is_displayed;
    void set_dynarama_is_displayed(GtkWidget *dyna_canvas, int imol);
    void destroy_edit_backbone_rama_plot(); // only one of these.
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // sequence view
    static GtkWidget **sequence_view_is_displayed;
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
@@ -2295,7 +2295,7 @@ public:
    // map radius slider maximum
    static float map_radius_slider_max;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // mouse buttons
    GdkModifierType gdk_button1_mask() { return button_1_mask_;}
    GdkModifierType gdk_button2_mask() { return button_2_mask_;}
@@ -2438,7 +2438,7 @@ public:
    // 20220723-PE has (will have) internals blanked by EMSCRIPTEN
    void model_fit_refine_unactive_togglebutton(const std::string &button_name) const;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *go_to_atom_window;
 
 
@@ -2543,12 +2543,12 @@ public:
    void update_symmetry_environment_graphics_object(int atom_index, int imol);
    void add_distance_labels_for_environment_distances();
    static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static TextureMesh tmesh_for_labels;
    static HUDMesh mesh_for_hud_geometry;
 #endif
    static std::string label_for_hud_geometry_tooltip;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::map<std::string, Texture> texture_for_hud_geometry_labels_map;     // image to texture for
    static HUDTextureMesh mesh_for_hud_geometry_labels; // labels for the bars
    static HUDTextureMesh mesh_for_hud_tooltip_background;
@@ -2569,7 +2569,7 @@ public:
 
    static float get_x_base_for_hud_geometry_bars();
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Texture texture_for_camera_facing_quad; // debugging            
    static TextureMesh tmesh_for_camera_facing_quad;
    static Shader camera_facing_quad_shader;  // uses camera-facing-quad-shader-for-testing.shader
@@ -2678,7 +2678,7 @@ public:
    static short int delete_item_chain;
    // must save the widget so that it can be deleted when the item is selected.
    
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *delete_item_widget; // 20220723-PE do I need this now?
 #endif
    static int keep_delete_item_active_flag;
@@ -2701,7 +2701,7 @@ public:
    static void output_residue_info_dialog(int imol, int atom_index);
    //
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
 					       mmdb::PPAtom atoms, int n_atoms);
@@ -2794,7 +2794,7 @@ public:
    static const char *saved_refmac_file_filename;
    static int refmac_ncycles;
    static void set_refmac_refinement_method(int method);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void refmac_change_refinement_method(GtkWidget *item, GtkPositionType pos);
    static void refmac_refinement_method_combobox_changed(GtkWidget *combobox, gpointer data);
    static void set_refmac_phase_input(int phase_flag);
@@ -2809,7 +2809,7 @@ public:
    static void set_refmac_n_cycles(int no_cycles);
    static void set_refmac_use_ncs(int state);
    static std::vector<coot::refmac::sad_atom_info_t> refmac_sad_atoms;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void refmac_change_ncycles(GtkWidget *item, GtkPositionType pos);
    static GtkWidget *refmac_dialog_mtz_file_label;
 #endif
@@ -2854,7 +2854,7 @@ public:
    void do_rotamers(int atom_index, int imol) ; // display the rotamer option and display
                          			// the most likely in the graphics as a
 			                        // moving_atoms_asc
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const;
    static void on_rotamer_selection_button_toggled (GtkButton       *button,
 						    gpointer         user_data);
@@ -2872,7 +2872,7 @@ public:
    static int mutate_residue_imol;
    void do_mutation(const std::string &residue_type, short int do_stub_flag);
    static atom_selection_container_t standard_residues_asc;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const; /* set the stub checkbox */
 #endif
 
@@ -2949,7 +2949,7 @@ public:
 
    static void info_dialog(const std::string &s, bool use_markup=false);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // static GtkWidget *info_dialog(const std::string &s, bool use_markup=false);
    void fill_unsaved_changes_dialog(GtkWidget *dialog) const;
 #endif
@@ -2970,7 +2970,7 @@ public:
    //
    int check_for_unsaved_changes() const; // in state
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // File selection directory saving:
    // (uses private directory_for_fileselection)
    //
@@ -3002,7 +3002,7 @@ public:
    // who calls this?
    //   static void undo_molecule_select(GtkWidget *item, GtkPositionType pos);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void undo_molecule_combobox_changed(GtkWidget *c, gpointer data);
    void fill_combobox_with_undo_options(GtkWidget *option_menu); // not const
 #endif
@@ -3016,7 +3016,7 @@ public:
    //
    static int write_conect_records_flag;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // used in globjects: (20220723-PE so do I need it now?
    //
    int check_if_in_range_defines(GdkEventButton *event,
@@ -3079,7 +3079,7 @@ public:
    void set_bond_thickness(int imol, float thick);
    static int bond_thickness_intermediate_value; // not intermediate atoms
    // static void bond_parameters_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void bond_parameters_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
    static void bond_parameters_bond_width_combobox_changed(GtkWidget *combobox, gpointer data);
    static void fill_bond_parameters_internals(GtkWidget *w, int imol);
@@ -3113,7 +3113,7 @@ public:
    void reset_residue_info_edits() { // set residue_info_edits to zero elements
       residue_info_edits->resize(0);
    }
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void residue_info_release_memory(GtkWidget *dialog);
    void apply_residue_info_changes(GtkWidget *t);
    static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
@@ -3134,7 +3134,7 @@ public:
    // index, imol
    std::pair<int, int> get_closest_atom() const;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    //
 #if (GTK_MAJOR_VERSION >= 4)|| (GTK_MINOR_VERSION == 94)
    static GdkCursor pick_cursor_index; // user setable
@@ -3163,7 +3163,7 @@ public:
    // altconfs - we need to know which one).
    static float add_alt_conf_new_atoms_occupancy;
    static short int show_alt_conf_intermediate_atoms_flag;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *add_alt_conf_dialog;
    static void new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
 #endif
@@ -3198,7 +3198,7 @@ public:
 					     edit_chi_edit_type mode);
    // used by above:
    // (imol should be encoded into vbox - it isn't yet) // FIXME
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type, edit_chi_edit_type mode);
    static void clear_out_container(GtkWidget *vbox);
 #endif
@@ -3214,7 +3214,7 @@ public:
 
    static int edit_chi_current_chi;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // real values start at 1:
    static void on_change_current_chi_button_clicked(GtkButton *button,
 						    gpointer user_data);
@@ -3322,7 +3322,7 @@ public:
    void setup_draw_for_particles();
    void clear_measure_distances();
    void clear_last_measure_distance();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *geometry_dialog;
 #endif
    void unset_geometry_dialog_distance_togglebutton();
@@ -3342,7 +3342,7 @@ public:
    void setup_draw_for_happy_face_residue_markers_init(); // run this once to setup instancing buffer
    void setup_draw_for_happy_face_residue_markers(); // run this every time we want to see faces,
                                                      // it sets the start position of the faces.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Texture texture_for_happy_face_residue_marker;
 #endif
    // likewise
@@ -3354,7 +3354,7 @@ public:
    void setup_draw_for_anchored_atom_markers_init(); // run this once to setup instancing buffer
    void setup_draw_for_anchored_atom_markers();     // run this every time we want to anchored atoms
                                                     // it sets the start position of the textures
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Texture texture_for_anchored_atom_markers;
    static TextureMesh tmesh_for_anchored_atom_markers;
 #endif
@@ -3364,7 +3364,7 @@ public:
    static void setup_draw_for_bad_nbc_atom_pair_markers();
    static void draw_bad_nbc_atom_pair_markers(unsigned int pass_type);
    static void update_bad_nbc_atom_pair_marker_positions();
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Texture texture_for_bad_nbc_atom_pair_markers;
    static TextureMesh tmesh_for_bad_nbc_atom_pair_markers;
 #endif
@@ -3379,7 +3379,7 @@ public:
    // pickable moving atoms molecule
    // (we want to be able to avoid picking hydrogen atoms if the
    // are not displayed)
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    pick_info moving_atoms_atom_pick(short int pick_mode) const;
 #endif
    static short int in_moving_atoms_drag_atom_mode_flag;
@@ -3473,11 +3473,11 @@ public:
    static float check_waters_by_difference_map_sigma_level;
    static int   check_waters_by_difference_map_map_number;
    // save the dialog so that . and , can be used on it
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *checked_waters_baddies_dialog;
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // zoom widget:
    //
    static void zoom_adj_changed(GtkAdjustment *adj, GtkWidget *window);
@@ -3529,7 +3529,7 @@ public:
 							     int is_reference_structure_flag);
    */
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void superpose_reference_chain_combobox_changed(GtkWidget *combobox, gpointer data);
    static void superpose_moving_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
@@ -3597,7 +3597,7 @@ public:
 
    // widget stuff:
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::pair<short int, float> float_from_entry(GtkWidget *entry);
    static std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 
@@ -3623,7 +3623,7 @@ public:
    void check_waters_by_difference_map(int imol_waters, int imol_diff_map,
 				       int interactive_flag);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // and a gui wrapper for that:
    GtkWidget *wrapped_create_checked_waters_by_variance_dialog(const std::vector <coot::atom_spec_t> &v, int imol);
    // and its buttons callbacks:
@@ -3634,7 +3634,7 @@ public:
    // ----- chiral volumes: ----
 
    void check_chiral_volumes(int imol);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *wrapped_check_chiral_volumes_dialog(const std::vector <coot::atom_spec_t> &v,
 						  int imol);
    static void on_inverted_chiral_volume_button_clicked(GtkButton *button,
@@ -3642,7 +3642,7 @@ public:
 #endif
    static int check_chiral_volume_molecule;
    // Tell us which residue types for chiral volumes restraints were missing:
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const;
    static void check_chiral_volume_molecule_combobox_changed(GtkWidget *w, gpointer data);
 #endif
@@ -3686,13 +3686,13 @@ public:
 
    // ------ new style combobox usage -------
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // the top one of this is probably what you want.
    std::string get_active_label_in_comboboxtext(GtkComboBoxText *combobox);
    std::string get_active_label_in_combobox(GtkComboBox *combobox) const;
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // ------ add OXT -------
    void fill_add_OXT_dialog_internal(GtkWidget *w);
    static int add_OXT_molecule;
@@ -3741,7 +3741,7 @@ public:
 
 
    // ----- renumber residue range -------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void fill_renumber_residue_range_dialog(GtkWidget *w);
    static void renumber_residue_range_molecule_combobox_changed(GtkWidget *combobox,
 								gpointer data);
@@ -3753,13 +3753,13 @@ public:
    static std::string renumber_residue_range_chain;
 
    // -------- public toggle button control: ---------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void untoggle_model_fit_refine_buttons_except(const std::string &button_name);
    static void set_model_fit_refine_button_names(GtkWidget *w);
    static void set_other_modelling_tools_button_names(GtkWidget *w);
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::vector<keyboard_key_t> keyboard_key_history;
    static void add_key_to_history(const keyboard_key_t &kk) { keyboard_key_history.push_back(kk); };
    static void check_keyboard_history_for_easter_egg_codes();
@@ -3795,7 +3795,7 @@ public:
    void omega_graphs(int imol);
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data); // called by below
    static void fill_difference_map_peaks_button_box(bool force_fill=false);
 
@@ -3822,13 +3822,13 @@ public:
    static int backup_compress_files_flag;
 
    // --------- Miguel's axis orientation matrix ---------------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GL_matrix axes_orientation;
    static short int use_axes_orientation_matrix_flag;
 #endif
 
    // --------- preferences ---------------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *preferences_widget;
 #endif
    static int mark_cis_peptides_as_bad_flag;
@@ -3853,7 +3853,7 @@ public:
 					  float fvalue1, float fvalue2, float fvalue3);
    void preferences_internal_change_value(int preference_type, int ivalue1, int ivalue);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
 					      gchar *path,
 		    			      gpointer data);
@@ -3896,7 +3896,7 @@ public:
    static SCM safe_scheme_command(const std::string &scheme_command);
    static SCM process_socket_string_waiting();
 #endif
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static gboolean process_socket_string_waiting_bool(gpointer user_data);
    static gboolean process_socket_python_string_waiting_bool(gpointer user_data);
 #endif
@@ -3922,7 +3922,7 @@ public:
    static std::string lsq_match_chain_id_mov;
    static int lsq_ref_imol;
    static int lsq_mov_imol;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static lsq_dialog_values_t lsq_dialog_values;
 #endif
 
@@ -3931,7 +3931,7 @@ public:
    //          and some people want seg-ids in their atom labels (Francesca)
    static short int seg_ids_in_atom_labels_flag;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *wrapped_create_display_control_window();
 #endif
 
@@ -3958,7 +3958,7 @@ public:
    bool cis_trans_conversion_intermediate_atoms();
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
    static GtkWidget *symmetry_controller_dialog;  // returned by above
@@ -3972,7 +3972,7 @@ public:
    void render_lsq_plane_atoms(); // put a blob at atoms in lsq_plane_atom_positions
    static short int in_lsq_plane_deviation;
    static short int in_lsq_plane_define;
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    GtkWidget *wrapped_create_lsq_plane_dialog();
    static GtkWidget *lsq_plane_dialog;
 #endif
@@ -3985,7 +3985,7 @@ public:
 
    // -------- Meshes control (i.e. the Meshes of molecule_class_info)
    void set_show_molecular_representation(int imol, unsigned int mesh_idx, bool on_off);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void update_main_window_molecular_representation_widgets();
    static void main_window_meshes_togglebutton_toggled(GtkToggleButton *button, gpointer *user_data);
 #endif
@@ -3998,7 +3998,7 @@ public:
    
 
    // -------- Texture Meshes (for importing glTF models) -------------
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::vector<TextureMesh> texture_meshes;
    static void draw_texture_meshes();
 
@@ -4012,7 +4012,7 @@ public:
    static meshed_generic_display_object mesh_for_pointer_distances;
 #endif
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {
@@ -4093,7 +4093,7 @@ public:
    static int move_molecule_here_molecule_number;
    // static void move_molecule_here_item_select(GtkWidget *item,
    // GtkPositionType pos);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void move_molecule_here_combobox_changed(GtkWidget *combobox, gpointer data);
 #endif
 
@@ -4156,7 +4156,7 @@ public:
    static float electrostatic_surface_charge_range;
 
    // --- nudge active residue
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void nudge_active_residue(guint direction);
    static void nudge_active_residue_by_rotate(guint direction);
 #endif
@@ -4223,7 +4223,7 @@ string   static std::string sessionid;
    static void dump_a_movie_image(); // should be private
    static int screendump_image(const std::string &file_name);
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 
    // ------------------------- restraints editor ----------------------------
    //
@@ -4300,7 +4300,7 @@ string   static std::string sessionid;
    static coot::nomenclature_error_handle_type nomenclature_errors_mode;
 
    void multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void on_multi_residue_torsion_button_clicked(GtkButton *button, gpointer user_data);
 #endif
    void rotate_multi_residue_torsion(double x, double y);
@@ -4327,7 +4327,7 @@ string   static std::string sessionid;
    void setup_graphics_ligand_view_using_active_atom(int imol);
    void setup_graphics_ligand_view_using_active_atom();
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static graphics_ligand_mesh_molecule_t graphics_ligand_mesh_molecule;
    void setup_draw_for_ligand_view();
    void close_graphics_ligand_view_for_mol(int imol_in) {
@@ -4394,7 +4394,7 @@ string   static std::string sessionid;
 				   bool refine_again_flag) {
       for (std::size_t i=0; i<specs.size(); i++)
 	 clear_atom_pull_restraint(specs[i], false);
-#ifdef EMSCRIPTEN_THING // 20220723-PE maybe we want to restore this.
+#ifndef EMSCRIPTEN // 20220723-PE maybe we want to restore this.
       if (refine_again_flag)
 	 if (last_restraints)
 	    drag_refine_refine_intermediate_atoms();
@@ -4410,14 +4410,14 @@ string   static std::string sessionid;
    void display_all_model_molecules();
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkWidget *cfc_dialog;
 #endif
 
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static Instanced_Markup_Mesh rama_balls_mesh;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
@@ -4520,7 +4520,7 @@ string   static std::string sessionid;
    float trackball_project_to_sphere(float r, float x, float y) const;
    glm::quat trackball_to_quaternion(float p1x, float p1y, float p2x, float p2y, float trackball_size) const;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    // Shader things
    static bool draw_the_other_things;
    static GLuint other_triangles_vertexarray_id;
@@ -4712,7 +4712,7 @@ string   static std::string sessionid;
 
    static int regenerate_intermediate_atoms_bonds_timeout_function();
    // static int regenerate_intermediate_atoms_bonds_timeout_function_and_draw(); old timeout style
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static gint regenerate_intermediate_atoms_bonds_timeout_function_and_draw(gpointer data);
 #endif
    // we need to wait for the refinement to finish when we are in
@@ -4779,14 +4779,14 @@ string   static std::string sessionid;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
    // text
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::map<GLchar, FT_character> ft_characters;
    void load_freetype_font_textures();
    static bool vera_font_loaded;
 #endif
 
    // key-bindings
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
    static void add_key_binding(keyboard_key_t k, key_bindings_t kb) {
       key_bindings_map[k] = kb;
@@ -4802,7 +4802,7 @@ string   static std::string sessionid;
    // Where do contact dots fit in?
    // Overlap volumes?
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    void setup_atom_pull_restraints_glsl();
    static GLuint m_VertexArray_for_pull_restraints_ID;
    static GLuint m_VertexBuffer_for_pull_restraints_ID;
@@ -4916,7 +4916,7 @@ string   static std::string sessionid;
 
    // 20220129-PE integrating crows
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static void render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
                                      Shader *shader_for_tmeshes_with_shadows_p,
                                      Shader *shader_for_meshes_with_shadows_p,
@@ -4981,7 +4981,7 @@ string   static std::string sessionid;
    // void render_scene_with_x_blur();
    // void render_scene_with_y_blur();
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GtkAdjustment *focus_blur_z_depth_adjustment;
 #endif
    // static float focus_blur_z_depth;
@@ -4995,7 +4995,7 @@ string   static std::string sessionid;
    // static framebuffer combine_textures_using_depth_framebuffer;
    // static framebuffer blur_x_framebuffer;
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
    static GLuint screen_AO_quad_vertex_array_id;
    static GLuint screen_AO_quad_VBO;
 
@@ -5099,7 +5099,7 @@ string   static std::string sessionid;
    void load_gltf_model(const std::string &gltf_file_name);
 
    static void attach_buffers() { // this is called everywhere. Just make it do nothing.
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
       if (use_graphics_interface_flag) {
          auto gl_area = glareas[0];
          gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
@@ -5118,7 +5118,7 @@ class molecule_rot_t {
 };
 
 
-#ifdef EMSCRIPTEN_THING
+#ifndef EMSCRIPTEN
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
 // old real GTK dialog interface:
 void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);
