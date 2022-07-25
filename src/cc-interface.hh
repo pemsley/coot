@@ -23,7 +23,9 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
-#include <Python.h>
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
 
 #ifdef EMSCRIPTEN_THING
 #include <gtk/gtk.h>
@@ -32,10 +34,6 @@
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"

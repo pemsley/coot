@@ -2328,11 +2328,13 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    setup_atom_pull_restraints_glsl();
 #endif
 
+#ifdef EMSCRIPTEN_THING
    { // put this somewhere
       std::vector<Instanced_Markup_Mesh_attrib_t> balls;
       update_rama_balls(&balls);
       rama_balls_mesh.update_instancing_buffers(balls);
    }
+#endif
 
 }
 
@@ -3311,7 +3313,9 @@ graphics_info_t::add_measure_distance(const coot::Cartesian &p1,
    measure_distance_object_vec.push_back(p);
    Material mat;
    glm::vec4 col(0.72, 0.79, 0.72, 1.0);
+#ifdef EMSCRIPTEN_THING
    mesh_for_measure_distance_object_vec.add_dashed_line(p, mat, col);
+#endif
    add_measure_distance_label(p, dist, col);
    
    graphics_draw();
@@ -3377,9 +3381,11 @@ graphics_info_t::add_measure_angle() const {
    // p2 is the middle atom
    Material mat;
    glm::vec4 colour(0.6, 0.7, 0.5, 1.0); // 20211007-PE same as in add_dashed_line();
+#ifdef EMSCRIPTEN_THING
    mesh_for_measure_angle_object_vec.add_dashed_angle_markup(coord_orth_to_glm(p1),
                                                              coord_orth_to_glm(p2),
                                                              coord_orth_to_glm(p3), colour, mat);
+#endif
 
    clipper::Coord_orth mid_point(0.3333 * (p1+p2+p3));
    clipper::Coord_orth centre_atom_to_mid_point_uv((mid_point-p2).unit());
@@ -5628,14 +5634,17 @@ graphics_info_t::clear_last_measure_distance() {
          labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
-
+#ifdef EMSCRIPTEN_THING
       mesh_for_measure_distance_object_vec.clear();
+#endif
       Material material;
       glm::vec4 col(0.72, 0.79, 0.72, 1.0); // same as add_measure_distance()
 
       for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
          const auto &sdo = measure_distance_object_vec[i];
+#ifdef EMSCRIPTEN_THING
          mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material, col);
+#endif
       }
       graphics_draw();
    }

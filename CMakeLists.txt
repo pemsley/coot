@@ -86,10 +86,6 @@ add_library(coot STATIC
             ${coot_src}/protein_db/protein_db.cpp
             ${coot_src}/protein_db/protein_db_utils.cpp
             ${coot_src}/protein_db/rna_db.cpp
-            ${coot_src}/pli/flev-annotations.cc
-            ${coot_src}/pli/protein-ligand-interactions.cc
-            ${coot_src}/pli/pi-stacking.cc
-            ${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
             ${coot_src}/coot-utils/shiftfield.cpp

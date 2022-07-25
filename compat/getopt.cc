@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>             /* getenv() */
 
+#include <cstring>
 #include "coot-getopt.h"
 
 /* For communication from `getopt' to the caller.

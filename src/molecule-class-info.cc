@@ -25,7 +25,9 @@
 #include <Python.h> // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#ifndef EMSCRIPTEN
 #include <epoxy/gl.h>
+#endif
 
 #include "compat/coot-sysdep.h"
 
@@ -152,7 +154,9 @@ molecule_class_info_t::setup_internal() {
    bonds_box_type = coot::UNSET_TYPE;
    bonds_rotate_colour_map_flag = 0;
 
+#ifndef EMSCRIPTEN
    model_representation_mode = Mesh::BALL_AND_STICK;
+#endif
    save_time_string = "";
 
    pickable_atom_selection = 1;
@@ -4079,6 +4083,7 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
    // we should use goodsell colouring by default here
 
+#ifdef EMSCRIPTEN_THING  // restore this?
    if (mode == Mesh::BALL_AND_STICK) {
       if (model_representation_mode != Mesh::BALL_AND_STICK) {
          model_representation_mode = mode;
@@ -4091,6 +4096,7 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
+#endif
 
 }
 

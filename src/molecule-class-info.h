@@ -159,11 +159,13 @@ namespace molecule_map_type {
 #include "merge-molecule-results-info-t.hh"
 #include "density-results-container-t.hh"
 
+#ifdef EMSCRIPTEN_THING
 #include "Shader.hh"
+#endif
 
 #include "updating-map-params.hh"
-#include "updating-coordinates-molecule-parameters.hh"
 #ifdef EMSCRIPTEN_THING
+#include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
 #endif
 #include "clipper-ccp4-map-file-wrapper.hh"
@@ -230,12 +232,14 @@ namespace coot {
 	 display_it_flag = 1;
       }
       void update_bonds(mmdb::Manager *mol); // the parent's mol
+#ifdef EMSCRIPTEN_THING
       void draw(Shader *shader,
                 const glm::mat4 &mvp,
                 const glm::mat4 &view_rotation_matrix,
                 const std::map<unsigned int, lights_info_t> &lights,
                 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                 const glm::vec4 &background_colour);
+#endif
       bool is_empty() { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,
 					 mmdb::Residue *master_residue_p,
@@ -2559,12 +2563,14 @@ public:        //                      public
    int draw_ncs_ghosts_p() const { // needed for setting the Bond Parameters checkbutton
       return show_ghosts_flag;
    }
+#ifdef EMSCRIPTEN_THING
    void draw_ncs_ghosts(Shader *shader_for_meshes,
                         const glm::mat4 &mvp,
                         const glm::mat4 &model_rotation_matrix,
                         const std::map<unsigned int, lights_info_t> &lights,
                         const glm::vec3 &eye_position,
                         const glm::vec4 &background_colour);
+#endif
 
    std::vector<coot::ghost_molecule_display_t> NCS_ghosts() const;
 

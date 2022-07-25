@@ -46,8 +46,10 @@
 #ifndef C_INTERFACE_H
 #define C_INTERFACE_H
 
-// Python is no longer conditionally compiled
+// Python conditionally compiled test is needed for WebAssembly build
+#ifdef USE_PYTHON
 #include "Python.h"
+#endif
 
 /*
   The following extern stuff here because we want to return the

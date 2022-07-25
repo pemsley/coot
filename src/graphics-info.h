@@ -98,7 +98,6 @@
 #undef DO_GEOMETRY_GRAPHS
 #endif
 
-#define EMSCRIPTEN // FIXME! -- this should be set by the compiler
 #ifdef EMSCRIPTEN
 #undef DO_SEQUENCE_VIEW
 #undef DO_RAMA_PLOT
@@ -719,8 +718,10 @@ class graphics_info_t {
    // rebuild the mesh if a distance is deleted. (Angle same should that happen one day)
    static std::vector<coot::simple_distance_object_t> measure_distance_object_vec;
    static std::vector<coot::coord_orth_triple> measure_angle_object_vec;
+#ifdef EMSCRIPTEN_THING
    static Mesh mesh_for_measure_distance_object_vec;
    static Mesh mesh_for_measure_angle_object_vec;
+#endif
 
    // 20180217 moving_atoms_dragged_atom_index -> moving_atoms_dragged_atom_indices
    //          Now we can have many dragged atoms
@@ -4416,9 +4417,11 @@ string   static std::string sessionid;
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false
 
+#ifdef EMSCRIPTEN_THING
    static Instanced_Markup_Mesh rama_balls_mesh;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
+#endif
 
    static bool all_atom_contact_dots_ignore_water_flag; // false by default
    static bool all_atom_contact_dots_do_vdw_surface; // false by default
