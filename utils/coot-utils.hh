@@ -189,6 +189,8 @@ namespace coot {
 
    bool file_is_empty(const std::string &filename);
 
+   bool file_exists_and_non_empty(const std::string &file_name);
+
    bool is_directory_p(const std::string &filename);
 
    // Gauss Legendre Quadrature
