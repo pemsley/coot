@@ -439,6 +439,56 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    if (true) {
 
+      auto get_alphafold_model_via_uniprot = [] (const std::string &uniprot_id) {
+
+         std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+         std::string fn = coot::util::append_dir_file("coot-download", fn_tail);
+         // make coot-download if needed
+         std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+         bool needs_downloading = true;
+         if (coot::file_exists_and_non_empty(fn))
+            needs_downloading = false;
+         if (needs_downloading) {
+            coot_get_url(url.c_str(), fn.c_str());
+         }
+         int imol = read_pdb(fn.c_str());
+         return imol;
+      };
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         if (mol) {
+            int imod = 1;
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_refs = chain_p->GetNumberOfDBRefs();
+                  std::string chain_id = chain_p->GetChainID();
+                  for (int ref_no=0; ref_no<n_refs; ref_no++) {
+                     mmdb::DBReference  *ref = chain_p->GetDBRef(ref_no);  // 0..nDBRefs-1
+                     std::string db = ref->database;
+                     std::string db_accession = ref->dbAccession;
+                     std::cout << "Chain " << chain_id << " " << db << " " << db_accession << std::endl;
+                     if (db == "UNP") {  // uniprot
+
+                        int imol_af = get_alphafold_model_via_uniprot(db_accession);
+                        if (is_valid_model_molecule(imol_af)) {
+                           move_molecule_to_screen_centre_internal(imol);
+                           superpose_with_chain_selection(imol, imol_af, chain_id.c_str(), "A", 1, 0, 0);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (false) {
+
       std::string hklin_file_name = "coot-download/1gwd_map.mtz";
       std::string f_col_label   = "FWT";
       std::string phi_col_label = "PHWT";

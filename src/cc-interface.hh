@@ -1358,6 +1358,8 @@ void stop_curl_download(const char *file_name); // stop curling the to file_name
 
 std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
 
+void fetch_and_superpose_alphafold_models(int imol);
+
 #endif /* USE_LIBCURL */
 
 
