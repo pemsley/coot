@@ -394,7 +394,8 @@
 # 6.05 20220706 Use https:: instead of ftp::
 # 6.06 20220707 try export LD_LIBRARY_PATH=$install_top_dir/lib in Coot section
 # 6.07 20220710 libffi fixes for python
-script_version=6.07
+# 6.08 20220803-PE pygobject cleanups
+script_version=6.08
 
 
 
@@ -2086,7 +2087,7 @@ fi
 
 # set build_pygobject here
 if [ ! -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-    build_pygobject=1
+    build_pygobject=true
 fi
 
 
@@ -2920,31 +2921,26 @@ if [ true ] ; then
    else
       echo installation has pycairo
    fi
+fi
 
-   echo BUILDING pygobject:
-   #
-   pygobject_major_minor_version=3.29
-   pygobject_major_minor_version=3.30
-   pygobject_major_minor_version=3.36
-   pygobject_major_minor_version=3.42
-   pygobject_version=3.29.1
-   pygobject_version=3.30.5
-   pygobject_version=3.42.1
+pygobject_major_minor_version=3.29
+pygobject_major_minor_version=3.30
+pygobject_major_minor_version=3.36
+pygobject_major_minor_version=3.42
+pygobject_version=3.29.1
+pygobject_version=3.30.5
+pygobject_version=3.42.1
 
-   date
-   pwd
-   skip_build=false
-   if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-         skip_build=true
-      fi
+date
+pwd
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+      skip_build=true
    fi
 fi
 
-
-if [ true ] ; then
-
-   if [ $skip_build = false ] ; then
+if [ $skip_build = false ] ; then
 
       echo BUILDING pygobject $pygobject_version:
       (
@@ -2977,9 +2973,6 @@ if [ true ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
-   else
-      echo skip build of gobject
-   fi
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
