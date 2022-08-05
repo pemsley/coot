@@ -348,7 +348,7 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
    // GtkWidget *w = create_undo_molecule_chooser_dialog();
    // GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
    GtkWidget *w = widget_from_builder("undo_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
+   GtkWidget *combobox = widget_from_builder("undo_molecule_comboboxtext");
    graphics_info_t g;
 
    g.fill_combobox_with_undo_options(combobox);
@@ -2191,6 +2191,14 @@ GtkWidget *coot_save_state_chooser() {
 }
 
 GtkWidget *coot_save_symmetry_chooser() {
+
+   // 20220625-PE
+   // dialog widgets need to be able to default so that gtk_widget_grab_default(), which
+   // is called by gtk_file_chooser_set_do_overwrite_confirmation(), can work
+   // without a critcal (console) error.
+   //
+   // Does that need to be set in the glade file? I did so and it seemed to work
+   // (whereas setting it here did not).
 
    GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooser_dialog");
    // gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER (w), TRUE);

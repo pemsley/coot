@@ -1313,7 +1313,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    bool done = false;
    int offset = 0; // blue starts at 0
 
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS || bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
       if (i == 0) {
          rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
          done = true;
@@ -1327,7 +1327,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
@@ -1374,7 +1374,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
    bool done = false;
    int offset = 0; // blue starts at 0
 
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) {
       if (icol == 0) {
          rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
          done = true;
@@ -1388,7 +1388,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << icol
-                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS
+                << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
@@ -3729,7 +3729,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 << caller_s << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
                 << std::endl;
    if (debug)
-      std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
+      std::cout << "--------- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
                 << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
                 << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
@@ -3737,6 +3737,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
                 << "CA_BONDS " << coot::CA_BONDS << " "
                 << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
+                << "COLOUR_BY_USER_DEFINED_COLOURS___BONDS " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS << " "
                 << std::endl;
 
    // Delete this in due course
@@ -3787,7 +3788,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
       b_factor_representation();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
-   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS)
       user_defined_colours_representation(g.Geom_p(), true, g.draw_missing_loops_flag); // hack,
                                                              // because we need to remeber somehow
                                                              // if this was called with all-atom or CA-only.
@@ -3796,6 +3797,9 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                                                              // Perhaps we need two functions
                                                              // user_defined_colours_representation_all()
                                                              // user_defined_colours_representation_Calpha() [+ ligands]
+
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS)
+      user_defined_colours_representation(g.Geom_p(), false, g.draw_missing_loops_flag); // hack,
 
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
@@ -3837,13 +3841,30 @@ molecule_class_info_t::make_colour_table() const {
    bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
 
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
          colour_table[icol] = col;
       } else {
-         coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-         colour_table[icol] = cc.to_glm();
+         if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
+            if (! graphics_info_t::user_defined_colours.empty()) {
+               int n_ud_colours = graphics_info_t::user_defined_colours.size();
+               if (icol < n_ud_colours) {
+                  const coot::colour_holder &col = graphics_info_t::user_defined_colours[icol];
+                  glm::vec4 ud_col(col.red, col.green, col.blue, 1.0);
+                  colour_table[icol] = ud_col;
+               } else {
+                  std::cout << "WARNING:: in make_colour_table() out of index colour COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS "
+                            << icol << " " << graphics_info_t::user_defined_colours.size() << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: in make_colour_table() user_defined_colours was empty " << std::endl;
+            }
+         } else {
+            coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+            colour_table[icol] = cc.to_glm();
+         }
       }
    }
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
@@ -3881,17 +3902,21 @@ molecule_class_info_t::make_colour_table() const {
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
-   std::cout << "debug:: ---- in make_mesh_from_bonds_box() --- start ---" << std::endl;
+   //  std::cout << "debug:: ---- in make_mesh_from_bonds_box() --- start ---" << std::endl;
+
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
 
    // num_subdivisions = 2 corresponds to n_slices = 16 ie.. num_slices = 4 * 2^(n_subdivision)
 
    unsigned int n_stacks = 2; // top and bottom stacks.
-   float atom_radius = 0.02 * bond_width; // use atom_radius_scale_factor
+   float atom_radius = 0.02 * bond_width * atom_radius_scale_factor;
    if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    float bond_radius = atom_radius;
+
+   // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
+   //           << " bond_radius " << bond_radius << "  atom_radius " << atom_radius << std::endl;
 
    // do smooth
    if (graphics_info_t::bond_smoothness_factor == 1) {
@@ -3909,6 +3934,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
 
    // std::cout << "######################## imol_no " << imol_no << std::endl;
    // std::cout << "######################## is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule << std::endl;
+
    if (atom_sel.mol) {
 
       std::vector<glm::vec4> colour_table = make_colour_table();
@@ -3918,8 +3944,8 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
          // non zero. It should be zero. Fix later.
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() colour_table size " << colour_table.size() << std::endl;
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.num_colours " << bonds_box.num_colours << std::endl;
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres " << bonds_box.n_consolidated_atom_centres
-                   << std::endl;
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres "
+                   << bonds_box.n_consolidated_atom_centres << std::endl;
       }
 
       if (graphics_info_t::use_graphics_interface_flag)
@@ -10294,3 +10320,39 @@ molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
 }
 
 
+
+// Don't forget to call graphics_info_t::attach_buffers() before calling this function
+void
+molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                                   const std::string &mesh_name) {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
+   molecular_mesh_generator_t mmg;
+   Material material;
+
+   material.do_specularity = true;
+   material.shininess = 256;
+   material.specular_strength = 0.55;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         if (n_res > 1) {
+            // the indexing into the user_defined_colours vector is in the UDD data of the residue
+            std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
+               mmg.get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(atom_sel.mol, chain_p, user_defined_colours);
+            Mesh mesh(verts_and_tris);
+            mesh.set_name(mesh_name);
+            meshes.push_back(mesh);
+            meshes.back().setup(material);
+         }
+      }
+   }
+#endif
+
+}

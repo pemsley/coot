@@ -2676,9 +2676,13 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 #endif
 
 void
-graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
+graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox_molecule) {
 
    // make the first undo molecule (a molecule with changes) be the active one.
+
+   // 20220708-PE this is how to clear a combobox
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
+
    int imol_active = -1;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_model()) {
@@ -2692,7 +2696,7 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox) {
    }
 
    GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
-   fill_combobox_with_coordinates_options(combobox, callback, imol_active);
+   fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
 }
 
 
@@ -5089,11 +5093,27 @@ graphics_info_t::add_molecular_representation(int imol,
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
    gtk_widget_show(w);
 
-   
+   attach_buffers();
+
    int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style);
+
    update_main_window_molecular_representation_widgets();
    return status;
+}
 
+int
+graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
+
+   GtkWidget *w = widget_from_builder("main_window_meshes_frame");
+   gtk_widget_show(w);
+
+   attach_buffers();
+
+   int status = -1;
+   molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
+
+   update_main_window_molecular_representation_widgets();
+   return status;
 }
 
 void

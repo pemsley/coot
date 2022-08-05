@@ -12,6 +12,8 @@
 #include <map>
 #include <mmdb2/mmdb_manager.h>
 
+#include "utils/colour-holder.hh"
+
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
@@ -111,6 +113,12 @@ public:
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol, mmdb::Residue *residue_p,
                                                    const coot::protein_geometry *geom_in);
+
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+   get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
+                                                                             const std::vector<coot::colour_holder> &user_defined_colours);
+
 
 };
 

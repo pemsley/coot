@@ -5218,20 +5218,25 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
       mmdb::Residue *residue_p = get_first_res_of_moving_atoms();
       if (residue_p) {
 
-	 std::string altconf = chi_angle_alt_conf;
-	 try {
-	    // use class variable (previous saved)
-	    int base_atom_index = 0;
-	    coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
-	    tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
-			      diff, torsion_general_reverse_flag);
-	    regularize_object_bonds_box.clear_up();
-	    make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
-	    graphics_draw();
-	 }
-	 catch (const std::runtime_error &rte) {
-	    std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
-	 }
+         if (specs_local.size() >= 3) {
+
+            std::string altconf = chi_angle_alt_conf;
+            try {
+               // use class variable (previous saved)
+               int base_atom_index = 0;
+               coot::atom_tree_t tree(torsion_general_contact_indices, base_atom_index, residue_p, altconf);
+               tree.rotate_about(specs_local[1].atom_name, specs_local[2].atom_name,
+                                 diff, torsion_general_reverse_flag);
+               regularize_object_bonds_box.clear_up();
+               make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+               graphics_draw();
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
+            }
+         } else {
+            std::cout << "ERROR:: specs_local size is " << specs_local.size() << std::endl;
+         }
       }
    }
 }

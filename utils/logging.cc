@@ -19,6 +19,20 @@ logging::log(logging::type_t type, const std::string &s) {
 
 }
 
+void
+logging::log(const std::string &s) {
+
+   // extract the type from s:
+   log_item l(WARNING, s);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   
+   history.push_back(l);
+
+}
+
 
 void
 logging::show() const {

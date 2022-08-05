@@ -18,7 +18,7 @@ public:
       type_t type;
       std::string message;
       log_item(type_t type_in, const std::string &message_in) : t(0), type(type_in), message(message_in) {}
-      explicit log_item(const std::string &message_in) : t(0), type(UNSPECIFIED), message(message_in) {}
+      log_item(const std::string &message_in) : t(0), type(UNSPECIFIED), message(message_in) {}
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
 
@@ -61,6 +61,6 @@ private:
    friend std::ostream& operator<<(std::ostream &o, const log_item &li);
 };
 
-logging logging;
+// logging logging;
 
 #endif // LOGGING_HH

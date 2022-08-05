@@ -6994,6 +6994,7 @@ on_save_state1_activate                (GMenuItem     *menuitem,
 /*    save_state(); old inteface - before DK. */
 
    GtkWidget *file_chooser = coot_save_state_chooser();
+
    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
    add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
    /* add_ccp4i_project_optionmenu(fileselection, COOT_SCRIPTS_FILE_SELECTION); */
@@ -7004,14 +7005,12 @@ on_save_state1_activate                (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_geometry_torsion_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
+on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                         gpointer         user_data)
 {
   if (gtk_toggle_button_get_active(togglebutton))
     do_torsion_define();
 }
-
 
 extern "C" G_MODULE_EXPORT
 void

@@ -1729,3 +1729,6 @@ HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for
 bool graphics_info_t::stereo_style_2010 = false;
 
 bool graphics_info_t::ignore_pseudo_zeros_for_map_stats = true;
+
+HUDTextureMesh graphics_info_t::tmesh_for_hud_colour_bar = HUDTextureMesh("tmesh for HUD colour bar");
+Texture graphics_info_t::texture_for_hud_colour_bar;

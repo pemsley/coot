@@ -3322,6 +3322,9 @@ public:
 
    static bool find_hydrogen_torsions_flag;
 
+   static Texture texture_for_hud_colour_bar;
+   static HUDTextureMesh tmesh_for_hud_colour_bar;
+
    // pickable moving atoms molecule
    // (we want to be able to avoid picking hydrogen atoms if the
    // are not displayed)
@@ -3891,8 +3894,8 @@ public:
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+   int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
-   
 
    // -------- Texture Meshes (for importing glTF models) -------------
    static std::vector<TextureMesh> texture_meshes;
@@ -4525,6 +4528,7 @@ string   static std::string sessionid;
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_hud_refinement_dialog_arrow_tab();
+   static void draw_hud_colour_bar();
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
@@ -4626,7 +4630,11 @@ string   static std::string sessionid;
    // by default, user-defined colours are on a colour wheel, but we can overwride that
    // by setting actual user defined colours for give colour indices
    //
+
    static std::vector<coot::colour_holder> user_defined_colours;
+   // this function sets up the colour bar too and enables its drawing. It will need extra args for
+   // the tick marks.
+   static void set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in);
    static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
    // run glColor3f())
    static void set_bond_colour_from_user_defined_colours(int icol);

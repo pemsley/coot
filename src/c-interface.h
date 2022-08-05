@@ -5379,11 +5379,12 @@ void set_rotamer_check_clashes(int i);
    determines if we use clashes with other residues in the score for
    this rotamer (or not).  It would be cool to call this from a script
    that went residue by residue along a (newly-built) chain (now available). */
-float auto_fit_best_rotamer(int resno,
-			    const char *altloc,
+float auto_fit_best_rotamer(int imol_coords,
+                            const char *chain_id,
+                            int resno,
 			    const char *insertion_code,
-			    const char *chain_id, int imol_coords, int imol_map,
-			    int clash_flag, float lowest_probability);
+			    const char *altloc,
+			    int imol_map, int clash_flag, float lowest_probability);
 
 /*! \brief set the clash flag for rotamer search
 
@@ -5558,14 +5559,20 @@ int rotamer_auto_fit_do_post_refine_state();
    So from the scheme interface you'd use (for example) hash
    backslash A for ALA.  */
 
-
 int mutate_single_residue_by_serial_number(int ires_ser,
 					   const char *chain_id,
 					   int imol, char target_res_type);
-/* ires is the seqnum of the residue (conventional) */
-int mutate_single_residue_by_seqno(int ires, const char *inscode,
-				   const char *chain_id,
-				   int imol, char target_res_type);
+
+/*!  \brief ires is the seqnum of the residue (conventional) */
+int mutate_single_residue_by_seqno(int imol, const char *chain_id, int ires, const char *inscode,
+				   char target_res_type);
+
+/*! \brief mutate and auto-fit
+
+(Move this and the above function into cc-interface.hh one day)
+ */
+int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_res_no, int stop_res_no,
+                                     const char *sequence);
 
 /* an internal function - not useful for scripting: */
 
@@ -5935,6 +5942,14 @@ void remove_last_lsq_plane_atom();
   molecule if they are below the given map (absolute) level. */
 void trim_molecule_by_map(int imol_coords, int imol_map,
 			  float map_level, int delete_or_zero_occ_flag);
+
+/*! \brief trim the molecule by the value in the B-factor column.
+
+If an atom in a residue has a "B-factor" above (or below, if keep_higher is true) limit, then the whole residue is deleted */
+void trim_molecule_by_b_factor(int imol, float limit, short int keep_higher);
+
+/*! \brief convert the value in the B-factor column (typically pLDDT for AlphaFold models) to a temperature factor */
+void pLDDT_to_b_factor(int imol);
 
 /*! \} */
 

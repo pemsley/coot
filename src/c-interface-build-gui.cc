@@ -1033,34 +1033,15 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	    std::cout << "we got the sequence: " << sequence << std::endl;
 
 	    if (int(sequence.length()) == (res2 - res1 + 1)) {
+               // let's not use scripting.
 	       std::vector<std::string> cmd_strings;
-	       if (autofit_flag)
-		  cmd_strings.push_back("mutate-and-autofit-residue-range");
-	       else
-		  cmd_strings.push_back("mutate-residue-range");
-	       cmd_strings.push_back(graphics_info_t::int_to_string(imol));
-	       cmd_strings.push_back(single_quote(chain_id));
-	       cmd_strings.push_back(graphics_info_t::int_to_string(res1));
-	       cmd_strings.push_back(graphics_info_t::int_to_string(res2));
-	       cmd_strings.push_back(single_quote(sequence));
-	       std::string cmd = g.state_command(cmd_strings, state_lang);
-
-// BL says: I believe we should distinguish between python and guile here
-
-#ifdef USE_GUILE
-	       if (state_lang == coot::STATE_SCM) {
-		  safe_scheme_command(cmd);
-	       }
-#else
-#ifdef USE_PYTHON
-              if (state_lang == coot::STATE_PYTHON) {
-                 safe_python_command(cmd);
-              }
-#endif // PYTHON
-#endif // GUILE
-
-	      update_go_to_atom_window_on_changed_mol(imol);
-	      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       if (autofit_flag) {
+                  mutate_and_autofit_residue_range(imol, chain_id.c_str(), res1, res2, sequence.c_str());
+               } else {
+                  mutate_residue_range(imol, chain_id.c_str(), res1, res2, sequence.c_str());
+               }
+               update_go_to_atom_window_on_changed_mol(imol);
+               g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
@@ -1664,7 +1645,7 @@ wrapped_create_fast_ss_search_dialog() {
 /* ------------------------------------------------------------------------ */
 void  do_edit_copy_molecule() {
 
-   std::string cmd = "import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   std::string cmd = "import coot; import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
    safe_python_command(cmd);
 
 }

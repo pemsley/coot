@@ -7858,12 +7858,16 @@ that you wish to delete.               </property>
               <object class="GtkScrolledWindow" id="scrolledwindow9">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="height_request">230</property>
+                <property name="width_request">280</property>
                 <child>
                   <object class="GtkViewport" id="viewport5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkBox" id="edit_chi_angles_vbox">
+                        <property name="height_request">220</property>
+                        <property name="width_request">220</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
@@ -7882,36 +7886,10 @@ that you wish to delete.               </property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="edit_chi_angles_normal_rotation_button">
-                <property name="label" translatable="yes"> View Rotation Mode </property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">6</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_edit_chi_angles_normal_rotation_button_clicked_gtkbuilder_callback" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="edit_chi_angles_help_button">
-                <property name="label" translatable="yes">Help me out here...</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">6</property>
-                <property name="use_underline">True</property>
-                <signal name="clicked" handler="on_edit_chi_angles_help_button_clicked_gtkbuilder_callback" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">3</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -25069,6 +25047,66 @@ Then use "Run Refmac..." from the "Model/Fit/Refine" dialog.
       <placeholder/>
     </child>
   </object>
+  <object class="GtkFileChooserDialog" id="save_state_filechooser_dialog">
+    <property name="use-header-bar"> 0 </property>
+    <property name="can_focus">False</property>
+    <property name="can_default">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="action">save</property>
+    <signal name="response" handler="on_save_state_filechooser_dialog_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="save_state_filechooser_dialog_close_button">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="save_state_filechooser_dialog_save_button">
+                <property name="label" translatable="yes">Save State</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">save_state_filechooser_dialog_close_button</action-widget>
+      <action-widget response="-5">save_state_filechooser_dialog_save_button</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkFileChooserDialog" id="save_symmety_coords_filechooser_dialog">
     <property name="can_focus">False</property>
     <property name="use-header-bar"> 0 </property>
@@ -29775,7 +29813,10 @@ Move a copy?</property>
                 <property name="border_width">2</property>
                 <property name="label_xalign">0</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="undo_molecule_comboboxtext">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
                 </child>
               </object>
               <packing>

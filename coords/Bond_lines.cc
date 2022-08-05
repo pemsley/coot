@@ -4120,6 +4120,8 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    mmdb::Residue *null_residue = 0; // for compiler to get the correct type in the next line
    residue_index_map[null_residue] = -1;
 
+   //std::cout << ":::::::::::::::::::::::: n_bond_colours " << n_bond_colours << std::endl;
+
    for (int idx_col=0; idx_col<n_bond_colours; idx_col++) {
 
       box.bonds_[idx_col].num_lines = bonds[idx_col].size();

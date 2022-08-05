@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include "zo-rama.hh"
 
 int main(int argc, char **argv) {

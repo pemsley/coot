@@ -389,8 +389,18 @@
 # 6.00 20200812 include glm
 # 6.01 20210430 pkg-config tweak and no remove rdkit libs for coot configure
 # 6.02 20220417 add ffi into Python setup.py
-script_version=6.02
+# 6.03 20220704 work on GLIB and python modules
+# 6.04 20220705 Python still doesn't build (on cluster) - add debugging
+# 6.05 20220706 Use https:: instead of ftp::
+# 6.06 20220707 try export LD_LIBRARY_PATH=$install_top_dir/lib in Coot section
+# 6.07 20220710 libffi fixes for python
+# 6.08 20220803-PE pygobject cleanups
+script_version=6.08
 
+
+
+echo ==================================================== add test for SWIG version
+echo ==================================================== add test for CMake version
 
 
 # :: NOTE::
@@ -1388,6 +1398,9 @@ if make --version ; then
                if [ "$np" -gt 8 ] ; then
                   np=8
                fi
+               if [ "$HOST" = hal.lmb.internal ] ; then
+                  np=64
+               fi
                echo using $np processors in compilation
                MAKE="make -j$np"
                echo MAKE set to $MAKE
@@ -1749,6 +1762,11 @@ case "$architecture" in
      ;;
 esac
 
+
+echo HERE A ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+echo HERE A ppppppppppppppp with gtk $gtk
+echo HERE A ppppppppppppppp with os_arch $os_arch
+
 if [ -z "$PKG_CONFIG_PATH" ] ; then
   # I think that the standard dir is not needed.
   # PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$STD_PKGCONFIG_DIR
@@ -1765,17 +1783,23 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
      PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig
   fi
 else
+   echo HERE B ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
    echo setting PKG_CONFIG_PATH: testing dir $install_top_dir/lib/$os_arch/pkgconfig
    if [ -d $install_top_dir/lib/$os_arch/pkgconfig ] ; then
-      if test -n "$gtk" ; then
+      echo HERE C ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+      if test -z "$gtk" ; then
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
          PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$install_top_dir/lib/$os_arch/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       fi
+      echo HERE D ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
    else
-      if test -n "$gtk" ; then
-         PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
+      echo HERE E ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+      if test -z "$gtk" ; then
+         echo HERE F ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
+         PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
       else
+         echo HERE G ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
          #PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
          # glib-2.0.pc is found in $install_top_dir/lib64
          PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig:$gtk/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
@@ -1787,6 +1811,7 @@ if [ -e /opt/X11/lib/pkgconfig ] ; then
     PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
 fi
 
+echo HERE Z ppppppppppppppp with PKG_CONFIG_PATH $PKG_CONFIG_PATH
 
 echo "COOT_CCP4_PACKAGES" "$COOT_CCP4_PACKAGES"
 if [ -n "$COOT_CCP4_PACKAGES" ] ; then
@@ -2062,7 +2087,7 @@ fi
 
 # set build_pygobject here
 if [ ! -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-    build_pygobject=1
+    build_pygobject=true
 fi
 
 
@@ -2153,10 +2178,10 @@ if [ -z "$build_mmdb" ] ; then
           # echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h exist
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
              # echo $install_top_dir/include/clipper/contrib/sfscale.h exist
-	     build_clipper=
+             build_clipper=
           else
              echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
-  	     build_clipper=1
+             build_clipper=1
           fi
        else
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
@@ -2179,21 +2204,22 @@ else
     build_ccp4c=1
 fi
 
-# Here we can force the building of clipper because we don't
-# know if the dependency libccp4c.la was from 6.0 or 5.0.2
-# But, let's not do that any more.
-# build_clipper=
-# build_ccp4c=
-
 if [ -e $install_top_dir/bin/python3 ] ; then
    if $install_top_dir/bin/python3 -V ; then
-      echo we have python3
+      # test for ctypes - was it installed correctly?
+      if $install_top_dir/bin/python3 -c 'import ctypes' ; then
+         echo we have python3 with working ctypes
+      else
+         echo python3 ctypes failure
+         build_python=1
+      fi
    else
       build_python=1
    fi
 else
    build_python=1
 fi
+
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -2486,6 +2512,8 @@ fi
 if true ; then
       echo BUILDING gemmi \(installing GEMMI\)
       (
+          save_dir=$(pwd)
+          cd $start_dir
           if [ -e gemmi ] ; then
               cd gemmi
               git fetch
@@ -2498,6 +2526,7 @@ if true ; then
           # note to self: fix this for Darwin - which has a crippled cp
           cp -a -r gemmi $install_top_dir/include
           cd -
+          cd $save_dir
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
 fi
 
@@ -2515,7 +2544,7 @@ if test "$build_readline" = true ; then
     echo BUILDING readline:
     readline_version=6.2
     readline_version=6.3
-    ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
+    ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
     date
@@ -2578,7 +2607,7 @@ fi
 if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       (
-      ${WGET} ftp://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+      ${WGET} htpps://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
       ./configure $generic_prefix
@@ -2606,12 +2635,16 @@ if test -n "$build_python" ; then
    (
    date
    echo building in: $PWD
+   env
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
    cd Python-$pver
 
    # stuff ffi into setup.py
    sed -ibackup -e 's/def detect_decimal/    ext.libraries.append("ffi")\n\n    &/' setup.py
+   ffilibdir=$install_top_dir/lib64
+   sed -ibackup2 -e "s?add_dir_to_list(self.compiler.library_dirs, ./usr/local/lib.)?add_dir_to_list(self.compiler.library_dirs, '$ffilibdir')?" setup.py
+
 
    # --with-ensurepip=install
    # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
@@ -2633,9 +2666,11 @@ if test -n "$build_python" ; then
      fi
    fi
    # test it
-   echo test ctypes in the new python
+   echo test cypes in the new python
+   # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
    $install_top_dir/bin/python3 <<EOF
 import ctypes
+print(dir(ctypes))
 print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
@@ -2674,6 +2709,8 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
+echo testing to see if meson exists in path yet
+echo testing to see if meson exists in path yet 2>&1
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
@@ -2744,6 +2781,12 @@ fi
 if [ "$build_glib" = true ] ; then
     echo BUILDING glib:
     (
+    # without this PKG_CONFIG_PATH jiggerypokery, libz is the wrong version i.e. is the 32 bit version (on hal)
+    export -n PKG_CONFIG_PATH
+    export PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
+    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    echo $PKG_CONFIG_PATH
+    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     which ninja
     which meson
     echo ninja --version
@@ -2751,7 +2794,16 @@ if [ "$build_glib" = true ] ; then
     echo meson --version
     meson --version
     glib_version=2.64.3
-    ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.64.3/glib-$glib_version.tar.gz
+    glib_version=2.72.3
+    echo the following is the result of: /bin/pkg-config --modversion libffi
+    /bin/pkg-config --modversion libffi
+
+    # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
+    if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
+       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
+       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
+    fi
+    echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     cd glib-$glib_version
     # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
@@ -2759,7 +2811,10 @@ if [ "$build_glib" = true ] ; then
     # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
     # find out why now, so I installed ninja from the "hand-built" build.
     #
-    if meson -Dprefix=$install_top_dir build ; then
+    # meson can't find libffi on its own, so I will export the library here
+    export LDFLAGS=-L$install_top_dir/lib64
+    export CFLAGS=-I$install_top_dir/include
+    if CC=gcc meson -Dprefix=$install_top_dir build ; then
        cd build
        ninja
        ninja install
@@ -2772,18 +2827,33 @@ else
 fi
 
 ###############################################################################
-##########         gobject-introspection before python            #############
+##########         gobject-introspection                          #############
 ###############################################################################
 
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
    (
+   # just for gobject-introspection - depends on our glib installation
+   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
+   export LD_LIBRARY_PATH=$install_top_dir/lib64
    date
    echo BUILDING gobject-introspection:
+
+   echo environment variables
+   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PATH
+   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PKG_CONFIG_PATH
+   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $LD_LIBRARY_PATH
+   which gcc
+   which g++
+   gcc --version
 
    gobject_introspection_version=1.50.0
    gobject_introspection_version=1.68.0
    gobject_introspection_version=1.71.0
+   gobject_introspection_version=1.72.0
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
@@ -2801,7 +2871,12 @@ if test "$build_gobject_introspection" = true ; then
    echo PKG_CONFIG_PATH is...
    echo $PKG_CONFIG_PATH
 
-   if meson -Dprefix=$install_top_dir build ; then
+   echo this is the result of /bin/pkg-config glib-2.0
+   /bin/pkg-config --modversion glib-2.0
+   /bin/pkg-config --cflags glib-2.0
+   /bin/pkg-config --libs glib-2.0
+
+   if CC=gcc meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -2834,7 +2909,7 @@ if [ true ] ; then
       ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
       (
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
-	 date
+         date
          echo building pycairo
          tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
          cd pycairo-$pycairo_version
@@ -2846,30 +2921,26 @@ if [ true ] ; then
    else
       echo installation has pycairo
    fi
+fi
 
-   echo BUILDING pygobject:
-   #
-   pygobject_major_minor_version=3.29
-   pygobject_major_minor_version=3.30
-   pygobject_major_minor_version=3.36
-   pygobject_version=3.29.1
-   pygobject_version=3.30.5
-   pygobject_version=3.36.1
+pygobject_major_minor_version=3.29
+pygobject_major_minor_version=3.30
+pygobject_major_minor_version=3.36
+pygobject_major_minor_version=3.42
+pygobject_version=3.29.1
+pygobject_version=3.30.5
+pygobject_version=3.42.1
 
-   date
-   pwd
-
-   # 20220630-PE note to self: pygobject is tested for and build_pygobject is set above
-   # either that or this is not needed.
-   #
-   skip_build=false
-   if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-         skip_build=true
-      fi
+date
+pwd
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+      skip_build=true
    fi
+fi
 
-   if [ $skip_build = false ] ; then
+if [ $skip_build = false ] ; then
 
       echo BUILDING pygobject $pygobject_version:
       (
@@ -2886,14 +2957,14 @@ if [ true ] ; then
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
-	 echo :::: in directory $(pwd)
-	 echo :::: building meson with -Dprefix=$install_top_dir build
+         echo :::: in directory $(pwd)
+         echo :::: building meson with -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
-	    echo :::: ninja
+            echo :::: ninja
             ninja
-	    echo :::: ninja install
+            echo :::: ninja install
             ninja install
          else
             echo :::: meson failed
@@ -2902,9 +2973,6 @@ if [ true ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
-   else
-      echo skip build of gobject
-   fi
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
@@ -3195,7 +3263,8 @@ fi
 #################################################################
 #
 
-if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
+# goocanvas-2.0.pc
+if [ -e $install_top_dir/lib/pkgconfig/goocanvas-2.0.pc ] ; then
    build_goocanvas=no
 fi
 
@@ -3208,6 +3277,8 @@ if [ "$build_goocanvas" != "no" ] ; then
     # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
     ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
     (date
+     export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
+     export LD_LIBRARY_PATH=$install_top_dir/lib64
      echo building in: $PWD
      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
      echo CFLAGS: $CFLAGS
@@ -3219,8 +3290,9 @@ if [ "$build_goocanvas" != "no" ] ; then
      cd goocanvas-$goocanvas_version
      # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
      # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     # we don't want python 2 bindings (they find/try to install with system python)
      echo ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS
-     if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
+     if ./configure $generic_prefix --enable-python=no $EXTRA_GOOCANVAS_CFLAGS ; then
         if ! $MAKE ; then
            echo make of goocanvas failed
         else
@@ -3230,6 +3302,9 @@ if [ "$build_goocanvas" != "no" ] ; then
         echo goocanvas configure failed
      fi
      ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
+else
+   echo not building goocanvas
+   echo not building goocanvasA 2>& 1
 fi
 
 
@@ -3243,6 +3318,7 @@ if [ -e $install_top_dir/bin/render ] ; then
 else
 
    raster3d_version=3.0-3
+   raster3d_version=3.0-7
    # raster3d depends on libgd to make png images
    ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
@@ -3322,11 +3398,11 @@ else
           # race condition? list.mod
           echo make render
           if make render ; then
-             echo $MAKE prefix=$install_top_dir install
-  	     make prefix=$install_top_dir install
-	     # did that work?  I doubt it. Let's do it by hand
+             echo make prefix=$install_top_dir install
+             make prefix=$install_top_dir install
+             # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
-  	        cp render $install_top_dir/bin/
+                cp render $install_top_dir/bin/
              fi
           else
              echo make render failed
@@ -3453,7 +3529,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/17-a-numpy.log 2>&1
+      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
    fi
 fi
 
@@ -3494,6 +3570,8 @@ if [ "$build_rdkit" = true ] ; then
       echo building ========================= rdkit ==============================
 
       # at last we get to actually compile rdkit
+      export CC=gcc
+      export CXX=g++
       RDKIT=$install_top_dir
       RDBASE=$install_top_dir
       CMAKE_INSTALL_PREFIX=$install_top_dir
@@ -3808,7 +3886,7 @@ if [ "$build_unistring" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/20-libubunistring.txt 2>&1
+      ) > $HOSTLOGDIR/19-libubunistring.txt 2>&1
    else
       echo not building libunistring
    fi
@@ -3825,6 +3903,21 @@ if [ "$build_gc" = true ] ; then
       fi
    fi
 
+   if [ $skip_this = false ] ; then
+      (
+      echo BUILDING libatomic-ops:
+      if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
+         ${WGET} https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
+      fi
+      tar xf $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz
+      cd libatomic_ops-7.6.12
+      ./configure --prefix=$install_top_dir
+      $MAKE
+      make install
+      cd -
+      ) > $HOSTLOGDIR/20-libatomic-ops.txt 2>&1
+   fi
+
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
@@ -3832,13 +3925,21 @@ if [ "$build_gc" = true ] ; then
       (
       gc_version=7.2g
       gc_version_dir=7.2
+      gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
+      gc_version_dir=7.6.12 # I guess not.
       echo ========================= build gc =================================
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
-         tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+            tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         else
+            echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
+         fi
       fi
       cd gc-$gc_version_dir
       echo ./configure --prefix=$install_top_dir
@@ -3905,7 +4006,7 @@ if [ "$build_guile" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
       else
          echo no file $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
-         ${WGET} ftp://ftp.gnu.org/pub/gnu/guile/guile-$guile_version.tar.xz
+         ${WGET} https://ftp.gnu.org/pub/gnu/guile/guile-$guile_version.tar.xz
          tar xf ${AUTOBUILD_SOURCES}/guile-$guile_version.tar.xz
       fi
       cd guile-$guile_version
@@ -3917,6 +4018,10 @@ if [ "$build_guile" = true ] ; then
          LIBS=-L$install_top_dir/lib CFLAGS=-I$install_top_dir/include ; then
          if $MAKE ; then
             make install
+            # this file causes problems on linking coot
+            if [ -e $install_top_dir/lib/libguile-2.2.so.1.4.2-gdb.scm ] ; then
+               mv $install_top_dir/lib/libguile-2.2.so.1.4.2-gdb.scm $install_top_dir/lib/script-libguile-2.2.so.1.4.2-gdb.scm
+            fi
          fi
       fi
       cd -
@@ -4149,7 +4254,7 @@ if [ -e coot ] ; then
    bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh
    cd -
-   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen 2>&1
+   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
 else
    echo CASE 2 coot directory not exists in $(pwd)
 
@@ -4161,7 +4266,7 @@ else
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
-   if git clone https://github.com/pemsley/coot.git -b gtk3 ; then
+   if git clone https://github.com/pemsley/coot.git -b gtk3 --depth 2 ; then
       echo git clone https://github.com/pemsley/coot.git -b gtk3 without error status
       echo done clone
       cd coot
@@ -4193,6 +4298,7 @@ fi
 ###############################################################################
 #
 echo BUILDING coot
+echo BUILDING coot 2>& 1
 
 (
 
@@ -4226,6 +4332,9 @@ if [ ! -d build-coot ] ; then
 fi
 cd build-coot
 
+
+export LD_LIBRARY_PATH=$install_top_dir/lib64
+
 echo From git repo now
 echo building in: $PWD
 echo CFLAGS: $CFLAGS
@@ -4240,6 +4349,8 @@ echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
 
 
 echo 33333
+# 20220707-PE does this improve thie linking (get pass the problem with g_module_open_full)?
+export LD_LIBRARY_PATH=$install_top_dir/lib
 
 # add this when then are compiling and RDKIT is compiling
 #      --with-enhanced-ligand-tools
@@ -4277,6 +4388,7 @@ echo bash ../coot/configure $coot_prefix \
 $MAKE
 # No rule to make target 'coot.py', needed by 'all-am'. Stop.
 # but it's there! Timing problems?
+echo === make again ===
 make
 status=$?
 if [ "$status" != 0 ] ; then
@@ -4287,7 +4399,9 @@ else
    echo 1 ---------------------------------------------------------------
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
-   $MAKE install
+   make install
+   echo === make install again ===
+   make install
    # if [ "$python_scripting" = '--with-python' ] ; then
       # echo copying src/coot.py $install_top_dir/share/coot/python
       # cp src/coot.py $install_top_dir/share/coot/python

@@ -103,6 +103,7 @@ export LC_ALL
 export LC_NUMERIC
 
 export GUILE_WARN_DEPRECATED=no
+GUILE_LOAD_PATH=$COOT_PREFIX/share/guile/2.2:$COOT_PREFIX/share/guile/site:$COOT_PREFIX/share/guile-gnome-2/gnome
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
 GUILE_BIN=guile
@@ -202,28 +203,7 @@ else
        status=$?
    fi
    if [ $status != 0 ] ; then
-      echo . ------ Coot crashed - trying to diagnose -----
-      #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
-      # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
-      unset PYTHONHOME
-      unset PYTHONPATH
-      # unset LD_LIBRARY_PATH
-      # only run the crash catcher if coot was compiled with guile
-      if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-          if [ -e $GUILE_BIN ] ; then
-              # diagnose guile if we can
-              if [ -e /usr/bin/ldd ] ; then
-                  echo ldd -r on guile gives:
-                  ldd -r $GUILE_BIN
-              fi
-              if $GUILE_BIN --version ; then
-                  echo catching the crash log:
-                  $GUILE_BIN -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
-              else
-                  echo failed to launch the crash catcher - bad guile
-            fi
-         fi
-      fi
+      echo Coot crashed.
    fi
    exit $status
 fi
