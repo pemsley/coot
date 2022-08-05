@@ -57,7 +57,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 
    material.do_specularity = true;        // 20210905-PE make these user settable. Perhaps they are? I should check.
    material.shininess = 256.0;
-   material.specular_strength = 0.96;
+   material.specular_strength = 0.56;
 
    if (colour_scheme == "Rainbow") {
 

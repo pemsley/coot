@@ -3826,8 +3826,8 @@ public:
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+   int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
-   
 
    // -------- Texture Meshes (for importing glTF models) -------------
    static std::vector<TextureMesh> texture_meshes;

@@ -3500,6 +3500,10 @@ public:        //                      public
    int add_molecular_representation(const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+
+   // for AlphaFold pLDDT colouring
+   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                    const std::string &mesh_name);
    void remove_molecular_representation(int idx);
 
    // carbohydrate validation tools

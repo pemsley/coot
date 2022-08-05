@@ -35,7 +35,6 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
 #endif
    }
    return status;
-
 }
 #endif // USE_PYTHON
 
@@ -50,8 +49,6 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
       std::string atom_selection = scm_to_locale_string(atom_selection_scm);
       std::string ColorScheme    = scm_to_locale_string(ColorScheme_scm);
       std::string style          = scm_to_locale_string(style_scm);
-      std::cout << "Calling add_molecular_representation with " << atom_selection << " " << ColorScheme << "  " << style << std::endl;
-      // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
       graphics_info_t g;
       status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
       graphics_draw();
@@ -60,6 +57,21 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
    return status;
 }
 #endif // USE_GUILE
+
+int
+add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
+
+   // std::string name = "AlphaFold " + std::to_string(imol)
+
+   int status = -1; // nothing useful
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.add_ribbon_representation_with_user_defined_colours(imol, name);
+      graphics_draw();
+   }
+   return status;
+}
 
 void remove_molecular_representation(int imol, int rep_no) {
 

@@ -4919,11 +4919,27 @@ graphics_info_t::add_molecular_representation(int imol,
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
    gtk_widget_show(w);
 
-   
+   attach_buffers();
+
    int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style);
+
    update_main_window_molecular_representation_widgets();
    return status;
+}
 
+int
+graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
+
+   GtkWidget *w = widget_from_builder("main_window_meshes_frame");
+   gtk_widget_show(w);
+
+   attach_buffers();
+
+   int status = -1;
+   molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
+
+   update_main_window_molecular_representation_widgets();
+   return status;
 }
 
 void
