@@ -417,6 +417,11 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
    // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
+   // toolbar button - connect the menu to the GtkMenuButton
+   GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton", builder);
+   GMenuModel *menu = G_MENU_MODEL(gtk_builder_get_object(builder, "refine-menu"));
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(refine_menubutton), menu);
+
    gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
    gtk_window_present(GTK_WINDOW(app_window));

@@ -201,6 +201,35 @@ void rsr_refine_chain() {
    }
 }
 
+
+void rsr_refine_all_atoms() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      auto atom_spec = active_atom.second.second;
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      if (at) {
+
+         // add a fix for all chains - needs reworking.
+
+         mmdb::Chain *chain_p = at->residue->chain;
+         std::string alt_conf = at->altLoc;
+         coot::residue_spec_t rspec(atom_spec);
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_chain(chain_p);
+         std::vector<coot::residue_spec_t> v;
+         for (unsigned int i=0; i<residues.size(); i++) {
+            coot::residue_spec_t spec(residues[i]);
+            v.push_back(spec);
+         }
+         g.residue_type_selection_was_user_picked_residue_range = false;
+         coot::refinement_results_t rr = refine_residues_with_alt_conf(imol, v, alt_conf);
+      }
+   }
+
+}
+
 void rsr_sphere_refine_plus() {
 
    float radius = 6.6;

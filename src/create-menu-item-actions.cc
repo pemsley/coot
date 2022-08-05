@@ -1022,19 +1022,111 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
    set_use_perspective_projection(0);
 }
 
 
 void
 perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
    set_use_perspective_projection(1);
 }
 
+#include "rsr-functions.hh"
+
+void
+refine_sphere(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_sphere_refine();
+
+}
+
+void
+refine_sphere_big(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_sphere_refine_plus();
+}
+
+void
+refine_tandem_3(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_refine_tandem_3();
+}
+
+void
+refine_tandem_5(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_refine_tandem_5();
+
+}
+
+void
+refine_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_refine_residue();
+}
+
+void
+refine_chain(G_GNUC_UNUSED GSimpleAction *simple_action,
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
+   
+   rsr_refine_chain();
+}
+
+void
+refine_all_atoms(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_refine_all_atoms();
+}
+
+void
+refine_pick_range_by_hand(G_GNUC_UNUSED GSimpleAction *simple_action,
+                          G_GNUC_UNUSED GVariant *parameter,
+                          G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "Refine pick range " << std::endl;
+}
+
+void
+refine_regularize_sphere(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   regularize_sphere();
+}
+
+void
+refine_regularize_tandem_3(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   regularize_tandem_3();
+}
+
+
+void
+refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   regularize_residue();
+}
 
 void
 create_actions(GtkApplication *application) {
@@ -1160,5 +1252,19 @@ create_actions(GtkApplication *application) {
 
    add_action("remarks_browser_action", remarks_browser_action);
    add_action("about_coot_action", about_coot_action);
-}
 
+   // Refine menu
+
+   add_action("refine_sphere",                    refine_sphere);
+   add_action("refine_sphere_big",                refine_sphere_big);
+   add_action("refine_tandem_3",                  refine_tandem_3);
+   add_action("refine_tandem_5",                  refine_tandem_5);
+   add_action("refine_single_residue",            refine_single_residue);
+   add_action("refine_chain",                     refine_chain);
+   add_action("refine_all_atoms",                 refine_all_atoms);
+   add_action("refine_pick_range_by_hand",        refine_pick_range_by_hand);
+   add_action("refine_regularize_sphere",         refine_regularize_sphere);
+   add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
+   add_action("refine_regularize_single_residue", refine_regularize_single_residue);
+
+}

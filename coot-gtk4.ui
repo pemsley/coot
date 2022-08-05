@@ -471,7 +471,58 @@
       </section>
     </submenu>
   </menu>
-  
+
+  <menu id="refine-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">RSR Sphere</attribute>
+        <attribute name="action">app.refine_sphere</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Big Sphere</attribute>
+        <attribute name="action">app.refine_sphere_big</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Tandem ± 3</attribute>
+        <attribute name="action">app.refine_tandem_3</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Tandem ± 5</attribute>
+        <attribute name="action">app.refine_tandem_5</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Single Residue</attribute>
+        <attribute name="action">app.refine_single_residue</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Chain</attribute>
+        <attribute name="action">app.refine_chain</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR All Atoms</attribute>
+        <attribute name="action">app.refine_all_atoms</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Pick Range by Hand</attribute>
+        <attribute name="action">app.refine_pick_range_by_hand</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Regularize Sphere</attribute>
+        <attribute name="action">app.refine_regularize_sphere</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Regularize Tandem ± 3</attribute>
+        <attribute name="action">app.refine_regularize_tandem_3</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Regularize Single Residue</attribute>
+        <attribute name="action">app.refine_regularize_single_residue</attribute>
+      </item>
+    </section>
+  </menu>
+ 
   <object class="GtkWindow" id="about_window">
     <property name="title" translatable="yes">About...</property>
     <child>
@@ -5142,6 +5193,11 @@ Do you want to continue?
             <style>
               <class name="toolbar"/>
             </style>
+            <child>
+              <object class="GtkMenuButton" id="refine_menubutton">
+                <property name="label" translatable="yes">Refine</property>
+              </object>
+            </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_19">
                 <property name="label" translatable="yes">Delete...</property>
