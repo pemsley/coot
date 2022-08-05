@@ -3936,13 +3936,13 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
 
       std::vector<glm::vec4> colour_table = make_colour_table();
 
-      if (true) {
+      if (false) {
          // when refining a ligand, the "remaining partos of the molecule" should be empty but has bonds_box.n_consolidated_atom_centres
          // non zero. It should be zero. Fix later.
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() colour_table size " << colour_table.size() << std::endl;
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.num_colours " << bonds_box.num_colours << std::endl;
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres " << bonds_box.n_consolidated_atom_centres
-                   << std::endl;
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres "
+                   << bonds_box.n_consolidated_atom_centres << std::endl;
       }
 
       if (graphics_info_t::use_graphics_interface_flag)

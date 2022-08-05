@@ -6682,6 +6682,23 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
 
 // static
 void
+graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
+
+   user_defined_colours = user_defined_colours_in;
+   std::vector<glm::vec4> t_cols(user_defined_colours.size());
+   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+      const auto &col = user_defined_colours[i];
+      float alpha = 1.0; // put alpha into coot::colour_holder
+      t_cols[i] = glm::vec4(col.red, col.green, col.blue, alpha);
+   }
+   if (! user_defined_colours.empty())
+      texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
+
+}
+
+
+// static
+void
 graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
 
    std::vector<std::pair<unsigned int, int> > idkfa_pairs = {std::make_pair(5, GDK_KEY_A),

@@ -171,10 +171,7 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                }
             }
          }
-
-         std::cout << "---------------- in set_user_defined_colours_py()  colours size is "
-                   << colours.size() << std::endl;
-         graphics_info_t::user_defined_colours = colours;
+         graphics_info_t::set_user_defined_colours(colours);
       }
    }
 }
