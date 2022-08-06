@@ -1039,8 +1039,8 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 refine_sphere(G_GNUC_UNUSED GSimpleAction *simple_action,
-                G_GNUC_UNUSED GVariant *parameter,
-                G_GNUC_UNUSED gpointer user_data) {
+              G_GNUC_UNUSED GVariant *parameter,
+              G_GNUC_UNUSED gpointer user_data) {
 
    rsr_sphere_refine();
 
@@ -1048,8 +1048,8 @@ refine_sphere(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 refine_sphere_big(G_GNUC_UNUSED GSimpleAction *simple_action,
-                G_GNUC_UNUSED GVariant *parameter,
-                G_GNUC_UNUSED gpointer user_data) {
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
 
    rsr_sphere_refine_plus();
 }
@@ -1073,8 +1073,8 @@ refine_tandem_5(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 refine_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
-                G_GNUC_UNUSED GVariant *parameter,
-                G_GNUC_UNUSED gpointer user_data) {
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
 
    rsr_refine_residue();
 }
@@ -1105,16 +1105,16 @@ refine_pick_range_by_hand(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 refine_regularize_sphere(G_GNUC_UNUSED GSimpleAction *simple_action,
-                G_GNUC_UNUSED GVariant *parameter,
-                G_GNUC_UNUSED gpointer user_data) {
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
 
    regularize_sphere();
 }
 
 void
 refine_regularize_tandem_3(G_GNUC_UNUSED GSimpleAction *simple_action,
-                G_GNUC_UNUSED GVariant *parameter,
-                G_GNUC_UNUSED gpointer user_data) {
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
 
    regularize_tandem_3();
 }

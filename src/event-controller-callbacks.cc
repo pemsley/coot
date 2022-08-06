@@ -12,8 +12,6 @@
 void
 graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
-   // 20220429-PE is this controller for left-mouse or right-mouse?
-
    auto check_if_refinement_dialog_arrow_tab_was_clicked = [] () {
                                                               graphics_info_t g;
                                                               gboolean handled = FALSE;
@@ -35,6 +33,12 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
    // 2022 code
    set_mouse_previous_position(x,y);
 
+   // pick_info nearest_atom_index_info = atom_pick_gtk3(false);
+
+   bool handled = false;
+   bool was_a_double_click = false;
+   handled = check_if_moving_atom_pull(was_a_double_click);
+
 }
 
 // drag_delta_x and drag_delta_y are the delta coordinates relative to where the drag began.
@@ -52,11 +56,24 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    double y = drag_begin_y + drag_delta_y;
    set_mouse_previous_position(x, y);
 
+   if (in_moving_atoms_drag_atom_mode_flag) {
+      if (last_restraints_size() > 0) {
+         // move an already picked atom
+         move_atom_pull_target_position(x, y);
+      }
+   }
+
 }
 
 
 void
-graphics_info_t::on_glarea_drag_end_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+
+   double xx = drag_begin_x + x;
+   double yy = drag_begin_y + y;
+   bool clicked = check_if_hud_button_clicked(xx, yy);
+
+   std::cout << "hud_button was clicked: " << clicked << std::endl;
 
 }
 
@@ -68,7 +85,7 @@ graphics_info_t::on_glarea_drag_end_primary(GtkGestureDrag *gesture, double x, d
 // ---------------------------------------------------------------------------------------------------------
 
 void
-graphics_info_t::on_glarea_drag_begin_secondary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
+graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
    // 20220429-PE is this controller for left-mouse or right-mouse?
 
@@ -214,20 +231,20 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
       // action occurs in above function
    } else {
 
-      // 20220629-PE note to self: HUD button actions should happen on *release* not click,
-      // so move this at some stage.
+      // std::cout << "n_press " << n_press << std::endl;
+      // n_press can go up to 20, 30...
       //
-      clicked = check_if_hud_button_clicked(x,y);
+      if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
 
-      if (clicked) {
-         // action occus in above
-      } else {
+         bool handled = false;
 
-         // std::cout << "n_press " << n_press << std::endl;
-         // n_press can go up to 20, 30...
-         //
-         if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
+         if (in_moving_atoms_drag_atom_mode_flag) {
+            if (last_restraints_size() > 0) {
+               handled = check_if_moving_atom_pull(true); // passing was-a-double-click
+            }
+         }
 
+         if (! handled) {
             bool intermediate_atoms_only_flag = false;
             pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
             int imol = naii.imol;
@@ -237,18 +254,27 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                graphics_draw();
             }
          }
+      }
 
-         if (n_press == 1) {
-            GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-            std::cout << "modifier: " << modifier << std::endl;
-            if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
-               bool intermediate_atoms_only_flag = false;
-               pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-               int imol = naii.imol;
-               if (naii.success) {
-                  setRotationCentre(naii.atom_index, naii.imol);
-                  add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
-               }
+      if (n_press == 1) {
+
+         GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+         std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+         if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
+            bool intermediate_atoms_only_flag = false;
+            pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+            if (naii.success) {
+               setRotationCentre(naii.atom_index, naii.imol);
+               add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+            }
+
+         } else { // not "option" modifier
+
+            bool intermediate_atoms_only_flag = true;
+            pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+            if (naii.success) {
+               mmdb::Atom *at = moving_atoms_asc->atom_selection[naii.atom_index];
+               std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
             }
          }
       }
@@ -433,6 +459,18 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
       }
    }
 }
+
+
+void
+graphics_info_t::on_glarea_motion(GtkEventControllerMotion* controller,
+                                  gdouble x,
+                                  gdouble y,
+                                  gpointer user_data) {
+
+   // So that I can change the highlighting for the moused-over HUD elements.
+
+}
+
 
 
 void

@@ -487,7 +487,7 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
       if (true) { // debug
          mmdb::Atom *at = moving_atoms_asc->atom_selection[pi.atom_index];
-         std::cout << "------------------- picked! " << coot::atom_spec_t(at) << std::endl;
+         std::cout << "------------------- in check_if_moving_atom_pull() picked! " << coot::atom_spec_t(at) << std::endl;
 
          // OK, so, where do we think the cursor is (in real-world 3d?)
 
@@ -531,9 +531,10 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
 	 if (it != moving_atoms_dragged_atom_indices.end()) {
 	    std::cout << "DEBUG:: erasing moving atoms dragged atom with index: " << *it << std::endl;
+            int atom_index = *it;
 	    moving_atoms_dragged_atom_indices.erase(it);
-	    if (*it < moving_atoms_asc->n_selected_atoms) {
-	       mmdb::Atom *at = moving_atoms_asc->atom_selection[*it];
+	    if (atom_index < moving_atoms_asc->n_selected_atoms) {
+	       mmdb::Atom *at = moving_atoms_asc->atom_selection[atom_index];
 	       if (at) {
 		  coot::atom_spec_t spec(at);
 		  atom_pull_off(spec);
@@ -667,7 +668,7 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 }
 
 void
-graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
+graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y) {
 
    // outut in the range -1 to +1
    auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {

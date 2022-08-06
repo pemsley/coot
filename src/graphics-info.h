@@ -1275,6 +1275,11 @@ public:
                            double                    dy,
                            gpointer                  user_data);
 
+   void on_glarea_motion(GtkEventControllerMotion* controller,
+                         gdouble x,
+                         gdouble y,
+                         gpointer user_data);
+
    // step is usually 1 or -1, but can be 2 or 3 (with fast scrolling)
    void change_model_molecule_representation_mode(int step);
 
@@ -3338,7 +3343,7 @@ public:
 					    short int squared_flag);
    void move_moving_atoms_by_simple_translation(int screenx, int screeny); // for rot/trans
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
-   void move_atom_pull_target_position(int screenx, int screeny);
+   void move_atom_pull_target_position(double screenx, double screeny);
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
@@ -4483,6 +4488,7 @@ string   static std::string sessionid;
    static unsigned int framebuffer_scale;
 
    // ---------------------------------------------
+   static bool shaders_have_been_compiled;
    bool init_shaders(); // return status (true = OK)
    void init_framebuffers();// 20220129-PE a crows thing
 

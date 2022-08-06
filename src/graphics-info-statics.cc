@@ -1455,6 +1455,7 @@ Shader graphics_info_t::shader_for_happy_face_residue_markers;
 Shader graphics_info_t::shader_for_happy_face_residue_markers_for_ssao;
 Shader graphics_info_t::shader_for_rama_plot_axes_and_ticks;
 Shader graphics_info_t::shader_for_rama_plot_phi_phis_markers;
+bool   graphics_info_t::shaders_have_been_compiled = false;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();

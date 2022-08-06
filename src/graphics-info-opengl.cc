@@ -139,6 +139,8 @@ graphics_info_t::init_shaders() {
          status = false;
       }
    }
+
+   shaders_have_been_compiled = true; // tested in the window resize callback.
    return status;
 }
 
