@@ -522,6 +522,23 @@
       </item>
     </section>
   </menu>
+
+  <menu id="fix-atom-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Fix Atom</attribute>
+        <attribute name="action">app.fix_atom</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Unfix Atom</attribute>
+        <attribute name="action">app.unfix_atom</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Unfix All Atoms</attribute>
+        <attribute name="action">app.unfix_all_atoms</attribute>
+      </item>
+    </section>
+  </menu>
  
   <object class="GtkWindow" id="about_window">
     <property name="title" translatable="yes">About...</property>
@@ -5190,12 +5207,86 @@ Do you want to continue?
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
-            <style>
-              <class name="toolbar"/>
-            </style>
+            <!-- <style> -->
+            <!--   <class name="toolbar"/> -->
+            <!-- </style> -->
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_1">
+                <property name="label" translatable="yes">R/RC</property>
+                <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_2">
+                <property name="label" translatable="yes">Map...</property>
+                <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
+              </object>
+            </child>
             <child>
               <object class="GtkMenuButton" id="refine_menubutton">
                 <property name="label" translatable="yes">Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="fixed_atoms_menubutton">
+                <property name="label" translatable="yes">Fixed Atoms</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
+                <property name="label" translatable="yes">Rigid Body Fit</property>
+                <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="rotate_translate_menubutton">
+                <property name="label" translatable="yes">Rotate/Translate</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_4">
+                <property name="label" translatable="yes">AutoFit Rotamer</property>
+		<signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_5">
+                <property name="label" translatable="yes">Rotamers</property>
+		<signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:14:37 GMT"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
+                <property name="label" translatable="yes">Edit Chi Angles</property>
+		<signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:15:41 GMT"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_7">
+                <property name="label" translatable="yes">Flip Peptide</property>
+		<signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:17:03 GMT"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_8">
+                <property name="label" translatable="yes">Sidechain 180° Flip</property>
+		<signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:18:08 GMT"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_9">
+                <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
+		<signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_10">
+                <property name="label" translatable="yes">Simple Mutate</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_11">
+                <property name="label" translatable="yes">Add Terminal Residue</property>
               </object>
             </child>
             <child>
