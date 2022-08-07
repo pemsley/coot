@@ -1387,7 +1387,10 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       GtkWidget *label = gtk_label_new("Ramachandran Restraints Enabled ");
       gtk_widget_show(label);
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), label);
-      gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), label, TRUE);
+
+      // 20220807-PE not declared in this scope - hmm
+      // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), label, TRUE);
+
       // top right
       gtk_widget_set_halign(label, GTK_ALIGN_END);
       gtk_widget_set_valign(label, GTK_ALIGN_START);

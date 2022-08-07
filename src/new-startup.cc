@@ -509,9 +509,9 @@ int new_startup(int argc, char **argv) {
          setup_python_basic(argc, argv);
 
          // 20220807-PE now test if that worked.
-         std::cout << "calling run_script()" << std::endl;
-         run_script("test_script.py");
-         std::cout << "done run_script()" << std::endl;
+         // std::cout << "calling run_script()" << std::endl;
+         // run_script("test_script.py");
+         // std::cout << "done run_script()" << std::endl;
       }
    };
 
