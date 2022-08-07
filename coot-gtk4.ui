@@ -3272,7 +3272,7 @@ that you wish to delete.               </property>
   </object>
   <object class="GtkWindow" id="display_control_window_glade">
     <property name="width-request">420</property>
-    <property name="height-request">280</property>
+    <property name="height-request">380</property>
     <property name="title" translatable="yes">Display Manager</property>
     <property name="default-width">700</property>
     <signal name="destroy" handler="on_display_control_window_glade_destroy" swapped="no"/>
@@ -3282,6 +3282,9 @@ that you wish to delete.               </property>
         <child>
           <object class="GtkPaned" id="display_control_vpaned">
             <property name="can-focus">1</property>
+            <property name="wide-handle">1</property>
+            <property name="orientation">vertical</property>
+            <property name="vexpand">1</property>
             <child>
               <object class="GtkBox" id="paned_maps_vbox">
                 <property name="orientation">vertical</property>
@@ -3299,6 +3302,8 @@ that you wish to delete.               </property>
                         <property name="can-focus">1</property>
                         <property name="use-underline">1</property>
                         <property name="active">1</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <signal name="toggled" handler="on_display_control_all_maps_togglebutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -3311,6 +3316,7 @@ that you wish to delete.               </property>
                         <child>
                           <object class="GtkBox" id="display_map_vbox">
                             <property name="orientation">vertical</property>
+                            <property name="vexpand">1</property>
                           </object>
                         </child>
                       </object>
@@ -3335,6 +3341,8 @@ that you wish to delete.               </property>
                         <property name="label" translatable="yes">   All   </property>
                         <property name="can-focus">1</property>
                         <property name="use-underline">1</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <property name="active">1</property>
                         <signal name="toggled" handler="on_display_control_all_models_togglebutton_toggled" swapped="no"/>
                       </object>
@@ -3348,6 +3356,7 @@ that you wish to delete.               </property>
                         <child>
                           <object class="GtkBox" id="display_molecule_vbox">
                             <property name="orientation">vertical</property>
+                            <property name="vexpand">1</property>
                           </object>
                         </child>
                       </object>
@@ -3366,6 +3375,10 @@ that you wish to delete.               </property>
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_display_control_ok_button_clicked" swapped="no"/>
               </object>
             </child>

@@ -376,6 +376,11 @@ GtkWidget *selections_and_colours_combobox(int imol) {
 
    GtkWidget *combobox = gtk_combo_box_text_new();
 
+   gtk_widget_set_margin_start (combobox, 2);
+   gtk_widget_set_margin_end   (combobox, 2);
+   gtk_widget_set_margin_top   (combobox, 1);
+   gtk_widget_set_margin_bottom(combobox, 1);
+   
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Atom)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Chain)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
@@ -484,55 +489,36 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
    // 1: molecule number label
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
+   gtk_widget_set_size_request(molecule_number_label, 30, -1); // not using margins
    gtk_widget_show(molecule_number_label);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), molecule_number_label);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), molecule_number_label, FALSE, FALSE, 10);
-#endif
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
+   gtk_widget_set_hexpand(entry, TRUE);
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_show(entry);
-#if (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), entry);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
-#endif
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
    gtk_widget_show(display_checkbutton);
    g_object_set_data(G_OBJECT(display_checkbutton), "imol", GINT_TO_POINTER(imol));
-#if (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), display_checkbutton);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), display_checkbutton, FALSE, FALSE, 2);
-#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), mol_is_displayed(imol));
 
    // 4: "Active" checkbutton
    GtkWidget *active_checkbutton = gtk_check_button_new_with_label("Active");
    gtk_widget_show(active_checkbutton);
    g_object_set_data(G_OBJECT(active_checkbutton), "imol", GINT_TO_POINTER(imol));
-#if (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), active_checkbutton);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), active_checkbutton, FALSE, FALSE, 2);
-#endif
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_checkbutton), mol_is_active(imol));
    // when Display is untoggled we need to untoggle this active_checkbutton too
    g_object_set_data(G_OBJECT(display_checkbutton), "active_toggle_button", active_checkbutton);
 
    // 5: Drawing mode
    GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(imol);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), sel_and_col_combobox);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), sel_and_col_combobox, FALSE, FALSE, 2);
-   gtk_container_set_border_width(GTK_CONTAINER(sel_and_col_combobox), 2);
-#endif
 
    // when Display is untoggled via the API, we need to get to the buttons to change
    // the state in the gui (give the hbox) (see set_display_control_button_state()).
@@ -568,12 +554,11 @@ void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
       button_string = "Delete Map";
    GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
    gtk_widget_show(delete_button);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append (GTK_BOX (hbox32), delete_button);
-#else
-   gtk_box_pack_start (GTK_BOX (hbox32), delete_button, FALSE, FALSE, 0);
-   gtk_container_set_border_width (GTK_CONTAINER (delete_button), 2);
-#endif
+   gtk_widget_set_margin_start (delete_button, 2);
+   gtk_widget_set_margin_end   (delete_button, 2);
+   gtk_widget_set_margin_top   (delete_button, 1);
+   gtk_widget_set_margin_bottom(delete_button, 1);
    g_signal_connect(G_OBJECT(delete_button), "clicked",
 		      G_CALLBACK(on_display_control_delete_molecule_button_clicked),
 		      GINT_TO_POINTER(imol));
@@ -765,11 +750,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(display_map_vbox), hbox);
-#else
-   gtk_box_pack_start(GTK_BOX(display_map_vbox), hbox, FALSE, FALSE, 0);
-#endif
    gtk_widget_show(hbox);
 
    // Do I need to clear_out_container(display_map_vbox) here?
@@ -786,42 +767,37 @@ display_control_map_combo_box(const std::string &name, int imol) {
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
    gtk_widget_show(molecule_number_label);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   gtk_widget_set_size_request(molecule_number_label, 30, -1); // not using margins (testing)
    gtk_box_append(GTK_BOX(hbox), molecule_number_label);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), molecule_number_label, FALSE, FALSE, 10);
-#endif
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
+   gtk_widget_set_hexpand(entry, TRUE);
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_show(entry);
-#if (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(hbox), entry);
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
-#endif
 
    // 3: "Display" checkbutton
-   GtkWidget *display_togglebutton = gtk_toggle_button_new_with_label("Display");
-   if (GTK_IS_TOGGLE_BUTTON(display_togglebutton))
-      std::cout << "----------------------- display_togglebutton is a toggle button "  << std::endl;
+   GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
+   gtk_widget_set_margin_start (display_checkbutton, 2);
+   gtk_widget_set_margin_end   (display_checkbutton, 2);
+   gtk_widget_set_margin_top   (display_checkbutton, 1);
+   gtk_widget_set_margin_bottom(display_checkbutton, 1);
+   if (GTK_IS_TOGGLE_BUTTON(display_checkbutton))
+      std::cout << "----------------------- display_checkbutton is a toggle button "  << std::endl;
    else
-      std::cout << "----------------------- display_togglebutton is NOT a toggle button "  << std::endl;
-   if (display_togglebutton) {
-      gtk_widget_show(display_togglebutton);
-#if (GTK_MAJOR_VERSION == 4)
-      gtk_box_append(GTK_BOX(hbox), display_togglebutton);
-#else
-      gtk_box_pack_start(GTK_BOX(hbox), display_togglebutton, FALSE, FALSE, 2);
-#endif
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_togglebutton), map_is_displayed(imol));
-      g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_togglebutton); // for set_display_control_button_state()
+      std::cout << "----------------------- display_checkbutton is NOT a toggle button "  << std::endl;
+   if (display_checkbutton) {
+      gtk_widget_show(display_checkbutton);
+      gtk_box_append(GTK_BOX(hbox), display_checkbutton);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(display_checkbutton), map_is_displayed(imol));
+      g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton); // for set_display_control_button_state()
    }
 
    // 4: "Scroll" checkbutton
    GtkWidget *previous_radio_button = get_radio_button_in_scroll_group(imol);
-   GtkWidget *scroll_button = nullptr;
+   GtkWidget *scroll_button = gtk_check_button_new_with_label("Scroll");
+
 #if (GTK_MAJOR_VERSION == 4)
    std::cout << "in display_control_map_combo_box() FIXME radio buttons " << std::endl;
 #else
@@ -832,31 +808,22 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_show(scroll_button);
 #endif
 
-#if (GTK_MAJOR_VERSION == 4)
-   if (scroll_button)
-      gtk_box_append(GTK_BOX(hbox), scroll_button);
-   else
-      std::cout << "FIXME A in display_control_map_combo_box() " << std::endl;
-#else
-   gtk_box_pack_start(GTK_BOX(hbox), scroll_button, FALSE, FALSE, 2);
-#endif
+   gtk_box_append(GTK_BOX(hbox), scroll_button);
 
    // 5: "Properties" button
    GtkWidget *properties_button = gtk_button_new_with_label("Properties");
-   if (properties_button) {
-      gtk_widget_show(properties_button);
-#if (GTK_MAJOR_VERSION == 4)
-      gtk_box_append(GTK_BOX(hbox), properties_button);
-#else
-      gtk_box_pack_start(GTK_BOX(hbox), properties_button, FALSE, FALSE, 2);
-#endif
-   }
+   gtk_widget_set_margin_start (properties_button, 2);
+   gtk_widget_set_margin_end   (properties_button, 2);
+   gtk_widget_set_margin_top   (properties_button, 1);
+   gtk_widget_set_margin_bottom(properties_button, 1);
+   gtk_widget_show(properties_button);
+   gtk_box_append(GTK_BOX(hbox), properties_button);
 
    // 6: "Delete" map button
    display_control_add_delete_molecule_button(imol, hbox, true);
 
    // connect signals to display, scroll and properties
-   g_signal_connect(G_OBJECT(display_togglebutton), "toggled",
+   g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
                     G_CALLBACK(on_display_control_map_displayed_button_toggled),
                     GINT_TO_POINTER(imol));
    if (scroll_button) // 20220629-PE
