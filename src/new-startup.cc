@@ -339,7 +339,6 @@ on_glarea_motion(GtkEventControllerMotion *controller,
                  gdouble y,
                  gpointer user_data) {
 
-   std::cout << "------------ motion" << std::endl;
    graphics_info_t g;
    g.on_glarea_motion(controller, x, y, user_data);
 }
@@ -413,6 +412,7 @@ void setup_gestures(GtkWidget *glarea) {
 
       GtkEventController *motion_controller = gtk_event_controller_motion_new();
       gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
+      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(motion_controller));
       g_signal_connect(motion_controller, "motion", G_CALLBACK(on_glarea_motion),       glarea);
       g_signal_connect(motion_controller, "enter",  G_CALLBACK(on_glarea_motion_enter), glarea);
       g_signal_connect(motion_controller, "leave",  G_CALLBACK(on_glarea_motion_leave), glarea);

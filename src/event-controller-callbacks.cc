@@ -462,12 +462,13 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
 
 
 void
-graphics_info_t::on_glarea_motion(GtkEventControllerMotion* controller,
+graphics_info_t::on_glarea_motion(G_GNUC_UNUSED GtkEventControllerMotion* controller,
                                   gdouble x,
                                   gdouble y,
-                                  gpointer user_data) {
+                                  G_GNUC_UNUSED gpointer user_data) {
 
-   // So that I can change the highlighting for the moused-over HUD elements.
+   // So that I can change the highlighting for the moused-over HUD buttons.
+   check_if_hud_button_moused_over(x, y, false);
 
 }
 
