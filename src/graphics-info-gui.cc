@@ -5098,6 +5098,7 @@ graphics_info_t::add_molecular_representation(int imol,
    int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style);
 
    update_main_window_molecular_representation_widgets();
+   graphics_draw();
    return status;
 }
 
@@ -5113,6 +5114,7 @@ graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, c
    molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
 
    update_main_window_molecular_representation_widgets();
+   graphics_draw();
    return status;
 }
 

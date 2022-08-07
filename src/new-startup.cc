@@ -419,6 +419,9 @@ void setup_gestures(GtkWidget *glarea) {
 
 }
 
+// in screen-utils.cc
+void setup_application_icon(GtkWindow *window);
+
 void
 new_startup_application_activate(GtkApplication *application,
                                  G_GNUC_UNUSED gpointer user_data) {
@@ -449,7 +452,8 @@ new_startup_application_activate(GtkApplication *application,
 
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
-   gtk_window_set_title(GTK_WINDOW(app_window), "Coot App Main Window");
+   gtk_window_set_title(GTK_WINDOW(app_window), "Coot");
+   setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
    graphics_info_t::set_main_window(app_window);
 
    guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
@@ -487,6 +491,7 @@ new_startup_application_activate(GtkApplication *application,
    gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
+   gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
    gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
    gtk_widget_show(app_window);
 

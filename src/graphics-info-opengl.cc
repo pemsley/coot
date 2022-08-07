@@ -300,10 +300,11 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-         if (false) {
-            std::cout << "blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
+         if (true) {
+            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
+            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
                       << glm::to_string(screenPos_2) << std::endl;
-            std::cout << "blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
+            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
             // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " "
             // << p2.format() << std::endl;
          }

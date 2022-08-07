@@ -5183,6 +5183,11 @@ Do you want to continue?
           <object class="GtkButton" id="toolbar_test_button">
             <property name="label" translatable="yes">Reset View</property>
             <signal name="clicked" handler="reset_view" swapped="no"/>
+            <!-- <child> -->
+            <!--   <object class="GtkImage"> -->
+            <!--     <property name="icon-name">"reset-view.png"</property> -->
+            <!--   </object> -->
+            <!-- </child> -->
           </object>
         </child>
         <child>
@@ -9163,7 +9168,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Script</property>
-    <signal name="response" handler="on_run_script_filechooser_dialog_response_gtk4" swapped="no"/>
   </object>
 
   <object class="GtkDialog" id="run_state_file_dialog">
