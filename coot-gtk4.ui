@@ -5225,6 +5225,7 @@ Do you want to continue?
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
+            <property name="spacing">2</property>
             <!-- <style> -->
             <!--   <class name="toolbar"/> -->
             <!-- </style> -->
