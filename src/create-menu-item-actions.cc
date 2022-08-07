@@ -10,6 +10,7 @@
 
 extern "C" { void load_tutorial_model_and_data(); }
 
+extern "C" G_MODULE_EXPORT
 void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                 int        response) {
 
@@ -96,6 +97,8 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // Ancient GTK3
    // open_coords_dialog();
 
+   std::cout << "---------------------- open_coordinates_action()! " << std::endl;
+
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
@@ -117,6 +120,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+   add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
    gtk_widget_show(dialog);
@@ -124,8 +128,8 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                             G_GNUC_UNUSED GVariant *parameter,
-                             G_GNUC_UNUSED gpointer user_data) {
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
 #if 0
    GtkWidget *dataset_chooser = widget_from_builder("dataset_filechooser_dialog");
    GtkWidget *main_window = graphics_info_t::get_main_window();
@@ -521,13 +525,47 @@ ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
+on_run_script_filechooser_dialog_response_gtk4(GtkDialog *dialog,
+                                               int response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+      GFile *file = gtk_file_chooser_get_file(chooser);
+      char *file_name = g_file_get_path(file);
+
+      std::cout << "Run this script file: " << file_name << std::endl;
+      run_script(file_name);
+      gtk_widget_hide(GTK_WIDGET(dialog));
+
+   }
+}
+
+void
 run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *widget = coot_run_script_chooser();
-   add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
-   gtk_widget_show(widget);
+   // reading from the ui file means that there are no buttons
+   // std::cout << "lllllllllllllllllllllllll run script action" << std::endl;
+   // GtkWidget *dialog = widget_from_builder("run_script_filechooser_dialog");
+   // add_filename_filter_button(dialog, COOT_SCRIPTS_FILE_SELECTION);
+   // gtk_widget_show(dialog);
+
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Run Script File",
+                                                   parent_window,
+                                                   action,
+                                                   _("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   _("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+   g_signal_connect(dialog, "response", G_CALLBACK(on_run_script_filechooser_dialog_response_gtk4), NULL);
+   add_filename_filter_button(dialog, COOT_SCRIPTS_FILE_SELECTION);
+   gtk_widget_show(dialog);
+
 }
 
 

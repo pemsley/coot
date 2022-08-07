@@ -3095,7 +3095,7 @@ the Ctrl key when moving the mouse.</property>
     <property name="use-header-bar">1</property>
     <property name="title" translatable="yes">Coot: Select Coordinate Filename</property>
     <!-- <property name="deletable">0</property> -->
-    <signal name="response" handler="on_coords_filechooser_dialog_response" swapped="no"/>
+    <signal name="response" handler="on_coords_filechooser_dialog_response_gtk4" swapped="no"/>
   </object>
 
   <object class="GtkFileChooserDialog" id="dataset_filechooser_dialog">
@@ -9159,23 +9159,13 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkFileChooserDialog" id="run_script_filechooser_dialog">
-    <property name="use-header-bar">0</property>
-    <signal name="response" handler="on_run_script_filechooser_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="run_script_filechooser_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
-      </object>
-    </child>
+    <property name="use-header-bar">1</property>
+    <property name="title" translatable="yes">Coot: Select Script</property>
+    <signal name="response" handler="on_run_script_filechooser_dialog_response_gtk4" swapped="no"/>
   </object>
+
   <object class="GtkDialog" id="run_state_file_dialog">
     <property name="title" translatable="yes">Coot Previously-Saved State</property>
     <child>

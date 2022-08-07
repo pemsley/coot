@@ -119,6 +119,8 @@ new_startup_realize(GtkWidget *gl_area) {
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
                              // 20220629-PE not at the moment though - I removed the gobject parts from the code path
+
+
 }
 
 
@@ -141,17 +143,29 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 }
 
 
+#include "c-interface.h" // for run_script()
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   std::cout << "DEBUG: new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
+   std::cout << "DEBUG: -----------------@@@ new_startup_on_glarea_resize() "
+             <<  width << " " << height << std::endl;
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
    // g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
-   if (! g.shaders_have_been_compiled)
-      g.init_shaders();
+
+   if (false) {
+
+      // 20220807-PE It seems that now the shaders have been compiled before the first window resize - good.
+      //             Just leave this here for now.
+
+      if (! g.shaders_have_been_compiled) {
+         g.init_shaders();
+      } else {
+         std::cout << "in new_startup_on_glarea_resize() shaders have already been compiled!" << std::endl;
+      }
+   }
 
 }
 
@@ -480,6 +494,7 @@ new_startup_application_activate(GtkApplication *application,
 
    create_actions(application);
 
+
    // load_tutorial_model_and_data();
 }
 
@@ -489,21 +504,32 @@ void check_reference_structures_dir();
 
 int new_startup(int argc, char **argv) {
 
+   auto python_init = [argc, argv] () {
+      if (true) {
+         setup_python_basic(argc, argv);
+
+         // 20220807-PE now test if that worked.
+         std::cout << "calling run_script()" << std::endl;
+         run_script("test_script.py");
+         std::cout << "done run_script()" << std::endl;
+      }
+   };
+
    graphics_info_t graphics_info;
    setup_symm_lib();
    check_reference_structures_dir();
    graphics_info.init();
    gtk_init();
 
+   python_init();
+
    // set this by parsing the command line arguments
    graphics_info.use_graphics_interface_flag = true;
-
-   // setup_python(argc, argv) needs to called after GTK has started - because it depends on gtk
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
    GError *error = NULL;
-   GtkApplication *app = gtk_application_new ("org.coot.crows", G_APPLICATION_FLAGS_NONE);
+   GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), NULL);
    g_application_register(G_APPLICATION(app), NULL, &error);
    int status = g_application_run (G_APPLICATION (app), argc, argv);

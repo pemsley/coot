@@ -606,8 +606,8 @@ on_save_coordinates_filechooser_dialog_response(GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT
 void
 on_dataset_filechooser_dialog_response(GtkDialog       *dialog,
-                                                           gint             response_id,
-                                                           gpointer         user_data) {
+                                       gint             response_id,
+                                       gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
       // const char *fnc = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));

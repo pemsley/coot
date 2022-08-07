@@ -48,7 +48,7 @@
 #include <glob.h>
 
 
-void setup_python(int argc, char **argv) {
+void setup_python_basic(int argc, char **argv) {
 
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
@@ -69,6 +69,50 @@ void setup_python(int argc, char **argv) {
    PySys_SetArgv(argc, _argv);
 
 #endif // USE_PYMAC_INIT
+
+   auto get_pythondir = [] () {
+                           std::string p = coot::prefix_dir();
+                           std::string dp   = coot::util::append_dir_dir(p,   "lib");
+                           std::string python_version = "python";
+                           python_version += coot::util::int_to_string(PY_MAJOR_VERSION);
+                           python_version += ".";
+                           python_version += coot::util::int_to_string(PY_MINOR_VERSION);
+                           std::string ddp  = coot::util::append_dir_dir(dp,  python_version);
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-packages");
+                           return dddp;
+                        };
+   auto get_pkgpythondir = [get_pythondir] () {
+                              std::string d = get_pythondir();
+                              std::string dp   = coot::util::append_dir_dir(d, "coot");
+                              return dp;
+                           };
+
+   // std::string pkgpydirectory = PKGPYTHONDIR;
+   // std::string pydirectory = PYTHONDIR;
+   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
+   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
+
+   std::string pkgpydirectory = get_pkgpythondir();
+   std::string    pydirectory = get_pythondir();
+
+   if (false) {
+      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
+      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
+   }
+
+   PyObject *sys_path = PySys_GetObject("path");
+   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+
+   // int err = PyRun_SimpleString("import coot");
+
+#endif // USE_PYTHON
+
+}
+
+
+void setup_python_with_coot_modules(int argc, char **argv) {
+
+#ifdef USE_PYTHON
 
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
@@ -125,9 +169,14 @@ void setup_python(int argc, char **argv) {
          PyImport_ImportModule("extensions");
       }
    }
+
    PyErr_PrintEx(0);
-   std::string home_directory = coot::get_home_dir();
-   try_load_dot_coot_py_and_python_scripts(home_directory);
+
+   // Read the startup-scripts elsewhere. The function is just to
+   // read the standard coot python *modules*.
+
+   // std::string home_directory = coot::get_home_dir();
+   // try_load_dot_coot_py_and_python_scripts(home_directory);
 
 #endif // USE_PYTHON
 
@@ -144,6 +193,9 @@ setup_python_classes() {
 }
 
 void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) {
+
+   std::cout << "--------------- try_load_dot_coot_py_and_python_scripts from "
+             << home_directory << " " << graphics_info_t::run_startup_scripts_flag << std::endl;
 
    if (graphics_info_t::run_startup_scripts_flag) {
 
