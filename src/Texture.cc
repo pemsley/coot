@@ -250,12 +250,21 @@ Texture::Bind(unsigned int unit) {
 void
 Texture::add_tick_marks(unsigned int n_ticks, const glm::vec4 &tick_colour, unsigned char *image_data) {
 
-   // strip off the bottom 2 rows of pixels and make them black and transparent.
+   // strip off the top 2 rows of pixels and make them black and transparent.
 
-   unsigned char r = tick_colour[0] * 255;
-   unsigned char g = tick_colour[1] * 255;
-   unsigned char b = tick_colour[2] * 255;
-   unsigned char a = tick_colour[3] * 255;
+   // blank the rows
+   for (int irow=0; irow<40; irow++) {
+      int j = irow;
+      for (int i=0; i<image_width; i++) {
+         unsigned int idx = j * image_width + i;
+         image_data[4 * idx + 0] = 0;
+         image_data[4 * idx + 1] = 0;
+         image_data[4 * idx + 2] = 0;
+         image_data[4 * idx + 3] = 0;
+      }
+   }
+
+   // add ticks
 
    for (unsigned int i_tick=0; i_tick<n_ticks; i_tick++) {
 
@@ -271,6 +280,13 @@ Texture::add_tick_marks(unsigned int n_ticks, const glm::vec4 &tick_colour, unsi
          if (idx >= image_width * image_height) {
             std::cout << "ERROR " << idx << std::endl;
          } else {
+            unsigned char r = tick_colour[0] * 255;
+            unsigned char g = tick_colour[1] * 255;
+            unsigned char b = tick_colour[2] * 255;
+            unsigned char a = tick_colour[3] * 255;
+
+            if (j < 40) { r = 255; g = 255; b = 255; }
+
             image_data[4 * idx + 0] = r;
             image_data[4 * idx + 1] = g;
             image_data[4 * idx + 2] = b;
