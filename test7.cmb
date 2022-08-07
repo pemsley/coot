@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
+<cambalache-project version="0.10.3" target_tk="gtk-4.0">
+  <ui>
+	(1,None,"test7.ui","test7.ui",None,None,None,None,None,None),
+	(2,None,"display-control-gtk4.ui","coot/git/coot-gtk4/coot/display-control-gtk4.ui",None,None,None,None,None,None)
+  </ui>
+  <ui_library>
+	(2,"gtk","4.0",None)
+  </ui_library>
+  <object>
+	(2,1,"GtkWindow","display_control_window_glade",None,None,None,None,None),
+	(2,2,"GtkBox","vbox30",1,None,None,None,None),
+	(2,3,"GtkPaned","display_control_vpaned",2,None,None,None,None),
+	(2,4,"GtkBox","paned_maps_vbox",3,None,None,None,None),
+	(2,5,"GtkBox","hbox235",4,None,None,None,None),
+	(2,6,"GtkLabel","label257",5,None,None,None,None),
+	(2,7,"GtkToggleButton","display_control_all_maps_togglebutton",5,None,None,None,1),
+	(2,8,"GtkScrolledWindow","scrolledwindow21",4,None,None,None,1),
+	(2,9,"GtkViewport","viewport13",8,None,None,None,None),
+	(2,10,"GtkBox","display_map_vbox",9,None,None,None,None),
+	(2,11,"GtkBox","paned_molecules_vbox",3,None,None,None,1),
+	(2,12,"GtkBox","hbox236",11,None,None,None,None),
+	(2,13,"GtkLabel","label258",12,None,None,None,None),
+	(2,14,"GtkToggleButton","display_control_all_models_togglebutton",12,None,None,None,1),
+	(2,15,"GtkScrolledWindow","scrolledwindow22",11,None,None,None,1),
+	(2,16,"GtkViewport","viewport14",15,None,None,None,None),
+	(2,17,"GtkBox","display_molecule_vbox",16,None,None,None,None),
+	(2,18,"GtkFrame","frame32",2,None,None,None,1),
+	(2,19,"GtkButton","display_control_ok_button",18,None,None,None,None)
+  </object>
+  <object_property>
+	(2,1,"GtkWidget","height-request","280",None,None,None,None,None),
+	(2,1,"GtkWidget","width-request","420",None,None,None,None,None),
+	(2,1,"GtkWindow","child",None,None,None,None,None,2),
+	(2,1,"GtkWindow","default-width","700",None,None,None,None,None),
+	(2,1,"GtkWindow","title","Display Manager","yes",None,None,None,None),
+	(2,2,"GtkOrientable","orientation","vertical",None,None,None,None,None),
+	(2,2,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,3,"GtkWidget","focusable","1",None,None,None,None,None),
+	(2,3,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,4,"GtkOrientable","orientation","vertical",None,None,None,None,None),
+	(2,4,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,5,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,6,"GtkLabel","justify","center",None,None,None,None,None),
+	(2,6,"GtkLabel","label","   Maps              ","yes",None,None,None,None),
+	(2,6,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,7,"GtkButton","label","   All   ","yes",None,None,None,None),
+	(2,7,"GtkButton","use-underline","1",None,None,None,None,None),
+	(2,7,"GtkToggleButton","active","1",None,None,None,None,None),
+	(2,7,"GtkWidget","focusable","1",None,None,None,None,None),
+	(2,7,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,8,"GtkScrolledWindow","child",None,None,None,None,None,9),
+	(2,8,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,9,"GtkViewport","child",None,None,None,None,None,10),
+	(2,9,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,10,"GtkOrientable","orientation","vertical",None,None,None,None,None),
+	(2,10,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,11,"GtkOrientable","orientation","vertical",None,None,None,None,None),
+	(2,11,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,12,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,13,"GtkLabel","justify","center",None,None,None,None,None),
+	(2,13,"GtkLabel","label","   Molecules     ","yes",None,None,None,None),
+	(2,13,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,14,"GtkButton","label","   All   ","yes",None,None,None,None),
+	(2,14,"GtkButton","use-underline","1",None,None,None,None,None),
+	(2,14,"GtkToggleButton","active","1",None,None,None,None,None),
+	(2,14,"GtkWidget","focusable","1",None,None,None,None,None),
+	(2,14,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,15,"GtkScrolledWindow","child",None,None,None,None,None,16),
+	(2,15,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,16,"GtkViewport","child",None,None,None,None,None,17),
+	(2,16,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,17,"GtkOrientable","orientation","vertical",None,None,None,None,None),
+	(2,17,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,18,"GtkFrame","child",None,None,None,None,None,19),
+	(2,18,"GtkWidget","focusable","1",None,None,None,None,None),
+	(2,18,"GtkWidget","visible","0",None,None,None,None,None),
+	(2,19,"GtkButton","label","OK","yes",None,None,None,None),
+	(2,19,"GtkButton","use-underline","1",None,None,None,None,None),
+	(2,19,"GtkWidget","focusable","1",None,None,None,None,None),
+	(2,19,"GtkWidget","visible","0",None,None,None,None,None)
+  </object_property>
+  <object_signal>
+	(1,2,1,"GtkWidget","destroy","on_display_control_window_glade_destroy",None,None,"no",None,None),
+	(2,2,7,"GtkToggleButton","toggled","on_display_control_all_maps_togglebutton_toggled",None,None,"no",None,None),
+	(3,2,14,"GtkToggleButton","toggled","on_display_control_all_models_togglebutton_toggled",None,None,"no",None,None),
+	(4,2,19,"GtkButton","clicked","on_display_control_ok_button_clicked",None,None,"no",None,None)
+  </object_signal>
+</cambalache-project>
