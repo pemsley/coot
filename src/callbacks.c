@@ -13187,3 +13187,34 @@ on_map_properties_dialog_fresnel_power_entry_activate
 
 }
 
+
+void
+on_fetch_corresponding_alphafold_model_and_superpose1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  fetch_and_superpose_alphafold_models_using_active_molecule();
+}
+
+
+void
+on_fetch_alphafold_model_using_uniprot_id1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *window = create_accession_code_window();
+  GtkWidget *label = lookup_widget(window, "label69");
+  gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+  gtk_window_set_title(GTK_WINDOW(window), "Fetch AlphaFold Model");
+  //  hideous (but consistent with other PDB-REDO usage above)
+  int *n;
+  n = (int *) g_malloc(sizeof(int));
+  *n = 4;
+  gtk_object_set_user_data(GTK_OBJECT(window), n);
+
+  gtk_widget_show(window);
+
+}
+

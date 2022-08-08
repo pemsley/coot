@@ -6303,6 +6303,11 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 SCM
 graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 
+   if (scheme_command.empty()) {
+      std::cout << "ERROR:: in safe_scheme_command() empty scheme_command" << std::endl;
+      return SCM_BOOL_F;
+   }
+
    // FIXME!
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))");
 

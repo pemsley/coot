@@ -4882,3 +4882,13 @@ void
 on_generic_objects_dialog_response     (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
+
+void
+on_fetch_corresponding_alphafold_model_and_superpose1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_fetch_alphafold_model_using_uniprot_id1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

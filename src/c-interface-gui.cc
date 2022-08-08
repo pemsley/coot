@@ -2337,6 +2337,8 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *widget) {
 
+   // 20220808-PE now this handles UniProt IDs too!
+
    const gchar *text_c = gtk_entry_get_text(GTK_ENTRY(widget));
    std::string text;
 
@@ -2351,6 +2353,10 @@ void handle_get_accession_code(GtkWidget *widget) {
 
       int n = *n_p;
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
+
+      if (n == 4) {
+         fetch_alphafold_model_for_uniprot_id(text);
+      }
 
 #ifdef USE_GUILE
       std::string scheme_command;
@@ -2379,7 +2385,8 @@ void handle_get_accession_code(GtkWidget *widget) {
 	       }
 	    }
 	 }
-	 safe_scheme_command(scheme_command);
+         if (! scheme_command.empty())
+            safe_scheme_command(scheme_command);
       }
 
 #else

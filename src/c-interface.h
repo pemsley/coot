@@ -7216,6 +7216,8 @@ void set_show_graphics_ligand_view(int state);
 /*! \name Experimental */
 /*! \{ */
 
+void fetch_and_superpose_alphafold_models_using_active_molecule();
+
 void add_ligand_builder_menu_item_maybe();
 
 /*!  \brief display the ligand builder dialog */
