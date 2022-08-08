@@ -513,6 +513,7 @@ int new_startup(int argc, char **argv) {
    auto python_init = [argc, argv] () {
       if (true) {
          setup_python_basic(argc, argv);
+         setup_python_coot_module();
 
          // 20220807-PE now test if that worked.
          // std::cout << "calling run_script()" << std::endl;

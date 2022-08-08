@@ -109,6 +109,13 @@ void setup_python_basic(int argc, char **argv) {
 
 }
 
+void setup_python_coot_module() {
+
+  PyObject *coot = PyImport_ImportModule("coot");
+   if (! coot) {
+      std::cout << "ERROR:: setup_python_coot_module() Null coot" << std::endl;
+   }
+}
 
 void setup_python_with_coot_modules(int argc, char **argv) {
 

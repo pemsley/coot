@@ -43,5 +43,7 @@ void setup_python_basic(int argc, char **argv);
 
 void setup_python_with_coot_modules(int argc, char **argv);
 
+void setup_python_coot_module();
+
 // which calls:
 void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory);

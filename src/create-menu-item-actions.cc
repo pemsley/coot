@@ -568,6 +568,34 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void
+scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "launch the python dialog here" << std::endl;
+
+   GtkWidget *scripting_dialog = widget_from_builder("python_window");
+   GtkWidget *python_entry     = widget_from_builder("python_window_entry");
+   if (scripting_dialog && python_entry) {
+      std::cout << "setup python window entry " << python_entry << std::endl;
+      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      gtk_widget_show(scripting_dialog);
+   } else {
+      std::cout << "ERROR:: Null scripting dialog or entry" << std::endl;
+   }
+
+}
+
+void
+scripting_scheme_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "launch the scheme dialog here" << std::endl;
+
+}
+
 
 
 
@@ -1227,6 +1255,8 @@ create_actions(GtkApplication *application) {
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
    add_action(  "other_modelling_tools_action",   other_modelling_tools_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
+   add_action(       "scripting_python_action",        scripting_python_action);
+   add_action(       "scripting_scheme_action",        scripting_scheme_action);
 
    add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
 

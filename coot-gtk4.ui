@@ -215,9 +215,19 @@
           <attribute name="label">Run Script...</attribute>
           <attribute name="action">app.run_script_action</attribute>
         </item>
-        <item>
-          <attribute name="label">Scripting...</attribute>
-        </item>
+
+        <submenu>
+                <attribute name="label">Scripting...</attribute>
+              <item>
+                <attribute name="label">Python...</attribute>
+                <attribute name="action">app.scripting_python_action</attribute>
+              </item>
+              <!-- <item> -->
+              <!--   <attribute name="label">Scheme</attribute> -->
+              <!--   <attribute name="action">app.scripting_scheme</attribute> -->
+              <!-- </item> -->
+        </submenu>
+
         <item>
           <attribute name="label">SSM Superpose...</attribute>
           <attribute name="action">app.ssm_superposition_action</attribute>
@@ -7685,7 +7695,7 @@ just the cell and symmetry)
   </object>
   <object class="GtkWindow" id="python_window">
     <property name="title" translatable="yes">Coot: Python Scripting</property>
-    <property name="default-width">400</property>
+    <property name="default-width">500</property>
     <child>
       <object class="GtkBox" id="vbox41">
         <property name="orientation">vertical</property>
@@ -7693,9 +7703,10 @@ just the cell and symmetry)
           <object class="GtkScrolledWindow" id="scrolledwindow4">
             <child>
               <object class="GtkTextView" id="python_window_text">
-                <property name="can-focus">1</property>
+                <property name="can-focus">o</property>
                 <property name="editable">0</property>
                 <property name="wrap-mode">word</property>
+                <property name="visible">0</property>
               </object>
             </child>
           </object>

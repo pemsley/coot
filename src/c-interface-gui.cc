@@ -1901,8 +1901,8 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*              scripting gtk interface                                      */
 /*  ------------------------------------------------------------------------ */
 
-// extern "C" G_MODULE_EXPORT
 #ifdef FIX_THE_KEY_PRESS_EVENTS
+// extern "C" G_MODULE_EXPORT
 gboolean
 on_python_window_entry_key_press_event(GtkWidget   *entry,
                                        GdkEventKey *event,
@@ -1934,15 +1934,13 @@ setup_python_window_entry(GtkWidget *entry) {
 #ifdef USE_PYTHON
 
    // add python entry in entry callback code here...
-#ifdef FIX_THE_KEY_PRESS_EVENTS
    g_signal_connect(G_OBJECT(entry), "activate",
                     G_CALLBACK(python_window_enter_callback),
                     (gpointer) entry);
 
-   g_signal_connect(G_OBJECT(entry), "key-press-event",
-                    G_CALLBACK(on_python_window_entry_key_press_event),
-                    (gpointer) entry);
-#endif
+   // g_signal_connect(G_OBJECT(entry), "key-press-event",
+   // G_CALLBACK(on_python_window_entry_key_press_event),
+   // (gpointer) entry);
 
 #endif // USE_PYTHON
 }
