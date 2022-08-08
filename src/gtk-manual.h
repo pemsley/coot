@@ -193,7 +193,7 @@ void render_as_occupancy_representation_button_select(int imol);
 
 /* map */
 void
-on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
+on_display_control_map_displayed_button_toggled   (GtkCheckButton       *button,
 						   gpointer         user_data);
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
@@ -208,28 +208,21 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
 
 /* molecule */
 void
-on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
+on_display_control_mol_displayed_button_toggled   (GtkCheckButton       *button,
 						   gpointer         user_data);
 void
-on_display_control_mol_active_button_toggled   (GtkToggleButton       *button,
+on_display_control_mol_active_button_toggled   (GtkCheckButton       *button,
 						gpointer         user_data);
 void
 on_display_control_mol_properties_button_toggled   (GtkButton       *button,
 						    gpointer         user_data);
 void
-on_display_control_map_scroll_radio_button_toggled (GtkToggleButton    *button,
+on_display_control_map_scroll_radio_button_toggled (GtkCheckButton    *button,
 						    gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION >= 4)
 void
-on_display_control_map_scroll_radio_button_group_changed (GtkToggleButton *button,
+on_display_control_map_scroll_radio_button_group_changed (GtkCheckButton *button,
 							  gpointer         user_data);
-#else
-void
-on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
-							  gpointer         user_data);
-#endif
-
 
 void fill_map_colour_patch(GtkWidget *patch_frame, int imol);
 

@@ -13,18 +13,22 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
 
    std::string dir = coot::package_data_dir();
    std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-   std::string glade_file_name = "single-map-properties-dialog.glade";
+   // std::string glade_file_name = "single-map-properties-dialog.glade";
+   std::string glade_file_name = "single-map-properties-dialog-gtk4.ui";
    std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
    if (coot::file_exists(glade_file_name))
       glade_file_full = glade_file_name;
 
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+   GError *error = NULL;
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
 
    if (add_from_file_status) {
       single_map_properties_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "single_map_properties_dialog"));
       // gtk_builder_connect_signals(builder, single_map_properties_dialog); // automatic now (gtk4)
    } else {
       std::cout << "ERROR:: create_single_map_properties_dialog_gtk3() failed to get builder file for single-map-properties dialog" << std::endl;
+      std::cout << "ERROR:: " << glade_file_full << std::endl;
+      std::cout << "ERROR::" << error->message << std::endl;
    }
 
    return std::make_pair(single_map_properties_dialog, builder);
@@ -49,10 +53,9 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
 
                                                 GtkWidget *cl_apply_button = widget_from_builder("single_map_properties_contour_level_apply_button");
                                                 GtkWidget *cl_entry        = widget_from_builder("single_map_properties_contour_level_entry");
-                                                GtkWidget *level_type_radiobutton =
-                                                   widget_from_builder("single_map_properties_absolute_radiobutton");
+                                                GtkWidget *level_type_radiobutton = widget_from_builder("single_map_properties_absolute_radiobutton");
                                                 if (contour_by_rmsd_flag)
-                                                   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(level_type_radiobutton), FALSE);
+                                                   gtk_check_button_set_active(GTK_CHECK_BUTTON(level_type_radiobutton), FALSE);
                                                 g_object_set_data(G_OBJECT(level_type_radiobutton), "contour_level_entry", cl_entry);
                                                 std::string entry_text = coot::util::float_to_string_using_dec_pl(contour_rmsd_step, 2);
                                                 gtk_editable_set_text(GTK_EDITABLE(cl_entry), entry_text.c_str());
@@ -121,9 +124,9 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    const molecule_class_info_t &m = g.molecules[imol];
 
    if (! m.draw_it_for_map_standard_lines) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_2), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(rb_2), TRUE);
    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_1), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(rb_1), TRUE);
    }
 
    g_object_set_data(G_OBJECT(scale), "imol", GINT_TO_POINTER(imol));
@@ -230,6 +233,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
 GtkWidget *wrapped_create_single_map_properties_dialog_gtk3(int imol) {
 
    auto w_and_b = create_single_map_properties_dialog_gtk3();
+   if (!w_and_b.first) return 0;
    fill_single_map_properties_dialog_gtk3(w_and_b, imol);
    return w_and_b.first;
 }

@@ -10,9 +10,7 @@
 
 /* create a frame/combo_box and add it to the
    display_control_molecule_combo_box (or the vbox thereof). */
-void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
-                                        const std::string &name,
-                                        int n, bool show_add_reps_frame_flag);
+void display_control_molecule_combo_box(const std::string &name, int n, bool show_add_reps_frame_flag);
 
 GtkWidget *display_control_add_reps_container(GtkWidget *display_control_window_glade,
                                               int imol_no);

@@ -450,9 +450,10 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
    graphics_info_t::statusbar = sb;
 
+   std::string window_name = "GTK4 Coot-" + std::string(VERSION);
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
-   gtk_window_set_title(GTK_WINDOW(app_window), "Coot");
+   gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
    setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
    graphics_info_t::set_main_window(app_window);
 

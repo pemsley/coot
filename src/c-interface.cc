@@ -5828,6 +5828,8 @@ clear_out_container(GtkWidget *vbox) {
 
 void add_map_display_control_widgets() {
 
+   // 20220808-PE we probably don't need to do this - now that the display control dialog is not destroyed
+
    graphics_info_t g;
 
    GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
@@ -5841,6 +5843,8 @@ void add_map_display_control_widgets() {
 
 
 void add_mol_display_control_widgets() {
+
+   // 20220808-PE we probably don't need to do this - now that the display control dialog is not destroyed
 
    graphics_info_t g;
 
@@ -5856,6 +5860,8 @@ void add_mol_display_control_widgets() {
 
 
 void add_map_and_mol_display_control_widgets() {
+
+   // 20220808-PE we probably don't need to do this - now that the display control dialog is not destroyed
 
    add_mol_display_control_widgets();
    add_map_display_control_widgets();

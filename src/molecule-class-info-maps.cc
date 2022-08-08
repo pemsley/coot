@@ -541,6 +541,7 @@ molecule_class_info_t::update_map_in_display_control_widget() const {
    graphics_info_t g;
 
    std::string dmn = name_for_display_manager();
+
    display_control_map_combo_box(dmn.c_str(), imol_no);
 
 }
@@ -1567,8 +1568,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
 	 // std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
 
-         if (! updating_existing_map_flag)
+         if (! updating_existing_map_flag) {
             update_map_in_display_control_widget();
+         }
 
 	 // Fill the class variables:
 	 //   clipper::Map_stats stats(xmap);
@@ -4769,9 +4771,9 @@ molecule_class_info_t::export_molecule_as_obj(const std::string &file_name) {
 bool
 molecule_class_info_t::export_molecule_as_gltf(const std::string &file_name) const {
 
-   std::cout << "-------------------------------------------- in m::export_moelcule_as_gltf() " << std::endl;
+   std::cout << "DEBUG:: in m::export_moelcule_as_gltf() " << std::endl;
    if (has_xmap()) {
-      std::cout << "-------------------------------------------- calling m::export_molecule_map_moelcule_as_gltf() " << std::endl;
+      std::cout << "DEBUG:: calling m::export_molecule_map_moelcule_as_gltf() " << std::endl;
       return export_map_molecule_as_gltf(file_name);
    } else {
       return export_model_molecule_as_gltf(file_name); // go for the ribbon diagram
@@ -4867,7 +4869,7 @@ molecule_class_info_t::export_map_molecule_as_obj(const std::string &file_name) 
 bool
 molecule_class_info_t::export_map_molecule_as_gltf(const std::string &file_name) const {
 
-   std::cout << "-------------------------------------------- in m::export_molecule_map_moelcule_as_gltf() " << std::endl;
+   std::cout << "DEBUG:: in m::export_molecule_map_moelcule_as_gltf() " << std::endl;
    bool status = true;
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
@@ -4900,7 +4902,7 @@ molecule_class_info_t::export_map_molecule_as_gltf(const std::string &file_name)
       }
    }
 
-   std::cout << "-------------------------------------------- in m::export_molecule_map_moelcule_as_gltf() vp triangles size"
+   std::cout << "DEBUG:: in m::export_molecule_map_moelcule_as_gltf() vp triangles size"
              << vp.second.size() << std::endl;
 
    Mesh mesh(vp);
@@ -4915,7 +4917,7 @@ molecule_class_info_t::export_map_molecule_as_gltf(const std::string &file_name)
 bool
 molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_name) const {
 
-   std::cout << "-------------------------------------------- in m::export_model_molecule_as_gltf() " << meshes.size() << std::endl;
+   std::cout << "DEBUG:: in m::export_model_molecule_as_gltf() " << meshes.size() << std::endl;
 
    bool status = true;
 

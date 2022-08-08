@@ -1,0 +1,21 @@
+
+Boot Python
+* Done!
+
+Button icons
+
+"Load tutorial model and data" should results in only one copy of the maps in the Display Manager.
+(model is not duplicated)
+
+Fix up the Display Manager - try isolating it and use Cambalache
+
+"Reset View" seems to have focus. Make it be the graphics window.
+
+Get PyGObject working with GTK4
+
+Get Coot Python modules loading
+
+Full-fat render path
+
+Think how to put the "Display Manager" into the main window
+
