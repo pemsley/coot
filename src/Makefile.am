@@ -328,7 +328,11 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc
+coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+        glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
+        new-startup.cc \
+	create-menu-item-actions.cc \
+	create-menu-item-actions.hh
 
 coot_bin_LDADD =  \
         libcootsumo.la \
@@ -479,8 +483,6 @@ libcootsumo_la_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
-	create-menu-item-actions.cc \
-	create-menu-item-actions.hh \
         curlew.h                 \
         curlew.hh                \
 	cylinder.hh		 \
@@ -640,7 +642,6 @@ libcootsumo_la_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
-   new-startup.cc \
 	oct.cc oct.hh            \
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \

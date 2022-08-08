@@ -6547,8 +6547,8 @@ void fill_and_show_shader_preferences() {
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_preferences_activate (GMenuItem     *menuitem,
-                                                    gpointer         user_data) {
+on_shader_preferences_activate (GMenuItem *menuitem,
+                                gpointer   user_data) {
    fill_and_show_shader_preferences();
 }
 
@@ -6556,8 +6556,8 @@ on_shader_preferences_activate (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 gboolean
 on_shader_settings_dialog_delete_event(GtkWidget       *widget,
-                                                           GdkEvent        *event,
-                                                           gpointer         user_data) {
+                                       GdkEvent        *event,
+                                       gpointer         user_data) {
 
    // this happens when the window manager closes the window (or tries to)
    // std::cout << "-------------- on_shader_settings_dialog_delete_event() " << std::endl;
