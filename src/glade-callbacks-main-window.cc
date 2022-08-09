@@ -658,9 +658,12 @@ on_map_name_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dia
          // std::cout << "Now do something with " << fn << std::endl;
          bool is_diff_map = false;
          GtkWidget *checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
+         // 20220809-PE GTK4 (post merge) - this is a checkbutton FIXME
          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
             is_diff_map = true;
+         std::cout << "----------------- read_ccp4_map() " << std::endl;
          read_ccp4_map(fn, is_diff_map);
+         std::cout << "----------------- done read_ccp4_map() " << std::endl;
       }
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -668,6 +671,9 @@ on_map_name_filechooser_dialog_response_gtkbuilder_callback(GtkDialog       *dia
    if (response_id == GTK_RESPONSE_CANCEL) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+   
 }
 
 
@@ -675,6 +681,8 @@ extern "C" G_MODULE_EXPORT
 void
 on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser* dialog,
                                                                   gpointer user_data) {
+
+#if 0 // 20220809-PE well, today it seems to cause a double read of the map! Strange
 
    // 20220319-PE shouldn't need to connect to this says the documentation - hmmm.....
    const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
@@ -685,6 +693,7 @@ on_map_name_filechooser_dialog_file_activated_gtkbuilder_callback(GtkFileChooser
    read_ccp4_map(fn, is_diff_map);
 
    gtk_widget_hide(GTK_WIDGET(dialog));
+#endif
 
 }
 
