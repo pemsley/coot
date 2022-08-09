@@ -649,22 +649,22 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
                fixed_flag[3] = is_fixed_second;
             }
 
-            for (unsigned int ifat=0; ifat<n_atom_1; ifat++) {
+            for (int ifat=0; ifat<n_atom_1; ifat++) {
                std::string pdb_atom_name_1(atom_1_sel[ifat]->GetAtomName());
 
                if (pdb_atom_name_1 == ltr.atom_id_1_4c()) {
 
-                  for (unsigned int isat=0; isat<n_atom_2; isat++) {
+                  for (int isat=0; isat<n_atom_2; isat++) {
                      std::string pdb_atom_name_2(atom_2_sel[isat]->GetAtomName());
 
                      if (pdb_atom_name_2 == ltr.atom_id_2_4c()) {
 
-                        for (unsigned int itat=0; itat<n_atom_3; itat++) {
+                        for (int itat=0; itat<n_atom_3; itat++) {
                            std::string pdb_atom_name_3(atom_3_sel[itat]->GetAtomName());
 
                            if (pdb_atom_name_3 == ltr.atom_id_3_4c()) {
 
-                              for (unsigned int iffat=0; iffat<n_atom_4; iffat++) {
+                              for (int iffat=0; iffat<n_atom_4; iffat++) {
                                  std::string pdb_atom_name_4(atom_4_sel[iffat]->GetAtomName());
 
                                  if (pdb_atom_name_4 == ltr.atom_id_4_4c()) {
@@ -679,6 +679,19 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
                                     atom_2->GetUDData(udd_atom_index_handle, index_2);
                                     atom_3->GetUDData(udd_atom_index_handle, index_3);
                                     atom_4->GetUDData(udd_atom_index_handle, index_4);
+
+                                    // skip dictionary mainchain torsions
+                                    if (pdb_atom_name_1 == " N  " && pdb_atom_name_4 == " N  ") continue;
+                                    if (pdb_atom_name_1 == " CA " && pdb_atom_name_4 == " CA ") continue;
+                                    if (pdb_atom_name_1 == " C  " && pdb_atom_name_4 == " C  ") continue;
+
+                                    std::cout << "----------------------- adding link torsion! "
+                                              << coot::atom_spec_t(atom_1) << " "
+                                              << coot::atom_spec_t(atom_2) << " "
+                                              << coot::atom_spec_t(atom_3) << " "
+                                              << coot::atom_spec_t(atom_4) << " "
+                                              << ltr.angle() << " " << ltr.period()
+                                              << std::endl;
 
                                     add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
                                         fixed_flag, ltr.angle(), ltr.angle_esd(), 1.2, ltr.period());
