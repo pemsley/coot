@@ -349,7 +349,7 @@ on_glarea_motion_enter(GtkEventControllerMotion *controller,
                        gdouble                   y,
                        GdkCrossingMode           mode,
                        gpointer                  user_data) {
-   std::cout << "Motion enter" << std::endl;
+   // std::cout << "Motion enter" << std::endl;
 }
 
 void
@@ -357,7 +357,7 @@ on_glarea_motion_leave(GtkEventControllerMotion *controller,
                        GdkCrossingMode           mode,
                        gpointer                  user_data) {
 
-   std::cout << "Motion leave" << std::endl;
+   // std::cout << "Motion leave" << std::endl;
 }
 
 void setup_gestures(GtkWidget *glarea) {

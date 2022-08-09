@@ -5205,6 +5205,7 @@ Do you want to continue?
         <child>
           <object class="GtkButton" id="toolbar_test_button">
             <property name="label" translatable="yes">Reset View</property>
+            <property name="can-focus">0</property>
             <signal name="clicked" handler="reset_view" swapped="no"/>
             <!-- <child> -->
             <!--   <object class="GtkImage"> -->
@@ -5216,6 +5217,7 @@ Do you want to continue?
         <child>
           <object class="GtkButton" id="toolbar_display_manager_button">
             <property name="label" translatable="yes">Display Manager</property>
+            <property name="can-focus">0</property>
             <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
           </object>
         </child>
@@ -11100,13 +11102,47 @@ Move a copy?</property>
     </child>
   </object>
   <object class="GtkDialog" id="unsaved_changes_dialog">
-    <property name="title" translatable="yes">Unsaved Changes</property>
+    <property name="title" translatable="yes">Coot: Unsaved Changes</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox17">
         <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkFrame" id="frame54">
+            <child>
+              <object class="GtkBox" id="vbox66">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label98">
+                    <property name="label" translatable="yes">\nThe following molecule(s) have unsaved changes:</property>
+                    <property name="justify">center</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox" id="unsaved_changes_molecule_vbox">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label99">
+                    <property name="label" translatable="yes">Do you wish to Continue to Exit?\n</property>
+                    <property name="justify">center</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
          <child type="action">
               <object class="GtkBox" id="hbox51">
+                <property name="spacing">12</property>
+                <property name="homogeneous">1</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
                 <child>
                   <object class="GtkButton" id="unsaved_changes_cancel_button">
                     <property name="label" translatable="yes">Cancel</property>
@@ -11123,37 +11159,13 @@ Move a copy?</property>
                 </child>
               </object>
         </child>
-        <child>
-          <object class="GtkFrame" id="frame54">
-            <child>
-              <object class="GtkBox" id="vbox66">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkLabel" id="label98">
-                    <property name="label" translatable="yes">The following molecule(s) have unsaved changes:</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox" id="unsaved_changes_molecule_vbox">
-                    <property name="orientation">vertical</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label99">
-                    <property name="label" translatable="yes">Do you wish to Continue to Exit?</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
+
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="validation_dialog">
     <property name="title" translatable="yes">validation dialog</property>
     <property name="deletable">0</property>
