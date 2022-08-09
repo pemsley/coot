@@ -649,6 +649,14 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
          if (extended_atoms_mode) {
             radius_1 = it_1->second.vdwh_radius;
             radius_2 = it_2->second.vdwh_radius;
+            // 20220719-PE add these to make base stacking not (molprobity) clashing.
+            radius_1 += 0.12; // about right, not tuned
+            radius_2 += 0.12;
+         }
+
+         if (! extended_atoms_mode) { // These improve (reduce) the bad NBCs.
+            radius_1 += 0.1;
+            radius_2 += 0.1;
          }
 
          if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
