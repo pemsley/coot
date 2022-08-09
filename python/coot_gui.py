@@ -5489,7 +5489,7 @@ def add_module_cryo_em_gui():
                                       lambda func: refmac_multi_sharpen_gui())
 
         add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                      lambda func: sharpen_blur_map_gui())
+                                      lambda func: sharpen_blur.sharpen_blur_map_gui())
 
         add_simple_coot_menu_menuitem(menu, "Mask Map by Chains",
                                       lambda func: make_masked_maps_using_active_atom())
