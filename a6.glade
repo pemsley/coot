@@ -22902,20 +22902,6 @@ just the cell and symmetry)
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label97">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">   Atom Info:                       Occupancy                  Temperature Factor</property>
-                <property name="justify">center</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="padding">6</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkFrame" id="frame159">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
