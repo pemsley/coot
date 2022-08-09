@@ -1412,8 +1412,6 @@ graphics_info_t::draw_anchored_atom_markers()  {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
          glm::mat4 view_rotation = get_model_rotation();
-         unsigned int draw_count     = 100; // number of times drawn
-         unsigned int draw_count_max = 100;
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_anchored_atom_markers.Bind(0);
          tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers,

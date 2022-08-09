@@ -13707,13 +13707,13 @@ the main_window_graphics_hbox in the right child pane (the second one).</propert
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkToggleToolButton" id="model_toolbar_fixed_atoms_togglebutton">
+                      <object class="GtkToolButton" id="model_toolbar_fixed_atoms_button">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Fixed Atoms...</property>
                         <property name="use_underline">True</property>
                         <property name="icon_widget">image18</property>
-                        <signal name="toggled" handler="on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
+                        <signal name="clicked" handler="on_model_toolbar_fixed_atoms_button_clicked_gtkbuilder_callback" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>

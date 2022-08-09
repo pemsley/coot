@@ -180,8 +180,8 @@ on_model_toolbar_regularize_togglebutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_fixed_atoms_togglebutton_toggled_gtkbuilder_callback
-                                        (GtkToggleToolButton *toggletoolbutton,
+on_model_toolbar_fixed_atoms_button_clicked_gtkbuilder_callback
+                                        (GtkToolButton *toggletoolbutton,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_fixed_atom_dialog();
