@@ -1,4 +1,38 @@
 
+   Release 1.0.06
+
+  o FEATURE: Add user-define colours to molecular ribbons representation.
+
+  o FEATURE: AlphaFold pLDDT colour scheme.
+
+  o FEATURE: Added load_gltf_mode() to the API.
+
+  o CHANGE:  Load files from ~/.coot if it is a directory.
+
+  o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
+
+  o CHANGE:  Waters have a larger radius.
+
+  o CHANGE:  Added bad NBC interaction annotation.
+
+  o BUG-FIX: Atom picking is no longer allowed in "Edit Chi Angles."
+             Thanks Juno Krahn.
+
+  o BUG-FIX: configure improvement for checking Python.
+             Thanks Juno Krahn.
+
+  o BUG-FIX: mutate_residue_range() now in the coot namesspace in auto_assign_sequence_from_map()
+
+  o BUG-FIX: Reenable the picking of hydrogen atoms in rotation/translation
+             Thank you Taro Yamada.
+
+  o BUG-FIX Fix up interesting_residues_gui(). Fixes problem in "Residues with Missing Atoms"
+            Reported by EJD.
+
+  o BUG-FIX: The GL Ramachandran plot is only displayed during refinement.
+
+
+----
 
    Release 1.0.05
 

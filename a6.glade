@@ -123,7 +123,7 @@
       <placeholder/>
     </child>
   </object>
-  <object class="GtkAboutDialog" id="aboutdialog1">
+  <object class="GtkAboutDialog" id="aboutdialog">
     <property name="can_focus">False</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
@@ -134,22 +134,19 @@
     <property name="icon">pixmaps/coot-icon.png</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
-    <property name="version">0.4-pre</property>
+    <property name="version">1.0.06</property>
     <property name="copyright" translatable="yes">Copyright 2000, 2007 by Paul Emsley
-Copyright 2002, 2003, 2004, 2005, 2006, 2007 
-by The University of York
-Copyright 2007 by The University of Oxford
-
+Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
 </property>
-    <property name="comments" translatable="yes">Pre-release Version
-(Revision 426)</property>
-    <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>
+    <property name="comments" translatable="yes">Welcome to Coot</property>
+    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website_label">The Coot Website</property>
     <property name="license" translatable="yes">GNU GPL version 3
 </property>
-    <property name="authors">Paul Emsley
-Kevin Cowtan
-Bernhard Lohkamp
+<property name="authors">Paul Emsley
+with long-term support and commitment from
+Kevin Cowtan and Bernhard Lohkamp
 </property>
     <property name="documenters">Paul Emsley
 </property>
@@ -13205,15 +13202,6 @@ Do you want to continue?
                       <object class="GtkMenu" id="help1_menu">
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkMenuItem" id="remarks_browser1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Header/Remarks Browser...</property>
-                            <property name="use_underline">True</property>
-                            <signal name="activate" handler="on_remarks_browser1_activate_gtkbuilder_callback" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkImageMenuItem" id="about1">
                             <property name="label" translatable="yes">About Coot...</property>
                             <property name="visible">True</property>
@@ -13221,6 +13209,15 @@ Do you want to continue?
                             <property name="use_underline">True</property>
                             <property name="use_stock">False</property>
                             <signal name="activate" handler="on_about1_activate_gtkbuilder_callback" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="remarks_browser1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Header/Remarks Browser...</property>
+                            <property name="use_underline">True</property>
+                            <signal name="activate" handler="on_remarks_browser1_activate_gtkbuilder_callback" swapped="no"/>
                           </object>
                         </child>
                       </object>
