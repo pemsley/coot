@@ -1842,6 +1842,7 @@ namespace coot {
             n_link_bond_restr = 0;
             n_link_angle_restr = 0;
             n_link_trans_peptide = 0;
+            n_link_torsion_restr = 0;
             n_link_plane_restr = 0;
             n_link_improper_dihedral_restr = 0;
             link_type = "link";
@@ -1858,6 +1859,7 @@ namespace coot {
          unsigned int n_link_bond_restr;
          unsigned int n_link_angle_restr;
          unsigned int n_link_plane_restr;
+         unsigned int n_link_torsion_restr;
          unsigned int n_link_trans_peptide;
          unsigned int n_link_improper_dihedral_restr;
          void add(const link_restraints_counts &lrc) {
@@ -1865,6 +1867,7 @@ namespace coot {
             n_link_angle_restr   += lrc.n_link_angle_restr;
             n_link_plane_restr   += lrc.n_link_plane_restr;
             n_link_trans_peptide += lrc.n_link_trans_peptide;
+            n_link_torsion_restr += lrc.n_link_torsion_restr;
             n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
          }
          void report() const {
@@ -1993,12 +1996,19 @@ namespace coot {
                          const protein_geometry &geom);
 
       int add_link_torsion(std::string link_type,
-                           int phi_psi_restraints_type,
                            mmdb::Residue *first,
                            mmdb::Residue *second,
                            short int is_fixed_first,
                            short int is_fixed_second,
                            const protein_geometry &geom);
+
+      int add_link_torsion_for_phi_psi(std::string link_type,
+                                       int phi_psi_restraints_type,
+                                       mmdb::Residue *first,
+                                       mmdb::Residue *second,
+                                       short int is_fixed_first,
+                                       short int is_fixed_second,
+                                       const protein_geometry &geom);
 
       // a strong restraint on w to make it 180, period 1.
       //
