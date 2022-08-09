@@ -1469,6 +1469,11 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                                            is_fixed_second_residue,
                                            geom);
 
+   if (restraints_usage_flag & TORSIONS_MASK)
+      lrc.n_link_torsion_restr += add_link_torsion(link_type, res_1, res_2,
+                                                   is_fixed_first_residue, is_fixed_second_residue, geom);
+
+
    if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
       if (do_trans_peptide_restraints) {
          lrc.n_link_trans_peptide += add_link_trans_peptide(res_1, res_2,

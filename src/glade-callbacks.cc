@@ -1675,6 +1675,28 @@ on_fetch_pdb_and_map_using_pdb_redo1_activate_gtkbuilder_callback
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_corresponding_alphafold_model_and_superpose1_activate
+                                        (GtkMenuItem     *menuitem,
+					 gpointer         user_data) {
+
+  fetch_and_superpose_alphafold_models_using_active_molecule();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_alphafold_model_using_uniprot_id1_activate(GtkMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+   int n = COOT_UNIPROT_ID;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 gboolean

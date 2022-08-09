@@ -377,15 +377,18 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
   ai = "";
   if (is_valid_model_molecule(imol)) {
      if (atom_index >= 0) {
-        if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) {
-           mmdb::Atom *at =
-              graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+        graphics_info_t g;
+        if (atom_index < g.molecules[imol].atom_sel.n_selected_atoms) {
+           mmdb::Atom *at = g.molecules[imol].atom_sel.atom_selection[atom_index];
            std::string alt_conf_bit("");
            if (strncmp(at->altLoc, "", 1))
               alt_conf_bit=std::string(",") + std::string(at->altLoc);
-           ai += "(mol. no: ";
+           std::string mol_name = g.molecules[imol].get_name();
+           ai += " [ ";
            ai += graphics_info_t::int_to_string(imol);
-           ai += ") ";
+           ai += " \"";
+           ai += mol_name;
+           ai += "\"] ";
            ai += at->name;
            ai += alt_conf_bit;
            ai += "/";

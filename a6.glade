@@ -12072,6 +12072,22 @@ Do you want to continue?
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuItem" id="fetch_corresponding_alphafold_model_and_superpose1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Fetch Corresponding AlphaFold Model &amp; Superpose</property>
+                            <signal name="activate" handler="on_fetch_corresponding_alphafold_model_and_superpose1_activate" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkMenuItem" id="fetch_alphafold_model_using_uniprot_id1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Fetch AlphaFold Model using Uniprot ID</property>
+                            <signal name="activate" handler="on_fetch_alphafold_model_using_uniprot_id1_activate" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkSeparatorMenuItem">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>

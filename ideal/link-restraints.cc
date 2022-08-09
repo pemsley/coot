@@ -395,7 +395,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 					     const coot::protein_geometry &geom) {
 
    int nangle = 0;
-   
+
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
@@ -560,7 +560,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 	       }
 	    }
 	 }
-      } 
+      }
    }
    return nangle;
 }
@@ -568,18 +568,161 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 
 int
 coot::restraints_container_t::add_link_torsion(std::string link_type,
-					       int phi_psi_restraints_type,
-					       mmdb::Residue *first,
-					       mmdb::Residue *second,
-					       short int is_fixed_first,
-					       short int is_fixed_second,
-					       const coot::protein_geometry &geom) {
+                                               mmdb::Residue *first,
+                                               mmdb::Residue *second,
+                                               short int is_fixed_first,
+                                               short int is_fixed_second,
+                                               const coot::protein_geometry &geom) {
+   int n_torsions = 0;
 
+   mmdb::PAtom *first_sel = 0;
+   mmdb::PAtom *second_sel = 0;
+   int n_first_res_atoms, n_second_res_atoms;
+   int n_atom_1, n_atom_2, n_atom_3, n_atom_4;
+   int index1, index2, index3, index4;
+
+   first->GetAtomTable(first_sel,   n_first_res_atoms);
+   second->GetAtomTable(second_sel, n_second_res_atoms);
+
+   mmdb::PPAtom atom_1_sel, atom_2_sel, atom_3_sel, atom_4_sel; // assigned to either
+                                                                   // first_sel or
+                                                                // second_sel when
+                                                                // atom_1_comp_id
+                                                                // (etc.) are known.
+
+   if (n_first_res_atoms <= 0) {
+      std::cout << "no atoms in first residue!? " << std::endl;
+   }
+   if (n_second_res_atoms <= 0) {
+      std::cout << "no atoms in second residue!? " << std::endl;
+   }
+
+   std::vector<bool> fixed_flag(4);
+   fixed_flag[0] = 0;  // not fixed
+   fixed_flag[1] = 0;
+   fixed_flag[2] = 0;
+   fixed_flag[3] = 0;
+
+   for (int i=0; i<geom.link_size(); i++) {
+      if (geom.link(i).link_id == link_type) { // typically TRANS
+         for (unsigned int j=0; j<geom.link(i).link_torsion_restraint.size(); j++) {
+
+            const auto &ltr = geom.link(i).link_torsion_restraint[j];
+
+            if (ltr.atom_1_comp_id == 1) {
+               atom_1_sel = first_sel;
+               n_atom_1 = n_first_res_atoms;
+               fixed_flag[0] = is_fixed_first;
+            } else {
+               atom_1_sel = second_sel;
+               n_atom_1 = n_second_res_atoms;
+               fixed_flag[0] = is_fixed_second;
+            }
+
+            if (ltr.atom_2_comp_id == 1) {
+               atom_2_sel = first_sel;
+               n_atom_2 = n_first_res_atoms;
+               fixed_flag[1] = is_fixed_first;
+            } else {
+               atom_2_sel = second_sel;
+               n_atom_2 = n_second_res_atoms;
+               fixed_flag[1] = is_fixed_second;
+            }
+
+            if (ltr.atom_3_comp_id == 1) {
+               atom_3_sel = first_sel;
+               n_atom_3 = n_first_res_atoms;
+               fixed_flag[2] = is_fixed_first;
+            } else {
+               atom_3_sel = second_sel;
+               n_atom_3 = n_second_res_atoms;
+               fixed_flag[2] = is_fixed_second;
+            }
+
+            if (ltr.atom_4_comp_id == 1) {
+               atom_4_sel = first_sel;
+               n_atom_4 = n_first_res_atoms;
+               fixed_flag[3] = is_fixed_first;
+            } else {
+               atom_4_sel = second_sel;
+               n_atom_4 = n_second_res_atoms;
+               fixed_flag[3] = is_fixed_second;
+            }
+
+            for (int ifat=0; ifat<n_atom_1; ifat++) {
+               std::string pdb_atom_name_1(atom_1_sel[ifat]->GetAtomName());
+
+               if (pdb_atom_name_1 == ltr.atom_id_1_4c()) {
+
+                  for (int isat=0; isat<n_atom_2; isat++) {
+                     std::string pdb_atom_name_2(atom_2_sel[isat]->GetAtomName());
+
+                     if (pdb_atom_name_2 == ltr.atom_id_2_4c()) {
+
+                        for (int itat=0; itat<n_atom_3; itat++) {
+                           std::string pdb_atom_name_3(atom_3_sel[itat]->GetAtomName());
+
+                           if (pdb_atom_name_3 == ltr.atom_id_3_4c()) {
+
+                              for (int iffat=0; iffat<n_atom_4; iffat++) {
+                                 std::string pdb_atom_name_4(atom_4_sel[iffat]->GetAtomName());
+
+                                 if (pdb_atom_name_4 == ltr.atom_id_4_4c()) {
+
+                                    mmdb::Atom *atom_1 = atom_1_sel[ifat];
+                                    mmdb::Atom *atom_2 = atom_2_sel[isat];
+                                    mmdb::Atom *atom_3 = atom_3_sel[itat];
+                                    mmdb::Atom *atom_4 = atom_4_sel[iffat];
+
+                                    int index_1 = -1, index_2 = -1, index_3 = -1, index_4 = -1;
+                                    atom_1->GetUDData(udd_atom_index_handle, index_1);
+                                    atom_2->GetUDData(udd_atom_index_handle, index_2);
+                                    atom_3->GetUDData(udd_atom_index_handle, index_3);
+                                    atom_4->GetUDData(udd_atom_index_handle, index_4);
+
+                                    // skip dictionary mainchain torsions
+                                    if (pdb_atom_name_1 == " N  " && pdb_atom_name_4 == " N  ") continue;
+                                    if (pdb_atom_name_1 == " CA " && pdb_atom_name_4 == " CA ") continue;
+                                    if (pdb_atom_name_1 == " C  " && pdb_atom_name_4 == " C  ") continue;
+
+                                    std::cout << "----------------------- adding link torsion! "
+                                              << coot::atom_spec_t(atom_1) << " "
+                                              << coot::atom_spec_t(atom_2) << " "
+                                              << coot::atom_spec_t(atom_3) << " "
+                                              << coot::atom_spec_t(atom_4) << " "
+                                              << ltr.angle() << " " << ltr.period()
+                                              << std::endl;
+
+                                    add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
+                                        fixed_flag, ltr.angle(), ltr.angle_esd(), 1.2, ltr.period());
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return n_torsions;
+}
+
+int
+coot::restraints_container_t::add_link_torsion_for_phi_psi(std::string link_type,
+                                                           int phi_psi_restraints_type,
+                                                           mmdb::Residue *first,
+                                                           mmdb::Residue *second,
+                                                           short int is_fixed_first,
+                                                           short int is_fixed_second,
+                                                           const coot::protein_geometry &geom) {
    // link_type is "p", "TRANS" etc.
 
-//    std::cout << "--------- :: Adding link torsion, link_type: " << link_type << " phi_psi_restraints_type: " 
-// 	     << phi_psi_restraints_type << std::endl;
-   
+//    std::cout << "--------- :: Adding link torsion, link_type: " << link_type << " phi_psi_restraints_type: "
+//          << phi_psi_restraints_type << std::endl;
+
    int n_torsion = 0;
 
    mmdb::PPAtom first_sel;
@@ -587,7 +730,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
    int n_first_res_atoms, n_second_res_atoms;
    int n_atom_1, n_atom_2, n_atom_3, n_atom_4;
 
-   first->GetAtomTable(first_sel,   n_first_res_atoms); 
+   first->GetAtomTable(first_sel,   n_first_res_atoms);
    second->GetAtomTable(second_sel, n_second_res_atoms);
 
    // assigned to either first_sel or second_sel when atom_1_comp_id
