@@ -25,7 +25,7 @@ coot::contacts_by_bricks::contacts_by_bricks(mmdb::PAtom *atoms_in, int n_atoms_
 
    fixed_flags.resize(n_atoms, false);
    std::set<unsigned int>::const_iterator it;
-   for(it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+   for(it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
       fixed_flags[*it] = true;
 
    unsigned int n_threads = get_max_number_of_threads();
@@ -58,30 +58,33 @@ coot::contacts_by_bricks::fill_the_bricks() {
       unsigned int n_bricks = atoms_in_bricks.size();
       if (idx_1d < n_bricks) {
          std::set<unsigned int> &ss = atoms_in_bricks.at(idx_1d);
-         // ss.contains()?
-         if (ss.find(i) == ss.end()) {
-            ss.insert(i);
-            // now delete i from the neighbour brick sets
-            // ..
-            if (true) { // this block ~5ms for 400 residues
-               for (int ix=idx_3d[0]-1; ix<=idx_3d[0]+1; ix++) {
-                  if (ix >= 0) {
-                     if (ix < range[0]) {
-                        for (int iy=idx_3d[1]-1; iy<=idx_3d[1]+1; iy++) {
-                           if (iy >= 0) {
-                              if (iy < range[1]) {
-                                 for (int iz=idx_3d[2]-1; iz<=idx_3d[2]+1; iz++) {
-                                    if (iz >= 0) {
-                                       if (iz < range[2]) {
+
+         ss.insert(i);
+
+         // now delete i from the neighbour brick sets
+         // 20220809-PE I don't now understand what this is for
+         // If it in place the Keitaro bug appears
+         //
+         // so change to false (for now).
+         //
+         if (false) { // this block ~5ms for 400 residues
+            for (int ix=idx_3d[0]-1; ix<=idx_3d[0]+1; ix++) {
+               if (ix >= 0) {
+                  if (ix < range[0]) {
+                     for (int iy=idx_3d[1]-1; iy<=idx_3d[1]+1; iy++) {
+                        if (iy >= 0) {
+                           if (iy < range[1]) {
+                              for (int iz=idx_3d[2]-1; iz<=idx_3d[2]+1; iz++) {
+                                 if (iz >= 0) {
+                                    if (iz < range[2]) {
+                                       if (! ((ix==0) && (iy==0) && (iz==0))) {
                                           int idx_3d_neighb[3];
-                                          if (! ((ix==0) && (iy==0) && (iz==0))) {
-                                             idx_3d_neighb[0] = ix;
-                                             idx_3d_neighb[1] = iy;
-                                             idx_3d_neighb[2] = iz;
-                                             unsigned int idx_neighb(idx_1d + idx_3d_to_idx_1d(idx_3d_neighb));
-                                             if (idx_neighb < n_bricks)
-                                                atoms_in_bricks.at(idx_neighb).erase(i);
-                                          }
+                                          idx_3d_neighb[0] = ix;
+                                          idx_3d_neighb[1] = iy;
+                                          idx_3d_neighb[2] = iz;
+                                          unsigned int idx_neighb(idx_1d + idx_3d_to_idx_1d(idx_3d_neighb));
+                                          if (idx_neighb < n_bricks)
+                                             atoms_in_bricks.at(idx_neighb).erase(i);
                                        }
                                     }
                                  }
@@ -173,10 +176,10 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
       const std::set<unsigned int> &brick_base = atoms_in_bricks[ib];
       std::set<unsigned int>::const_iterator it_base;
       std::set<unsigned int>::const_iterator it_neighb;
-      for (it_base=brick_base.begin(); it_base!=brick_base.end(); it_base++) {
+      for (it_base=brick_base.begin(); it_base!=brick_base.end(); ++it_base) {
          if (!fixed_flags[*it_base]) {
             mmdb::Atom *at_1 = atoms[*it_base];
-            for (it_neighb=brick_base.begin(); it_neighb!=brick_base.end(); it_neighb++) {
+            for (it_neighb=brick_base.begin(); it_neighb!=brick_base.end(); ++it_neighb) {
                if (it_neighb != it_base) {
                   mmdb::Atom *at_2 = atoms[*it_neighb];
                   if (only_between_different_residues_flag)
