@@ -1059,8 +1059,6 @@ on_open_map1_activate (GMenuItem     *menuitem,
 
    gtk_widget_show (map_name_chooser);
    add_is_difference_map_checkbutton(map_name_chooser);
-
-   gtk_widget_show(map_name_chooser);
    set_directory_for_filechooser(map_name_chooser);
 
 }
@@ -1668,6 +1666,28 @@ on_fetch_pdb_and_map_using_pdb_redo1_activate
    gtk_widget_show(window);
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_corresponding_alphafold_model_and_superpose1_activate
+                                        (GtkMenuItem     *menuitem,
+					 gpointer         user_data) {
+
+  fetch_and_superpose_alphafold_models_using_active_molecule();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_alphafold_model_using_uniprot_id1_activate(GtkMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+   int n = COOT_UNIPROT_ID;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+
+}
+
 
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
@@ -9243,19 +9263,25 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data) {
 
+   // ------------------------------------- this function is not used. ----------------------------
+   // 20220809-PE Delete it.
+
+   std::cout << "------------------------ this function is not used ---------------------------"
+             << std::endl;
+
    if (response_id == GTK_RESPONSE_OK) {
+
+      const char* filename;
       char *sfile;
-      GtkWidget* map_name_filechooser;
-      GtkWidget *checkbutton;
+      GtkWidget* map_name_fileselection1;
       short int is_diff_map_flag = 0;
 
-      map_name_filechooser = GTK_WIDGET(widget_from_builder("map_name_filechooserdialog1"));
+      GtkWidget *map_name_filechooser = widget_from_builder("map_name_filechooserdialog1");
       save_directory_from_filechooser(map_name_filechooser);
 
       /* I don't think that we need to malloc this. */
 
-      checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
-
+      GtkWidget *checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
       if (checkbutton)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
 	    is_diff_map_flag = 1;
@@ -9268,7 +9294,7 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
       // 20220601-PE old/simple
       // filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1));
 
-      printf("CCP4 map filename: %s\n", file_name);
+      printf("CCP4 map filename: %s\n", filename);
       sfile = (char *) malloc (1001);
       strncpy(sfile, file_name, 1000);
 
@@ -9280,8 +9306,7 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
       free(sfile);
 
    } else {
-      GtkWidget *map_name_filechooser = widget_from_builder("map_name_filechooserdialog1");
-      gtk_widget_hide(map_name_filechooser);
+      gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
 }

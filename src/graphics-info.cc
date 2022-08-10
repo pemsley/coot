@@ -6175,6 +6175,11 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    //
    if (! scm_boot_guile_booted) return SCM_BOOL_F;
 
+   if (scheme_command.empty()) {
+      std::cout << "ERROR:: in safe_scheme_command() empty scheme_command" << std::endl;
+      return SCM_BOOL_F;
+   }
+   
    // std::cout << "starting safe_scheme_command() with scheme_command " << scheme_command << std::endl;
 
    // return SCM_BOOL_F;

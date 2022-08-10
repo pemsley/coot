@@ -9928,6 +9928,12 @@ molecule_class_info_t::debug(bool debug_atoms_also_flag) const {
 
 void
 molecule_class_info_t::clear_all_fixed_atoms() {
+
+   std::cout << "m::clear_all_fixed_atoms() " << fixed_atom_specs.size() << std::endl;
+
+   for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
+      mark_atom_as_fixed(fixed_atom_specs[i], false);
+   }
    fixed_atom_specs.clear();
    fixed_atom_positions.clear();
 }
@@ -9976,7 +9982,7 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
                               std::vector<coot::atom_spec_t>::iterator it;
                               for (it=fixed_atom_specs.begin();
                                    it != fixed_atom_specs.end();
-                                   it++) {
+                                   ++it) {
                                  if (atom_spec == *it) {
                                     std::cout << "INFO:: removed " << atom_spec
                                               << " from fixed atom." << std::endl;

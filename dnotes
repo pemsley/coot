@@ -10693,3 +10693,22 @@ Wed 29 Jun 04:10:16 BST 2022
 
   https://www.neuraldesigner.com/blog - you will need to sign up first though.
 
+
+----
+Wed  3 Aug 06:46:59 BST 2022
+
+ Here's how to do a protected download:
+
+   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   // make coot-download if needed
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+   bool needs_downloading = true;
+   if (coot::file_exists_and_non_empty(fn))
+      needs_downloading = false;
+   if (needs_downloading) {
+      coot_get_url(url.c_str(), fn.c_str());
+   }
+

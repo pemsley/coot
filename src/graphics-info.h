@@ -2687,7 +2687,7 @@ public:
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
 					       mmdb::PPAtom atoms, int n_atoms);
-   static void fill_output_residue_info_widget_atom(GtkWidget *widget,
+   static void fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidget *widget,
 						    int imol, mmdb::PAtom atom, int iat);
    // and the keypress callbacks for the above
 #if (GTK_MAJOR_VERSION >= 4)
@@ -3083,8 +3083,8 @@ public:
    static void  residue_info_add_b_factor_edit(coot::select_atom_info sai, float val);
    static void  residue_info_add_occ_edit(     coot::select_atom_info sai, float val);
    void apply_residue_info_changes(GtkWidget *t);
-   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
-   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
+   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
+   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
 
    void add_picked_atom_info_to_status_bar(int imol, int atom_index);
 

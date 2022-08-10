@@ -3568,6 +3568,8 @@ void clear_all_fixed_atoms(int imol) {
       graphics_info_t::molecules[imol].clear_all_fixed_atoms();
       graphics_draw();
    }
+   graphics_info_t g;
+   g.setup_draw_for_anchored_atom_markers(); // update the instancing buffer
 }
 
 
