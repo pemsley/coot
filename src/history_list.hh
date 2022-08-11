@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
+#include <iostream>
 
 namespace coot {
 
@@ -22,9 +24,8 @@ namespace coot {
       std::vector<std::string> commands;
       int index;
       std::string command_history_file_name;
-      command_history_t() {
+      command_history_t() : command_history_file_name(".coot_python_commands") {
          index = 0;
-         command_history_file_name = std::string(".coot_python_commands");
          read_history();
       }
 
@@ -42,6 +43,25 @@ namespace coot {
          } else {
             return commands[index];
          }
+      }
+
+      std::string get_previous_command_starting_with(const std::string &search_string) {
+
+         if (index <=0 ) return search_string;
+
+         std::size_t l1 = search_string.size();
+         for (int idx=index; idx>=0; idx--) {
+            const auto &c = commands[idx];
+            std::cout << "looking for " << search_string << " index " << index
+                      << " in " << commands.size() << " " << c << std::endl;
+            std::size_t l2 = c.size();
+            if (l2 > l1) {
+               if (c.substr(0,l1) == search_string) {
+                  return c;
+               }
+            }
+         }
+         return search_string;
       }
 
       std::string get_next_command() {
@@ -66,10 +86,9 @@ namespace coot {
             all_history.insert(all_history.end(), commands.begin(), commands.end());
             std::ofstream f(command_history_file_name);
             std::vector<std::string>::iterator it;
-            for (it=commands.begin(); it!=commands.end(); it++) {
+            for (it=commands.begin(); it!=commands.end(); ++it) {
                const std::string &hs = *it;
                std::vector<std::string>::iterator it_next = it + 1;
-               std::find(it_next, commands.end(), hs);
                if (std::find(it_next, commands.end(), hs) == commands.end()) {
                   f << hs << "\n";
                }

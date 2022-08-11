@@ -265,8 +265,6 @@ graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coord
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
 
-   // a quick slide would be better than a jump
-
    graphics_info_t g; // needed?
    int r = 0;
    if (use_graphics_interface_flag) {
@@ -285,8 +283,9 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
          glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
          glm::mat4 vp_inv = glm::inverse(mvp);
 
-         float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
-         float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
+         // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
+         float mouseX_2 = mouse_current_x  / (w * 0.5f) - 1.0f; // mouse_x and mouse_y are updated in the motion callback.
+         float mouseY_2 = mouse_current_y  / (h * 0.5f) - 1.0f;
          // I revered the sign here - it does the right thing now.
          glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
          glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
@@ -301,6 +300,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
          if (true) {
+            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouse_x << " " << mouse_y << std::endl;
             std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
             std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
                       << glm::to_string(screenPos_2) << std::endl;

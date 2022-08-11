@@ -579,6 +579,7 @@ scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *python_entry     = widget_from_builder("python_window_entry");
    if (scripting_dialog && python_entry) {
       std::cout << "setup python window entry " << python_entry << std::endl;
+      // 20220810-PE we only want to do this once. How do I do that?
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
       gtk_widget_show(scripting_dialog);
    } else {

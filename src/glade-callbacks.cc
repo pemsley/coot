@@ -1670,8 +1670,8 @@ on_fetch_pdb_and_map_using_pdb_redo1_activate
 extern "C" G_MODULE_EXPORT
 void
 on_fetch_corresponding_alphafold_model_and_superpose1_activate
-                                        (GtkMenuItem     *menuitem,
-					 gpointer         user_data) {
+                                        (GMenuItem     *menuitem,
+					 gpointer       user_data) {
 
   fetch_and_superpose_alphafold_models_using_active_molecule();
 }
@@ -1679,7 +1679,7 @@ on_fetch_corresponding_alphafold_model_and_superpose1_activate
 
 extern "C" G_MODULE_EXPORT
 void
-on_fetch_alphafold_model_using_uniprot_id1_activate(GtkMenuItem     *menuitem,
+on_fetch_alphafold_model_using_uniprot_id1_activate(GMenuItem     *menuitem,
                                                     gpointer         user_data) {
    int n = COOT_UNIPROT_ID;
    GtkWidget *window = widget_from_builder("accession_code_window");
@@ -9294,7 +9294,7 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
       // 20220601-PE old/simple
       // filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1));
 
-      printf("CCP4 map filename: %s\n", filename);
+      std::cout << "INFO :: CCP4 map filename: " << file_name << std::endl;
       sfile = (char *) malloc (1001);
       strncpy(sfile, file_name, 1000);
 

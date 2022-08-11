@@ -2089,19 +2089,19 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    // GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
    GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
 
-   GList *container_list = gtk_container_get_children(GTK_CONTAINER(grid));
+   // GList *container_list = gtk_grid_get_children(GTK_GRID(grid));
 
    // The children are a list, gone in "backward", just like we'd been
    // consing onto a list as we added widgets to the table.
    //
-   int len = g_list_length(container_list);
+   // int len = g_list_length(container_list);
    // std::cout << "=== The table has " << len << " elements" << std::endl;
-
+#if 0
    for(int i=0; i < len; i+=5) {
       if ((i+1) < len) {
-	 GtkWidget *widget_alt = (GtkWidget*) g_list_nth_data(container_list, i);
-	 GtkWidget *widget_b   = (GtkWidget*) g_list_nth_data(container_list, i+2);
-	 GtkWidget *widget_o   = (GtkWidget*) g_list_nth_data(container_list, i+3);
+	 GtkWidget *widget_alt = 0; // (GtkWidget*) g_list_nth_data(container_list, i);
+	 GtkWidget *widget_b   = 0; // (GtkWidget*) g_list_nth_data(container_list, i+2);
+	 GtkWidget *widget_o   = 0; // (GtkWidget*) g_list_nth_data(container_list, i+3);
 	 std::string b_text = gtk_editable_get_text(GTK_EDITABLE(widget_b));
 	 std::string o_text = gtk_editable_get_text(GTK_EDITABLE(widget_o));
 // 	 std::cout << "b_text :" <<b_text << std::endl;
@@ -2109,8 +2109,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
 	 // Handle OCCUPANCY edits
 	 //
-	 coot::select_atom_info *ai =
-	    (coot::select_atom_info *) g_object_get_data(G_OBJECT(widget_o), "select_atom_info");
+	 coot::select_atom_info *ai = static_cast<coot::select_atom_info *>(g_object_get_data(G_OBJECT(widget_o), "select_atom_info"));
 	 if (ai) {
 	    imol = ai->molecule_number;  // hehe
 	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
@@ -2155,7 +2154,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	 if (ai) {
 	    imol = ai->molecule_number;  // hehe
 	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-	    std::string entry_text = gtk_editable_get_text(GTK_EDITABLE(GTK)_ENTRY(widget_alt));
+	    std::string entry_text = gtk_editable_get_text(GTK_EDITABLE((widget_alt));
 	    if (at) {
 	       coot::select_atom_info local_at = *ai;
 	       local_at.add_altloc_edit(entry_text);

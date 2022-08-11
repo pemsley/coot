@@ -106,7 +106,6 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                                  GtkWidget *gl_area) {
 
    auto do_view_zoom = [] (double drag_delta_x, double drag_delta_y) {
-      // std::cout << "calling mouse_zoom with " << drag_delta_x << " " << drag_delta_y << std::endl;
       mouse_zoom(drag_delta_x, drag_delta_y);
    };
 
@@ -121,6 +120,8 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
    bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
+
+   // std::cout << "shift is pressed " << shift_is_pressed << std::endl;
 
    if (shift_is_pressed) {
       do_view_zoom(drag_delta_x, drag_delta_y);
@@ -378,10 +379,12 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
 
-   std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
-             << " shift_is_pressed " << shift_is_pressed << std::endl;
+   if (false)
+      std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
+                << " shift_is_pressed " << shift_is_pressed << std::endl;
 
-   std::cout << "keyval: " << keyval << std::endl;
+   if (false)
+      std::cout << "keyval: " << keyval << std::endl;
 
    if (keyval == 113)
       load_tutorial_model_and_data_ec();
@@ -393,7 +396,7 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = key_bindings_map.find(kbk);
    if (it != key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     if (true)
+     if (false)
         std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      handled = kb.run();
@@ -467,7 +470,19 @@ graphics_info_t::on_glarea_motion(G_GNUC_UNUSED GtkEventControllerMotion* contro
                                   gdouble y,
                                   G_GNUC_UNUSED gpointer user_data) {
 
+
    // So that I can change the highlighting for the moused-over HUD buttons.
+
+   // We can't easily use mouse_x_m mouse_y because they are used by update_view_quaternion().
+
+   // mouse_x = x;
+   // mouse_y = y;
+
+   mouse_current_x = x;
+   mouse_current_y = y;
+
+   // set_mouse_previous_position(x, y);
+
    check_if_hud_button_moused_over(x, y, false);
 
 }

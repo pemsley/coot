@@ -177,8 +177,8 @@ on_model_toolbar_regularize_togglebutton_toggled(GtkToggleButton *toggletoolbutt
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_fixed_atoms_button_clicked(GtkMenuButton *button,
-                                            gpointer       user_data) {
+on_model_toolbar_fixed_atoms_menubutton_activated(GtkMenuButton *button,
+                                                  gpointer       user_data) {
    GtkWidget *w = wrapped_create_fixed_atom_dialog();
    gtk_widget_show(w);
 }

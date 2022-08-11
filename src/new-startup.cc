@@ -239,6 +239,7 @@ void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                      double          delta_x,
                                      double          delta_y,
                                      GtkWidget      *area) {
+
    graphics_info_t g;
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
 }

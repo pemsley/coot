@@ -1,13 +1,21 @@
 
-Up and down in the python scripting window (do history searching on up-arrow)
+history searching on python window up-arrow
 
-Do some more work on validation graphs in Cairo.
+Make the Fast-go-to-residue dialog work.
+
+Fix the Ctrl-drag function
 
 Button icons
 
+Do some more work on validation graphs in Cairo.
+
 Get PyGObject working with GTK4 - build vs GTK4 is needed? (Not a Coot thing)
 
+Get Python gui scripts working
+
 Full-fat render path
+
+Make the Fast-go-to-residue dialog be an overlay?
 
 Do the tutorial from time time - what's missing?
 
@@ -31,3 +39,8 @@ Get Coot Python modules loading
 "Reset View" seems to have focus on startup. Make it be the graphics window.
 * Done.
 
+Up and down in the python scripting window
+* Done.
+
+Fix the go to blob function
+* Done.

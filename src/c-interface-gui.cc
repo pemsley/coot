@@ -1911,7 +1911,8 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
    if (event->keyval == GDK_KEY_Up) {
       graphics_info_t g;
       std::string t = g.command_history.get_previous_command();
-      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
+      std::cout << "debug:: in on_python_window_entry_key_press_event() previous-command: \""
+                << t << "\"" << std::endl;
       gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
       return TRUE;
    }
@@ -1926,23 +1927,87 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
 #endif
 
 
+gboolean
+on_python_scripting_entry_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                     guint                  keyval,
+                                     guint                  keycode,
+                                     guint                  modifiers,
+                                     GtkEntry              *entry) {
+
+   graphics_info_t g;
+   std::cout << "python key press!" << std::endl;
+
+   gboolean handled = TRUE;
+   return gboolean(handled);
+}
+
+void
+on_python_scripting_entry_key_controller_key_released(GtkEventControllerKey *controller,
+                                                      guint                  keyval,
+                                                      guint                  keycode,
+                                                      guint                  modifiers,
+                                                      GtkEntry              *entry) {
+
+   graphics_info_t g;
+   std::cout << "python key released!" << std::endl;
+
+   // 36 is Enter
+   std::cout << "keycode: " << keycode << std::endl;
+
+   if (keycode == 36) {
+      const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+      std::cout << "act on this text: " << entry_txt << std::endl;
+      std::string entry_text_as_string(entry_txt); // important to make a copy
+      PyRun_SimpleString(entry_txt);
+
+      // clear the entry
+      gtk_editable_set_text(GTK_EDITABLE(entry), "");
+      g.command_history.add_to_history(entry_text_as_string);
+   }
+
+   if (keycode == 111) {
+
+      // up arrow
+      const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+      if (entry_txt) {
+
+         std::string search_string(entry_txt);
+
+         // std::string t = g.command_history.get_previous_command_starting_with(search_string);
+
+         std::string t = g.command_history.get_previous_command();
+         gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+      }
+
+   }
+
+   if (keycode == 116) {
+
+      // downarrow.
+      std::string t = g.command_history.get_next_command();
+      gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+
+   }
+}
+
+
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void
 setup_python_window_entry(GtkWidget *entry) {
 
-#ifdef USE_PYTHON
+   std::cout << "---------------- setup_python_window_entry() adding controller" << std::endl;
 
-   // add python entry in entry callback code here...
-   g_signal_connect(G_OBJECT(entry), "activate",
-                    G_CALLBACK(python_window_enter_callback),
-                    (gpointer) entry);
+   GtkEventController *key_controller = gtk_event_controller_key_new();
 
-   // g_signal_connect(G_OBJECT(entry), "key-press-event",
-   // G_CALLBACK(on_python_window_entry_key_press_event),
-   // (gpointer) entry);
+   // what about the "activate" signal?
+   g_signal_connect(key_controller, "key-pressed",
+                    G_CALLBACK(on_python_scripting_entry_key_controller_key_pressed), entry);
+   g_signal_connect(key_controller, "key-released",
+                    G_CALLBACK(on_python_scripting_entry_key_controller_key_released), entry);
+   gtk_widget_add_controller(entry, key_controller);
 
-#endif // USE_PYTHON
 }
 
 

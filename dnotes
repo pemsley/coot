@@ -10712,3 +10712,23 @@ Wed  3 Aug 06:46:59 BST 2022
       coot_get_url(url.c_str(), fn.c_str());
    }
 
+----
+
+   Wayland for MacOS:  https://github.com/owl-compositor/owl
+
+----
+
+   Project items
+
+   1: Compile GooCanvas with GTK4? Possible?
+
+   2: How to get PyGObject working with GTK4?
+
+   3: Put coot_utils coot_gui and extenstion and all the others inside the coot module in Python
+
+   4: Doxygen, Breathe, Sphinx documentation
+
+   5: How to make a flatpak for coot?
+
+   6: Restore the command line arguments
+
