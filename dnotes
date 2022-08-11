@@ -10645,3 +10645,20 @@ Wed  3 Aug 06:46:59 BST 2022
       coot_get_url(url.c_str(), fn.c_str());
    }
 
+----
+Wed 10 Aug 07:45:45 BST 2022
+
+  how to make sphinx documentation:
+
+  "Sphinx documentation requires first generating Doxygen documentation, then using the outputted xml with Breathe,
+  to generated the sphinx documentation."
+
+  https://github.com/tbattz/openGLPlotLive
+
+----
+Wed 10 Aug 08:58:04 BST 2022
+
+  OpenGL text (better than I have done it so far)
+
+  https://sourceforge.net/projects/ftgl/
+
