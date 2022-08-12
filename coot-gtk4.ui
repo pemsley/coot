@@ -5244,18 +5244,21 @@ Do you want to continue?
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_1">
                 <property name="label" translatable="yes">R/RC</property>
+                <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_2">
                 <property name="label" translatable="yes">Map...</property>
+                <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="refine_menubutton">
                 <property name="label" translatable="yes">Refine</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
@@ -5267,35 +5270,41 @@ Do you want to continue?
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
                 <property name="label" translatable="yes">Rigid Body Fit</property>
+                <property name="can-focus">0</property>
                 <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="rotate_translate_menubutton">
                 <property name="label" translatable="yes">Rotate/Translate</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_4">
                 <property name="label" translatable="yes">AutoFit Rotamer</property>
+                <property name="can-focus">0</property>
 		<signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled" />
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_5">
+              <object class="GtkButton" id="vertical_toolbar_testbutton_5">
                 <property name="label" translatable="yes">Rotamers</property>
-		<signal name="toggled" handler="on_model_toolbar_rotamers_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:14:37 GMT"/>
+                <property name="can-focus">0</property>
+		<signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
                 <property name="label" translatable="yes">Edit Chi Angles</property>
+                <property name="can-focus">0</property>
 		<signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:15:41 GMT"/>
               </object>
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_7">
                 <property name="label" translatable="yes">Flip Peptide</property>
+                <property name="can-focus">0</property>
 		<signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:17:03 GMT"/>
               </object>
             </child>
@@ -5308,32 +5317,38 @@ Do you want to continue?
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_9">
                 <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
+                <property name="can-focus">0</property>
 		<signal name="toggled" handler="on_model_toolbar_mutate_and_autofit_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_10">
                 <property name="label" translatable="yes">Simple Mutate</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_11">
                 <property name="label" translatable="yes">Add Terminal Residue</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_19">
                 <property name="label" translatable="yes">Delete...</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_20">
                 <property name="label" translatable="yes">Undo</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_21">
                 <property name="label" translatable="yes">Redo</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
           </object>
@@ -8793,42 +8808,27 @@ Sorry.
     </child>
   </object>
   <object class="GtkDialog" id="rotamer_selection_dialog">
-    <property name="width-request">170</property>
+    <property name="width-request">250</property>
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Select Rotamer</property>
     <signal name="destroy" handler="on_rotamer_selection_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox16">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox50">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="rotamer_selection_cancel_button">
-                    <property name="label">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_rotamer_selection_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="rotamer_selection_ok_button">
-                    <property name="label">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_rotamer_selection_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+
         <child>
           <object class="GtkBox" id="vbox158">
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow6">
+                <property name="vexpand">1</property>
                 <child>
                   <object class="GtkViewport" id="viewport3">
+                    <property name="vexpand">1</property>
                     <child>
                       <object class="GtkBox" id="rotamer_selection_button_vbox">
                         <property name="orientation">vertical</property>
+                        <property name="vexpand">1</property>
                       </object>
                     </child>
                   </object>
@@ -8851,11 +8851,32 @@ Sorry.
             </child>
           </object>
         </child>
+
+        <child type="action">
+              <object class="GtkBox" id="hbox50">
+                <property name="homogeneous">1</property>
+                <property name="spacing">4</property>
+                <child>
+                  <object class="GtkButton" id="rotamer_selection_cancel_button">
+                    <property name="label">Cancel</property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_rotamer_selection_cancel_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="rotamer_selection_ok_button">
+                    <property name="label">  OK  </property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_rotamer_selection_ok_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+        </child>
+
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="rotate_translate_obj_dialog">
     <property name="width-request">320</property>
     <property name="title" translatable="yes">Rotation &amp; Translation</property>

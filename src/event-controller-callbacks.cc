@@ -12,18 +12,6 @@
 void
 graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
-   auto check_if_refinement_dialog_arrow_tab_was_clicked = [] () {
-                                                              graphics_info_t g;
-                                                              gboolean handled = FALSE;
-                                                              if (g.hud_refinement_dialog_arrow_is_moused_over) {
-                                                                 g.show_refinement_and_regularization_parameters_dialog();
-                                                                 g.hud_refinement_dialog_arrow_is_moused_over = false; // job done
-                                                                 handled = TRUE;
-                                                                 g.graphics_draw(); // unhighlight the arrow
-                                                              }
-                                                              return gboolean(handled);
-                                                           };
-
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
    mouse_x = x;
@@ -38,6 +26,10 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
    bool handled = false;
    bool was_a_double_click = false;
    handled = check_if_moving_atom_pull(was_a_double_click);
+
+   if (! handled) {
+      check_if_in_range_defines();
+   }
 
 }
 

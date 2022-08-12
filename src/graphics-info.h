@@ -822,10 +822,14 @@ class graphics_info_t {
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 
-
-
 #if (GTK_MAJOR_VERSION >= 4)
+
+   void check_if_in_range_defines();
+   void check_if_in_rotamer_define_gtk4(const pick_info &naii);
+
 #else
+   int check_if_in_range_defines(GdkEventButton *event, const GdkModifierType &state);
+
    int  check_if_in_regularize_define(GdkEventButton *event);
    int  check_if_in_refine_define(GdkEventButton *event);
    int  check_if_in_rigid_body_define(GdkEventButton *event);
@@ -1690,6 +1694,7 @@ public:
    static std::pair<std::string, std::string> split_atom_name(const std::string &atom_name);
    static std::pair<std::string, std::string> split_resno_inscode(const std::string &atom_name);
 
+   mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &spec) const;
    mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec) const;
 
    void set_go_to_atom_molecule(int pos);
@@ -2828,16 +2833,23 @@ public:
    static float rotamer_distortion_scale; // for the validation graphs
    static int rotamer_fit_clash_flag;
    static short int in_rotamer_define;
-   static int rotamer_residue_atom_index;
+   static int rotamer_residue_atom_index;  // not used because we use the atom spec now
+   static coot::atom_spec_t rotamer_residue_atom_spec;
    static int rotamer_residue_imol;
+
+   // 20220812-PE old interface
    void do_rotamers(int atom_index, int imol) ; // display the rotamer option and display
                          			// the most likely in the graphics as a
 			                        // moving_atoms_asc
-   void fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const;
+   // 20220812-PE new interface
+   void do_rotamers(int imol, mmdb::Atom *active_atom);
+   
+   // 20220812-PE void fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const;
+   void fill_rotamer_selection_buttons(GtkWidget *window, mmdb::Atom *atom, int imol) const;
 
-   short int generate_moving_atoms_from_rotamer(int irot);
-   static void on_rotamer_selection_button_toggled (GtkButton       *button,
-						    gpointer         user_data);
+   short int generate_moving_atoms_from_rotamer(int imol, coot::atom_spec_t &spec, int irot);
+   static void on_rotamer_selection_button_toggled(GtkCheckButton       *button,
+                                                   gpointer         user_data);
    void set_rotamer_fit_clash_flag(int i) { rotamer_fit_clash_flag = i; }
    // autofit rotamer:
    static short int in_auto_fit_define;
@@ -2983,12 +2995,6 @@ public:
    //
    static int write_conect_records_flag;
 
-   // used in globjects:
-   //
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-   int check_if_in_range_defines(GdkEventButton *event, const GdkModifierType &state);
-#endif
 
    bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 

@@ -227,16 +227,23 @@ on_model_toolbar_auto_fit_rotamer_togglebutton_toggled(GtkToggleButton *toggleto
 }
 
 
+// 20220812-PE this used to be a toggle-button - it expected an atom pick after toggling the
+// button. These days we find the rotamers for the residue at the centre of the screen.
+// There is no longer any "setup_rotamers()"
+//
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_rotamers_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
-                                                                   gpointer         user_data) {
+on_model_toolbar_rotamers_button_clicked(GtkButton *toggletoolbutton,
+                                         gpointer         user_data) {
 
-   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
-   if (active)
-      setup_rotamers(1);
-   else
-      setup_rotamers(0);
+   // Find rotamers for the residue at the centre of the screen
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      g.do_rotamers(imol, aa.second);
+   }
+
 }
 
 

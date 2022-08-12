@@ -237,6 +237,7 @@ graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_optio
    return w;
 }
 
+
 #if 0 // -------------------------------------------------------------------------------------------------------------------
 
 // FIXME event button functions! 

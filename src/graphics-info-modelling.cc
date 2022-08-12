@@ -4584,10 +4584,10 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
       bool is_alt_conf_dialog = false;
       if (altconf.length())
-	 is_alt_conf_dialog = true;
+         is_alt_conf_dialog = true;
 
 //       std::cout << "DEBUG:: in do_rotamers() atom_index is " << atom_index
-// 		<< " and alconf is :" <<  altconf << ":" << std::endl;
+//                 << " and alconf is :" <<  altconf << ":" << std::endl;
 
       // GtkWidget *dialog = create_rotamer_selection_dialog();
       GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
@@ -4601,23 +4601,23 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // It it was not, then we should hide the hscale
       //
       if (is_alt_conf_dialog) {
-	 // GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
-	 GtkWidget *hscale = widget_from_builder("new_alt_conf_occ_hscale");
-	 float v = add_alt_conf_new_atoms_occupancy;
-	 // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
-	 GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
-	 gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
-	 g_signal_connect(G_OBJECT(adj),
-			    "value_changed",
-			    G_CALLBACK(graphics_info_t::new_alt_conf_occ_adjustment_changed),
-			    NULL);
-	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
+         // GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
+         GtkWidget *hscale = widget_from_builder("new_alt_conf_occ_hscale");
+         float v = add_alt_conf_new_atoms_occupancy;
+         // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
+         GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
+         gtk_range_set_adjustment(GTK_RANGE(hscale), GTK_ADJUSTMENT(adj));
+         g_signal_connect(G_OBJECT(adj),
+                          "value_changed",
+                          G_CALLBACK(graphics_info_t::new_alt_conf_occ_adjustment_changed),
+                          NULL);
+         g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
 
       } else {
-	 // GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
-	 GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
-	 gtk_widget_hide(frame);
-	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
+         // GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
+         GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
+         gtk_widget_hide(frame);
+         g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       }
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
@@ -4630,26 +4630,61 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       /* Capture keypress events */
       //    rotamer_key_press_event is not defined (yet)
       //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
-      // 		      GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
+      //                       GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
       /* set focus to glarea widget - we need this to get key presses. */
       std::cout << "Focus on the table " << std::endl;
       // GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
       gtk_widget_grab_focus(GTK_WIDGET(glareas[0])); // but set focus to the graphics.
 
-      fill_rotamer_selection_buttons(dialog, atom_index, imol);
+      // old function no loger compiles
+      // fill_rotamer_selection_buttons(dialog, atom_index, imol);
 
       // act as if the button for the first rotamer was pressed
-      short int stat = generate_moving_atoms_from_rotamer(0);
+      // short int stat = generate_moving_atoms_from_rotamer(0); // 20220812-PE no longer compiles
 
-      if (stat)
-	 gtk_widget_show(dialog);
+      if (true) // was stat != 0
+         gtk_widget_show(dialog);
    }
 }
+
+// 20220812-PE gtk4 version
+void
+graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
+
+   if (! use_graphics_interface_flag) return;
+   if (! active_atom) {
+      std::cout << "ERROR:: in do_rotamers() active_atom is null" << std::endl;
+      return;
+   }
+
+   rotamer_residue_imol = imol;
+   rotamer_residue_atom_index = 0; // we don't know it.
+   std::string altconf(active_atom->altLoc);
+   bool is_alt_conf_dialog = false;
+   if (! altconf.empty()) is_alt_conf_dialog = true;
+   rotamer_residue_atom_spec = coot::atom_spec_t(active_atom);
+
+   GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
+   set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
+   rotamer_dialog = dialog; // Hmm... this doesn't look good.
+   g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
+   if (is_alt_conf_dialog) {
+
+   } else {
+      GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
+      gtk_widget_hide(frame);
+      g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
+      fill_rotamer_selection_buttons(dialog, active_atom, imol);
+      generate_moving_atoms_from_rotamer(imol, rotamer_residue_atom_spec, 0); // passed and data member - not good design
+   }
+   gtk_widget_show(dialog);
+}
+
 
 
 // static
 void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
-							  gpointer user_data) {
+                                                          gpointer user_data) {
 
    graphics_info_t g;
    g.add_alt_conf_new_atoms_occupancy = gtk_adjustment_get_value(adj);
@@ -4658,10 +4693,10 @@ void graphics_info_t::new_alt_conf_occ_adjustment_changed(GtkAdjustment *adj,
    //
    if (moving_atoms_asc) {
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-	 // this if test is a kludge!
-	 // Don't change the alt conf for fully occupied atoms.
-	 if (moving_atoms_asc->atom_selection[i]->occupancy < 0.99)
-	    moving_atoms_asc->atom_selection[i]->occupancy = gtk_adjustment_get_value(adj);
+         // this if test is a kludge!
+         // Don't change the alt conf for fully occupied atoms.
+         if (moving_atoms_asc->atom_selection[i]->occupancy < 0.99)
+            moving_atoms_asc->atom_selection[i]->occupancy = gtk_adjustment_get_value(adj);
       }
    }
 }
@@ -4733,32 +4768,33 @@ graphics_info_t::mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec
       std::cout << "Here in mark_atom_as_fixed() 2" << std::endl;
       if ((imol >=0) && (imol < n_molecules())) {
          std::cout << "Here in mark_atom_as_fixed() 3" << std::endl;
-	 if (graphics_info_t::molecules[imol].has_model()) {
+         if (graphics_info_t::molecules[imol].has_model()) {
             std::cout << "Here in mark_atom_as_fixed() 4" << std::endl;
-	    graphics_info_t::molecules[imol].mark_atom_as_fixed(atom_spec, state);
+            graphics_info_t::molecules[imol].mark_atom_as_fixed(atom_spec, state);
             graphics_info_t g;
             g.setup_draw_for_anchored_atom_markers();
-	 }
+         }
       }
    }
 }
 
 void
-graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const {
+graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *dialog, mmdb::Atom *active_atom, int imol) const {
+
+   std::cout << "in fill_rotamer_selection_buttons() with active_atom " << active_atom << std::endl;
+   if (! active_atom) return; // error
 
    // for each rotamer do this:
 
    GSList *gr_group = NULL;
-   GtkWidget *rotamer_selection_radio_button =  0;
-   GtkWidget *rotamer_selection_dialog = window;
+   GtkWidget *rotamer_selection_dialog = dialog;
    // GtkWidget *rotamer_selection_button_vbox = lookup_widget(window, "rotamer_selection_button_vbox");
    GtkWidget *rotamer_selection_button_vbox = widget_from_builder("rotamer_selection_button_vbox");
-   graphics_info_t g;
-   std::string alt_conf = g.molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
-   mmdb::Residue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
+   std::string alt_conf = active_atom->altLoc;
+   mmdb::Residue *residue = active_atom->residue;
 
    coot::richardson_rotamer d(residue, alt_conf,
-                              g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
+                              molecules[imol].atom_sel.mol, rotamer_lowest_probability, 0);
 
    std::vector<float> probabilities = d.probabilities();
 
@@ -4768,9 +4804,10 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    // Attach the number of residues to the dialog so that we can get
    // that data item when we make a synthetic key press due to
    // keyboard (arrow?) key press:
-   g_object_set_data(G_OBJECT(window), "probabilities_size", GINT_TO_POINTER(probabilities.size()));
+   g_object_set_data(G_OBJECT(dialog), "probabilities_size", GINT_TO_POINTER(probabilities.size()));
 
-   GtkWidget *frame;
+   GtkWidget *radio_group = nullptr;
+
    for (unsigned int i=0; i<probabilities.size(); i++) {
       std::string button_label = int_to_string(i+1);
       button_label += ":  ";
@@ -4782,68 +4819,69 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
       std::string button_name = "rotamer_selection_button_rot_";
       button_name += int_to_string(i);
 
-#if (GTK_MAJOR_VERSION == 4)
-#else
-      rotamer_selection_radio_button =
-	 gtk_radio_button_new_with_label (gr_group, button_label.c_str());
-      gr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rotamer_selection_radio_button));
-#endif
+      GtkWidget *rotamer_selection_radio_button =  nullptr;
+
+      rotamer_selection_radio_button = gtk_check_button_new_with_label(button_label.c_str());
+      if (radio_group)
+         gtk_check_button_set_group(GTK_CHECK_BUTTON(rotamer_selection_radio_button), GTK_CHECK_BUTTON(radio_group));
+      else
+         radio_group = rotamer_selection_radio_button;
       // gtk_widget_ref (rotamer_selection_radio_button);
       g_object_set_data_full(G_OBJECT (rotamer_selection_dialog),
-				button_name.c_str(), rotamer_selection_radio_button,
-			     NULL);
+                             button_name.c_str(), rotamer_selection_radio_button,
+                             NULL);
 
       int *iuser_data = new int;
       *iuser_data = i;
       g_signal_connect (G_OBJECT(rotamer_selection_radio_button), "toggled",
-			  G_CALLBACK(on_rotamer_selection_button_toggled),
-			  iuser_data);
+                        G_CALLBACK(on_rotamer_selection_button_toggled),
+                        iuser_data);
 
        gtk_widget_show (rotamer_selection_radio_button);
-       frame = gtk_frame_new(NULL);
+       GtkWidget *frame = gtk_frame_new(NULL);
        gtk_frame_set_child(GTK_FRAME(frame), rotamer_selection_radio_button);
+       gtk_widget_set_margin_start(GTK_WIDGET(frame), 6);
+       gtk_widget_set_margin_end(  GTK_WIDGET(frame), 6);
+       gtk_widget_set_margin_top(  GTK_WIDGET(frame), 6);
+       gtk_widget_set_margin_bottom(GTK_WIDGET(frame), 6);
 
-#if (GTK_MAJOR_VERSION == 4)
        gtk_box_append(GTK_BOX(rotamer_selection_button_vbox), frame);
-#else
-       gtk_box_pack_start (GTK_BOX (rotamer_selection_button_vbox), frame, FALSE, FALSE, 0);
-       gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
-#endif
        gtk_widget_show(frame);
    }
 }
 
 
 void
-graphics_info_t::on_rotamer_selection_button_toggled (GtkButton       *button,
-						      gpointer         user_data) {
+graphics_info_t::on_rotamer_selection_button_toggled(GtkCheckButton  *button,
+                                                     gpointer         user_data) {
 
    int *i_tmp = (int *) user_data;
    int i = *i_tmp;
 
    graphics_info_t g;
-   g.generate_moving_atoms_from_rotamer(i);
+   coot::atom_spec_t atom_spec = rotamer_residue_atom_spec;
+   g.generate_moving_atoms_from_rotamer(rotamer_residue_imol, atom_spec, i);
 
 }
+
 
 // Return 1 for valid (i.e. non-GLY, non-ALA) residue, 0 otherwise
 // (including residue type not found).
 //
 short int
-graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
+graphics_info_t::generate_moving_atoms_from_rotamer(int imol, coot::atom_spec_t &atom_spec, int irot) {
 
-   int imol = rotamer_residue_imol;
-   int atom_index = rotamer_residue_atom_index;
+   // int atom_index = rotamer_residue_atom_index;
 
-   mmdb::Atom    *at_rot   = molecules[imol].atom_sel.atom_selection[atom_index];
-   mmdb::Residue *residue  = molecules[imol].atom_sel.atom_selection[atom_index]->residue;
+   mmdb::Atom *at_rot = get_atom(imol, atom_spec);
+   if (! at_rot) return 0;
+   mmdb::Residue *residue  = at_rot->residue;
    int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
    std::string altconf = at_rot->altLoc;
 
    if (std::string(residue->name) == "GLY" ||
        std::string(residue->name) == "ALA") {
-      std::cout << "INFO:: This residue ("<< residue->name
-		<< ") doesn't have rotamers\n";
+      std::cout << "INFO:: This residue type ("<< residue->name << ") doesn't have rotamers\n";
       return 0;
    }
 
@@ -4861,7 +4899,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       mmdb::PPAtom residue_atoms;
       int nResidueAtoms;
       std::string mol_atom_altloc;
-      std::string atom_altloc = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+      std::string atom_altloc = at_rot->altLoc;
       tres->GetAtomTable(residue_atoms, nResidueAtoms);
       for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mol_atom_altloc = std::string(residue_atoms[iat]->altLoc);

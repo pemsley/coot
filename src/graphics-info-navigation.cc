@@ -144,6 +144,17 @@ int graphics_info_t::go_to_atom_residue() {
    return go_to_atom_residue_;
 }
 
+mmdb::Atom *
+graphics_info_t::get_atom(int imol, const coot::atom_spec_t &spec) const {
+
+   mmdb::Atom *at = nullptr;
+   if (is_valid_model_molecule(imol)) {
+      at = coot::util::get_atom(spec, molecules[imol].atom_sel.mol);
+   }
+   return at;
+}
+
+
 mmdb::Residue *
 graphics_info_t::get_residue(int imol, const coot::residue_spec_t &spec) const {
 

@@ -535,6 +535,7 @@ libcootsumo_la_SOURCES = \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
+	graphics-info-defines-gtk4.cc \
 	graphics-info-draw.cc    \
 	graphics-info-draw-models.cc \
 	graphics-info-graphs.cc	 \
