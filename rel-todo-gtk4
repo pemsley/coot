@@ -37,6 +37,9 @@ Fixed Atoms click should show a menu, not a dialog ::: 1
 
 Can you make the rotamer dialog be a Popup Menu rather than a dialog (it will need to not dismiss on menu item click)
 
+Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
+(pressing "G" on the keyboard is not intuitive).
+
 Get Python gui scripts working ::: 2
 
 Full-fat render path ::: 4

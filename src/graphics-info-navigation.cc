@@ -1061,7 +1061,7 @@ std::pair<int, mmdb::Atom *>
 graphics_info_t::get_active_atom() const {
 
    mmdb::Atom *at_close = 0;
-   float dist_best = 999999999.9;
+   float dist_best = 10.0; // atoms must be closer than this to be "active" 10.0 is too generous?
    int imol_closest = -1;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (true) {
