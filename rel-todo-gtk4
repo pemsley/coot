@@ -1,46 +1,82 @@
 
-history searching on python window up-arrow
+--- Items ---
 
-Make the Fast-go-to-residue dialog work.
+Make the Fast-go-to-residue dialog work. ::: 0.5
 
-Fix the Ctrl-drag function
+Fix the Ctrl-drag function ::: 0.5
 
-Button icons
+Button icons ::: 1
 
-Do some more work on validation graphs in Cairo.
+Fix "Go To Atom" dialog ::: 2
 
-Get PyGObject working with GTK4 - build vs GTK4 is needed? (Not a Coot thing)
+Fix "Rotamers" button ::: 1
 
-Get Python gui scripts working
+Fix "AutoFit Rotamers" button ::: 1
 
-Full-fat render path
+Fix "Simple Mutate" button ::: 1
 
-Make the Fast-go-to-residue dialog be an overlay?
+Fix "Mutate & AutoFit" button ::: 1
 
-Do the tutorial from time time - what's missing?
+Fix "Sidechain 180" button ::: 1
 
-Low Priority: Think how to put the "Display Manager" into the main window
+Fix "Edit Chi Angles" button ::: 1
 
-----
+Fix "Add Terminal Residue" button ::: 1
 
-Boot Python
+Fix "Delete" button ::: 1
+
+Fix "Undo & Redo" buttons ::: 0.6
+
+Do some more experimenting with validation graphs ::: 5
+
+Get PyGObject working with GTK4 - build vs GTK4 is needed? (Not a Coot thing) ::: 2
+
+Enable the command line (e.g. --pdb and others) ::: 2
+
+Fixed Atoms click should show a menu, not a dialog ::: 1
+
+Can you make the rotamer dialog be a Popup Menu rather than a dialog (it will need to not dismiss on menu item click)
+
+Get Python gui scripts working ::: 2
+
+Full-fat render path ::: 4
+
+Make the Fast-go-to-residue dialog be an overlay? ::: 1
+
+Do the tutorial from time to time - what's missing? ::: 6
+
+Low Priority: think how to put the "Display Manager" into the main window ::: 6
+
+Low Priority: history searching on python window up-arrow ::: 1
+
+Low Priority: How can I make a flatpak for Coot?
+
+[Reminder to Garib about N3 N6 next week.]
+
+[Stacking interaction nbc are not normal nbcs - they should/could be treated differenctly - Garib.]
+
+[Numbers for beta-14 - what is the literature say? what are the reasonable numbers from 2qc1?]
+
+--- Done Items ---
+
+Boot Python  ::: 2
 * Done!
 
 "Load tutorial model and data" should results in only one copy of the maps in the Display Manager.
-(model is not duplicated)
+(model is not duplicated) ::: 1
 * Done.
 
-Fix up the Display Manager - try isolating it and use Cambalache
+Fix up the Display Manager - try isolating it and use Cambalache ::: 4
 * Done.
 
-Get Coot Python modules loading
+Get Coot Python modules loading ::: 2
 * Done
 
-"Reset View" seems to have focus on startup. Make it be the graphics window.
+"Reset View" seems to have focus on startup. Make it be the graphics window. ::: 1
 * Done.
 
-Up and down in the python scripting window
+Up and down in the python scripting window ::: 0.5
 * Done.
 
-Fix the go to blob function
+Fix the go to blob function ::: 0.5
 * Done.

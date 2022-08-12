@@ -1,8 +1,9 @@
 import datetime
 
 def proc():
+    fn = "../menu-items-to-fix"
     # f = open("../rel-todo-gtk3")
-    f = open("../menu-items-to-fix")
+    f = open(fn)
     lines = f.readlines()
     add_to_menu_items = False
     add_to_other_items = False
