@@ -4026,7 +4026,7 @@ on_virtual_trackball_menu_pops         (GMenuItem     *menuitem,
 }
 #endif
 
-
+// not use now, I think.
 extern "C" G_MODULE_EXPORT
 void
 on_model_refine_dialog_auto_fit_rotamer_togglebutton_toggled (GtkButton *button,

@@ -1598,7 +1598,6 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
    } 
 }
 
-
 void
 graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) { 
 

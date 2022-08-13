@@ -2854,6 +2854,7 @@ public:
    // autofit rotamer:
    static short int in_auto_fit_define;
 
+   void auto_fit_rotamer_ng(int imol, const coot::residue_spec_t &res_spec, const std::string &alt_conf);
 
    // Mutation stuff
    static short int in_mutate_define;

@@ -216,14 +216,26 @@ on_model_toolbar_rot_trans_togglebutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_auto_fit_rotamer_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
-                                                                           gpointer         user_data) {
+on_model_toolbar_auto_fit_rotamer_button_clicked(GtkButton *button,
+                                                 gpointer   user_data) {
 
+#if 0 // 20220813-PE there is no setup now
    gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
    if (active)
       setup_auto_fit_rotamer(1);
    else
       setup_auto_fit_rotamer(0);
+#endif
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      std::string alt_conf = aa.second->altLoc;
+      coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
+      g.auto_fit_rotamer_ng(imol, res_spec, alt_conf);
+   }
+
 }
 
 

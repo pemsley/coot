@@ -5338,10 +5338,10 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_4">
+              <object class="GtkButton" id="vertical_toolbar_testbutton_4">
                 <property name="label" translatable="yes">AutoFit Rotamer</property>
                 <property name="can-focus">0</property>
-		<signal name="toggled" handler="on_model_toolbar_auto_fit_rotamer_togglebutton_toggled" />
+		<signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
               </object>
             </child>
             <child>

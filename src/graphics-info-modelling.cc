@@ -5915,3 +5915,37 @@ graphics_info_t::tabulate_geometric_distortions(coot::restraints_container_t &rr
       f.close();
    }
 }
+
+
+void
+graphics_info_t::auto_fit_rotamer_ng(int imol, const coot::residue_spec_t &res_spec, const std::string &alt_conf) {
+
+   int imol_map = Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_map)) {
+      int res_no = res_spec.res_no;
+      std::string chain_id = res_spec.chain_id;
+      std::string ins_code = res_spec.ins_code;
+      mmdb::Residue *residue_p = get_residue(imol, res_spec);
+      float f = molecules[imol].auto_fit_best_rotamer(rotamer_search_mode,
+                                                      res_no, alt_conf, ins_code, chain_id,
+                                                      imol_map, rotamer_fit_clash_flag,
+                                                      rotamer_lowest_probability, *Geom_p());
+      if (rotamer_auto_fit_do_post_refine_flag) {
+         // Run refine zone with autoaccept, autorange on the "clicked" atom:
+         // refine_auto_range(imol, chain_id.c_str(), res_no, alt_conf.c_str());
+         // usee the refine() function
+         std::cout << "ERROR:: auto_fit_rotamer_ng Missing refine() function"
+                   << std::endl;
+      }
+      if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
+         // reset_b_factor_residue_range(imol, chain_id.c_str(), res_no, res_no);
+         std::cout << "ERROR:: auto_fit_rotamer_ng Missing reset B-factor residue range function"
+                   << std::endl;
+      }
+      update_geometry_graphs(&residue_p, 1, imol, imol_map); // yikes!
+      std::cout << "Fitting score for best rotamer: " << f << std::endl;
+      graphics_draw();
+   } else {
+      show_select_map_dialog();
+   }
+}

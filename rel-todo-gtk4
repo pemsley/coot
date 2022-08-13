@@ -13,8 +13,6 @@ Fix the Ctrl-drag function ::: 0.5
 
 Button icons ::: 1
 
-Fix "Go To Atom" dialog ::: 2
-
 Fix "AutoFit Rotamers" button ::: 1
 
 Fix "Simple Mutate" button ::: 1
@@ -94,3 +92,7 @@ Fix the go to blob function ::: 0.5
 
 Fix "Rotamers" button ::: 1
 * Done.
+
+Fix "Go To Atom" dialog ::: 2
+* Done.
+
