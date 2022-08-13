@@ -533,7 +533,7 @@
     </section>
   </menu>
 
-  <menu id="fix-atom-menu">
+  <menu id="fixed-atoms-menu">
     <section>
       <item>
         <attribute name="label" translatable="yes">Fix Atom</attribute>
@@ -546,6 +546,95 @@
       <item>
         <attribute name="label" translatable="yes">Unfix All Atoms</attribute>
         <attribute name="action">app.unfix_all_atoms</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="mutate-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">ALA (A)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">ARG (R)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">ASN (N)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">ASP (D)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">CYS (C)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">GLN (Q)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">GLU (E)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">GLY (G)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">HIS (H)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">ILE (I)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">LEU (L)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">LYS (K)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">MET (M)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">MSE</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">PHE (F)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">PRO (P)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">SER (S)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">THR (T)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">TRP (W)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">TYR (Y)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">VAL (V)</attribute>
+        <attribute name="action">app.mutate_to_type</attribute>
       </item>
     </section>
   </menu>
@@ -5321,7 +5410,7 @@ Do you want to continue?
             <child>
               <object class="GtkMenuButton" id="fixed_atoms_menubutton">
                 <property name="label" translatable="yes">Fixed Atoms</property>
-                <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/>
+                <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
               </object>
             </child>
             <child>
@@ -5380,7 +5469,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_10">
+              <object class="GtkMenuButton" id="simple_mutate_menubutton">
                 <property name="label" translatable="yes">Simple Mutate</property>
                 <property name="can-focus">0</property>
               </object>

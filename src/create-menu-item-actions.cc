@@ -1198,6 +1198,19 @@ refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+mutate_to_type(G_GNUC_UNUSED GSimpleAction *simple_action,
+               G_GNUC_UNUSED GVariant *parameter,
+               G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "mutate_to type simple_action " << simple_action << std::endl;
+   std::cout << "mutate_to type parameter " << parameter << std::endl;
+   if (user_data)
+      std::cout << "mutate_to type user_data " << user_data << std::endl;
+   else
+      std::cout << "mutate_to type null user_data " << std::endl;
+}
+
+void
 create_actions(GtkApplication *application) {
 
    auto add_action = [application] (const std::string &action_name,
@@ -1338,4 +1351,5 @@ create_actions(GtkApplication *application) {
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);
 
+   add_action("mutate_to_type", mutate_to_type);
 }

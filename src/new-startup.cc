@@ -464,21 +464,29 @@ new_startup_application_activate(GtkApplication *application,
    graphics_info_t g;
    g.set_gtkbuilder(builder);
 
-   //GMenu *menu = create_menu_by_hand(application);
-   GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
-   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
-   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
-
    // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
    // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
    GtkWidget *graphics_hbox = widget_from_builder("main_window_hbox", builder);
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
    // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
-   // toolbar button - connect the menu to the GtkMenuButton
+   //GMenu *menu = create_menu_by_hand(application);
+   GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
+   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
+   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+
+   // toolbar button - connect the refine menu to the GtkMenuButton
    GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton", builder);
-   GMenuModel *menu = G_MENU_MODEL(gtk_builder_get_object(builder, "refine-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(refine_menubutton), menu);
+   GMenuModel *refine_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "refine-menu"));
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(refine_menubutton), refine_menu);
+
+   GtkWidget *fixed_atoms_menubutton = widget_from_builder("fixed_atoms_menubutton");
+   GMenuModel *fixed_atoms_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "fixed-atoms-menu"));
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(fixed_atoms_menubutton), fixed_atoms_menu);
+
+   GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
+   GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-menu"));
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
 
    gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 

@@ -5,17 +5,15 @@ Padding is gone, margins and layout are in.
 Tables are out, Grids are in.
 Radio buttons are gone, use check buttons instead.
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
-Canvas is gone, use widgets instead (how?)
+Canvas is gone, use widget lists instead (how?)
+
+Fix "Simple Mutate" button ::: 1
 
 Make the Fast-go-to-residue dialog work. ::: 0.5
 
 Fix the Ctrl-drag function ::: 0.5
 
 Button icons ::: 1
-
-Fix "AutoFit Rotamers" button ::: 1
-
-Fix "Simple Mutate" button ::: 1
 
 Fix "Mutate & AutoFit" button ::: 1
 
@@ -94,5 +92,8 @@ Fix "Rotamers" button ::: 1
 * Done.
 
 Fix "Go To Atom" dialog ::: 2
+* Done.
+
+Fix "AutoFit Rotamers" button ::: 1
 * Done.
 
