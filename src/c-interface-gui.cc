@@ -4703,7 +4703,7 @@ GtkWidget *wrapped_create_goto_atom_window() {
    GtkWidget *widget = graphics_info_t::go_to_atom_window;
    if (widget) {
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+#if (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME widget raise
 #else
       if (!gtk_widget_get_mapped(widget))
@@ -4718,7 +4718,7 @@ GtkWidget *wrapped_create_goto_atom_window() {
       widget = widget_from_builder("goto_atom_window");
       graphics_info_t::go_to_atom_window = widget;
       if (graphics_info_t::go_to_atom_window_x_position > -1) {
-         if (false) // 20220315-PE too much noise - I shold fix this later
+         if (false) // 20220315-PE too much noise - I should fix this later
             std::cout << "GTK-FIXME no gtk_widget_set_uposition F2" << std::endl;
 
          // GTK3 - you can't set widget/window positions.
@@ -4727,7 +4727,8 @@ GtkWidget *wrapped_create_goto_atom_window() {
          // 				  graphics_info_t::go_to_atom_window_y_position);
 
       }
-      fill_go_to_atom_window(widget);
+      graphics_info_t g;
+      g.fill_go_to_atom_window_gtk3(widget);
    }
    return widget;
 }

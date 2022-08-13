@@ -10732,3 +10732,17 @@ Wed  3 Aug 06:46:59 BST 2022
 
    6: Restore the command line arguments
 
+
+---
+Sat 13 Aug 08:42:27 BST 2022
+
+   how to iterate through a widget's children in GTK4:
+
+   GtkWidget *item_widget = gtk_widget_get_first_child(scrolled_window);
+   while (item_widget) {
+      if (some_test) {
+         some assignment
+      }
+      item_widget = gtk_widget_get_next_sibling(item_widget);
+   };
+

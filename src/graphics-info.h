@@ -1713,8 +1713,8 @@ public:
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
 
+   static void fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *dialog);
    static void fill_go_to_atom_window_gtk3(GtkWidget *widget);
-
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);

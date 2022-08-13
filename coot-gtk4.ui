@@ -4963,17 +4963,22 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="goto_atom_window">
     <property name="title" translatable="yes">Go To Atom...</property>
     <signal name="destroy" handler="on_goto_atom_window_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="vbox33">
         <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkFrame" id="frame30">
             <child>
               <object class="GtkBox" id="vbox34">
                 <property name="orientation">vertical</property>
+                <property name="spacing">2</property>
                 <child>
                   <object class="GtkLabel" id="label39">
                     <property name="label" translatable="yes">Define an Atom for Centering:</property>
@@ -4985,14 +4990,19 @@ Do you want to continue?
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkBox" id="hbox23">
+                        <property name="spacing">2</property>
+                        <property name="margin-start">44</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <child>
-                          <object class="GtkComboBoxText" id="go_to_atom_molecule_combobox">
+                          <object class="GtkLabel" id="label40">
+                            <property name="label" translatable="yes">Molecule: </property>
+                            <property name="justify">center</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label40">
-                            <property name="label" translatable="yes">  Molecule</property>
-                            <property name="justify">center</property>
+                          <object class="GtkComboBoxText" id="go_to_atom_molecule_combobox">
                           </object>
                         </child>
                       </object>
@@ -5005,6 +5015,10 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
@@ -5013,6 +5027,10 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">1</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
@@ -5021,24 +5039,40 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">2</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label41">
                             <property name="label" translatable="yes"> Chain</property>
                             <property name="justify">center</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label42">
                             <property name="label" translatable="yes"> Residue Number</property>
                             <property name="justify">center</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label43">
                             <property name="label" translatable="yes"> Atom Name</property>
                             <property name="justify">center</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">2</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
@@ -5047,6 +5081,10 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="use-underline">1</property>
                             <signal name="clicked" handler="on_update_go_to_atom_from_current_position_button_clicked" swapped="no"/>
+                            <layout>
+                              <property name="column">2</property>
+                              <property name="row">0b</property>
+                            </layout>
                           </object>
                         </child>
                       </object>
@@ -5062,9 +5100,35 @@ Do you want to continue?
           </object>
         </child>
         <child>
+          <object class="GtkFrame" id="frame59">
+            <property name="height-request">179</property>
+            <child>
+              <object class="GtkBox" id="go_to_atom_model_view_hbox">
+                <property name="spacing">4</property>
+                <child>
+                  <object class="GtkScrolledWindow" id="go_to_atom_residue_scrolledwindow">
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="go_to_atom_atom_scrolledwindow">
+                    <property name="vexpand">1</property>
+                    <property name="hexpand">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="GtkButton" id="go_to_atom_next_residue_button">
             <property name="label" translatable="yes">Next Residue</property>
             <property name="can-focus">1</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-top">2</property>
+            <property name="margin-bottom">2</property>
             <signal name="clicked" handler="on_go_to_atom_next_residue_button_clicked" swapped="no"/>
           </object>
         </child>
@@ -5072,39 +5136,32 @@ Do you want to continue?
           <object class="GtkButton" id="go_to_atom_previous_residue_button">
             <property name="label" translatable="yes">Previous Residue</property>
             <property name="can-focus">1</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-top">2</property>
+            <property name="margin-bottom">2</property>
             <signal name="clicked" handler="on_go_to_atom_previous_residue_button_clicked" swapped="no"/>
           </object>
         </child>
         <child>
-          <object class="GtkFrame" id="frame59">
-            <property name="height-request">179</property>
-            <child>
-              <object class="GtkBox" id="go_to_atom_model_view_hbox">
-                <child>
-                  <object class="GtkScrolledWindow" id="go_to_atom_residue_scrolledwindow">
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="go_to_atom_atom_scrolledwindow">
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
           <object class="GtkBox" id="hbox22">
+            <property name="spacing">4</property>
+            <property name="homogeneous">1</property>
             <child>
               <object class="GtkButton" id="go_to_atom_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
+                <property name="label" translatable="yes"> Close </property>
                 <property name="can-focus">1</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
                 <signal name="clicked" handler="on_go_to_atom_cancel_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="go_to_atom_apply_button">
-                <property name="label" translatable="yes">Apply</property>
+                <property name="label" translatable="yes"> Apply </property>
                 <property name="can-focus">1</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
                 <signal name="clicked" handler="on_go_to_atom_apply_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -5311,6 +5368,7 @@ Do you want to continue?
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_8">
                 <property name="label" translatable="yes">Sidechain 180° Flip</property>
+                <property name="can-focus">0</property>
 		<signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:18:08 GMT"/>
               </object>
             </child>

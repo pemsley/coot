@@ -1,6 +1,12 @@
 
 --- Items ---
 
+Padding is gone, margins and layout are in.
+Tables are out, Grids are in.
+Radio buttons are gone, use check buttons instead.
+Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
+Canvas is gone, use widgets instead (how?)
+
 Make the Fast-go-to-residue dialog work. ::: 0.5
 
 Fix the Ctrl-drag function ::: 0.5
@@ -8,8 +14,6 @@ Fix the Ctrl-drag function ::: 0.5
 Button icons ::: 1
 
 Fix "Go To Atom" dialog ::: 2
-
-Fix "Rotamers" button ::: 1
 
 Fix "AutoFit Rotamers" button ::: 1
 
@@ -24,6 +28,10 @@ Fix "Edit Chi Angles" button ::: 1
 Fix "Add Terminal Residue" button ::: 1
 
 Fix "Delete" button ::: 1
+
+"About Coot" is broken again  ::: 0.5
+
+"Header Browser" is broken again  ::: 0.5
 
 Fix "Undo & Redo" buttons ::: 0.6
 
@@ -82,4 +90,7 @@ Up and down in the python scripting window ::: 0.5
 * Done.
 
 Fix the go to blob function ::: 0.5
+* Done.
+
+Fix "Rotamers" button ::: 1
 * Done.

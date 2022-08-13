@@ -720,6 +720,7 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
+   // wrapped_create_show_symmetry_window() fills the window also
    GtkWidget *widget = wrapped_create_goto_atom_window(); // uses gtkbuilder
 
 				/* now we need to fill the entry boxes
@@ -728,6 +729,7 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 				   have coordinates. */
 
    gtk_widget_show(widget);
+   graphics_info_t g;
 }
 
 
