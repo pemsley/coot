@@ -1207,6 +1207,16 @@ mutate_to_type(GSimpleAction *simple_action,
       g_variant_get (parameter, "s", &result);
       std::string ss(result);
       std::cout << "mutate_to type parameter " << ss << std::endl;
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         graphics_info_t g;
+         g.mutate_residue_imol = imol;
+         g.mutate_auto_fit_residue_imol = imol;
+         coot::residue_spec_t res_spec(pp.second.second);
+         g.do_mutation(imol, res_spec, ss, false); // not stub
+      }
    }
 }
 

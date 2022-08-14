@@ -581,7 +581,8 @@ void handle_residue_type_chooser_entry_chose_type(const char *entry_text,
                   if (status == mmdb::UDDATA_Ok) {
                      g.mutate_auto_fit_residue_atom_index = atom_index;
                      g.mutate_auto_fit_residue_imol = imol;
-                     g.do_mutation(res_type, stub_mode);
+                     coot::residue_spec_t res_spec = coot::residue_spec_t(coot::atom_spec_t(at));
+                     g.do_mutation(imol, res_spec, res_type, stub_mode);
                   } else {
                      std::cout << "UDData not OK " << std::endl;
                   }
@@ -608,7 +609,12 @@ void
 do_mutation(const char *type, short int stub_button_state_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
-   g.do_mutation(type, stub_button_state_flag);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec = coot::residue_spec_t(pp.second.second);
+      g.do_mutation(imol, res_spec, type, stub_button_state_flag);
+   }
    std::string cmd = "do-mutation";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(type));

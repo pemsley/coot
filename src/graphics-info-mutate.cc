@@ -236,78 +236,94 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 //
 
 void
-graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_flag) {
+graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
+                              const std::string &residue_type, short int do_stub_flag) {
 
    // this is called from both simple mutate (in_mutate_define)
    // and auto_fit_mutate (in_mutate_auto_fit_define).
    // mutate_auto_fit_residue_imol will not be set in the simple mutate case
 
-   if (false)
+   if (true)
       std::cout << "::::::::::::::::::::::: in do_mutation() with residue_type_chooser_auto_fit_flag "
                 << residue_type_chooser_auto_fit_flag << std::endl;
 
    if (residue_type_chooser_auto_fit_flag) {
 
       if (! is_valid_model_molecule(mutate_auto_fit_residue_imol)) {
-	 std::cout << "ERROR:: invalid model molecule number in do_mutation() "
-		   << mutate_auto_fit_residue_imol << std::endl;
-	 return;
+	      std::cout << "ERROR:: invalid model molecule number in do_mutation() "
+		             << mutate_auto_fit_residue_imol << std::endl;
+	      return;
       }
 
+      std::cout << "do_mutation() here with mutate_and_autofit_imol "
+                << mutate_auto_fit_residue_imol << std::endl;
       molecules[mutate_auto_fit_residue_imol].mutate(mutate_auto_fit_residue_atom_index,
-						     residue_type, do_stub_flag);
+			                              			     residue_type, do_stub_flag);
 
       // 20071005 No longer check for stub state.  It doesn't make
       // sense to autofit a stub.  So ignore the stub state and just
       // autofit as normal.
 
       int imol_map = Imol_Refinement_Map();
+      std::cout << "here with imol_map = " << imol_map << std::endl;
       if (imol_map >= 0) {
 
-	 // float f =
-	 int mode = graphics_info_t::rotamer_search_mode;
-	 molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode, mutate_auto_fit_residue_atom_index,
+	      // float f =
+	      int mode = graphics_info_t::rotamer_search_mode;
+         // this signature needs to be changed to a residue spec.
+	      molecules[mutate_auto_fit_residue_imol].auto_fit_best_rotamer(mode, mutate_auto_fit_residue_atom_index,
                                                                        imol_map, rotamer_fit_clash_flag,
                                                                        rotamer_lowest_probability, *Geom_p());
 
-	 if (mutate_auto_fit_do_post_refine_flag) {
-	    // Run refine zone with autoaccept, autorange on
-	    // the "clicked" atom:
-	    short int auto_range = 1;
-	    refine(mutate_auto_fit_residue_imol, auto_range,
-		   mutate_auto_fit_residue_atom_index,
-		   mutate_auto_fit_residue_atom_index);
-	 }
+	      if (mutate_auto_fit_do_post_refine_flag) {
+	         // Run refine zone with autoaccept, autorange on
+	         // the "clicked" atom:
+	         short int auto_range = 1;
+	         refine(mutate_auto_fit_residue_imol, auto_range,
+		         mutate_auto_fit_residue_atom_index,
+		         mutate_auto_fit_residue_atom_index);
+	      }
 
-	 // This is the wrong function, isn't it?
-	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+         // This is the wrong function, isn't it?
+	      update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
 
-	 update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
-				mutate_auto_fit_residue_imol);
+	      update_geometry_graphs(molecules[mutate_auto_fit_residue_imol].atom_sel,
+			   	mutate_auto_fit_residue_imol);
 
 
-	 run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
+	      run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 
       } else {
 
-	 // imol map chooser
-	 show_select_map_dialog();
+	      // imol map chooser
+	      show_select_map_dialog();
       }
+
    } else {
 
+      std::cout << "do_mutation() here with mutate_residue_imol "
+                << mutate_residue_imol << std::endl;
       if (is_valid_model_molecule(mutate_residue_imol)) {
-	 // simple mutation
-	 molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type, do_stub_flag);
-	 update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-	 update_geometry_graphs(molecules[mutate_residue_imol].atom_sel, mutate_auto_fit_residue_imol);
-	 run_post_manipulation_hook(mutate_residue_imol, MUTATED);
+	      // simple mutation
+	      // molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type, do_stub_flag);
+         auto &m = molecules[mutate_residue_imol];
+         mmdb::Residue *residue_p = m.get_residue(res_spec);
+         if (residue_p) {
+            m.mutate(residue_p, residue_type, true);
+            update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
+            update_geometry_graphs(molecules[mutate_residue_imol].atom_sel, mutate_auto_fit_residue_imol);
+            run_post_manipulation_hook(mutate_residue_imol, MUTATED);
+         }
+      } else {
+         std::cout << "WARNING:: mutate_residue_imol is " << mutate_residue_imol << std::endl;
       }
    }
    graphics_draw();
 }
 
 void
-graphics_info_t::do_mutation_auto_fit(const std::string &residue_type,
+graphics_info_t::do_mutation_auto_fit(int imol, const coot::residue_spec_t &res_spec,
+                  const std::string &residue_type,
 				      short int do_stub_flag) {
 
    molecules[mutate_residue_imol].mutate(mutate_residue_atom_index, residue_type,

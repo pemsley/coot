@@ -2860,7 +2860,8 @@ public:
    static short int in_mutate_define;
    static int mutate_residue_atom_index;
    static int mutate_residue_imol;
-   void do_mutation(const std::string &residue_type, short int do_stub_flag);
+   void do_mutation(int imol, const coot::residue_spec_t &res_spec,
+                    const std::string &residue_type, short int do_stub_flag);
    static atom_selection_container_t standard_residues_asc;
    GtkWidget *wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const; /* set the stub checkbox */
 
@@ -2868,7 +2869,7 @@ public:
    static short int in_mutate_auto_fit_define;
    static int mutate_auto_fit_residue_atom_index;
    static int mutate_auto_fit_residue_imol;
-   void do_mutation_auto_fit(const std::string &residue_type, short int do_stub_flag);
+   void do_mutation_auto_fit(int imol, const coot::residue_spec_t &res_spec, const std::string &residue_type, short int do_stub_flag);
    static short int residue_type_chooser_auto_fit_flag;
    static short int residue_type_chooser_stub_flag;
    static short int mutate_auto_fit_do_post_refine_flag;
