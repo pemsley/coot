@@ -1198,16 +1198,16 @@ refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
-mutate_to_type(G_GNUC_UNUSED GSimpleAction *simple_action,
-               G_GNUC_UNUSED GVariant *parameter,
-               G_GNUC_UNUSED gpointer user_data) {
+mutate_to_type(GSimpleAction *simple_action,
+               GVariant *parameter,
+               gpointer user_data) {
 
-   std::cout << "mutate_to type simple_action " << simple_action << std::endl;
-   std::cout << "mutate_to type parameter " << parameter << std::endl;
-   if (user_data)
-      std::cout << "mutate_to type user_data " << user_data << std::endl;
-   else
-      std::cout << "mutate_to type null user_data " << std::endl;
+   if (parameter) {
+      gchar *result;
+      g_variant_get (parameter, "s", &result);
+      std::string ss(result);
+      std::cout << "mutate_to type parameter " << ss << std::endl;
+   }
 }
 
 void
@@ -1221,6 +1221,16 @@ create_actions(GtkApplication *application) {
       g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
       g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
    };
+
+   auto add_action_with_param = [application] (const std::string &action_name,
+                                    void (*action_function) (GSimpleAction *simple_action,
+                                                             GVariant *parameter,
+                                                             gpointer user_data)) {
+      GSimpleAction *simple_action = g_simple_action_new(action_name.c_str(), G_VARIANT_TYPE_STRING);
+      g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
+      g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
+   };
+
 
    // File
 
@@ -1351,5 +1361,6 @@ create_actions(GtkApplication *application) {
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);
 
-   add_action("mutate_to_type", mutate_to_type);
+   // Mutate menu
+   add_action_with_param("mutate_to_type", mutate_to_type);
 }

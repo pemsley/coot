@@ -331,15 +331,13 @@ on_model_toolbar_edit_backbone_torsions_toggletoolbutton_toggled(GtkToggleButton
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_mutate_and_autofit_togglebutton_toggled
-                                        (GtkToggleButton *toggletoolbutton,
+on_model_toolbar_mutate_and_autofit_menubutton_activate
+                                        (GtkMenuButton *menubutton,
                                         gpointer         user_data)
 {
-  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
-  if (active)
-    setup_mutate_auto_fit(1);
-  else
-     setup_mutate_auto_fit(0);
+   // this function seems not to be called on menu button click. Hmmm.
+   std::cout << "on_model_toolbar_mutate_and_autofit_menubutton_active "
+            << " select the right menu for mutate_and_autofit_menubutton here" << std::endl;
 }
 
 

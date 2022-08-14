@@ -484,9 +484,32 @@ new_startup_application_activate(GtkApplication *application,
    GMenuModel *fixed_atoms_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "fixed-atoms-menu"));
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(fixed_atoms_menubutton), fixed_atoms_menu);
 
-   GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-   GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+
+   // move this function to where it can be called when we click on the "Mutate"
+   // button (both of them, I suppose).
+   // The builder argument may not be necessary when moved to somewhere sensible.
+   auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type,
+                                                  GtkBuilder *builder) {
+      if (residue_type == "PROTEIN") {
+         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
+         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-protein-menu"));
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+
+         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+      }
+      if (residue_type == "NUCLEIC-ACID") {
+         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
+         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-nucleic-acid-menu"));
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+
+         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+      }
+   };
+
+
+   add_typed_menu_to_mutate_menubutton("PROTEIN", builder);
 
    gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
