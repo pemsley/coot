@@ -5584,15 +5584,17 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_20">
+              <object class="GtkButton" id="undo_button">
                 <property name="label" translatable="yes">Undo</property>
                 <property name="can-focus">0</property>
+		          <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_21">
+              <object class="GtkButton" id="redo_button">
                 <property name="label" translatable="yes">Redo</property>
                 <property name="can-focus">0</property>
+		          <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
               </object>
             </child>
           </object>
