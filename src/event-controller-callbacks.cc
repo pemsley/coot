@@ -441,8 +441,8 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
 
    if (! handled) {
       if (shift_is_pressed) {
-         // std::cout << "scroll zoom " << dy << std::endl;
-         graphics_info_t::scroll_zoom(dy);
+         std::cout << "shift scroll_zoom is broken " << dy << std::endl;
+         // graphics_info_t::scroll_zoom(dy);
       } else {
          // scroll density
 

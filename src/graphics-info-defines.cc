@@ -1546,7 +1546,7 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
                      is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
                      if (! is_nuc)
                         is_nuc = coot::util::is_nucleotide(r);
-	 
+
                      if (is_nuc) {
                         // GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
                         GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");

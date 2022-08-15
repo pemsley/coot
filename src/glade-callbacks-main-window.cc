@@ -306,14 +306,36 @@ on_model_toolbar_flip_peptide_button_clicked(GtkButton *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_sidechain_180_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
-                                                                        gpointer         user_data) {
+on_model_toolbar_side_chain_180_button_clicked(GtkButton *button,
+                                               gpointer   user_data) {
 
+#if 0 // do it directly these days
    gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
   if (active)
     setup_180_degree_flip(1);
   else
     setup_180_degree_flip(0);
+#endif
+
+   // look at check_if_in_180_degree_flip_define, it checks for
+   // intermediate atoms - we should do that here too.
+
+   std::cout << "Here in on_model_toolbar_add_terminal_residue_button_clicked()" << std::endl;
+   graphics_info_t g;
+   auto active_atom = g.get_active_atom();
+   int imol = active_atom.first;
+   std::cout << "imol = " << imol << " atom = " << active_atom.second << std::endl;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = active_atom.second;
+      std::string alt_conf(at->altLoc);
+      coot::atom_spec_t at_spec(at);
+      coot::residue_spec_t spec(at_spec);
+      auto &m = g.molecules[imol];
+      // change this signature to use a residue spec and an alt_conf.
+      int istatus = m.do_180_degree_side_chain_flip(spec.chain_id, spec.res_no, spec.ins_code, alt_conf, g.Geom_p());
+      g.graphics_draw();
+   }
+
 }
 
 

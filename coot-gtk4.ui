@@ -5431,7 +5431,7 @@ Do you want to continue?
             <property name="orientation">horizontal</property>
           </object>
         </child>
-        
+
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
@@ -5482,14 +5482,14 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_testbutton_4">
                 <property name="label" translatable="yes">AutoFit Rotamer</property>
                 <property name="can-focus">0</property>
-		<signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
+		          <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_5">
                 <property name="label" translatable="yes">Rotamers</property>
                 <property name="can-focus">0</property>
-		<signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
+		          <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
               </object>
             </child>
             <child>
@@ -5507,10 +5507,10 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_8">
+              <object class="GtkButton" id="side_chain_180_flip_button">
                 <property name="label" translatable="yes">Sidechain 180° Flip</property>
                 <property name="can-focus">0</property>
-		<signal name="toggled" handler="on_model_toolbar_sidechain_180_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:18:08 GMT"/>
+		          <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
               </object>
             </child>
             <child>
