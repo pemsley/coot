@@ -1152,7 +1152,7 @@ void
 refine_chain(G_GNUC_UNUSED GSimpleAction *simple_action,
              G_GNUC_UNUSED GVariant *parameter,
              G_GNUC_UNUSED gpointer user_data) {
-   
+
    rsr_refine_chain();
 }
 
@@ -1204,18 +1204,77 @@ mutate_to_type(GSimpleAction *simple_action,
 
    if (parameter) {
       gchar *result;
-      g_variant_get (parameter, "s", &result);
+      g_variant_get(parameter, "s", &result);
       std::string ss(result);
       std::cout << "mutate_to type parameter " << ss << std::endl;
       graphics_info_t g;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
          int imol = pp.second.first;
-         graphics_info_t g;
          g.mutate_residue_imol = imol;
          g.mutate_auto_fit_residue_imol = imol;
          coot::residue_spec_t res_spec(pp.second.second);
          g.do_mutation(imol, res_spec, ss, false); // not stub
+      }
+   }
+}
+
+void
+delete_item(GSimpleAction *simple_action,
+            GVariant *parameter,
+            gpointer user_data) {
+
+   if (parameter) {
+      gchar *result;
+      g_variant_get(parameter, "s", &result);
+      std::string par(result);
+      std::cout << "debug:: delete_item parameter " << par << std::endl;
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+      if (pp.first) {
+         auto atom_spec = pp.second.second;
+         coot::residue_spec_t res_spec(atom_spec);
+         int imol = pp.second.first;
+         if (par == "atom") {
+            auto &m = g.molecules[imol];
+            // change this signature to use an atom spec.
+            m.delete_atom(atom_spec);
+            g.graphics_draw();
+         }
+         if (par == "residue") {
+            g.delete_active_residue(); // does a redraw
+         }
+         if (par == "chain") {
+            auto &m = g.molecules[imol];
+            m.delete_chain(atom_spec.chain_id);
+            g.graphics_draw();
+         }
+         if (par == "hydrogen-atoms") {
+            auto &m = g.molecules[imol];
+            // change this signature to use an residue spec.
+            m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
+         }
+         if (par == "residue-range") {
+            // use old-style "setup"
+            // Needs "check_if_in_range_defines" to be working.
+            // Here we need to turn on the expecting the delet residue range "start" flag
+            // and unset the others c.f. set_delete_residue_zone_mode()
+            std::cout << "delete residue-range needs fixing" << std::endl;
+         }
+         if (par == "side-chain") {
+            auto &m = g.molecules[imol];
+            // change this signature to use an residue spec.
+            m.delete_residue_sidechain(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
+            g.graphics_draw();
+         }
+         if (par == "side-chain-residue-range") {
+            // use old-style "setup"
+            std::cout << "delete side-chain-residue-range needs fixing" << std::endl;
+         }
+         if (par == "water") {
+            auto &m = g.molecules[imol];
+            m.delete_water(atom_spec);
+         }
       }
    }
 }
@@ -1373,4 +1432,7 @@ create_actions(GtkApplication *application) {
 
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
+
+   // Delete menu
+   add_action_with_param("delete_item", delete_item);
 }

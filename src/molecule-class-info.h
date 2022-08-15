@@ -1783,6 +1783,8 @@ public:        //                      public
 		    const std::string &atname,
 		    const std::string &altconf);
 
+   bool delete_atom(const coot::atom_spec_t &atom_spec);
+
    short int delete_residue_hydrogens(const std::string &chain_id, int resno,
 				      const std::string &ins_code,
 				      const std::string &altloc);
@@ -1801,6 +1803,8 @@ public:        //                      public
 
    int delete_sidechain_range(const coot::residue_spec_t &res_1,
 			      const coot::residue_spec_t &res_2);
+
+   int delete_water(const coot::atom_spec_t &atom_spec); // residue type is checked here
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".

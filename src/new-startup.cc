@@ -484,6 +484,9 @@ new_startup_application_activate(GtkApplication *application,
    GMenuModel *fixed_atoms_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "fixed-atoms-menu"));
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(fixed_atoms_menubutton), fixed_atoms_menu);
 
+   GtkWidget *delete_menubutton = widget_from_builder("delete_menubutton");
+   GMenuModel *delete_item_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "delete-item-menu"));
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(delete_menubutton), delete_item_menu);
 
    // move this function to where it can be called when we click on the "Mutate"
    // button (both of them, I suppose).

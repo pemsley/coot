@@ -550,6 +550,50 @@
     </section>
   </menu>
 
+  <menu id="delete-item-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Atom</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">atom</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Water</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">water</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Side-chain</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">side-chain</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Side-chains in Residue Range</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">side-chain-residue=range</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Hydrogen Atoms in Residue</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">hdyrogen-atoms</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Residue</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">residue</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Residue Range</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">residue-range</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Chain</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">chain</attribute>
+      </item>
+   </section>
+  </menu>
 
   <menu id="mutate-nucleic-acid-menu">
     <section>
@@ -5534,7 +5578,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_19">
+              <object class="GtkMenuButton" id="delete_menubutton">
                 <property name="label" translatable="yes">Delete...</property>
                 <property name="can-focus">0</property>
               </object>

@@ -1838,6 +1838,25 @@ molecule_class_info_t::unalt_conf_residue_atoms(mmdb::Residue *residue_p) {
    }
 }
 
+int
+molecule_class_info_t::delete_water(const coot::atom_spec_t &atom_spec) {
+
+   bool status = false;
+   coot::residue_spec_t res_spec(atom_spec);
+   mmdb::Residue *residue_p = get_residue(res_spec);
+   if (residue_p) {
+      std::string type = residue_p->GetResName();
+      if (type != "HOH")
+         status = delete_atom(atom_spec);
+   }
+   return status;
+}
+
+bool
+molecule_class_info_t::delete_atom(const coot::atom_spec_t &spec) {
+
+   return delete_atom(spec.chain_id, spec.res_no, spec.ins_code, spec.atom_name, spec.alt_conf);
+}
 
 bool
 molecule_class_info_t::delete_atom(const std::string &chain_id,
