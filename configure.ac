@@ -234,6 +234,8 @@ fi
 # PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0]) # not for the moment - while trying to compile vs GTK4
 
 
+PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
+
 # this needs a rethink
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
