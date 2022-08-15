@@ -5496,14 +5496,14 @@ Do you want to continue?
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
                 <property name="label" translatable="yes">Edit Chi Angles</property>
                 <property name="can-focus">0</property>
-		<signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:15:41 GMT"/>
+		          <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_7">
+              <object class="GtkButton" id="flip_peptide_button">
                 <property name="label" translatable="yes">Flip Peptide</property>
                 <property name="can-focus">0</property>
-		<signal name="toggled" handler="on_model_toolbar_flip_peptide_togglebutton_toggled" last_modification_time="Fri, 18 Jan 2008 14:17:03 GMT"/>
+		          <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
               </object>
             </child>
             <child>
@@ -5517,7 +5517,7 @@ Do you want to continue?
               <object class="GtkMenuButton" id="mutate_and_autofit_menubutton">
                 <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
                 <property name="can-focus">0</property>
-		<signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
+		          <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
               </object>
             </child>
             <child>
@@ -5527,9 +5527,10 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_11">
+              <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
                 <property name="label" translatable="yes">Add Terminal Residue</property>
                 <property name="can-focus">0</property>
+		          <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
               </object>
             </child>
             <child>

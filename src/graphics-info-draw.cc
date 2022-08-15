@@ -290,7 +290,7 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
    double delta_x = current_mouse_x - get_mouse_previous_position_x();
    double delta_y = current_mouse_y - get_mouse_previous_position_y();
 
-   // std::cout << "delta_x " << delta_x << " delta_y " << delta_y << std::endl;
+   // std::cout << "mouse_zoom() delta_x " << delta_x << " delta_y " << delta_y << std::endl;
 
    // Zooming
    double fx = 1.0 + delta_x/300.0;

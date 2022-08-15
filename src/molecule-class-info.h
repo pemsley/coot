@@ -1582,6 +1582,10 @@ public:        //                      public
 					  const std::string &residue_type,
 					  float phi, float psi);
 
+   // either rama-search for a protein residue or simple add for nucleic acid.
+   void add_terminal_residue_wrapper(const coot::residue_spec_t &res_spec,
+                                     const std::string &residue_type);
+
    // When a new residue is added to the C-terminus of a chain/fragment, we will need to move
    // the O of this one to make a proper peptide plane (the position of the next residue
    // was not dependent on the position of the O of this one).
@@ -1667,6 +1671,7 @@ public:        //                      public
 		       int ires_seqno,
 		       const std::string &ins_code,
 		       const std::string &alt_conf);
+   void pepflip(const coot::atom_spec_t &atom_spec_t);
 
    int do_180_degree_side_chain_flip(const std::string &chain_id,
 				     int resno,
@@ -1676,7 +1681,8 @@ public:        //                      public
 
    // return "N', "C" or "not-terminal-residue"
    std::string get_term_type_old(int atom_index);
-   std::string get_term_type(int atom_index);
+   std::string get_term_type(int atom_index) const;
+   std::string get_term_type(mmdb::Atom *atom) const;
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
    std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
 							   mmdb::realtype alignment_wgap,

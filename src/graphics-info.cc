@@ -3503,7 +3503,7 @@ graphics_info_t::get_geometry_torsion() const {
    return torsion;
 }
 
-
+// old interface
 void
 graphics_info_t::pepflip() {
 
@@ -3511,6 +3511,14 @@ graphics_info_t::pepflip() {
       molecules[imol_pepflip].pepflip(atom_index_pepflip);
       normal_cursor();
       model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
+   }
+}
+
+void
+graphics_info_t::pepflip(int imol, const coot::atom_spec_t &spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].pepflip(spec);
    }
 }
 

@@ -290,14 +290,17 @@ on_model_toolbar_torsion_general_toggletoolbutton_toggled(GtkToggleButton *toggl
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_flip_peptide_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
-                                                                       gpointer         user_data) {
-
-   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
-   if (active)
-      do_pepflip(1);
-   else
-      do_pepflip(0);
+on_model_toolbar_flip_peptide_button_clicked(GtkButton *button,
+                                             gpointer   user_data) {
+   graphics_info_t g;
+   auto active_atom = g.get_active_atom();
+   int imol = active_atom.first;
+   if (is_valid_model_molecule(imol)) {
+      auto &m = g.molecules[imol];
+      coot::atom_spec_t atom_spec(active_atom.second);
+      m.pepflip(atom_spec);
+      g.graphics_draw();
+   }
 }
 
 
@@ -357,15 +360,26 @@ on_model_toolbar_simple_mutate_togglebutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_add_terminal_residue_togglebutton_toggled
-                                        (GtkToggleButton *toggletoolbutton,
-                                        gpointer         user_data)
+on_model_toolbar_add_terminal_residue_button_clicked(GtkButton *button,
+                                                     gpointer   user_data)
 {
-  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
-  if (active)
-    do_add_terminal_residue(1);
-  else
-    do_add_terminal_residue(0);
+   graphics_info_t g;
+   auto active_atom = g.get_active_atom();
+   int imol = active_atom.first;
+   std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 1" << std::endl;
+   if (is_valid_model_molecule(imol)) {
+      std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 2" << std::endl;
+      mmdb::Residue *residue_p = active_atom.second->residue;
+      coot::atom_spec_t atom_spec(active_atom.second);
+      std::string chain_id = atom_spec.chain_id;
+      coot::residue_spec_t residue_spec(atom_spec);
+      std::string new_type = "ALA";
+      mmdb::Atom *atom = active_atom.second;
+      std::string terminus_type = g.molecules[imol].get_term_type(atom);
+      g.execute_add_terminal_residue(imol, terminus_type, residue_p,
+                                     chain_id, new_type, true);
+   }
+
 }
 
 

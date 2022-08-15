@@ -2488,7 +2488,8 @@ public:
    // double display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
    //                                       int imol2, const coot::Cartesian &p2);
    //
-   void pepflip();
+   void pepflip(); // 20220814-PE old style flip interface
+   void pepflip(int imol, const coot::atom_spec_t &spec);
 
    // return true if moving_atoms_asc was not null (more or less if
    // the pepflip was made)

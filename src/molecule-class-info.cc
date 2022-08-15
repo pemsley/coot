@@ -109,7 +109,6 @@ const double pi = M_PI;
 #include "oct.hh"
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
- 
 
 
 glm::vec3
@@ -5898,6 +5897,26 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
       }
    }
    return std::pair<int, mmdb::Residue *> (iserial_no, res);
+}
+
+
+void
+molecule_class_info_t::add_terminal_residue_wrapper(const coot::residue_spec_t &res_spec,
+                                                     const std::string &residue_type) {
+
+   mmdb::Residue *res_p = get_residue(res_spec);
+   if (! res_p) return;
+
+   if (!coot::util::is_nucleotide_by_dict_dynamic_add(res_p, graphics_info_t::Geom_p())) {
+/*             g.execute_add_terminal_residue(naii.imol,
+                                           term_type,
+                                           res_p,
+                                           chain_id,
+                                           g.add_terminal_residue_type,  // eg. "ALA" or "UNK"
+                                           add_it_now_flag); */
+   } else {
+      // g.execute_simple_nucleotide_addition(naii.imol, term_type, res_p, chain_id);
+   }
 }
 
 int
