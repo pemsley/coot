@@ -7,16 +7,16 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
-#include <CXXClasses/RendererGL.h>
-#include <CXXClasses/Light.h>
-#include <CXXClasses/Camera.h>
-#include <CXXClasses/SceneSetup.h>
-#include <CXXClasses/ColorScheme.h>
-#include <CXXClasses/MyMolecule.h>
-#include <CXXClasses/RepresentationInstance.h>
-#include <CXXClasses/MolecularRepresentationInstance.h>
-#include <CXXClasses/VertexColorNormalPrimitive.h>
-#include <CXXClasses/BallsPrimitive.h>
+#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+#include <MoleculesToTriangles/CXXClasses/Light.h>
+#include <MoleculesToTriangles/CXXClasses/Camera.h>
+#include <MoleculesToTriangles/CXXClasses/SceneSetup.h>
+#include <MoleculesToTriangles/CXXClasses/ColorScheme.h>
+#include <MoleculesToTriangles/CXXClasses/MyMolecule.h>
+#include <MoleculesToTriangles/CXXClasses/RepresentationInstance.h>
+#include <MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.h>
+#include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
+#include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
 #include "molecular-mesh-generator.hh"
 #include "oct.hh"

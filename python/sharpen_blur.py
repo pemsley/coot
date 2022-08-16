@@ -1,7 +1,7 @@
 
 import coot
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version('Gtk', '4.0')
 import coot_gui_api
 import coot_gui
 import coot_utils
