@@ -8,6 +8,9 @@
 
 #include <iostream>
 
+#include <epoxy/gl.h>
+
+
 
 #include "BoxSectionPrimitive.h"
 #include "Renderer.h"

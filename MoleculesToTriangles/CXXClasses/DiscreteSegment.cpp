@@ -116,14 +116,20 @@ void DiscreteSegment::smoothBetas()
 
 void DiscreteSegment::evaluateSplines()
 {
+   // std::cout << "evaluateSpines() size " << calphas.size() << std::endl;
     for (int i=0; i<calphas.size(); i++){
+       // std::cout << "evaluateSpines() i = " << i << std::endl;
         coordSpline.addPair((float)i, calphaCoords[i]);
         normalOnesSpline.addPair((float)i, normalOnes[i]);
         normalTwosSpline.addPair((float)i, normalTwos[i]);
     }
+    // std::cout << "evaluateSpines() A" << std::endl;
     coordSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    // std::cout << "evaluateSpines() B" << std::endl;
     normalOnesSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    // std::cout << "evaluateSpines() C" << std::endl;
     normalTwosSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    // std::cout << "evaluateSpines() D" << std::endl;
 }
 
 FCXXCoord DiscreteSegment::coordFor(float xVal)

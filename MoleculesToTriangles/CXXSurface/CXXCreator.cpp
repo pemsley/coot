@@ -787,7 +787,10 @@ int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
 #pragma omp parallel for default(none) shared(i, passableSpace, w, largestPotentialOfRowPntr, largestChangeOfRowPntr, n, chargeFactor) schedule(dynamic, 10)
 #warning Compiling for OMP
                 for (size_t j = 0; j < passableSpace->getDimJ(); j++) {
+#else
+                for (size_t j = 0; j < passableSpace->getDimJ(); j++) {
 #endif
+
                     for (size_t k = 0; k < passableSpace->getDimK(); k++) {
                         
                         // odd/even ordering - only update when required ..
@@ -824,14 +827,14 @@ int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
                         }
                     }
                     //}
-                    
+
 #if __APPLE__ && !defined _OPENMP
                 });
 #else
                 }
 #endif
-                for (size_t j=0; j<space->getDimJ(); j++) largestChange = max(largestChange,largestChangeOfRow[j]);
-                for (size_t j=0; j<space->getDimJ(); j++) largestPotential = max(largestPotential,largestPotentialOfRow[j]);
+                // for (size_t j=0; j<space->getDimJ(); j++) largestChange = max(largestChange,largestChangeOfRow[j]);
+                // for (size_t j=0; j<space->getDimJ(); j++) largestPotential = max(largestPotential,largestPotentialOfRow[j]);
             }
             
             

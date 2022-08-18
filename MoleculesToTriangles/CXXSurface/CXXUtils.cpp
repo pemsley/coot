@@ -20,7 +20,8 @@ int CXXUtils::assignCharge(mmdb::Manager* theManager, int selHnd, CXXChargeTable
 }
 
 int CXXUtils::assignUnitedAtomRadius  (mmdb::Manager* theManager) {
-    int allAtoms = theManager->NewSelection();
+
+   int allAtoms = theManager->NewSelection();
     const char* all = "/*/*/*/*.*";
     theManager->Select(allAtoms, mmdb::STYPE_ATOM, all, mmdb::SKEY_NEW);
     assignUnitedAtomRadius(theManager, allAtoms);

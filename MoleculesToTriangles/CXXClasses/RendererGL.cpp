@@ -17,6 +17,7 @@
 #define HAVE_OPENGL_GL_H
 #endif
 
+#if 0
 #if defined(HAVE_WINDOWS_H) && defined(_WIN32)
   # include <windows.h>
   #endif
@@ -37,6 +38,10 @@
   #else
   # error no gl.h
   #endif
+#endif
+
+#include <epoxy/gl.h>
+#include <GL/glu.h> // get rid of this before adding it to coot.
 
 
 #include "Camera.h"
@@ -191,8 +196,9 @@ void RendererType::setupCamera(Camera *camera){
     glGetIntegerv(GL_VIEWPORT, viewportParams);
     double aspectRatio = (float)(viewportParams[2])/(float)(viewportParams[3]);
     
-    gluPerspective(fovy, aspectRatio, zNear, zFar);
-    //glOrtho(-aspectRatio, aspectRatio, -1.0f, 1.0f, -100.f, 100.f);
+    // we don't have glu
+    // gluPerspective(fovy, aspectRatio, zNear, zFar);
+    glOrtho(-aspectRatio, aspectRatio, -1.0f, 1.0f, -100.f, 100.f);
     
     if (!camera->getSceneSetup()){
         throw "Camera trying to render with out having an assigned scene setup";
@@ -238,7 +244,7 @@ void RendererType::setupScene(SceneSetup *sceneSetup){
     glScalef (cScale, cScale, cScale);
     FCXXCoord cxxTranslation(sceneSetup->getTranslation());
     glTranslatef(cxxTranslation[0], cxxTranslation[1], cxxTranslation[2]);
-    drawTestTriangle(cxxTranslation*-1.);
+    //drawTestTriangle(cxxTranslation*-1.);
     /*
     std::cout << "Camera is " << camera << std::endl;
     FCXXCoord cameraTranslation = camera->getTranslation();
@@ -267,11 +273,12 @@ void RendererType::setupLightAsIndexFromViewpointWithScale(Light *light, int asI
      */
     glPushMatrix();
     glLoadIdentity();
-    
+#if 0 // 20220818-PE  - we don't do GLU in Coot
     //Apply "look At" and scale matrices
     gluLookAt(fromViewpoint[0], fromViewpoint[1], fromViewpoint[2],//0., 0., dist,
               0., 0., 0.,
               0., 1., 0.);
+#endif
     glScalef(scale, scale, scale);
     
     GLenum lightEnum = GL_LIGHT0 + asIndex;
@@ -806,7 +813,8 @@ void RendererType::renderBondsPrimitive(BondsPrimitive *prim)
 }
 
 void RendererType::render(Camera *camera) {
-    FCXXCoord backgroundColor(camera->getSceneSetup()->getBackgroundColor());
+
+   FCXXCoord backgroundColor(camera->getSceneSetup()->getBackgroundColor());
     // Clear the Canvas
     glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
     myglClearDepth(1.);
@@ -838,7 +846,8 @@ void RendererType::render(Camera *camera) {
     zNear = (zNear>0.01?zNear:0.01);
     double zFar = eyeDistance - cameraFar*camera->getSceneSetup()->getScale();
     zFar = (zFar>0.02?zFar:0.02);
-    gluPerspective(fovy, aspectRatio, zNear, zFar);
+    // 20220818-PE We don't do GLU in Coot
+    // gluPerspective(fovy, aspectRatio, zNear, zFar);
     
     //Make ready for lighting
     myglEnable(GL_LIGHTING);

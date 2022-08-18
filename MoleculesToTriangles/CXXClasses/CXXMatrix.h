@@ -139,16 +139,14 @@ public:
 				uut[i][j] =  u[i]*u[j];
 			}
 		}
-                // problems compiling CXX_DEGTORAD - don't understand
-                // dyld: Symbol not found: __ZN8CXXCoordIfE12CXX_DEGTORADE
-                // Referenced from: /Users/pemsley/autobuild/Darwin-phemius.local-gtk4/lib/libMoleculesToTrianglesCXXClasses.0.dylib
-                // Expected in: flat namespace
-                // in /Users/pemsley/autobuild/Darwin-phemius.local-gtk4/lib/libMoleculesToTrianglesCXXClasses.0.dylib
-                // let's remove it.
+
+                // 20220818-PE  problems when linking: gcc (Ubuntu 11.2.0-7ubuntu2) 11.2.0
+                //
 		// costheta = cos(FCXXCoord ::CXX_DEGTORAD*w);
-		// costheta = cos(FCXXCoord ::CXX_DEGTORAD*w);
-		costheta = cos(w * 3.1415926/180.0);
-		sintheta = sin(w * 3.1415926/180.0);
+		// sintheta = sin(FCXXCoord ::CXX_DEGTORAD*w);
+
+		costheta = cos(w * 180.0/M_PI);
+		sintheta = sin(w * 180.0/M_PI);
 
 		s[0][0] =    0.; s[0][1] = -u[2]; s[0][2] =  u[1];
 		s[1][0] =  u[2]; s[1][1] =    0.; s[1][2] = -u[0];

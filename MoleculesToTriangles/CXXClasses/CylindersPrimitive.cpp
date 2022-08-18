@@ -64,68 +64,23 @@ void CylindersPrimitive::generateArrays()
     vertexColorNormalArray = new VertexColorNormal[angularSampling*points.size()];
     atomArray = new const mmdb::Atom*[angularSampling*points.size()];
     unsigned long nIndices = 6*angularSampling*points.size();
-    indexArray = new GLIndexType[nIndices];    
+    indexArray = new GLIndexType[nIndices];
 
     int iGLVertex = 0;
-    // std::cout << "points.size() " << points.size() << std::endl;
-    for (std::size_t i=0; i<points.size(); i++){
-        // std::cout << "point " << i << " radiusOne " << points[i].radiusOne << " radiusTwo " << points[i].radiusTwo << "\n";
-        bool inside_start_of_helix_flag = false;
-        bool do_inside_helix_color_flag = false;
-        if (i > 0) {
-            float angle = 0.0;
-            FCXXCoord vertex_0 = points[i].vertex + points[i].normalOne*(points[i].radiusOne*sinf(angle)) +
-                                 points[i].normalTwo*(points[i].radiusTwo*cosf(angle));
-            FCXXCoord normal_0 = points[i].normalOne*sinf(angle)/pow(points[i].radiusOne,0.5) +
-                                 points[i].normalTwo*cosf(angle)/pow(points[i].radiusTwo,0.5);
-
-            if (fabs(points[i].radiusOne - points[i].radiusTwo) < 0.01) {
-                // loop
-            } else {
-                do_inside_helix_color_flag = true;
-                if ((i+1) < points.size()) {
-                    FCXXCoord mp = points[i-1].vertex + points[i+1].vertex;
-                    mp *= 0.5;
-                    FCXXCoord mp_to_vertex = points[i].vertex - mp;
-                    mp_to_vertex.normalise();
-                    float prod = normal_0 * mp_to_vertex;
-                    if (prod < 0)
-                        inside_start_of_helix_flag = true;
-                }
-            }
-        }
-        // FCXXCoord inside_col(247, 165, 97, 1); // milk chocolate
-        FCXXCoord inside_col(200, 200, 200, 1);
-        int SamplePt1 =  5;
-        int SamplePt2 = 15;
+    for (int i=0; i< points.size(); i++){
         for (int j=0; j<angularSampling; j++){
-
             //First work out coords and vertices and copy these into relevant arrays
-            float angle = static_cast<float>(j) * angularStep;
-            FCXXCoord vertex = points[i].vertex + points[i].normalOne*(points[i].radiusOne*sinf(angle)) +
-                               points[i].normalTwo*(points[i].radiusTwo*cosf(angle));
-            FCXXCoord normal = points[i].normalOne*sinf(angle)/pow(points[i].radiusOne,0.5) + 
-                               points[i].normalTwo*cosf(angle)/pow(points[i].radiusTwo,0.5);
+            float angle = (float)j * angularStep;
+            FCXXCoord vertex = points[i].vertex + points[i].normalOne*(points[i].radiusOne*sinf(angle)) + points[i].normalTwo*(points[i].radiusTwo*cosf(angle));
+            FCXXCoord normal = points[i].normalOne*sinf(angle)/pow(points[i].radiusOne,0.5) +
+            points[i].normalTwo*cosf(angle)/pow(points[i].radiusTwo,0.5);
             normal.normalise();
-
             for (int k=0; k<4; k++){
                 vertexColorNormalArray[iGLVertex].vertex[k] = vertex[k];
- 
+
                 float floatComponentValue = points[i].color[k] * 255.;
                 int uintComponentValue = (floatComponentValue < 0. ? 0 : (floatComponentValue > 255.? 255 : floatComponentValue));
 
-                if (do_inside_helix_color_flag) {
-                    if (inside_start_of_helix_flag) {
-                        if ((j < SamplePt1) || (j > SamplePt2)) {
-	   	            uintComponentValue = inside_col[k];
-		        }
-                    } else {
-                        if ((j < SamplePt1) || (j > SamplePt2)) {
-                        } else {
-		            uintComponentValue = inside_col[k];
-                        }
-                    }
-                }
                 vertexColorNormalArray[iGLVertex].color[k] = uintComponentValue;
                 vertexColorNormalArray[iGLVertex].normal[k] = normal[k];
             }
@@ -143,17 +98,17 @@ void CylindersPrimitive::generateArrays()
        for (int i=0; i< points.size()-1; i++){
 	  if (points[i+1].type != CylinderPoint::CylinderPointTypeStart){
 	     for (int j=0; j<angularSampling; j++){
- 
+
                 int i0, i1, i2, i3, i4, i5;
                 //Now work out indices
-                indexArray[iIndex++] = i3 = (j%angularSampling) + (angularSampling * i);
-                indexArray[iIndex++] = i4 = ((j+1)%angularSampling) + (angularSampling * i);
-                indexArray[iIndex++] = i5 = (j%angularSampling) + (angularSampling * (i+1));
+                indexArray[iIndex++] = i0 = (j%angularSampling) + (angularSampling * i);
+                indexArray[iIndex++] = i1 = ((j+1)%angularSampling) + (angularSampling * i);
+                indexArray[iIndex++] = i2 = (j%angularSampling) + (angularSampling * (i+1));
                 _nTriangles++;
 
-                indexArray[iIndex++] = i0 = (j%angularSampling) + (angularSampling * (i+1));
-                indexArray[iIndex++] = i1 = ((j+1)%angularSampling) + (angularSampling * i) ;
-                indexArray[iIndex++] = i2 = ((j+1)%angularSampling) + (angularSampling * (i+1));
+                indexArray[iIndex++] = i3 = (j%angularSampling) + (angularSampling * (i+1));
+                indexArray[iIndex++] = i4 = ((j+1)%angularSampling) + (angularSampling * i) ;
+                indexArray[iIndex++] = i5 = ((j+1)%angularSampling) + (angularSampling * (i+1));
                 _nTriangles++;
 
                 highestIndex = (highestIndex > i0?highestIndex:i0);

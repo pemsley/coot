@@ -10,7 +10,12 @@
 #include "VertexColorNormalPrimitive.h"
 #include "Renderer.h"
 
-void VertexColorNormalPrimitive::renderWithRenderer(std::shared_ptr<Renderer> renderer)  {    
+// #include <GL/gl.h>
+
+#include <epoxy/gl.h>
+
+
+void VertexColorNormalPrimitive::renderWithRenderer(std::shared_ptr<Renderer> renderer)  {
     if (vertexColorNormalArray == 0){
         generateArrays();
     }

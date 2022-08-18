@@ -40,8 +40,9 @@ libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIB
    $(GL_LIBS) $(GLU_LIBS)
 
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses
-otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
-otherinclude_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
+# otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
+# other
+include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
    AtomPropertyRampColorRule.h 	DirectedPositionedEntity.h		RendererImplementations.h       \
    BallsPrimitive.h		DiscreteSegment.h			Representation.h                \
    BondsPrimitive.h		DisplayPrimitive.h			RepresentationInstance.h        \
