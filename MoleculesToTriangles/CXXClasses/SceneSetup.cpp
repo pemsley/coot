@@ -16,6 +16,23 @@
 #include "Renderer.h"
 #include "Camera.h"
 
+
+// which header do I want for this?
+// #ifndef APIENTRY
+// #define APIENTRY
+// #endif
+// #ifndef GLAPI
+// #define GLAPI extern
+// #endif
+// typedef unsigned int GLenum;
+// GLAPI GLenum APIENTRY glGetError (void);
+
+// #include <GL/gl.h>
+
+#include <epoxy/gl.h>
+
+
+
 void SceneSetup::renderWithRendererFromViewpointDontChangeMVM(std::shared_ptr<Renderer> renderer, const FCXXCoord &viewpoint){
 #ifdef DEBUG_MINE
     std::cout << "In scenesetup render\n";
@@ -28,11 +45,11 @@ void SceneSetup::renderWithRendererFromViewpoint(std::shared_ptr<Renderer> rende
     std::cout << "In scenesetup render\n";
 #endif
     renderer->setupScene(this);
+    GLenum err = glGetError(); std::cout << "Here in renderWithRendererFromViewpoint() 2 err " << err << std::endl;
     auto lightsPntr = lights.begin();
     auto lightsEnd = lights.end();
     int iLight = 0;
     for (; lightsPntr != lightsEnd; ++lightsPntr){
-        const auto this_light = *lightsPntr;
         (*lightsPntr)->setupInRendererAsIndexFromViewpointWithScale(renderer, iLight++, viewpoint, scale);
     }
       
@@ -40,7 +57,9 @@ void SceneSetup::renderWithRendererFromViewpoint(std::shared_ptr<Renderer> rende
     auto representationInstancesPntr = representationInstances.begin();
     auto representationInstancesEnd = representationInstances.end();
     for (; representationInstancesPntr != representationInstancesEnd; ++representationInstancesPntr){
+        err = glGetError(); std::cout << "Here in renderWithRendererFromViewpoint() 4 err " << err << std::endl;
         (*representationInstancesPntr)->renderInRenderer(renderer);
+        err = glGetError(); std::cout << "Here in renderWithRendererFromViewpoint() 5 err " << err << std::endl;
     }
 }
 

@@ -28,7 +28,7 @@ class RepresentationInstance;
 
 class MolecularRepresentation : public Representation {
 private:
-    //Modelled
+	//Modelled
     std::shared_ptr<MyMolecule> myMolecule;
     std::shared_ptr<CompoundSelection> selection;
     std::shared_ptr<ColorScheme> colorScheme;
@@ -38,14 +38,14 @@ private:
     std::vector<DiscreteSegment *> segments;
 public:
     static std::string renderStyles[];
-
-    //Also modelled 
+	//Also modelled 
+    
     MolecularRepresentation() : Representation(), myMolecule(0), selection(0), colorScheme(0), selHnd(-999) {
         redrawNeeded = true;
         inRedraw = false;
         installDefaults();
     };
-      MolecularRepresentation(std::shared_ptr<MyMolecule>_myMolecule, std::shared_ptr<ColorScheme> _colorScheme, std::shared_ptr<CompoundSelection> _compoundSelection, std::string _renderStyle) : Representation(), myMolecule(_myMolecule), selection(_compoundSelection), colorScheme(_colorScheme), renderStyle(_renderStyle), selHnd(-999) {
+    MolecularRepresentation(std::shared_ptr<MyMolecule>_myMolecule, std::shared_ptr<ColorScheme> _colorScheme, std::shared_ptr<CompoundSelection> _compoundSelection, std::string _renderStyle) : Representation(), myMolecule(_myMolecule), selection(_compoundSelection), colorScheme(_colorScheme), renderStyle(_renderStyle), selHnd(-999) {
         redrawNeeded = true;
         inRedraw = false;
         installDefaults();
@@ -54,17 +54,17 @@ public:
     void installDefaults(){
         updateBoolParameter("doDraw",true);
         //Here install render style defaults
-        updateFloatParameter("ribbonStyleCoilThickness",    0.23);
-        updateFloatParameter("ribbonStyleHelixWidth",        1.2);
-        updateFloatParameter("ribbonStyleStrandWidth",       1.2);
-        updateFloatParameter("ribbonStyleArrowWidth",        1.5);
-        updateFloatParameter("ribbonStyleDNARNAWidth",       1.7); // 4,20 works for all, 5,20 works for all
-        updateIntParameter  ("ribbonStyleAxialSampling",      10); // n points: residue to residue.  8,20 works for frag-2
-        updateIntParameter  ("cylindersStyleAngularSampling", 20); // n points around the ellipse
-        updateFloatParameter("cylindersStyleCylinderRadius", 0.2);
-        updateFloatParameter("cylindersStyleBallRadius",     0.2);        
-        updateFloatParameter("surfaceStyleProbeRadius",      1.4);
-        updateFloatParameter("ballsStyleRadiusMultiplier",   1.0);
+        updateFloatParameter("ribbonStyleCoilThickness",0.3);
+        updateFloatParameter("ribbonStyleHelixWidth",1.2);
+        updateFloatParameter("ribbonStyleStrandWidth",1.2);
+        updateFloatParameter("ribbonStyleArrowWidth",1.5);
+        updateFloatParameter("ribbonStyleDNARNAWidth",1.5);
+        updateIntParameter  ("ribbonStyleAxialSampling",6);
+        updateIntParameter  ("cylindersStyleAngularSampling",6);
+        updateFloatParameter("cylindersStyleCylinderRadius",0.2);
+        updateFloatParameter("cylindersStyleBallRadius",0.2);        
+        updateFloatParameter("surfaceStyleProbeRadius",1.4);
+        updateFloatParameter("ballsStyleRadiusMultiplier",1.);
         updateBoolParameter ("smoothBetas",true);
     };
     virtual ~MolecularRepresentation(){
@@ -77,19 +77,19 @@ public:
     };
     int drawCalphas();
     int drawRibbon();
-    int drawSpheres();
-    int drawBondsAsSticks();
-    int drawBondsAsNewSticks();
-    int drawBondsAsCylinders();
-    int drawSurfaceOfKind(int surfaceKind);
-    int drawMolecularSurface();
-    int drawVdWSurface();
-    int drawAccessibleSurface();
-    int drawHydrogenBonds();
+	int drawSpheres();
+	int drawBondsAsSticks();
+	int drawBondsAsNewSticks();
+	int drawBondsAsCylinders();
+	int drawSurfaceOfKind(int surfaceKind);
+	int drawMolecularSurface();
+	int drawVdWSurface();
+	int drawAccessibleSurface();
+	int drawHydrogenBonds();
     int drawDishyBases();
-
+    
     void renderWithRenderer(Renderer *renderer);
-
+	
     void deletePrimitives(){
         /*
          for (unsigned long i=0; i< displayPrimitives.size(); i++){
@@ -137,9 +137,9 @@ public:
 			else if (renderStyle == "VdWSurface"){
 				drawVdWSurface();
 			}
-                        else if (renderStyle == "DishyBases"){
-                            drawDishyBases();
-                        }
+            else if (renderStyle == "DishyBases"){
+                drawDishyBases();
+            }
 			else if (renderStyle == "AccessibleSurface"){
 				drawAccessibleSurface();
 			}

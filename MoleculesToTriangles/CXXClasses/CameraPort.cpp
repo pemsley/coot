@@ -44,7 +44,10 @@ void CameraPort::initialiseMoleculesToTriangles(){
 
 std::shared_ptr<MolecularRepresentationInstance> CameraPort::addRepresentationInstance(mmdb::Manager *ofMmdb, std::shared_ptr<ColorScheme> colorScheme, std::string selectionString, std::string renderStyle)
 {
-    auto myMolecule = std::shared_ptr<MyMolecule>(new MyMolecule::MyMolecule(ofMmdb));
+
+    MyMolecule *mm = new MyMolecule(ofMmdb);
+    // auto myMolecule = std::shared_ptr<MyMolecule>(new MyMolecule::MyMolecule(ofMmdb));
+    auto myMolecule = std::shared_ptr<MyMolecule>(mm);
     auto newRepresentationInstance = MolecularRepresentationInstance::create(myMolecule,
                                                                              colorScheme,
                                                                              selectionString,

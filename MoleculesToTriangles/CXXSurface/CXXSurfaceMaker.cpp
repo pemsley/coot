@@ -242,7 +242,9 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager* allAtomsManager_in, const
     dispatch_apply(nSelAtoms, dispatch_get_global_queue(0, 0), ^(size_t atomNr){
 #elif defined _OPENMP
 #warning Compiling for OMP
-#pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
+          // compilation failure 9.2.1
+          // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
+#pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
     for (int atomNr=0; atomNr < nSelAtoms; atomNr++){
 #endif
         mmdb::Atom* centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();
@@ -347,6 +349,8 @@ SurfaceParameters CXXSurfaceMaker::measuredProperties(){
 #elif defined _OPENMP
 #warning Compiling for OMP
 #pragma omp parallel for default(none) shared(surfaceParametersArray, childSurfacesArray) schedule(dynamic, 100)
+    for (int iChildSurface=0; iChildSurface < childSurfaces.size(); iChildSurface++){
+#else
     for (int iChildSurface=0; iChildSurface < childSurfaces.size(); iChildSurface++){
 #endif
         surfaceParametersArray[iChildSurface] = childSurfacesArray[iChildSurface].measuredProperties();

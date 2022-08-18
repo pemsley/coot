@@ -67,8 +67,11 @@ int CXXBall::triangulateBalls(vector<const CXXBall*  > &ballPntrs,
 #if __APPLE__ && !defined _OPENMP
     dispatch_apply(nBalls, dispatch_get_global_queue(0, 0), ^(size_t i){
 #elif defined _OPENMP
-#pragma omp parallel for default(none) shared(delta, nBalls, aSurface, raggedEdges, insideOrOutside, contactMap, ballSurfacesArray, ballPntrs, cout) schedule(dynamic, 10)
+          // #pragma omp parallel for default(none) shared(delta, nBalls, aSurface, raggedEdges, insideOrOutside, contactMap, ballSurfacesArray, ballPntrs, cout) schedule(dynamic, 10)
+#pragma omp parallel for default(none) shared(delta, nBalls, aSurface, raggedEdges, insideOrOutside, contactMap, ballSurfacesArray, ballPntrs, unitCellAtOriginForDelta, cout) schedule(dynamic, 10)
 #warning Compiling for OMP
+        for (int i=0; i< nBalls; i++){
+#else
         for (int i=0; i< nBalls; i++){
 #endif
         CXXSurface &ballSurface = ballSurfacesArray[i];
@@ -124,7 +127,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*  > &ballPntrs,
     std::vector<const CXXBall *  >trimmedBalls;
     //Copy this list of balls into a vector to allow subsequent OpenMP parallelisation
     std::map<const CXXBall*, std::map<const CXXBall*, std::vector<CXXCoord<CXXCoord_ftype> > > >::iterator reformattedEdgeEnd = reformattedEdges.end();
-    for (std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord<CXXCoord_ftype> > > >::iterator reformattedEdge = reformattedEdges.begin();
+      for (std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord<CXXCoord_ftype> > > >::iterator reformattedEdge = reformattedEdges.begin();
          reformattedEdge != reformattedEdgeEnd;
          reformattedEdge++){
         trimmedBalls.push_back(reformattedEdge->first);
@@ -137,7 +140,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*  > &ballPntrs,
     dispatch_apply(trimmedBalls.size(), dispatch_get_global_queue(0, 0), ^(size_t i){
 #elif defined _OPENMP
 #warning Compiling for OMP
-#pragma omp parallel for default(none) shared(trimmedBalls, contactMap, insideOrOutside, reformattedEdges, delta, aSurface, probeBallSurfacesArray) schedule(dynamic, 10)
+#pragma omp parallel for default(none) shared(trimmedBalls, contactMap, insideOrOutside, reformattedEdges, delta, aSurface, probeBallSurfacesArray, unitCellAtOriginForDelta) schedule(dynamic, 10)
     for (int i=0; i<trimmedBalls.size(); i++){
 #endif
         CXXSurface &ballSurface = probeBallSurfacesArray[i];
@@ -271,6 +274,8 @@ int CXXBall::ballContacts(std::vector<const CXXBall*  > &balls,
     dispatch_apply(balls.size(), dispatch_get_global_queue(0, 0), ^(size_t iBall){
 #elif defined _OPENMP
 #pragma omp parallel for default(none) shared (binnedballs, ballRadiusX2, limits, binWidth, nBins, contactMap, limitsPntr, nBinsPntr, binWidthPntr, balls) schedule(dynamic,10)
+    for (int iBall=0; iBall< balls.size(); iBall++){
+#else
     for (int iBall=0; iBall< balls.size(); iBall++){
 #endif
         int iBin[3];

@@ -12,20 +12,17 @@
 
 std::shared_ptr<ColorScheme> ColorScheme::colorByElementScheme()
 {
-   std::shared_ptr<ColorScheme> result(new ColorScheme());
-
-   // a user-selectable colour for carbon would be good.
-   
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*.*/*:*","OtherElements")),  "#dddddd"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[C].*","/*/*/*/*[C].*")), "#a0d78c"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[N].*","/*/*/*/*[N].*")), "royalblue"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[P].*","/*/*/*/*[P].*")), "orange"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[S].*","/*/*/*/*[S].*")), "yellow"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[O].*","/*/*/*/*[O].*")), "tomato"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[H].*","/*/*/*/*[H].*")), "#dddddd"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[F].*","/*/*/*/*[F].*")), "#aaccaa"));
-   result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[D].*","/*/*/*/*[D].*")), "pink"));
-   return result;
+    std::shared_ptr<ColorScheme> result(new ColorScheme());
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*.*/*:*","OtherElements")),  "#dddddd"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[C].*","/*/*/*/*[C].*")), "#a0d78c"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[N].*","/*/*/*/*[N].*")), "royalblue"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[P].*","/*/*/*/*[P].*")), "orange"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[S].*","/*/*/*/*[S].*")), "yellow"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[O].*","/*/*/*/*[O].*")), "tomato"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[H].*","/*/*/*/*[H].*")), "#dddddd"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[F].*","/*/*/*/*[F].*")), "#aaccaa"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*/*[D].*","/*/*/*/*[D].*")), "pink"));
+    return result;
 }
 
 std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
@@ -40,7 +37,8 @@ std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 }
 
 std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
-    std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
+
+   std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     
     for (int i=0; i<chainIds.length(); i++){
@@ -56,22 +54,28 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 }
 
 std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
-    std::shared_ptr<ColorScheme> result(new ColorScheme());
+
+   // std::cout << "#######  colorChainsScheme() !" << std::endl;
+
+   std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
-       // "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
-       "tomato", "limegreen", "royalblue", "gold", "aquamarine", "maroon",
-       "lightsalmon", "deeppink", "brown"
+                                //    "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
+                                "Salmon", "Sandy Brown",
+                                "Burlywood", "Goldenrod",
+                                "tomato", "limegreen", "royalblue", "gold", "aquamarine", "maroon",
+                                "lightsalmon", "deeppink", "brown"
     };
     std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     int nColorNames = sizeof(colorNames)/sizeof(std::string);
     
-    for (int i=0; i<chainIds.length(); i++){
+    for (unsigned int i=0; i<chainIds.length(); i++){
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
+        // std::cout << "### " << selectionString << " " << colorNames[i%nColorNames] << std::endl;
         auto colorRule =
-        SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)),
-                                                     colorNames[i%nColorNames]);
+           SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)),
+                                                        colorNames[i%nColorNames]);
         result->addRule(colorRule);
     }
     return result;

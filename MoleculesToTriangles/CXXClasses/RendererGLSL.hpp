@@ -28,10 +28,12 @@ public:
     virtual void renderVertexColorNormalPrimitive(VertexColorNormalPrimitive *prim);
     virtual void init();
     void setProgram(int _program);
+    void Use() const;
     void test(){};
     static std::string PointLightFragmentShaderText;
     static std::string PointLightVertexShaderText;
     static std::shared_ptr<Renderer> create();
+    std::pair<bool, std::string> readShaderFile(std::string strFilename) const;
     bool loadShaderFile(std::string strFilename, uint iHandle);
     void loadShaders();
 };

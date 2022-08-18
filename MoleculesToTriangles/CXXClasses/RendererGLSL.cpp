@@ -1,13 +1,12 @@
 
 #include "RendererGLSL.hpp"
-// #include "PointLight.hpp"
-//#include "GL/glew.h"
+// #include "PointLight.hpp" // now we read the shaders from files, not the header
+// #include "GL/glew.h"
 
-    // static std::string PointLightFragmentShaderText;
-    // static std::string PointLightVertexShaderText;
+// init statics that use to be in PointLight.hpp
+std::string RendererGLSL::PointLightFragmentShaderText;
+std::string RendererGLSL::PointLightVertexShaderText;
 
-std::string RendererGLSL::PointLightFragmentShaderText = std::string("");
-std::string RendererGLSL::PointLightVertexShaderText   = std::string("");
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -15,6 +14,7 @@ std::string RendererGLSL::PointLightVertexShaderText   = std::string("");
 #define HAVE_OPENGL_GL_H
 #endif
 
+#if 0 // -------------------------------------------
 #if defined(HAVE_WINDOWS_H) && defined(_WIN32)
 # include <windows.h>
 #endif
@@ -35,6 +35,10 @@ std::string RendererGLSL::PointLightVertexShaderText   = std::string("");
 #else
 # error no gl.h
 #endif
+#endif // 0 -------------------------------------
+
+#include <epoxy/gl.h>
+
 
 #include <stdio.h>
 #include <iostream>
@@ -66,26 +70,26 @@ void RendererGLSL::vboRenderVCN(VertexColorNormalPrimitive *prim)
         std::cout << "Allocating new handles for "<<prim << std::endl;
 #endif
         GLuint vertexHandle, indexHandle, arrayObjectHandle;
-        
+
         glGenVertexArrays(1, &arrayObjectHandle);
         glBindVertexArray(arrayObjectHandle);
         rendererHandles.arrayObjectHandle = arrayObjectHandle;
-        
+
         glGenBuffers(1, &vertexHandle);
         rendererHandles.vertexHandle = vertexHandle;
-        
+
         glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
         glBufferData(GL_ARRAY_BUFFER, prim->nVertices()*sizeof(VertexColorNormalPrimitive::VertexColorNormal),
                      prim->getVertexColorNormalArray(), GL_DYNAMIC_DRAW);
-        
+
         myglEnableClientState(GL_VERTEX_ARRAY);
         myglVertexPointer(3, GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal),
                           (void*)offsetof(VertexColorNormalPrimitive::VertexColorNormal,vertex));
-        
+
         myglEnableClientState(GL_COLOR_ARRAY);
         myglColorPointer(4, GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal),
                          (void*)offsetof(VertexColorNormalPrimitive::VertexColorNormal,color));
-        
+
         myglEnableClientState(GL_NORMAL_ARRAY);
         myglNormalPointer(GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal),
                           (void*)offsetof(VertexColorNormalPrimitive::VertexColorNormal,normal));
@@ -110,71 +114,55 @@ void RendererGLSL::vboRenderVCN(VertexColorNormalPrimitive *prim)
         glDisableVertexAttribArray(2);
     }
     
+    GLenum err = glGetError(); std::cout << "   Here in vboRenderVCN() pre  glBindVertexArray() err " << err << std::endl;
     glBindVertexArray(rendererHandles.arrayObjectHandle);
+    err = glGetError(); std::cout << "   Here in vboRenderVCN() post glBindVertexArray() err " << err << std::endl;
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     int nTriangleVertices = 3*prim->nTriangles();
+    err = glGetError(); std::cout << "   Here in vboRenderVCN() pre glDrawElements() err " << err << std::endl;
+    err = glGetError(); std::cout << "   Here in vboRenderVCN() pre glDrawElements() err " << err << std::endl;
     glDrawElements(GL_TRIANGLES, nTriangleVertices, kGLIndexType, (void*)0);
+    err = glGetError(); std::cout << "   Here in vboRenderVCN() post glDrawElements() err " << err << std::endl;
+
+ 
     glBindVertexArray(0);
 }
 
 void RendererGLSL::renderVertexColorNormalPrimitive(VertexColorNormalPrimitive *prim)
 {
+    GLenum err = glGetError(); std::cout << "      Here in RendererGLSL::renderVertexColorNormalPrimitive() --start-- about to glUseProgram() "
+                                         << program << " err " << err << std::endl;
     glUseProgram(program);
-#ifdef DEBUG_MINE
-    std::cout << "In renderVertexColorNormalPrimitiveA\n";
-#endif
-    //myglEnable(GL_NORMALIZE);
-    //Specify material properties that should be taken from the color
-    //glColorMaterial not available in OpenGL ES
-    //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-    //myglEnable(GL_COLOR_MATERIAL);
-    
-    //Set material properties that are not per-vertex
-    GLfloat specularColor[] = {1., 1., 1., 1.};
-    GLfloat blackColor[] = {0., 0., 0., 1.};
-    
-    myglMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specularColor);
-    myglMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, blackColor);
-    myglMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, blackColor);
-    myglMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 512.0);
-    //myglLightModelfv(GL_LIGHT_MODEL_AMBIENT, blackColor);
-    //std::cout << "So far 7\n";
+    err = glGetError(); std::cout << "      Here A in RendererGLSL::renderVertexColorNormalPrimitive() err " << err << std::endl;
+    std::cout << "In RendererGLSL::renderVertexColorNormalPrimitive() A\n";
+
+    err = glGetError(); std::cout << "      Here B in RendererGLSL::renderVertexColorNormalPrimitive() calling vboRenderVCN err " << err << std::endl;
     vboRenderVCN(prim);
-    /*
-     glEnableClientState(GL_VERTEX_ARRAY);
-     glEnableClientState(GL_NORMAL_ARRAY);
-     glEnableClientState(GL_COLOR_ARRAY);
-     
-     GLvoid *vertexStart = (GLvoid *) &(prim->getVertexColorNormalArray()[0].vertex);
-     glVertexPointer(3, GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal), vertexStart);
-     GLvoid *colorStart = (GLvoid *) &(prim->getVertexColorNormalArray()[0].color);
-     glColorPointer(4, GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal), colorStart);
-     GLvoid *normalStart = (GLvoid *) &(prim->getVertexColorNormalArray()[0].normal);
-     glNormalPointer(GL_FLOAT, sizeof(VertexColorNormalPrimitive::VertexColorNormal), normalStart);
-     glDrawElements(GL_TRIANGLES, 3*prim->nTriangles(), kGLIndexType, prim->getIndexArray());
-     
-     glDisableClientState(GL_VERTEX_ARRAY);
-     glDisableClientState(GL_NORMAL_ARRAY);
-     glDisableClientState(GL_COLOR_ARRAY);
-     
-     */
-    myglDisable(GL_COLOR_MATERIAL);
+    err = glGetError(); std::cout << "      Here C in RendererGLSL::renderVertexColorNormalPrimitive() calling myglDisable() err " << err << std::endl;
+    // myglDisable(GL_COLOR_MATERIAL);
+    err = glGetError(); std::cout << "      Here D in RendererGLSL::renderVertexColorNormalPrimitive() calling glUseProgram(0) err " << err << std::endl;
     glUseProgram(0);
+    err = glGetError(); std::cout << "      Here E in RendererGLSL::renderVertexColorNormalPrimitive() --end-- err " << err << std::endl;
 }
 
 void RendererGLSL::init()
 {
-    std::cout << "Off to load shaders\n";
+    std::cout << "RendererGLSL::init(): Off to load shaders...\n\n";
     loadShaders();
+    GLenum err = glGetError(); std::cout << "\n      Here in RendererGLSL::init() after loadShaders() err " << err << std::endl;
     int n;
-    //auto a= glGetString(GL_VERSION);
-    
-    //std::cout << "OpenGL version: " << a << std::endl;
+
+    // auto a = glGetString(GL_VERSION);
+    // std::cout << "OpenGL version: " << a << std::endl;
+
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &n);
-    std::cout << "GL_MAX_VERTEX_UNIFORM_COMPONENTS " << n << std::endl;
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() B err " << err << std::endl;
+    std::cout << "INFO:: GL_MAX_VERTEX_UNIFORM_COMPONENTS " << n << std::endl;
     glUseProgram(program);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() C0 err " << err << std::endl;
+
     const char *names[] = {
         "mygl_ModelViewMatrix",
         "mygl_ProjectionMatrix",
@@ -210,18 +198,32 @@ void RendererGLSL::init()
     };
     for (int i=0; i<(sizeof(names) / sizeof(char *)); i++){
         int location = glGetUniformLocation(program, names[i]);
+        std::cout << "location of "  << names[i] << " is " << location << std::endl;
+        if (location == -1)
+          std::cout << "      Some problem with glGetUniformLocation() for " << names[i] << std::endl;
+        err = glGetError(); std::cout << "      Here in RendererGLSL::init() loop D1 i " << i << " err "
+                                      << err << std::endl;
         uniforms[std::string(names[i])] = location;
         std::cout << "Loc of "  << names[i] << " is " << location << std::endl;
     }
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() D2 err " << err << std::endl;
     GLfloat nullColor[] = {0.,0.,0.,1.};
     glUniform4fv(uniforms["mygl_FrontMaterial.emission"], 4, nullColor);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E1a err " << err << std::endl;
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E1b err " << err << std::endl;
     glUniform4fv(uniforms["mygl_FrontMaterial.ambient"], 4, nullColor);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E2a err " << err << std::endl;
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E2b err " << err << std::endl;
     glUniform4fv(uniforms["mygl_FrontMaterial.specular"], 4, nullColor);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E3a err " << err << std::endl;
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() E3b err " << err << std::endl;
     glUniform4fv(uniforms["mygl_FrontLightModelProduct.sceneColor"], 4, nullColor);
     glUniform1i(uniforms["mygl_UseLight0"], 1);
     glUniform1i(uniforms["mygl_UseLight1"], 1);
     glUniform1i(uniforms["mygl_UseColorArray"], 1);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() Ef err " << err << std::endl;
     glUseProgram(0);
+    err = glGetError(); std::cout << "      Here in RendererGLSL::init() F err " << err << std::endl;
 }
 
 
@@ -320,10 +322,14 @@ void RendererGLSL::myglNormalPointer(int type, int stride, const void *pointer){
 
 void RendererGLSL::loadShaders()
 {
-    std::cout << "In loadShaders";
+    std::cout << "In loadShaders...\n";
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
     //loadShaderFile("/Users/martin/Dropbox/Programming/MoleculesToTriangles/CXXClasses/PointLight.vert", vs);
-    
+
+    std::pair<bool, std::string> shader_code = readShaderFile("PointLight.vert.glsl");
+    if (shader_code.first)
+       PointLightVertexShaderText = shader_code.second;
+
     const char *vertexSource = PointLightVertexShaderText.c_str();
     GLint vertexShaderSize = PointLightVertexShaderText.size();
     glShaderSource(vs, 1, &vertexSource, NULL);
@@ -336,14 +342,18 @@ void RendererGLSL::loadShaders()
         char infoLog[1024];
         glGetShaderInfoLog(vs, 1024, NULL, infoLog);
         std::cout << "The vertex shader failed to compile with the following errors:" << std::endl
-        << infoLog << std::endl;
+                  << infoLog << std::endl;
         std::cout << PointLightVertexShaderText << std::endl;
         glDeleteShader(vs);
     }
-    else std::cout << "The vertex shader compile without errors\n";
+    else std::cout << "The vertex shader compiled without errors\n";
     
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
     //loadShaderFile("/Users/martin/Dropbox/Programming/MoleculesToTriangles/CXXClasses/PointLight.frag", fs);
+
+    shader_code = readShaderFile("PointLight.frag.glsl");
+    if (shader_code.first)
+       PointLightFragmentShaderText = shader_code.second;
 
     const char *fragmentSource = PointLightFragmentShaderText.c_str();
     GLint fragmentShaderSize = PointLightFragmentShaderText.size();
@@ -356,11 +366,11 @@ void RendererGLSL::loadShaders()
         char infoLog[1024];
         glGetShaderInfoLog(fs, 1024, NULL, infoLog);
         std::cout << "The fragment shader failed to compile with the following errors:" << std::endl
-        << infoLog << std::endl;
+                  << infoLog << std::endl;
         std::cout << PointLightFragmentShaderText << std::endl;
         glDeleteShader(fs);
     }
-    else std::cout << "The fragment shader compile without errors\n";
+    else std::cout << "The fragment shader compiled without errors\n";
 
     program = glCreateProgram();
     glAttachShader(program, fs);
@@ -395,6 +405,21 @@ std::shared_ptr<Renderer> RendererGLSL::create()
 {
     auto result = std::shared_ptr<Renderer>(new RendererGLSL());
     return result;
+}
+
+std::pair<bool, std::string> RendererGLSL::readShaderFile(std::string strFilename) const {
+
+    std::string s;
+	 bool status = false;
+    std::ifstream shaderSource(strFilename);
+	 if (shaderSource.is_open()) {
+       s = std::string((std::istreambuf_iterator<char>(shaderSource)), std::istreambuf_iterator<char>());
+		 shaderSource.close();
+		 status = true;
+	 } else {
+        std::cerr << " File not found " << strFilename << std::endl;
+	 }
+	 return std::pair<bool, std::string>(status, s);
 }
 
 bool RendererGLSL::loadShaderFile(std::string strFilename, GLuint iHandle)

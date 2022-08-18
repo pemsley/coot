@@ -114,7 +114,7 @@ int MyMolecule::loadFromPDB(const char *filePath){
     int RC;
     mmdb::InitMatType();
     mmdb = new mmdb::Manager();
- 
+    
     //Now read the MMDB for purpose of calculating surface
     mmdb->SetFlag( mmdb::MMDBF_PrintCIFWarnings );
     RC = mmdb->ReadCoorFile (filePath);
@@ -166,14 +166,31 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
     std::map<mmdb::Chain *, DishyBaseContainer_t> dishy_bases_chain_map;
     
     int nModels = mmdb->GetNumberOfModels();
-    std::cout << "identifySegments() Protein consists of " << nModels << " Models\n";
+    std::cout << "Protein consists of " << nModels << " Models\n";
     mmdb::Model* model = mmdb->GetModel(1);
     
+    //Here is an approach for (bloomin) segIDs....repeat the segment determination for each segID
+    // simples :-)
+    
+    std::set<std::string> segIDs;
+    
     {
-        int nChains;
+        // Establish a list of segIDs
+        int nAtoms = model->GetNumberOfAtoms(false);
+        mmdb::Atom** atoms = model->GetAllAtoms();
+        
+        for (int iAtom = 0; iAtom < nAtoms; iAtom++){
+            segIDs.insert(std::string(atoms[iAtom]->segID));
+        }
+    }
+    std::cout << "there are " << segIDs.size() << " segIDs ";
+    
+    std::set<std::string>::iterator segIDIter = segIDs.begin();
+    for (;segIDIter != segIDs.end(); ++segIDIter){
+        int          nChains;
         mmdb::Chain**     chains;
         model->GetChainTable(chains, nChains);
-        std::cout << "identifySegments() Model 1 consists of " << nChains << " Chains\n";
+        std::cout << "Model 1 consists of " << nChains << " Chains\n";
         //Pass through and identify any chain breaks
         for (int iChain = 0; iChain < nChains; iChain ++){
             mmdb::Chain* chain = model->GetChain(iChain);
@@ -181,7 +198,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
             int nResidues;
             mmdb::Residue**   residues;
             chain->GetResidueTable(residues, nResidues);
-            std::cout << " identifySegments() Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
+            std::cout << "Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
             if (nResidues > 0){
                 for (int iResidue = 0; iResidue < nResidues; iResidue++){
                     if (residues[iResidue]->isAminoacid() ||
@@ -197,7 +214,8 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                         residue->GetAtomTable(atomsOfResidue, nAtoms);
                         for (int iAtom=0; iAtom < nAtoms; iAtom++){
                             mmdb::Atom* calpha = atomsOfResidue[iAtom];
-                            if (true) {
+                            if (std::string(calpha->segID) == *segIDIter){
+                                //std::cout << calpha->segID << "oops\n";
                                 if (!strcmp(calpha->name," CA ") &&
                                     calpha->isInSelection(selHnd)){
                                     //Consider only the main alternative location
@@ -208,8 +226,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                         FCXXCoord difference = calphaPosition - lastCoord;
                                         float distance = difference.get3DLength();
                                         if (distance > 4.1){
-					    std::cout << "New chain start "<< calpha->GetResName()
-						      << calpha->GetSeqNum () << calpha->segID << "\n";
+                                            std::cout << "New chain start "<< calpha->GetResName() << calpha->GetSeqNum () << calpha->segID << "\n";
                                             DiscreteSegment *segment = new DiscreteSegment();
                                             segment->addCalpha(calpha);
                                             segments.push_back(segment);
@@ -225,7 +242,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                     }
                 }
             }
- 
+            
             // shall we do nucleic acid?
             if (chain->isNucleotideChain()) {
                 int nResidues;

@@ -61,9 +61,9 @@ CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
 GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
-MOLECULESTOTRIANGLES=$(install_top_dir)
-MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
-MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
+# MOLECULESTOTRIANGLES=$(install_top_dir)
+# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
+# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
 
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
@@ -72,7 +72,7 @@ MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
 # $(top_builddir)/goograph/libcoot-goograph.la
 
 COOT_EXTRA_LIBS = \
-	$(top_builddir)/lbg/libcoot-lidia.la      		\
+        $(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
@@ -97,6 +97,8 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
 	$(top_builddir)/cootilus/libcootilus.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
+	$(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la     		\
+	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la     		\
 	$(top_builddir)/compat/libcoot-compat.la
 
 
@@ -255,10 +257,10 @@ AM_CPPFLAGS = \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-   $(GLM_CXXFLAGS)                 \
+	$(GLM_CXXFLAGS)                 \
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
-   $(GOOCANVAS_CFLAGS)             \
+	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -816,7 +818,6 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
       $(COOT_EXTRA_LIBS) \
 		$(VORBISFILE_LIBS)           \
-      $(MOLECULESTOTRIANGLES_LIBS) \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
@@ -827,7 +828,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) \
-      $(EPOXY_LIBS)        \
+		$(EPOXY_LIBS)        \
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS) -lblas   \
 		$(MYSQL_LIBS)		   \
