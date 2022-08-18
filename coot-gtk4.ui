@@ -5463,6 +5463,33 @@ Do you want to continue?
             <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
           </object>
         </child>
+
+        <child>
+          <object class="GtkButton" id="go_to_atom_button">
+            <property name="label" translatable="yes">Go to Atom...</property>
+            <property name="can-focus">0</property>
+            <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkButton" id="go_to_ligand_button">
+            <property name="label" translatable="yes">Go to (Next) Ligand</property>
+            <property name="can-focus">0</property>
+            <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkButton" id="add_toolbar_buttons_button">
+            <property name="label" translatable="yes">+</property>
+            <property name="can-focus">0</property>
+            <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+            <property name="margin-start">6</property>
+            <property name="halign">end</property> <!-- doesn't work -->
+          </object>
+        </child>
+
       </object>
     </child>
 
@@ -5506,6 +5533,7 @@ Do you want to continue?
             <child>
               <object class="GtkMenuButton" id="fixed_atoms_menubutton">
                 <property name="label" translatable="yes">Fixed Atoms</property>
+                <property name="can-focus">0</property>
                 <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
               </object>
             </child>
@@ -7178,14 +7206,6 @@ If you need symmetry, setup ccp4 before starting coot
     <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="nothing_bad_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_nothing_bad_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="nothing_bad_frame">
             <property name="name">nothing_bad_frame</property>
@@ -7201,6 +7221,14 @@ If you need symmetry, setup ccp4 before starting coot
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="nothing_bad_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_nothing_bad_ok_button_clicked" swapped="no"/>
+              </object>
         </child>
       </object>
     </child>

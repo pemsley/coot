@@ -1226,6 +1226,15 @@ on_go_to_atom1_activate                (GMenuItem     *menuitem,
      gtk_widget_show(widget);
 }
 
+extern "C" G_MODULE_EXPORT
+void on_go_to_atom_button_clicked (GtkButton       *button,
+                                   gpointer         user_data) {
+
+   GtkWidget *dialog = wrapped_create_goto_atom_window(); // uses gtkbuilder
+   gtk_widget_show(dialog);
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 void
@@ -10589,8 +10598,8 @@ on_go_to_atom_toolbutton_clicked(GtkButton   *toolbutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_ligand_toolbutton_clicked(GtkButton   *toolbutton,
-                                                       gpointer         user_data) {
+on_go_to_ligand_button_clicked(GtkButton *button,
+                               gpointer   user_data) {
   go_to_ligand();
 }
 
@@ -10604,6 +10613,14 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
   fill_move_molecule_here_dialog(dialog);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_add_toolbar_buttons_button
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+   info_dialog("WARNING:: This doesn't do anything yet (sorry).\nI'm just testing the layout.");
+}
 
 
 extern "C" G_MODULE_EXPORT
