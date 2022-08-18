@@ -1,0 +1,27 @@
+CXXClasses - library and executables for high-level Conversion of moleules to triangles
+CPPFLAGS="-I/usr/local/include" CCFLAGS="-I/usr/local/include -std=gnu11" LD=clang++ CXXFLAGS="-std=c++11 -I/usr/local/include" LDFLAGS="-L/usr/local/lib" CXX=clang++ CC=clang make
+
+MACOSX
+======
+#Building for boost installed by homebrew on MacOSX
+PYTHON_EXTRA_LIBS="-framework CoreFoundation" PYTHON_VERSION=3.6 CXXFLAGS=-std=c++11 ../configure
+
+For some reason dlopen does not accept the .dylib extension ?:
+ln -s /usr/local/lib/libCXXClasses.dylib /usr/local/lib/CXXClasses.so
+
+Providing LD_LIBRARY_PATH:
+LD_LIBRARY_PATH=/usr/local/lib python
+
+Patching with install_name_tool:
+install_name_tool -change /Users/buildbot/Buildslaves/ccp4-slave/release-7_0-mac10_6/build/devtools/install/lib/libccp4c.0.dylib /usr/local/lib/libccp4c.0.dylib .libs/libCXXClasses.dylib
+
+LINUX
+=====
+sudo apt-get install libboost-python-dev
+sudo apt-get install python3-dev
+sudo apt-get install python3-pip
+pip3 install pyopengl
+sudo apt-get install python3-pyqt5.qtopengl
+
+linux configure:
+BOOST_PYTHON_LIB=boost_python-py35 CXXFLAGS=-std=c++11 PYTHON=python3 PYTHON_VERSION=3.5 ../configure --enable-shared
