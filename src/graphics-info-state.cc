@@ -1028,6 +1028,7 @@ graphics_info_t::check_for_unsaved_changes() const {
 	 // GtkWidget *dialog = create_unsaved_changes_dialog();
 	 GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
 	 fill_unsaved_changes_dialog(dialog);
+         set_transient_and_position(COOT_UNDEFINED_WINDOW, dialog);
 	 gtk_widget_show(dialog);
 	 iv = 1;
 	 break;
@@ -1051,11 +1052,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
          GtkWidget *label = gtk_label_new(labelstr.c_str());
          gtk_widget_show(label);
          // gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f); gtk3 fix alignment
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          gtk_box_append(GTK_BOX (vbox), label);
-#else
-         gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-#endif
       }
    }
 }

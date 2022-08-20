@@ -3396,8 +3396,7 @@ on_unsaved_changes_cancel_button_clicked
                                         gpointer         user_data)
 {
 
-   GtkWidget *dialog = widget_from_builder(
-				     "unsaved_changes_dialog");
+   GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
    gtk_widget_hide(dialog);
 }
 
@@ -3408,8 +3407,7 @@ on_unsaved_changes_continue_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *dialog = widget_from_builder(
-				     "unsaved_changes_dialog");
+   GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
    gtk_widget_hide(dialog);
    coot_clear_backup_or_real_exit(0);
 }
@@ -10766,7 +10764,7 @@ on_refine_params_weight_matrix_entry_changed
 extern "C" G_MODULE_EXPORT
 void
 on_remarks_browser1_activate (GMenuItem     *menuitem,
-                                                  gpointer         user_data) {
+                              gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog(); // uses builder
    gtk_widget_show(w);
@@ -10778,9 +10776,12 @@ on_remarks_browser1_activate (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_remarks_browser_molecule_chooser_dialog_response(GtkDialog       *dialog,
-                                                                        gint             response_id,
-                                                                        gpointer         user_data) {
+                                                    gint             response_id,
+                                                    gpointer         user_data) {
+
+   std::cout << "here A in on_remarks_browser_molecule_chooser_dialog_response() with response_id " << response_id << std::endl;
    if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "here B in on_remarks_browser_molecule_chooser_dialog_response() with response_id " << response_id << std::endl;
       show_remarks_browswer(); // makes an on-the-fly dialog!
    }
    gtk_widget_hide(GTK_WIDGET(dialog));

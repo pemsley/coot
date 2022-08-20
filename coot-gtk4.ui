@@ -471,12 +471,12 @@
       <attribute name="label">About</attribute>
       <section>
         <item>
-          <attribute name="label">Header/Remarks Browser...</attribute>
-          <attribute name="action">app.remarks_browser_action</attribute>
-        </item>
-        <item>
           <attribute name="label">About Coot...</attribute>
           <attribute name="action">app.about_coot_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Header/Remarks Browser...</attribute>
+          <attribute name="action">app.remarks_browser_action</attribute>
         </item>
       </section>
     </submenu>
@@ -764,41 +764,54 @@
     </child>
   </object>
 
+
+
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="title" translatable="yes">About Coot</property>
     <property name="resizable">0</property>
-    <property name="destroy-with-parent">1</property>
-    <property name="deletable">1</property>
-    <property name="version">1.0</property>
+    <!-- <property name="window_position">center-on-parent</property> -->
+    <property name="destroy_with_parent">1</property>
+    <!-- <property name="icon">pixmaps/coot-icon.png</property> -->
+    <property name="deletable">0</property>
+    <property name="version">1.0.06</property>
     <property name="copyright" translatable="yes">Copyright 2000, 2007 by Paul Emsley
-Copyright 2002, 2003, 2004, 2005, 2006, 2007
-by The University of York
-Copyright 2007 by The University of Oxford
-
-    </property>
-    <property name="comments" translatable="yes">Version 1</property>
-    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</property>
-    <property name="website-label">The Home of Coot</property>
-    <property name="license" translatable="yes">GNU GPL version 3</property>
+Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
+</property>
+    <property name="comments" translatable="yes">Welcome to Coot</property>
+    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
+    <property name="website_label">The Coot Website</property>
+    <property name="license" translatable="yes">GNU GPL version 3
+</property>
     <property name="authors">Paul Emsley
-    Kevin Cowtan
-    Bernhard Lohkamp
-    </property>
+with long-term support and commitment from
+Kevin Cowtan and Bernhard Lohkamp
+</property>
     <property name="documenters">Paul Emsley
-    </property>
+</property>
     <property name="artists">Paul Emsley
-    </property>
+</property>
     <property name="logo">pixmaps/coot-icon.png</property>
     <child>
       <object class="GtkBox" id="dialog-vbox100">
         <property name="spacing">2</property>
-        <child type="area">
+        <child>
+          <object class="GtkBox" id="dialog-action_area99">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <!-- <property name="layout_style">end</property> -->
+          </object>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
     <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
+
 
   <object class="GtkDialog" id="accept_reject_refinement_dialog">
     <property name="title" translatable="yes">Accept Refinement?</property>
@@ -5445,9 +5458,10 @@ Do you want to continue?
           <class name="toolbar"/>
         </style>
         <child>
-          <object class="GtkButton" id="toolbar_test_button">
+          <object class="GtkButton" id="toolbar_reset_view_button">
             <property name="label" translatable="yes">Reset View</property>
             <property name="can-focus">0</property>
+            <property name="icon-name">reset-view</property>
             <signal name="clicked" handler="reset_view" swapped="no"/>
             <!-- <child> -->
             <!--   <object class="GtkImage"> -->
@@ -5460,6 +5474,7 @@ Do you want to continue?
           <object class="GtkButton" id="toolbar_display_manager_button">
             <property name="label" translatable="yes">Display Manager</property>
             <property name="can-focus">0</property>
+            <property name="icon-name">display-manager</property>
             <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
           </object>
         </child>
@@ -5468,6 +5483,7 @@ Do you want to continue?
           <object class="GtkButton" id="go_to_atom_button">
             <property name="label" translatable="yes">Go to Atom...</property>
             <property name="can-focus">0</property>
+            <property name="icon-name">go-to-atom</property>
             <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
           </object>
         </child>
@@ -5476,6 +5492,7 @@ Do you want to continue?
           <object class="GtkButton" id="go_to_ligand_button">
             <property name="label" translatable="yes">Go to (Next) Ligand</property>
             <property name="can-focus">0</property>
+            <property name="icon-name">go-to-ligand</property>
             <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
           </object>
         </child>
@@ -5534,6 +5551,7 @@ Do you want to continue?
               <object class="GtkMenuButton" id="fixed_atoms_menubutton">
                 <property name="label" translatable="yes">Fixed Atoms</property>
                 <property name="can-focus">0</property>
+                <property name="icon-name">anchor</property>
                 <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
               </object>
             </child>
@@ -5541,60 +5559,69 @@ Do you want to continue?
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
                 <property name="label" translatable="yes">Rigid Body Fit</property>
                 <property name="can-focus">0</property>
+                <property name="icon-name">rigid-body</property>
                 <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="rotate_translate_menubutton">
                 <property name="label" translatable="yes">Rotate/Translate</property>
+                <property name="icon-name">rtz</property>
                 <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_4">
                 <property name="label" translatable="yes">AutoFit Rotamer</property>
+                <property name="icon-name">auto-fit-rotamer</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
+		<signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_testbutton_5">
                 <property name="label" translatable="yes">Rotamers</property>
+                <property name="icon-name">rotamers</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
+		<signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
                 <property name="label" translatable="yes">Edit Chi Angles</property>
                 <property name="can-focus">0</property>
-		          <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
+                <property name="icon-name">edit-chi</property>
+		<signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="flip_peptide_button">
                 <property name="label" translatable="yes">Flip Peptide</property>
+                <property name="icon-name">flip-peptide</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
+		<signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="side_chain_180_flip_button">
                 <property name="label" translatable="yes">Sidechain 180° Flip</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
+                <property name="icon-name">side-chain-180</property>
+		<signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="mutate_and_autofit_menubutton">
                 <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
                 <property name="can-focus">0</property>
-		          <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate" last_modification_time="Fri, 18 Jan 2008 14:19:26 GMT"/>
+                <property name="icon-name">mutate</property>
+		<signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="simple_mutate_menubutton">
                 <property name="label" translatable="yes">Simple Mutate</property>
+                <property name="icon-name">mutate-auto-fit</property>
                 <property name="can-focus">0</property>
               </object>
             </child>
@@ -5602,27 +5629,31 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
                 <property name="label" translatable="yes">Add Terminal Residue</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
+                <property name="icon-name">add-peptide-1</property>
+		<signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="delete_menubutton">
                 <property name="label" translatable="yes">Delete...</property>
                 <property name="can-focus">0</property>
+                <property name="icon-name">gtk-delete</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="undo_button">
                 <property name="label" translatable="yes">Undo</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
+                <property name="icon-name">undo</property>
+		<signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="redo_button">
                 <property name="label" translatable="yes">Redo</property>
                 <property name="can-focus">0</property>
-		          <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
+                <property name="icon-name">redo</property>
+		<signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
               </object>
             </child>
           </object>
@@ -8466,29 +8497,59 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
     <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
     <signal name="response" handler="on_remarks_browser_molecule_chooser_dialog_response" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="remarks_browser_molecule_chooser_dialog_button">
-                <property name="label">gtk-ok</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
+        <property name="spacing">12</property>
         <child>
           <object class="GtkComboBoxText" id="remarks_browser_molecule_chooser_combobox_text">
           </object>
         </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">8</property>
+            <property name="margin-bottom">6</property>
+            <property name="homogeneous">1</property>
+
+            <child type="action">
+              <object class="GtkButton" id="remarks_browser_molecule_chooser_dialog_cancel_button">
+                <property name="label">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+              </object>
+            </child>
+
+            <child type="action">
+              <object class="GtkButton" id="remarks_browser_molecule_chooser_dialog_ok_button">
+                <property name="label">OK</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="-5">remarks_browser_molecule_chooser_dialog_ok_button</action-widget>
+      <action-widget response="-6">remarks_browser_molecule_chooser_dialog_cancel_button</action-widget>
+    </action-widgets>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="renumber_residue_range_dialog">
     <property name="title" translatable="yes">Renumber Residue Range</property>
     <child>
@@ -11394,13 +11455,21 @@ Move a copy?</property>
 
         <child>
           <object class="GtkFrame" id="frame54">
+             <property name="margin-top">6</property>
+             <property name="margin-bottom">6</property>
+             <property name="margin-start">6</property>
+             <property name="margin-end">6</property>
             <child>
               <object class="GtkBox" id="vbox66">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="label98">
-                    <property name="label" translatable="yes">\nThe following molecule(s) have unsaved changes:</property>
+                    <property name="label" translatable="yes">The following molecule(s) have unsaved changes:</property>
                     <property name="justify">center</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
                 <child>
@@ -11410,8 +11479,12 @@ Move a copy?</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label99">
-                    <property name="label" translatable="yes">Do you wish to Continue to Exit?\n</property>
+                    <property name="label" translatable="yes">Do you wish to Continue to Exit?</property>
                     <property name="justify">center</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
               </object>
