@@ -420,6 +420,45 @@ void setup_gestures(GtkWidget *glarea) {
 
 }
 
+void
+install_icons_into_theme(GtkWidget *w) {
+
+
+   // This is how to lookup an icon
+   //
+   // const char *fallbacks[] = {"one", "two", "three"};
+   // GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display (w));
+   // GtkTextDirection td = GTK_TEXT_DIR_LTR;
+   // GtkIconLookupFlags icon_lookup_flags = GTK_ICON_LOOKUP_FORCE_REGULAR;
+   //
+   // GtkIconPaintable *icon = gtk_icon_theme_lookup_icon(icon_theme,
+   //                                                     "my-icon-name", // icon name
+   //                                                     fallbacks,
+   //                                                     48, // icon size
+   //                                                     1,  // scale
+   //                                                     td,
+   //                                                     icon_lookup_flags);
+   // GdkPaintable *paintable = GDK_PAINTABLE (icon);
+   // // Use the paintable
+   // g_object_unref(icon);
+
+
+#if 0 // just testing
+   const char *theme_name = gtk_icon_theme_get_theme_name(icon_theme);
+   if (theme_name)
+      std::cout << "===== theme-name: " << theme_name << " === " << std::endl;
+   else
+      std::cout << "===== null theme-name === " << std::endl;
+#endif
+
+   GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
+   std::string pkg_data_dir = coot::package_data_dir();
+   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
+   gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
+}
+
+
+
 // in screen-utils.cc
 void setup_application_icon(GtkWindow *window);
 
@@ -450,6 +489,8 @@ new_startup_application_activate(GtkApplication *application,
 
    GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
    graphics_info_t::statusbar = sb;
+
+   install_icons_into_theme(GTK_WIDGET(sb));
 
    std::string window_name = "GTK4 Coot-" + std::string(VERSION);
    GtkWidget *app_window = gtk_application_window_new(application);
@@ -574,6 +615,7 @@ int new_startup(int argc, char **argv) {
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), NULL);
    g_application_register(G_APPLICATION(app), NULL, &error);
+
    int status = g_application_run (G_APPLICATION (app), argc, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
    g_object_unref (app);

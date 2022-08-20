@@ -23,7 +23,8 @@
 # 
 SUBDIRS = icons
 
-cootpixmapdir = $(pkgdatadir)/glade/pixmaps
+# cootpixmapdir = $(pkgdatadir)/glade/pixmaps
+cootpixmapdir = $(pkgdatadir)/icons/hicolor/16x16/actions
 
 # no longer use xpms.
 
