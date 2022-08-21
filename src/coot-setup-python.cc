@@ -168,10 +168,10 @@ void setup_python_with_coot_modules(int argc, char **argv) {
       std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
 
-      if (false) {
+      if (true) {
          initcoot_python_gobject(); // this is not a good name for this function. We need to say
                                     // this this is the module that wraps the glue to get
-                                    // the status-bar, menu-bar etc.
+                                    // the status-bar, menu-bar etc. i.e. coot_python_api
          PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
          PyImport_ImportModule("extensions");
       }

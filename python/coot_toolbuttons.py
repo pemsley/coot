@@ -21,7 +21,7 @@
 #  import pango
 
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 import coot_gui_api
@@ -34,8 +34,8 @@ import os
 
 def register_coot_icons():
     import glob
-    iconfactory = Gtk.IconFactory()
-    stock_ids = Gtk.stock_list_ids()
+    # iconfactory = Gtk.IconFactory()
+    # stock_ids = Gtk.stock_list_ids()
     pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
     if (not pixbuf_dir):
         pixbuf_dir = os.path.join(coot.get_pkgdatadir_py(), "pixmaps")
@@ -45,15 +45,16 @@ def register_coot_icons():
     for full_name in coot_icon_filename_ls:
         name = os.path.basename(full_name)
         icon_info_ls.append([name, full_name])
-    for stock_id, filename in icon_info_ls:
-        # print("# register icon:", stock_id, filename)
-        # only load image files when our stock_id is not present
-        if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
-            if os.path.isfile(filename):
-                pixbuf = Gtk.gdk.pixbuf_new_from_file(filename)
-                iconset = Gtk.IconSet(pixbuf)
-                iconfactory.add(stock_id, iconset)
-    iconfactory.add_default()
+    if False:
+        for stock_id, filename in icon_info_ls:
+            # print("# register icon:", stock_id, filename)
+            # only load image files when our stock_id is not present
+            if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
+                if os.path.isfile(filename):
+                    pixbuf = Gtk.gdk.pixbuf_new_from_file(filename)
+                    iconset = Gtk.IconSet(pixbuf)
+                    iconfactory.add(stock_id, iconset)
+        iconfactory.add_default()
 
 # adds a SeparatorToolItem to the coot_main_toolbar (by default at the
 # last position). Return the separator or False. If there is a
@@ -512,6 +513,11 @@ if True:  # test for python
             assi.show()
 
         def add_toolbar_button_simple_gui():
+            print("add_toolbar_button_simple_gui() has been removed for now")
+            pass
+
+        # save this for reference
+        def add_toolbar_button_simple_gui_old():
 
             def button_func(*args):
                 # dummy dont need to do anythin here
@@ -563,7 +569,8 @@ if True:  # test for python
                                      event)
 
         coot_main_toolbar = coot_gui_api.main_toolbar()
-        coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
+        # remove this for now.
+        # coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
 #

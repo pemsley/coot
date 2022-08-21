@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 
 #ifdef USE_PYTHON
-// #include <pygobject-3.0/pygobject.h> // not yet in GTK4
+#include <pygobject-3.0/pygobject.h> // not yet in GTK4
 #endif
 
 #include "c-interface.h"
@@ -80,11 +80,10 @@ _wrap_main_menubar(PyObject *self)
 {
    GtkWidget *ret = main_menubar();
    /* pygobject_new handles NULL checking */
-#if HAVE_PYGOBJECT
-   return pygobject_new((GObject *)ret);
-#else
-   return nullptr;
-#endif
+   GObject *o = G_OBJECT(ret);
+   PyObject *pyo = pygobject_new(o);
+   return pyo;
+
 }
 
 PyObject *
@@ -92,11 +91,9 @@ _wrap_main_statusbar(PyObject *self)
 {
    GtkWidget *ret = main_statusbar();
    /* pygobject_new handles NULL checking */
-#if HAVE_PYGOBJECT
-   return pygobject_new((GObject *)ret);
-#else
-   return nullptr;
-#endif
+   GObject *o = G_OBJECT(ret);
+   PyObject *pyo = pygobject_new(o);
+   return pyo;
 }
 
 PyObject *
@@ -104,23 +101,21 @@ _wrap_main_toolbar(PyObject *self)
 {
    GtkWidget *ret = main_toolbar();
    /* pygobject_new handles NULL checking */
+   std::cout << "main_toolbar(): ret " << ret << std::endl;
    GObject *o = G_OBJECT(ret);
-#if HAVE_PYGOBJECT
-   return pygobject_new(o);
-#else
-   return nullptr;
-#endif
+   std::cout << "main_toolbar():   o " << o << std::endl;
+   PyObject *pyo = pygobject_new(o);
+   std::cout << "main_toolbar(): pyo " << pyo << std::endl;
+   return pyo;
 }
 
 PyObject *
 _wrap_main_hbox(PyObject *self) {
    GtkWidget *ret = main_hbox();
    /* pygobject_new handles NULL checking */
-#if HAVE_PYGOBJECT
-   return pygobject_new(G_OBJECT(ret));
-#else
-   return nullptr;
-#endif
+   GObject *o = G_OBJECT(ret);
+   PyObject *pyo = pygobject_new(o);
+   return pyo;
 }
 
 
@@ -222,9 +217,7 @@ void
 initcoot_python_gobject() {
 
    int req_major = -1, req_minor = -1, req_micro = -1;
-#ifdef HAVE_PYGOBJECT
    pygobject_init(req_major, req_minor, req_micro);
-#endif
 
    if (true) {
       PyObject *o = PyInit_coot_gui_api();

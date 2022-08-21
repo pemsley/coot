@@ -1934,39 +1934,18 @@ Calculate a skeleton now?
     <child>
       <object class="GtkBox" id="dialog-vbox59">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox105">
-                <child>
-                  <object class="GtkButton" id="bond_parameters_apply_button">
-                    <property name="label" translatable="yes">  Apply  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_bond_parameters_apply_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="bond_parameters_ok_button">
-                    <property name="label" translatable="yes">       OK       </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_bond_parameters_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="bond_parameters_close_button">
-                    <property name="label" translatable="yes">  Close  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_bond_parameters_close_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">8</property>
+
         <child>
           <object class="GtkBox" id="vbox117">
             <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
             <child>
               <object class="GtkBox" id="bond_parameters_hbox_for_molecule_combobox">
+              <property name="margin-start">6</property>
+              <property name="margin-end">6</property>
                 <child>
                   <object class="GtkLabel" id="label189">
                     <property name="label" translatable="yes">  Molecule:  </property>
@@ -2071,8 +2050,39 @@ Calculate a skeleton now?
                     <property name="label" translatable="yes">Draw Non-Crystallographic Ghosts?</property>
                   </object>
                 </child>
+
               </object>
             </child>
+
+            <child type="action">
+              <object class="GtkBox" id="hbox105">
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkButton" id="bond_parameters_apply_button">
+                    <property name="label" translatable="yes">  Apply  </property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_bond_parameters_apply_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="bond_parameters_ok_button">
+                    <property name="label" translatable="yes">       OK       </property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_bond_parameters_ok_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="bond_parameters_close_button">
+                    <property name="label" translatable="yes">  Close  </property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_bond_parameters_close_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+        </child>
           </object>
         </child>
       </object>
@@ -5541,6 +5551,14 @@ Do you want to continue?
                 <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
               </object>
             </child>
+            <child>
+              <object class="GtkToggleButton" id="select_residue_range_toggle_button">
+                <property name="label" translatable="yes">Range Select</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
+              </object>
+            </child>
+
             <child>
               <object class="GtkMenuButton" id="refine_menubutton">
                 <property name="label" translatable="yes">Refine</property>

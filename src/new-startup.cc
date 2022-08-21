@@ -489,6 +489,7 @@ new_startup_application_activate(GtkApplication *application,
 
    GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
    graphics_info_t::statusbar = sb;
+   std::cout << "debug:: startusbar: " << sb << std::endl;
 
    install_icons_into_theme(GTK_WIDGET(sb));
 
@@ -504,6 +505,10 @@ new_startup_application_activate(GtkApplication *application,
 
    graphics_info_t g;
    g.set_gtkbuilder(builder);
+   // hack in these values for now
+   int argc = 0;
+   char ** argv = 0;
+   setup_python_with_coot_modules(argc, argv);
 
    // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
    // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
@@ -590,6 +595,10 @@ int new_startup(int argc, char **argv) {
       if (true) {
          setup_python_basic(argc, argv);
          setup_python_coot_module();
+         // this needs the gtkbuilder to have read the ui file
+         // because it needs to look up  the coot_main_window
+         // and main_toolbar and main_hbox and main_statusbar.
+         // setup_python_with_coot_modules(argc, argv);
 
          // 20220807-PE now test if that worked.
          // std::cout << "calling run_script()" << std::endl;
