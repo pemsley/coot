@@ -173,7 +173,7 @@ void handle_filename_filter_gtk2(GtkWidget *widget);
 void set_transient_and_position(int window_type, GtkWidget *window);
 
 
-GtkWidget *main_menubar();	/* maybe these should be called main_window_xxx() */
+GMenuModel *main_menubar();	/* maybe these should be called main_window_xxx() */
 GtkWidget *main_statusbar();
 GtkWidget *main_toolbar();
 GtkWidget *main_hbox();

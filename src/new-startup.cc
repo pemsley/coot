@@ -469,7 +469,9 @@ new_startup_application_activate(GtkApplication *application,
    GtkBuilder *builder = gtk_builder_new();
    if (GTK_IS_BUILDER(builder)) {
    } else {
-      std::cout << "in new_startup_application_activate() builder was NOT a builder" << std::endl;
+      std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
+                << std::endl;
+      return;
    }
 
    std::string dir = coot::package_data_dir();
@@ -505,10 +507,6 @@ new_startup_application_activate(GtkApplication *application,
 
    graphics_info_t g;
    g.set_gtkbuilder(builder);
-   // hack in these values for now
-   int argc = 0;
-   char ** argv = 0;
-   setup_python_with_coot_modules(argc, argv);
 
    // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
    // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
@@ -516,7 +514,7 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
    // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
-   //GMenu *menu = create_menu_by_hand(application);
+   // GMenu *menu = create_menu_by_hand(application);
    GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
    gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
@@ -581,6 +579,10 @@ new_startup_application_activate(GtkApplication *application,
 
    create_actions(application);
 
+   // hack in these values for argc, argv for now
+   int argc = 0;
+   char ** argv = 0;
+   setup_python_with_coot_modules(argc, argv);
 
    // load_tutorial_model_and_data();
 }
@@ -622,6 +624,7 @@ int new_startup(int argc, char **argv) {
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
+   graphics_info.application = app;
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), NULL);
    g_application_register(G_APPLICATION(app), NULL, &error);
 

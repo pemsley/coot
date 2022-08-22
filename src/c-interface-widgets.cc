@@ -45,18 +45,13 @@
 
 #include "widget-from-builder.hh"
 
-GtkWidget *main_menubar() {
+GMenuModel *main_menubar() {
 
-   // GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "menubar1");
-
-   GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder()) { // 20220310-PE no other choice now!
-      w = graphics_info_t::get_widget_from_builder("main_window_menubar");
-      std::cout << "@@@@@@@ in main_menubar() looked up" << std::endl;
-
-   }
-   std::cout << "@@@@@@@ in main_menubar() returning " << w << std::endl;
-   return w;
+   GtkApplication *app = graphics_info_t::application;
+   GMenuModel *menubar = gtk_application_get_menubar(app);
+   // GtkWidget *w = GTK_WIDGET(menubar);
+   std::cout << "@@@@@@@ in main_menubar() returning " << menubar << std::endl;
+   return menubar;
 }
 
 GtkWidget *main_statusbar() {

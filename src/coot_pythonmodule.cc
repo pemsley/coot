@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 
 #ifdef USE_PYTHON
-#include <pygobject-3.0/pygobject.h> // not yet in GTK4
+#include <pygobject-3.0/pygobject.h>
 #endif
 
 #include "c-interface.h"
@@ -78,9 +78,9 @@ PyTypeObject *_PyGObject_Type;
 PyObject *
 _wrap_main_menubar(PyObject *self)
 {
-   GtkWidget *ret = main_menubar();
+   GMenuModel *mm = main_menubar();
    /* pygobject_new handles NULL checking */
-   GObject *o = G_OBJECT(ret);
+   GObject *o = G_OBJECT(mm);
    PyObject *pyo = pygobject_new(o);
    return pyo;
 
@@ -217,7 +217,9 @@ void
 initcoot_python_gobject() {
 
    int req_major = -1, req_minor = -1, req_micro = -1;
+// #ifdef HAVE_PYGOBJECT
    pygobject_init(req_major, req_minor, req_micro);
+// #endif
 
    if (true) {
       PyObject *o = PyInit_coot_gui_api();

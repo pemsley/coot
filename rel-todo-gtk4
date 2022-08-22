@@ -7,11 +7,13 @@ Radio buttons are gone, use check buttons instead.
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-"About Coot" is broken again  ::: 0.5
+"About Coot" is empty (was fixed in GTk3 version)  ::: 0.5
 
-"Header Browser" is broken again  ::: 0.5
+"Header Browser" is broken  ::: 0.5
 
 Make the Fast-go-to-residue dialog work. ::: 0.5
+
+How should the "model representation change" work? Ctrl Shift 2finger scroll? ::: 1.0
 
 Fix the Ctrl-drag function ::: 0.5
 
@@ -23,7 +25,7 @@ Fix "Edit Chi Angles" button ::: 1
 
 Do some more experimenting with validation graphs ::: 5
 
-Get PyGObject working with GTK4 - build vs GTK4 is needed? (Not a Coot thing) ::: 2
+Get PyGObject working with GTK4 (Not a Coot thing) ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 

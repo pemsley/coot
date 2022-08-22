@@ -545,6 +545,7 @@ class graphics_info_t {
 
    static GtkBuilder *gtkbuilder; // use this for widget lookups
    static GtkBuilder *preferences_gtkbuilder; // use this for widget lookups in the preferences dialog
+   // public static GtkApplication *application; // below. used for finding the menu bar
    //
    static GtkWidget *display_control_window_;
 
@@ -1018,6 +1019,8 @@ public:
      return r;
    }
 
+   // New-style Application!
+   static GtkApplication *application; // used for finding the menu bar
 
    // New-style gtkbuilder!
    static void set_gtkbuilder(GtkBuilder *builder) { gtkbuilder = builder; }
