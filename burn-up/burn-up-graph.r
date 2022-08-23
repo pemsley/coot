@@ -106,7 +106,7 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="Coot-1.0 GTK4 Development Progress",
+               main="GTK4 Coot-1.0 Development Progress",
                xlab="Real Days since records began (6 Aug 2022)",
                ylab="Work Done (Days)")
 

@@ -1625,12 +1625,12 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
 #if FIX_THE_KEY_PRESS_EVENTS
 
                g_signal_connect (G_OBJECT (master_occ_entry), "changed",
-                                   G_CALLBACK (graphics_info_t::on_residue_info_master_atom_occ_changed),
-                                   NULL);
+                                 G_CALLBACK (graphics_info_t::on_residue_info_master_atom_occ_changed),
+                                 NULL);
 
                g_signal_connect (G_OBJECT (master_b_factor_entry),
-                                   "changed", G_CALLBACK (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
-                                   NULL);
+                                 "changed", G_CALLBACK (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
+                                 NULL);
 #endif
 
                gtk_editable_set_text(GTK_EDITABLE(master_occ_entry), "1.0");

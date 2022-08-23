@@ -458,9 +458,43 @@ install_icons_into_theme(GtkWidget *w) {
 }
 
 
+void
+on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventControllerKey *controller,
+                                      guint                  keyval,
+                                      guint                  keycode,
+                                      guint                  modifiers,
+                                      GtkEntry              *entry) {
+   std::cout << "in on_go_to_residue_keyboarding_mode_entry_key_controller_key_released() "
+             << keycode << std::endl;
+   GtkWidget *window = widget_from_builder("keyboard_go_to_residue_window");
+
+   if (keycode == 36) {
+      std::string s = gtk_editable_get_text(GTK_EDITABLE(entry));
+      graphics_info_t g;
+      g.apply_go_to_residue_keyboading_string(s);
+      gtk_editable_set_text(GTK_EDITABLE(entry), "");
+      gtk_widget_hide(GTK_WIDGET(window));
+   }
+
+   if (keycode == 53) {
+      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_editable_set_text(GTK_EDITABLE(entry), "");
+   }
+}
 
 // in screen-utils.cc
 void setup_application_icon(GtkWindow *window);
+
+void setup_go_to_residue_keyboarding_mode_entry_signals() {
+   GtkWidget *entry = widget_from_builder("keyboard_go_to_residue_entry");
+   if (entry) {
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
+      gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
+
+   }
+}
+
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -563,7 +597,6 @@ new_startup_application_activate(GtkApplication *application,
    gtk_window_present(GTK_WINDOW(app_window));
    // gtk_widget_show(window);
 
-
    GtkWidget *gl_area = new_startup_create_glarea_widget();
    graphics_info_t::glareas.push_back(gl_area);
    gtk_widget_show(gl_area);
@@ -578,6 +611,8 @@ new_startup_application_activate(GtkApplication *application,
    setup_gestures(gl_area);
 
    create_actions(application);
+
+   setup_go_to_residue_keyboarding_mode_entry_signals();
 
    // hack in these values for argc, argv for now
    int argc = 0;
