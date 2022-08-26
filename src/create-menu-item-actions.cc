@@ -1197,6 +1197,52 @@ refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
    regularize_residue();
 }
 
+
+void
+fix_atom(GSimpleAction *simple_action,
+         GVariant *parameter,
+         gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      g.attach_buffers(); // 20220823-PE needed?
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+
+void
+unfix_atom(GSimpleAction *simple_action,
+           GVariant *parameter,
+           gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      g.attach_buffers(); // 20220823-PE needed?
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+
+void
+unfix_all_atoms(GSimpleAction *simple_action,
+                GVariant *parameter,
+                gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      g.molecules[imol].clear_all_fixed_atoms();
+   }
+}
+
+
 void
 mutate_to_type(GSimpleAction *simple_action,
                GVariant *parameter,
@@ -1429,6 +1475,12 @@ create_actions(GtkApplication *application) {
    add_action("refine_regularize_sphere",         refine_regularize_sphere);
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);
+
+   // Fix Atoms
+
+   add_action(  "fix_atom",        fix_atom);
+   add_action("unfix_atom",      unfix_atom);
+   add_action("unfix_all_atoms", unfix_all_atoms);
 
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
