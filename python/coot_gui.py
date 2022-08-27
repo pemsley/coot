@@ -36,9 +36,11 @@ import types
 import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GObject
+from gi.repository import Gio
+from gi.repository import GLib
 import coot
 import coot_utils
-import coot_gui_api # this should be imported on startup
+import coot_gui_api # this is imported on binary startup
 import acedrg_link
 import sharpen_blur
 import libcheck # bleugh
@@ -1295,11 +1297,13 @@ def generic_chooser_and_file_selector(chooser_label,
 def coot_menubar_menu(menu_label):
 
     try:
-        coot_main_menubar = coot_gui_api.main_menubar()
+        coot_main_menumodel = coot_gui_api.main_menumodel()
+        print("%%%%%% in coot_menubar_menu, coot_main_menumodel is", coot_main_menumodel)
+        # print("%%%%%% in coot_menubar_menu, dir coot_main_menumodel is", dir(coot_main_menumodel))
 
-        def menu_bar_label_list():
+        def menu_bar_label_list_old():
             ac_lab_ls = []
-            for menu_child in coot_main_menubar.get_children():
+            for menu_child in coot_main_menumodel.get_children():
                 lab = []
                 # lab is a GtkAccelLabel list
                 lab.append(menu_child.get_children()[0].get_text())
@@ -1307,25 +1311,50 @@ def coot_menubar_menu(menu_label):
                 ac_lab_ls.append(lab)
             return ac_lab_ls
 
+        def menu_bar_label_list():
+            ac_lab_ls = []
+            n = coot_main_menumodel.get_n_items()
+            print("%%%%%% in coot_menubar_menu, n_items is", n)
+            for i in range(n):
+                il = coot_main_menumodel.get_item_attribute_value(i, "label", GLib.VariantType.new("s"))
+                print(i, il)
+            return ac_lab_ls
+
         # main body
         #
+        #   found_menu = False
+        #   l = menu_bar_label_list()
+        #   print("%%%%%% in coot_menubar_menu, l is", l)
+        #   for f in l:
+        #       if menu_label.lstrip("_") in f:
+        #           # we shall return the submenu and not the menuitem
+        #           found_menu = f[1].get_submenu()
+        #   if found_menu:
+        #       return found_menu
+        #   else:
+        #       menu = Gtk.Menu()
+        #       menuitem = Gtk.MenuItem(menu_label)
+        #       menuitem.set_submenu(menu)
+        #       coot_main_menumodel.append(menuitem)
+        #       menuitem.show()
+        #       return menu
+
         found_menu = False
-        for f in menu_bar_label_list():
-            if menu_label.lstrip("_") in f:
-                # print "BL DEBUG:: found menu label is ", f
-                # we shall return the submenu and not the menuitem
-                found_menu = f[1].get_submenu()
+        n = coot_main_menumodel.get_n_items()
+        for i in range(n):
+            mmml = coot_main_menumodel.get_item_attribute_value(i, "label", GLib.VariantType.new("s"))
+            if menu_label.lstrip("_") in mmml:
+               found_menu = coot_main_menumodel.get_item(i)
+
         if found_menu:
             return found_menu
         else:
-            menu = Gtk.Menu()
-            menuitem = Gtk.MenuItem(menu_label)
-            menuitem.set_submenu(menu)
-            coot_main_menubar.append(menuitem)
-            menuitem.show()
-            return menu
-    except:
-        print("ERROR:: coot_main_menubar() an error occurs using coot_gui_api")
+            menuitem = Gio.Menu()
+            coot_main_menumodel.append(menu_label)
+            return menuitem
+
+    except KeyError as e:
+        print("ERROR:: python coot_coot_gui_api.main_menumodel() an error occurs using coot_gui_api", e)
 
 
 # Given that we have a menu (e.g. one called "Extensions") provide a
@@ -1335,13 +1364,11 @@ def coot_menubar_menu(menu_label):
 #
 def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
 
-    submenu = Gtk.Menu()  # what this for?
-    sub_menuitem = Gtk.MenuItem(menu_item_label)
-
-    menu.append(sub_menuitem)
-    sub_menuitem.show()
-
-    sub_menuitem.connect("activate", activate_function)
+   #  sub_menuitem = Gio.MenuItem()
+   #  menu.append(sub_menuitem)
+   #  sub_menuitem.show()
+   #  sub_menuitem.connect("activate", activate_function)
+   print("in add_simple_coot_menu_menuitem(() use new stye menus")
 
 
 # Make an interesting things GUI for residues of molecule number
@@ -5266,17 +5293,17 @@ def associate_pir_wih_molecule_gui(do_alignment_flag):
 
 
 def add_module_cryo_em():
-    if coot_gui_api.main_menubar():
+    if coot_gui_api.main_menumodel():
         add_module_cryo_em_gui()
 
 
 def add_module_ccp4():
-    if coot_gui_api.main_menubar():
+    if coot_gui_api.main_menumodel():
         add_module_ccp4_gui()
 
 
 def add_module_pdbe():
-   if coot_gui_api.main_menubar():
+   if coot_gui_api.main_menumodel():
       # where is this function defined now?
       add_module_pdbe_gui()
 
@@ -5332,7 +5359,7 @@ def add_module_cryo_em_gui():
             c = rf.cell(m)
             coot.set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
 
-    if coot_gui_api.main_menubar():
+    if coot_gui_api.main_menumodel():
 
         def ass_seq_assoc_seq():
             coot.assign_sequence_to_active_fragment()
@@ -5397,14 +5424,14 @@ def add_module_cryo_em_gui():
 
 
 def add_module_ccp4_gui():
-    if coot_gui_api.main_menubar():
+    if coot_gui_api.main_menumodel():
         menu = coot_menubar_menu("CCP4")
 
         add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                       lambda func: acedrg_link.acedrg_link_generation_control_window())
 
 def add_module_pdbe_gui():
-   if coot_gui_api.main_menubar():
+   if coot_gui_api.main_menumodel():
       menu = coot_menubar_menu("PDBe")
 
       # ---------------------------------------------------------------------
@@ -5472,7 +5499,7 @@ def add_module_refine():
          all_residues = coot.residues_in_chain(aa_imol, aa_chain_id)
          coot.regularize_residues(aa_imol, all_residues)
 
-   if coot_gui_api.main_menubar():
+   if coot_gui_api.main_menumodel():
       menu = coot_menubar_menu("Refine")
 
       add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)

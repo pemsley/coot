@@ -1202,10 +1202,11 @@ void
 fix_atom(GSimpleAction *simple_action,
          GVariant *parameter,
          gpointer user_data) {
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
-      graphics_info_t g;
       g.attach_buffers(); // 20220823-PE needed?
       g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here
@@ -1218,10 +1219,10 @@ unfix_atom(GSimpleAction *simple_action,
            GVariant *parameter,
            gpointer user_data) {
 
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
-      graphics_info_t g;
       g.attach_buffers(); // 20220823-PE needed?
       g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here

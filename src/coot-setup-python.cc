@@ -118,7 +118,6 @@ void setup_python_coot_module() {
 }
 
 void setup_python_with_coot_modules(int argc, char **argv) {
-
 #ifdef USE_PYTHON
 
    auto get_pythondir = [] () {
@@ -173,6 +172,10 @@ void setup_python_with_coot_modules(int argc, char **argv) {
                                     // this this is the module that wraps the glue to get
                                     // the status-bar, menu-bar etc. i.e. coot_python_api
          PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
+         
+         
+         // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
+         // idioms.
          PyImport_ImportModule("extensions");
       }
    }

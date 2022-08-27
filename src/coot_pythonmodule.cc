@@ -34,7 +34,7 @@
 #include "c-interface-gtk-widgets.h"
 #include "coot-glue.hh"
 
-PyObject * _wrap_main_menubar(PyObject *self);
+PyObject * _wrap_main_menumodel(PyObject *self);
 PyObject * _wrap_main_statusbar(PyObject *self);
 PyObject * _wrap_main_toolbar(PyObject *self);
 PyObject * _wrap_main_hbox(PyObject *self);
@@ -42,7 +42,7 @@ PyObject * _wrap_main_hbox(PyObject *self);
 // static/const?
 PyMethodDef coot_python_functions[] = {
 
-   { "main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL },
+   { "main_menubar",   (PyCFunction)_wrap_main_menumodel, METH_NOARGS, NULL },
    { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL },
    { "main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL },
    { "main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL },
@@ -76,9 +76,9 @@ PyTypeObject *_PyGObject_Type;
 // try not static
 // TMP
 PyObject *
-_wrap_main_menubar(PyObject *self)
+_wrap_main_menumodel(PyObject *self)
 {
-   GMenuModel *mm = main_menubar();
+   GMenuModel *mm = main_menumodel();
    /* pygobject_new handles NULL checking */
    GObject *o = G_OBJECT(mm);
    PyObject *pyo = pygobject_new(o);
@@ -101,11 +101,11 @@ _wrap_main_toolbar(PyObject *self)
 {
    GtkWidget *ret = main_toolbar();
    /* pygobject_new handles NULL checking */
-   std::cout << "main_toolbar(): ret " << ret << std::endl;
+   // std::cout << "main_toolbar(): ret " << ret << std::endl;
    GObject *o = G_OBJECT(ret);
-   std::cout << "main_toolbar():   o " << o << std::endl;
+   // std::cout << "main_toolbar():   o " << o << std::endl;
    PyObject *pyo = pygobject_new(o);
-   std::cout << "main_toolbar(): pyo " << pyo << std::endl;
+   // std::cout << "main_toolbar(): pyo " << pyo << std::endl;
    return pyo;
 }
 
@@ -154,7 +154,7 @@ error_out(PyObject *m) {
 }
 
 static PyMethodDef coot_gui_api_methods[] = {
-    {"main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL},
+    {"main_menumodel", (PyCFunction)_wrap_main_menumodel, METH_NOARGS, NULL},
     {"main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL},
     {"main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL},
     {"main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL},

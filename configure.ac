@@ -233,6 +233,8 @@ fi
 # goocanvas for GTK4?
 # PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0]) # not for the moment - while trying to compile vs GTK4
 
+PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+
 
 PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 

@@ -3004,33 +3004,33 @@ graphics_info_t::setup_hud_buttons() {
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() --start-- error " << err << std::endl;
 
-   std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
-             << " glareas[0] " << glareas[0] << std::endl;
+   // std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
+   //          << " glareas[0] " << glareas[0] << std::endl;
    attach_buffers();
 
    GError* error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() current GError on glarea " << error->message << std::endl;
-   else
-      std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
+   // else
+   //    std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() post attach_buffers() error " << err << std::endl;
    error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() 2 current GError on glarea " << error->message << std::endl;
-   else
-      std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
+   // else
+   //    std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
 
-   std::cout << "in setup_hud_buttons() 1 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 1 " << std::endl;
    // shader_for_hud_buttons.Use(); // 20220605-PE I don't need to do this to setup the mesh.
-   std::cout << "in setup_hud_buttons() 2 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 2 " << std::endl;
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
-   std::cout << "in setup_hud_buttons() 3 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 3 " << std::endl;
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
    // maybe mesh_for_hud_buttons.close() ?
-   std::cout << "in setup_hud_buttons() done " << std::endl;
+   // std::cout << "in setup_hud_buttons() done " << std::endl;
 }
 
 void

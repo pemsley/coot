@@ -152,9 +152,39 @@
           <attribute name="label">Shader Preferences...</attribute>
           <attribute name="action">app.show_shader_preferences_action</attribute>
         </item>
-        <item>
+        <submenu>
           <attribute name="label">Settings...</attribute>
-        </item>
+
+            <section>
+              <submenu>
+                <attribute name="label">Rotate/Translate Zone Mode...</attribute>
+                <section>
+                  <item>
+                    <attribute name="label">Rotate about Zone Centre</attribute>
+                  </item>
+                  <item>
+                    <attribute name="label">Rotate about Second-clicked Atom</attribute>
+                  </item>
+                </section>
+              </submenu>
+              <item>
+                <attribute name="label">Set Spin Speed...</attribute>
+              </item>
+              <item>
+                <attribute name="label">Nudge Centre...</attribute>
+              </item>
+              <item>
+                <attribute name="label">All Molecules use "Near Chains" Symmetry</attribute>
+              </item>
+              <item>
+                <attribute name="label">Save Graphics Window Size and Position</attribute>
+              </item>
+              <item>
+                <attribute name="label">Enable Quick-Save Checkpointing</attribute>
+              </item>
+            </section>
+
+        </submenu>
       </section>
     </submenu>
     <submenu>
@@ -164,18 +194,27 @@
           <attribute name="label">Align and Mutate...</attribute>
           <attribute name="action">app.align_and_mutate_action</attribute>
         </item>
-        <item>
+        <submenu>
           <attribute name="label">All Molecule...</attribute>
-        </item>
+          <item>
+            <attribute name="label">Fit Protein using Backrub Rotamers</attribute>
+          </item>
+        </submenu>
         <item>
           <attribute name="label">Find Ligands...</attribute>
         </item>
         <item>
           <attribute name="label">Find Waters...</attribute>
         </item>
-        <item>
+        <submenu>
           <attribute name="label">Fit Loop...</attribute>
-        </item>
+          <item>
+            <attribute name="label">Fit Loop by Database Search...</attribute>
+          </item>
+          <item>
+            <attribute name="label">Fit Loop by Ramachandran Search...</attribute>
+          </item>
+        </submenu>
         <item>
           <attribute name="label">Load Tutorial Model &amp; Data</attribute>
           <attribute name="action">app.load_tutorial_model_and_data_action</attribute>
@@ -188,11 +227,62 @@
           <attribute name="label">LSQ Superpose...</attribute>
           <attribute name="action">app.lsq_superpose_action</attribute>
         </item>
-        <item>
+
+        <submenu>
           <attribute name="label">Map Tools...</attribute>
-        </item>
+          <section>
+            <item>
+              <attribute name="label">Mask Map by Atom Selection...</attribute>
+              <attribute name="action">app.mask_map_by_atom_selection_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Copy Map...</attribute>
+              <attribute name="action">app.copy_map_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Make a Smoother Copy...</attribute>
+              <attribute name="action">app.make_a_smoother_copy_of_a_map_action</attribute>
+            </item>
+            <item>
+              <attribute name="action">app.make_a_very_smooth_copy_of_a_map_action</attribute>
+              <attribute name="label">Make a Very Smooth Copy</attribute>
+            </item>
+            <item>
+              <attribute name="label">Make a Difference Map...</attribute>
+              <attribute name="action">app.make_a_difference_map_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Transform Map by LSQ Model Fit...</attribute>
+              <attribute name="action">app.transform_map_by_lsq_model_fit_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Average Maps...</attribute>
+              <attribute name="action">app.average_maps_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Map Density Histogram [Placeholder]</attribute>
+            </item>
+            <item>
+              <attribute name="label">Brighten Maps...</attribute>
+              <attribute name="action">app.brighten_maps_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Set Map is Difference Map...</attribute>
+              <attribute name="action">app.set_map_is_difference_map_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Another Contour Level</attribute>
+              <attribute name="action">app.another_contour_level_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Multi-Chicken...</attribute>
+              <attribute name="action">app.multichicken_action</attribute>
+            </item>
+          </section>
+        </submenu>
+
         <item>
-          <attribute name="label">Map Sharpening/Blurring...</attribute>
+          <attribute name="label">x-ray Map Sharpening/Blurring...</attribute>
         </item>
         <item>
           <attribute name="label">Map Skeleton...</attribute>
@@ -200,15 +290,64 @@
         <item>
           <attribute name="label">Modelling...</attribute>
         </item>
-        <item>
+        <submenu>
           <attribute name="label">Modules...</attribute>
-        </item>
-        <item>
+            <item>
+              <attribute name="label">CCP4</attribute>
+              <attribute name="action">app.add_ccp4_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Carbohydroge</attribute>
+              <attribute name="action">app.add_carbohydrate_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Cryo-EM</attribute>
+              <attribute name="action">app.add_cryo_em_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">ProSMART</attribute>
+              <attribute name="action">app.add_prosmart_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Restraints</attribute>
+              <attribute name="action">app.add_restraints_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Refine</attribute>
+              <attribute name="action">app.add_refine_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">SHELX</attribute>
+              <attribute name="action">app.add_shelx_module_action</attribute>
+            </item>
+        </submenu>
+
+        <submenu>
           <attribute name="label">NCS Model Tools...</attribute>
-        </item>
+          <item>
+            <attribute name="label">Copy NCS Residue Range</attribute>
+            <attribute name="action">app.copy_ncs_residue_range_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Copy NCS Chain...</attribute>
+            <attribute name="action">app.copy_ncs_chain_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute>
+            <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">NCS Jumping...</attribute>
+            <attribute name="action">app.ncs_jumping_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">NCS Ligands...</attribute>
+            <attribute name="action">app.ncs_ligands_action</attribute>
+          </item>
+        </submenu>
+
         <item>
           <attribute name="label">Other Modelling Tools...</attribute>
-          <!-- <attribute name="action">app.on_calculate_ncs_tools_action</attribute> -->
           <attribute name="action">app.other_modelling_tools_action</attribute>
         </item>
         <item>
@@ -217,15 +356,14 @@
         </item>
 
         <submenu>
-                <attribute name="label">Scripting...</attribute>
-              <item>
-                <attribute name="label">Python...</attribute>
-                <attribute name="action">app.scripting_python_action</attribute>
-              </item>
-              <!-- <item> -->
-              <!--   <attribute name="label">Scheme</attribute> -->
-              <!--   <attribute name="action">app.scripting_scheme</attribute> -->
-              <!-- </item> -->
+          <attribute name="label">Scripting...</attribute>
+          <item>
+            <attribute name="label">Python...</attribute>
+            <attribute name="action">app.scripting_python_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Scheme</attribute>
+          </item>
         </submenu>
 
         <item>
@@ -236,8 +374,11 @@
           <attribute name="label">Updating Maps...</attribute>
           <attribute name="action">app.calculate_updating_maps_action</attribute>
         </item>
+
       </section>
     </submenu>
+
+
     <submenu>
       <attribute name="label">Draw</attribute>
       <section>
@@ -7508,18 +7649,12 @@ Nucleotide Builder
     <child>
       <object class="GtkBox" id="dialog-vbox89">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="other_modelling_tools_close_button">
-                <property name="label" translatable="yes">   Close   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_other_modelling_tools_close_button_clicked" swapped="no"/>
-              </object>
-        </child>
+
         <child>
           <object class="GtkFrame" id="frame160">
             <child>
               <object class="GtkBox" id="vbox163">
+                <property name="spacing">4</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkButton" id="model_refine_dialog_find_ligands_button">
@@ -7589,6 +7724,20 @@ Nucleotide Builder
             </child>
           </object>
         </child>
+
+        <child type="action">
+          <object class="GtkButton" id="other_modelling_tools_close_button">
+            <property name="label" translatable="yes">   Close   </property>
+            <property name="can-focus">1</property>
+            <property name="use-underline">1</property>
+            <signal name="clicked" handler="on_other_modelling_tools_close_button_clicked" swapped="no"/>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+
       </object>
     </child>
     <action-widgets>

@@ -45,12 +45,12 @@
 
 #include "widget-from-builder.hh"
 
-GMenuModel *main_menubar() {
+GMenuModel *main_menumodel() {
 
    GtkApplication *app = graphics_info_t::application;
    GMenuModel *menubar = gtk_application_get_menubar(app);
    // GtkWidget *w = GTK_WIDGET(menubar);
-   std::cout << "@@@@@@@ in main_menubar() returning " << menubar << std::endl;
+   std::cout << "@@@@@@@ in main_menumodel() returning " << menubar << std::endl;
    return menubar;
 }
 
@@ -65,11 +65,11 @@ GtkWidget *main_toolbar() {
    GtkWidget *w = 0;
    if (graphics_info_t::gui_from_gtkbuilder()) { // 20220310-PE no other choice now!
       w = graphics_info_t::get_widget_from_builder("main_window_toolbar_hbox");
-      std::cout << "@@@@@@@ in main_toolbar() looked up " << w << std::endl;
+      // std::cout << "@@@@@@@ in main_toolbar() looked up " << w << std::endl;
    } else {
       std::cout << "not gui from builder" << std::endl;
    }
-   std::cout << "@@@@@@@ in main_toolbar() returning " << w << std::endl;
+   // std::cout << "@@@@@@@ in main_toolbar() returning " << w << std::endl;
    return w;
 }
 

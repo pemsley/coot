@@ -214,8 +214,13 @@ AM_CFLAGS = \
 # get this from configure
 # /Users/pemsley/python-3.8/lib/python3.8/site-packages/PyGObject-3.36.1-py3.8-macosx-11.5-x86_64.egg/include/pygobject-3.0/pygobject.h
 # /Users/pemsley/test/ccp4-20210929/include/pygobject-3.0/pygobject.h
-PYGOBJECT_CFLAGS=-I$(HOME)/python-3.8/lib/python3.8/site-packages/PyGObject-3.36.1-py3.8-macosx-11.5-x86_64.egg/include
+# PYGOBJECT_CFLAGS=-I$(HOME)/python-3.8/lib/python3.8/site-packages/PyGObject-3.36.1-py3.8-macosx-11.5-x86_64.egg/include
 
+# the value from pkgconfig is wrong: -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/home/paule/autobuild/Linux-penelope-gtk4/include/pygobject-3.0'
+# the include files are not there. Use python3 install_headers to instal the headers
+#                  
+# MyPyGObject_CFLAGS=-I/home/paule/autobuild/Linux-penelope-gtk4/lib/python3.9/site-packages/PyGObject-3.42.2-py3.9-linux-x86_64.egg/include
+MyPyGObject_CFLAGS=-I$(pyexecdir)/PyGObject-3.42.2-py3.9-linux-x86_64.egg/include
 
 
 AM_CXXFLAGS = \
@@ -230,7 +235,7 @@ AM_CXXFLAGS = \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
-        $(PYGOBJECT_CFLAGS)     \
+        $(MyPyGObject_CFLAGS)   \
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)	\
 	$(COOT_WINDOWS_CFLAGS) 	\

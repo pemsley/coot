@@ -402,7 +402,7 @@ if True:
            except KeyError as e:
              pass
 
-    if coot_gui_api.main_menubar():
+    if coot_gui_api.main_menumodel():
 
         def make_quick_test_validation_dialog_func():
             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -413,6 +413,7 @@ if True:
                 post_manipulation_script = emit_update_button_clicked_script
 
         menu = coot_gui.coot_menubar_menu("Validate")
+        print("%%% debug in top level of dynamic_atom_overlaps_and_other_outliers menu:", menu)
         coot_gui.add_simple_coot_menu_menuitem(menu, "Overlaps, Peptides, CBeta, Rama & Rota Outliers",
                                                lambda func: make_quick_test_validation_dialog_func())
 

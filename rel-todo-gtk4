@@ -19,11 +19,17 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 
 Fix the Ctrl-drag function ::: 0.5
 
+Fix the Map Parameters dialog widgets ::: 2
+
 Fix "Edit Chi Angles" button ::: 1
 
 Do some more experimenting with validation graphs ::: 5
 
 Enable the command line (e.g. --pdb and others) ::: 2
+
+Enable splash screen: 1
+
+Key-binding for "clear all atom labels"
 
 Fix "Rotamers" button ::: 1
 
@@ -31,6 +37,8 @@ Consider using double-click to do go to blob.  Where does "label atom" go then? 
 (pressing "G" on the keyboard is not intuitive).
 
 Full-fat render path ::: 4
+
+Add "Repeat previous zone" to refinement menu items.
 
 Can you make the rotamer dialog be an overlay? Not important.
 
