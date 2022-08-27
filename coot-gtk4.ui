@@ -49,6 +49,10 @@
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
           <attribute name="action">app.fetch_pdb_and_map_using_pdb_redo_action</attribute>
         </item>
+        <item>
+          <attribute name="label">Fetch PDBe Ligand Description</attribute>
+          <attribute name="action">app.fetch_pdbe_ligand_description_action</attribute>
+        </item>
       </section>
       <section>
         <item>
@@ -99,6 +103,10 @@
       <attribute name="label">Edit</attribute>
       <section>
         <item>
+          <attribute name="label">Add Header Link...</attribute>
+          <attribute name="action">app.make_link_action</attribute> 
+        </item>
+        <item>
           <attribute name="label">Change Chain IDs...</attribute>
           <attribute name="action">app.change_chain_ids_action</attribute>
         </item>
@@ -111,8 +119,20 @@
           <attribute name="action">app.copy_molecule_fragment_action</attribute>
         </item>
         <item>
+          <attribute name="label">Fix Nomenclature Errors...</attribute>
+          <attribute name="action">app.fix_nomenclature_errors_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Invert this Chiral Centre</attribute>
+          <attribute name="action">app.invert_this_chiral_centre_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Merge Molecules...</attribute>
           <attribute name="action">app.merge_molecules_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Merge Water Chains...</attribute>
+          <attribute name="action">app.merge_water_chains_action</attribute>
         </item>
         <item>
           <attribute name="label">Move Molecule Here...</attribute>
@@ -287,9 +307,6 @@
         <item>
           <attribute name="label">Map Skeleton...</attribute>
         </item>
-        <item>
-          <attribute name="label">Modelling...</attribute>
-        </item>
         <submenu>
           <attribute name="label">Modules...</attribute>
             <item>
@@ -374,10 +391,105 @@
           <attribute name="label">Updating Maps...</attribute>
           <attribute name="action">app.calculate_updating_maps_action</attribute>
         </item>
+        <item>
+          <attribute name="label">Use ClustalW for Alignment then Mutate</attribute>
+          <attribute name="action">app.use_clustalw_for_alignment_then_mutate_action</attribute>
+        </item>
 
+        <submenu>
+          <attribute name="label">Assign Sequence...</attribute>
+          <item>
+            <attribute name="label">1: Associate Sequence File...</attribute>
+            <attribute name="action">app.associate_sequence_file_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">2: Assign Sequence</attribute>
+            <attribute name="action">app.assign_sequence_action</attribute>
+          </item>
+        </submenu>
       </section>
     </submenu>
 
+    <submenu>
+      <attribute name="label">Modelling</attribute>
+        <item>
+          <attribute name="label">Add Hydrogen Atoms</attribute>
+          <attribute name="action">app.add_hydrogen_atoms_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Add Hydrogen Atoms Using REFMAC</attribute>
+          <attribute name="action">app.add_hydrogen_atoms_using_refmac_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Add Other Solvent Molecules</attribute>
+          <attribute name="action">app.add_other_solvent_molecules_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Arrange Waters Around Protein</attribute>
+          <attribute name="action">app.arrange_waters_around_protein_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Assign (Force) HETATMs for this Residue</attribute>
+          <attribute name="action">app.assign_hetatms_for_this_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Assign HETATMs to Molecule...</attribute>
+          <attribute name="action">app.assign_hetatoms_to_molecule_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Backrub Rotamers for Chain</attribute>
+          <attribute name="action">app.backrub_rotamers_for_chain_action</attribute>
+        </item>
+        <submenu>
+          <attribute name="label">Find Secondary Structure in Map...</attribute>
+          <item>
+            <attribute name="label">Find Helices</attribute>
+            <attribute name="action">app.find_helices_in_map_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Find Strands</attribute>
+            <attribute name="action">app.find_strands_in_map_action</attribute>
+          </item>
+        </submenu>
+        <item>
+          <attribute name="label">Fill Partial Residues</attribute>
+          <attribute name="action">app.fill_partial_resiudes_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Phosphorylate This Residue</attribute>
+          <attribute name="action">app.phosphorylate_this_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Rebuild Fragment using DBLoop (Small)</attribute>
+          <attribute name="action">app.rebuild_fragment_using_dbloop_action</attribute>
+          <attribute name="target">small</attribute>
+        </item>
+        <item>
+          <attribute name="label">Rebuild Fragment using DBLoop (bigger)</attribute>
+          <attribute name="action">app.rebuild_fragment_using_dbloop_action</attribute>
+          <attribute name="target">bigger</attribute>
+        </item>
+        <item>
+          <attribute name="label">Replace Residue</attribute>
+          <attribute name="action">app.replace_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Rigid-Body Fit Residue Ranges</attribute>
+          <attribute name="action">app.rigid_body_fit_residue_ranges_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Rigid-Body Fit Molecule</attribute>
+          <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Superpose Ligands...</attribute>
+          <attribute name="action">app.superpose_ligands_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Symm Shift Reference Chain Here</attribute>
+          <attribute name="action">app.symm_shift_reference_chain_here_action</attribute>
+        </item>
+    </submenu>
 
     <submenu>
       <attribute name="label">Draw</attribute>
@@ -394,6 +506,19 @@
           <attribute name="label">Bond Parameters...</attribute>
           <attribute name="action">app.bond_parameters_action</attribute>
         </item>
+
+        <submenu>
+          <attribute name="label">Carbon Colours</attribute>
+          <item>
+            <attribute name="label">Grey Carbon Colours</attribute>
+            <attribute name="action">app.grey_carbon_colours</attribute>
+          </item>
+          <item>
+            <attribute name="label">Coloured Carbon Colours</attribute>
+            <attribute name="action">app.coloured_carbon_colours</attribute>
+          </item>
+        </submenu>
+
         <!-- this does not belong here - move this configuration into preferences -->
         <!-- <item> -->
         <!--   <attribute name="label">Centre Atom Label...</attribute> -->
@@ -448,9 +573,9 @@
           <attribute name="label">NCS Ghost Control...</attribute>
           <attribute name="action">app.ghost_control_action</attribute>
         </item>
-        <item>
+        <submenu>
           <attribute name="label">Representation Tools...</attribute>
-        </item>
+        </submenu>
 
         <section>
              <submenu>
@@ -466,6 +591,22 @@
             </submenu>
         </section>
 
+        <item>
+          <attribute name="label">Residue Type Selection</attribute>
+          <attribute name="action">app.residue_type_selection_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Residues With Alt Confs...</attribute>
+          <attribute name="action">app.residue_with_alt_confs_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Residues With cis-Peptides...</attribute>
+          <attribute name="action">app.residue_with_cis_peptides_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Residues With Missing Atoms...</attribute>
+          <attribute name="action">app.residue_with_missing_atoms_action</attribute>
+        </item>
         <item>
           <attribute name="label">Spin View</attribute>
           <attribute name="action">app.spin_view_action</attribute>
@@ -542,6 +683,22 @@
       <attribute name="label">Validate</attribute>
       <section>
         <item>
+          <attribute name="label">Alignment vs Reference PIR</attribute>
+          <attribute name="action">app.alignment_vs_pir_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Atoms with Zero Occupancies...</attribute>
+          <attribute name="action">app.atoms_with_zero_occupancies_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Atom Overlaps</attribute>
+          <attribute name="action">app.atoms_overlaps_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Atom-Atom Contact Dots (Molprobity)</attribute>
+          <attribute name="action">app.all_atom_contact_dots_molprobity_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Check/Delete Waters...</attribute>
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
@@ -552,6 +709,14 @@
         <item>
           <attribute name="label">Difference Map Peaks...</attribute>
           <attribute name="action">app.difference_map_peaks_item_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Highly Coordinated Waters</attribute>
+          <attribute name="action">app.highly_coordinates_waters_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Pepflips Using Difference Map </attribute>
+          <attribute name="action">app.pepflips_using_difference_map_action</attribute>
         </item>
         <item>
           <attribute name="label">Geometry analysis...</attribute>
@@ -583,6 +748,10 @@
           <attribute name="action">app.peptide_omega_analysis_item_action</attribute>
         </item>
         <item>
+          <attribute name="label">Overlaps, Peptides, CBeta, Rama &amp; Rota Outliers</attribute>
+          <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Pukka Puckers...</attribute>
           <attribute name="action">app.pukka_puckers_item_action</attribute>
         </item>
@@ -603,8 +772,16 @@
           <attribute name="action">app.temp_factor_variance_analysis_item_action</attribute>
         </item>
         <item>
+          <attribute name="label">Refmac Log Validation</attribute>
+          <attribute name="action">app.refmac_log_validation_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Unmodelled blobs...</attribute>
           <attribute name="action">app.unmodelled_blobs_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Validation Outliers</attribute>
+          <attribute name="action">app.validation_outliers_action</attribute>
         </item>
       </section>
     </submenu>
@@ -716,7 +893,7 @@
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Residue</attribute>
         <attribute name="action">app.delete_item</attribute>
-        <attribute name="target">hdyrogen-atoms</attribute>
+        <attribute name="target">hdyrogen-atoms-in-residue</attribute> <!-- this target was changed -->
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue</attribute>
@@ -732,6 +909,11 @@
         <attribute name="label" translatable="yes">Chain</attribute>
         <attribute name="action">app.delete_item</attribute>
         <attribute name="target">chain</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">hdyrogen-atoms-in-molecule</attribute>
       </item>
    </section>
   </menu>
