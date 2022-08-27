@@ -33,12 +33,14 @@ Key-binding for "clear all atom labels"
 
 Fix "Rotamers" button ::: 1
 
+Get R/RC overlay dialog working  ::: 1
+
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
 (pressing "G" on the keyboard is not intuitive).
 
 Full-fat render path ::: 4
 
-Add "Repeat previous zone" to refinement menu items.
+Add "Repeat previous zone" to refinement menu items. ::: 0.4
 
 Can you make the rotamer dialog be an overlay? Not important.
 
@@ -46,17 +48,54 @@ Make the Fast-go-to-residue dialog be an overlay? ::: 1
 
 Do the tutorial from time to time - what's missing? ::: 6
 
+Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
+
+Find Somewhere for "Choose Undo Molecule" ::: 1
+
+Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+
+Dotted Surface ::: 1
+
+HOLE ::: 1
+
+Views ::: 1
+
+RCrane - Make this a Module ::: 2
+
+Find a home for New molecule by sphere ::: 1
+
+Find a home for New molecule by symmetry op ::: 1
+
+Make the Ligand Menu a module ::: 1
+
+Low Priority: 3D Annotations ::: 3
+
+Other Modelling tools should be in the menu ::: 2
+
+rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
+
+Think of a way to start-up with certain modules on (in Preferences) ::: 2
+
 Low Priority: think how to put the "Display Manager" into the main window ::: 6
 
 Low Priority: history searching on python window up-arrow ::: 1
 
+Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me a nice progress bar ::: 4
+
 Low Priority: How can I make a flatpak for Coot?
 
+Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
+
+---- "Do they need to work?" items -----
+
+Map Skeletonization
+User-defined menus in Python - connected via coot_main_menumodel.
+
+---- Other items -----
+
 [Reminder to Garib about N3 NR6 next week.]
-
-[Stacking interaction NBC are not normal NBCs - they should/could be treated differenctly - Garib.]
-
-[Numbers for beta-14 - what is the literature say? what are the reasonable numbers from 2qc1?]
+[Stacking interaction NBC are not normal NBCs - they should/could be treated differently - Garib.]
+[Numbers for beta-14 torsions what does the literature say? what are the reasonable numbers from 2qc1?]
 
 --- Done Items ---
 
