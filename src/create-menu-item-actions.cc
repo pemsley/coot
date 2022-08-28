@@ -680,6 +680,151 @@ use_clustalw_for_alignment_then_mutate_action(G_GNUC_UNUSED GSimpleAction *simpl
 
 
 void
+mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void
+copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+average_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+brighten_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+set_map_is_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+another_contour_level_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+multichicken_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+copy_ncs_residue_range_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+copy_ncs_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+ncs_jumping_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_cryo_em_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+
+
+void
+associate_sequence_file_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+assign_sequence_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
 lsq_superpose_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
@@ -1481,9 +1626,46 @@ create_actions(GtkApplication *application) {
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
+
+   add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);
    add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
 
-   add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
+   // Calculate -> Map Tools
+
+   add_action(                        "copy_map_action",                         copy_map_action);
+   add_action(                    "average_maps_action",                     average_maps_action);
+   add_action(                    "multichicken_action",                     multichicken_action);
+   add_action(                   "brighten_maps_action",                    brighten_maps_action);
+   add_action(           "another_contour_level_action",            another_contour_level_action);
+   add_action(           "make_a_difference_map_action",            make_a_difference_map_action);
+   add_action(       "set_map_is_difference_map_action",        set_map_is_difference_map_action);
+   add_action(      "mask_map_by_atom_selection_action",       mask_map_by_atom_selection_action);
+   add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
+   add_action(   "make_a_smoother_copy_of_a_map_action",    make_a_smoother_copy_of_a_map_action);
+   add_action("make_a_very_smooth_copy_of_a_map_action", make_a_very_smooth_copy_of_a_map_action);
+
+   // Calculate -> Modules
+
+   add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
+   add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
+   add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
+   add_action(    "add_prosmart_module_action",     add_prosmart_module_action);
+   add_action(      "add_rcrane_module_action",       add_rcrane_module_action);
+   add_action(  "add_restraints_module_action",   add_restraints_module_action);
+   add_action(      "add_refine_module_action",       add_refine_module_action);
+   add_action(       "add_shelx_module_action",        add_shelx_module_action);
+
+   // Calculate -> NCS
+
+   add_action("copy_ncs_residue_range_action", copy_ncs_residue_range_action);
+   add_action(        "copy_ncs_chain_action",         copy_ncs_chain_action);
+   add_action(           "ncs_jumping_action",            ncs_jumping_action);
+   add_action(           "ncs_ligands_action",            ncs_ligands_action);
+
+   // Calculate -> Assign Sequnence
+
+   add_action("associate_sequence_file_action", associate_sequence_file_action);
+   add_action(        "assign_sequence_action",         assign_sequence_action);
 
    // Draw
 

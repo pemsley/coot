@@ -314,7 +314,7 @@
               <attribute name="action">app.add_ccp4_module_action</attribute>
             </item>
             <item>
-              <attribute name="label">Carbohydroge</attribute>
+              <attribute name="label">Carbohydrate</attribute>
               <attribute name="action">app.add_carbohydrate_module_action</attribute>
             </item>
             <item>
@@ -324,6 +324,10 @@
             <item>
               <attribute name="label">ProSMART</attribute>
               <attribute name="action">app.add_prosmart_module_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">RCrane</attribute>
+              <attribute name="action">app.add_rcrane_module_action</attribute>
             </item>
             <item>
               <attribute name="label">Restraints</attribute>
@@ -349,10 +353,10 @@
             <attribute name="label">Copy NCS Chain...</attribute>
             <attribute name="action">app.copy_ncs_chain_action</attribute>
           </item>
-          <item>
-            <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute>
-            <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute>
-          </item>
+          <!-- <item> -->
+          <!--   <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute> -->
+          <!--   <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute> -->
+          <!-- </item> -->
           <item>
             <attribute name="label">NCS Jumping...</attribute>
             <attribute name="action">app.ncs_jumping_action</attribute>
