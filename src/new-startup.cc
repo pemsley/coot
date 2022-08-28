@@ -632,15 +632,13 @@ int new_startup(int argc, char **argv) {
       if (true) {
          setup_python_basic(argc, argv);
          setup_python_coot_module();
+
          // this needs the gtkbuilder to have read the ui file
          // because it needs to look up  the coot_main_window
          // and main_toolbar and main_hbox and main_statusbar.
          // setup_python_with_coot_modules(argc, argv);
+         // So it is done in new_startup_application_activate().
 
-         // 20220807-PE now test if that worked.
-         // std::cout << "calling run_script()" << std::endl;
-         // run_script("test_script.py");
-         // std::cout << "done run_script()" << std::endl;
       }
    };
 

@@ -28,7 +28,9 @@ import string
 import numbers
 import coot
 import coot_gui # circular dependency
-from redefine_functions import *
+from redefine_functions import * # 20220828-PE this needs fixing
+
+print("coot_utils.py says hello")
 
 # hack this in for now
 global use_gui_qm

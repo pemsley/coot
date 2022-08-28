@@ -317,6 +317,8 @@ fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    gtk_widget_show(window);
 }
 
+#include "cc-interface-scripting.hh"  // move this up                     
+
 void
 fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
@@ -330,6 +332,12 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string comp_id = m.get_residue_name(res_spec);
       // python-function: coot_utils.get_SMILES_for_comp_id_from_pdbe arg: comp_id
       std::cout << "run python function coot_utils.get_SMILES_for_comp_id_from_pdbe " << comp_id << std::endl;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(comp_id) };
+      std::string sc = g.state_command("coot_utils", "get_SMILES_for_comp_id_from_pdbe", args, lang);
+      std::cout << ":::::::::::::::::::::: python command: " << sc << std::endl;
+      safe_python_command("import coot_utils"); // Hack. This has already happened, but python has forgotten.
+      safe_python_command(sc);
    }
 }
 

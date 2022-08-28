@@ -930,6 +930,38 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
    return command;
 }
 
+// 20220828-PE Let's pass the module information
+std::string
+graphics_info_t::state_command(const std::string &module, const std::string &func_name,
+                               const std::vector<coot::command_arg_t> &args, short int state_lang) const {
+
+   std::string command;
+
+   if (state_lang == coot::STATE_SCM) {
+      std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
+   }
+
+   if (state_lang == coot::STATE_PYTHON) {
+      if (! module.empty())
+         command = module + std::string(".");
+      command += func_name;
+      command += "(";
+      for (unsigned int i=0; i<args.size(); i++) {
+         if (i == args.size() -1) {
+            // no comma needed
+            command += args[i].as_string();
+         } else {
+            command += args[i].as_string();
+            command += ", ";
+         }
+      }
+      command += ")";
+   }
+
+   return command;
+}
+
+
 // Return success status.
 //
 short int

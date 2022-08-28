@@ -1423,6 +1423,10 @@ public:
    // state_command (now public, it's called from c-interface-build (mutate sequence)
    //
    std::string state_command(const std::vector<std::string> &str, short int state_lang) const;
+   //
+   // 20220828-PE Let's pass the module information
+   std::string state_command(const std::string &module, const std::string &func_name,
+                             const std::vector<coot::command_arg_t> &args, short int state_lang) const;
 
    // esoteric depth cue on/off  (on by default)
    static int esoteric_depth_cue_flag;
