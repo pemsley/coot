@@ -1442,6 +1442,50 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_use_perspective_projection(1);
 }
 
+void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residue_type_selection action" << std::endl;
+
+}
+
+void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with alt confs action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
+}
+
+void residues_with_cis_peptides_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with cis peptides action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
+}
+
+void residues_with_missing_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with missing atoms action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
+}
+
 #include "rsr-functions.hh"
 
 void
@@ -1824,6 +1868,11 @@ create_actions(GtkApplication *application) {
    add_action(        "rock_view_action",         rock_view_action);
    add_action( "perspective_view_action",  perspective_view_action);
    add_action("orthographic_view_action", orthographic_view_action);
+
+   add_action(     "residue_type_selection_action",      residue_type_selection_action);
+   add_action(    "residues_with_alt_confs_action",     residues_with_alt_confs_action);
+   add_action( "residues_with_cis_peptides_action",  residues_with_cis_peptides_action);
+   add_action("residues_with_missing_atoms_action", residues_with_missing_atoms_action);
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);

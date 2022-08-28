@@ -497,92 +497,31 @@
 
     <submenu>
       <attribute name="label">Draw</attribute>
-      <section>
-        <item>
-          <attribute name="label">Background Colour...</attribute>
-          <attribute name="action">app.background_colour_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Bond Colours...</attribute>
-          <attribute name="action">app.bond_colours_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Bond Parameters...</attribute>
-          <attribute name="action">app.bond_parameters_action</attribute>
-        </item>
-
-        <submenu>
-          <attribute name="label">Carbon Colours</attribute>
-          <item>
-            <attribute name="label">Grey Carbon Colours</attribute>
-            <attribute name="action">app.grey_carbon_colours</attribute>
-          </item>
-          <item>
-            <attribute name="label">Coloured Carbon Colours</attribute>
-            <attribute name="action">app.coloured_carbon_colours</attribute>
-          </item>
-        </submenu>
-
-        <!-- this does not belong here - move this configuration into preferences -->
-        <!-- <item> -->
-        <!--   <attribute name="label">Centre Atom Label...</attribute> -->
-        <!--   <attribute name="action">app.on_draw_cente__action</attribute> -->
-        <!-- </item> -->
-        <item>
-          <attribute name="label">Cell &amp; Symmetry...</attribute>
-          <attribute name="action">app.draw_cell_and_symmetry_action</attribute>
-        </item>
-        <!-- this does not belong here - move this configuration into preferences -->
-        <!-- <item> -->
-        <!--   <attribute name="label">Central Atom Label...</attribute> -->
-        <!--   <attribute name="action">app.draw_central_atom_label_action</attribute> -->
-        <!-- </item> -->
-        <item>
-          <attribute name="label">Display Only Active</attribute>
-          <attribute name="action">app.display_only_active_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Frames/Sec...</attribute>
-          <attribute name="action">app.toggle_display_frames_per_second_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Fullscreen</attribute>
-          <attribute name="action">app.fullscreen_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Generic Display Objects...</attribute>
-          <attribute name="action">app.generic_objects_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Go To Atom...</attribute>
-          <attribute name="action">app.go_to_atom_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Label Atoms in Residue</attribute>
-          <attribute name="action">app.label_atoms_in_residue_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Label CAs</attribute>
-          <attribute name="action">app.label_CA_atoms_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Label Neighbours</attribute>
-          <attribute name="action">app.label_neighbours_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Map Parameters...</attribute>
-          <attribute name="action">app.map_parameters_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">NCS Ghost Control...</attribute>
-          <attribute name="action">app.ghost_control_action</attribute>
-        </item>
-        <submenu>
-          <attribute name="label">Representation Tools...</attribute>
-        </submenu>
-
+      <submenu>
+        <attribute name="label">View</attribute>
         <section>
-             <submenu>
+          <item>
+            <attribute name="label">Background Colour...</attribute>
+            <attribute name="action">app.background_colour_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Display Only Active</attribute>
+            <attribute name="action">app.display_only_active_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Frames/Sec...</attribute>
+            <attribute name="action">app.toggle_display_frames_per_second_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Fullscreen</attribute>
+            <attribute name="action">app.fullscreen_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Generic Display Objects...</attribute>
+            <attribute name="action">app.generic_objects_action</attribute>
+          </item>
+          <section>
+            <submenu>
               <attribute name="label">Projection...</attribute>
               <item>
                 <attribute name="label">Orthographic</attribute>
@@ -593,65 +532,132 @@
                 <attribute name="action">app.perspective_view_action</attribute>
               </item>
             </submenu>
+          </section>
+          <item>
+            <attribute name="label">Screenshot</attribute>
+            <attribute name="action">app.screenshot_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Spin View</attribute>
+            <attribute name="action">app.spin_view_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Rock View</attribute>
+            <attribute name="action">app.rock_view_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Undo Last Navigation</attribute>
+            <attribute name="action">app.undo_last_navigation_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Undo Symmetry View</attribute>
+            <attribute name="action">app.undo_symmetry_view_action</attribute>
+          </item>
         </section>
+      </submenu>
 
-        <item>
-          <attribute name="label">Residue Type Selection</attribute>
-          <attribute name="action">app.residue_type_selection_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Residues With Alt Confs...</attribute>
-          <attribute name="action">app.residue_with_alt_confs_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Residues With cis-Peptides...</attribute>
-          <attribute name="action">app.residue_with_cis_peptides_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Residues With Missing Atoms...</attribute>
-          <attribute name="action">app.residue_with_missing_atoms_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Spin View</attribute>
-          <attribute name="action">app.spin_view_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Rock View</attribute>
-          <attribute name="action">app.rock_view_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ribbons: By Chain</attribute>
-          <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ribbons: Rainbow</attribute>
-          <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ribbons: Sec. Struct.</attribute>
-          <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Screenshot</attribute>
-          <attribute name="action">app.screenshot_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Sequence View</attribute>
-          <attribute name="action">app.sequence_view_action</attribute>
-        </item>
-        <!-- reactivate this one day hopefully -->
-        <!-- <item> -->
-        <!--   <attribute name="label">Stereo...</attribute> -->
-        <!-- </item> -->
-        <item>
-          <attribute name="label">Undo Last Navigation</attribute>
-          <attribute name="action">app.undo_last_navigation_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Undo Symmetry View</attribute>
-          <attribute name="action">app.undo_symmetry_view_action</attribute>
-        </item>
-      </section>
+      <submenu>
+        <attribute name="label">Molecules</attribute>
+        <section>
+          <item>
+            <attribute name="label">Bond Colours...</attribute>
+            <attribute name="action">app.bond_colours_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Bond Parameters...</attribute>
+            <attribute name="action">app.bond_parameters_action</attribute>
+          </item>
+
+          <submenu>
+            <attribute name="label">Carbon Colours</attribute>
+            <item>
+              <attribute name="label">Grey Carbon Colours</attribute>
+              <attribute name="action">app.grey_carbon_colours</attribute>
+            </item>
+            <item>
+              <attribute name="label">Coloured Carbon Colours</attribute>
+              <attribute name="action">app.coloured_carbon_colours</attribute>
+            </item>
+          </submenu>
+
+          <!-- this does not belong here - move this configuration into preferences -->
+          <!-- <item> -->
+          <!--   <attribute name="label">Centre Atom Label...</attribute> -->
+          <!--   <attribute name="action">app.on_draw_cente__action</attribute> -->
+          <!-- </item> -->
+          <item>
+            <attribute name="label">Cell &amp; Symmetry...</attribute>
+            <attribute name="action">app.draw_cell_and_symmetry_action</attribute>
+          </item>
+          <!-- this does not belong here - move this configuration into preferences -->
+          <!-- <item> -->
+          <!--   <attribute name="label">Central Atom Label...</attribute> -->
+          <!--   <attribute name="action">app.draw_central_atom_label_action</attribute> -->
+          <!-- </item> -->
+          <item>
+            <attribute name="label">Go To Atom...</attribute>
+            <attribute name="action">app.go_to_atom_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Label Atoms in Residue</attribute>
+            <attribute name="action">app.label_atoms_in_residue_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Label CAs</attribute>
+            <attribute name="action">app.label_CA_atoms_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Label Neighbours</attribute>
+            <attribute name="action">app.label_neighbours_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Map Parameters...</attribute>
+            <attribute name="action">app.map_parameters_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">NCS Ghost Control...</attribute>
+            <attribute name="action">app.ghost_control_action</attribute>
+          </item>
+
+          <item>
+            <attribute name="label">Residue Type Selection</attribute>
+            <attribute name="action">app.residue_type_selection_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Residues With Alt Confs...</attribute>
+            <attribute name="action">app.residues_with_alt_confs_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Residues With cis-Peptides...</attribute>
+            <attribute name="action">app.residues_with_cis_peptides_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Residues With Missing Atoms...</attribute>
+            <attribute name="action">app.residues_with_missing_atoms_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Ribbons: By Chain</attribute>
+            <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Ribbons: Rainbow</attribute>
+            <attribute name="action">app.ribbons_colour_rainbow_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Ribbons: Sec. Struct.</attribute>
+            <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Sequence View</attribute>
+            <attribute name="action">app.sequence_view_action</attribute>
+          </item>
+          <!-- reactivate this one day hopefully -->
+          <!-- <item> -->
+          <!--   <attribute name="label">Stereo...</attribute> -->
+          <!-- </item> -->
+        </section>
+      </submenu>
+
     </submenu>
     <submenu>
       <attribute name="label">Measures</attribute>
