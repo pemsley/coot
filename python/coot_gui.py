@@ -922,9 +922,14 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
 
     window = Gtk.Window(title="Molecule Chooser")
     window.set_title('Coot: Molecule Chooser')
-    label = Gtk.Label(chooser_label)
-    vbox = Gtk.VBox(False, 6)
-    hbox_buttons = Gtk.HBox(False, 5)
+    label = Gtk.Label()
+    label.set_label(chooser_label)
+    # vbox = Gtk.VBox(False, 6)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox.set_spacing(6)
+    # hbox_buttons = Gtk.HBox(False, 5)
+    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_buttons.set_spacing(6)
 
     # -------- replacing an option menu of molecules: here's how to do it --------------
     #          (also see the on_ok_button_clicked callback)
@@ -937,31 +942,30 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
         combobox.set_active(0)
     combobox.set_entry_text_column(1) # Sets the model column which combo_box
                                       # should use to get strings from to be text_column
-    combobox.pack_start(renderer_text, True)
+    combobox.pack_start(renderer_text,  True)
     combobox.add_attribute(renderer_text, "text", 1)
     # this line is often not needed in other cases.
     combobox.connect("changed", on_mol_combobox_changed)
 
     # ----------------------------------------------------------------------------------
 
-    ok_button = Gtk.Button("  OK  ")
-    cancel_button = Gtk.Button(" Cancel ")
-    h_sep = Gtk.HSeparator()
+    ok_button = Gtk.Button(label="  OK  ")
+    cancel_button = Gtk.Button(label=" Cancel ")
+    h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
-    vbox.pack_start(label, False, False, 5)
-    vbox.pack_start(combobox, True, True, 0)
-    vbox.pack_start(h_sep, True, False, 2)
-    vbox.pack_start(hbox_buttons, False, False, 5)
-    hbox_buttons.pack_start(ok_button, True, False, 5)
-    hbox_buttons.pack_start(cancel_button, True, False, 5)
-
-    window.add(vbox)
+    vbox.append(label)
+    vbox.append(combobox)
+    vbox.append(h_sep)
+    vbox.append(hbox_buttons)
+    hbox_buttons.append(cancel_button)
+    hbox_buttons.append(ok_button)
+    window.set_child(vbox)
 
     # button callbacks:
     ok_button.connect("clicked", on_ok_button_clicked, combobox)
     cancel_button.connect("clicked", delete_event)
 
-    window.show_all()
+    window.show()
 
 
 # molecule_chooser_gui("test-gui",print_sequence_chain(0,"A"))

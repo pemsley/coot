@@ -1642,7 +1642,7 @@ wrapped_create_fast_ss_search_dialog() {
 // Edit Functions that have been promoted from Extensions -> Modelling
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-void  do_edit_copy_molecule() {
+void do_edit_copy_molecule() {
 
    std::string cmd = "import coot; import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
    safe_python_command(cmd);
