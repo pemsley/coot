@@ -457,7 +457,7 @@
         </submenu>
         <item>
           <attribute name="label">Fill Partial Residues</attribute>
-          <attribute name="action">app.fill_partial_resiudes_action</attribute>
+          <attribute name="action">app.fill_partial_residues_action</attribute>
         </item>
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
@@ -469,7 +469,7 @@
           <attribute name="target">small</attribute>
         </item>
         <item>
-          <attribute name="label">Rebuild Fragment using DBLoop (bigger)</attribute>
+          <attribute name="label">Rebuild Fragment using DBLoop (Bigger)</attribute>
           <attribute name="action">app.rebuild_fragment_using_dbloop_action</attribute>
           <attribute name="target">bigger</attribute>
         </item>

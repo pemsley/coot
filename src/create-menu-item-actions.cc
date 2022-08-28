@@ -900,6 +900,122 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void arrange_waters_around_protein_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void assign_hetatms_for_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void assign_hetatoms_to_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void find_helices_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void find_strands_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void
+fill_partial_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void phosphorylate_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+   if (parameter) {
+      gchar *result;
+      g_variant_get(parameter, "s", &result);
+      std::string ss(result);
+      std::cout << "db-loop size " << ss << std::endl;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+      }
+   }
+
+}
+
+void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rigid_body_fit_residue_ranges_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rigid_body_fit_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+
 
 void
 draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1666,6 +1782,27 @@ create_actions(GtkApplication *application) {
 
    add_action("associate_sequence_file_action", associate_sequence_file_action);
    add_action(        "assign_sequence_action",         assign_sequence_action);
+
+   // Modelling
+
+   add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
+   add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
+   add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
+   add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
+   add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
+   add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);
+   add_action(     "backrub_rotamers_for_chain_action",      backrub_rotamers_for_chain_action);
+   add_action(            "find_helices_in_map_action",             find_helices_in_map_action);
+   add_action(            "find_strands_in_map_action",             find_strands_in_map_action);
+   add_action(          "fill_partial_residues_action",           fill_partial_residues_action);
+   add_action(     "phosphorylate_this_residue_action",      phosphorylate_this_residue_action);
+   add_action(                "replace_residue_action",                 replace_residue_action);
+   add_action(  "rigid_body_fit_residue_ranges_action",   rigid_body_fit_residue_ranges_action);
+   add_action(        "rigid_body_fit_molecule_action",         rigid_body_fit_molecule_action);
+   add_action(              "superpose_ligands_action",               superpose_ligands_action);
+   add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
+
+   add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 
    // Draw
 
