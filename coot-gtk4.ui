@@ -557,7 +557,7 @@
       </submenu>
 
       <submenu>
-        <attribute name="label">Molecules</attribute>
+        <attribute name="label">Molecule</attribute>
         <section>
           <item>
             <attribute name="label">Bond Colours...</attribute>
@@ -618,7 +618,9 @@
             <attribute name="label">NCS Ghost Control...</attribute>
             <attribute name="action">app.ghost_control_action</attribute>
           </item>
+        </section>
 
+        <section>
           <item>
             <attribute name="label">Residue Type Selection</attribute>
             <attribute name="action">app.residue_type_selection_action</attribute>
@@ -635,6 +637,8 @@
             <attribute name="label">Residues With Missing Atoms...</attribute>
             <attribute name="action">app.residues_with_missing_atoms_action</attribute>
           </item>
+        </section>
+        <section>
           <item>
             <attribute name="label">Ribbons: By Chain</attribute>
             <attribute name="action">app.ribbons_colour_by_chain_action</attribute>
@@ -647,6 +651,8 @@
             <attribute name="label">Ribbons: Sec. Struct.</attribute>
             <attribute name="action">app.ribbons_colour_by_secondary_structure_action</attribute>
           </item>
+        </section>
+        <section>
           <item>
             <attribute name="label">Sequence View</attribute>
             <attribute name="action">app.sequence_view_action</attribute>
