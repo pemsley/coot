@@ -1395,10 +1395,60 @@ temp_factor_variance_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_ac
    std::cout << "dynamic menus for temperature factor variance analysis" << std::endl;
 }
 
-void
-unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+
+void alignment_vs_pir_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                    G_GNUC_UNUSED GVariant *parameter,
+                                                    G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+          
+void
+unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
 
    std::cout << "dynamic menus unmodelled blobs" << std::endl;
 }
@@ -1800,8 +1850,8 @@ create_actions(GtkApplication *application) {
    add_action(           "make_a_difference_map_action",            make_a_difference_map_action);
    add_action(       "set_map_is_difference_map_action",        set_map_is_difference_map_action);
    add_action(      "mask_map_by_atom_selection_action",       mask_map_by_atom_selection_action);
-   add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
    add_action(   "make_a_smoother_copy_of_a_map_action",    make_a_smoother_copy_of_a_map_action);
+   add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
    add_action("make_a_very_smooth_copy_of_a_map_action", make_a_very_smooth_copy_of_a_map_action);
 
    // Calculate -> Modules
@@ -1908,6 +1958,16 @@ create_actions(GtkApplication *application) {
    add_action(  "peptide_flips_from_diff_map_item_action",   peptide_flips_from_diff_map_item_action);
    add_action( "gln_and_asn_b_factor_outlier_item_action",  gln_and_asn_b_factor_outlier_item_action);
    add_action("temp_factor_variance_analysis_item_action", temp_factor_variance_analysis_item_action);
+
+
+   add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
+   add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
+   add_action(             "validation_outliers_action",              validation_outliers_action);
+   add_action(           "refmac_log_validation_action",            refmac_log_validation_action);
+   add_action(       "highly_coordinates_waters_action",        highly_coordinates_waters_action);
+   add_action(     "atoms_with_zero_occupancies_action",      atoms_with_zero_occupancies_action);
+   add_action("all_atom_contact_dots_molprobity_action", all_atom_contact_dots_molprobity_action);
+   add_action("overlaps_peptides_cbeta_ramas_and_rotas_action", overlaps_peptides_cbeta_ramas_and_rotas_action);
 
    // About
 
