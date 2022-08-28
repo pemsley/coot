@@ -4322,6 +4322,8 @@ def merge_solvent_chains(imol):
             last_prev_water = new_end
 
 
+# delete this function ASAP.
+#
 # helper to comvert functions to strings
 def cmd2str(*args):
     from types import StringType

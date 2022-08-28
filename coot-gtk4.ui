@@ -132,7 +132,7 @@
         </item>
         <item>
           <attribute name="label">Merge Water Chains...</attribute>
-          <attribute name="action">app.merge_water_chains_action</attribute>
+          <attribute name="action">app.merge_solvent_chains_action</attribute>
         </item>
         <item>
           <attribute name="label">Move Molecule Here...</attribute>
@@ -715,10 +715,6 @@
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
         </item>
         <item>
-          <attribute name="label">Pepflips Using Difference Map </attribute>
-          <attribute name="action">app.pepflips_using_difference_map_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Geometry analysis...</attribute>
           <attribute name="action">app.geometry_analysis_item_action</attribute>
         </item>
@@ -740,6 +736,10 @@
           <attribute name="action">app.ncs_differences_item_action</attribute>
         </item>
         <item>
+          <attribute name="label">Overlaps, Peptides, CBeta, Rama &amp; Rota Outliers</attribute>
+          <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Peptide Flips from Difference Map...</attribute>
           <attribute name="action">app.peptide_flips_from_diff_map_item_action</attribute>
         </item>
@@ -748,12 +748,12 @@
           <attribute name="action">app.peptide_omega_analysis_item_action</attribute>
         </item>
         <item>
-          <attribute name="label">Overlaps, Peptides, CBeta, Rama &amp; Rota Outliers</attribute>
-          <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Pukka Puckers...</attribute>
           <attribute name="action">app.pukka_puckers_item_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Refmac Log Validation</attribute>
+          <attribute name="action">app.refmac_log_validation_action</attribute>
         </item>
         <item>
           <attribute name="label">Ramachandran Plot...</attribute>
@@ -770,10 +770,6 @@
         <item>
           <attribute name="label">Temp. fact. variance analysis...</attribute>
           <attribute name="action">app.temp_factor_variance_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Refmac Log Validation</attribute>
-          <attribute name="action">app.refmac_log_validation_action</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>

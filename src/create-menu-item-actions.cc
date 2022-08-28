@@ -308,13 +308,29 @@ G_GNUC_UNUSED gpointer user_data) {
 
 void
 fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
    gtk_widget_show(window);
+}
+
+void
+fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      const auto &m = graphics_info_t::molecules[imol];
+      std::string comp_id = m.get_residue_name(res_spec);
+      // python-function: coot_utils.get_SMILES_for_comp_id_from_pdbe arg: comp_id
+      std::cout << "run python function coot_utils.get_SMILES_for_comp_id_from_pdbe " << comp_id << std::endl;
+   }
 }
 
 void
@@ -405,6 +421,54 @@ change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
    gtk_widget_show(w);
+}
+
+void
+make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "make_link_action(): coot user_defined click 2" << std::endl;
+   // 20220828-PE needs check_if_in_range_define
+}
+
+#include "cc-interface.hh" // for fullscreen()
+
+void
+fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      fix_nomenclature_errors(imol);
+   }
+}
+
+#include "c-interface-ligands-swig.hh"
+
+void
+invert_this_chiral_centre_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t &atom_spec = pp.second.second;
+      invert_chiral_centre(imol, atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code, atom_spec.atom_name);
+   }
+}
+
+void
+merge_solvent_chains_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "merge solvent chains for imol " << imol << std::endl;
+   }
 }
 
 void
@@ -597,7 +661,22 @@ scripting_scheme_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void
+use_clustalw_for_alignment_then_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                              G_GNUC_UNUSED GVariant *parameter,
+                                              G_GNUC_UNUSED gpointer user_data) {
 
+   std::cout << "launch a python gui for clustalw" << std::endl;
+
+   // generic_chooser_entry_and_file_selector("Align Sequence to Model: ",
+   //                                         coot_utils.valid_model_molecule_qm,
+   //                                         "Chain ID",
+   //                                         "",
+   //                                         "Select PIR Alignment file",
+   //                                         lambda imol, chain_id, target_sequence_pif_file:
+   //                                         coot.run_clustalw_alignment(imol, chain_id, target_sequence_pif_file)))
+
+}
 
 
 void
@@ -694,8 +773,6 @@ display_only_active_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    display_only_active();
 }
-
-#include "cc-interface.hh" // for fullscreen()
 
 void
 fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1364,6 +1441,7 @@ create_actions(GtkApplication *application) {
    add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
    add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
    add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
+   add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
@@ -1374,6 +1452,7 @@ create_actions(GtkApplication *application) {
 
    // Edit
 
+   add_action(              "make_link_action",               make_link_action); // add header link
    add_action(       "change_chain_ids_action",        change_chain_ids_action);
    add_action(          "copy_molecule_action",           copy_molecule_action);
    add_action( "copy_molecule_fragment_action",  copy_molecule_fragment_action);
@@ -1386,7 +1465,10 @@ create_actions(GtkApplication *application) {
    add_action(           "residue_info_action",            residue_info_action);
    add_action(        "edit_restraints_action",         edit_restraints_action);
    add_action(       "show_preferences_action",        show_preferences_action);
+   add_action(   "merge_solvent_chains_action",    merge_solvent_chains_action);
    add_action("show_shader_preferences_action", show_shader_preferences_action);
+   add_action("fix_nomenclature_errors_action", fix_nomenclature_errors_action);
+   add_action("invert_this_chiral_centre_action", invert_this_chiral_centre_action);
 
    // Calculate
 
@@ -1399,23 +1481,24 @@ create_actions(GtkApplication *application) {
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
+   add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
 
    add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
 
    // Draw
 
-   add_action(   "display_only_active_action",    display_only_active_action);
-   add_action(     "background_colour_action",      background_colour_action);
-   add_action(       "bond_parameters_action",        bond_parameters_action);
-   add_action(          "bond_colours_action",           bond_colours_action);
-   add_action(            "fullscreen_action",             fullscreen_action);
-   add_action(            "go_to_atom_action",             go_to_atom_action);
-   add_action(        "label_CA_atoms_action",         label_CA_atoms_action);
-   add_action(        "map_parameters_action",         map_parameters_action);
-   add_action(       "generic_objects_action",        generic_objects_action);
-   add_action(      "label_neighbours_action",       label_neighbours_action);
-   add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
-   add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
+   add_action(    "display_only_active_action",     display_only_active_action);
+   add_action(      "background_colour_action",       background_colour_action);
+   add_action(        "bond_parameters_action",         bond_parameters_action);
+   add_action(           "bond_colours_action",            bond_colours_action);
+   add_action(             "fullscreen_action",              fullscreen_action);
+   add_action(             "go_to_atom_action",              go_to_atom_action);
+   add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
+   add_action(         "map_parameters_action",          map_parameters_action);
+   add_action(        "generic_objects_action",         generic_objects_action);
+   add_action(       "label_neighbours_action",        label_neighbours_action);
+   add_action( "label_atoms_in_residue_action",  label_atoms_in_residue_action);
+   add_action( "draw_cell_and_symmetry_action",  draw_cell_and_symmetry_action);
 
    add_action(   "ghost_control_action",      ghost_control_action);
    add_action(        "spin_view_action",         spin_view_action);
