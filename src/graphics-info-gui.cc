@@ -2311,9 +2311,14 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       const molecule_class_info_t &m = graphics_info_t::molecules[imol];
       if (imol == imol_active) {
          // 20220415-PE this doesn't work (for renumber residues - annoying)
-         // std::cout << "setting active on a gtk combobox " << ii << std::endl;
+
+         std::cout << "!!!!!!!!!!! setting active on a gtk combobox " << ii << std::endl;
          gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), ii);
          // std::cout << "done setting active on a gtk combobox " << ii << std::endl;
+         if (GTK_IS_COMBO_BOX(combobox_molecule))
+            std::cout << "!!!!!!!!!!! " << "combobox is a combobox" << std::endl;
+         if (GTK_IS_COMBO_BOX_TEXT(combobox_molecule))
+            std::cout << "!!!!!!!!!!! " << "combobox is a comboboxtext" << std::endl;
       }
    }
 

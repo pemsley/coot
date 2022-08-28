@@ -1654,31 +1654,35 @@ void  do_edit_copy_fragment() {
    graphics_info_t g;
    GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
    GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
-   int imol = g.get_active_atom().first;
+   int imol_active = g.get_active_atom().first;
 
    auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-      if (GTK_IS_COMBO_BOX(widget))
-         gtk_container_remove(GTK_CONTAINER(data), widget);
-#endif
    };
 
 
 #if (GTK_MAJOR_VERSION >= 4)
-         // 20220528-PE-FIXME box packing
 
-   std::cout << "FIXME in do_edit_copy_fragment() " << std::endl;
-#else
-   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-   GtkWidget *combobox = gtk_combo_box_new();
-   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   GtkWidget *combobox_molecule = widget_from_builder("copy_fragment_combobox"); // its a GtkComboBoxText
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
-   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-   g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
-   gtk_widget_show(combobox);
+
+   // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
+   g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
+   g_object_set_data(G_OBJECT(dialog), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
+   set_transient_for_main_window(dialog);
    gtk_widget_show(dialog);
+
+#else
+   // For the moment keep this block for reference
+   // gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+   // GtkWidget *combobox = gtk_combo_box_new();
+   // gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   // gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   // GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
+   // g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   // g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
+   // gtk_widget_show(combobox);
+   // gtk_widget_show(dialog);
+
 #endif
 
    // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()

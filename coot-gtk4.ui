@@ -3664,10 +3664,76 @@ the Ctrl key when moving the mouse.</property>
     <signal name="response" handler="on_copy_fragment_dialog_response" swapped="no"/>
     <child>
       <object class="GtkBox">
+        <property name="spacing">6</property>
+        <property name="orientation">vertical</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Copy From Molecule</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkComboBoxText" id="copy_fragment_combobox">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Atom Selection for Fragment  </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="copy_fragment_atom_selection_entry">
+                <property name="placeholder_text" translatable="yes">//A/1-10</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkCheckButton" id="copy_fragment_move_molecule_here_checkbutton">
+                <property name="label" translatable="yes">Move new molecule here</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkButton" id="copy_fragment_cancel_button">
+                <property name="label" translatable="yes"> Cancel </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="copy_fragment_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
+    <action-widgets>
+      <action-widget response="-6">copy_fragment_cancel_button</action-widget>
+      <action-widget response="-5">copy_fragment_ok_button</action-widget>
+    </action-widgets>
   </object>
 
   <object class="GtkDialog" id="delete_item_dialog">
