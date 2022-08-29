@@ -7,6 +7,7 @@
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
 #include "widget-from-builder.hh"
+#include "c-interface-gui.hh" // set transient for main window
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -498,6 +499,7 @@ merge_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

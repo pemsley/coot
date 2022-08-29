@@ -729,6 +729,8 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
    //
    graphics_info_t::merge_molecules_merging_molecules->resize(0);
 
+   gtk_box_set_spacing(GTK_BOX(molecules_vbox), 4);
+
    for (int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
 	 button_label = graphics_info_t::int_to_string(i);
@@ -759,8 +761,10 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 			  G_CALLBACK(checkbox_callback_func),
 			  GINT_TO_POINTER(i));
 	 gtk_widget_show(checkbutton);
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          // 20220528-PE-FIXME box packing
+         gtk_box_append(GTK_BOX(molecules_vbox), checkbutton);
 #else
 	 gtk_box_pack_start(GTK_BOX(molecules_vbox), checkbutton, FALSE, FALSE, 0);
 	 gtk_container_set_border_width(GTK_CONTAINER(checkbutton), 2);

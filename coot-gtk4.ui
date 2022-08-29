@@ -2489,26 +2489,6 @@ Calculate a skeleton now?
     <child>
       <object class="GtkBox" id="dialog-vbox86">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox124">
-                <child>
-                  <object class="GtkButton" id="change_chain_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_change_chain_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="change_chains_rechain_button">
-                    <property name="label" translatable="yes">  Apply New Chain ID  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_change_chains_rechain_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame156">
             <child>
@@ -2646,6 +2626,29 @@ Calculate a skeleton now?
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox124">
+            <property name="spacing">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="change_chain_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_change_chain_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="change_chains_rechain_button">
+                <property name="label" translatable="yes">  Apply New Chain ID  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_change_chains_rechain_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>
@@ -6660,41 +6663,28 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="merge_molecules_dialog">
     <property name="title" translatable="yes">Merge Molecules</property>
     <child>
       <object class="GtkBox" id="dialog-vbox57">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox89">
-                <child>
-                  <object class="GtkButton" id="merge_molecules_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_merge_molecules_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="merge_molecules_ok_button">
-                    <property name="label" translatable="yes">   Merge   </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_merge_molecules_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkFrame" id="frame109">
             <child>
               <object class="GtkBox" id="vbox114">
                 <property name="orientation">vertical</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <child>
                   <object class="GtkLabel" id="label11">
-                    <property name="label" translatable="yes">
-Append/Insert Molecule(s):
-</property>
+                    <property name="label" translatable="yes">Append/Insert Molecule(s):</property>
                     <property name="justify">center</property>
                   </object>
                 </child>
@@ -6713,9 +6703,7 @@ Append/Insert Molecule(s):
                 </child>
                 <child>
                   <object class="GtkLabel" id="label179">
-                    <property name="label" translatable="yes">
-into Molecule:
-</property>
+                    <property name="label" translatable="yes">into Molecule:</property>
                     <property name="justify">center</property>
                   </object>
                 </child>
@@ -6733,6 +6721,37 @@ into Molecule:
             </child>
           </object>
         </child>
+
+        <child type="action">
+          <object class="GtkBox" id="hbox89">
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkButton" id="merge_molecules_cancel_button">
+                <property name="label" translatable="yes">   Cancel   </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_merge_molecules_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-top">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="merge_molecules_ok_button">
+                <property name="label" translatable="yes">   Merge   </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_merge_molecules_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-top">4</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
       </object>
     </child>
     <child type="titlebar">
@@ -10198,13 +10217,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         <property name="margin-end">8</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="button2">
-                <property name="label" translatable="yes">  Close  </property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="shader_settings_vbox">
             <property name="margin-start">8</property>
@@ -10214,11 +10226,16 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
               <object class="GtkFrame">
                 <child>
                   <object class="GtkBox">
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkToggleButton" id="shader_settings_basic_mode_togglebutton">
                         <property name="label" translatable="yes">Basic   </property>
                         <property name="can-focus">1</property>
                         <property name="active">1</property>
+                        <property name="margin-top">2</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
                       </object>
                     </child>
                     <child>
@@ -10227,6 +10244,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         <property name="can-focus">1</property>
                         <property name="group">shader_settings_basic_mode_togglebutton</property>
                         <signal name="toggled" handler="on_shader_settings_standard_mode_togglebutton_toggled" swapped="no"/>
+                        <property name="margin-top">2</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
                       </object>
                     </child>
                     <child>
@@ -10235,6 +10256,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         <property name="can-focus">1</property>
                         <property name="group">shader_settings_basic_mode_togglebutton</property>
                         <signal name="toggled" handler="on_shader_settings_fancy_mode_togglebutton_toggled" swapped="no"/>
+                        <property name="margin-top">2</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
                       </object>
                     </child>
                   </object>
@@ -10269,8 +10294,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
             </child>
             <child>
               <object class="GtkBox">
+                <property name="spacing">4</property>
                 <child>
                   <object class="GtkBox" id="shader_settings_fancy_vbox1">
+                    <property name="spacing">4</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkFrame">
@@ -10414,6 +10441,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkBox" id="shader_settings_fancy_vbox2">
                     <property name="orientation">vertical</property>
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkFrame">
                         <child>
@@ -10643,10 +10671,21 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
             </child>
           </object>
         </child>
+        <child type="action">
+              <object class="GtkButton" id="shader_settings_close_button">
+                <property name="label" translatable="yes">  Close  </property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+              </object>
+        </child>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-7">button2</action-widget>
+      <action-widget response="-7">shader_settings_close_button</action-widget>
     </action-widgets>
     <child type="titlebar">
     </child>
