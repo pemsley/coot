@@ -215,9 +215,14 @@
           <attribute name="action">app.align_and_mutate_action</attribute>
         </item>
         <submenu>
-          <attribute name="label">All Molecule...</attribute>
+          <attribute name="label">Assign Sequence...</attribute>
           <item>
-            <attribute name="label">Fit Protein using Backrub Rotamers</attribute>
+            <attribute name="label">1: Associate Sequence File...</attribute>
+            <attribute name="action">app.associate_sequence_file_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">2: Assign Sequence</attribute>
+            <attribute name="action">app.assign_sequence_action</attribute>
           </item>
         </submenu>
         <item>
@@ -343,34 +348,6 @@
             </item>
         </submenu>
 
-        <submenu>
-          <attribute name="label">NCS Model Tools...</attribute>
-          <item>
-            <attribute name="label">Copy NCS Residue Range</attribute>
-            <attribute name="action">app.copy_ncs_residue_range_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">Copy NCS Chain...</attribute>
-            <attribute name="action">app.copy_ncs_chain_action</attribute>
-          </item>
-          <!-- <item> -->
-          <!--   <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute> -->
-          <!--   <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute> -->
-          <!-- </item> -->
-          <item>
-            <attribute name="label">NCS Jumping...</attribute>
-            <attribute name="action">app.ncs_jumping_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">NCS Ligands...</attribute>
-            <attribute name="action">app.ncs_ligands_action</attribute>
-          </item>
-        </submenu>
-
-        <item>
-          <attribute name="label">Other Modelling Tools...</attribute>
-          <attribute name="action">app.other_modelling_tools_action</attribute>
-        </item>
         <item>
           <attribute name="label">Run Script...</attribute>
           <attribute name="action">app.run_script_action</attribute>
@@ -400,17 +377,6 @@
           <attribute name="action">app.use_clustalw_for_alignment_then_mutate_action</attribute>
         </item>
 
-        <submenu>
-          <attribute name="label">Assign Sequence...</attribute>
-          <item>
-            <attribute name="label">1: Associate Sequence File...</attribute>
-            <attribute name="action">app.associate_sequence_file_action</attribute>
-          </item>
-          <item>
-            <attribute name="label">2: Assign Sequence</attribute>
-            <attribute name="action">app.assign_sequence_action</attribute>
-          </item>
-        </submenu>
       </section>
     </submenu>
 
@@ -440,6 +406,12 @@
           <attribute name="label">Assign HETATMs to Molecule...</attribute>
           <attribute name="action">app.assign_hetatoms_to_molecule_action</attribute>
         </item>
+        <submenu>
+          <attribute name="label">All Molecule...</attribute>
+          <item>
+            <attribute name="label">Fit Protein using Backrub Rotamers</attribute>
+          </item>
+        </submenu>
         <item>
           <attribute name="label">Backrub Rotamers for Chain</attribute>
           <attribute name="action">app.backrub_rotamers_for_chain_action</attribute>
@@ -459,6 +431,36 @@
           <attribute name="label">Fill Partial Residues</attribute>
           <attribute name="action">app.fill_partial_residues_action</attribute>
         </item>
+
+        <submenu>
+          <attribute name="label">NCS Model Tools...</attribute>
+          <item>
+            <attribute name="label">Copy NCS Residue Range</attribute>
+            <attribute name="action">app.copy_ncs_residue_range_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Copy NCS Chain...</attribute>
+            <attribute name="action">app.copy_ncs_chain_action</attribute>
+          </item>
+          <!-- <item> -->
+          <!--   <attribute name="label">Copy NCS Ghosts by Residue Range...</attribute> -->
+          <!--   <attribute name="action">app.copy_ncs_ghosts_by_residue_range_action</attribute> -->
+          <!-- </item> -->
+          <item>
+            <attribute name="label">NCS Jumping...</attribute>
+            <attribute name="action">app.ncs_jumping_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">NCS Ligands...</attribute>
+            <attribute name="action">app.ncs_ligands_action</attribute>
+          </item>
+        </submenu>
+
+        <item>
+          <attribute name="label">Other Modelling Tools...</attribute>
+          <attribute name="action">app.other_modelling_tools_action</attribute>
+        </item>
+
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
           <attribute name="action">app.phosphorylate_this_residue_action</attribute>
@@ -1275,37 +1277,18 @@ Kevin Cowtan and Bernhard Lohkamp
     </child>
   </object>
   <object class="GtkDialog" id="add_OXT_dialog">
-    <property name="title" translatable="yes">add OXT to chain</property>
+    <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox61">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox99">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="add_OXT_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="add_OXT_ok_button">
-                    <property name="label" translatable="yes">  Add it  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">4</property>
         <child>
           <object class="GtkFrame" id="frame114">
             <child>
               <object class="GtkBox" id="vbox121">
                 <property name="orientation">vertical</property>
+                <property name="spacing">4</property>
                 <child>
                   <object class="GtkLabel" id="label198">
                     <property name="label" translatable="yes">Add OXT to Chain:</property>
@@ -1315,6 +1298,7 @@ Kevin Cowtan and Bernhard Lohkamp
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox101">
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkLabel" id="label199">
                         <property name="label" translatable="yes">  Molecule:  </property>
@@ -1329,6 +1313,7 @@ Kevin Cowtan and Bernhard Lohkamp
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox102">
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkLabel" id="label200">
                         <property name="label" translatable="yes">  Chain:  </property>
@@ -1390,6 +1375,36 @@ Kevin Cowtan and Bernhard Lohkamp
               </object>
             </child>
           </object>
+        </child>
+        <child type="action">
+              <object class="GtkBox" id="hbox99">
+                <property name="homogeneous">1</property>
+                <property name="spacing">4</property>
+                <child>
+                  <object class="GtkButton" id="add_OXT_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="add_OXT_ok_button">
+                    <property name="label" translatable="yes">  Add it  </property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                  </object>
+                </child>
+              </object>
         </child>
       </object>
     </child>

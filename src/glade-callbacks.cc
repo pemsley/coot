@@ -5733,28 +5733,28 @@ on_add_OXT_ok_button_clicked           (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_add_OXT_cancel_button_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("add_OXT_dialog");
-  gtk_widget_hide(w);
+                                        gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("add_OXT_dialog");
+   gtk_widget_hide(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_refine_dialog_add_OXT_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_refine_dialog_add_OXT_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
    GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_renumber_residues1_activate(GMenuItem     *menuitem,
-                                                   gpointer         user_data) {
+on_renumber_residues1_activate(GMenuItem    *menuitem,
+                               gpointer      user_data) {
 
    GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
    gtk_widget_show(w);
@@ -5766,15 +5766,15 @@ void
 on_bond_parameters1_activate           (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_create_bond_parameters_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_bond_parameters_dialog();
+   gtk_widget_show(w);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_bond_parameters_ok_button_clicked   (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
    // gtk_widget_hide(w);
@@ -5782,10 +5782,9 @@ on_bond_parameters_ok_button_clicked   (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_bond_parameters_apply_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_bond_parameters_apply_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
 }
@@ -5795,10 +5794,9 @@ on_bond_parameters_apply_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_bond_parameters_close_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_bond_parameters_close_button_clicked (GtkButton       *button,
+                                        gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    gtk_widget_hide(w);
 
@@ -5808,8 +5806,7 @@ on_bond_parameters_close_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_background_colour1_activate         (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    // GtkWidget *wb = widget_from_builder("background_black1");
    // GtkWidget *ww = widget_from_builder("background_white1");
@@ -5819,12 +5816,12 @@ on_background_colour1_activate         (GMenuItem     *menuitem,
 
 #if (GTK_MAJOR_VERSION >= 4)
 #else
-  if (background_is_black_p())
-/*     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE); */
-    				/* a GtkRadioMenuItem not a toggle button */
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wb), TRUE);
-  else
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(ww), TRUE);
+   if (background_is_black_p())
+      /*     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE); */
+      /* a GtkRadioMenuItem not a toggle button */
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wb), TRUE);
+   else
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(ww), TRUE);
 #endif
 }
 
@@ -11428,10 +11425,11 @@ on_edit_restraints_activate(GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_merge_molecules1_activate(GMenuItem     *menuitem,
-                                                      gpointer         user_data)
-{
+on_edit_merge_molecules1_activate(GMenuItem *menuitem,
+                                  gpointer   user_data) {
+
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

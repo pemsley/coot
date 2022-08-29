@@ -725,9 +725,9 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
    // GtkWidget *molecules_vbox = lookup_widget(dialog, "merge_molecules_vbox");
    GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
-   // Unset any preconcieved notion of merging molecules:
+   // Unset any preconceived notion of merging molecules:
    //
-   graphics_info_t::merge_molecules_merging_molecules->resize(0);
+   graphics_info_t::merge_molecules_merging_molecules->clear();
 
    gtk_box_set_spacing(GTK_BOX(molecules_vbox), 4);
 
@@ -761,14 +761,7 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 			  G_CALLBACK(checkbox_callback_func),
 			  GINT_TO_POINTER(i));
 	 gtk_widget_show(checkbutton);
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE-FIXME box packing
          gtk_box_append(GTK_BOX(molecules_vbox), checkbutton);
-#else
-	 gtk_box_pack_start(GTK_BOX(molecules_vbox), checkbutton, FALSE, FALSE, 0);
-	 gtk_container_set_border_width(GTK_CONTAINER(checkbutton), 2);
-#endif
       }
    }
 }

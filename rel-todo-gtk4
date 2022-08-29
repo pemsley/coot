@@ -34,6 +34,8 @@ Key-binding for "clear all atom labels"
 
 Fix "Rotamers" button ::: 1
 
+Make a new Map masking dialog
+
 Get R/RC overlay dialog working  ::: 1
 
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
@@ -94,7 +96,8 @@ Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Res
 
 Map Skeletonization
 User-defined menus in Python - connected via coot_main_menumodel.
-Comboboxes with entries for old molecule, or dupicated entries.
+Comboboxes with entries for old molecule, or duplicated entries.
+CA Baton Mode
 
 ---- Other items -----
 
