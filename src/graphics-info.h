@@ -2696,6 +2696,8 @@ public:
    static void output_residue_info_as_text(int atom_index, int imol);
 
    static void output_residue_info_dialog(int imol, int atom_index);
+
+   static void output_residue_info_dialog(int imol, const coot::residue_spec_t &rs);
    //
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,

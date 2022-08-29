@@ -1363,7 +1363,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 }
 
 
-
+#include "c-interface-gui.hh"
 
 void do_find_ligands_dialog() {
 
@@ -1379,8 +1379,9 @@ void do_find_ligands_dialog() {
       std::cout << s << std::endl;
    } else {
 
-      std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
-     gtk_widget_show(dialog);
+      // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
+      set_transient_for_main_window(dialog);
+      gtk_widget_show(dialog);
    }
 
 }

@@ -1526,6 +1526,39 @@ graphics_info_t::output_residue_info_as_text(int atom_index, int imol) {
    }
 }
 
+//static
+void
+graphics_info_t::output_residue_info_dialog(int imol, const coot::residue_spec_t &rs) {
+
+   // This is a kludge - really the main output_residue_info_dialog function should take a Residue *.
+   // For now I will just find the atom index of the first atom in rs;
+
+   graphics_info_t g;
+   mmdb::Residue *residue_p = g.get_residue(imol, rs); // get_residue() is non-static.
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *rat = residue_atoms[iat];
+         if (! rat->isTer()) {
+            // now find at in the atom selection
+
+            const auto &atom_sel = molecules[imol].atom_sel;
+            for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+               if (atom_sel.atom_selection[i] == rat) {
+                  output_residue_info_dialog(imol, i);
+                  break;
+               }
+            }
+            break;
+         }
+      }
+   }
+
+}
+
+
 
 // Called from a graphics-info-defines routine, would you believe? :)
 //

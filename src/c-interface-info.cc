@@ -276,6 +276,11 @@ void output_residue_info_dialog(int imol, int atom_index) {
    add_to_history_typed(cmd, args);
 }
 
+void output_residue_info_dialog(int imol, const coot::residue_spec_t &rs) {
+
+   graphics_info_t g;
+   g.output_residue_info_dialog(imol, rs);
+}
 
 void
 residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {

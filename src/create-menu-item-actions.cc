@@ -546,7 +546,14 @@ void
 residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
-   do_residue_info_dialog();
+   // do_residue_info_dialog(); // this waits for a click - the old way
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      graphics_info_t g;
+      g.output_residue_info_dialog(imol, res_spec);
+   }
 }
 
 void
@@ -925,6 +932,28 @@ void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+
+// this should be in a header, I suppose.
+GtkWidget *wrapped_create_find_waters_dialog();
+
+void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_find_waters_dialog();
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+
+}
+
+void find_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   do_find_ligands_dialog();
 
 }
 
@@ -1842,7 +1871,6 @@ create_actions(GtkApplication *application) {
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
    add_action(             "run_script_action",              run_script_action);
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
-   add_action(  "other_modelling_tools_action",   other_modelling_tools_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
@@ -1892,6 +1920,8 @@ create_actions(GtkApplication *application) {
    add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
    add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
+   add_action(                   "find_ligands_action",                    find_ligands_action);
+   add_action(                    "find_waters_action",                     find_waters_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
    add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);
@@ -1905,6 +1935,7 @@ create_actions(GtkApplication *application) {
    add_action(        "rigid_body_fit_molecule_action",         rigid_body_fit_molecule_action);
    add_action(              "superpose_ligands_action",               superpose_ligands_action);
    add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
+   add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
 
    add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 

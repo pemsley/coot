@@ -225,12 +225,6 @@
             <attribute name="action">app.assign_sequence_action</attribute>
           </item>
         </submenu>
-        <item>
-          <attribute name="label">Find Ligands...</attribute>
-        </item>
-        <item>
-          <attribute name="label">Find Waters...</attribute>
-        </item>
         <submenu>
           <attribute name="label">Fit Loop...</attribute>
           <item>
@@ -406,15 +400,17 @@
           <attribute name="label">Assign HETATMs to Molecule...</attribute>
           <attribute name="action">app.assign_hetatoms_to_molecule_action</attribute>
         </item>
-        <submenu>
-          <attribute name="label">All Molecule...</attribute>
-          <item>
-            <attribute name="label">Fit Protein using Backrub Rotamers</attribute>
-          </item>
-        </submenu>
         <item>
           <attribute name="label">Backrub Rotamers for Chain</attribute>
           <attribute name="action">app.backrub_rotamers_for_chain_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Find Ligands...</attribute>
+          <attribute name="action">app.find_ligands_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Find Waters...</attribute>
+          <attribute name="action">app.find_waters_action</attribute>
         </item>
         <submenu>
           <attribute name="label">Find Secondary Structure in Map...</attribute>
@@ -1732,8 +1728,7 @@ Kevin Cowtan and Bernhard Lohkamp
           <object class="GtkFrame" id="frame101">
             <child>
               <object class="GtkLabel" id="label162">
-                <property name="label" translatable="yes">  Add Terminal Residue failed to find
-any acceptable configuration here.</property>
+                <property name="label" translatable="yes">  Add Terminal Residue failed to find any acceptable configuration here.</property>
                 <property name="justify">center</property>
               </object>
             </child>
@@ -1747,42 +1742,27 @@ any acceptable configuration here.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="align_and_mutate_dialog">
     <property name="title" translatable="yes">Align and Mutate</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox82">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox120">
-                <child>
-                  <object class="GtkButton" id="align_and_mutate_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_align_and_mutate_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="align_and_mutate_ok_button">
-                    <property name="label" translatable="yes">  Apply Sequence to Model  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_align_and_mutate_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">8</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkFrame" id="frame149">
             <child>
               <object class="GtkBox" id="vbox151">
                 <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
                 <child>
                   <object class="GtkLabel" id="label239">
-                    <property name="label" translatable="yes">
-   Align and Mutate Molecule:
-</property>
+                    <property name="label" translatable="yes">Align and Mutate Molecule:</property>
                     <property name="justify">center</property>
                     <property name="xalign">0</property>
                   </object>
@@ -1793,6 +1773,7 @@ any acceptable configuration here.</property>
                 </child>
                 <child>
                   <object class="GtkBox" id="hbox121">
+                    <property name="spacing">8</property>
                     <child>
                       <object class="GtkLabel" id="label240">
                         <property name="label" translatable="yes">   Chain ID: </property>
@@ -1807,9 +1788,7 @@ any acceptable configuration here.</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label241">
-                    <property name="label" translatable="yes">
-     to (single letter) sequence:
-</property>
+                    <property name="label" translatable="yes"> to (single letter) sequence:</property>
                     <property name="justify">center</property>
                     <property name="xalign">0</property>
                   </object>
@@ -1835,11 +1814,37 @@ any acceptable configuration here.</property>
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox120">
+            <property name="spacing">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="align_and_mutate_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_align_and_mutate_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="align_and_mutate_ok_button">
+                <property name="label" translatable="yes">  Apply Sequence to Model  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_align_and_mutate_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="aniso_window">
     <property name="title" translatable="yes">Anisotripic Atoms</property>
     <property name="deletable">0</property>
@@ -4279,18 +4284,12 @@ that you wish to delete.               </property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="environment_distance_dialog">
-    <property name="title" translatable="yes">Environment Distances</property>
+    <property name="title" translatable="yes">Coot Environment Distances</property>
     <child>
       <object class="GtkBox" id="dialog-vbox11">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="environment_distance_dialog_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_environment_distance_dialog_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox58">
             <property name="orientation">vertical</property>
@@ -4312,6 +4311,7 @@ that you wish to delete.               </property>
                 <child>
                   <object class="GtkBox" id="vbox59">
                     <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
                     <child>
                       <object class="GtkLabel" id="label89">
                         <property name="justify">center</property>
@@ -4321,12 +4321,13 @@ that you wish to delete.               </property>
                       <object class="GtkBox" id="hbox46">
                         <child>
                           <object class="GtkLabel" id="label90">
-                            <property name="label" translatable="yes">  Min Distance  </property>
+                            <property name="label" translatable="yes">Min Dist. </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="environment_distance_min_entry">
+                            <property name="max-width-chars">6</property>
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
@@ -4344,12 +4345,13 @@ that you wish to delete.               </property>
                       <object class="GtkBox" id="hbox45">
                         <child>
                           <object class="GtkLabel" id="label91">
-                            <property name="label" translatable="yes">  Max Distance  </property>
+                            <property name="label" translatable="yes">Max Dist.</property>
                             <property name="justify">center</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="environment_distance_max_entry">
+                            <property name="max-width-chars">6</property>
                             <property name="can-focus">1</property>
                             <property name="primary-icon-activatable">0</property>
                             <property name="secondary-icon-activatable">0</property>
@@ -4378,11 +4380,23 @@ that you wish to delete.               </property>
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkButton" id="environment_distance_dialog_ok_button">
+            <property name="label" translatable="yes">OK</property>
+            <property name="can-focus">1</property>
+            <signal name="clicked" handler="on_environment_distance_dialog_ok_button_clicked" swapped="no"/>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="export_map_dialog">
     <signal name="response" handler="on_export_map_dialog_response" swapped="no"/>
     <child>
@@ -4430,6 +4444,7 @@ that you wish to delete.               </property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkFileChooserDialog" id="export_map_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
@@ -4450,6 +4465,7 @@ that you wish to delete.               </property>
       </object>
     </child>
   </object>
+
   <object class="GtkDialog" id="find_ligand_dialog">
     <property name="title" translatable="yes">Find Ligands</property>
     <child>
@@ -5308,23 +5324,22 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="geometry_dialog">
-    <property name="title" translatable="yes">Geometry</property>
+    <property name="title" translatable="yes">Coot Model Geometry</property>
     <signal name="destroy" handler="on_geometry_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox39">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="geometry_dialog_close_button">
-                <property name="label" translatable="yes">  Close  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
-              </object>
-        </child>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+        <property name="spacing">4</property>
         <child>
           <object class="GtkBox" id="vbox102">
             <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
             <child>
               <object class="GtkToggleButton" id="geometry_distance_togglebutton">
                 <property name="label" translatable="yes">  Distance  </property>
@@ -5379,11 +5394,24 @@ Do you want to continue?
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkButton" id="geometry_dialog_close_button">
+            <property name="label" translatable="yes">  Close  </property>
+            <property name="can-focus">1</property>
+            <property name="use-underline">1</property>
+            <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="global_map_properties_window">
     <property name="title" translatable="yes">Global map properties window</property>
     <child>
@@ -9193,6 +9221,7 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
     <signal name="close" handler="on_residue_editor_select_monomer_type_dialog_close" swapped="no"/>
     <signal name="response" handler="on_residue_editor_select_monomer_type_dialog_response" swapped="no"/>
@@ -9226,30 +9255,14 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="residue_info_dialog">
-    <property name="title" translatable="yes">Residue Info</property>
+    <property name="title" translatable="yes">Coot Residue Info</property>
     <signal name="destroy" handler="on_residue_info_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox14">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox49">
-                <child>
-                  <object class="GtkButton" id="residue_info_cancel_button">
-                    <property name="label" translatable="yes">Close</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_residue_info_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="residue_info_ok_button">
-                    <property name="label" translatable="yes">Apply</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">8</property>
         <child>
           <object class="GtkBox" id="vbox65">
             <property name="height-request">450</property>
@@ -9389,11 +9402,35 @@ just the cell and symmetry)
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox49">
+            <property name="spacing">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="residue_info_cancel_button">
+                <property name="label" translatable="yes">Close</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_residue_info_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="residue_info_ok_button">
+                <property name="label" translatable="yes">Apply</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="residue_type_chooser_window">
     <property name="title" translatable="yes">Residu Type</property>
     <child>
