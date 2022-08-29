@@ -6896,38 +6896,21 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="move_molecule_here_dialog">
     <property name="title" translatable="yes">Move Molecule Here</property>
     <child>
       <object class="GtkBox" id="dialog-vbox95">
+        <property name="spacing">4</property>
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox143">
-                <child>
-                  <object class="GtkButton" id="move_molecule_here_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_move_molecule_here_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="move_molecule_here_ok_button">
-                    <property name="label" translatable="yes">Move It</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_move_molecule_here_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox184">
             <property name="orientation">vertical</property>
             <property name="baseline-position">top</property>
             <child>
               <object class="GtkLabel" id="label287">
-                <property name="label" translatable="yes">
-Move Molecule Here:</property>
+                <property name="label" translatable="yes">Move Molecule Here:</property>
                 <property name="justify">center</property>
               </object>
             </child>
@@ -6937,56 +6920,60 @@ Move Molecule Here:</property>
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox143">
+            <property name="spacing">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="move_molecule_here_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_move_molecule_here_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="move_molecule_here_ok_button">
+                <property name="label" translatable="yes">Move It</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_move_molecule_here_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="mutate_sequence_dialog">
-    <property name="title" translatable="yes">Mutate sequence</property>
+    <property name="title" translatable="yes">Mutate Residue Range</property>
     <child>
       <object class="GtkBox" id="dialog-vbox58">
+        <property name="spacing">4</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox92">
-                <child>
-                  <object class="GtkButton" id="mutate_sequence_cancel_button">
-                    <property name="label" translatable="yes">   Cancel   </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_mutate_sequence_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="mutate_sequence_ok_button">
-                    <property name="label" translatable="yes">   Mutate   </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_mutate_sequence_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="fit_loop_ok_button">
-                    <property name="label" translatable="yes">  Fit Loop  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_fit_loop_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame110">
             <child>
               <object class="GtkBox" id="vbox116">
+                <property name="spacing">8</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="function_for_molecule_label">
-                    <property name="label" translatable="yes">
-   Mutate Molecule:
-</property>
+                    <property name="label" translatable="yes"> Mutate Molecule:</property>
                     <property name="justify">center</property>
-                    <property name="xalign">0.00000000745058015283</property>
+                    <property name="xalign">0.0</property>
                   </object>
                 </child>
                 <child>
@@ -7062,8 +7049,7 @@ Move Molecule Here:</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkLabel" id="label245">
-                            <property name="label" translatable="yes">Successive Peptides by Ramachandran
-search (this may not work well)</property>
+                            <property name="label" translatable="yes">Successive Peptides by Ramachandran search (this may not work well)</property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -7078,9 +7064,7 @@ search (this may not work well)</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label186">
-                    <property name="label" translatable="yes">
-   to (single letter) sequence:
-</property>
+                    <property name="label" translatable="yes"> to (single letter) sequence:</property>
                     <property name="justify">center</property>
                     <property name="xalign">0</property>
                   </object>
@@ -7141,6 +7125,39 @@ search (this may not work well)</property>
                     <signal name="toggled" handler="on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox92">
+            <property name="spacing">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="mutate_sequence_cancel_button">
+                <property name="label" translatable="yes">   Cancel   </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_mutate_sequence_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="mutate_sequence_ok_button">
+                <property name="label" translatable="yes">   Mutate   </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_mutate_sequence_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="fit_loop_ok_button">
+                <property name="label" translatable="yes">  Fit Loop  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_fit_loop_ok_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>
