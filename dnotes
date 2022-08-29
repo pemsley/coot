@@ -10768,5 +10768,19 @@ Tue 16 Aug 2022 18:21:12 BST
 https://stackoverflow.com/questions/35006614/what-does-symbol-not-found-expected-in-flat-namespace-actually-mean
 
 
+---
+Wed 10 Aug 07:45:45 BST 2022
 
+  how to make sphinx documentation:
 
+  "Sphinx documentation requires first generating Doxygen documentation, then using the outputted xml with Breathe,
+  to generated the sphinx documentation."
+
+  https://github.com/tbattz/openGLPlotLive
+
+----
+Wed 10 Aug 08:58:04 BST 2022
+
+  OpenGL text (better than I have done it so far)
+
+  https://sourceforge.net/projects/ftgl/
