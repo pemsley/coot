@@ -523,11 +523,10 @@ void python_window_enter_callback( GtkWidget *widget,
 /* Accession code */
 void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry);
 
-/* in here we check if libcheck is available (if scripting is available) */
-GtkWidget *wrapped_create_libcheck_monomer_dialog();
+GtkWidget *wrapped_create_get_monomer_dialog();
 
-/* Libcheck monomer code */
-void handle_get_libcheck_monomer_code(GtkWidget *widget);
+/* get monomer code */
+void handle_get_monomer_code(GtkWidget *widget);
 
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport);

@@ -74,10 +74,10 @@ void clear_out_container(GtkWidget *vbox);  // in c-interface.cc
 
 
 /* in here we check if libcheck is available (if scripting is available) */
-GtkWidget *wrapped_create_libcheck_monomer_dialog() {
+GtkWidget *wrapped_create_get_monomer_dialog() {
 
    // GtkWidget *w = create_libcheck_monomer_dialog();
-   GtkWidget *w = widget_from_builder("libcheck_monomer_dialog");
+   GtkWidget *w = widget_from_builder("get_monomer_dialog");
    return w;
 }
 
@@ -140,18 +140,21 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
    GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
    if (g.find_ligand_mask_waters_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), TRUE);
    else
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), FALSE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), FALSE);
 
 
    // The Search/Here toggle buttons:
    //
-   GtkWidget *search_here_toggle_button;
-   search_here_toggle_button = widget_from_builder("find_ligands_search_here_radiobutton");
-   if (search_here_toggle_button)
+   GtkWidget *search_here_check_button;
+   search_here_check_button = widget_from_builder("find_ligands_search_here_radiobutton");
+   if (search_here_check_button) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(search_here_check_button), TRUE);
+   } else {
+      std::cout << "ERROR no search here check button" << std::endl;
+   }
 
    fill_ligands_sigma_level_entry(find_ligand_dialog);
 

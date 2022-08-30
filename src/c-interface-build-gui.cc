@@ -1481,52 +1481,49 @@ show_fix_nomenclature_errors_gui(int imol,
 #include "get-monomer.hh"
 
 /*  ----------------------------------------------------------------------- */
-/*                  get molecule by libcheck/refmac code                    */
+/*                  get monomer                                             */
 /*  ----------------------------------------------------------------------- */
 
-/* Libcheck monomer code */
+/* Get monomer code */
 void
-handle_get_libcheck_monomer_code(GtkWidget *entry_widget) {
+handle_get_monomer_code(GtkWidget *entry_widget) {
 
-   // This function needs a name change FIXME - it doesn't use LIBCHECK any more
-   // but is the "Get Monomer" dialog
-
-   // GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
    GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry_widget));
 
-   int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
+   if (! frame) return;
 
-   if (! no_entry_frame_shown) {
+   // this is set below
+   int no_entry_frame_shown = gtk_widget_is_visible(frame);
+
+   if (no_entry_frame_shown == 0) { // normal case
 
       int imol = get_monomer(text);
 
       if (is_valid_model_molecule(imol)) {
 
-	 GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
-	 if (window)
-	    gtk_widget_hide(window);
-	 else
-	    std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
-		      << std::endl;
+         GtkWidget *window = widget_from_builder("get_monomer_dialog");
+         if (window)
+            gtk_widget_hide(window);
+         else
+            std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
+                      << std::endl;
       } else {
-
-	 gtk_widget_show(frame);
-	 g_object_set_data(G_OBJECT(frame), "shown", GINT_TO_POINTER(1));
+         gtk_widget_show(frame);
       }
 
    } else {
 
-      std::cout << "Get-by-network method" << std::endl;
+      std::cout << "INFO:: handle_get_monomer_code(): Get-by-network method " << text << std::endl;
 
       int imol = get_monomer_molecule_by_network_and_dict_gen(text);
       if (! is_valid_model_molecule(imol)) {
-	 info_dialog("Failed to import molecule");
+         info_dialog("WARNING:: Failed to import molecule");
       }
 
-      GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
+      GtkWidget *window = widget_from_builder("get_monomer_dialog");
       if (window)
-	 gtk_widget_hide(window);
+         gtk_widget_hide(window);
    }
 }
 

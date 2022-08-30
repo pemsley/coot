@@ -218,11 +218,15 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                   G_GNUC_UNUSED GVariant *parameter,
-                   G_GNUC_UNUSED gpointer user_data) {
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
-   gtk_widget_show(dialog);
+   GtkWidget *w = widget_from_builder("get_monomer_dialog");
+   GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
+   if (no_entry_frame)
+      gtk_widget_set_visible(no_entry_frame, FALSE);
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
 }
 
 

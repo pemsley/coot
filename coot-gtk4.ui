@@ -6407,7 +6407,8 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkDialog" id="libcheck_monomer_dialog">
+
+  <object class="GtkDialog" id="old_libcheck_monomer_dialog">
     <property name="title" translatable="yes">Coot: Get monomer molecule</property>
     <child>
       <object class="GtkBox" id="dialog-vbox43">
@@ -6469,6 +6470,64 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
+  <!-- Made in Cambalache -->
+    <object class="GtkDialog" id="get_monomer_dialog">
+    <property name="hide-on-close">True</property>
+    <property name="resizable">False</property>
+    <property name="title">Coot Get Monomer</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkLabel">
+                <property name="label">3 Letter Code</property>
+                <property name="margin-end">4</property>
+                <property name="margin-start">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="get_monomer_entry"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkFrame" id="get_monomer_no_entry_frame">
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Not Here. Fetch it?</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="homogeneous">True</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkButton" id="get_monomer_cancel_button">
+                <property name="label">Cancel</property>
+                <signal name="clicked" handler="on_get_monomer_cancel_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="get_monomer_ok_button">
+                <property name="label">OK</property>
+                <signal name="clicked" handler="on_get_monomer_ok_button_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
   <object class="GtkDialog" id="ligand_big_blob_dialog">
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Coot: Unmodelled blobs of density</property>
