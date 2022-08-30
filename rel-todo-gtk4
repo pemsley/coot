@@ -12,9 +12,13 @@ Fixed Atoms click should show a menu, not a dialog ::: 1
 
 Fullscreen ::: 0.5
 
+Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
+
 "About Coot" is empty (was fixed in GTk3 version)  ::: 0.5
 
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
+
+Make the "Fetch..." Functions work ::: 1
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
@@ -23,6 +27,8 @@ Fix the Ctrl-drag function ::: 0.5
 Fix the Map Parameters dialog widgets ::: 2
 
 Fix "Edit Chi Angles" button ::: 1
+
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing ::: 1.0
 
 Do some more experimenting with validation graphs ::: 5
 
@@ -166,5 +172,8 @@ Get Python gui scripts communication working ::: 2
 * Done.
 
 Get PyGObject working with GTK4 (Not a Coot thing) ::: 2
+* Done.
+
+Fixed Atoms click should show a menu, not a dialog ::: 1
 * Done.
 
