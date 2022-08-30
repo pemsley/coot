@@ -1493,12 +1493,15 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
 
    if (! frame) return;
 
+   std::string text_s(text);
+   text_s = coot::util::Upper(text_s);
+
    // this is set below
    int no_entry_frame_shown = gtk_widget_is_visible(frame);
 
    if (no_entry_frame_shown == 0) { // normal case
 
-      int imol = get_monomer(text);
+      int imol = get_monomer(text_s);
 
       if (is_valid_model_molecule(imol)) {
 
@@ -1516,7 +1519,7 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
 
       std::cout << "INFO:: handle_get_monomer_code(): Get-by-network method " << text << std::endl;
 
-      int imol = get_monomer_molecule_by_network_and_dict_gen(text);
+      int imol = get_monomer_molecule_by_network_and_dict_gen(text_s);
       if (! is_valid_model_molecule(imol)) {
          info_dialog("WARNING:: Failed to import molecule");
       }
