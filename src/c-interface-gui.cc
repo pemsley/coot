@@ -2205,11 +2205,8 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 }
 
 void set_transient_for_main_window(GtkWidget *dialog) {
-   GtkWidget *main_window_widget = graphics_info_t::get_main_window();
-   if (main_window_widget) {
-      GtkWindow *main_window = GTK_WINDOW(main_window_widget);
-      gtk_window_set_transient_for(GTK_WINDOW(dialog), main_window);
-   }
+
+   graphics_info_t::set_transient_for_main_window(dialog);
 }
 
 

@@ -3568,6 +3568,7 @@ public:
    // can't call c-interface.cc versions of these functions from here);
    static void      store_window_position(int window_type, GtkWidget *widget);
    static void set_transient_and_position(int widget_type, GtkWidget *window);
+   static void set_transient_for_main_window(GtkWidget *dialog);
 
    // contour level saving
    void set_last_map_sigma_step(float level);

@@ -9279,24 +9279,12 @@ just the cell and symmetry)
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="label97">
-                <property name="label" translatable="yes">   Atom Info:                       Occupancy                  Temperature Factor</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-            <child>
               <object class="GtkFrame" id="frame159">
                 <child>
                   <object class="GtkBox" id="vbox164">
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkBox" id="hbox130">
-                        <child>
-                          <object class="GtkLabel" id="label260">
-                            <property name="label" translatable="yes">                                      </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
                         <child>
                           <object class="GtkEntry" id="residue_info_master_atom_occ_entry">
                             <property name="sensitive">0</property>
@@ -9342,6 +9330,8 @@ just the cell and symmetry)
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow23">
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
                 <child>
                   <object class="GtkViewport" id="viewport18">
                     <child>
@@ -9351,6 +9341,7 @@ just the cell and symmetry)
                             <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkGrid" id="residue_info_atom_grid">
+                                <property name="column-homogeneous">0</property>
                               </object>
                             </child>
                           </object>
@@ -9362,7 +9353,7 @@ just the cell and symmetry)
               </object>
             </child>
             <child>
-              <object class="GtkFrame" id="residue_info_chi_angle_frame">
+              <object class="GtkFrame" id="residue_info_chi_angles_frame">
                 <child>
                   <object class="GtkBox" id="residue_info_chi_1_vbox">
                     <property name="orientation">vertical</property>
