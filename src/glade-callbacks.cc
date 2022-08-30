@@ -8272,16 +8272,14 @@ on_search_monomer_library1_activate    (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_monomer_library_search_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_monomer_library_search_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
    GtkWidget *entry = widget_from_builder("monomer_search_entry");
-   entry_char_type *text;
    GtkWidget *viewport = widget_from_builder("monomer_search_results_viewport");
 
    if (entry) {
-      text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
+      entry_char_type *text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
       if (text) {
          handle_make_monomer_search(text, viewport);
       }
@@ -8291,9 +8289,8 @@ on_monomer_library_search_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_monomer_search_entry_changed        (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
+on_monomer_search_entry_changed (GtkEditable     *editable,
+                                 gpointer         user_data) {
 
 }
 
@@ -8303,8 +8300,7 @@ extern "C" G_MODULE_EXPORT
 gboolean
 on_monomer_search_entry_key_press_event (GtkWidget       *widget,
                                         GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    GtkWidget *entry = widget_from_builder("monomer_search_entry");
    entry_char_type *text;

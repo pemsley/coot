@@ -6307,6 +6307,7 @@ graphics_info_t::fullscreen() {
       GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
       GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
       GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
+
       // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
       GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
 
