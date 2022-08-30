@@ -921,12 +921,28 @@ void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_add_hydrogen_atoms(imol);
+   }
+         
 }
 
 void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol) };
+      std::string sc = g.state_command("coot_utils", "add_hydrogens_using_refmac", args, lang);
+      safe_python_command("import coot_utils");
+      safe_python_command(sc);
+   }
 }
 
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,

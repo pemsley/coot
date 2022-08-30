@@ -367,10 +367,8 @@ def molecule_has_hydrogens(imol):
 
 
 def add_hydrogens_using_refmac(imol):
-    out_file_name = os.path.join("coot-refmac",
-                                 molecule_name_stub(imol, 0) + '-needs-H.pdb')
-    in_file_name = os.path.join("coot-refmac",
-                                molecule_name_stub(imol, 0) + '-with-H.pdb')
+    out_file_name = os.path.join("coot-refmac", molecule_name_stub(imol, 0) + '-needs-H.pdb')
+    in_file_name  = os.path.join("coot-refmac", molecule_name_stub(imol, 0) +  '-with-H.pdb')
     coot.make_directory_maybe('coot-refmac')
     coot.write_pdb_file(imol, out_file_name)
     return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
@@ -1062,7 +1060,8 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
 
             if pipe_data:
                 for data in data_list:
-                    process.stdin.write(data + "\n")
+                    # process.stdin.write(data + "\n")
+                    process.stdin.write('{}\n'.format(data).encode('utf-8'))
                 process.stdin.close()
             else:
                 # file?
