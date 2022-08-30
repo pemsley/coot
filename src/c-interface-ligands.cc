@@ -1367,9 +1367,8 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 
 void do_find_ligands_dialog() {
 
-   int istate;
    GtkWidget *dialog = widget_from_builder("find_ligand_dialog");
-   istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
+   int istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
 
    if (istate == 0) {
       gtk_widget_hide(dialog);
@@ -1381,6 +1380,14 @@ void do_find_ligands_dialog() {
 
       // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
       set_transient_for_main_window(dialog);
+
+      // add expansions for the scrolled windows
+      GtkWidget    *map_scrolled_window = widget_from_builder("find_ligands_map_scrolledwindow");
+      GtkWidget *coords_scrolled_window = widget_from_builder("find_ligands_coords_scrolledwindow");
+
+      gtk_widget_set_size_request(   map_scrolled_window, -1, 70);
+      gtk_widget_set_size_request(coords_scrolled_window, -1, 70);
+
       gtk_widget_show(dialog);
    }
 

@@ -712,8 +712,8 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
 int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 						 const char *dialog_name,
 						 short int have_ncs_flag);
-void fill_ligands_sigma_level_entry(GtkWidget *dialog);
-void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
+void fill_ligands_sigma_level_entry();
+void fill_ligands_expert_options();
 void set_ligand_expert_options_from_widget(GtkWidget *button);
 
 void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button);

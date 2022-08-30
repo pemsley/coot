@@ -156,7 +156,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       std::cout << "ERROR no search here check button" << std::endl;
    }
 
-   fill_ligands_sigma_level_entry(find_ligand_dialog);
+   fill_ligands_sigma_level_entry();
 
    // multi-solution check button
    //
@@ -184,7 +184,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    }
 
    // expert options
-   fill_ligands_expert_options(find_ligand_dialog);
+   fill_ligands_expert_options();
    // shall we see the expert option frame?
 
    // 20140907 Yes. We always see the ligand expert frame now.
@@ -203,23 +203,22 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
 // 110204: fill new sigma level entry
 //
-void fill_ligands_sigma_level_entry(GtkWidget *dialog) {
+void fill_ligands_sigma_level_entry() {
 
-   // GtkWidget *entry = lookup_widget(dialog, "find_ligand_sigma_level_entry");
    GtkWidget *entry = widget_from_builder("find_ligand_sigma_level_entry");
-   gtk_editable_set_text(GTK_EDITABLE(entry), graphics_info_t::float_to_string(graphics_info_t::ligand_cluster_sigma_level).c_str());
+   graphics_info_t g;
+   gtk_editable_set_text(GTK_EDITABLE(entry), g.float_to_string(g.ligand_cluster_sigma_level).c_str());
 
 }
 
-void fill_ligands_expert_options(GtkWidget *find_ligand_dialog) {
+void fill_ligands_expert_options() {
 
    GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
-   gtk_editable_set_text(GTK_EDITABLE(entry),
-		      graphics_info_t::int_to_string(graphics_info_t::ligand_wiggly_ligand_n_samples).c_str());
+   graphics_info_t g;
+   gtk_editable_set_text(GTK_EDITABLE(entry), g.int_to_string(g.ligand_wiggly_ligand_n_samples).c_str());
 
    entry = widget_from_builder("ligand_n_top_ligands_entry");
-   gtk_editable_set_text(GTK_EDITABLE(entry),
-		      graphics_info_t::int_to_string(graphics_info_t::find_ligand_n_top_ligands).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(entry), g.int_to_string(g.find_ligand_n_top_ligands).c_str());
 
 }
 
