@@ -363,6 +363,10 @@
           <attribute name="action">app.ssm_superposition_action</attribute>
         </item>
         <item>
+          <attribute name="label">Superpose Ligands...</attribute>
+          <attribute name="action">app.superpose_ligands_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Updating Maps...</attribute>
           <attribute name="action">app.calculate_updating_maps_action</attribute>
         </item>
@@ -482,10 +486,6 @@
         <item>
           <attribute name="label">Rigid-Body Fit Molecule</attribute>
           <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Superpose Ligands...</attribute>
-          <attribute name="action">app.superpose_ligands_action</attribute>
         </item>
         <item>
           <attribute name="label">Symm Shift Reference Chain Here</attribute>

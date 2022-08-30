@@ -10784,3 +10784,20 @@ Wed 10 Aug 08:58:04 BST 2022
   OpenGL text (better than I have done it so far)
 
   https://sourceforge.net/projects/ftgl/
+
+---
+Tue 30 Aug 03:11:57 BST 2022
+
+   How to run a safe python command for create-menu-item-actions.cc
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
+      std::string sc = g.state_command("coot_utils", "", args, lang);
+      safe_python_command("import coot_utils");
+      safe_python_command(sc);
+   }
+

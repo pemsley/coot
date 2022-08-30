@@ -998,6 +998,17 @@ void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_actio
                                        G_GNUC_UNUSED GVariant *parameter,
                                        G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
+      std::string sc = g.state_command("fitting", "backrub_rotamers_for_chain", args, lang);
+      safe_python_command("import fitting");
+      safe_python_command(sc);
+   }
 }
 
 void find_helices_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,

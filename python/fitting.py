@@ -164,11 +164,11 @@ def fit_protein_fit_function(res_spec, imol_map):
                     # if (not res_name == "HOH"):
                     # not needed as we only refine more than 3 atom res
                     if (alt_conf == ""):
-                        with NoBackups(imol):
+                        with coot_utils.NoBackups(imol):
                             coot.auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                                   imol_map, 1, 0.1)
                     if (coot_utils.valid_map_molecule_qm(imol_map)):
-                        with NoBackups(imol):
+                        with coot_utils.NoBackups(imol):
                             with AutoAccept():
                                 coot.refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                     coot.rotate_y_scene(10, 0.3)
@@ -192,7 +192,7 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
                                                         ins_code, "CA",
                                                         alt_conf)
             coot.rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
-            with NoBackups(imol):
+            with coot_utils.NoBackups(imol):
                 with AutoAccept():
                     coot.refine_auto_range(imol, chain_id, res_no, alt_conf)
             coot.rotate_y_scene(10, 0.3)    
@@ -857,24 +857,27 @@ def backrub_rotamers_for_chain(imol, ch_id):
 
     """Backrub rotamers for chain. After alignment mutation we should run this."""
 
-    set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-    make_backup(imol)
+    coot.set_rotamer_search_mode(2) # ROTAMERSEARCHLOWRES
+    coot.make_backup(imol)
 
-    with NoBackups(imol):
+    with coot_utils.NoBackups(imol):
         n_times = 2
-        imol_map = imol_refinement_map()
-        if valid_map_molecule_qm(imol_map):
-            n_res = chain_n_residues(ch_id, imol)
+        imol_map = coot.imol_refinement_map()
+        if coot_utils.valid_map_molecule_qm(imol_map):
+            n_res = coot.chain_n_residues(ch_id, imol)
             for i_round in range(n_times):
                 for serial_number in range(n_res):
-                    res_name = resname_from_serial_number(imol, ch_id, serial_number)
-                    res_no = seqnum_from_serial_number(imol, ch_id, serial_number)
-                    ins_code = insertion_code_from_serial_number(imol, ch_id, serial_number)
+                    res_name = coot.resname_from_serial_number(imol, ch_id, serial_number)
+                    res_no = coot.seqnum_from_serial_number(imol, ch_id, serial_number)
+                    ins_code = coot.insertion_code_from_serial_number(imol, ch_id, serial_number)
+                    print("debug res_name", res_name)
+                    print("debug res_no", res_no)
+                    print("debug ins_code", ins_code)
+                    print("debug ch_id", ch_id)
                     if isinstance(ins_code, str):   # valid residue check :-)
                         if not res_name == "HOH":
-                            auto_fit_best_rotamer(res_no, "", ins_code,
-                                                  ch_id, imol, imol_map,
-                                                  1, 0.1)
+                            # coot.auto_fit_best_rotamer(res_no, "", ins_code, ch_id, imol, imol_map, 1, 0.1)
+                            coot.auto_fit_best_rotamer(imol, ch_id, res_no, ins_code, "", imol_map, 1, 0.1)
 
 
 # Restrain the atoms in imol (in give range selection) to

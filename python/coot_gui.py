@@ -5286,7 +5286,7 @@ def auto_assign_sequence_from_map():
     new_sequence = coot.sequence_from_map(imol, ch_id, resno_start, resno_end, imol_map)
     coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
     coot.mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
-    coot.backrub_rotamers_for_chain(imol, ch_id)
+    fitting.backrub_rotamers_for_chain(imol, ch_id)
     coot.refine_residues(imol, fragment_residues)
 
 
