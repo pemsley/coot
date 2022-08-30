@@ -10801,3 +10801,12 @@ Tue 30 Aug 03:11:57 BST 2022
       safe_python_command(sc);
    }
 
+
+---
+Tue 30 Aug 17:41:18 BST 2022
+
+   when trying to add an overlay dialog to the main graphics window, you need to use the vbox of the
+   dialog - and not the dialog itself. The vbox should not be part of a dialog - that should be stripped
+   out in the .ui file.
+
+
