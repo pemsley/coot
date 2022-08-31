@@ -50,6 +50,14 @@
           <attribute name="action">app.fetch_pdb_and_map_using_pdb_redo_action</attribute>
         </item>
         <item>
+         <attribute name="label">Fetch Corresponding AlphaFold Model &amp; Superpose</attribute>
+          <attribute name="action">app.fetch_and_superpose_alphafold_models_action</attribute>
+        </item>
+         <item>
+         <attribute name="label">Fetch AlphaFold Model using Uniprot ID...</attribute>
+          <attribute name="action">app.fetch_alphafold_model_for_uniprot_id_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Fetch PDBe Ligand Description</attribute>
           <attribute name="action">app.fetch_pdbe_ligand_description_action</attribute>
         </item>
@@ -1193,7 +1201,7 @@ Kevin Cowtan and Bernhard Lohkamp
           <object class="GtkBox" id="vbox40">
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkLabel" id="label69">
+              <object class="GtkLabel" id="accession_code_window_label">
                 <property name="label" translatable="yes">PDB Accession Code:</property>
                 <property name="justify">center</property>
               </object>

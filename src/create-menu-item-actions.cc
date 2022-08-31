@@ -8,6 +8,8 @@
 #include "coot-fileselections.h"
 #include "widget-from-builder.hh"
 #include "c-interface-gui.hh" // set transient for main window
+#include "cc-interface-scripting.hh"  // move this up
+#include "cc-interface.hh"
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -296,18 +298,24 @@ G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_OCA;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
 }
 
 void
 fetch_pdb_and_map_using_eds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_EDS;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
 }
 
@@ -318,11 +326,38 @@ fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_acti
 
    int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
 }
 
-#include "cc-interface-scripting.hh"  // move this up                     
+
+void
+fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      fetch_and_superpose_alphafold_models(imol);
+   }
+}
+
+void
+fetch_alphafold_model_for_uniprot_id_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   int n = COOT_UNIPROT_ID;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+   gtk_window_set_title(GTK_WINDOW(window), "Fetch AlphaFold Model");
+
+}
 
 void
 fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1870,6 +1905,8 @@ create_actions(GtkApplication *application) {
    add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
    add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
+   add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
+   add_action( "fetch_alphafold_model_for_uniprot_id_action", fetch_alphafold_model_for_uniprot_id_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
