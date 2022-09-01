@@ -2662,7 +2662,7 @@ Calculate a skeleton now?
           <object class="GtkBox" id="hbox124">
             <property name="homogeneous">1</property>
             <property name="spacing">6</property>
-            <property name="margin-left">4</property>
+            <property name="margin-start">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
             <child>
@@ -6038,7 +6038,7 @@ Do you want to continue?
     <child>
       <object class="GtkOverlay" id="main_window_graphics_overlay">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
 
         <child>
           <object class="GtkBox" id="main_window_hbox">
@@ -6547,12 +6547,7 @@ Do you want to continue?
   </object>
 
   <!-- Made in Cambalache -->
-    <object class="GtkDialog" id="get_monomer_dialog">
-    <property name="hide-on-close">True</property>
-    <property name="resizable">False</property>
-    <property name="title">Coot Get Monomer</property>
-    <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="get_monomer_vbox">
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox">
@@ -6600,8 +6595,7 @@ Do you want to continue?
           </object>
         </child>
       </object>
-    </child>
-  </object>
+
 
   <object class="GtkDialog" id="ligand_big_blob_dialog">
     <property name="height-request">250</property>
