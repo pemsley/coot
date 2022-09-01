@@ -6036,7 +6036,7 @@ Do you want to continue?
     <child>
       <object class="GtkOverlay" id="main_window_graphics_overlay">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
 
         <child>
           <object class="GtkBox" id="main_window_hbox">
