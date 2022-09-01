@@ -323,7 +323,7 @@ def quick_test_validation_outliers_dialog(imol):
                 cb_fun      = button_info[3]
                 button = Gtk.Button(label)
                 button.connect("clicked", cb_func, cb_fun)
-                dialog_vbox.pack_start(button, False, False, 2)
+                dialog_vbox.append(button)
                 button.show()
             if window:
                 window.set_title(make_window_title(len(buttons)))
@@ -373,10 +373,10 @@ def quick_test_validation_outliers_dialog(imol):
     missing_sidechains_checkbutton = missing_sidechains_checkbutton_local
 
     missing_sidechains_checkbutton.set_active(True)
-    control_button_vbox_1.pack_start(missing_sidechains_checkbutton, False, False, 2)
+    control_button_vbox_1.append(missing_sidechains_checkbutton)
 
-    vbox_outer.pack_start(regenerate_button_local, False, False, 6)
-    vbox_outer.pack_start(control_button_vbox_1, False, False, 2)
+    vbox_outer.append(regenerate_button_local)
+    vbox_outer.append(control_button_vbox_1)
     regenerate_button_local.connect("clicked", regenerate_button_fn)
     missing_sidechains_checkbutton.connect("toggled", missing_sidechains_checkbutton_toggled)
 

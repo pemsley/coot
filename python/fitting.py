@@ -616,7 +616,7 @@ def molecules_matching_criteria(test_func):
            inside_vbox.set_border_width(2)
 
            window.add(outside_vbox)
-           outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
+           outside_vbox.append(scrolled_win)
 
            scrolled_win.add_with_viewport(inside_vbox)
            scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
@@ -629,12 +629,12 @@ def molecules_matching_criteria(test_func):
              imol = molecule_numbers
              name = coot.molecule_name(imol)
              button = gtk.Button(str(name))
-             inside_vbox.pack_start(button, False, False, 1)
+             inside_vbox.append(button)
              button.connect("clicked", centre_on_mol, imol, name)
 
            outside_vbox.set_border_width(6)
            ok_button = gtk.Button("OK")
-           outside_vbox.pack_start(ok_button,False,False,0)
+           outside_vbox.append(ok_button)
            ok_button.connect_object("clicked",delete_event,window)
            window.connect("delete_event", delete_event)
 

@@ -91,10 +91,10 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         protein_ribbon_hbox = gtk.HBox(False, 0)  # do we need a box here?!
         ligands_hbox        = gtk.HBox(False, 0)
 
-        button_hbox.pack_start(gtk.Label(button_label), False, 0)
+        button_hbox.append(gtk.Label(button_label))
         # or just button.set_label?!
-        button_hbox.pack_start(ligands_hbox, False, 0)
-        button_hbox.pack_start(protein_ribbon_hbox, False, 0)
+        button_hbox.append(ligands_hbox)
+        button_hbox.append(protein_ribbon_hbox)
         button.add(button_hbox)
         button.connect("clicked", callback)
         # this is for function, but thread here!?!
@@ -112,7 +112,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
                                       ligands_hbox, protein_ribbon_hbox)
             # we pass the button to update in thread!
         
-        vbox.pack_start(button, False, False, 2)
+        vbox.append(button)
         button.show()
 
         # the 'new' version, we threaded download and add the
@@ -160,7 +160,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     inside_vbox.set_border_width(2)
     window.add(outside_vbox)
 
-    outside_vbox.pack_start(scrolled_win, True, True, 0) # expand, fill, padding
+    outside_vbox.append(scrolled_win)
     scrolled_win.add_with_viewport(inside_vbox)
     scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
     if buttons:
@@ -170,7 +170,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
             buttons))
 
     outside_vbox.set_border_width(2)
-    outside_vbox.pack_start(h_sep, False, False, 2)
+    outside_vbox.append(h_sep)
     ok_button = gtk.Button(close_button_label)
     outside_vbox.pack_end(ok_button, False, False, 0)
 
@@ -220,7 +220,7 @@ def cache_or_net_get_image(image_url, image_name, hbox):
             pixmap = gtk.Image()
             if is_png_or_gif_qm(image_name):
                pixmap.set_from_file(image_name)
-               hbox.pack_start(pixmap, False, False, 1)
+               hbox.append(pixmap)
                pixmap.show()
             return False  # stop
         else:
@@ -480,31 +480,31 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             h_sep = gtk.HSeparator()
 
             window.set_title(dialog_name)
-            buttons_hbox.pack_start(cancel_button, True, False, 2)
-            pdb_hbox.pack_start(pdb_label, True, False, 2)
-            pdb_hbox.pack_start(pdb_progress_bar, True, False, 3)
+            buttons_hbox.append(cancel_button)
+            pdb_hbox.append(pdb_label)
+            pdb_hbox.append(pdb_progress_bar)
             # NOTE: shouldnt we rather replace the icons?! Not sure
-            pdb_hbox.pack_start(pdb_execute_icon, False, False, 2)
-            pdb_hbox.pack_start(pdb_good_icon, False, False, 2)
-            pdb_hbox.pack_start(pdb_fail_icon, False, False, 2)
-            cif_hbox.pack_start(cif_label, True, False, 2)
-            cif_hbox.pack_start(cif_progress_bar, True, False, 3)
-            cif_hbox.pack_start(cif_execute_icon, False, False, 2)
-            cif_hbox.pack_start(cif_good_icon, False, False, 2)
-            cif_hbox.pack_start(cif_fail_icon, False, False, 2)
-            refmac_hbox.pack_start(refmac_label, True, False, 2)
-            refmac_hbox.pack_start(refmac_progress_bar, True, False, 3)
-            refmac_hbox.pack_start(refmac_execute_icon, False, False, 2)
-            refmac_hbox.pack_start(refmac_good_icon, False, False, 2)
-            refmac_hbox.pack_start(refmac_fail_icon, False, False, 2)
+            pdb_hbox.append(pdb_execute_icon)
+            pdb_hbox.append(pdb_good_icon)
+            pdb_hbox.append(pdb_fail_icon)
+            cif_hbox.append(cif_label)
+            cif_hbox.append(cif_progress_bar)
+            cif_hbox.append(cif_execute_icon)
+            cif_hbox.append(cif_good_icon)
+            cif_hbox.append(cif_fail_icon)
+            refmac_hbox.append(refmac_label)
+            refmac_hbox.append(refmac_progress_bar)
+            refmac_hbox.append(refmac_execute_icon)
+            refmac_hbox.append(refmac_good_icon)
+            refmac_hbox.append(refmac_fail_icon)
 
-            main_vbox.pack_start(pdb_hbox, True, False, 4)
-            main_vbox.pack_start(cif_hbox, True, False, 4)
-            main_vbox.pack_start(refmac_hbox, True, False, 4)
-            main_vbox.pack_start(refmac_fail_label, True, False, 2)
-            main_vbox.pack_start(fail_label, True, False, 2)
-            main_vbox.pack_start(h_sep, True, False, 4)
-            main_vbox.pack_start(buttons_hbox, True, False, 4)
+            main_vbox.append(pdb_hbox)
+            main_vbox.append(cif_hbox)
+            main_vbox.append(refmac_hbox)
+            main_vbox.append(refmac_fail_label)
+            main_vbox.append(fail_label)
+            main_vbox.append(h_sep)
+            main_vbox.append(buttons_hbox)
             main_vbox.set_border_width(6)
 
             window.add(main_vbox)
@@ -921,8 +921,8 @@ def recent_entries_progress_dialog():
     progress_bar = gtk.ProgressBar()
 
     window.set_title(dialog_name)
-    main_vbox.pack_start(label, False, False, 4)
-    main_vbox.pack_start(progress_bar, False, False, 4)
+    main_vbox.append(label)
+    main_vbox.append(progress_bar)
     window.add(main_vbox)
     window.set_border_width(4)
     window.show_all()

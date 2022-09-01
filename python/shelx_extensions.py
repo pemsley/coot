@@ -81,10 +81,10 @@ def add_module_shelx():
             go_button.connect("clicked", shelx_refine_go_funcn_event)
             cancel_button.connect("clicked", shelx_delete_event)
 
-            vbox.pack_start(h_sep, False, False, 2)
-            vbox.pack_start(hbox, False, False, 2)
-            hbox.pack_start(go_button, True, False, 0)
-            hbox.pack_start(cancel_button, True, False, 0)
+            vbox.append(h_sep)
+            vbox.append(hbox)
+            hbox.append(go_button)
+            hbox.append(cancel_button)
             window.show_all()
 
         coot_gui.add_simple_coot_menu_menuitem(
@@ -117,10 +117,10 @@ def add_module_shelx():
 
             window.add(vbox)
 
-            hbox.pack_start(go_button, False, False, 2)
-            hbox.pack_start(cancel_button, False, False, 2)
-            vbox.pack_start(h_sep, False, False, 0)
-            vbox.pack_start(hbox, False, False, 0)
+            hbox.append(go_button)
+            hbox.append(cancel_button)
+            vbox.append(h_sep)
+            vbox.append(hbox)
             window.show_all()
 
         coot_gui.add_simple_coot_menu_menuitem(
@@ -184,10 +184,10 @@ def shelxl_refine_gui(imol, hkl_file_name_maybe=False):
 
     window.add(vbox)
     scrolled_win.add(text)
-    buttons_hbox.pack_start(refine_button, False, False, 2)
-    buttons_hbox.pack_start(cancel_button, False, False, 2)
+    buttons_hbox.append(refine_button)
+    buttons_hbox.append(cancel_button)
     scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
-    vbox.pack_start(buttons_hbox, False, False, 2)
+    vbox.append(buttons_hbox)
     vbox.pack_start(scrolled_win)
 
     text_strings = shelx_ins_strings(imol)
@@ -236,10 +236,10 @@ def editable_shelx_gui(imol, hklin_file_name):
     window.add(vbox)
     scrolled_win.add(text)
     vbox.set_border_width(5)
-    buttons_hbox.pack_start(run_button,    True, False, 2)
-    buttons_hbox.pack_start(cancel_button, True, False, 2)
-    vbox.pack_start(buttons_hbox, False, False, 0)
-    vbox.pack_start(scrolled_win, True, True, 2)
+    buttons_hbox.append(run_button)
+    buttons_hbox.append(cancel_button)
+    vbox.append(buttons_hbox)
+    vbox.append(scrolled_win)
     scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
     text.set_editable(True)
 
