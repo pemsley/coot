@@ -2660,7 +2660,9 @@ Calculate a skeleton now?
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox124">
+            <property name="homogeneous">1</property>
             <property name="spacing">6</property>
+            <property name="margin-left">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
             <child>

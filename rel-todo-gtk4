@@ -1,5 +1,12 @@
 
---- Items ---
+--- Big Ticket Items that are not listed here ---
+
+RDKit
+Ligand Builder
+Validation Plots
+Ramachandran Plot
+
+--- Widgets that have changed in GTK ---
 
 Padding is gone, margins and layout are in.
 Tables are out, Grids are in.
@@ -8,19 +15,18 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-Fixed Atoms click should show a menu, not a dialog ::: 1
 
 Fullscreen ::: 0.5
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
-"About Coot" is empty (was fixed in GTk3 version)  ::: 0.5
+"About Coot" is empty (was fixed in GTk3 version). Remake it in Cambalache?  ::: 0.5
 
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
 
-Make the "Fetch..." Functions work ::: 1
-
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
+
+Add "Repeat previous zone" to refinement menu items. ::: 0.4
 
 Fix the Ctrl-drag function ::: 0.5
 
@@ -30,13 +36,15 @@ Fix "Edit Chi Angles" button ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing ::: 1.0
 
-Do some more experimenting with validation graphs ::: 5
-
 Enable the command line (e.g. --pdb and others) ::: 2
 
 Enable splash screen: 1
 
+Restart the refinement on button-release when dragging an atom ::: 1
+
 Key-binding for "clear all atom labels"
+
+coot_gui.smiles_gui() - is this a thing now? ::: 1
 
 Fix "Rotamers" button ::: 1
 
@@ -44,16 +52,22 @@ Make a new Map masking dialog
 
 Get R/RC overlay dialog working  ::: 1
 
+Get the "Map..." Button working. ::: 1
+
+Get the Range button working (using new events) generic range define. ::: 2
+
+In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
+
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
-(pressing "G" on the keyboard is not intuitive).
+(pressing "G" on the keyboard is not intuitive). ::: 2
+
+Do some more experimenting with validation graphs ::: 5
 
 Full-fat render path ::: 4
 
-Add "Repeat previous zone" to refinement menu items. ::: 0.4
-
 Can you make the rotamer dialog be an overlay? Not important.
 
-Make the Fast-go-to-residue dialog be an overlay? ::: 1
+Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 6
 
@@ -65,7 +79,7 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Dotted Surface ::: 1
 
-HOLE ::: 1
+HOLE ::: 2
 
 Views ::: 1
 
@@ -177,3 +191,8 @@ Get PyGObject working with GTK4 (Not a Coot thing) ::: 2
 Fixed Atoms click should show a menu, not a dialog ::: 1
 * Done.
 
+Make the "Fetch..." Functions work ::: 1
+* Done.
+
+Fixed Atoms click should show a menu, not a dialog ::: 1
+* Done.
