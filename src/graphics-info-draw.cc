@@ -6303,22 +6303,30 @@ graphics_info_t::fullscreen() {
 
    if (GTK_IS_WINDOW(window)) {
 
-      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
-      GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
+      // GtkWidget *vbox       = widget_from_builder("main_window_vbox");
+      // GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
+      // GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      // GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
 
-      // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
-      GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
+      // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
+      // GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
 
-      // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
-      gtk_widget_hide(menu_bar_frame);
-      // std::cout << "hiding tool_bar " << tool_bar << std::endl;
-      gtk_widget_hide(tool_bar);
+      // // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
+      // gtk_widget_hide(menu_bar_frame);
+      // // std::cout << "hiding tool_bar " << tool_bar << std::endl;
+      // gtk_widget_hide(tool_bar);
+
+
+      std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
       gtk_window_fullscreen(GTK_WINDOW(window));
 
+      GdkToplevel* toplevel = GDK_TOPLEVEL(window);
+      GdkToplevelState state = gdk_toplevel_get_state(toplevel);
+      std::cout << "Debug:: toplevel state " << window << " " << state << std::endl;
+
+
 #if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
+      // std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
 #else
          gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
          gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);

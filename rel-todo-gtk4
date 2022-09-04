@@ -15,10 +15,11 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-
-Fullscreen ::: 0.5
+Enable splash screen: 1
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
+
+Enable the command line (e.g. --pdb and others) ::: 2
 
 "About Coot" is empty (was fixed in GTk3 version). Remake it in Cambalache?  ::: 0.5
 
@@ -34,11 +35,7 @@ Fix the Map Parameters dialog widgets ::: 2
 
 Fix "Edit Chi Angles" button ::: 1
 
-Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing ::: 1.0
-
-Enable the command line (e.g. --pdb and others) ::: 2
-
-Enable splash screen: 1
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 
 Restart the refinement on button-release when dragging an atom ::: 1
 
@@ -102,6 +99,8 @@ Think of a way to start-up with certain modules on (in Preferences) ::: 2
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
+Fullscreen - maybe not possible in gtk4 ::: 0.2
+
 Low Priority: think how to put the "Display Manager" into the main window ::: 6
 
 Low Priority: history searching on python window up-arrow ::: 1
@@ -118,12 +117,6 @@ Map Skeletonization
 User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 CA Baton Mode
-
----- Other items -----
-
-[Reminder to Garib about N3 NR6 next week.]
-[Stacking interaction NBC are not normal NBCs - they should/could be treated differently - Garib.]
-[Numbers for beta-14 torsions what does the literature say? what are the reasonable numbers from 2qc1?]
 
 --- Done Items ---
 
