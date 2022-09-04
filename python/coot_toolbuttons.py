@@ -548,7 +548,7 @@ if (have_coot_python):
 
     def show_pop_up_menu(widget, event):
       if (event.button == 3):
-        create_show_pop_menu([["Manage Buttons (add, delete Buttons)", make_toolbar_button_gui],
+        create_show_pop_menu([["Manage Buttons", make_toolbar_button_gui],
                               ["Add a user-defined Button", add_toolbar_button_gui],
                               ["Remove a Button", remove_toolbar_button_gui],
                               ["Hide Text (only icons)", toolbar_hide_text],
