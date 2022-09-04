@@ -3605,7 +3605,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 void
 molecule_class_info_t::make_bonds_type_checked() {
 
-   bool debug = true;
+   bool debug = false;
    if (debug)
       std::cout << "--------- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "

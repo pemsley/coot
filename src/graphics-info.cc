@@ -6303,6 +6303,8 @@ graphics_info_t::checked_waters_next_baddie(int dir) {
 SCM
 graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
 
+   std::cout << "debug:: g.safe_scheme_command() with command " << scheme_command << std::endl;
+
    if (scheme_command.empty()) {
       std::cout << "ERROR:: in safe_scheme_command() empty scheme_command" << std::endl;
       return SCM_BOOL_F;

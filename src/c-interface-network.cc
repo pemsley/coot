@@ -422,7 +422,6 @@ void fetch_and_superpose_alphafold_models_using_active_molecule() {
       int imol = aa.second.first;
       fetch_and_superpose_alphafold_models(imol);
    }
-
 }
 
 void fetch_and_superpose_alphafold_models(int imol) {

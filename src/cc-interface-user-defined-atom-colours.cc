@@ -128,23 +128,26 @@ void set_user_defined_colours_py(PyObject *colour_list_py) {
             if (PyTuple_Check(item_py)) {
                unsigned int l2 = PyObject_Length(item_py);
                if (l2 == 2) {
-                  std::cout << "l2 = 2 for " << item_py << std::endl;
+                  // std::cout << "l2 = 2 for " << item_py << std::endl;
                   PyObject *colour_index_py = PyTuple_GetItem(item_py, 0);
-                  PyObject *colour_list_py  = PyTuple_GetItem(item_py, 1);
-                  std::cout << "debug colour_index_py " << colour_index_py << std::endl;
-                  std::cout << "colour_list_py " << colour_list_py << std::endl;
+                  PyObject *colour_list_inner_py  = PyTuple_GetItem(item_py, 1);
+                  // std::cout << "debug colour_index_py " << colour_index_py << std::endl;
+                  // std::cout << "colour_list_py " << colour_list_py << std::endl;
                   if (colour_index_py) {
                      if (colour_list_py) {
                         if (PyInt_Check(colour_index_py)) {
                            long colour_index = PyInt_AsLong(colour_index_py);
-                           if (PyList_Check(colour_list_py)) {
-                              unsigned int l3 = PyObject_Length(colour_list_py);
+                           if (PyList_Check(colour_list_inner_py)) {
+                              unsigned int l3 = PyObject_Length(colour_list_inner_py);
                               if (l3 == 3) {
-                                 double r = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 0));
-                                 double g = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 1));
-                                 double b = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 2));
+                                 double r = PyFloat_AsDouble(PyList_GetItem(colour_list_inner_py, 0));
+                                 double g = PyFloat_AsDouble(PyList_GetItem(colour_list_inner_py, 1));
+                                 double b = PyFloat_AsDouble(PyList_GetItem(colour_list_inner_py, 2));
                                  coot::colour_holder ch(r,g,b);
                                  int n_colours = colours.size();
+
+                                 // std::cout << "in set_user_defined_colours_py() colour_index " << colour_index
+                                 // << " colour " << ch << std::endl;
                                  if (colour_index < 10000) {
                                     if (colour_index < n_colours) {
                                        if (colour_index >= 0) {
