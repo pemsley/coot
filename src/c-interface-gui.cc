@@ -1949,10 +1949,10 @@ on_python_scripting_entry_key_controller_key_released(GtkEventControllerKey *con
                                                       GtkEntry              *entry) {
 
    graphics_info_t g;
-   std::cout << "python key released!" << std::endl;
+   // std::cout << "python key released!" << std::endl;
 
    // 36 is Enter
-   std::cout << "keycode: " << keycode << std::endl;
+   // std::cout << "keycode: " << keycode << std::endl;
 
    if (keycode == 36) {
       const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));

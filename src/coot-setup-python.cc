@@ -173,8 +173,7 @@ void setup_python_with_coot_modules(int argc, char **argv) {
                                     // the status-bar, menu-bar etc. i.e. coot_python_api
          PyObject *io = PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
 
-         std::cout << "@@@@@@@@@@@@@@ coot_utils was imported " << io << std::endl;
-         
+         // std::cout << "@@@@@@@@@@@@@@ coot_utils was imported " << io << std::endl;
          
          // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
          // idioms.

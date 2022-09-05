@@ -701,12 +701,10 @@ libcootsumo_la_SOURCES = \
 	startup-utils.hh         \
 	startup-utils.cc         \
 	startup-scripts.hh       \
-	support.c support.h      \
 	stb_image.h              \
 	stb_image_write.h        \
 	startup-scripts.hh       \
 	tiny_gltf.h              \
-	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \

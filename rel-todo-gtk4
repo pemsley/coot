@@ -70,6 +70,8 @@ Do the tutorial from time to time - what's missing? ::: 6
 
 Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
 
+Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
+
 Find Somewhere for "Choose Undo Molecule" ::: 1
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
@@ -117,6 +119,7 @@ Map Skeletonization
 User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 CA Baton Mode
+Interactive (clickable) validation graphs
 
 --- Done Items ---
 

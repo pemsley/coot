@@ -1559,6 +1559,7 @@ void add_rep_toggle_button_toggled(GtkToggleButton       *button,
    set_show_additional_representation(p.first, p.second, on_off_flag);
 }
 
+#if 0
 GtkWidget*
 create_splash_screen_window_for_file(const char *file_name) {
 
@@ -1588,6 +1589,7 @@ create_splash_screen_window_for_file(const char *file_name) {
 
    return splash_screen_window;
 }
+#endif
 
 
 #ifdef COOT_USE_GTK2_INTERFACE
