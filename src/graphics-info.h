@@ -1894,6 +1894,8 @@ public:
    // (e.g. we have clicked on the first atom and are waiting for the
    // user to select the second).
    //
+   static coot::atom_spec_t in_range_first_picked_atom;
+   static coot::atom_spec_t in_range_second_picked_atom;
    static short int in_range_define; // initially 0
    static short int in_range_define_for_refine; // initially 0
    static int refine_regularize_max_residues;

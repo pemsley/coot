@@ -849,8 +849,12 @@
         <attribute name="action">app.refine_all_atoms</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">RSR Pick Range by Hand</attribute>
-        <attribute name="action">app.refine_pick_range_by_hand</attribute>
+        <attribute name="label" translatable="yes">RSR Range Refine</attribute>
+        <attribute name="action">app.refine_range</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Repeat Range Refine</attribute>
+        <attribute name="action">app.repeat_refine_range</attribute>
       </item>
     </section>
     <section>
@@ -6046,7 +6050,7 @@ Do you want to continue?
                   <object class="GtkToggleButton" id="select_residue_range_toggle_button">
                     <property name="label" translatable="yes">Range</property>
                     <property name="can-focus">0</property>
-                    <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
+                    <signal name="toggled" handler="on_model_toolbar_range_define_togglebutton_toggled" swapped="no"/>
                   </object>
                 </child>
 
