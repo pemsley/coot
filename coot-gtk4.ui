@@ -1105,54 +1105,25 @@
     </child>
   </object>
 
-
-
   <object class="GtkAboutDialog" id="about_dialog">
-    <property name="title" translatable="yes">About Coot</property>
-    <property name="resizable">0</property>
-    <!-- <property name="window_position">center-on-parent</property> -->
-    <property name="destroy_with_parent">1</property>
-    <!-- <property name="icon">pixmaps/coot-icon.png</property> -->
-    <property name="deletable">0</property>
-    <property name="version">1.0.06</property>
-    <property name="copyright" translatable="yes">Copyright 2000, 2007 by Paul Emsley
-Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
-Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
-</property>
-    <property name="comments" translatable="yes">Welcome to Coot</property>
-    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
-    <property name="website_label">The Coot Website</property>
-    <property name="license" translatable="yes">GNU GPL version 3
-</property>
+    <property name="artists">Paul Emsley</property>
     <property name="authors">Paul Emsley
-with long-term support and commitment from
-Kevin Cowtan and Bernhard Lohkamp
-</property>
-    <property name="documenters">Paul Emsley
-</property>
-    <property name="artists">Paul Emsley
-</property>
-    <property name="logo">pixmaps/coot-icon.png</property>
-    <child>
-      <object class="GtkBox" id="dialog-vbox100">
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkBox" id="dialog-action_area99">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <!-- <property name="layout_style">end</property> -->
-          </object>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
+with support and contributions from
+Kevin Cowtan and Bernhard Lohkamp</property>
+    <property name="comments">Welcome to Coot</property>
+    <property name="copyright">Copyright 2000, 2007, 2012-2022 by Paul Emsley
+Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
+    <property name="documenters">Paul Emsley</property>
+    <property name="halign">center</property>
+    <property name="license">GNU LGPL version 3</property>
+    <property name="license-type">lgpl-3-0</property>
+    <property name="logo-icon-name">coot</property>
+    <property name="program-name">Coot</property>
+    <property name="version">1.0.06</property>
+    <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
+    <property name="website-label">The Coot Website</property>
   </object>
-
 
   <object class="GtkDialog" id="accept_reject_refinement_dialog">
     <property name="title" translatable="yes">Accept Refinement?</property>

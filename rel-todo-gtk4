@@ -19,9 +19,11 @@ Enable splash screen: 1
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
-Enable the command line (e.g. --pdb and others) ::: 2
+"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 
-"About Coot" is empty (was fixed in GTk3 version). Remake it in Cambalache?  ::: 0.5
+Get the Range button working (using new events) generic range define. ::: 2
+
+Enable the command line (e.g. --pdb and others) ::: 2
 
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
 
@@ -50,8 +52,6 @@ Make a new Map masking dialog
 Get R/RC overlay dialog working  ::: 1
 
 Get the "Map..." Button working. ::: 1
-
-Get the Range button working (using new events) generic range define. ::: 2
 
 In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
 
