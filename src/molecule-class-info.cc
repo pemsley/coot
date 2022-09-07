@@ -3859,8 +3859,25 @@ molecule_class_info_t::make_colour_table() const {
                std::cout << "WARNING:: in make_colour_table() user_defined_colours was empty " << std::endl;
             }
          } else {
-            coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-            colour_table[icol] = cc.to_glm();
+            if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+               // goodsell colours start at 100. There are 2 colours per chain, so for A and be chains the
+               // colour indices are 100, 101, 102, 103.
+               // std::cout << "goodsell mode " << icol << " " << bonds_box.bonds_[icol].num_lines << std::endl;
+               if (bonds_box.bonds_[icol].num_lines > 0) {
+                  coot::colour_holder ch(0.7, 0.5, 0.6);
+                  int ic = icol - 100;
+                  bool is_C = !(ic %2);
+                  int chain_index = ic/2;
+                  float rotation_amount = 0.2f * static_cast<float>(chain_index);
+                  if (! is_C)
+                     rotation_amount += 0.101;
+                  ch.rotate_by(rotation_amount);
+                  colour_table[icol] = colour_holder_to_glm(ch);
+               }
+            } else {
+               coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+               colour_table[icol] = cc.to_glm();
+            }
          }
       }
    }
@@ -4067,8 +4084,6 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
 //enum { BALL_AND_STICK, BALLS_NOT_BONDS };
 void
 molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode) {
-
-   std::cout << "Here in set_model_molecule_representation_style() " << mode << std::endl;
 
    // we should use goodsell colouring by default here
 
