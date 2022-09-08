@@ -262,7 +262,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             glViewport(0, 0, graphics_x_size, graphics_y_size);
             float gamma_pe = 1.2f;
             glClearColor(pow(0.07f, gamma_pe), pow(0.13f, gamma_pe), pow(0.17f, gamma_pe), 1.0f);
-            std::cout << "clearing with gamma colour" << std::endl;
+            // std::cout << "clearing with gamma colour" << std::endl;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glActiveTexture(GL_TEXTURE0 + 0);
@@ -298,6 +298,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                // that doesn't draw shadows.
 
                // std::cout << "render_scene_sans_depth_blur() here 5 " << std::endl;
+
+               // std::cout << "draw_models_with_shadows() with shader " << shader_for_meshes_with_shadows_p->name << std::endl;
                di.draw_models_with_shadows(shader_for_tmeshes_with_shadows_p,
                                            shader_for_meshes_with_shadows_p,
                                            width, height,
@@ -372,9 +374,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
 void
 graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
-                             Shader *shader_for_tmeshes_with_shadows_p,
-                             Shader *shader_for_meshes_with_shadows_p,
-                             int width, int height) {
+                                              Shader *shader_for_tmeshes_with_shadows_p,
+                                              Shader *shader_for_meshes_with_shadows_p,
+                                              int width, int height) {
 
    auto renderQuad = [] () {
                         if (quadVAO == 0) {

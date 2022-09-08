@@ -426,6 +426,18 @@ void set_draw_gl_ramachandran_plot_during_refinement(short int state) {
    graphics_draw();
 }
 
+//! \brief reset the frame buffers
+void reset_framebuffers() {
+
+   graphics_info_t g;
+   GtkAllocation allocation = g.get_glarea_allocation();
+   g.reset_frame_buffers(allocation.width, allocation.height);
+   g.graphics_draw();
+
+}
+
+
+
 
 
 
