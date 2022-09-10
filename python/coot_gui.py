@@ -5491,7 +5491,7 @@ def add_module_refine():
       if active_atom:
          aa_imol     = active_atom[0]
          aa_chain_id = active_atom[1]
-         all_residues = coot.residues_in_chain(aa_imol, aa_chain_id)
+         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
          coot.refine_residues(aa_imol, all_residues);
 
    def all_atom_refine_active_atom(widget):
@@ -5523,7 +5523,7 @@ def add_module_refine():
       if active_atom:
          aa_imol = active_atom[0]
          aa_chain_id = active_atom[1]
-         all_residues = coot.residues_in_chain(aa_imol, aa_chain_id)
+         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
          coot.regularize_residues(aa_imol, all_residues)
 
    if coot_gui_api.main_menumodel():
