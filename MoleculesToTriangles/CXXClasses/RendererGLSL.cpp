@@ -23,11 +23,11 @@ std::string RendererGLSL::PointLightVertexShaderText;
 # define GL_GLEXT_LEGACY
 # define GL_GLEXT_PROTOTYPES
 # include <GL/gl.h>
-# include <GL/glu.h>
+// # include <GL/glu.h>
 # include <GL/glext.h>
 #elif defined(HAVE_OPENGL_GL_H)
 # include <OpenGL/gl.h>
-# include <OpenGL/glu.h>
+// # include <OpenGL/glu.h>
 # include <OpenGL/glext.h>
 # define glGenVertexArrays glGenVertexArraysAPPLE
 # define glDeleteVertexArrays glDeleteVertexArraysAPPLE
