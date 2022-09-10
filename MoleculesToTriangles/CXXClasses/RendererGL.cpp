@@ -41,7 +41,7 @@
 #endif
 
 #include <epoxy/gl.h>
-#include <GL/glu.h> // get rid of this before adding it to coot.
+// #include <GL/glu.h> // get rid of this before adding it to coot.
 
 
 #include "Camera.h"
