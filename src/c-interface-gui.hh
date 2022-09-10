@@ -10,3 +10,4 @@ std::string get_active_label_in_combobox(GtkComboBox *combobox);
 
 void pepflips_by_difference_map_dialog();
 
+void set_transient_for_main_window(GtkWidget *dialog);

@@ -725,9 +725,11 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
    // GtkWidget *molecules_vbox = lookup_widget(dialog, "merge_molecules_vbox");
    GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
-   // Unset any preconcieved notion of merging molecules:
+   // Unset any preconceived notion of merging molecules:
    //
-   graphics_info_t::merge_molecules_merging_molecules->resize(0);
+   graphics_info_t::merge_molecules_merging_molecules->clear();
+
+   gtk_box_set_spacing(GTK_BOX(molecules_vbox), 4);
 
    for (int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
@@ -759,12 +761,7 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 			  G_CALLBACK(checkbox_callback_func),
 			  GINT_TO_POINTER(i));
 	 gtk_widget_show(checkbutton);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE-FIXME box packing
-#else
-	 gtk_box_pack_start(GTK_BOX(molecules_vbox), checkbutton, FALSE, FALSE, 0);
-	 gtk_container_set_border_width(GTK_CONTAINER(checkbutton), 2);
-#endif
+         gtk_box_append(GTK_BOX(molecules_vbox), checkbutton);
       }
    }
 }
@@ -1484,52 +1481,52 @@ show_fix_nomenclature_errors_gui(int imol,
 #include "get-monomer.hh"
 
 /*  ----------------------------------------------------------------------- */
-/*                  get molecule by libcheck/refmac code                    */
+/*                  get monomer                                             */
 /*  ----------------------------------------------------------------------- */
 
-/* Libcheck monomer code */
+/* Get monomer code */
 void
-handle_get_libcheck_monomer_code(GtkWidget *entry_widget) {
+handle_get_monomer_code(GtkWidget *entry_widget) {
 
-   // This function needs a name change FIXME - it doesn't use LIBCHECK any more
-   // but is the "Get Monomer" dialog
-
-   // GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
    GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry_widget));
 
-   int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
+   if (! frame) return;
 
-   if (! no_entry_frame_shown) {
+   std::string text_s(text);
+   text_s = coot::util::Upper(text_s);
 
-      int imol = get_monomer(text);
+   // this is set below
+   int no_entry_frame_shown = gtk_widget_is_visible(frame);
+
+   if (no_entry_frame_shown == 0) { // normal case
+
+      int imol = get_monomer(text_s);
 
       if (is_valid_model_molecule(imol)) {
 
-	 GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
-	 if (window)
-	    gtk_widget_hide(window);
-	 else
-	    std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
-		      << std::endl;
+         GtkWidget *window = widget_from_builder("get_monomer_dialog");
+         if (window)
+            gtk_widget_hide(window);
+         else
+            std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
+                      << std::endl;
       } else {
-
-	 gtk_widget_show(frame);
-	 g_object_set_data(G_OBJECT(frame), "shown", GINT_TO_POINTER(1));
+         gtk_widget_show(frame);
       }
 
    } else {
 
-      std::cout << "Get-by-network method" << std::endl;
+      std::cout << "INFO:: handle_get_monomer_code(): Get-by-network method " << text << std::endl;
 
-      int imol = get_monomer_molecule_by_network_and_dict_gen(text);
+      int imol = get_monomer_molecule_by_network_and_dict_gen(text_s);
       if (! is_valid_model_molecule(imol)) {
-	 info_dialog("Failed to import molecule");
+         info_dialog("WARNING:: Failed to import molecule");
       }
 
-      GtkWidget *window = widget_from_builder("libcheck_monomer_dialog");
+      GtkWidget *window = widget_from_builder("get_monomer_dialog");
       if (window)
-	 gtk_widget_hide(window);
+         gtk_widget_hide(window);
    }
 }
 
@@ -1642,7 +1639,7 @@ wrapped_create_fast_ss_search_dialog() {
 // Edit Functions that have been promoted from Extensions -> Modelling
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-void  do_edit_copy_molecule() {
+void do_edit_copy_molecule() {
 
    std::string cmd = "import coot; import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
    safe_python_command(cmd);
@@ -1654,31 +1651,35 @@ void  do_edit_copy_fragment() {
    graphics_info_t g;
    GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
    GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
-   int imol = g.get_active_atom().first;
+   int imol_active = g.get_active_atom().first;
 
    auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-      if (GTK_IS_COMBO_BOX(widget))
-         gtk_container_remove(GTK_CONTAINER(data), widget);
-#endif
    };
 
 
 #if (GTK_MAJOR_VERSION >= 4)
-         // 20220528-PE-FIXME box packing
 
-   std::cout << "FIXME in do_edit_copy_fragment() " << std::endl;
-#else
-   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-   GtkWidget *combobox = gtk_combo_box_new();
-   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   GtkWidget *combobox_molecule = widget_from_builder("copy_fragment_combobox"); // its a GtkComboBoxText
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
-   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-   g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
-   gtk_widget_show(combobox);
+
+   // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
+   g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
+   g_object_set_data(G_OBJECT(dialog), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
+   set_transient_for_main_window(dialog);
    gtk_widget_show(dialog);
+
+#else
+   // For the moment keep this block for reference
+   // gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+   // GtkWidget *combobox = gtk_combo_box_new();
+   // gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   // gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   // GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
+   // g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   // g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
+   // gtk_widget_show(combobox);
+   // gtk_widget_show(dialog);
+
 #endif
 
    // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()

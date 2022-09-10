@@ -276,6 +276,11 @@ void output_residue_info_dialog(int imol, int atom_index) {
    add_to_history_typed(cmd, args);
 }
 
+void output_residue_info_dialog(int imol, const coot::residue_spec_t &rs) {
+
+   graphics_info_t g;
+   g.output_residue_info_dialog(imol, rs);
+}
 
 void
 residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
@@ -389,7 +394,7 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
            std::string alt_conf_bit("");
            if (strncmp(at->altLoc, "", 1))
               alt_conf_bit=std::string(",") + std::string(at->altLoc);
-           std::string mol_name = g.molecules[imol].get_name();
+           std::string mol_name = coot::util::file_name_non_directory(g.molecules[imol].get_name());
            ai += " [ ";
            ai += graphics_info_t::int_to_string(imol);
            ai += " \"";

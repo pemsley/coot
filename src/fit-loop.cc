@@ -37,7 +37,7 @@ new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule, GCallba
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
       if (imol == imol_active) {
-         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol);
+         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), ii);
       }
    }
    GtkTreeModel *model = GTK_TREE_MODEL(store);

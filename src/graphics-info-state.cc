@@ -930,6 +930,38 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
    return command;
 }
 
+// 20220828-PE Let's pass the module information
+std::string
+graphics_info_t::state_command(const std::string &module, const std::string &func_name,
+                               const std::vector<coot::command_arg_t> &args, short int state_lang) const {
+
+   std::string command;
+
+   if (state_lang == coot::STATE_SCM) {
+      std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
+   }
+
+   if (state_lang == coot::STATE_PYTHON) {
+      if (! module.empty())
+         command = module + std::string(".");
+      command += func_name;
+      command += "(";
+      for (unsigned int i=0; i<args.size(); i++) {
+         if (i == args.size() -1) {
+            // no comma needed
+            command += args[i].as_string();
+         } else {
+            command += args[i].as_string();
+            command += ", ";
+         }
+      }
+      command += ")";
+   }
+
+   return command;
+}
+
+
 // Return success status.
 //
 short int
@@ -1028,6 +1060,7 @@ graphics_info_t::check_for_unsaved_changes() const {
 	 // GtkWidget *dialog = create_unsaved_changes_dialog();
 	 GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
 	 fill_unsaved_changes_dialog(dialog);
+         set_transient_and_position(COOT_UNDEFINED_WINDOW, dialog);
 	 gtk_widget_show(dialog);
 	 iv = 1;
 	 break;
@@ -1051,11 +1084,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
          GtkWidget *label = gtk_label_new(labelstr.c_str());
          gtk_widget_show(label);
          // gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f); gtk3 fix alignment
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          gtk_box_append(GTK_BOX (vbox), label);
-#else
-         gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
-#endif
       }
    }
 }

@@ -1363,13 +1363,12 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 }
 
 
-
+#include "c-interface-gui.hh"
 
 void do_find_ligands_dialog() {
 
-   int istate;
    GtkWidget *dialog = widget_from_builder("find_ligand_dialog");
-   istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
+   int istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
 
    if (istate == 0) {
       gtk_widget_hide(dialog);
@@ -1379,8 +1378,17 @@ void do_find_ligands_dialog() {
       std::cout << s << std::endl;
    } else {
 
-      std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
-     gtk_widget_show(dialog);
+      // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
+      set_transient_for_main_window(dialog);
+
+      // add expansions for the scrolled windows
+      GtkWidget    *map_scrolled_window = widget_from_builder("find_ligands_map_scrolledwindow");
+      GtkWidget *coords_scrolled_window = widget_from_builder("find_ligands_coords_scrolledwindow");
+
+      gtk_widget_set_size_request(   map_scrolled_window, -1, 70);
+      gtk_widget_set_size_request(coords_scrolled_window, -1, 70);
+
+      gtk_widget_show(dialog);
    }
 
 }
@@ -1410,27 +1418,26 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    bool use_sbase_molecules = 0;
    std::string t(text);
 
+   std::cout << "handle_make_monomer_search() " << text << " " << viewport << std::endl;
+
    GtkWidget *vbox_current = widget_from_builder("monomer_search_results_vbox");
    GtkWidget *checkbutton = widget_from_builder("monomer_search_minimal_descriptions_checkbutton");
    GtkWidget *use_sbase_checkbutton = widget_from_builder("monomer_search_sbase_molecules_checkbutton");
 
-   short int allow_minimal_descriptions_flag = 0;
+   bool allow_minimal_descriptions_flag = false;
    GtkWidget *dialog = widget_from_builder("monomer_search_dialog");
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-      allow_minimal_descriptions_flag = 1;
+   // if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   // allow_minimal_descriptions_flag = 1;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(use_sbase_checkbutton)))
-      use_sbase_molecules = 1;
+   // if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(use_sbase_checkbutton)))
+   // use_sbase_molecules = 1;
 
    graphics_info_t g;
-   std::vector<std::pair<std::string, std::string> > v;
-   if (! use_sbase_molecules)
-      v = monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
-   else
-      v = g.Geom_p()->matching_ccp4srs_residues_names(t);
+   std::vector<std::pair<std::string, std::string> > v =
+      monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
 
-   if (false)
+   if (true)
       std::cout << "DEBUG::  " << use_sbase_molecules
 		<< " found " << v.size() << " matching molecules "
 		<< " using string :" << t << ":"
@@ -1451,86 +1458,28 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 //        children = g_list_remove_link(children, children);
 //     }
 
-   std::cout << "GTK-FIXME no gtk_container_children" << std::endl;
-
-
    GtkWidget *vbox = vbox_current;
 
    // std::cout << "DEBUG:: monomers v.size() " << v.size() << std::endl;
    // add new buttons
    for (unsigned int i=0; i<v.size(); i++) {
-      // std::cout << i << " " << v[i].first << std::endl;
-      std::string l = "  ";
-      l += v[i].first;
-      l += " : ";
-      l += v[i].second;
-      // std::cout << "Giving the button the label :" << l << ":" << std::endl;
-      // GtkWidget *button = gtk_button_new_with_label(l.c_str());
-      GtkWidget *button = gtk_button_new();
-      GtkWidget *label  = gtk_label_new(l.c_str());
+      const std::string &n = v[i].first;
+      const std::string &m = v[i].second;
 
-      GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-      GtkWidget *hbox_in_button = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-      gtk_button_set_child(GTK_BUTTON(button), hbox_in_button);
+      std::cout << n << "  " << m << std::endl;
 
-      int imol = 0; // dummy
-      GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
+      GtkWidget *wp = get_image_widget_for_comp_id(n, coot::protein_geometry::IMOL_ENC_ANY);
+      if (wp)
+         std::cout << i << " " << "insert this image " << wp << std::endl;
 
-      wp = get_image_widget_for_comp_id(v[i].first, imol);
-
-      // gtk_image_new_from_file("test.png");
-
-      if (wp) {
-	 gtk_widget_show(wp);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-	 gtk_box_append(GTK_BOX(button_hbox), wp);
-#else
-	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
-#endif
-      }
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      gtk_box_append(GTK_BOX(button_hbox), label);
-#else
-      gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
-#endif
-      gtk_widget_show(label);
-      gtk_widget_show(hbox_in_button);
-
-      std::string button_name = "monomer_button_";
-      // gets embedded as user data (hmm).
-      std::string *s = new std::string(v[i].first); // the 3-letter-code/comp_id (for user data).
-      button_name += v[i].first;
-
-      std::cout << "GTK-FIXME widget_ref b" << std::endl;
-      // gtk_widget_ref (button);
-      g_object_set_data(G_OBJECT (dialog), button_name.c_str(), button);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      gtk_box_append(GTK_BOX (vbox), button);
-#else
-      gtk_box_pack_start(GTK_BOX (vbox), button, FALSE, FALSE, 0);
-      gtk_container_set_border_width(GTK_CONTAINER (button), 2);
-#endif
-
-      if (! use_sbase_molecules)
-	 g_signal_connect(G_OBJECT(button), "clicked",
-			  G_CALLBACK(on_monomer_lib_search_results_button_press), s);
-      else
-	 g_signal_connect(G_OBJECT(button), "clicked",
-			  G_CALLBACK (on_monomer_lib_sbase_molecule_button_press), s);
-      gtk_widget_show(button);
+      std::string button_name = n + std::string(": ") + m;
+      GtkWidget *button = gtk_button_new_with_label(button_name.c_str());
+      gtk_box_append(GTK_BOX(vbox_current), button);
+      std::string *s = new std::string(n); // memory leak
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
+      
    }
 
-   int new_box_size = v.size() * 28 + 120; // plus extra for static parts.
-   if (new_box_size > 520)
-      new_box_size = 520;
-
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(dialog, &allocation);
-   gtk_widget_set_size_request(dialog, allocation.width, new_box_size);
-
-   // a box of 14 is 400 pixels.  400 is about max size, I'd say
-   g_signal_emit_by_name(G_OBJECT(vbox), "check_resize");
-   gtk_widget_show(vbox);
    return stat;
 
 }

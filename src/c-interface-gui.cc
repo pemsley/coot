@@ -1949,10 +1949,10 @@ on_python_scripting_entry_key_controller_key_released(GtkEventControllerKey *con
                                                       GtkEntry              *entry) {
 
    graphics_info_t g;
-   std::cout << "python key released!" << std::endl;
+   // std::cout << "python key released!" << std::endl;
 
    // 36 is Enter
-   std::cout << "keycode: " << keycode << std::endl;
+   // std::cout << "keycode: " << keycode << std::endl;
 
    if (keycode == 36) {
       const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
@@ -2203,6 +2203,12 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
       }
    }
 }
+
+void set_transient_for_main_window(GtkWidget *dialog) {
+
+   graphics_info_t::set_transient_for_main_window(dialog);
+}
+
 
 GtkWidget *coot_file_chooser() {
 
@@ -5982,16 +5988,13 @@ void show_go_to_residue_keyboarding_mode_window() {
    int x_pos = g.graphics_x_position + 5;
    int y_pos = g.graphics_y_position + g.graphics_y_size + 65;
 
-   std::cout << "GTK-FIXME no gtk_widget_set_uposition show_go_to_residue_keyboarding_mode_window"
-	     << std::endl;
-   // gtk_widget_set_uposition(w, x_pos, y_pos);
-
+   set_transient_and_position(COOT_UNDEFINED_WINDOW, w);
    gtk_widget_show(w);
 
 }
 
 
-void handle_go_to_residue_keyboarding_mode(const gchar *text) {
+void handle_go_to_residue_keyboarding_mode(const char *text) {
    graphics_info_t::apply_go_to_residue_keyboading_string(text);
 }
 

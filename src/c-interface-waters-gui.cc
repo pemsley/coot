@@ -201,12 +201,7 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 				       G_CALLBACK(on_big_blob_button_clicked),
 				       c);
 		     gtk_widget_show(button);
-#if (GTK_MAJOR_VERSION == 4)
 		     gtk_box_append(GTK_BOX(vbox), button);
-#else
-		     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-		     gtk_container_set_border_width(GTK_CONTAINER(button), 2);
-#endif
 		  }
 	       }
 	       gtk_widget_show(dialog);
@@ -221,16 +216,25 @@ void execute_find_blobs(int imol_model, int imol_for_map,
    }
 }
 
+#include "c-interface-gui.hh"
 #include "widget-from-builder.hh"
 
-// function to show find waters (from wherever)
-void
+GtkWidget *
 wrapped_create_find_waters_dialog() {
 
    GtkWidget *widget = widget_from_builder("find_waters_dialog");
    fill_find_waters_dialog(widget);
+   set_transient_for_main_window(widget);
+   return widget;
+}
+
+void
+show_create_find_waters_dialog() {
+
+   GtkWidget *widget = wrapped_create_find_waters_dialog();
    gtk_widget_show(widget);
 }
+
 
 // We need to look up the vboxes and add items, like we did in code in
 // gtk-manual.c

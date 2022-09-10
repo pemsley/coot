@@ -45,15 +45,13 @@
 
 #include "widget-from-builder.hh"
 
-GtkWidget *main_menubar() {
+GMenuModel *main_menumodel() {
 
-   // GtkWidget *w = lookup_widget(graphics_info_t::statusbar, "menubar1");
-
-   GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder()) // 20220310-PE no other choice now!
-      w = graphics_info_t::get_widget_from_builder("main_window_menubar");
-
-   return w;
+   GtkApplication *app = graphics_info_t::application;
+   GMenuModel *menubar = gtk_application_get_menubar(app);
+   // GtkWidget *w = GTK_WIDGET(menubar);
+   std::cout << "@@@@@@@ in main_menumodel() returning " << menubar << std::endl;
+   return menubar;
 }
 
 GtkWidget *main_statusbar() {
@@ -65,10 +63,13 @@ GtkWidget *main_statusbar() {
 GtkWidget *main_toolbar() {
 
    GtkWidget *w = 0;
-   if (graphics_info_t::gui_from_gtkbuilder())  // 20220310-PE no other choice now!
-      w = graphics_info_t::get_widget_from_builder("main_window_toolbar");
-   else
-      w = 0;
+   if (graphics_info_t::gui_from_gtkbuilder()) { // 20220310-PE no other choice now!
+      w = graphics_info_t::get_widget_from_builder("main_window_toolbar_hbox");
+      // std::cout << "@@@@@@@ in main_toolbar() looked up " << w << std::endl;
+   } else {
+      std::cout << "not gui from builder" << std::endl;
+   }
+   // std::cout << "@@@@@@@ in main_toolbar() returning " << w << std::endl;
    return w;
 }
 
@@ -79,6 +80,7 @@ GtkWidget *main_hbox() {
       w = graphics_info_t::get_widget_from_builder("main_window_hbox");
    else
       w = 0;
+   std::cout << "@@@@@@@ in main_hbox() returning " << w << std::endl;
    return w;
 
 }
@@ -167,14 +169,13 @@ void remarks_dialog(int imol) {
 	    GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
 	    GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	    GtkWidget *scrolled_window = gtk_scrolled_window_new ();
+            gtk_widget_set_vexpand(vbox, TRUE);
+            gtk_widget_set_hexpand(scrolled_window, TRUE);
+            gtk_widget_set_vexpand(scrolled_window, TRUE);
 	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 	    //     				  GTK_WIDGET(vbox_inner));
 	    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
-#if (GTK_MAJOR_VERSION == 4)
 	    gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
-#else
-	    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
-#endif
 	    gtk_widget_show(scrolled_window);
 	    gtk_widget_show(vbox_inner);
 
@@ -204,20 +205,11 @@ void remarks_dialog(int imol) {
 		  std::string remark_name = "REMARK ";
 		  remark_name += coot::util::int_to_string(it->first);
 		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
-#if (GTK_MAJOR_VERSION == 4)
 		  gtk_box_append(GTK_BOX(vbox_inner), frame);
-#else
-		  gtk_box_pack_start(GTK_BOX(vbox_inner), frame, FALSE, FALSE, 1);
-#endif
 		  gtk_widget_show(frame);
 		  // std::cout << "REMARK number " << it->first << std::endl;
 		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
 		  GtkWidget *text_view = gtk_text_view_new();
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-		  gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
-						       GTK_TEXT_WINDOW_RIGHT, 10);
-#endif
 
 		  gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 
@@ -259,6 +251,7 @@ void remarks_dialog(int imol) {
                g_signal_connect(d, "response", G_CALLBACK(on_remarks_dialog_response), d);
 
 	       gtk_widget_set_size_request(d, 500, 400);
+               set_transient_and_position(COOT_UNDEFINED_WINDOW, d);
 	       gtk_widget_show(d);
 	    }
 	 }
@@ -278,22 +271,15 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       title += "</b>";
       GtkWidget *label = gtk_label_new(title.c_str());
       gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox), label);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 4);
-#endif
       gtk_widget_show(label);
    }
 
    if (compound_lines.size() > 0) {
       std::string compound_label = "Compound";
       GtkWidget *frame = gtk_frame_new(compound_label.c_str());
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox), frame);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
-#endif
+      gtk_widget_set_vexpand(frame, TRUE);
       gtk_widget_show(frame);
       // this doesn't look right - needs checking.
       std::string s;
@@ -303,11 +289,12 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       }
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
-#if (GTK_MAJOR_VERSION == 4)
-#else
-      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
-					   GTK_TEXT_WINDOW_RIGHT, 10);
-#endif
+      gtk_widget_set_vexpand(frame, TRUE);
+      // gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view), GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_margin_start(GTK_WIDGET(text_view), 6);
+      gtk_widget_set_margin_end(GTK_WIDGET(text_view), 6);
+      gtk_widget_set_margin_top(GTK_WIDGET(text_view), 6);
+      gtk_widget_set_margin_bottom(GTK_WIDGET(text_view), 6);
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
       gtk_widget_show(GTK_WIDGET(text_view));

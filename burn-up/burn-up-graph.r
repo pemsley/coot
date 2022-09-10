@@ -83,7 +83,7 @@ predict = function(x_pos, y_pos) {
 
         nct = paste('Non-converging:', round(m_diff, digits=3))
         print(nct)
-        legend(34, 2, nct, cex=0.8, box.lwd=0)
+        legend(34, 3.2, nct, cex=0.8, box.lwd=0)
 
         ## (x-values), (y-values)
 
@@ -106,9 +106,9 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="Coot-1.0 GTK4 Development Progress",
+               main="GTK4 Coot-1.0 Development Progress",
                xlab="Real Days since records began (6 Aug 2022)",
-               ylab="Work Done (Days)")
+               ylab="Scope & Work Done (Days)")
 
     grid()
                                         # V1 is "days"
@@ -135,9 +135,11 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-## betterArrow(37, 8, 37, 32, 0.2, col='grey', code=2)
-## text(50, 13., labels="Dead Computer", col='grey', cex=1.0)
-## text(43, 9., labels="Illness", col='grey', cex=1.0)
+betterArrow(13, 36, 21, 30, 0.2, col='grey30', code=2)
+text(8, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
+
+
+# text(43, 9., labels="Illness", col='grey', cex=1.0)
 
 ## betterArrow(70, 32, 44, 38.3, 0.2, col='grey', code=2)
 ## text(84, 32., labels="Runs on Mac OS", col='grey', cex=1.0)

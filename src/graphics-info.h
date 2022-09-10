@@ -545,6 +545,7 @@ class graphics_info_t {
 
    static GtkBuilder *gtkbuilder; // use this for widget lookups
    static GtkBuilder *preferences_gtkbuilder; // use this for widget lookups in the preferences dialog
+   // public static GtkApplication *application; // below. used for finding the menu bar
    //
    static GtkWidget *display_control_window_;
 
@@ -1018,6 +1019,8 @@ public:
      return r;
    }
 
+   // New-style Application!
+   static GtkApplication *application; // used for finding the menu bar
 
    // New-style gtkbuilder!
    static void set_gtkbuilder(GtkBuilder *builder) { gtkbuilder = builder; }
@@ -1420,6 +1423,10 @@ public:
    // state_command (now public, it's called from c-interface-build (mutate sequence)
    //
    std::string state_command(const std::vector<std::string> &str, short int state_lang) const;
+   //
+   // 20220828-PE Let's pass the module information
+   std::string state_command(const std::string &module, const std::string &func_name,
+                             const std::vector<coot::command_arg_t> &args, short int state_lang) const;
 
    // esoteric depth cue on/off  (on by default)
    static int esoteric_depth_cue_flag;
@@ -1887,6 +1894,8 @@ public:
    // (e.g. we have clicked on the first atom and are waiting for the
    // user to select the second).
    //
+   static coot::atom_spec_t in_range_first_picked_atom;
+   static coot::atom_spec_t in_range_second_picked_atom;
    static short int in_range_define; // initially 0
    static short int in_range_define_for_refine; // initially 0
    static int refine_regularize_max_residues;
@@ -2689,6 +2698,8 @@ public:
    static void output_residue_info_as_text(int atom_index, int imol);
 
    static void output_residue_info_dialog(int imol, int atom_index);
+
+   static void output_residue_info_dialog(int imol, const coot::residue_spec_t &rs);
    //
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
@@ -3559,6 +3570,7 @@ public:
    // can't call c-interface.cc versions of these functions from here);
    static void      store_window_position(int window_type, GtkWidget *widget);
    static void set_transient_and_position(int widget_type, GtkWidget *window);
+   static void set_transient_for_main_window(GtkWidget *dialog);
 
    // contour level saving
    void set_last_map_sigma_step(float level);

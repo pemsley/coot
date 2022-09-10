@@ -44,6 +44,8 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 
 short int graphics_info_t::python_at_prompt_flag = 0;
 
+GtkApplication *graphics_info_t::application = 0;
+
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
 std::vector<std::string> graphics_info_t::command_line_scripts;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
@@ -604,6 +606,8 @@ short int graphics_info_t::draw_crosshairs_flag = 0;
 //
 int       graphics_info_t::refine_regularize_max_residues = 20;
 int       graphics_info_t::refine_auto_range_step = 1; // +/- 1 about the clicked residue
+coot::atom_spec_t graphics_info_t::in_range_first_picked_atom  = coot::atom_spec_t(nullptr);
+coot::atom_spec_t graphics_info_t::in_range_second_picked_atom = coot::atom_spec_t(nullptr);
 short int graphics_info_t::in_range_define = 0; // regularization
 short int graphics_info_t::in_range_define_for_refine = 0;// refine (i.e. with map)
 short int graphics_info_t::in_distance_define = 0;

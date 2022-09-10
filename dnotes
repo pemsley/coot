@@ -10768,5 +10768,45 @@ Tue 16 Aug 2022 18:21:12 BST
 https://stackoverflow.com/questions/35006614/what-does-symbol-not-found-expected-in-flat-namespace-actually-mean
 
 
+---
+Wed 10 Aug 07:45:45 BST 2022
+
+  how to make sphinx documentation:
+
+  "Sphinx documentation requires first generating Doxygen documentation, then using the outputted xml with Breathe,
+  to generated the sphinx documentation."
+
+  https://github.com/tbattz/openGLPlotLive
+
+----
+Wed 10 Aug 08:58:04 BST 2022
+
+  OpenGL text (better than I have done it so far)
+
+  https://sourceforge.net/projects/ftgl/
+
+---
+Tue 30 Aug 03:11:57 BST 2022
+
+   How to run a safe python command for create-menu-item-actions.cc
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
+      std::string sc = g.state_command("coot_utils", "", args, lang);
+      safe_python_command("import coot_utils");
+      safe_python_command(sc);
+   }
+
+
+---
+Tue 30 Aug 17:41:18 BST 2022
+
+   when trying to add an overlay dialog to the main graphics window, you need to use the vbox of the
+   dialog - and not the dialog itself. The vbox should not be part of a dialog - that should be stripped
+   out in the .ui file.
 
 

@@ -22,9 +22,14 @@ import coot
 import coot_utils
 import pdbe_validation_data
 
+# was
+# https://www.ebi.ac.uk/pdbe-srv/view/files/1sar.ent
+# now
+# https://www.ebi.ac.uk/pdbe/entry-files/download/pdb1sar.ent
 
 pdbe_server = "https://www.ebi.ac.uk"
 pdbe_pdb_file_dir = "pdbe-srv/view/files"
+pdbe_pdb_file_dir = "pdbe/entry-files/download"
 
 pdbe_file_name_tail = "ent"
 
@@ -76,7 +81,7 @@ def coot_urlretrieve(url, file_name, reporthook=None):
         local_filename, header = opener.retrieve(url, file_name, reporthook)
     except:
         # we could catch more here, but dont bother for now
-        print("BL WARNING:: retrieve of url %s failed" %url)
+        print("WARNING:: retrieve of url %s failed" %url)
 
     return local_filename
 
@@ -109,8 +114,6 @@ def check_dir_and_get_url(dir, file_name, url_string):
 def get_url_str(id, url_string, data_type, imol_coords_arg_list):
     import operator
 
-    #print "DEBUG:: in get_url_string:", id, url_string, data_type
-
     coot_tmp_dir = coot_utils.get_directory("coot-download")	
     if (data_type == "pdb"):
        pdb_file_name = coot_tmp_dir + "/" + id + ".pdb." + pdbe_file_name_tail
@@ -120,7 +123,6 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     if (data_type == "sfs"):
        sfs_file_name = coot_tmp_dir + "/" + id + ".cif"
-#       print "BL DEBUG:: cif output file is: ",sfs_file_name
        imol_coords = imol_coords_arg_list
        if (isinstance(imol_coords, numbers.Number) and imol_coords>=-1):
          check_dir_and_get_url(coot_tmp_dir, sfs_file_name, url_string)
@@ -135,7 +137,7 @@ def get_ebi_pdb_and_sfs(id):
 
     imol_coords = get_ebi_pdb(id)
     if (not isinstance(imol_coords, numbers.Number)):
-       print("Failed at reading coordinates. imol-coords was ",imol_coords)
+       print("Failed at reading coordinates. imol-coords was ", imol_coords)
 
     if (imol_coords < 0):	# -1 is coot code for failed read.
        print("failed to read coordinates.")
@@ -154,7 +156,7 @@ def get_ebi_pdb(id):
 
     # print "======= id:", id
     down_id = id.lower()
-    url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + "." + pdbe_file_name_tail
+    url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + "pdb" + down_id + "." + pdbe_file_name_tail
     imol_coords = get_url_str(id, url_str, "pdb", None)
     # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
     #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz

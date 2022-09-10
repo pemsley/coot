@@ -895,7 +895,7 @@ function fixup_libcurl {
 }
 
 # now we can set the gtk version
-gtk_version=${gtk_version:=3}
+gtk_version=${gtk_version:=4}
 build_type=gtk$gtk_version # python is implicit - we will do guile when we can
 
 
@@ -2854,6 +2854,8 @@ if test "$build_gobject_introspection" = true ; then
    gobject_introspection_version=1.68.0
    gobject_introspection_version=1.71.0
    gobject_introspection_version=1.72.0
+   # 20220820-PE note to self: 1.73.0 is now avaliable
+   # https://download.gnome.org/sources/gobject-introspection/1.73/
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
@@ -2923,6 +2925,7 @@ if [ true ] ; then
    fi
 fi
 
+# https://pypi.org/project/PyGObject/#files
 pygobject_major_minor_version=3.29
 pygobject_major_minor_version=3.30
 pygobject_major_minor_version=3.36
@@ -2930,6 +2933,7 @@ pygobject_major_minor_version=3.42
 pygobject_version=3.29.1
 pygobject_version=3.30.5
 pygobject_version=3.42.1
+pygobject_version=3.42.2
 
 date
 pwd
@@ -4262,11 +4266,11 @@ else
    save_dir=$(pwd)
    echo :::: $(pwd)
    echo cloning coot...
-   echo :::: git clone https://github.com/pemsley/coot.git -b gtk3
+   echo :::: git clone https://github.com/pemsley/coot.git -b gtk4
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
-   if git clone https://github.com/pemsley/coot.git -b gtk3 --depth 2 ; then
+   if git clone https://github.com/pemsley/coot.git -b gtk4 --depth 2 ; then
       echo git clone https://github.com/pemsley/coot.git -b gtk3 without error status
       echo done clone
       cd coot
@@ -4276,7 +4280,7 @@ else
       if [ -e config.sub   ] ; then rm config.sub   ; fi
       bash autogen.sh
    else
-      echo git clone https://github.com/pemsley/coot.git -b gtk3 failed
+      echo git clone https://github.com/pemsley/coot.git -b gtk4 failed
       echo done clone
       cd coot
    fi

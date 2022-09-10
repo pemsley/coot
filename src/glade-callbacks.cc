@@ -3396,8 +3396,7 @@ on_unsaved_changes_cancel_button_clicked
                                         gpointer         user_data)
 {
 
-   GtkWidget *dialog = widget_from_builder(
-				     "unsaved_changes_dialog");
+   GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
    gtk_widget_hide(dialog);
 }
 
@@ -3408,8 +3407,7 @@ on_unsaved_changes_continue_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *dialog = widget_from_builder(
-				     "unsaved_changes_dialog");
+   GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
    gtk_widget_hide(dialog);
    coot_clear_backup_or_real_exit(0);
 }
@@ -5022,8 +5020,7 @@ void
 on_get_monomer1_activate               (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
-
+  GtkWidget *dialog = wrapped_create_get_monomer_dialog();
   gtk_widget_show(dialog);
 }
 
@@ -5031,23 +5028,23 @@ on_get_monomer1_activate               (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_get_monomer_ok_button_clicked(GtkButton       *button,
-                                                     gpointer         user_data) {
+                                 gpointer         user_data) {
 
-   GtkWidget *dialog = widget_from_builder("libcheck_monomer_dialog");
-   GtkWidget *entry  = widget_from_builder("libcheck_monomer_entry");
-   handle_get_libcheck_monomer_code(entry);
-   gtk_widget_hide(dialog);
-
-/*   gtk_widget_hide(widget);  done in handle_get_libcheck_monomer_code */
+   GtkWidget *entry = widget_from_builder("get_monomer_entry");
+   if (entry) {
+      handle_get_monomer_code(entry);
+   }
+   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
+   gtk_widget_hide(vbox);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void on_get_monomer_cancel_button_clicked(GtkButton       *button,
-                                                                   gpointer         user_data)
-{
-  GtkWidget *widget = widget_from_builder("libcheck_monomer_dialog");
-  gtk_widget_hide(widget);
+                                          gpointer         user_data) {
+
+   GtkWidget *widget = widget_from_builder("get_monomer_vbox");
+   gtk_widget_hide(widget);
 }
 
 
@@ -5735,28 +5732,28 @@ on_add_OXT_ok_button_clicked           (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_add_OXT_cancel_button_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("add_OXT_dialog");
-  gtk_widget_hide(w);
+                                        gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("add_OXT_dialog");
+   gtk_widget_hide(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_refine_dialog_add_OXT_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_refine_dialog_add_OXT_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
    GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_renumber_residues1_activate(GMenuItem     *menuitem,
-                                                   gpointer         user_data) {
+on_renumber_residues1_activate(GMenuItem    *menuitem,
+                               gpointer      user_data) {
 
    GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
    gtk_widget_show(w);
@@ -5768,15 +5765,15 @@ void
 on_bond_parameters1_activate           (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_create_bond_parameters_dialog();
-  gtk_widget_show(w);
+   GtkWidget *w = wrapped_create_bond_parameters_dialog();
+   gtk_widget_show(w);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_bond_parameters_ok_button_clicked   (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
    // gtk_widget_hide(w);
@@ -5784,10 +5781,9 @@ on_bond_parameters_ok_button_clicked   (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_bond_parameters_apply_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_bond_parameters_apply_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
 }
@@ -5797,10 +5793,9 @@ on_bond_parameters_apply_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_bond_parameters_close_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_bond_parameters_close_button_clicked (GtkButton       *button,
+                                        gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    gtk_widget_hide(w);
 
@@ -5810,8 +5805,7 @@ on_bond_parameters_close_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_background_colour1_activate         (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    // GtkWidget *wb = widget_from_builder("background_black1");
    // GtkWidget *ww = widget_from_builder("background_white1");
@@ -5821,12 +5815,12 @@ on_background_colour1_activate         (GMenuItem     *menuitem,
 
 #if (GTK_MAJOR_VERSION >= 4)
 #else
-  if (background_is_black_p())
-/*     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE); */
-    				/* a GtkRadioMenuItem not a toggle button */
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wb), TRUE);
-  else
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(ww), TRUE);
+   if (background_is_black_p())
+      /*     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE); */
+      /* a GtkRadioMenuItem not a toggle button */
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(wb), TRUE);
+   else
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(ww), TRUE);
 #endif
 }
 
@@ -8274,16 +8268,14 @@ on_search_monomer_library1_activate    (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_monomer_library_search_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_monomer_library_search_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
    GtkWidget *entry = widget_from_builder("monomer_search_entry");
-   entry_char_type *text;
    GtkWidget *viewport = widget_from_builder("monomer_search_results_viewport");
 
    if (entry) {
-      text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
+      entry_char_type *text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
       if (text) {
          handle_make_monomer_search(text, viewport);
       }
@@ -8293,9 +8285,8 @@ on_monomer_library_search_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_monomer_search_entry_changed        (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
+on_monomer_search_entry_changed (GtkEditable     *editable,
+                                 gpointer         user_data) {
 
 }
 
@@ -8305,8 +8296,7 @@ extern "C" G_MODULE_EXPORT
 gboolean
 on_monomer_search_entry_key_press_event (GtkWidget       *widget,
                                         GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    GtkWidget *entry = widget_from_builder("monomer_search_entry");
    entry_char_type *text;
@@ -10766,7 +10756,7 @@ on_refine_params_weight_matrix_entry_changed
 extern "C" G_MODULE_EXPORT
 void
 on_remarks_browser1_activate (GMenuItem     *menuitem,
-                                                  gpointer         user_data) {
+                              gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog(); // uses builder
    gtk_widget_show(w);
@@ -10778,9 +10768,12 @@ on_remarks_browser1_activate (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_remarks_browser_molecule_chooser_dialog_response(GtkDialog       *dialog,
-                                                                        gint             response_id,
-                                                                        gpointer         user_data) {
+                                                    gint             response_id,
+                                                    gpointer         user_data) {
+
+   std::cout << "here A in on_remarks_browser_molecule_chooser_dialog_response() with response_id " << response_id << std::endl;
    if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "here B in on_remarks_browser_molecule_chooser_dialog_response() with response_id " << response_id << std::endl;
       show_remarks_browswer(); // makes an on-the-fly dialog!
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
@@ -11427,10 +11420,11 @@ on_edit_restraints_activate(GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_merge_molecules1_activate(GMenuItem     *menuitem,
-                                                      gpointer         user_data)
-{
+on_edit_merge_molecules1_activate(GMenuItem *menuitem,
+                                  gpointer   user_data) {
+
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

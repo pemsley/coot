@@ -173,7 +173,7 @@ void handle_filename_filter_gtk2(GtkWidget *widget);
 void set_transient_and_position(int window_type, GtkWidget *window);
 
 
-GtkWidget *main_menubar();	/* maybe these should be called main_window_xxx() */
+GMenuModel *main_menumodel();	/* maybe these should be called main_window_xxx() */
 GtkWidget *main_statusbar();
 GtkWidget *main_toolbar();
 GtkWidget *main_hbox();
@@ -523,11 +523,10 @@ void python_window_enter_callback( GtkWidget *widget,
 /* Accession code */
 void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry);
 
-/* in here we check if libcheck is available (if scripting is available) */
-GtkWidget *wrapped_create_libcheck_monomer_dialog();
+GtkWidget *wrapped_create_get_monomer_dialog();
 
-/* Libcheck monomer code */
-void handle_get_libcheck_monomer_code(GtkWidget *widget);
+/* get monomer code */
+void handle_get_monomer_code(GtkWidget *widget);
 
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport);
@@ -713,8 +712,8 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
 int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 						 const char *dialog_name,
 						 short int have_ncs_flag);
-void fill_ligands_sigma_level_entry(GtkWidget *dialog);
-void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
+void fill_ligands_sigma_level_entry();
+void fill_ligands_expert_options();
 void set_ligand_expert_options_from_widget(GtkWidget *button);
 
 void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button);

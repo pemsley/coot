@@ -3004,33 +3004,33 @@ graphics_info_t::setup_hud_buttons() {
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() --start-- error " << err << std::endl;
 
-   std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
-             << " glareas[0] " << glareas[0] << std::endl;
+   // std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
+   //          << " glareas[0] " << glareas[0] << std::endl;
    attach_buffers();
 
    GError* error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() current GError on glarea " << error->message << std::endl;
-   else
-      std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
+   // else
+   //    std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() post attach_buffers() error " << err << std::endl;
    error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() 2 current GError on glarea " << error->message << std::endl;
-   else
-      std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
+   // else
+   //    std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
 
-   std::cout << "in setup_hud_buttons() 1 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 1 " << std::endl;
    // shader_for_hud_buttons.Use(); // 20220605-PE I don't need to do this to setup the mesh.
-   std::cout << "in setup_hud_buttons() 2 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 2 " << std::endl;
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
-   std::cout << "in setup_hud_buttons() 3 " << std::endl;
+   // std::cout << "in setup_hud_buttons() 3 " << std::endl;
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
    // maybe mesh_for_hud_buttons.close() ?
-   std::cout << "in setup_hud_buttons() done " << std::endl;
+   // std::cout << "in setup_hud_buttons() done " << std::endl;
 }
 
 void
@@ -6303,21 +6303,30 @@ graphics_info_t::fullscreen() {
 
    if (GTK_IS_WINDOW(window)) {
 
-      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
-      GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
-      // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
-      GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
+      // GtkWidget *vbox       = widget_from_builder("main_window_vbox");
+      // GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
+      // GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      // GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
 
-      // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
-      gtk_widget_hide(menu_bar_frame);
-      // std::cout << "hiding tool_bar " << tool_bar << std::endl;
-      gtk_widget_hide(tool_bar);
+      // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
+      // GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
+
+      // // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
+      // gtk_widget_hide(menu_bar_frame);
+      // // std::cout << "hiding tool_bar " << tool_bar << std::endl;
+      // gtk_widget_hide(tool_bar);
+
+
+      std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
       gtk_window_fullscreen(GTK_WINDOW(window));
 
+      GdkToplevel* toplevel = GDK_TOPLEVEL(window);
+      GdkToplevelState state = gdk_toplevel_get_state(toplevel);
+      std::cout << "Debug:: toplevel state " << window << " " << state << std::endl;
+
+
 #if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
+      // std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
 #else
          gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
          gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);

@@ -167,93 +167,6 @@ windows_set_error_mode() {
 #endif // MINGW
 }
 
-GtkWidget*
-my_create_splash_screen_window (void) {
-
-#if (GTK_MAJOR_VERSION >= 4)
-   GtkWidget *splash_screen_window = gtk_window_new();
-#else
-   GtkWidget *splash_screen_window = gtk_window_new(GTK_WINDOW_POPUP);
-   gtk_window_set_position(GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
-#endif
-   gtk_window_set_title(GTK_WINDOW (splash_screen_window), "Coot-Splash");
-
-#if (GTK_MAJOR_VERSION >=4)
-   // gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
-#else
-   gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
-#endif
-
-   GtkWidget *image = create_pixmap(splash_screen_window, "coot-1.png");
-   gtk_widget_show(image);
-
-#if (GTK_MAJOR_VERSION >=4)
-   // 20220531-PE How do I do this simple thing!?
-#else
-   gtk_container_add(GTK_CONTAINER(splash_screen_window), image);
-#endif
-
-   return splash_screen_window;
-}
-
-
-GtkWidget *do_splash_screen(const command_line_data &cld) {
-
-   // 20220313-PE this runs before builder is set.
-
-#if (GTK_MAJOR_VERSION >=4)
-   return nullptr; // just do nothing for now.
-#endif
-
-   GtkWidget *splash_screen = 0;
-   setup_splash_screen();
-
-   if (cld.use_splash_screen) {
-      if (graphics_info_t::use_graphics_interface_flag) {
-         std::string f = cld.alternate_splash_screen_file_name;
-         if (f.empty()) {
-            splash_screen = my_create_splash_screen_window();
-            // splash_screen = widget_from_builder("splash_screen_window");
-            // std::cout << "-- in do_splash_screen() splash_screen set to " << splash_screen << std::endl;
-         } else {
-            splash_screen = create_splash_screen_window_for_file(f.c_str());
-         }
-         if (splash_screen) {
-            gtk_widget_show(splash_screen);
-         } else{
-            std::cout << "ERROR:: in main() splash is null " << std::endl;
-         }
-
-#if (GTK_MAJOR_VERSION >=4)
-#else
-         while(gtk_main_iteration() == FALSE);
-         while (gtk_events_pending()) {
-            usleep(3000);
-            gtk_main_iteration();
-         }
-#endif
-      }
-   }
-   return splash_screen;
-}
-
-void
-setup_pixmap_directory() {
-
-   // default location:
-   std::string dir = coot::package_data_dir();
-   std::string dir_2 = coot::util::append_dir_dir(dir, "glade");
-   std::string pixmap_dir = coot::util::append_dir_dir(dir_2, "pixmaps");
-
-   // over-ridden by user?
-   char *s = getenv("COOT_PIXMAPS_DIR");
-   if (s)
-      pixmap_dir = s;
-
-   add_pixmap_directory(pixmap_dir.c_str());
-
-}
-
 
 
 
@@ -380,8 +293,8 @@ main(int argc, char *argv[]) {
 
    GtkWidget *splash = nullptr;
 
-   if (graphics_info_t::use_graphics_interface_flag)
-      splash = do_splash_screen(cld);
+   // if (graphics_info_t::use_graphics_interface_flag)
+   // splash = do_splash_screen(cld);
 
    setup_symm_lib();
    check_reference_structures_dir();
@@ -566,23 +479,23 @@ void load_gtk_resources() {
 void
 setup_splash_screen() {
 
-   // default location:
-   std::string data_dir = coot::package_data_dir();
-   std::string dir_2 = coot::util::append_dir_dir(data_dir, "glade");
-   std::string splash_screen_pixmap_dir = coot::util::append_dir_dir(dir_2, "pixmaps");
+   // // default location:
+   // std::string data_dir = coot::package_data_dir();
+   // std::string dir_2 = coot::util::append_dir_dir(data_dir, "glade");
+   // std::string splash_screen_pixmap_dir = coot::util::append_dir_dir(dir_2, "pixmaps");
 
-   // over-ridden by user?
-   char *s = getenv("COOT_PIXMAPS_DIR");
-   if (s) {
-      splash_screen_pixmap_dir = s;
-   }
+   // // over-ridden by user?
+   // char *s = getenv("COOT_PIXMAPS_DIR");
+   // if (s) {
+   //    splash_screen_pixmap_dir = s;
+   // }
 
-   if (false)
-      std::cout << "INFO:: splash_screen_pixmap_dir " << splash_screen_pixmap_dir << std::endl;
+   // if (false)
+   //    std::cout << "INFO:: splash_screen_pixmap_dir " << splash_screen_pixmap_dir << std::endl;
 
-   // now add splash_screen_pixmap_dir to the pixmaps_directories CList
-   //
-   add_pixmap_directory(splash_screen_pixmap_dir.c_str());
+   // // now add splash_screen_pixmap_dir to the pixmaps_directories CList
+   // //
+   // add_pixmap_directory(splash_screen_pixmap_dir.c_str());
 
 }
 

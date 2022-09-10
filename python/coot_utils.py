@@ -28,7 +28,9 @@ import string
 import numbers
 import coot
 import coot_gui # circular dependency
-from redefine_functions import *
+from redefine_functions import * # 20220828-PE this needs fixing
+
+print("coot_utils.py says hello")
 
 # hack this in for now
 global use_gui_qm
@@ -365,10 +367,8 @@ def molecule_has_hydrogens(imol):
 
 
 def add_hydrogens_using_refmac(imol):
-    out_file_name = os.path.join("coot-refmac",
-                                 molecule_name_stub(imol, 0) + '-needs-H.pdb')
-    in_file_name = os.path.join("coot-refmac",
-                                molecule_name_stub(imol, 0) + '-with-H.pdb')
+    out_file_name = os.path.join("coot-refmac", molecule_name_stub(imol, 0) + '-needs-H.pdb')
+    in_file_name  = os.path.join("coot-refmac", molecule_name_stub(imol, 0) +  '-with-H.pdb')
     coot.make_directory_maybe('coot-refmac')
     coot.write_pdb_file(imol, out_file_name)
     return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
@@ -1060,7 +1060,8 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
 
             if pipe_data:
                 for data in data_list:
-                    process.stdin.write(data + "\n")
+                    # process.stdin.write(data + "\n")
+                    process.stdin.write('{}\n'.format(data).encode('utf-8'))
                 process.stdin.close()
             else:
                 # file?
@@ -4322,6 +4323,8 @@ def merge_solvent_chains(imol):
             last_prev_water = new_end
 
 
+# delete this function ASAP.
+#
 # helper to comvert functions to strings
 def cmd2str(*args):
     from types import StringType

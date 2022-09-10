@@ -7,6 +7,9 @@
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
 #include "widget-from-builder.hh"
+#include "c-interface-gui.hh" // set transient for main window
+#include "cc-interface-scripting.hh"  // move this up
+#include "cc-interface.hh"
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -217,11 +220,30 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                   G_GNUC_UNUSED GVariant *parameter,
-                   G_GNUC_UNUSED gpointer user_data) {
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *dialog = wrapped_create_libcheck_monomer_dialog();
-   gtk_widget_show(dialog);
+   GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
+   if (! overlay) {
+      std::cout << "get_monomer_action(): No overlay" << std::endl;
+      return;
+   }
+   GtkWidget *vbox    = widget_from_builder("get_monomer_vbox");
+   GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
+   if (no_entry_frame)
+      gtk_widget_set_visible(no_entry_frame, FALSE); // initially
+
+   gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
+
+   gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
+   gtk_widget_set_valign(vbox, GTK_ALIGN_START);
+
+   GtkWidget *entry = widget_from_builder("get_monomer_entry");
+   gtk_widget_set_can_focus(entry, TRUE);
+   gtk_widget_set_focusable(entry, TRUE);
+   gtk_widget_grab_focus(entry);
+
+   gtk_widget_show(vbox);
 }
 
 
@@ -291,30 +313,87 @@ G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_OCA;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
 }
 
 void
 fetch_pdb_and_map_using_eds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_EDS;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
 }
 
 void
 fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
    GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   set_transient_for_main_window(window);
    gtk_widget_show(window);
+}
+
+
+void
+fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      fetch_and_superpose_alphafold_models(imol);
+   }
+}
+
+void
+fetch_alphafold_model_for_uniprot_id_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   int n = COOT_UNIPROT_ID;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   GtkWidget *label = widget_from_builder("accession_code_window_label");
+   gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+   gtk_window_set_title(GTK_WINDOW(window), "Fetch AlphaFold Model");
+
+}
+
+void
+fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      const auto &m = graphics_info_t::molecules[imol];
+      std::string comp_id = m.get_residue_name(res_spec);
+      // python-function: coot_utils.get_SMILES_for_comp_id_from_pdbe arg: comp_id
+      std::cout << "run python function coot_utils.get_SMILES_for_comp_id_from_pdbe " << comp_id << std::endl;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(comp_id) };
+      std::string sc = g.state_command("coot_utils", "get_SMILES_for_comp_id_from_pdbe", args, lang);
+      std::cout << ":::::::::::::::::::::: python command: " << sc << std::endl;
+      safe_python_command("import coot_utils"); // Hack. This has already happened, but python has forgotten.
+      safe_python_command(sc);
+   }
 }
 
 void
@@ -408,6 +487,54 @@ change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "make_link_action(): coot user_defined click 2" << std::endl;
+   // 20220828-PE needs check_if_in_range_define
+}
+
+#include "cc-interface.hh" // for fullscreen()
+
+void
+fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      fix_nomenclature_errors(imol);
+   }
+}
+
+#include "c-interface-ligands-swig.hh"
+
+void
+invert_this_chiral_centre_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t &atom_spec = pp.second.second;
+      invert_chiral_centre(imol, atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code, atom_spec.atom_name);
+   }
+}
+
+void
+merge_solvent_chains_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "merge solvent chains for imol " << imol << std::endl;
+   }
+}
+
+void
 copy_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
@@ -426,6 +553,7 @@ merge_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -472,7 +600,14 @@ void
 residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
-   do_residue_info_dialog();
+   // do_residue_info_dialog(); // this waits for a click - the old way
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      graphics_info_t g;
+      g.output_residue_info_dialog(imol, res_spec);
+   }
 }
 
 void
@@ -597,8 +732,168 @@ scripting_scheme_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void
+use_clustalw_for_alignment_then_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                              G_GNUC_UNUSED GVariant *parameter,
+                                              G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "launch a python gui for clustalw" << std::endl;
+
+   // generic_chooser_entry_and_file_selector("Align Sequence to Model: ",
+   //                                         coot_utils.valid_model_molecule_qm,
+   //                                         "Chain ID",
+   //                                         "",
+   //                                         "Select PIR Alignment file",
+   //                                         lambda imol, chain_id, target_sequence_pif_file:
+   //                                         coot.run_clustalw_alignment(imol, chain_id, target_sequence_pif_file)))
+
+}
 
 
+void
+mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void
+copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+make_a_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+average_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+brighten_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                     G_GNUC_UNUSED GVariant *parameter,
+                     G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+set_map_is_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+another_contour_level_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+multichicken_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+copy_ncs_residue_range_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+copy_ncs_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+ncs_jumping_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_cryo_em_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+}
+
+void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+}
+
+
+
+void
+associate_sequence_file_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+}
+
+void
+assign_sequence_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+}
 
 void
 lsq_superpose_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -676,6 +971,174 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_add_hydrogen_atoms(imol);
+   }
+         
+}
+
+void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol) };
+      std::string sc = g.state_command("coot_utils", "add_hydrogens_using_refmac", args, lang);
+      safe_python_command("import coot_utils");
+      safe_python_command(sc);
+   }
+}
+
+void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.solvent_ligands_gui()");
+
+}
+
+
+// this should be in a header, I suppose.
+GtkWidget *wrapped_create_find_waters_dialog();
+
+void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_find_waters_dialog();
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+
+}
+
+void find_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   do_find_ligands_dialog();
+
+}
+
+void arrange_waters_around_protein_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void assign_hetatms_for_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void assign_hetatoms_to_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
+      std::string sc = g.state_command("fitting", "backrub_rotamers_for_chain", args, lang);
+      safe_python_command("import fitting");
+      safe_python_command(sc);
+   }
+}
+
+void find_helices_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void find_strands_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void
+fill_partial_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void phosphorylate_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+   if (parameter) {
+      gchar *result;
+      g_variant_get(parameter, "s", &result);
+      std::string ss(result);
+      std::cout << "db-loop size " << ss << std::endl;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+      }
+   }
+
+}
+
+void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rigid_body_fit_residue_ranges_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void rigid_body_fit_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+
 
 void
 draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -694,8 +1157,6 @@ display_only_active_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    display_only_active();
 }
-
-#include "cc-interface.hh" // for fullscreen()
 
 void
 fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1057,10 +1518,60 @@ temp_factor_variance_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_ac
    std::cout << "dynamic menus for temperature factor variance analysis" << std::endl;
 }
 
-void
-unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+
+void alignment_vs_pir_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                    G_GNUC_UNUSED GVariant *parameter,
+                                                    G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+          
+void
+unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
 
    std::cout << "dynamic menus unmodelled blobs" << std::endl;
 }
@@ -1102,6 +1613,50 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
    set_use_perspective_projection(1);
+}
+
+void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residue_type_selection action" << std::endl;
+
+}
+
+void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with alt confs action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
+}
+
+void residues_with_cis_peptides_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with cis peptides action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
+}
+
+void residues_with_missing_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "residues with missing atoms action" << std::endl;
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
 }
 
 #include "rsr-functions.hh"
@@ -1165,11 +1720,65 @@ refine_all_atoms(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
-refine_pick_range_by_hand(G_GNUC_UNUSED GSimpleAction *simple_action,
-                          G_GNUC_UNUSED GVariant *parameter,
-                          G_GNUC_UNUSED gpointer user_data) {
+refine_with_range_picked_atoms() {
 
-   std::cout << "Refine pick range " << std::endl;
+   graphics_info_t g;
+   std::string alt_conf; // needs to be set correctly
+   short int is_water_flag = false; // needs to be set correctly
+
+   const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
+   const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+
+   if (alt_conf_1 == alt_conf_2)
+      if (! alt_conf_1.empty())
+         alt_conf = alt_conf_1;
+
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+
+   const std::string &chain_id_1 = g.in_range_first_picked_atom.chain_id;
+   const std::string &chain_id_2 = g.in_range_second_picked_atom.chain_id;
+
+   int res_no_1 = g.in_range_first_picked_atom.res_no;
+   int res_no_2 = g.in_range_second_picked_atom.res_no;
+
+   const std::string &ins_code_1 = g.in_range_first_picked_atom.ins_code;
+   const std::string &ins_code_2 = g.in_range_second_picked_atom.ins_code;
+
+   if (g.is_valid_model_molecule(imol_1)) {
+
+      if (imol_1 == imol_2) {
+         g.refine_residue_range(imol_1, chain_id_1, chain_id_2, res_no_1, ins_code_1, res_no_2, ins_code_2,
+                                alt_conf, is_water_flag);
+      }
+   }
+
+}
+
+void
+refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::cout << "in refine_range with in_range_define " << g.in_range_define << std::endl;
+   if (g.in_range_define == 2) {
+      // so what were the two atoms?
+
+      refine_with_range_picked_atoms();
+
+   } else {
+      std::string m = "Use the Range button to define a residue range (pick 2 atoms)";
+      g.add_status_bar_text(m);
+   }
+}
+
+void
+repeat_refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+
+   refine_with_range_picked_atoms();
 }
 
 void
@@ -1197,6 +1806,53 @@ refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
    regularize_residue();
 }
 
+
+void
+fix_atom(GSimpleAction *simple_action,
+         GVariant *parameter,
+         gpointer user_data) {
+   
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+
+void
+unfix_atom(GSimpleAction *simple_action,
+           GVariant *parameter,
+           gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+
+void
+unfix_all_atoms(GSimpleAction *simple_action,
+                GVariant *parameter,
+                gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      g.molecules[imol].clear_all_fixed_atoms();
+   }
+}
+
+
 void
 mutate_to_type(GSimpleAction *simple_action,
                GVariant *parameter,
@@ -1223,6 +1879,20 @@ void
 delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
+
+   auto delete_residue_range = [] () {
+
+      graphics_info_t g;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_residue_range(imol_1, rs1, rs2);
+         }
+      }
+   };
 
    if (parameter) {
       gchar *result;
@@ -1259,7 +1929,10 @@ delete_item(GSimpleAction *simple_action,
             // Needs "check_if_in_range_defines" to be working.
             // Here we need to turn on the expecting the delet residue range "start" flag
             // and unset the others c.f. set_delete_residue_zone_mode()
-            std::cout << "delete residue-range needs fixing" << std::endl;
+
+            delete_residue_range();
+            g.graphics_draw();
+
          }
          if (par == "side-chain") {
             auto &m = g.molecules[imol];
@@ -1317,6 +1990,9 @@ create_actions(GtkApplication *application) {
    add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
    add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
    add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
+   add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
+   add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
+   add_action( "fetch_alphafold_model_for_uniprot_id_action", fetch_alphafold_model_for_uniprot_id_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
@@ -1327,6 +2003,7 @@ create_actions(GtkApplication *application) {
 
    // Edit
 
+   add_action(              "make_link_action",               make_link_action); // add header link
    add_action(       "change_chain_ids_action",        change_chain_ids_action);
    add_action(          "copy_molecule_action",           copy_molecule_action);
    add_action( "copy_molecule_fragment_action",  copy_molecule_fragment_action);
@@ -1339,7 +2016,10 @@ create_actions(GtkApplication *application) {
    add_action(           "residue_info_action",            residue_info_action);
    add_action(        "edit_restraints_action",         edit_restraints_action);
    add_action(       "show_preferences_action",        show_preferences_action);
+   add_action(   "merge_solvent_chains_action",    merge_solvent_chains_action);
    add_action("show_shader_preferences_action", show_shader_preferences_action);
+   add_action("fix_nomenclature_errors_action", fix_nomenclature_errors_action);
+   add_action("invert_this_chiral_centre_action", invert_this_chiral_centre_action);
 
    // Calculate
 
@@ -1348,33 +2028,99 @@ create_actions(GtkApplication *application) {
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
    add_action(             "run_script_action",              run_script_action);
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
-   add_action(  "other_modelling_tools_action",   other_modelling_tools_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
 
-   add_action("load_tutorial_model_and_data_action", load_tutorial_model_and_data_action);
+   add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);
+   add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
+
+   // Calculate -> Map Tools
+
+   add_action(                        "copy_map_action",                         copy_map_action);
+   add_action(                    "average_maps_action",                     average_maps_action);
+   add_action(                    "multichicken_action",                     multichicken_action);
+   add_action(                   "brighten_maps_action",                    brighten_maps_action);
+   add_action(           "another_contour_level_action",            another_contour_level_action);
+   add_action(           "make_a_difference_map_action",            make_a_difference_map_action);
+   add_action(       "set_map_is_difference_map_action",        set_map_is_difference_map_action);
+   add_action(      "mask_map_by_atom_selection_action",       mask_map_by_atom_selection_action);
+   add_action(   "make_a_smoother_copy_of_a_map_action",    make_a_smoother_copy_of_a_map_action);
+   add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
+   add_action("make_a_very_smooth_copy_of_a_map_action", make_a_very_smooth_copy_of_a_map_action);
+
+   // Calculate -> Modules
+
+   add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
+   add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
+   add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
+   add_action(    "add_prosmart_module_action",     add_prosmart_module_action);
+   add_action(      "add_rcrane_module_action",       add_rcrane_module_action);
+   add_action(  "add_restraints_module_action",   add_restraints_module_action);
+   add_action(      "add_refine_module_action",       add_refine_module_action);
+   add_action(       "add_shelx_module_action",        add_shelx_module_action);
+
+   // Calculate -> NCS
+
+   add_action("copy_ncs_residue_range_action", copy_ncs_residue_range_action);
+   add_action(        "copy_ncs_chain_action",         copy_ncs_chain_action);
+   add_action(           "ncs_jumping_action",            ncs_jumping_action);
+   add_action(           "ncs_ligands_action",            ncs_ligands_action);
+
+   // Calculate -> Assign Sequnence
+
+   add_action("associate_sequence_file_action", associate_sequence_file_action);
+   add_action(        "assign_sequence_action",         assign_sequence_action);
+
+   // Modelling
+
+   add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
+   add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
+   add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
+   add_action(                   "find_ligands_action",                    find_ligands_action);
+   add_action(                    "find_waters_action",                     find_waters_action);
+   add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
+   add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
+   add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);
+   add_action(     "backrub_rotamers_for_chain_action",      backrub_rotamers_for_chain_action);
+   add_action(            "find_helices_in_map_action",             find_helices_in_map_action);
+   add_action(            "find_strands_in_map_action",             find_strands_in_map_action);
+   add_action(          "fill_partial_residues_action",           fill_partial_residues_action);
+   add_action(     "phosphorylate_this_residue_action",      phosphorylate_this_residue_action);
+   add_action(                "replace_residue_action",                 replace_residue_action);
+   add_action(  "rigid_body_fit_residue_ranges_action",   rigid_body_fit_residue_ranges_action);
+   add_action(        "rigid_body_fit_molecule_action",         rigid_body_fit_molecule_action);
+   add_action(              "superpose_ligands_action",               superpose_ligands_action);
+   add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
+   add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
+
+   add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 
    // Draw
 
-   add_action(   "display_only_active_action",    display_only_active_action);
-   add_action(     "background_colour_action",      background_colour_action);
-   add_action(       "bond_parameters_action",        bond_parameters_action);
-   add_action(          "bond_colours_action",           bond_colours_action);
-   add_action(            "fullscreen_action",             fullscreen_action);
-   add_action(            "go_to_atom_action",             go_to_atom_action);
-   add_action(        "label_CA_atoms_action",         label_CA_atoms_action);
-   add_action(        "map_parameters_action",         map_parameters_action);
-   add_action(       "generic_objects_action",        generic_objects_action);
-   add_action(      "label_neighbours_action",       label_neighbours_action);
-   add_action("label_atoms_in_residue_action", label_atoms_in_residue_action);
-   add_action("draw_cell_and_symmetry_action", draw_cell_and_symmetry_action);
+   add_action(    "display_only_active_action",     display_only_active_action);
+   add_action(      "background_colour_action",       background_colour_action);
+   add_action(        "bond_parameters_action",         bond_parameters_action);
+   add_action(           "bond_colours_action",            bond_colours_action);
+   add_action(             "fullscreen_action",              fullscreen_action);
+   add_action(             "go_to_atom_action",              go_to_atom_action);
+   add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
+   add_action(         "map_parameters_action",          map_parameters_action);
+   add_action(        "generic_objects_action",         generic_objects_action);
+   add_action(       "label_neighbours_action",        label_neighbours_action);
+   add_action( "label_atoms_in_residue_action",  label_atoms_in_residue_action);
+   add_action( "draw_cell_and_symmetry_action",  draw_cell_and_symmetry_action);
 
    add_action(   "ghost_control_action",      ghost_control_action);
    add_action(        "spin_view_action",         spin_view_action);
    add_action(        "rock_view_action",         rock_view_action);
    add_action( "perspective_view_action",  perspective_view_action);
    add_action("orthographic_view_action", orthographic_view_action);
+
+   add_action(     "residue_type_selection_action",      residue_type_selection_action);
+   add_action(    "residues_with_alt_confs_action",     residues_with_alt_confs_action);
+   add_action( "residues_with_cis_peptides_action",  residues_with_cis_peptides_action);
+   add_action("residues_with_missing_atoms_action", residues_with_missing_atoms_action);
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);
@@ -1411,6 +2157,16 @@ create_actions(GtkApplication *application) {
    add_action( "gln_and_asn_b_factor_outlier_item_action",  gln_and_asn_b_factor_outlier_item_action);
    add_action("temp_factor_variance_analysis_item_action", temp_factor_variance_analysis_item_action);
 
+
+   add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
+   add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
+   add_action(             "validation_outliers_action",              validation_outliers_action);
+   add_action(           "refmac_log_validation_action",            refmac_log_validation_action);
+   add_action(       "highly_coordinates_waters_action",        highly_coordinates_waters_action);
+   add_action(     "atoms_with_zero_occupancies_action",      atoms_with_zero_occupancies_action);
+   add_action("all_atom_contact_dots_molprobity_action", all_atom_contact_dots_molprobity_action);
+   add_action("overlaps_peptides_cbeta_ramas_and_rotas_action", overlaps_peptides_cbeta_ramas_and_rotas_action);
+
    // About
 
    add_action("remarks_browser_action", remarks_browser_action);
@@ -1425,10 +2181,17 @@ create_actions(GtkApplication *application) {
    add_action("refine_single_residue",            refine_single_residue);
    add_action("refine_chain",                     refine_chain);
    add_action("refine_all_atoms",                 refine_all_atoms);
-   add_action("refine_pick_range_by_hand",        refine_pick_range_by_hand);
+   add_action("refine_range",                     refine_range);
+   add_action("repeat_refine_range",              repeat_refine_range);
    add_action("refine_regularize_sphere",         refine_regularize_sphere);
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);
+
+   // Fix Atoms
+
+   add_action(  "fix_atom",        fix_atom);
+   add_action("unfix_atom",      unfix_atom);
+   add_action("unfix_all_atoms", unfix_all_atoms);
 
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);

@@ -6419,7 +6419,7 @@ the Ctrl key when moving the mouse.</property>
             </child>
             <child>
               <object class="GtkCheckButton" id="copy_fragment_move_molecule_here_checkbutton">
-                <property name="label" translatable="yes"> Move new moelcule here</property>
+                <property name="label" translatable="yes">Move new moelcule here</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>

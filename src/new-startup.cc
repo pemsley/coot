@@ -15,36 +15,36 @@ void init_framebuffers(GtkWidget *glarea) {
 
    // put this into graphics-info I suppose.
 
-   std::cout << "DEBUG:: use_framebuffers: " << graphics_info_t::use_framebuffers << std::endl;
+   // std::cout << "DEBUG:: use_framebuffers: " << graphics_info_t::use_framebuffers << std::endl;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
-      if (graphics_info_t::use_framebuffers) {
-         unsigned int index_offset = 0;
-         GLenum err;
-         graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 1;
-         graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 2;
-         graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 3;
-         graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 4;
-         graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
-                                                << err << std::endl;
-      }
+   if (graphics_info_t::use_framebuffers) {
+      unsigned int index_offset = 0;
+      GLenum err;
+      graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
+      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
+                                             << err << std::endl;
+      index_offset = 1;
+      graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
+      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
+                                             << err << std::endl;
+      index_offset = 2;
+      graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
+      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
+                                             << err << std::endl;
+      index_offset = 3;
+      graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
+      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
+                                             << err << std::endl;
+      index_offset = 4;
+      graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
+      err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                             << err << std::endl;
+   }
 
 }
 
@@ -54,8 +54,8 @@ void init_framebuffers(GtkWidget *glarea) {
 void
 new_startup_realize(GtkWidget *gl_area) {
 
-   std::cout << "new_startup_realize() ------------------- start ------------------"
-             << std::endl;
+   // std::cout << "new_startup_realize() ------------------- start ------------------"
+   //              << std::endl;
 
    gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
 
@@ -420,8 +420,130 @@ void setup_gestures(GtkWidget *glarea) {
 
 }
 
+void
+install_icons_into_theme(GtkWidget *w) {
+
+
+   // This is how to lookup an icon
+   //
+   // const char *fallbacks[] = {"one", "two", "three"};
+   // GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display (w));
+   // GtkTextDirection td = GTK_TEXT_DIR_LTR;
+   // GtkIconLookupFlags icon_lookup_flags = GTK_ICON_LOOKUP_FORCE_REGULAR;
+   //
+   // GtkIconPaintable *icon = gtk_icon_theme_lookup_icon(icon_theme,
+   //                                                     "my-icon-name", // icon name
+   //                                                     fallbacks,
+   //                                                     48, // icon size
+   //                                                     1,  // scale
+   //                                                     td,
+   //                                                     icon_lookup_flags);
+   // GdkPaintable *paintable = GDK_PAINTABLE (icon);
+   // // Use the paintable
+   // g_object_unref(icon);
+
+
+#if 0 // just testing
+   const char *theme_name = gtk_icon_theme_get_theme_name(icon_theme);
+   if (theme_name)
+      std::cout << "===== theme-name: " << theme_name << " === " << std::endl;
+   else
+      std::cout << "===== null theme-name === " << std::endl;
+#endif
+
+   GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
+   std::string pkg_data_dir = coot::package_data_dir();
+   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
+   gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
+}
+
+
+void
+on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventControllerKey *controller,
+                                      guint                  keyval,
+                                      guint                  keycode,
+                                      guint                  modifiers,
+                                      GtkEntry              *entry) {
+   std::cout << "in on_go_to_residue_keyboarding_mode_entry_key_controller_key_released() "
+             << keycode << std::endl;
+   GtkWidget *window = widget_from_builder("keyboard_go_to_residue_window");
+
+   if (keycode == 36) {
+      std::string s = gtk_editable_get_text(GTK_EDITABLE(entry));
+      graphics_info_t g;
+      g.apply_go_to_residue_keyboading_string(s);
+      gtk_editable_set_text(GTK_EDITABLE(entry), "");
+      gtk_widget_hide(GTK_WIDGET(window));
+   }
+
+   if (keycode == 53) {
+      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_editable_set_text(GTK_EDITABLE(entry), "");
+   }
+}
+
 // in screen-utils.cc
 void setup_application_icon(GtkWindow *window);
+
+void setup_go_to_residue_keyboarding_mode_entry_signals() {
+   GtkWidget *entry = widget_from_builder("keyboard_go_to_residue_entry");
+   if (entry) {
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
+      gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
+
+   }
+}
+
+std::vector<std::string> pixmap_directories_gtk4 = {};
+
+GtkWidget *
+create_pixmap_gtk4_version(const std::string &local_filename) {
+
+  GtkWidget *image = 0;
+
+  std::string pdd = coot::package_data_dir();
+  std::cout << "pdd " << pdd << std::endl;
+  std::string icon_dir = coot::util::append_dir_file(pdd, "images");
+  pixmap_directories_gtk4.push_back(icon_dir);
+
+  if (local_filename.empty()) return 0;
+
+  if (coot::file_exists(std::string("./") + local_filename)) {
+     image = gtk_image_new_from_file(local_filename.c_str());
+  } else {
+     for (unsigned int i=0; i<pixmap_directories_gtk4.size(); i++) {
+        const std::string &d = pixmap_directories_gtk4[i];
+        std::string fn = coot::util::append_dir_file(d, local_filename);
+        if (coot::file_exists(fn)) {
+           image = gtk_image_new_from_file(fn.c_str());
+           //gtk_image_set_pixel_size(GTK_IMAGE(image), 16);
+           break;
+        }
+     }
+  }
+
+  return image;
+}
+
+GtkWidget*
+new_startup_create_splash_screen_window() {
+
+   GtkWidget *splash_screen_window = gtk_window_new();
+   gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
+   // gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
+   // gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
+   GtkWidget *image = create_pixmap_gtk4_version("coot-1.png");
+
+   // gtk_widget_set_size_request(image, 660, -1);// make the window wide, not the image
+   // std::cout << "@@@@@@@@@@@@@@ create_pixmap_gtk4_version() returned image " << image << std::endl;
+   gtk_widget_show(image);
+
+   gtk_window_set_child(GTK_WINDOW(splash_screen_window), image);
+   return splash_screen_window;
+}
+
+
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -430,8 +552,13 @@ new_startup_application_activate(GtkApplication *application,
    GtkBuilder *builder = gtk_builder_new();
    if (GTK_IS_BUILDER(builder)) {
    } else {
-      std::cout << "in new_startup_application_activate() builder was NOT a builder" << std::endl;
+      std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
+                << std::endl;
+      return;
    }
+
+   GtkWidget *splash_screen = new_startup_create_splash_screen_window();
+   gtk_widget_show(splash_screen);
 
    std::string dir = coot::package_data_dir();
    std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
@@ -450,6 +577,9 @@ new_startup_application_activate(GtkApplication *application,
 
    GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
    graphics_info_t::statusbar = sb;
+   // std::cout << "debug:: statusbar: " << sb << std::endl;
+
+   install_icons_into_theme(GTK_WIDGET(sb));
 
    std::string window_name = "GTK4 Coot-" + std::string(VERSION);
    GtkWidget *app_window = gtk_application_window_new(application);
@@ -459,7 +589,7 @@ new_startup_application_activate(GtkApplication *application,
    graphics_info_t::set_main_window(app_window);
 
    guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
-   std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+   // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
 
    graphics_info_t g;
    g.set_gtkbuilder(builder);
@@ -470,7 +600,7 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
    // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
-   //GMenu *menu = create_menu_by_hand(application);
+   // GMenu *menu = create_menu_by_hand(application);
    GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
    gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
@@ -519,7 +649,6 @@ new_startup_application_activate(GtkApplication *application,
    gtk_window_present(GTK_WINDOW(app_window));
    // gtk_widget_show(window);
 
-
    GtkWidget *gl_area = new_startup_create_glarea_widget();
    graphics_info_t::glareas.push_back(gl_area);
    gtk_widget_show(gl_area);
@@ -535,13 +664,22 @@ new_startup_application_activate(GtkApplication *application,
 
    create_actions(application);
 
+   setup_go_to_residue_keyboarding_mode_entry_signals();
+
+   // hack in these values for argc, argv for now
+   int argc = 0;
+   char ** argv = 0;
+   setup_python_with_coot_modules(argc, argv);
 
    // load_tutorial_model_and_data();
+
+   gtk_window_destroy(GTK_WINDOW(splash_screen));
 }
 
 // move these to the top.
 void setup_symm_lib();
 void check_reference_structures_dir();
+
 
 int new_startup(int argc, char **argv) {
 
@@ -550,12 +688,18 @@ int new_startup(int argc, char **argv) {
          setup_python_basic(argc, argv);
          setup_python_coot_module();
 
-         // 20220807-PE now test if that worked.
-         // std::cout << "calling run_script()" << std::endl;
-         // run_script("test_script.py");
-         // std::cout << "done run_script()" << std::endl;
+         // this needs the gtkbuilder to have read the ui file
+         // because it needs to look up  the coot_main_window
+         // and main_toolbar and main_hbox and main_statusbar.
+         // setup_python_with_coot_modules(argc, argv);
+         // So it is done in new_startup_application_activate().
+
       }
    };
+
+#ifdef USE_LIBCURL
+   curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
+#endif
 
    graphics_info_t graphics_info;
    setup_symm_lib();
@@ -572,8 +716,10 @@ int new_startup(int argc, char **argv) {
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
+   graphics_info.application = app;
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), NULL);
    g_application_register(G_APPLICATION(app), NULL, &error);
+
    int status = g_application_run (G_APPLICATION (app), argc, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
    g_object_unref (app);
