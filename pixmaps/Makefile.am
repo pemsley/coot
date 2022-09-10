@@ -25,11 +25,11 @@ SUBDIRS = icons
 
 # cootpixmapdir = $(pkgdatadir)/glade/pixmaps
 cootpixmapdir = $(pkgdatadir)/icons/hicolor/16x16/actions
+cootsplashscreendir = $(pkgdatadir)/images
 
-# no longer use xpms.
+dist_cootsplashscreen_DATA = coot-1.png
 
 dist_cootpixmap_DATA = \
-coot-1.png     \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \

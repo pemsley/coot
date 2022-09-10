@@ -464,6 +464,11 @@ pli/Makefile
 fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
+MoleculesToTriangles/Makefile
+MoleculesToTriangles/CXXSurface/Makefile
+MoleculesToTriangles/CXXSurface/MoleculesToTrianglesCXXSurface.pc
+MoleculesToTriangles/CXXClasses/Makefile
+MoleculesToTriangles/CXXClasses/MoleculesToTrianglesCXXClasses.pc
 auxil/Makefile
 auxil/catcheck/Makefile
 auxil/rama/Makefile

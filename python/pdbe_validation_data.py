@@ -18,7 +18,7 @@
 #  02110-1301, USA
 
 import gi
-gi.require_version("Gtk", "4.0")
+gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 
 # import pygtk, gtk, pango
@@ -523,9 +523,9 @@ class validation_entry_to_canvas:
             da.set_size_request(560,280)
             close_button = Gtk.Button("  Close  ")
             hbox = Gtk.HBox(False, 0)
-            self.vbox.append(da)
-            self.vbox.append(h_sep)
-            hbox.append(close_button)
+            self.vbox.pack_start(da, False, False, 6)
+            self.vbox.pack_start(h_sep, False, False, 6)
+            hbox.pack_start(close_button, True, False, 6)
             self.vbox.pack_end(hbox, False, False, 6)
             window.add(self.vbox)
             window.show_all()
@@ -826,11 +826,11 @@ def add_residue_buttons(subgroups, vbox, imol):
                     r_n = int(group.resnum)
                     residue_spec = [group.chain, r_n, group.icode ]
                     residue_button.connect("clicked", go_to_residue, residue_spec)
-                    vbox_residue_buttons.append(residue_button)
+                    vbox_residue_buttons.pack_start(residue_button, False, False, 2)
                     residue_button.show()
                 except ValueError:
                     print('problem parsing', group.chain, group.resnum, group.icode)
-        vbox.append(scrolled_win)
+        vbox.pack_start(scrolled_win, True, True, 2)
         scrolled_win.show()
         vbox_residue_buttons.show()
 

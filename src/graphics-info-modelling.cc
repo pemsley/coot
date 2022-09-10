@@ -2840,8 +2840,8 @@ graphics_info_t::refine_residue_range(int imol,
 	       rr = copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
 					altconf, chain_id_1);
 	       short int istat = rr.found_restraints_flag;
-	       long t1 = 0; // glutGet(GLUT_ELAPSED_TIME);
-				 std::cout << "Fix glut timer: Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
+	       // long t1 = 0; // glutGet(GLUT_ELAPSED_TIME);
+               // std::cout << "Fix glut timer: Refinement elapsed time: " << float(t1-t0)/1000.0 << std::endl;
 	       if (istat) {
 		  graphics_draw();
 		  if (! refinement_immediate_replacement_flag) {

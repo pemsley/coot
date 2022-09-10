@@ -1,7 +1,7 @@
 #
 import coot
 import gi
-gi.require_version("Gtk", "4.0")
+gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 import coot_gui
 import coot_gui_api
@@ -323,7 +323,7 @@ def quick_test_validation_outliers_dialog(imol):
                 cb_fun      = button_info[3]
                 button = Gtk.Button(label)
                 button.connect("clicked", cb_func, cb_fun)
-                dialog_vbox.append(button)
+                dialog_vbox.pack_start(button, False, False, 2)
                 button.show()
             if window:
                 window.set_title(make_window_title(len(buttons)))
@@ -373,10 +373,10 @@ def quick_test_validation_outliers_dialog(imol):
     missing_sidechains_checkbutton = missing_sidechains_checkbutton_local
 
     missing_sidechains_checkbutton.set_active(True)
-    control_button_vbox_1.append(missing_sidechains_checkbutton)
+    control_button_vbox_1.pack_start(missing_sidechains_checkbutton, False, False, 2)
 
-    vbox_outer.append(regenerate_button_local)
-    vbox_outer.append(control_button_vbox_1)
+    vbox_outer.pack_start(regenerate_button_local, False, False, 6)
+    vbox_outer.pack_start(control_button_vbox_1, False, False, 2)
     regenerate_button_local.connect("clicked", regenerate_button_fn)
     missing_sidechains_checkbutton.connect("toggled", missing_sidechains_checkbutton_toggled)
 
@@ -402,7 +402,7 @@ if True:
            except KeyError as e:
              pass
 
-    if coot_gui_api.main_menumodel():
+    if coot_gui_api.main_menubar():
 
         def make_quick_test_validation_dialog_func():
             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -413,7 +413,6 @@ if True:
                 post_manipulation_script = emit_update_button_clicked_script
 
         menu = coot_gui.coot_menubar_menu("Validate")
-        print("%%% debug in top level of dynamic_atom_overlaps_and_other_outliers menu:", menu)
         coot_gui.add_simple_coot_menu_menuitem(menu, "Overlaps, Peptides, CBeta, Rama & Rota Outliers",
                                                lambda func: make_quick_test_validation_dialog_func())
 

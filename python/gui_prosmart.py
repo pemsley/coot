@@ -19,7 +19,7 @@
 import os
 from gi.repository import Gtk
 import gi
-gi.require_version("Gtk", "4.0")
+gi.require_version('Gtk', '4.0')
 import coot
 import coot_gui_api
 import coot_utils
@@ -180,11 +180,11 @@ def add_module_prosmart():
                 combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
                 combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
 
-                vbox.append(check_button)
-                vbox.append(h_sep)
-                vbox.append(hbox)
-                hbox.append(go_button)
-                hbox.append(cancel_button)
+                vbox.pack_start(check_button, False, False, 2)
+                vbox.pack_start(h_sep, False, False, 2)
+                vbox.pack_start(hbox, False, False, 2)
+                hbox.pack_start(go_button, False, False, 6)
+                hbox.pack_start(cancel_button, False, False, 6)
                 window.add(vbox)
 
                 cancel_button.connect("clicked", lambda w: window.destroy())

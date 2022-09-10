@@ -5030,16 +5030,12 @@ void
 on_get_monomer_ok_button_clicked(GtkButton       *button,
                                  gpointer         user_data) {
 
-   GtkWidget *dialog = widget_from_builder("get_monomer_dialog");
-   GtkWidget *entry  = widget_from_builder("get_monomer_entry");
+   GtkWidget *entry = widget_from_builder("get_monomer_entry");
    if (entry) {
-      if (dialog) {
-         handle_get_monomer_code(entry);
-         gtk_widget_hide(dialog);
-      }
+      handle_get_monomer_code(entry);
    }
-
-/*   gtk_widget_hide(widget);  done in handle_get_libcheck_monomer_code */
+   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
+   gtk_widget_hide(vbox);
 }
 
 
@@ -5047,7 +5043,7 @@ extern "C" G_MODULE_EXPORT
 void on_get_monomer_cancel_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
 
-   GtkWidget *widget = widget_from_builder("get_monomer_dialog");
+   GtkWidget *widget = widget_from_builder("get_monomer_vbox");
    gtk_widget_hide(widget);
 }
 

@@ -223,12 +223,27 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *w = widget_from_builder("get_monomer_dialog");
+   GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
+   if (! overlay) {
+      std::cout << "get_monomer_action(): No overlay" << std::endl;
+      return;
+   }
+   GtkWidget *vbox    = widget_from_builder("get_monomer_vbox");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
-      gtk_widget_set_visible(no_entry_frame, FALSE);
-   set_transient_for_main_window(w);
-   gtk_widget_show(w);
+      gtk_widget_set_visible(no_entry_frame, FALSE); // initially
+
+   gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
+
+   gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
+   gtk_widget_set_valign(vbox, GTK_ALIGN_START);
+
+   GtkWidget *entry = widget_from_builder("get_monomer_entry");
+   gtk_widget_set_can_focus(entry, TRUE);
+   gtk_widget_set_focusable(entry, TRUE);
+   gtk_widget_grab_focus(entry);
+
+   gtk_widget_show(vbox);
 }
 
 
@@ -1705,11 +1720,65 @@ refine_all_atoms(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
-refine_pick_range_by_hand(G_GNUC_UNUSED GSimpleAction *simple_action,
-                          G_GNUC_UNUSED GVariant *parameter,
-                          G_GNUC_UNUSED gpointer user_data) {
+refine_with_range_picked_atoms() {
 
-   std::cout << "Refine pick range " << std::endl;
+   graphics_info_t g;
+   std::string alt_conf; // needs to be set correctly
+   short int is_water_flag = false; // needs to be set correctly
+
+   const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
+   const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+
+   if (alt_conf_1 == alt_conf_2)
+      if (! alt_conf_1.empty())
+         alt_conf = alt_conf_1;
+
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+
+   const std::string &chain_id_1 = g.in_range_first_picked_atom.chain_id;
+   const std::string &chain_id_2 = g.in_range_second_picked_atom.chain_id;
+
+   int res_no_1 = g.in_range_first_picked_atom.res_no;
+   int res_no_2 = g.in_range_second_picked_atom.res_no;
+
+   const std::string &ins_code_1 = g.in_range_first_picked_atom.ins_code;
+   const std::string &ins_code_2 = g.in_range_second_picked_atom.ins_code;
+
+   if (g.is_valid_model_molecule(imol_1)) {
+
+      if (imol_1 == imol_2) {
+         g.refine_residue_range(imol_1, chain_id_1, chain_id_2, res_no_1, ins_code_1, res_no_2, ins_code_2,
+                                alt_conf, is_water_flag);
+      }
+   }
+
+}
+
+void
+refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
+             G_GNUC_UNUSED GVariant *parameter,
+             G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::cout << "in refine_range with in_range_define " << g.in_range_define << std::endl;
+   if (g.in_range_define == 2) {
+      // so what were the two atoms?
+
+      refine_with_range_picked_atoms();
+
+   } else {
+      std::string m = "Use the Range button to define a residue range (pick 2 atoms)";
+      g.add_status_bar_text(m);
+   }
+}
+
+void
+repeat_refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
+                    G_GNUC_UNUSED GVariant *parameter,
+                    G_GNUC_UNUSED gpointer user_data) {
+
+   refine_with_range_picked_atoms();
 }
 
 void
@@ -1811,6 +1880,20 @@ delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
 
+   auto delete_residue_range = [] () {
+
+      graphics_info_t g;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_residue_range(imol_1, rs1, rs2);
+         }
+      }
+   };
+
    if (parameter) {
       gchar *result;
       g_variant_get(parameter, "s", &result);
@@ -1846,7 +1929,10 @@ delete_item(GSimpleAction *simple_action,
             // Needs "check_if_in_range_defines" to be working.
             // Here we need to turn on the expecting the delet residue range "start" flag
             // and unset the others c.f. set_delete_residue_zone_mode()
-            std::cout << "delete residue-range needs fixing" << std::endl;
+
+            delete_residue_range();
+            g.graphics_draw();
+
          }
          if (par == "side-chain") {
             auto &m = g.molecules[imol];
@@ -2095,7 +2181,8 @@ create_actions(GtkApplication *application) {
    add_action("refine_single_residue",            refine_single_residue);
    add_action("refine_chain",                     refine_chain);
    add_action("refine_all_atoms",                 refine_all_atoms);
-   add_action("refine_pick_range_by_hand",        refine_pick_range_by_hand);
+   add_action("refine_range",                     refine_range);
+   add_action("repeat_refine_range",              repeat_refine_range);
    add_action("refine_regularize_sphere",         refine_regularize_sphere);
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);

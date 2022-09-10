@@ -1,0 +1,2 @@
+CXXSurface - library and executables for Piecewise quartic surface stuf
+CPPFLAGS="-I/usr/local/include" CCFLAGS="-I/usr/local/include -std=gnu11" LD=clang++ CXXFLAGS="-std=c++11 -I/usr/local/include" LDFLAGS="-L/usr/local/lib" CXX=clang++ CC=clang make

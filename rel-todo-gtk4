@@ -1,5 +1,12 @@
 
---- Items ---
+--- Big Ticket Items that are not listed here ---
+
+RDKit
+Ligand Builder
+Validation Plots
+Ramachandran Plot
+
+--- Widgets that have changed in GTK ---
 
 Padding is gone, margins and layout are in.
 Tables are out, Grids are in.
@@ -8,17 +15,17 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-Fixed Atoms click should show a menu, not a dialog ::: 1
-
-Fullscreen ::: 0.5
+Enable splash screen: 1
+* I don't know how to make the window the right size! The image is display in 16 pixels width
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
-"About Coot" is empty (was fixed in GTk3 version)  ::: 0.5
+"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
+* Nearly done - I need to be able to install the icon.
+
+Enable the command line (e.g. --pdb and others) ::: 2
 
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
-
-Make the "Fetch..." Functions work ::: 1
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
@@ -28,36 +35,43 @@ Fix the Map Parameters dialog widgets ::: 2
 
 Fix "Edit Chi Angles" button ::: 1
 
-Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing ::: 1.0
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
+* It works on the PC.
 
-Do some more experimenting with validation graphs ::: 5
+Restart the refinement on button-release when dragging an atom ::: 1
 
-Enable the command line (e.g. --pdb and others) ::: 2
+Key-binding for "clear all atom labels" ::: 0.25
 
-Enable splash screen: 1
+coot_gui.smiles_gui() - is this a thing now? ::: 1
 
-Key-binding for "clear all atom labels"
+clean out coot_gui usage from coot_utils ::: 2
 
 Fix "Rotamers" button ::: 1
 
-Make a new Map masking dialog
+Make a new Map masking dialog ::: 1
 
 Get R/RC overlay dialog working  ::: 1
 
+Get the "Map..." Button working. ::: 1
+
+In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
+
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
-(pressing "G" on the keyboard is not intuitive).
+(pressing "G" on the keyboard is not intuitive). ::: 2
 
-Full-fat render path ::: 4
+Do some more experimenting with validation graphs ::: 5
 
-Add "Repeat previous zone" to refinement menu items. ::: 0.4
+Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
 Can you make the rotamer dialog be an overlay? Not important.
 
-Make the Fast-go-to-residue dialog be an overlay? ::: 1
+Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 6
 
 Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
+
+Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
 
 Find Somewhere for "Choose Undo Molecule" ::: 1
 
@@ -65,7 +79,7 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Dotted Surface ::: 1
 
-HOLE ::: 1
+HOLE ::: 2
 
 Views ::: 1
 
@@ -88,6 +102,8 @@ Think of a way to start-up with certain modules on (in Preferences) ::: 2
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
+Fullscreen - maybe not possible in gtk4 ::: 0.2
+
 Low Priority: think how to put the "Display Manager" into the main window ::: 6
 
 Low Priority: history searching on python window up-arrow ::: 1
@@ -104,12 +120,7 @@ Map Skeletonization
 User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 CA Baton Mode
-
----- Other items -----
-
-[Reminder to Garib about N3 NR6 next week.]
-[Stacking interaction NBC are not normal NBCs - they should/could be treated differently - Garib.]
-[Numbers for beta-14 torsions what does the literature say? what are the reasonable numbers from 2qc1?]
+Interactive (clickable) validation graphs
 
 --- Done Items ---
 
@@ -175,5 +186,17 @@ Get PyGObject working with GTK4 (Not a Coot thing) ::: 2
 * Done.
 
 Fixed Atoms click should show a menu, not a dialog ::: 1
+* Done.
+
+Make the "Fetch..." Functions work ::: 1
+* Done.
+
+Fixed Atoms click should show a menu, not a dialog ::: 1
+* Done.
+
+Get the Range button working (using new events) generic range define. ::: 2
+* Done.
+
+Add "Repeat previous zone" to refinement menu items. ::: 0.4
 * Done.
 

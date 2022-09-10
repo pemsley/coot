@@ -143,24 +143,43 @@ on_refinement_and_regularization_parameters_dialog_response(GtkDialog       *dia
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_select_map_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_model_toolbar_select_map_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                           G_GNUC_UNUSED gpointer         user_data) {
+
    show_select_map_dialog();
 }
+
+// <signal name="toggled" handler="on_model_toolbar_range_define_togglebutton_toggled" swapped="no"/>
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_range_define_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                                   G_GNUC_UNUSED gpointer user_data) {
+
+   gboolean active = gtk_toggle_button_get_active(togglebutton);
+   graphics_info_t g;
+   if (active) {
+      if (g.in_range_define == 0) g.in_range_define = 1;
+   } else {
+      if (g.in_range_define == 1) g.in_range_define = 0;
+      if (g.in_range_define == 2) g.in_range_define = 0;
+   }
+   std::cout << "here now with active " << active << " in_range_define " << g.in_range_define << std::endl;
+   
+}
+
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_refine_togglebutton_toggled (GtkToggleButton *toggletoolbutton,
-                                                                  gpointer         user_data) {
-  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
-  if (active)
-    do_refine(1);
-  else
-    do_refine(0);		/* unclick button */
+                                              gpointer         user_data) {
 
+   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggletoolbutton));
+   if (active)
+      do_refine(1);
+   else
+      do_refine(0);		/* unclick button */
 }
 
 extern "C" G_MODULE_EXPORT
@@ -893,7 +912,7 @@ on_menubar_rsr_chain_activate(GMenuItem *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_menubar_rsr_residue_range_activate(GMenuItem *menuitem,
-                                                          gpointer     user_data) {
+                                      gpointer     user_data) {
 
    do_refine(1);
 }

@@ -441,15 +441,15 @@ int test_function(int i, int j) {
 // Martin's MoleculeToTriangles
 //
 //
-#include <CXXClasses/RendererGL.h>
-#include <CXXClasses/Light.h>
-#include <CXXClasses/Camera.h>
+#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+#include <MoleculesToTriangles/CXXClasses/Light.h>
+#include <MoleculesToTriangles/CXXClasses/Camera.h>
 // #include <CXXClasses/CameraPort.h>
-#include <CXXClasses/SceneSetup.h>
-#include <CXXClasses/ColorScheme.h>
-#include <CXXClasses/MyMolecule.h>
-#include <CXXClasses/RepresentationInstance.h>
-#include <CXXClasses/MolecularRepresentationInstance.h>
+#include <MoleculesToTriangles/CXXClasses/SceneSetup.h>
+#include <MoleculesToTriangles/CXXClasses/ColorScheme.h>
+#include <MoleculesToTriangles/CXXClasses/MyMolecule.h>
+#include <MoleculesToTriangles/CXXClasses/RepresentationInstance.h>
+#include <MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.h>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 #include "coot-utils/c-beta-deviations.hh"
@@ -1243,6 +1243,23 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
+
+#if 0
+   // There are lots of items in the list, but they don't seem to be toplevels - hmm.
+
+   GList* top_level_list = gtk_window_list_toplevels();
+   while (top_level_list) {
+      GdkToplevel* toplevel = GDK_TOPLEVEL(top_level_list->data);
+      if (GDK_IS_TOPLEVEL(toplevel)) {
+         GdkToplevelState state = gdk_toplevel_get_state(toplevel);
+         std::cout << "Debug:: toplevel state " << " " << state << std::endl;
+      } else {
+         std::cout << "that was not a toplevel " << toplevel << std::endl;
+      }
+      top_level_list = top_level_list->next;
+   };
+#endif
+
 
    graphics_info_t g;
    PyObject *r = Py_False;
