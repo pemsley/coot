@@ -1880,6 +1880,20 @@ delete_item(GSimpleAction *simple_action,
             GVariant *parameter,
             gpointer user_data) {
 
+   auto delete_residue_range = [] () {
+
+      graphics_info_t g;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_residue_range(imol_1, rs1, rs2);
+         }
+      }
+   };
+
    if (parameter) {
       gchar *result;
       g_variant_get(parameter, "s", &result);
@@ -1915,7 +1929,10 @@ delete_item(GSimpleAction *simple_action,
             // Needs "check_if_in_range_defines" to be working.
             // Here we need to turn on the expecting the delet residue range "start" flag
             // and unset the others c.f. set_delete_residue_zone_mode()
-            std::cout << "delete residue-range needs fixing" << std::endl;
+
+            delete_residue_range();
+            g.graphics_draw();
+
          }
          if (par == "side-chain") {
             auto &m = g.molecules[imol];
