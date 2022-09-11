@@ -2,11 +2,7 @@
 import coot
 import gi
 gi.require_version('Gtk', '4.0')
-import coot_gui_api
 import coot_gui
-import coot_utils
-import fitting
-import random
 from gi.repository import Gtk
 
 def sharpen_blur_map_gui():
@@ -53,19 +49,19 @@ def sharpen_blur_map_gui():
     default_entry_1_text = "20"
     default_entry_2_text = "1.3"
 
-    label = Gtk.Label(chooser_label)
+    label = Gtk.Label(label=chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_for_sharpen  = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox_for_resample = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    entry_1 = Gtk.Entry();
-    entry_2 = Gtk.Entry();
-    entry_label_1 = Gtk.Label(entry_hint_text_1)
-    entry_label_2 = Gtk.Label(entry_hint_text_2)
+    entry_1 = Gtk.Entry()
+    entry_2 = Gtk.Entry()
+    entry_label_1 = Gtk.Label(label=entry_hint_text_1)
+    entry_label_2 = Gtk.Label(label=entry_hint_text_2)
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     # combobox = Gtk.combo_box_new_text()
-    ok_button    = Gtk.Button(" Make Map ")
-    cancel_button = Gtk.Button(" Cancel ")
-    h_sep = Gtk.HSeparator()
+    ok_button    = Gtk.Button(label=" Make Map ")
+    cancel_button = Gtk.Button(label=" Cancel ")
+    h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     # map_mol_list = fill_option_menu_with_map_mol_options(combobox)
     # map_mol_list = fill_option_menu_with_map_mol_options(combobox)
     combobox_items = coot_gui.make_store_for_map_molecule_combobox()
@@ -78,12 +74,12 @@ def sharpen_blur_map_gui():
     combobox.add_attribute(renderer_text, "text", 1)
 
     # combobox.connect("changed", on_mol_combobox_changed)
-    check_button_for_resample = Gtk.CheckButton("Resample")
-    check_button_for_refinement_map = Gtk.CheckButton("Make the new map the Refinement Map")
+    check_button_for_resample = Gtk.CheckButton(label="Resample")
+    check_button_for_refinement_map = Gtk.CheckButton(label="Make the new map the Refinement Map")
 
     window.set_title("Coot: Sharpen/Blur Map")
     window.set_default_size(400, 100)
-    window.add(vbox)
+    window.set_child(vbox)
 
     vbox.append(label)
     vbox.append(combobox)
@@ -117,8 +113,7 @@ def sharpen_blur_map_gui():
 
     check_button_for_resample.connect("toggled", on_check_button_toggled, entry_2, entry_label_2)
                                                   
-
-    window.show_all()
+    window.show()
 
 if False:
     if True:
