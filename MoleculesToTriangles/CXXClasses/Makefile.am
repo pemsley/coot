@@ -1,7 +1,7 @@
 
 ACLOCAL_AMFLAGS="-Im4"
-AM_CPPFLAGS = -I$(top_srcdir) $(BOOST_CPPFLAGS) $(PYTHON_CPPFLAGS) $(MMDB_CFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS) $(PYTHON_EXTRA_LDFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) $(BOOST_CPPFLAGS) $(MMDB_CFLAGS)
+AM_LDFLAGS = $(BOOST_LDFLAGS)
 
 lib_LTLIBRARIES=libMoleculesToTrianglesCXXClasses.la libBoostedMoleculesToTrianglesCXXClasses.la
 
@@ -26,7 +26,7 @@ libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
 # is $(CPPFLAGS) needed here?
 libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
    $(MoleculesToTrianglesCXXSurface_CFLAGS) $(MMDB_CFLAGS) \
-   $(OPENMP_CXXFLAGS) $(PYTHON_CPPFLAGS)
+   $(OPENMP_CXXFLAGS)
 
 # rather than specifying the libs directly, you should test for clipper in configure
 # and use $(CLIPPER_LIBS) here
@@ -63,13 +63,12 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
 
 libBoostedMoleculesToTrianglesCXXClasses_la_SOURCES=BoostWrappers.cpp
 libBoostedMoleculesToTrianglesCXXClasses_la_CPPFLAGS= ${AM_CPPFLAGS} \
-     $(MoleculesToTrianglesCXXSurface_CFLAGS) $(PYTHON_CPPFLAGS)
+     $(MoleculesToTrianglesCXXSurface_CFLAGS)
 libBoostedMoleculesToTrianglesCXXClasses_la_LIBADD=-lMoleculesToTrianglesCXXClasses \
      $(MoleculesToTrianglesCXXSurface_LIBS) \
      $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB) \
      $(CLIPPER_LIBS) $(MMDB_LIBS) \
-     -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) \
-     $(GL_LIBS) $(GLU_LIBS)
+     $(GL_LIBS)
 
 # -lrfftw -lfftw -lclipper-core -lclipper-ccp4 -lccp4c -lmmdb2
 
