@@ -59,6 +59,7 @@ namespace std {
   init_coot_as_python_module();
 %}
 
+%feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
