@@ -5395,33 +5395,52 @@ def add_module_cryo_em_gui():
             with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                                       aa_ins_code, aa_atom_name,
                                                       aa_alt_conf, aa_res_spec]:
-                interactive_nudge_residues.interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
+                interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
-        menu = coot_menubar_menu("Cryo-EM")
+        def sharpen_blur_map_gui_wrapper(simple_action, arg2):
+            print("simple_action", simple_action)
+            print("arg2", arg2)
+            sharpen_blur.sharpen_blur_map_gui()
 
-        add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
-                                      lambda func: refmac_multi_sharpen_gui())
+        menu = Gio.Menu.new()
+        popover = Gtk.PopoverMenu()
+        popover.set_menu_model(menu)
+        cryo_em_menu_button = Gtk.MenuButton(label="Cryo-EM")
+        cryo_em_menu_button.set_popover(popover)
 
-        add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                      lambda func: sharpen_blur.sharpen_blur_map_gui())
+        coot_gui_api.main_toolbar().append(cryo_em_menu_button)
+        app = coot_gui_api.application()
 
-        add_simple_coot_menu_menuitem(menu, "Mask Map by Chains",
-                                      lambda func: make_masked_maps_using_active_atom())
+        print("here in add_module_cryo_em_gui() with app", app)
 
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
-                                      lambda func: interactive_nudge_func())
+        # add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...", lambda func: sharpen_blur.sharpen_blur_map_gui())
+        # add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
 
-        add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle",
-                                      lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
+        action = Gio.SimpleAction.new("sharpen_blur_map_gui", None)
+        action.connect("activate", sharpen_blur_map_gui_wrapper)
+        app.add_action(action)
 
-        add_simple_coot_menu_menuitem(menu, "Go To Box Middle",
-                                      lambda func: go_to_box_middle())
+        menu.append("Sharpen/Blur...",           "app.sharpen_blur_map_gui")
+        menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
+        menu.append("Multi-sharpen",             "app.multi_sharpen_map_gui")
+        menu.append("Mask Map by Chains",        "app.mask_map_by_chains")
+        menu.append("Go To Map Molecule Middle", "app.go_to_map_molecule_centre")
 
-        add_simple_coot_menu_menuitem(menu, "Flip Hand of Map",
-                                      lambda func: flip_hand_local_func())
+        # add_simple_coot_menu_menuitem(menu, "Multi-sharpen...", lambda func: refmac_multi_sharpen_gui())
 
-        add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
-                                    lambda func: add_mol_sym_mtrix())
+        # add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...", lambda func: sharpen_blur.sharpen_blur_map_gui())
+
+        # add_simple_coot_menu_menuitem(menu, "Mask Map by Chains", lambda func: make_masked_maps_using_active_atom())
+
+        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
+
+        add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle", lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
+
+        add_simple_coot_menu_menuitem(menu, "Go To Box Middle", lambda func: go_to_box_middle())
+
+        add_simple_coot_menu_menuitem(menu, "Flip Hand of Map", lambda func: flip_hand_local_func())
+
+        add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
 
         add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
                                     lambda func:
@@ -5432,22 +5451,18 @@ def add_module_cryo_em_gui():
                                         "",
                                         "Select PIR Alignment file",
                                         lambda imol, chain_id, target_sequence_pif_file:
-                                        coot.run_clustalw_alignment(imol, chain_id, target_sequence_pif_file)))
+                                        coot.run_clustalw_alignment(imol, chain_id,
+                                                                  target_sequence_pif_file)))
 
-        add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence",
-                                      lambda func: ass_seq_assoc_seq())
+        add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence", lambda func: ass_seq_assoc_seq())
 
-        add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map",
-                                      lambda func: auto_assign_sequence_from_map())
+        add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
 
-        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode",
-                                      lambda func: coot.set_auto_recontour_map(0))
+        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: set_auto_recontour_map(0))
 
-        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode",
-                                      lambda func: coot.set_auto_recontour_map(1))
+        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: set_auto_recontour_map(1))
 
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...",
-                                      lambda func: interactive_nudge_func())
+        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
 
 
 def add_module_ccp4_gui():
@@ -5491,15 +5506,15 @@ def add_module_refine():
       if active_atom:
          aa_imol     = active_atom[0]
          aa_chain_id = active_atom[1]
-         all_residues = coot.residues_in_chain(aa_imol, aa_chain_id)
-         coot.refine_residues(aa_imol, all_residues);
+         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
+         coot.refine_residues(aa_imol, all_residues)
 
    def all_atom_refine_active_atom(widget):
       active_atom = coot.active_residue()
       if active_atom:
          aa_imol = active_atom[0]
-         all_residues_in_mol = coot.all_residues(aa_imol)
-         coot.refine_residues(aa_imol, all_residues_in_mol);
+         all_residues_in_mol = coot_utils.all_residues(aa_imol)
+         coot.refine_residues(aa_imol, all_residues_in_mol)
 
    def refine_fragment_active_atom(w):
       active_atom = coot.active_residue()
@@ -5523,7 +5538,7 @@ def add_module_refine():
       if active_atom:
          aa_imol = active_atom[0]
          aa_chain_id = active_atom[1]
-         all_residues = coot.residues_in_chain(aa_imol, aa_chain_id)
+         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
          coot.regularize_residues(aa_imol, all_residues)
 
    if coot_gui_api.main_menumodel():
