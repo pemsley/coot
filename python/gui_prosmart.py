@@ -168,8 +168,8 @@ def add_module_prosmart():
                     run_prosmart(imol_tar, imol_ref, do_side_chains)
                     window.destroy()
                 window = Gtk.Window()
-                hbox = Gtk.HBox(False, 0)
-                vbox = Gtk.VBox(False, 0)
+                hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+                vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
                 h_sep = Gtk.HSeparator()
                 chooser_hint_text_1 = " Target molecule "
                 chooser_hint_text_2 = " Reference (high-res) molecule "

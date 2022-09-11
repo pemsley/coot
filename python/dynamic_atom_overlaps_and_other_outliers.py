@@ -366,7 +366,7 @@ def quick_test_validation_outliers_dialog(imol):
 
     window_bits = window.get_children()
     vbox_outer = window_bits[0]
-    control_button_vbox_1 = Gtk.HBox(False, 2)
+    control_button_vbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     missing_sidechains_checkbutton_local = Gtk.CheckButton("Missing Sidechains")
     regenerate_button_local = Gtk.Button("Update")
 

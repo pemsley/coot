@@ -382,7 +382,7 @@ def validation_outliers_dialog(imol, imol_map):
 
     window_bits = window.get_children()
     vbox_outer = window_bits[0]
-    control_button_vbox_1 = Gtk.HBox(False, 2)
+    control_button_vbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     missing_sidechains_checkbutton_local = Gtk.CheckButton("Missing Sidechains")
     poor_density_checkbutton_local = Gtk.CheckButton("Poor Density Fit")
     cg_torsion_diff_checkbutton_local = Gtk.CheckButton("CG Torsion Diff.")

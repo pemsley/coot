@@ -54,14 +54,14 @@ def sharpen_blur_map_gui():
     default_entry_2_text = "1.3"
 
     label = Gtk.Label(chooser_label)
-    vbox = Gtk.VBox(False, 2)
-    hbox_for_sharpen  = Gtk.HBox(False, 0)
-    hbox_for_resample = Gtk.HBox(False, 0)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    hbox_for_sharpen  = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_for_resample = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     entry_1 = Gtk.Entry();
     entry_2 = Gtk.Entry();
     entry_label_1 = Gtk.Label(entry_hint_text_1)
     entry_label_2 = Gtk.Label(entry_hint_text_2)
-    hbox_buttons = Gtk.HBox(True, 2)
+    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     # combobox = Gtk.combo_box_new_text()
     ok_button    = Gtk.Button(" Make Map ")
     cancel_button = Gtk.Button(" Cancel ")
