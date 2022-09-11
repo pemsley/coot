@@ -38,6 +38,7 @@ PyObject * _wrap_main_menumodel(PyObject *self);
 PyObject * _wrap_main_statusbar(PyObject *self);
 PyObject * _wrap_main_toolbar(PyObject *self);
 PyObject * _wrap_main_hbox(PyObject *self);
+PyObject * _wrap_application(PyObject *self);
 
 // static/const?
 PyMethodDef coot_python_functions[] = {
@@ -46,6 +47,7 @@ PyMethodDef coot_python_functions[] = {
    { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL },
    { "main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL },
    { "main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL },
+   { "application",    (PyCFunction)_wrap_application,    METH_NOARGS, NULL },
    { NULL, NULL, 0, NULL }
 };
 
@@ -118,6 +120,20 @@ _wrap_main_hbox(PyObject *self) {
    return pyo;
 }
 
+#include "graphics-info.h"
+
+PyObject *
+_wrap_application(PyObject *self) {
+   GtkApplication *app = graphics_info_t::application;
+   if (! app) {
+      std::cout << "WARNING: ion _wrap_application(), application is not initialized" << std::endl;
+   }
+   /* pygobject_new handles NULL checking */
+   GObject *o = G_OBJECT(app);
+   PyObject *pyo = pygobject_new(o);
+   return pyo;
+}
+
 
 /* initialise stuff extension classes */
 void
@@ -158,6 +174,7 @@ static PyMethodDef coot_gui_api_methods[] = {
     {"main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL},
     {"main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL},
     {"main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL},
+    {"application",    (PyCFunction)_wrap_application,    METH_NOARGS, NULL},
     {"error_out",      (PyCFunction)error_out,            METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
