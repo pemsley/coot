@@ -33,12 +33,12 @@ def acedrg_link_generation_control_window():
 
     # main body
     window = Gtk.Window()
-    vbox = Gtk.VBox(False, 4)
-    inside_hbox_1 = Gtk.HBox(False, 4)
-    inside_hbox_2 = Gtk.HBox(False, 4)
-    inside_hbox_3 = Gtk.HBox(False, 4)
-    inside_hbox_4 = Gtk.HBox(False, 4)
-    cancel_hbox = Gtk.HBox(False, 2)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    inside_hbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    inside_hbox_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    inside_hbox_3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    inside_hbox_4 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    cancel_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     order_label = Gtk.Label("  Order: ")
     delete_atom_label = Gtk.Label("  Delete Atom: ")
     change_bond_order_label = Gtk.Label("  Change Bond Order of the Bond between Atoms")

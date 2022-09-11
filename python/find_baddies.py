@@ -1,7 +1,7 @@
 
 import types
 import gi
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 import coot
@@ -154,7 +154,7 @@ def validation_outliers_dialog(imol, imol_map):
                 # print("button parts 1", button_parts[1])
                 button = Gtk.Button(button_parts[0])
                 button.connect("clicked", cb_func, button_parts[1])
-                dialog_vbox.pack_start(button, False, False, 2)
+                dialog_vbox.append(button)
                 button.show()
             if window:
                 window.set_title(make_window_title(len(buttons)))
@@ -382,7 +382,7 @@ def validation_outliers_dialog(imol, imol_map):
 
     window_bits = window.get_children()
     vbox_outer = window_bits[0]
-    control_button_vbox_1 = Gtk.HBox(False, 2)
+    control_button_vbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     missing_sidechains_checkbutton_local = Gtk.CheckButton("Missing Sidechains")
     poor_density_checkbutton_local = Gtk.CheckButton("Poor Density Fit")
     cg_torsion_diff_checkbutton_local = Gtk.CheckButton("CG Torsion Diff.")
@@ -395,11 +395,11 @@ def validation_outliers_dialog(imol, imol_map):
     missing_sidechains_checkbutton.set_active(True)
     poor_density_checkbutton.set_active(True)
     cg_torsion_diff_checkbutton.set_active(True)
-    control_button_vbox_1.pack_start(missing_sidechains_checkbutton, False, False, 2)
-    control_button_vbox_1.pack_start(poor_density_checkbutton, False, False, 2)
+    control_button_vbox_1.append(missing_sidechains_checkbutton)
+    control_button_vbox_1.append(poor_density_checkbutton)
 
-    vbox_outer.pack_start(regenerate_button_local, False, False, 6)
-    vbox_outer.pack_start(control_button_vbox_1, False, False, 2)
+    vbox_outer.append(regenerate_button_local)
+    vbox_outer.append(control_button_vbox_1)
 
     regenerate_button_local.connect("clicked", regenerate_button_fn)
 
@@ -430,7 +430,7 @@ def validation_outliers_dialog(imol, imol_map):
     except:
         pass
     if have_cg_spin:
-        control_button_vbox_1.pack_start(cg_torsion_diff_checkbutton, False, False, 2)
+        control_button_vbox_1.append(cg_torsion_diff_checkbutton)
         cg_torsion_diff_checkbutton.show()
 
         def cg_torsion_diff_checkbutton_toggled(widget):

@@ -19,7 +19,7 @@
 import coot
 import coot_utils
 import coot_gui
-import coot_toolbuttons
+# import coot_toolbuttons # 20220910-PE FIXME later
 
 # For each residue in the protein (molecule number @var{imol}), do a
 # rotamer fit and real-space refinement.  Update the graphics and
@@ -54,7 +54,7 @@ def fit_protein(imol, rotamer_only=False, animate=True):
          if (not coot_utils.is_solvent_chain_qm(imol,chain_id)):
              n_residues = coot.chain_n_residues(chain_id,imol)
              print("There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id})
-               
+
              for serial_number in range(n_residues):
                   
                 res_name = coot.resname_from_serial_number(imol, chain_id, serial_number)
@@ -220,7 +220,7 @@ def interruptible_fit_protein(imol, func):
         # lets make a backup before we start
         coot.make_backup(imol)
         
-        multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator()
+        # multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator() # FIXME later
         multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop",
                                                        "stop_interruptible_fit_protein()"
                                                        , "gtk-stop")
@@ -613,7 +613,7 @@ def molecules_matching_criteria(test_func):
 
            window.set_default_size(200,140)
            window.set_title("Fitted Ligands")
-           inside_vbox.set_border_width(2)
+           # inside_vbox.set_border_width(2)
 
            window.add(outside_vbox)
            outside_vbox.append(scrolled_win)

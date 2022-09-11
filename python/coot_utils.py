@@ -27,7 +27,7 @@ import re
 import string
 import numbers
 import coot
-import coot_gui # circular dependency
+# import coot_gui # circular dependency
 from redefine_functions import * # 20220828-PE this needs fixing
 
 print("coot_utils.py says hello")

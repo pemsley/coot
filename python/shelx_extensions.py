@@ -43,8 +43,8 @@ def add_module_shelx():
         def shelx_refine_func():
 
             window = Gtk.Window()
-            vbox = Gtk.VBox(False, 0)
-            hbox = Gtk.HBox(False, 0)
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
             go_button = Gtk.Button("  Refine  ")
             cancel_button = Gtk.Button("  Cancel  ")
             entry_hint_text = "HKL data filename \n(leave blank for default)"
@@ -104,8 +104,8 @@ def add_module_shelx():
                 return False
 
             window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
-            hbox = Gtk.HBox(False, 0)
-            vbox = Gtk.VBox(True, 0)
+            hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
             h_sep = Gtk.HSeparator()
             go_button = Gtk.Button("  Read Project   ")
             cancel_button = Gtk.Button("  Cancel   ")
@@ -173,8 +173,8 @@ def shelxl_refine_gui(imol, hkl_file_name_maybe=False):
 
     window = Gtk.Window()
     window.set_size_request(500, 500)
-    vbox = Gtk.VBox(False, 2)
-    buttons_hbox = Gtk.HBox(False, 2)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    buttons_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     scrolled_win = Gtk.ScrolledWindow()
     text = Gtk.TextView()
     textbuffer = text.get_buffer()
@@ -229,8 +229,8 @@ def editable_shelx_gui(imol, hklin_file_name):
     scrolled_win = Gtk.ScrolledWindow()
     cancel_button = Gtk.Button("  Cancel  ")
     run_button = Gtk.Button("  Run  ")
-    vbox = Gtk.VBox(False, 0)
-    buttons_hbox = Gtk.HBox(False, 0)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    buttons_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
     window.set_size_request(450, 400)
     window.add(vbox)

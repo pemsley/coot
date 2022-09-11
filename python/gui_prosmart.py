@@ -168,8 +168,8 @@ def add_module_prosmart():
                     run_prosmart(imol_tar, imol_ref, do_side_chains)
                     window.destroy()
                 window = Gtk.Window()
-                hbox = Gtk.HBox(False, 0)
-                vbox = Gtk.VBox(False, 0)
+                hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+                vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
                 h_sep = Gtk.HSeparator()
                 chooser_hint_text_1 = " Target molecule "
                 chooser_hint_text_2 = " Reference (high-res) molecule "
@@ -180,11 +180,11 @@ def add_module_prosmart():
                 combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
                 combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
 
-                vbox.pack_start(check_button, False, False, 2)
-                vbox.pack_start(h_sep, False, False, 2)
-                vbox.pack_start(hbox, False, False, 2)
-                hbox.pack_start(go_button, False, False, 6)
-                hbox.pack_start(cancel_button, False, False, 6)
+                vbox.append(check_button)
+                vbox.append(h_sep)
+                vbox.append(hbox)
+                hbox.append(go_button)
+                hbox.append(cancel_button)
                 window.add(vbox)
 
                 cancel_button.connect("clicked", lambda w: window.destroy())
