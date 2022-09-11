@@ -44,7 +44,7 @@ else
    CXXFLAGS="$CXXFLAGS $MMDB_CXXFLAGS"
    # do we have a verison of mmdb2 that has distances in links?
    AC_LANG_PUSH(C++)
-   AC_TRY_COMPILE([#include <mmdb2/mmdb_manager.h>],[mmdb::Link *l; mmdb::realtype ll=l->dist ], have_link_distance=yes, have_link_distance=no)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <mmdb2/mmdb_manager.h>]], [[mmdb::Link *l; mmdb::realtype ll=l->dist ]])],[have_link_distance=yes],[have_link_distance=no])
    if test $have_link_distance = yes ; then
       MMDB_CXXFLAGS="$MMDB_CXXFLAGS -DMMDB_HAS_LINK_DISTANCE"
    fi

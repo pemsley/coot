@@ -109,7 +109,7 @@ dnl esac
 
 
 AC_LANG_PUSH(C++)
-AC_TRY_LINK([#include "goocanvas.h"] ,[ GooCanvas *a;  ], have_goocanvas=yes, have_goocanvas=no)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include "goocanvas.h" ]], [[ GooCanvas *a;  ]])],[have_goocanvas=yes],[have_goocanvas=no])
 AC_LANG_POP
 
 AC_MSG_RESULT($have_goocanvas)
