@@ -100,17 +100,17 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
       // done elsewhere
    } else {
       for (unsigned int ii=0; ii<models.size(); ii++) {
-	 auto &model = models[ii];
+         auto &model = models[ii];
 	 if (shader_for_tmeshes_p) {
 	    shader_for_tmeshes_p->Use();
 	    model.draw_tmeshes(shader_for_tmeshes_p, mvp, model_rotation, lights, eye_position, bg_col_v4,
 			       do_depth_fog);
+         }
 
-	    // now the coloured vertices mesh (for molecule things, not textured things)
-	    if (shader_for_meshes_p) {
-               float opacity = 1.0f;
-	       model.draw_meshes(shader_for_meshes_p, mvp, model_rotation, lights, eye_position, opacity, bg_col_v4, do_depth_fog);
-	    }
+         // now the coloured vertices mesh (for molecule things, not textured things)
+         if (shader_for_meshes_p) {
+            float opacity = 1.0f;
+            model.draw_meshes(shader_for_meshes_p, mvp, model_rotation, lights, eye_position, opacity, bg_col_v4, do_depth_fog);
 	 }
       }
    }

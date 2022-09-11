@@ -1196,9 +1196,6 @@ Bond_lines_container::add_double_bond(int imol, int imodel, int iat_1, int iat_2
    std::string ele_1 = residue_atoms[iat_1]->element;
    std::string ele_2 = residue_atoms[iat_2]->element;
 
-   mmdb::Residue *residue_p_1 = residue_atoms[iat_1]->residue;
-   mmdb::Residue *residue_p_2 = residue_atoms[iat_2]->residue;
-
    graphics_line_t::cylinder_class_t cc = graphics_line_t::DOUBLE;
 
    int idx_1_mol_indexing = -1;
@@ -4120,6 +4117,8 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    mmdb::Residue *null_residue = 0; // for compiler to get the correct type in the next line
    residue_index_map[null_residue] = -1;
 
+   // std::cout << ":::::::::::::::::::::::: n_bond_colours " << n_bond_colours << std::endl;
+
    for (int idx_col=0; idx_col<n_bond_colours; idx_col++) {
 
       box.bonds_[idx_col].num_lines = bonds[idx_col].size();
@@ -4356,8 +4355,10 @@ Bond_lines_container::addBond(int colour_index,
 
    coot::CartesianPair pair(start,end);
    int bonds_size = bonds.size();
+   // std::cout << "in addBond()  colour_index " << colour_index << " bonds.size(): " << bonds.size() << std::endl;
    if (colour_index >= bonds_size) {
       bonds.resize(colour_index+1);
+      // std::cout << "in addBond() resizeing bonds to " << bonds.size() << std::endl;
       bonds[colour_index].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number,
                                    atom_index_1, atom_index_2);
    } else {
@@ -4745,9 +4746,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
-    if (false)
-       std::cout << "---- in do_Ca_or_P_bonds_internal() with bond_colour_type "
-                 << bond_colour_type << std::endl;
+   if (false)
+      std::cout << "---- in do_Ca_or_P_bonds_internal() with bond_colour_type "
+                << bond_colour_type << std::endl;
 
    int atom_colours_udd = -1; // unset/bad
    int udd_handle_for_user_defined_colours = -1;
@@ -4798,110 +4799,110 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                                           int udd_handle_for_user_defined_colours,
                                                           int udd_has_bond_handle) {
 
-                                                     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-                                                     graphics_line_t::cylinder_class_t base_spike_cc = graphics_line_t::SINGLE;
+      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+      graphics_line_t::cylinder_class_t base_spike_cc = graphics_line_t::SINGLE;
 
-                                                     std::string chain_id = chain_p->GetChainID();
+      std::string chain_id = chain_p->GetChainID();
 
-                                                     // first do the P_C4_prime bonds internal to the residue_this
-                                                     //
-                                                     for (int iat=0; iat<n_atoms_this; iat++) {
-                                                        mmdb::Atom *at_1 = residue_this->GetAtom(iat);
-                                                        std::string atom_name_1(at_1->GetAtomName());
-                                                        if (atom_name_1 == " C4'") {
-                                                           for (int jat=0; jat<n_atoms_this; jat++) {
-                                                              mmdb::Atom *at_2 = residue_this->GetAtom(jat);
-                                                              std::string atom_name_2(at_2->GetAtomName());
-                                                              if (atom_name_2 == " P  ") {
-                                                                 std::string alt_conf_1 = at_1->altLoc;
-                                                                 std::string alt_conf_2 = at_2->altLoc;
-                                                                 if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
-                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
-                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
-                                                                    coot::Cartesian bond_mid_point = pt_1.mid_point(pt_2);
-                                                                    int iat_1 = -1;
-                                                                    int iat_2 = -1;
-                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
-                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
-                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
-                                                                    int col_2 = atom_colour_map.index_for_chain(chain_id);
-                                                                    addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2, false, false);
-                                                                    addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2, false, false);
-                                                                    at_1->PutUDData(udd_has_bond_handle, 1);
-                                                                    at_2->PutUDData(udd_has_bond_handle, 1);
-                                                                    // for use with Ca+ligand mode
-                                                                    residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-                                                                 }
-                                                              }
+      // first do the P_C4_prime bonds internal to the residue_this
+      //
+      for (int iat=0; iat<n_atoms_this; iat++) {
+         mmdb::Atom *at_1 = residue_this->GetAtom(iat);
+         std::string atom_name_1(at_1->GetAtomName());
+         if (atom_name_1 == " C4'") {
+            for (int jat=0; jat<n_atoms_this; jat++) {
+               mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+               std::string atom_name_2(at_2->GetAtomName());
+               if (atom_name_2 == " P  ") {
+                  std::string alt_conf_1 = at_1->altLoc;
+                  std::string alt_conf_2 = at_2->altLoc;
+                  if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
+                     coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                     coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                     coot::Cartesian bond_mid_point = pt_1.mid_point(pt_2);
+                     int iat_1 = -1;
+                     int iat_2 = -1;
+                     at_1->GetUDData(udd_atom_index_handle, iat_1);
+                     at_2->GetUDData(udd_atom_index_handle, iat_2);
+                     int col_1 = atom_colour_map.index_for_chain(chain_id);
+                     int col_2 = atom_colour_map.index_for_chain(chain_id);
+                     addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2, false, false);
+                     addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2, false, false);
+                     at_1->PutUDData(udd_has_bond_handle, 1);
+                     at_2->PutUDData(udd_has_bond_handle, 1);
+                     // for use with Ca+ligand mode
+                     residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                  }
+               }
 
-                                                              bool do_base_stick_bond = false;
-                                                              if (atom_name_2 == " N1 ") {
-                                                                 if (res_name_2 == "DG" || res_name_2 == "G" || res_name_2 == "A" || res_name_2 == "DA") {
-                                                                    do_base_stick_bond = true;
-                                                                 }
-                                                              }
-                                                              if (atom_name_2 == " O4 ") {
-                                                                 if (res_name_2 == "DT" || res_name_2 == "U") {
-                                                                    do_base_stick_bond = true;
-                                                                 }
-                                                              }
-                                                              if (atom_name_2 == " N4 ") {
-                                                                 if (res_name_2 == "DC" || res_name_2 == "C") {
-                                                                    do_base_stick_bond = true;
-                                                                 }
-                                                              }
-                                                              if (do_base_stick_bond) { // at least potentially...
-                                                                 std::string alt_conf_1 = at_1->altLoc;
-                                                                 std::string alt_conf_2 = at_2->altLoc;
-                                                                 if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
-                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
-                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
-                                                                    int iat_1 = -1;
-                                                                    int iat_2 = -1;
-                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
-                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
-                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
-                                                                    // the bools for the end caps seem to be the wrong way around
-                                                                    // but this works and the reverse does not.
-                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2, false, true);
-                                                                 }
-                                                              }
-                                                           }
-                                                        }
-                                                     }
+               bool do_base_stick_bond = false;
+               if (atom_name_2 == " N1 ") {
+                  if (res_name_2 == "DG" || res_name_2 == "G" || res_name_2 == "A" || res_name_2 == "DA") {
+                     do_base_stick_bond = true;
+                  }
+               }
+               if (atom_name_2 == " O4 ") {
+                  if (res_name_2 == "DT" || res_name_2 == "U") {
+                     do_base_stick_bond = true;
+                  }
+               }
+               if (atom_name_2 == " N4 ") {
+                  if (res_name_2 == "DC" || res_name_2 == "C") {
+                     do_base_stick_bond = true;
+                  }
+               }
+               if (do_base_stick_bond) { // at least potentially...
+                  std::string alt_conf_1 = at_1->altLoc;
+                  std::string alt_conf_2 = at_2->altLoc;
+                  if (alt_conf_1.empty() || alt_conf_2.empty() || alt_conf_2 == alt_conf_1) {
+                     coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                     coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                     int iat_1 = -1;
+                     int iat_2 = -1;
+                     at_1->GetUDData(udd_atom_index_handle, iat_1);
+                     at_2->GetUDData(udd_atom_index_handle, iat_2);
+                     int col_1 = atom_colour_map.index_for_chain(chain_id);
+                     // the bools for the end caps seem to be the wrong way around
+                     // but this works and the reverse does not.
+                     addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2, false, true);
+                  }
+               }
+            }
+         }
+      }
 
-                                                     // now inter-residue bonds
+      // now inter-residue bonds
 
-                                                     for (int iat=0; iat<n_atoms_prev; iat++) {
-                                                        mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
-                                                        std::string atom_name_1(at_1->GetAtomName());
-                                                        if (atom_name_1 == " C4'") { // PDBv3 FIXME
-                                                           for (int jat=0; jat<n_atoms_this; jat++) {
-                                                              mmdb::Atom *at_2 = residue_this->GetAtom(jat);
-                                                              std::string atom_name_2(at_2->GetAtomName());
-                                                              if (atom_name_2 == " P  ") { // PDBv3 FIXME
-                                                                 std::string alt_conf_prev = at_1->altLoc;
-                                                                 std::string alt_conf_this = at_2->altLoc;
-                                                                 if (alt_conf_prev.empty() || alt_conf_this.empty() || alt_conf_prev == alt_conf_this) {
-                                                                    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
-                                                                    coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
-                                                                    int iat_1 = -1;
-                                                                    int iat_2 = -1;
-                                                                    at_1->GetUDData(udd_atom_index_handle, iat_1);
-                                                                    at_2->GetUDData(udd_atom_index_handle, iat_2);
-                                                                    int col_1 = atom_colour_map.index_for_chain(chain_id);
-                                                                    addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
-                                                                    at_1->PutUDData(udd_has_bond_handle, 1);
-                                                                    at_2->PutUDData(udd_has_bond_handle, 1);
-                                                                    // for use with Ca+ligand mode
-                                                                    residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-                                                                    residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-                                                                 }
-                                                              }
-                                                           }
-                                                        }
-                                                     }
-                                                  };
+      for (int iat=0; iat<n_atoms_prev; iat++) {
+         mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
+         std::string atom_name_1(at_1->GetAtomName());
+         if (atom_name_1 == " C4'") { // PDBv3 FIXME
+            for (int jat=0; jat<n_atoms_this; jat++) {
+               mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+               std::string atom_name_2(at_2->GetAtomName());
+               if (atom_name_2 == " P  ") { // PDBv3 FIXME
+                  std::string alt_conf_prev = at_1->altLoc;
+                  std::string alt_conf_this = at_2->altLoc;
+                  if (alt_conf_prev.empty() || alt_conf_this.empty() || alt_conf_prev == alt_conf_this) {
+                     coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+                     coot::Cartesian pt_2(at_2->x, at_2->y, at_2->z);
+                     int iat_1 = -1;
+                     int iat_2 = -1;
+                     at_1->GetUDData(udd_atom_index_handle, iat_1);
+                     at_2->GetUDData(udd_atom_index_handle, iat_2);
+                     int col_1 = atom_colour_map.index_for_chain(chain_id);
+                     addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
+                     at_1->PutUDData(udd_has_bond_handle, 1);
+                     at_2->PutUDData(udd_has_bond_handle, 1);
+                     // for use with Ca+ligand mode
+                     residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                     residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                  }
+               }
+            }
+         }
+      }
+   };
 
    auto CA_CA_or_P_P = [this] (int imod, mmdb::Chain *chain_p,
                                int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
@@ -4914,118 +4915,118 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                int udd_has_bond_handle,
                                int udd_has_ca_handle) {
 
-                          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
-                          // normal case (not a gap in the sequence)
-                          for (int iat=0; iat<n_atoms_prev; iat++) {
-                             mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
-                             std::string atom_name_1(at_1->GetAtomName());
-                             if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
-                                for (int jat=0; jat<n_atoms_this; jat++) {
-                                   mmdb::Atom *at_2 = residue_this->GetAtom(jat);
-                                   std::string atom_name_2(at_2->GetAtomName());
-                                   std::string alt_conf_prev = at_1->altLoc;
-                                   std::string alt_conf_this = at_2->altLoc;
-                                   // Allow MSE hetgroups in CA mode
-                                   if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
-                                      if (!at_1->isTer() && !at_2->isTer()) {
-                                         float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
-                                         bool phosphate_pair = false;
-                                         bool Calpha_pair    = false;
-                                         if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) {
-                                            phosphate_pair = 1;
-                                            dist_max_sqrd = dist_max_P_P * dist_max_P_P;
-                                         }
-                                         if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) {
-                                            Calpha_pair = 1;
-                                         }
+      // normal case (not a gap in the sequence)
+      for (int iat=0; iat<n_atoms_prev; iat++) {
+         mmdb::Atom *at_1 = residue_prev->GetAtom(iat);
+         std::string atom_name_1(at_1->GetAtomName());
+         if (atom_name_1 == " CA " || atom_name_1 == " P  ") { // PDBv3 FIXME
+            for (int jat=0; jat<n_atoms_this; jat++) {
+               mmdb::Atom *at_2 = residue_this->GetAtom(jat);
+               std::string atom_name_2(at_2->GetAtomName());
+               std::string alt_conf_prev = at_1->altLoc;
+               std::string alt_conf_this = at_2->altLoc;
+               // Allow MSE hetgroups in CA mode
+               if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
+                  if (!at_1->isTer() && !at_2->isTer()) {
+                     float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
+                     bool phosphate_pair = false;
+                     bool Calpha_pair    = false;
+                     if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) {
+                        phosphate_pair = 1;
+                        dist_max_sqrd = dist_max_P_P * dist_max_P_P;
+                     }
+                     if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) {
+                        Calpha_pair = 1;
+                     }
 
-                                         if (Calpha_pair || phosphate_pair) {
-                                            if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
-                                               int col = 0; // overridden.
-                                               coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
-                                               coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-                                               int iat_1 = -1;
-                                               int iat_2 = -1;
-                                               at_1->GetUDData(udd_atom_index_handle, iat_1);
-                                               at_2->GetUDData(udd_atom_index_handle, iat_2);
-                                               if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) {
-                                                  if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+                     if (Calpha_pair || phosphate_pair) {
+                        if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
+                           int col = 0; // overridden.
+                           coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
+                           coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
+                           int iat_1 = -1;
+                           int iat_2 = -1;
+                           at_1->GetUDData(udd_atom_index_handle, iat_1);
+                           at_2->GetUDData(udd_atom_index_handle, iat_2);
+                           if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) {
+                              if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 
-                                                     int col_1 = 0;
-                                                     int col_2 = 0;
-                                                     if (atom_colours_udd > 0) {
-                                                        mmdb::realtype f;
-                                                        if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
-                                                           col_1 = atom_colour_map.index_for_b_factor(f);
-                                                        if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
-                                                           col_2 = atom_colour_map.index_for_b_factor(f);
-                                                     }
-                                                     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-                                                     addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-                                                     addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-                                                  } else {
-                                                     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
-                                                        coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-                                                        col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
-                                                        addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-                                                        col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
-                                                        addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-                                                     } else {
+                                 int col_1 = 0;
+                                 int col_2 = 0;
+                                 if (atom_colours_udd > 0) {
+                                    mmdb::realtype f;
+                                    if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
+                                       col_1 = atom_colour_map.index_for_b_factor(f);
+                                    if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
+                                       col_2 = atom_colour_map.index_for_b_factor(f);
+                                 }
+                                 coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                 addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                 addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                              } else {
+                                 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+                                    coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                    col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+                                    addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                    col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+                                    addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                                 } else {
 
-                                                        int col_1 = 0;
-                                                        int col_2 = 0;
-                                                        if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-                                                           if (atom_colours_udd > 0) {
-                                                              mmdb::realtype f;
-                                                              if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-                                                                 col_1 = atom_colour_map.index_for_rainbow(f);
-                                                                 if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-                                                                    col_2 = atom_colour_map.index_for_rainbow(f);
-                                                                 } else {
-                                                                    col_2 = 0;
-                                                                 }
-                                                              } else {
-                                                                 col_1 = 0;
-                                                              }
-                                                           } else {
-                                                              col_1 = 0;
-                                                           }
-                                                        } else {
+                                    int col_1 = 0;
+                                    int col_2 = 0;
+                                    if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+                                       if (atom_colours_udd > 0) {
+                                          mmdb::realtype f;
+                                          if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+                                             col_1 = atom_colour_map.index_for_rainbow(f);
+                                             if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+                                                col_2 = atom_colour_map.index_for_rainbow(f);
+                                             } else {
+                                                col_2 = 0;
+                                             }
+                                          } else {
+                                             col_1 = 0;
+                                          }
+                                       } else {
+                                          col_1 = 0;
+                                       }
+                                    } else {
 
-                                                           if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-                                                              col_1 = this->get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
-                                                              col_2 = this->get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
-                                                              if (col_1 < 0) // problem
-                                                                 col_1 = 0;
-                                                              if (col_2 < 0) // ditto
-                                                                 col_2 = 0;
-                                                           } else {
-                                                              col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
-                                                              col_2 = col_1;
-                                                           }
-                                                        }
-                                                        this->bonds_size_colour_check(col_1);
-                                                        this->bonds_size_colour_check(col_2);
-                                                        coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-                                                        addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
-                                                        addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
-                                                     }
-                                                  }
-                                                  at_1->PutUDData(udd_has_bond_handle, 1);
-                                                  at_2->PutUDData(udd_has_bond_handle, 1);
-                                                  // for use with Ca+ligand mode
-                                                  residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-                                                  residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
-                                               }
-                                            }
-                                         }
-                                      }
-                                   }
-                                }
-                             }
-                          }
-                       };
+                                       if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+                                          col_1 = this->get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
+                                          col_2 = this->get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
+                                          if (col_1 < 0) // problem
+                                             col_1 = 0;
+                                          if (col_2 < 0) // ditto
+                                             col_2 = 0;
+                                       } else {
+                                          col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+                                          col_2 = col_1;
+                                       }
+                                    }
+                                    this->bonds_size_colour_check(col_1);
+                                    this->bonds_size_colour_check(col_2);
+                                    coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+                                    addBond(col_1, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
+                                    addBond(col_2, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
+                                 }
+                              }
+                              at_1->PutUDData(udd_has_bond_handle, 1);
+                              at_2->PutUDData(udd_has_bond_handle, 1);
+                              // for use with Ca+ligand mode
+                              residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                              residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
 
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
@@ -5266,6 +5267,8 @@ int
 Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				  coot::my_atom_colour_map_t *atom_colour_map_p) {
 
+   // std::cout << "in atom_colour() with bond_colour_type " << bond_colour_type << std::endl;
+
    int col = 0;
 
    if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
@@ -5285,11 +5288,14 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
       if (bond_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
 
 	 if (atom_colour_map_p) {
-	    int col_idx = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
+            std::string ch_id(std::string(at->GetChainID()));
+	    int col_idx = atom_colour_map_p->index_for_chain(ch_id);
 	    col = 2 * col_idx;
 	    std::string ele = at->element;
 	    if (ele != " C")
 	       col += 1;
+            // std::cout << "here in atom_colour(): with goodsell colours with chain-id " << ch_id
+            //           << " coL_idx " << col_idx << " col " << col << " ele " << ele << std::endl;
 	 }
 
       } else {
@@ -5527,7 +5533,8 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
       }
    }
-   // std::cout << "        returning col " << col << std::endl;
+
+   // std::cout << "        atom_colour() returning col " << col << std::endl;
    return col;
 }
 
@@ -6180,6 +6187,10 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                 int draw_hydrogens_flag,
                                                 bool do_goodsell_colour_mode) {
 
+
+   // std::cout << "in add_residue_monomer_bonds() goodsell_colour_mode: " << do_goodsell_colour_mode
+   // << " atom_colour_type " << atom_colour_type << std::endl;
+
    bool is_het = false;
 
    std::map<std::string, std::vector<mmdb::Residue *> >::const_iterator it;
@@ -6193,7 +6204,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
    };
    // std::map<std::string, std::vector<std::vector<std::tuple<std::string, std::string, std::string> > > > atom_name_ele_map; // and alt-conf
    std::map<std::string, std::vector<std::vector<atom_string_bits_t> > > atom_name_ele_map; // and alt-conf
-   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
+   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); ++it) {
       const std::string &monomer_name(it->first);
       const std::vector<mmdb::Residue *> &v = it->second;
       atom_name_ele_map[monomer_name].resize(v.size());
@@ -6222,7 +6233,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
    std::vector<std::string>   trp_rings_atom_names = {" CG ", " CD1", " NE1", " CE2", " CD2", " CE3", " CZ3", " CH2", " CZ2"};
    std::vector<std::string>     G_rings_atom_names = {" N9 ", " C8 ", " N7 ", " C5 ", " C4 ", " N3 ", " C2 ", " N1 ", " C6 "}; // "A" is same
 
-   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
+   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); ++it) {
       const std::string &monomer_name(it->first);
       const std::string &res_name = monomer_name;
       const std::vector<mmdb::Residue *> &rv = it->second;
@@ -6536,6 +6547,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    // Monomer bonds.
 
+   // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only() " << std::endl;
+
    coot::my_atom_colour_map_t atom_colour_map; // colour map for chain indexing
    int n_chains = 0;
    std::map<std::string, std::vector<mmdb::Residue *> > residue_monomer_map;
@@ -6560,6 +6573,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    int udd_atom_index_handle = asc.UDDAtomIndexHandle;
    int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
    int udd_bond_handle = -1; // surely this is not right.
+
+   if (do_goodsell_colour_mode)
+      atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
    int model_number = 1; // this is not right either.
    add_residue_monomer_bonds(residue_monomer_map, imol, model_number,
@@ -6816,6 +6832,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 					       short int change_c_only_flag,
 					       bool do_goodsell_colour_mode) {
 
+   // std::cout << "............. in do_colour_by_chain_bonds() " << do_goodsell_colour_mode << " "
+   //           << change_c_only_flag << std::endl;
 
    coot::my_atom_colour_map_t atom_colour_map;
 
@@ -6826,7 +6844,6 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                                                  draw_missing_loops_flag,
                                                  change_c_only_flag,
                                                  do_goodsell_colour_mode);
-
       return;
    }
 
@@ -6838,6 +6855,11 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       // atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
       // do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
       // return;
+      if (do_goodsell_colour_mode) {
+	 int atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
+	 do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
+	 return;
+      }
    } else {
       if (do_goodsell_colour_mode) {
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
@@ -7095,6 +7117,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 							    int atom_colour_type,
 							    int draw_hydrogens_flag) {
 
+   // std::cout << "in do_colour_by_chain_bonds_carbons_only() atom_colour_type " << atom_colour_type << std::endl;
+
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
    // std::cout << "debug:: colour by chain, carbons only" << std::endl;
@@ -7208,6 +7232,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 			//
 			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
+                           // std::cout << "in do_colour_by_chain_bonds_carbons_only() atom_colour_type " << atom_colour_type
+                           // << " " << iat_1 << " " << iat_2 << std::endl;
 			   do_colour_by_chain_bonds_carbons_only_internals(imol, imodel,
 									   chain_idx,
 									   at1, at2,
@@ -7522,6 +7548,8 @@ Bond_lines_container::do_colour_by_chain_bonds_internals_goodsell_mode(int imol,
 								       const coot::Cartesian &atom_pos_1,
 								       const coot::Cartesian &atom_pos_2,
 								       int uddHnd) {
+
+   // std::cout << "in do_colour_by_chain_bonds_internals_goodsell_mode " << at1 << " " << at2 << std::endl;
 
    bool bond_het_residue_by_dictionary =
       add_bond_by_dictionary_maybe(imol, at1, at2, het_residues_p); // add to het_residues maybe
@@ -7891,7 +7919,7 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
                                        coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    atom_centres.clear();
-   atom_centres_colour.clear();
+   atom_centres_colour.clear(); // vector of ints
 
    // coot::my_atom_colour_map_t *atom_colour_map = 0;
    bool locally_created_atom_colour_map = false;
@@ -7920,11 +7948,12 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 	       p.atom_p = at;
 	       atom_centres.push_back(p);
 	       int icol = atom_colour(at, atom_colour_type, atom_colour_map_p);
+               bonds_size_colour_check(icol);
 	       atom_centres_colour.push_back(icol);
          }
       }
    }
-   
+
    if (locally_created_atom_colour_map)
       delete atom_colour_map_p;
 }

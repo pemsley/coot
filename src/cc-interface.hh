@@ -1418,6 +1418,14 @@ void stop_curl_download(const char *file_name); // stop curling the to file_name
 
 std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
 
+//! \brief fetch and superpose AlphaFold models corresponding to model
+//!
+//! model must have Uniprot DBREF info in the header.
+void fetch_and_superpose_alphafold_models(int imol);
+
+//! \brief return the model number
+int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
+
 #endif /* USE_LIBCURL */
 
 
@@ -1582,6 +1590,9 @@ void read_test_gltf_models();
 
 //! \brief load a gltf model
 void load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief reset the frame buffers
+void reset_framebuffers();
 
 
 /*  ----------------------------------------------------------------------- */

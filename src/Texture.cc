@@ -1,6 +1,9 @@
 
 #include <iostream>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #include "stb_image.h"
 #include "Texture.hh"
 
@@ -14,6 +17,114 @@ Texture::Texture(const std::string &file_name, type_t t, bool reversed_normals_i
    init(file_name);
    reversed_normals = reversed_normals_in;
 }
+
+// create a solid colour texture
+Texture::Texture(int image_width_in, int image_height_in, glm::vec4 colour) {
+
+   image_width = image_width_in;
+   image_height = image_height_in;
+
+   unsigned char image_data[image_height * image_width * 4];
+
+   unsigned char r = colour[0] * 255;
+   unsigned char g = colour[1] * 255;
+   unsigned char b = colour[2] * 255;
+
+   for (int i=0; i<image_width; i++) {
+      for (int j=0; j<image_height; j++) {
+         unsigned int idx = i * image_height + j;
+         image_data[4 * idx + 0] = r;
+         image_data[4 * idx + 1] = g;
+         image_data[4 * idx + 2] = b;
+         image_data[4 * idx + 3] = 255;
+      }
+   }
+
+   glGenTextures(1, &m_texture_handle);
+   glBindTexture(GL_TEXTURE_2D, m_texture_handle);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+}
+
+// create a colour bar
+Texture::Texture(int image_width_in, int image_height_in, const std::vector<glm::vec4> &colours) {
+
+   colour_bar(image_width_in, image_height_in, colours, 0);
+}
+
+Texture::Texture(int image_width_in, int image_height_in, const std::vector<glm::vec4> &colours, unsigned int n_ticks) {
+
+   colour_bar(image_width_in, image_height_in, colours, n_ticks);
+}
+
+// Don't draw ticks if n_ticks < 2.
+void
+Texture::colour_bar(int image_width_in, int image_height_in, const std::vector<glm::vec4> &colours, unsigned int n_ticks) {
+
+  if (colours.empty()) {
+      std::cout << "ERROR:: failure to create Texture because colours was empty." << std::endl;
+      return;
+   }
+
+   image_width = image_width_in;
+   image_height = image_height_in;
+
+   unsigned char image_data[image_height * image_width * 4];
+   float s = colours.size();
+
+   // image stored in rows
+   //
+   for (int j=0; j<image_height; j++) {
+
+      for (int i=0; i<image_width; i++) {
+
+         float f = static_cast<float>(i)/static_cast<float>(image_width);
+         unsigned int colours_idx = f * s;
+
+         if (colours_idx > colours.size()) colours_idx = colours.size() -1;
+
+         auto colour = colours[colours_idx];
+         if (colour[0] > 1.0) colour[0] = 1.0;
+         if (colour[1] > 1.0) colour[1] = 1.0;
+         if (colour[2] > 1.0) colour[2] = 1.0;
+         unsigned char r = colour[0] * 255;
+         unsigned char g = colour[1] * 255;
+         unsigned char b = colour[2] * 255;
+
+         // std::cout << "colour_idx " << colours_idx << " colours size " << colours.size() << " " << glm::to_string(colour)
+         // << " " << static_cast<int>(r) << " " << static_cast<int>(g) << " " << static_cast<int>(b) << std::endl;
+         // if (i > 390) { r = 122; g = 0; b = 122; } testing
+
+         unsigned int idx = j * image_width + i;
+         image_data[4 * idx + 0] = r;
+         image_data[4 * idx + 1] = g;
+         image_data[4 * idx + 2] = b;
+         image_data[4 * idx + 3] = 255;
+      }
+   }
+
+   if (n_ticks > 1) {
+      glm::vec4 tick_colour(0.155, 0.155, 0.155, 1.0);
+      add_tick_marks(n_ticks, tick_colour, image_data);
+   }
+
+   glGenTextures(1, &m_texture_handle);
+   glBindTexture(GL_TEXTURE_2D, m_texture_handle);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+}
+
 
 void
 Texture::init(const std::string &file_name_in) {
@@ -134,4 +245,54 @@ Texture::Bind(unsigned int unit) {
    if (err)
       std::cout << "GL Error:: in Texture::Bind() image from file \"" << file_name << "\""
                 << " unit " << unit << " err " << err << std::endl;
+}
+
+void
+Texture::add_tick_marks(unsigned int n_ticks, const glm::vec4 &tick_colour, unsigned char *image_data) {
+
+   // strip off the top 2 rows of pixels and make them black and transparent.
+
+   // blank the rows
+   for (int irow=0; irow<40; irow++) {
+      int j = irow;
+      for (int i=0; i<image_width; i++) {
+         unsigned int idx = j * image_width + i;
+         image_data[4 * idx + 0] = 0;
+         image_data[4 * idx + 1] = 0;
+         image_data[4 * idx + 2] = 0;
+         image_data[4 * idx + 3] = 0;
+      }
+   }
+
+   // add ticks
+
+   for (unsigned int i_tick=0; i_tick<n_ticks; i_tick++) {
+
+      float f = static_cast<float>(i_tick)/static_cast<float>(n_ticks-1);
+      int i = f * image_width;
+      if (i >= image_width) i = image_width - 1;
+      int tick_height = 100;
+      if (tick_height > image_height) tick_height = image_height;
+      for (int j=0; j<tick_height; j++) {
+
+         int idx = j * image_width + i;
+
+         if (idx >= image_width * image_height) {
+            std::cout << "ERROR " << idx << std::endl;
+         } else {
+            unsigned char r = tick_colour[0] * 255;
+            unsigned char g = tick_colour[1] * 255;
+            unsigned char b = tick_colour[2] * 255;
+            unsigned char a = tick_colour[3] * 255;
+
+            if (j < 40) { r = 255; g = 255; b = 255; }
+
+            image_data[4 * idx + 0] = r;
+            image_data[4 * idx + 1] = g;
+            image_data[4 * idx + 2] = b;
+            image_data[4 * idx + 3] = a;
+         }
+      }
+   }
+
 }

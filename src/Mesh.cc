@@ -641,6 +641,10 @@ Mesh::setup_buffers() {
    if (vertices.empty()) return;
    if (triangles.empty() && lines_vertex_indices.empty()) return;
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: Mesh::setup_buffers() --- start --- " << std::endl;
+
    bool setup_buffers_for_gl_lines = false;
    if (! lines_vertex_indices.empty())
       setup_buffers_for_gl_lines = true;
@@ -657,9 +661,11 @@ Mesh::setup_buffers() {
    // before making new geometry. (Hopefully I will never read this again)
    //
    glBindVertexArray(vao);
-   GLenum err = glGetError();
-   if (err)
+   err = glGetError();
+   if (err) {
+      // 20220803-PE did you forget to attach_buffers() beforehand again?
       std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << err << std::endl;
+   }
 
    unsigned int n_vertices = vertices.size();
 
@@ -2078,6 +2084,9 @@ Mesh::draw_for_ssao(Shader *shader_p,
    GLuint n_verts = 3 * n_triangles;
    if (n_triangles == 0) return;
 
+   if (false)
+      std::cout << "debug:: in Mesh::draw_for_ssao() " << name << " n_verts " << n_verts << " n_triangles " << n_triangles << std::endl;
+
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_for_ssao() " << shader_p->name << " -- start -- "
                       << err << std::endl;
@@ -2129,6 +2138,7 @@ Mesh::draw_for_ssao(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_for_ssao() " << name << " pre-draw " << err << std::endl;
 
+   // 20220804-PE did you forget to attach_buffers() before making this mesh?
    glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_for_ssao() glDrawElements() of Mesh "

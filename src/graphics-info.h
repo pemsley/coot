@@ -2626,7 +2626,7 @@ public:
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
 					       mmdb::PPAtom atoms, int n_atoms);
-   static void fill_output_residue_info_widget_atom(GtkWidget *widget,
+   static void fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidget *widget,
 						    int imol, mmdb::PAtom atom, int iat);
    // and the keypres callbacks for the above
    static gboolean on_residue_info_occ_entry_key_release_event (GtkWidget       *widget,
@@ -3016,8 +3016,8 @@ public:
    static void  residue_info_add_b_factor_edit(coot::select_atom_info sai, float val);
    static void  residue_info_add_occ_edit(     coot::select_atom_info sai, float val);
    void apply_residue_info_changes(GtkWidget *t);
-   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
-   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
+   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
+   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
 
    void add_picked_atom_info_to_status_bar(int imol, int atom_index);
 
@@ -3256,6 +3256,9 @@ public:
                                                  // hydrogen bonds. c.f. update_bad_nbc_atom_pair_marker_positions()
 
    static bool find_hydrogen_torsions_flag;
+
+   static Texture texture_for_hud_colour_bar;
+   static HUDTextureMesh tmesh_for_hud_colour_bar;
 
    // pickable moving atoms molecule
    // (we want to be able to avoid picking hydrogen atoms if the
@@ -3826,8 +3829,8 @@ public:
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+   int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
-   
 
    // -------- Texture Meshes (for importing glTF models) -------------
    static std::vector<TextureMesh> texture_meshes;
@@ -4447,6 +4450,7 @@ string   static std::string sessionid;
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_hud_refinement_dialog_arrow_tab();
+   static void draw_hud_colour_bar();
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
@@ -4548,7 +4552,11 @@ string   static std::string sessionid;
    // by default, user-defined colours are on a colour wheel, but we can overwride that
    // by setting actual user defined colours for give colour indices
    //
+
    static std::vector<coot::colour_holder> user_defined_colours;
+   // this function sets up the colour bar too and enables its drawing. It will need extra args for
+   // the tick marks.
+   static void set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in);
    static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
    // run glColor3f())
    static void set_bond_colour_from_user_defined_colours(int icol);

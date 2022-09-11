@@ -283,7 +283,13 @@ on_glarea_realize(GtkGLArea *glarea) {
 
       g.tmesh_for_shadow_map.setup_quad();
 
+      // HUD colour bar
+
+      g.tmesh_for_hud_colour_bar = HUDTextureMesh("HUD tmesh for colour bar");
+      g.tmesh_for_hud_colour_bar.setup_quad();
+
       gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
 
       glEnable(GL_DEPTH_TEST);
 

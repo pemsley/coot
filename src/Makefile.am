@@ -719,6 +719,7 @@ libcootsumo_la_SOURCES = \
 	validation.cc            \
 	updating-map-params.hh   \
 	updating-coordinates-molecule-parameters.hh \
+	ud-colour-rule.hh        \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \

@@ -1319,3 +1319,4 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
 
    return std::make_pair(vertices, triangles);
 }
+

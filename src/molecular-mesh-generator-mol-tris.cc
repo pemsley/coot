@@ -22,7 +22,7 @@
 #include "oct.hh"
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance>  molrepinst_1) {
+molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> molrepinst_1) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
@@ -56,9 +56,9 @@ molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::share
 
    for (displayPrimitiveIter=vdp.begin(); displayPrimitiveIter != vdp.end(); displayPrimitiveIter++) {
       DisplayPrimitive &displayPrimitive = **displayPrimitiveIter;
-      if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive ||
+      if (displayPrimitive.type() == DisplayPrimitive::PrimitiveType::SurfacePrimitive    ||
           displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BoxSectionPrimitive ||
-          displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive ||
+          displayPrimitive.type() == DisplayPrimitive::PrimitiveType::BallsPrimitive      ||
           displayPrimitive.type() == DisplayPrimitive::PrimitiveType::CylinderPrimitive ){
          displayPrimitive.generateArrays();
 
@@ -70,11 +70,14 @@ molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::share
             s_generic_vertex &gv = vertices[iVertex];
             VertexColorNormalPrimitive::VertexColorNormal &vcn = vcnArray[iVertex];
             for (int i=0; i<3; i++) {
-               gv.pos[i] = vcn.vertex[i];
+               gv.pos[i]    = vcn.vertex[i];
                gv.normal[i] = vcn.normal[i];
                gv.color[i]  = 0.0037f * vcn.color[i];
             }
             gv.color[3] = 1.0;
+            if ((gv.color[0] + gv.color[1] + gv.color[2]) > 10.0) {
+               gv.color *= 0.00392; // /255
+            }
          }
 
          auto indexArray = surface.getIndexArray();
@@ -351,5 +354,67 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
 }
 
-#endif
+#include "ud-colour-rule.hh"
 
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
+                                                                                                      const std::vector<coot::colour_holder> &user_defined_colours) {
+
+   auto debug_the_colours = [] (mmdb::Manager *mol, ud_colour_rule &cr) {
+      
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        FCXXCoord fc_col = cr.colorForAtom(at);
+                        std::cout << " atom colour " << coot::atom_spec_t(at) << " " << fc_col[0] << " " << fc_col[1] << " " << fc_col[2] << "\n";
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   // -------------------------------------------------------------------------
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+
+   auto my_mol = std::make_shared<MyMolecule>(mol);
+   auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
+   auto this_cs = ribbon_ramp_cs;
+
+   int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   ud_colour_rule cr(udd_handle, mol, user_defined_colours);
+   std::string atom_selection_str = "//" + std::string(chain_p->GetChainID());
+   std::shared_ptr<CompoundSelection> comp_sel = std::make_shared<CompoundSelection>(atom_selection_str);
+   cr.setCompoundSelection(comp_sel);
+   auto udcr_p = std::make_shared<ud_colour_rule>(cr);
+   ribbon_ramp_cs->addRule(udcr_p);
+
+   if (false)
+      debug_the_colours(mol, cr);
+
+   int nres = chain_p->GetNumberOfResidues();
+   if (nres > 0) {
+      std::string style = "Ribbon";
+      std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+         MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+      vp = molecular_representation_instance_to_mesh(molrepinst);
+   }
+
+   return vp;
+}
+
+
+#endif // use moleculestotriangles

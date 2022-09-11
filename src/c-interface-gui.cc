@@ -2266,6 +2266,11 @@ void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
                                             python_command = "import get_ebi ; get_ebi.get_pdb_redo(";
                                             python_command += single_quote(text);
                                             python_command += ")";
+                                         } else {
+                                            // this does not use a python script
+                                            if (n == COOT_UNIPROT_ID) {
+                                               fetch_alphafold_model_for_uniprot_id(text);
+                                            }
                                          }
                                       }
                                    }
