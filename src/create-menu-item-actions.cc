@@ -64,6 +64,7 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
    gtk_window_close(GTK_WINDOW(dialog));
 }
 
+
 void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                  int        response) {
 
@@ -89,6 +90,20 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
          manage_column_selector(file_name); // try read a cif (strangely)
       }
 
+   }
+   gtk_window_close(GTK_WINDOW(dialog));
+}
+
+
+void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
+                                             int response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+      GFile *file = gtk_file_chooser_get_file(chooser);
+      char *file_name = g_file_get_path(file);
+      int is_diff_map_flag = 0; // needs fixing obviously... FIXME
+      handle_read_ccp4_map(file_name, is_diff_map_flag);
    }
    gtk_window_close(GTK_WINDOW(dialog));
 }
@@ -174,7 +189,11 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(dataset_chooser);
 #endif
 
+   // How were is the user-data set?
    GtkWindow *parent_window = GTK_WINDOW(user_data);
+   if (user_data) {
+      parent_window = GTK_WINDOW(user_data);
+   }
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
                                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
@@ -192,10 +211,33 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
 
+#if 0 // still problems with the the Builder FileChooser dialogs
    GtkWidget *dataset_chooser = widget_from_builder("map_name_filechooser_dialog");
    set_directory_for_filechooser(dataset_chooser);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
    gtk_widget_show(dataset_chooser);
+#endif
+
+
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
+                                                   parent_window,
+                                                   action,
+                                                   _("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   _("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
+
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.map");
+   gtk_file_filter_add_pattern(filterselect, "*.mrc");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_show(dialog);
 }
 
 

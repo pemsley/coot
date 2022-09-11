@@ -114,6 +114,12 @@ Low Priority: How can I make a flatpak for Coot?
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
+"Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
+and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
+would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
+a number of textures and interpolating between them). Also consider a blurred textured blue background so that
+it looks like the sea.  Or use texture background while Refmac is running.
+
 ---- "Do they need to work?" items -----
 
 Map Skeletonization
