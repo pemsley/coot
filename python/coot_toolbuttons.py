@@ -21,7 +21,7 @@
 #  import pango
 
 import gi
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 import coot_gui_api
@@ -34,8 +34,8 @@ import os
 
 def register_coot_icons():
     import glob
-    iconfactory = Gtk.IconFactory()
-    stock_ids = Gtk.stock_list_ids()
+    # iconfactory = Gtk.IconFactory()
+    # stock_ids = Gtk.stock_list_ids()
     pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
     if (not pixbuf_dir):
         pixbuf_dir = os.path.join(coot.get_pkgdatadir_py(), "pixmaps")
@@ -45,15 +45,16 @@ def register_coot_icons():
     for full_name in coot_icon_filename_ls:
         name = os.path.basename(full_name)
         icon_info_ls.append([name, full_name])
-    for stock_id, filename in icon_info_ls:
-        # print("# register icon:", stock_id, filename)
-        # only load image files when our stock_id is not present
-        if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
-            if os.path.isfile(filename):
-                pixbuf = Gtk.gdk.pixbuf_new_from_file(filename)
-                iconset = Gtk.IconSet(pixbuf)
-                iconfactory.add(stock_id, iconset)
-    iconfactory.add_default()
+    if False:
+        for stock_id, filename in icon_info_ls:
+            # print("# register icon:", stock_id, filename)
+            # only load image files when our stock_id is not present
+            if ((stock_id not in stock_ids) and not ('phenixed' in filename)):
+                if os.path.isfile(filename):
+                    pixbuf = Gtk.gdk.pixbuf_new_from_file(filename)
+                    iconset = Gtk.IconSet(pixbuf)
+                    iconfactory.add(stock_id, iconset)
+        iconfactory.add_default()
 
 # adds a SeparatorToolItem to the coot_main_toolbar (by default at the
 # last position). Return the separator or False. If there is a
@@ -301,25 +302,25 @@ if True:  # test for python
                                     icon_combobox.set_active_iter(icon_iter)
                                     break
 
-                        left_hbox.pack_start(check_button, True, True, 3)
+                        left_hbox.append(check_button)
                         left_hbox.pack_end(label, True, True, 3)
-                        right_hbox.pack_start(icon_label, False, False, 3)
-                        right_hbox.pack_start(icon_combobox, False, False, 3)
-                        hbox.pack_start(left_hbox, True, True, 3)
+                        right_hbox.append(icon_label)
+                        right_hbox.append(icon_combobox)
+                        hbox.append(left_hbox)
                         hbox.pack_end(right_hbox, False, False, 3)
-                        inner_vbox.pack_start(hbox, False, False, 3)
+                        inner_vbox.append(hbox)
                         check_button.connect("toggled", check_button_callback)
 
-                frame_vbox.pack_start(frame, False, False, 3)
+                frame_vbox.append(frame)
 
             frame_vbox.set_border_width(3)
             scrolled_win.add_with_viewport(frame_vbox)
-            buttons_hbox.pack_start(go_button, True, False, 6)
-            buttons_hbox.pack_start(cancel_button, True, False, 6)
-            vbox.pack_start(scrolled_win, True, True, 0)
-            vbox.pack_start(h_sep, False, False, 3)
-            vbox.pack_start(save_button, False, False, 3)
-            vbox.pack_start(buttons_hbox, False, False, 3)
+            buttons_hbox.append(go_button)
+            buttons_hbox.append(cancel_button)
+            vbox.append(scrolled_win)
+            vbox.append(h_sep)
+            vbox.append(save_button)
+            vbox.append(buttons_hbox)
 
             cancel_button.connect("clicked", delete_event)
             go_button.connect("clicked", go_function)
@@ -422,7 +423,7 @@ if True:  # test for python
                 "Please enter the name for the new toolbutton...")
             label.set_line_wrap(True)
             label.show()
-            vbox.pack_start(label, True, True, 0)
+            vbox.append(label)
 
             name_entry = Gtk.Entry()
             name_entry.connect("key-press-event", cb_name_entry_key_press)
@@ -442,16 +443,16 @@ if True:  # test for python
                 "Please enter the python function... (e.g. fitting.refine_active_residue())")
             label.set_line_wrap(True)
             label.show()
-            vbox.pack_start(label, True, True, 0)
+            vbox.append(label)
 
             func_entry = Gtk.Entry()
             func_entry.connect("key-press-event", cb_func_entry_key_press)
             func_entry.show()
-            vbox.pack_start(func_entry, True, True, 0)
+            vbox.append(func_entry)
             # add advanced option? FIXME (for callable func and args!?)
             #adv_button = Gtk.Button("Advanced options...")
             # adv_button.show()
-            #vbox.pack_start(adv_button, False, False, 0)
+            #vbox.append(adv_button)
 
             # Construct page 2 (save?)
             vbox = Gtk.VBox(False, 5)
@@ -465,15 +466,15 @@ if True:  # test for python
                 "Do you want to save the button in your preferences?")
             label.set_line_wrap(True)
             label.show()
-            vbox.pack_start(label, True, True, 0)
+            vbox.append(label)
 
             radiobutton_yes = Gtk.RadioButton(None, "Yes")
             radiobutton_no = Gtk.RadioButton(radiobutton_yes, "No")
             radiobutton_yes.set_active(True)
             radiobutton_yes.show()
             radiobutton_no.show()
-            vbox.pack_start(radiobutton_yes, True, True, 0)
-            vbox.pack_start(radiobutton_no,  True, True, 0)
+            vbox.append(radiobutton_yes)
+            vbox.append(radiobutton_no)
             assi.set_page_complete(radiobutton_yes.get_parent(), True)
 
             # Construct page 3 (select icon)
@@ -487,14 +488,14 @@ if True:  # test for python
             label = Gtk.Label("Please select an icon or leave as it is...")
             label.set_line_wrap(True)
             label.show()
-            vbox.pack_start(label, True, True, 0)
+            vbox.append(label)
 
             hbox = Gtk.HBox(False, 5)
             icon_model = make_icons_model()
             icon_combobox = icon_selection_combobox(icon_model)
             icon_combobox.show()
             hbox.show()
-            hbox.pack_start(icon_combobox, True, False, 2)
+            hbox.append(icon_combobox)
             vbox.pack_end(hbox)
             assi.set_page_complete(label.get_parent(), True)
 
@@ -512,6 +513,11 @@ if True:  # test for python
             assi.show()
 
         def add_toolbar_button_simple_gui():
+            print("add_toolbar_button_simple_gui() has been removed for now")
+            pass
+
+        # save this for reference
+        def add_toolbar_button_simple_gui_old():
 
             def button_func(*args):
                 # dummy dont need to do anythin here
@@ -543,11 +549,11 @@ if True:  # test for python
             label = Gtk.Label("Icon:")
             icon_model = make_icons_model()
             icon_combobox = icon_selection_combobox(icon_model)
-            hbox.pack_start(label, True, False, 0)
-            hbox.pack_start(icon_combobox, True, False, 0)
+            hbox.append(label)
+            hbox.append(icon_combobox)
             children = entry_widget.get_children()
             vbox = children[0]
-            vbox.pack_start(hbox, True, False, 2)
+            vbox.append(hbox)
             vbox.reorder_child(hbox, 3)
             hbox.show_all()
 
@@ -563,7 +569,8 @@ if True:  # test for python
                                      event)
 
         coot_main_toolbar = coot_gui_api.main_toolbar()
-        coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
+        # remove this for now.
+        # coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
 #

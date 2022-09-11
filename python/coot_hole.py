@@ -1,5 +1,5 @@
 import gi
-gi.require_version('Gtk', '4.0') 
+gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 import coot
 import coot_utils
@@ -37,14 +37,14 @@ def hole_ify():
     combobox.set_active(0)
 
     window.add(vbox)
-    hbox_pos_buttons.pack_start(start_button, True, True, 6)
-    hbox_pos_buttons.pack_start(end_button, True, True, 6)
-    hbox_calc_cancel_buttons.pack_start(calculate_button, True, True, 6)
-    hbox_calc_cancel_buttons.pack_start(cancel_button, True, True, 6)
-    vbox.pack_start(combobox, True, True, 6)
-    vbox.pack_start(hbox, True, True, 6)
-    vbox.pack_start(hbox_pos_buttons, True, True, 6)
-    vbox.pack_start(hbox_calc_cancel_buttons, True, True, 6)
+    hbox_pos_buttons.append(start_button)
+    hbox_pos_buttons.append(end_button)
+    hbox_calc_cancel_buttons.append(calculate_button)
+    hbox_calc_cancel_buttons.append(cancel_button)
+    vbox.append(combobox)
+    vbox.append(hbox)
+    vbox.append(hbox_pos_buttons)
+    vbox.append(hbox_calc_cancel_buttons)
 
     def get_molecule():
         tree_iter = combobox.get_active_iter()

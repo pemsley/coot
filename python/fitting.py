@@ -613,7 +613,7 @@ def molecules_matching_criteria(test_func):
 
            window.set_default_size(200,140)
            window.set_title("Fitted Ligands")
-           inside_vbox.set_border_width(2)
+           # inside_vbox.set_border_width(2)
 
            window.add(outside_vbox)
            outside_vbox.append(scrolled_win)
