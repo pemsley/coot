@@ -3,10 +3,12 @@ ACLOCAL_AMFLAGS="-Im4"
 AM_CPPFLAGS = -I$(top_srcdir) $(BOOST_CPPFLAGS) $(MMDB_CFLAGS)
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 
-lib_LTLIBRARIES=libMoleculesToTrianglesCXXClasses.la libBoostedMoleculesToTrianglesCXXClasses.la
+lib_LTLIBRARIES=libMoleculesToTrianglesCXXClasses.la
+
+# libBoostedMoleculesToTrianglesCXXClasses.la not for the moment
 
 libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
-        DirectedPositionedEntity.cpp						 \
+   DirectedPositionedEntity.cpp						 \
 	Representation.cpp BallsPrimitive.cpp DiscreteSegment.cpp		 \
 	RepresentationInstance.cpp BondsPrimitive.cpp DisplayPrimitive.cpp	 \
 	RotatedTranslatedScaledEntity.cpp BoxSectionPrimitive.cpp Light.cpp	 \
@@ -36,8 +38,7 @@ libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
 # $(GL_LIBS) $(GLU_LIBS)
 
 libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIBS) \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) \
-   $(GL_LIBS) $(GLU_LIBS)
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
 
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses
 # otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
@@ -61,20 +62,20 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
 # PointLight.hpp: $(top_srcdir)/PointLight.frag $(top_srcdir)/PointLight.vert $(top_srcdir)/ShaderPacker.py
 # python $(top_srcdir)/ShaderPacker.py PointLight $(top_srcdir)
 
-libBoostedMoleculesToTrianglesCXXClasses_la_SOURCES=BoostWrappers.cpp
-libBoostedMoleculesToTrianglesCXXClasses_la_CPPFLAGS= ${AM_CPPFLAGS} \
-     $(MoleculesToTrianglesCXXSurface_CFLAGS)
-libBoostedMoleculesToTrianglesCXXClasses_la_LIBADD=-lMoleculesToTrianglesCXXClasses \
-     $(MoleculesToTrianglesCXXSurface_LIBS) \
-     $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB) \
-     $(CLIPPER_LIBS) $(MMDB_LIBS) \
-     $(GL_LIBS)
+# libBoostedMoleculesToTrianglesCXXClasses_la_SOURCES=BoostWrappers.cpp
+# libBoostedMoleculesToTrianglesCXXClasses_la_CPPFLAGS= ${AM_CPPFLAGS} \
+#      $(MoleculesToTrianglesCXXSurface_CFLAGS)
+# libBoostedMoleculesToTrianglesCXXClasses_la_LIBADD=-lMoleculesToTrianglesCXXClasses \
+#      $(MoleculesToTrianglesCXXSurface_LIBS) \
+#      $(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB) \
+#      $(CLIPPER_LIBS) $(MMDB_LIBS) \
+#      $(GL_LIBS)
 
 # -lrfftw -lfftw -lclipper-core -lclipper-ccp4 -lccp4c -lmmdb2
 
-check_PROGRAMS=DemoApp
+# check_PROGRAMS=DemoApp
 
-DemoApp_SOURCES=DemoApp.cpp CameraPort.cpp
+# DemoApp_SOURCES=DemoApp.cpp CameraPort.cpp
 
 #DemoApp_LDADD=-lMoleculesToTrianglesCXXClasses \
 #   $(MoleculesToTrianglesCXXSurface_LIBS) \
@@ -84,7 +85,7 @@ DemoApp_SOURCES=DemoApp.cpp CameraPort.cpp
 # We don't need to specify those extra libraries, using _LIBADD above means that the MoleculesToTrianglesCXXClasses
 # knows what it needs to link when assembling the executable (perhaps at run-time).
 #
-DemoApp_LDADD=-lMoleculesToTrianglesCXXClasses $(glfw3_LIBS)
+# DemoApp_LDADD=-lMoleculesToTrianglesCXXClasses $(glfw3_LIBS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = MoleculesToTrianglesCXXClasses.pc
