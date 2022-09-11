@@ -121,6 +121,7 @@ User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 CA Baton Mode
 Interactive (clickable) validation graphs
+"Fancy" Graphics mode
 
 --- Done Items ---
 

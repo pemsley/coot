@@ -854,6 +854,9 @@ void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void add_cryo_em_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_cryo_em()");
 }
 
 void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,

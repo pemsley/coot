@@ -5129,8 +5129,8 @@ def refmac_multi_sharpen_gui():
     def sharpen_cb(widget, *args):
 
         # get max_band n_levels and map file name
-        max_b = int(get_option_menu_active_item(combo_box_b_factor, b_factor_list))
-        n_levels = int(get_option_menu_active_item(combo_box_n_levels, n_levels_list))
+        max_b = int(get_option_menu_active_item(combobox_b_factor, b_factor_list))
+        n_levels = int(get_option_menu_active_item(combobox_n_levels, n_levels_list))
         active_item_imol = get_combobox_active_molecule(combo_box_map, coot_utils.map_molecule_list)
 
 
@@ -5193,21 +5193,23 @@ def refmac_multi_sharpen_gui():
 
     window = Gtk.Window()
     # boxes
-    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox   = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox_3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     # menus
-    combo_box_map = Gtk.combo_box_new_text()
-    combo_box_b_factor = Gtk.combo_box_new_text()
-    combo_box_n_levels = Gtk.combo_box_new_text()
-
+    # combo_box_map = Gtk.combo_box_new_text()
+    # combo_box_b_factor = Gtk.combo_box_new_text()
+    # combo_box_n_levels = Gtk.combo_box_new_text()
+    combo_box_map     = Gtk.ComboBoxText()
+    combobox_b_factor = Gtk.ComboBoxText()
+    combobox_n_levels = Gtk.ComboBoxText()
 
     # labels
-    map_label = Gtk.Label(label="Map ")
-    sb_label = Gtk.Label(label="Sharpen & Blur in ")
+    map_label    = Gtk.Label(label="Map ")
+    sb_label     = Gtk.Label(label="Sharpen & Blur in ")
     levels_label = Gtk.Label(label=" levels up to ")
-    A_label = Gtk.Label(label=" A*A")
+    A_label      = Gtk.Label(label=" A*A")
     # separate
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     # buttons
@@ -5221,43 +5223,42 @@ def refmac_multi_sharpen_gui():
     renderer_text = Gtk.CellRendererText()
     if len(combobox_map_items) > 0:
         combobox_map.set_active(0)
-    combobox_map.set_entry_text_column(1) # Sets the model column which combo_box
-                                      # should use to get strings from to be text_column
+    combobox_map.set_entry_text_column(1)
     combobox_map.pack_start(renderer_text, True)
     combobox_map.add_attribute(renderer_text, "text", 1)
 
-    combobox_n_levels = Gtk.ComboBox.new_with_model(n_levels_list)
     renderer_text = Gtk.CellRendererText()
-    if len(combobox_map_items) > 0:
-        combobox_n_levels.set_active(0)
+    combobox_n_levels_items = Gtk.ListStore(int)
+    for ii in n_levels_list:  combobox_n_levels_items.append([ii])
+    combobox_n_levels = Gtk.ComboBox.new_with_model(combobox_n_levels_items)
+    combobox_n_levels.set_active(0)
     combobox_n_levels.set_entry_text_column(0)
     combobox_n_levels.pack_start(renderer_text, True)
     combobox_n_levels.add_attribute(renderer_text, "text", 0)
 
-    combobox_b_factor = Gtk.ComboBox.new_with_model(b_factor_list)
     renderer_text = Gtk.CellRendererText()
-    if len(combobox_map_items) > 0:
-        combobox_b_factor.set_active(0)
+    combobox_b_factor_items = Gtk.ListStore(int)
+    for ii in b_factor_list:  combobox_b_factor_items.append([ii])
+    combobox_b_factor = Gtk.ComboBox.new_with_model(combobox_b_factor_items)
+    combobox_b_factor.set_active(0)
     combobox_b_factor.set_entry_text_column(0)
     combobox_b_factor.pack_start(renderer_text, True)
     combobox_b_factor.add_attribute(renderer_text, "text", 0)
 
-    # fill_option_menu_with_number_options(option_menu_n_levels, n_levels_list, 4)
-    # fill_option_menu_with_number_options(option_menu_b_factor, b_factor_list, 200)
-
-    window.set_title("Refmac for Sharpening & Blurring")
+    window.set_title("Coot: Use Refmac for Sharpening & Blurring")
     hbox_1.append(map_label)
     hbox_1.append(combobox_map)
     hbox_2.append(sb_label)
     hbox_2.append(combobox_n_levels)
     hbox_2.append(levels_label)
-    hbox_3.pack_end(cancel_button,       False, False, 12)
-    hbox_3.pack_end(ok_button,           False, False, 12)
+    hbox_2.append(combobox_b_factor)
+    hbox_3.append(cancel_button)
+    hbox_3.append(ok_button)
 
-    vbox.pack_start(hbox_1)
-    vbox.pack_start(hbox_2)
-    vbox.pack_start(h_sep)
-    vbox.pack_start(hbox_3)
+    vbox.append(hbox_1)
+    vbox.append(hbox_2)
+    vbox.append(h_sep)
+    vbox.append(hbox_3)
 
     cancel_button.connect("clicked", delete_event)
 
@@ -5364,7 +5365,7 @@ def add_module_cryo_em_gui():
                                       lambda func: sharpen_blur.sharpen_blur_map_gui())
 
     def flip_hand_local_func():
-        map_molecule_chooser_gui("Select", lambda imol: coot.flip_hand(imol))
+        map_molecule_chooser_gui("Coot Flip Select Map", lambda imol: coot.flip_hand(imol))
 
         add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
                                     lambda func: add_mol_sym_mtrix())
@@ -5398,9 +5399,28 @@ def add_module_cryo_em_gui():
                 interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
         def sharpen_blur_map_gui_wrapper(simple_action, arg2):
-            print("simple_action", simple_action)
-            print("arg2", arg2)
             sharpen_blur.sharpen_blur_map_gui()
+
+        def multi_sharpen_map_gui_wrapper(simple_action, arg2):
+            refmac_multi_sharpen_gui()
+
+        def mask_map_by_chains_wrapper(simple_action, arg2):
+            make_masked_maps_using_active_atom()
+
+        def go_to_map_molecule_centre_wrapper(simple_action, arg2):
+            imol_map = coot.imol_refinement_map()
+            coot.go_to_map_molecule_centre(imol_map)
+
+        def add_mol_sym_mtrix_wrapper(simple_action, arg2):
+            # the internals of add_mol_sym_mtrix() can go here - we don't need this
+            # extra function call.
+            add_mol_sym_mtrix()
+
+        def go_to_map_box_middle_wrapper(simple_action, arg2):
+            go_to_box_middle()
+
+        def flip_map_hand_wrapper(simple_action, arg2):
+            flip_hand_local_func()
 
         menu = Gio.Menu.new()
         popover = Gtk.PopoverMenu()
@@ -5411,20 +5431,26 @@ def add_module_cryo_em_gui():
         coot_gui_api.main_toolbar().append(cryo_em_menu_button)
         app = coot_gui_api.application()
 
-        print("here in add_module_cryo_em_gui() with app", app)
+        def add_action(function_name, function):
+            action = Gio.SimpleAction.new(function_name, None)
+            action.connect("activate", function)
+            app.add_action(action)
 
-        # add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...", lambda func: sharpen_blur.sharpen_blur_map_gui())
-        # add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
-
-        action = Gio.SimpleAction.new("sharpen_blur_map_gui", None)
-        action.connect("activate", sharpen_blur_map_gui_wrapper)
-        app.add_action(action)
+        add_action("sharpen_blur_map_gui",      sharpen_blur_map_gui_wrapper)
+        add_action("multi_sharpen_map_gui",     multi_sharpen_map_gui_wrapper)
+        add_action("add_mol_sym_mtrix",         add_mol_sym_mtrix_wrapper)
+        add_action("flip_map_hand",             flip_map_hand_wrapper)
+        add_action("mask_map_by_chains",        mask_map_by_chains_wrapper)
+        add_action("go_to_map_molecule_centre", go_to_map_molecule_centre_wrapper)
+        add_action("go_to_map_box_middle",      go_to_map_box_middle_wrapper)
 
         menu.append("Sharpen/Blur...",           "app.sharpen_blur_map_gui")
-        menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
         menu.append("Multi-sharpen",             "app.multi_sharpen_map_gui")
         menu.append("Mask Map by Chains",        "app.mask_map_by_chains")
         menu.append("Go To Map Molecule Middle", "app.go_to_map_molecule_centre")
+        menu.append("Map Box Middle",            "app.go_to_map_box_middle")
+        menu.append("Flip Map Hand",             "app.flip_map_hand")
+        menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
 
         # add_simple_coot_menu_menuitem(menu, "Multi-sharpen...", lambda func: refmac_multi_sharpen_gui())
 
@@ -5434,14 +5460,15 @@ def add_module_cryo_em_gui():
 
         add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
 
-        add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle", lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
+        # add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle", lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
 
-        add_simple_coot_menu_menuitem(menu, "Go To Box Middle", lambda func: go_to_box_middle())
+        # add_simple_coot_menu_menuitem(menu, "Go To Box Middle", lambda func: go_to_box_middle())
 
-        add_simple_coot_menu_menuitem(menu, "Flip Hand of Map", lambda func: flip_hand_local_func())
+        # add_simple_coot_menu_menuitem(menu, "Flip Hand of Map", lambda func: flip_hand_local_func())
 
-        add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
+        # add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
 
+        # belongs in Modelling
         add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
                                     lambda func:
                                     generic_chooser_entry_and_file_selector(
@@ -5458,11 +5485,12 @@ def add_module_cryo_em_gui():
 
         add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
 
-        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: set_auto_recontour_map(0))
-
-        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: set_auto_recontour_map(1))
-
+        # Modelling
         add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
+
+        # preferences
+        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(0))
+        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(1))
 
 
 def add_module_ccp4_gui():
@@ -6117,7 +6145,7 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     if len(combobox_diff_map_items) > 0:
         combobox_diff_map.set_active(0)
     combobox_diff_map.set_entry_text_column(1) # Sets the model column which combo_box
-                                      # should use to get strings from to be text_column
+                                               # should use to get strings from to be text_column
     combobox_diff_map.pack_start(renderer_text_for_diff_map, True)
     combobox_diff_map.add_attribute(renderer_text_for_diff_map, "text", 1)
 
