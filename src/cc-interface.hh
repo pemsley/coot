@@ -1591,6 +1591,9 @@ void read_test_gltf_models();
 //! \brief load a gltf model
 void load_gltf_model(const std::string &gltf_file_name);
 
+//! \brief reset the frame buffers
+void reset_framebuffers();
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */

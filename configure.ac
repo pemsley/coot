@@ -35,17 +35,6 @@ dnl Pick up the macros.
 AM_ACLOCAL_INCLUDE(macros)
 AC_CONFIG_MACRO_DIR(macros)
 
-AC_SEARCH_LIBS([strerror],[cposix])
-AC_PROG_CC
-m4_warn([obsolete],
-[The preprocessor macro `STDC_HEADERS' is obsolete.
-  Except in unusual embedded environments, you can safely include all
-  ISO C90 headers unconditionally.])dnl
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_PROG_EGREP
-
-
 AC_PROG_CXX
 # LT_INIT that's old style. Now we use LT_INIT.
 # It is not yet clear to me how AC_LANG_SOURCE should be used
