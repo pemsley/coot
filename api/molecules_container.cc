@@ -3,8 +3,11 @@
 #include "ideal/pepflip.hh"
 
 int
-molecules_container_t::flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
-   
-   int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
+molecules_container_t::flipPeptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
+
+   int result = 0;
+   if (is_valid_model_molecule(imol)) {
+      result = molecules[imol].flipPeptide(rs, alt_conf);
+   }
    return result;
 }
