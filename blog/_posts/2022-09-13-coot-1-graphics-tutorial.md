@@ -14,7 +14,9 @@ Here is the video to cover the basics:
 
 Here is the new (Sept 2022) graphics tutorial - map masking, Shader Preferences and scripting:
 
-[Coot 1 Tutorial: Graphics](coming-shortly)
+[Coot 1 Tutorial: Graphics Part 1](https://www.youtube.com/watch?v=tCpCmBTgt6s)
+
+[Coot 1 Tutorial: Graphics Part 2](https://www.youtube.com/watch?v=OL5-aSZ-p9I)
 
 Here is Lucrezia's script for the masking and colours:
 
