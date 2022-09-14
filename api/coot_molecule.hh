@@ -8,10 +8,11 @@
 class coot_molecule_t {
 
    atom_selection_container_t atom_sel;
-   clipper::Xmap<float> map;
+   clipper::Xmap<float> xmap;
 
 public:
    coot_molecule_t() {}
+   explicit coot_molecule_t(atom_selection_container_t asc) : atom_sel(asc) { }
 
    bool is_valid_model_molecule();
    bool is_valid_map_molecule();
