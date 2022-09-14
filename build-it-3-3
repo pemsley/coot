@@ -2956,7 +2956,7 @@ pygobject_major_minor_version=3.42
 pygobject_version=3.29.1
 pygobject_version=3.30.5
 pygobject_version=3.42.1
-pygobject_version=3.42.2
+# pygobject_version=3.42.2 add me to the extras place!
 
 date
 pwd
@@ -4272,7 +4272,7 @@ else
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
    if git clone https://github.com/pemsley/coot.git -b gtk4 --depth 2 ; then
-      echo git clone https://github.com/pemsley/coot.git -b gtk3 without error status
+      echo git clone https://github.com/pemsley/coot.git -b gtk4 without error status
       echo done clone
       cd coot
       rm -rf autom4te.cache
