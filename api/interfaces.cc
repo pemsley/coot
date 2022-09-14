@@ -20,3 +20,9 @@ std::string flipPeptide(const std::string &pdb_file_name_in, const coot::residue
    return s;
 }
 
+int flipPeptide_mmdb(mmdb::Manager *mol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
+
+   int result = coot::pepflip(mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
+   return result;
+
+}
