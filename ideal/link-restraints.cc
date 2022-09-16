@@ -1364,6 +1364,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
                    << comp_id_2 << "\" group-2 \"" << group_2 << "\"" << std::endl;
 
       try {
+         // this can throw an exception
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
