@@ -222,6 +222,7 @@ def get_eds_pdb_and_mtz(id):
     eds_core = "https://www.ebi.ac.uk/pdbe/entry/pdb" # for web pages
     # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
     eds_coords_site = "https://www.ebi.ac.uk/pdbe/entry-files/download"
+    eds_entry_files = "https://www.ebi.ac.uk/pdbe/entry-files"
 
     # "1cbds" -> "cb/"
     #
@@ -255,6 +256,7 @@ def get_eds_pdb_and_mtz(id):
             # mtz_url = eds_site  + "/files/" + target_mtz_file
             mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
                       down_id + "/" + down_id + "_map.mtz"
+            mtz_url = eds_entry_files + "/" + down_id + "_map.mtz"
             eds_info_page = eds_core + "/" + down_id
 
             print "model_url:", model_url
