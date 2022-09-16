@@ -122,6 +122,13 @@ public:
    // void setup(Shader *shader_p, const Material &material_in);  I don't need the shader, do I?
    void setup(const Material &material_in);
    void set_material(const Material &material_in) { material = material_in; }
+   void set_material_specularity(float ss, float shininess) {
+      material.specular_strength = ss;
+      material.shininess = shininess;
+   }
+   void set_material_diffuse(const glm::vec4 &d) {
+      material.diffuse = d;
+   }
    // can be considered as "draw_self()"
    // if drawing with lines, set the glLineWidth before this draw call.
    void draw(Shader *shader,

@@ -1507,6 +1507,9 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
 //! \brief
+void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
+
+//! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
 
 //! \brief
