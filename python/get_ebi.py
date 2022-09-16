@@ -17,7 +17,7 @@
 
 
 pdbe_server = "https://www.ebi.ac.uk"
-pdbe_pdb_file_dir = "pdbe-srv/view/files"
+pdbe_pdb_file_dir = "pdbe/entry-files/download"
 
 pdbe_file_name_tail = "ent"
 
@@ -104,15 +104,22 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
-    coot_tmp_dir = get_directory("coot-download")	
+    coot_download_dir = get_directory("coot-download")
     if (data_type == "pdb"):
-       pdb_file_name = coot_tmp_dir + "/" + id + ".pdb." + pdbe_file_name_tail
-       check_dir_and_get_url(coot_tmp_dir,pdb_file_name,url_string)
+       pdb_file_name = coot_download_dir + "/" + id + ".pdb." + \
+           pdbe_file_name_tail
+       check_dir_and_get_url(coot_download_dir, pdb_file_name, url_string)
+       imol_coords = handle_read_draw_molecule(pdb_file_name)
+       return imol_coords
+
+    if (data_type == "cif"):
+       pdb_file_name = coot_download_dir + "/" + id + ".cif"
+       check_dir_and_get_url(coot_download_dir, pdb_file_name, url_string)
        imol_coords = handle_read_draw_molecule(pdb_file_name)
        return imol_coords
 
     if (data_type == "sfs"):
-       sfs_file_name = coot_tmp_dir + "/" + id + ".cif"
+       sfs_file_name = coot_download_dir + "/" + id + ".cif"
 #       print "BL DEBUG:: cif output file is: ",sfs_file_name
        imol_coords = imol_coords_arg_list
        if (operator.isNumberType(imol_coords) and imol_coords>=-1):
@@ -147,14 +154,23 @@ def get_ebi_pdb(id):
 
     # print "======= id:", id
     down_id = string.lower(id)
-    url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + \
-              "." + pdbe_file_name_tail
-    imol_coords = get_url_str(id, url_str, "pdb", None)
-    # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
+    pdb_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".ent"
+    cif_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".cif"
+    url_status = get_url_str(id, pdb_url_str, "pdb", None)
+    # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb +
     #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
-    if valid_model_molecule_qm(imol_coords):
-        pdb_validate(down_id, imol_coords)
-    return imol_coords
+    print "BL DEBUG:: get-ebi-pdb ======= url-status", url_status
+    if valid_model_molecule_qm(url_status):
+        pdb_validate(down_id, url_status)
+        return url_status
+    else:
+        cif_url_status = get_url_str(id, cif_url_str, "cif", None)
+        if valid_model_molecule_qm(cif_url_status):
+            print "BL DEBUG:: get-ebi-pdb ======= cif_url_status", cif_url_status
+            pdb_validate(down_id, cif_url_status)
+            return cif_url_status
+
+    return False
 
 
 # Return a list of molecules (i.e. the model molecule and the 2 maps).
@@ -196,6 +212,8 @@ def get_eds_pdb_and_mtz(id):
         mtz_file_name = os.path.join(dir_name,
                                      down_code + "_map.mtz")
 
+        print "::::::::: pdb_file_name:", pdb_file_name
+        print "::::::::: mtz_file_name:", mtz_file_name
         if not os.path.isfile(pdb_file_name):
             return False
         else:
@@ -215,14 +233,13 @@ def get_eds_pdb_and_mtz(id):
                 else:
                     return [imol, imol_map, imol_map_d]
 
-    # 20161105 update from John Berrisford
-    # eds_site = "http://eds.bmc.uu.se/eds"
-    # eds_core = "http://eds.bmc.uu.se"
     eds_site = "https://www.ebi.ac.uk/pdbe/coordinates"
-    eds_core = "https://www.ebi.ac.uk/pdbe/entry/pdb" # for web pages
-    # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
+    # https://www.ebi.ac.uk/pdbe/entry/pdb/6tje
+    # eds_core = "some://thing" ;; for web pages
+    eds_core = "https://www.ebi.ac.uk/pdbe/entry/pdb"
     eds_coords_site = "https://www.ebi.ac.uk/pdbe/entry-files/download"
-    eds_entry_files = "https://www.ebi.ac.uk/pdbe/entry-files"
+    # now the map mtz files are like this:
+    # https://www.ebi.ac.uk/pdbe/coordinates/files/zz/4zzn/4zzn_map.mtz
 
     # "1cbds" -> "cb/"
     #
@@ -254,9 +271,9 @@ def get_eds_pdb_and_mtz(id):
             target_mtz_file = down_id + "_map.mtz"
             dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
             # mtz_url = eds_site  + "/files/" + target_mtz_file
-            mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
-                      down_id + "/" + down_id + "_map.mtz"
-            mtz_url = eds_entry_files + "/" + down_id + "_map.mtz"
+            #mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
+            #          down_id + "/" + down_id + "_map.mtz"
+            mtz_url = eds_coords_site + "/" + down_id + "_map.mtz"
             eds_info_page = eds_core + "/" + down_id
 
             print "model_url:", model_url
@@ -338,12 +355,21 @@ def get_pdb_redo(text):
             url_py = stub + ".py"
 
             print "getting", url_pdb
-            net_get_url(url_pdb, pdb_file_name)
+            status = net_get_url(url_pdb, pdb_file_name)
+            if not status == 0:
+                print "Failed to get %s %s status %s" (url_pdb, pdb_file_name,
+                                                       status)
             print "getting", url_mtz
-            net_get_url(url_mtz, mtz_file_name)
+            status = net_get_url(url_mtz, mtz_file_name)
+            if not status == 0:
+                print "Failed to get %s %s status %s" (url_mtz, mtz_file_name,
+                                                       status)
             print "getting", url_py
-            net_get_url(url_py, py_file_name)
-            
+            status = net_get_url(url_py, py_file_name)
+            if not status == 0:
+                print "Failed to get %s %s status %s" (url_py, py_file_name,
+                                                       status)
+
             status_imol = read_pdb(pdb_file_name)
             if status_imol < 0:
                 print "BL INFO:: problem opening pdb file. Most likely \
