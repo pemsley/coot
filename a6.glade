@@ -144,7 +144,7 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
     <property name="website_label">The Coot Website</property>
     <property name="license" translatable="yes">GNU GPL version 3
 </property>
-<property name="authors">Paul Emsley
+    <property name="authors">Paul Emsley
 with long-term support and commitment from
 Kevin Cowtan and Bernhard Lohkamp
 </property>
@@ -7854,18 +7854,18 @@ that you wish to delete.               </property>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow9">
+                <property name="width_request">280</property>
+                <property name="height_request">230</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="height_request">230</property>
-                <property name="width_request">280</property>
                 <child>
                   <object class="GtkViewport" id="viewport5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkBox" id="edit_chi_angles_vbox">
-                        <property name="height_request">220</property>
                         <property name="width_request">220</property>
+                        <property name="height_request">220</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
@@ -11576,6 +11576,23 @@ Do you want to continue?
           </packing>
         </child>
         <child>
+          <object class="GtkCheckButton" id="go_to_atom_show_HOH_checkbutton">
+            <property name="label" translatable="yes">Show Waters</property>
+            <property name="visible">False</property>
+            <property name="can_focus">True</property>
+            <property name="focus_on_click">False</property>
+            <property name="receives_default">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <signal name="toggled" handler="on_go_to_atom_show_HOH_checkbutton_toggled" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkFrame" id="frame59">
             <property name="height_request">179</property>
             <property name="visible">True</property>
@@ -11620,7 +11637,7 @@ Do you want to continue?
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -11744,7 +11761,7 @@ Do you want to continue?
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
       </object>
@@ -22902,6 +22919,9 @@ just the cell and symmetry)
               </packing>
             </child>
             <child>
+              <placeholder/>
+            </child>
+            <child>
               <object class="GtkFrame" id="frame159">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -23086,9 +23106,6 @@ just the cell and symmetry)
                 <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
-            </child>
-            <child>
-              <placeholder/>
             </child>
             <child>
               <object class="GtkFrame" id="residue_info_chi_angle_frame">
