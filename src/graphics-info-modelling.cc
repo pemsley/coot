@@ -4254,9 +4254,11 @@ graphics_info_t::execute_db_main(int imol,
 	 molecules[imol_new].install_model(imol_new, asc, Geom_p(), mol_name, 1);
 	 graphics_draw();
       } else {
-	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
+         if (use_graphics_interface_flag) {
+            std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
+            GtkWidget *w = wrapped_nothing_bad_dialog(s);
+            gtk_widget_show(w);
+         }
       }
       main_chain.clear_results();
    }

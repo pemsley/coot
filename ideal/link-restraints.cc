@@ -1977,7 +1977,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  
 		  std::vector<bool> other_fixed_flags = make_fixed_flags(it->second);
 
-		  if (debug) { // debug
+		  if (debug) {
 		     for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++) {
 			std::cout << "other fixed flags " << other_fixed_flags[ii] << std::endl;
 		     }
