@@ -1742,9 +1742,7 @@ coot::restraints_container_t::general_link_find_close_link(const std::vector<std
 	 r.second = 1;
       }
    }
-
    return r;
-
 }
 
 std::string
@@ -1955,7 +1953,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	    }
 
 
-	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++) {
+	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); ++it) {
 	       
 	       if (it->second.size() > 3) {
 		  

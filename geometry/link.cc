@@ -273,12 +273,15 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    }
 
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
-	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
+	(chem_link_group_comp_2 == "DNA/RNA") && (local_group_2 == "RNA")))
       match = true;
 
+#if 0 // 20220917-PE I don't know what this was supposed to do -
+      // it looks suspicious.
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "DNA") && 
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
       match = true;
+#endif
 
    if (match) {
       
@@ -315,7 +318,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
       if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
 	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1))) {
 
-         std::cout << "......................... reverse groups match ! " << std::endl;
+         // std::cout << "......................... reverse groups match ! " << std::endl;
 	 if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
 	     ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) {
 	    // std::cout << "debug:: matched with order switch " << std::endl;
