@@ -132,6 +132,7 @@
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon">pixmaps/coot-icon.png</property>
+    <property name="program_name">Coot</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
     <property name="version">1.0.06</property>
