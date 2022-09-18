@@ -4443,7 +4443,7 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules();
-   static void draw_model_molecules_with_shadows();
+   static void draw_model_molecules_symmetry_with_shadows();
    static void draw_intermediate_atoms(unsigned int pass_type);
    static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,

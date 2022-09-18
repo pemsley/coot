@@ -129,6 +129,9 @@ public:
    void set_material_diffuse(const glm::vec4 &d) {
       material.diffuse = d;
    }
+   void set_material_ambient(const glm::vec4 &a) {
+      material.ambient = a;
+   }
    // can be considered as "draw_self()"
    // if drawing with lines, set the glLineWidth before this draw call.
    void draw(Shader *shader,

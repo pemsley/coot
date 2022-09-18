@@ -1506,6 +1506,9 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 //! \brief
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
+//! \brief set the ambient
+void set_model_material_ambient(int imol, float r, float g, float b, float alpha);
+
 //! \brief
 void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
 

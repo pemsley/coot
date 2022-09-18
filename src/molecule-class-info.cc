@@ -118,7 +118,7 @@ cartesian_to_glm(const coot::Cartesian &c) {
 }
 
 void
-molecule_class_info_t::setup_internal() {
+molecule_class_info_t::setup_internal() { // init
 
    atom_sel.atom_selection = NULL;
    atom_sel.n_selected_atoms = 0;
@@ -3869,8 +3869,8 @@ molecule_class_info_t::make_colour_table() const {
                   bool is_C = !(ic %2);
                   int chain_index = ic/2;
                   float rotation_amount = 0.2f * static_cast<float>(chain_index);
-                  if (! is_C)
-                     rotation_amount += 0.101;
+                  if (is_C)
+                     ch.pastelize(0.28);
                   ch.rotate_by(rotation_amount);
                   colour_table[icol] = colour_holder_to_glm(ch);
                }
@@ -7321,7 +7321,7 @@ molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
 //
 // optional args save_hydrogens and save_aniso_records.
 int
-molecule_class_info_t::save_coordinates(const std::string filename,
+molecule_class_info_t::save_coordinates(const std::string &filename,
                                         bool save_hydrogens,
                                         bool save_aniso_records,
                                         bool save_conect_records) {

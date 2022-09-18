@@ -2007,7 +2007,7 @@ public:        //                      public
 
    // save yourself and update have_unsaved_changes_flag status
    //
-   int save_coordinates(const std::string filename,
+   int save_coordinates(const std::string &filename,
 			bool save_hydrogens=1,
 			bool save_aniso_records=1,
 			bool save_conect_records=0);
