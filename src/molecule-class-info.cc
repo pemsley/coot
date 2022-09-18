@@ -3837,6 +3837,8 @@ molecule_class_info_t::make_colour_table() const {
 
    bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
 
+   float gcwrs = graphics_info_t::goodsell_chain_colour_wheel_rotation_step;
+
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
@@ -3868,7 +3870,7 @@ molecule_class_info_t::make_colour_table() const {
                   int ic = icol - 100;
                   bool is_C = !(ic %2);
                   int chain_index = ic/2;
-                  float rotation_amount = 0.2f * static_cast<float>(chain_index);
+                  float rotation_amount = gcwrs * static_cast<float>(chain_index);
                   if (is_C)
                      ch.pastelize(0.28);
                   ch.rotate_by(rotation_amount);

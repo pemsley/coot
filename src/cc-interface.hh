@@ -1587,7 +1587,6 @@ void set_bond_smoothness_factor(unsigned int fac);
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);
 
-
 //! \brief set the FPS timing scale factor - default 0.0025
 void set_fps_timing_scale_factor(float f);
 

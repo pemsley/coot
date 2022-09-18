@@ -447,6 +447,7 @@ void set_bond_smoothness_factor(unsigned int fac) {
    graphics_draw();
 }
 
+
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state) {
 

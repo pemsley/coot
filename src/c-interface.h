@@ -2263,6 +2263,9 @@ void set_colour_by_chain(int imol);
 /*! \brief colour molecule number imol by chain type, goodsell-like colour scheme */
 void set_colour_by_chain_goodsell_mode(int imol);
 
+/*! \brief set the goodsell chain colour colour wheel step (default 0.22) */
+void set_goodsell_chain_colour_wheel_step(float s);
+
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol);
 

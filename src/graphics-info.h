@@ -2508,6 +2508,7 @@ public:
    static short int dynamic_map_size_display;
    static int graphics_sample_step;
    static int dynamic_map_zoom_offset;
+   static float goodsell_chain_colour_wheel_rotation_step;
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
