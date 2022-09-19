@@ -5,20 +5,27 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
-class coot_molecule_t {
+namespace coot {
 
-   atom_selection_container_t atom_sel;
-   clipper::Xmap<float> xmap;
+   class molecule_t {
 
-public:
-   coot_molecule_t() {}
-   explicit coot_molecule_t(atom_selection_container_t asc) : atom_sel(asc) { }
+   public:
+      atom_selection_container_t atom_sel;
+      molecule_t() {}
+      explicit molecule_t(atom_selection_container_t asc) : atom_sel(asc) {}
+      clipper::Xmap<float> xmap; // public because the filling function needs access
 
-   bool is_valid_model_molecule();
-   bool is_valid_map_molecule();
+      // utils
 
-   int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+      bool is_valid_model_molecule();
+      bool is_valid_map_molecule();
+      std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid);
 
-};
+      // functions
+
+      int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+   };
+}
+
 
 #endif // COOT_MOLECULE_HH
