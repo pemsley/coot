@@ -3866,7 +3866,7 @@ molecule_class_info_t::make_colour_table() const {
                // colour indices are 100, 101, 102, 103.
                // std::cout << "goodsell mode " << icol << " " << bonds_box.bonds_[icol].num_lines << std::endl;
                if (bonds_box.bonds_[icol].num_lines > 0) {
-                  coot::colour_holder ch(0.7, 0.5, 0.6);
+                  coot::colour_holder ch(0.8, 0.5, 0.6);
                   int ic = icol - 100;
                   bool is_C = !(ic %2);
                   int chain_index = ic/2;
