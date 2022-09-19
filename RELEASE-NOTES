@@ -7,6 +7,12 @@
 
   o FEATURE: Added load_gltf_mode() to the API.
 
+----
+
+  Release 0.9.8.4
+
+  o FEATURE: AlphaFold pLDDT colour scheme.
+
   o CHANGE:  Load files from ~/.coot if it is a directory.
 
   o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
@@ -23,11 +29,13 @@
 
   o BUG-FIX: mutate_residue_range() now in the coot namesspace in auto_assign_sequence_from_map()
 
+  o CHANGE:  Inter-chain links can now be refined. [Keitaro Yamashita]
+
   o BUG-FIX: Reenable the picking of hydrogen atoms in rotation/translation
              Thank you Taro Yamada.
 
-  o BUG-FIX Fix up interesting_residues_gui(). Fixes problem in "Residues with Missing Atoms"
-            Reported by EJD.
+  o BUG-FIX: Fix up interesting_residues_gui(). Fixes problem in "Residues with Missing Atoms"
+             Reported by EJD.
 
   o BUG-FIX: The GL Ramachandran plot is only displayed during refinement.
 
@@ -219,6 +227,11 @@ major version every year or so.
 [9] Thanks to my Mac-using colleagues for their feedback.
 
 ----
+
+  Release 0.9.8.3 [Fumbled release]
+
+----
+
 
   Release 0.9.8.2
 
