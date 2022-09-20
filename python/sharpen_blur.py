@@ -50,7 +50,11 @@ def sharpen_blur_map_gui():
     default_entry_2_text = "1.3"
 
     label = Gtk.Label(label=chooser_label)
-    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
+    vbox.set_margin_top(10)
+    vbox.set_margin_bottom(10)
+    vbox.set_margin_start(10)
+    vbox.set_margin_end(10)
     hbox_for_sharpen  = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox_for_resample = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     entry_1 = Gtk.Entry()
