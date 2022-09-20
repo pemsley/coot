@@ -241,6 +241,8 @@
                 <child>
                   <object class="GtkButton" id="single_map_properties_colour_button">
                     <property name="label" translatable="yes"> Colour </property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <property name="focusable">1</property>
                     <property name="receives_default">1</property>
                   </object>
