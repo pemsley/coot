@@ -5190,14 +5190,17 @@ def refmac_multi_sharpen_gui():
 
     window = Gtk.Window()
     # boxes
-    vbox   = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-    hbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    hbox_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    hbox_3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    vbox   = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
+    vbox.set_margin_start(10)
+    vbox.set_margin_end(10)
+    vbox.set_margin_top(10)
+    vbox.set_margin_bottom(10)
+    hbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,spacing=5)
+    hbox_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,spacing=5)
+    hbox_3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,spacing=5)
+    hbox_3.set_halign(Gtk.Align.END)
+    hbox_3.set_homogeneous(True)
     # menus
-    # combo_box_map = Gtk.combo_box_new_text()
-    # combo_box_b_factor = Gtk.combo_box_new_text()
-    # combo_box_n_levels = Gtk.combo_box_new_text()
     combo_box_map     = Gtk.ComboBoxText()
     combobox_b_factor = Gtk.ComboBoxText()
     combobox_n_levels = Gtk.ComboBoxText()
@@ -5210,7 +5213,7 @@ def refmac_multi_sharpen_gui():
     # separate
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     # buttons
-    ok_button = Gtk.Button(label="   OK   ")
+    ok_button = Gtk.Button(label="OK")
     cancel_button = Gtk.Button(label=" Cancel ")
     n_levels_list = [1, 2, 3, 4, 5, 6]
     b_factor_list = [50, 100, 200, 400, 800, 2000]
@@ -5223,6 +5226,8 @@ def refmac_multi_sharpen_gui():
     combobox_map.set_entry_text_column(1)
     combobox_map.pack_start(renderer_text, True)
     combobox_map.add_attribute(renderer_text, "text", 1)
+    combobox_map.set_halign(Gtk.Align.END)
+    combobox_map.set_hexpand(True)
 
     renderer_text = Gtk.CellRendererText()
     combobox_n_levels_items = Gtk.ListStore(int)
