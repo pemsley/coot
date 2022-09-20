@@ -4369,6 +4369,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-guile \
+      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4383,6 +4384,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-guile \
+      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
