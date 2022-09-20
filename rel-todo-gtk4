@@ -15,6 +15,10 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
+Does the show_updating_maps_chooser() work? In refinement branch even?
+
+Make the validation balls and dodecs less bright. ::: 1
+
 Enable splash screen: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
 
@@ -24,6 +28,8 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 * Nearly done - I need to be able to install the icon.
 
 Enable the command line (e.g. --pdb and others) ::: 2
+
+Gtk3: decrease the brightness of the rama balls and rota dodecs.
 
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
 
@@ -45,6 +51,7 @@ Key-binding for "clear all atom labels" ::: 0.25
 coot_gui.smiles_gui() - is this a thing now? ::: 1
 
 clean out coot_gui usage from coot_utils ::: 2
+* Done, I think. Needs checking.
 
 Fix "Rotamers" button ::: 1
 
