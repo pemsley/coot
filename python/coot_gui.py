@@ -922,11 +922,15 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
     label = Gtk.Label()
     label.set_label(chooser_label)
     # vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-    vbox.set_spacing(6)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
+    vbox.set_margin_top(10)
+    vbox.set_margin_bottom(10)
+    vbox.set_margin_start(10)
+    vbox.set_margin_end(10)
     # hbox_buttons = Gtk.Box(Gtk.Orientation.HORIZONTAL)
-    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    hbox_buttons.set_spacing(6)
+    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,spacing=5)
+    hbox_buttons.set_halign(Gtk.Align.END)
+    hbox_buttons.set_homogeneous(True)
 
     # -------- replacing an option menu of molecules: here's how to do it --------------
     #          (also see the on_ok_button_clicked callback)
@@ -946,7 +950,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
 
     # ----------------------------------------------------------------------------------
 
-    ok_button = Gtk.Button(label="  OK  ")
+    ok_button = Gtk.Button(label="OK")
     cancel_button = Gtk.Button(label=" Cancel ")
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
