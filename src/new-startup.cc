@@ -547,7 +547,7 @@ new_startup_create_splash_screen_window() {
 
 void
 new_startup_application_activate(GtkApplication *application,
-                                 G_GNUC_UNUSED gpointer user_data) {
+                                 gpointer splash_screen) {
 
    GtkBuilder *builder = gtk_builder_new();
    if (GTK_IS_BUILDER(builder)) {
@@ -556,9 +556,6 @@ new_startup_application_activate(GtkApplication *application,
                 << std::endl;
       return;
    }
-
-   GtkWidget *splash_screen = new_startup_create_splash_screen_window();
-   gtk_widget_show(splash_screen);
 
    std::string dir = coot::package_data_dir();
    std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
@@ -707,6 +704,9 @@ int new_startup(int argc, char **argv) {
    graphics_info.init();
    gtk_init();
 
+   GtkWidget *splash_screen = new_startup_create_splash_screen_window();
+   gtk_widget_show(splash_screen);
+
    python_init();
 
    // set this by parsing the command line arguments
@@ -717,7 +717,7 @@ int new_startup(int argc, char **argv) {
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
    graphics_info.application = app;
-   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), NULL);
+   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), splash_screen);
    g_application_register(G_APPLICATION(app), NULL, &error);
 
    int status = g_application_run (G_APPLICATION (app), argc, argv);
