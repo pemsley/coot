@@ -701,11 +701,20 @@ int new_startup(int argc, char **argv) {
    graphics_info_t graphics_info;
    setup_symm_lib();
    check_reference_structures_dir();
-   graphics_info.init();
    gtk_init();
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_show(splash_screen);
+
+   // This has been copied from gtk3 branch, from the do_splash_screen function.
+   // This ensures that the splashscreen is able to be properly loaded
+   while(g_main_context_iteration(NULL,TRUE) == FALSE);
+   while (g_main_context_pending(NULL)) {
+      usleep(3000);
+      g_main_context_iteration(NULL,TRUE);
+   }
+
+   graphics_info.init();
 
    python_init();
 
