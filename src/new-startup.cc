@@ -495,35 +495,38 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
    }
 }
 
-std::vector<std::string> pixmap_directories_gtk4 = {};
 
 GtkWidget *
-create_pixmap_gtk4_version(const std::string &local_filename) {
+create_local_picture(const std::string &local_filename) {
 
-  GtkWidget *image = 0;
+   GtkWidget *picture = 0;
 
-  std::string pdd = coot::package_data_dir();
-  std::cout << "pdd " << pdd << std::endl;
-  std::string icon_dir = coot::util::append_dir_file(pdd, "images");
-  pixmap_directories_gtk4.push_back(icon_dir);
+   std::string pdd = coot::package_data_dir();
+   std::cout << "pdd " << pdd << std::endl;
+   std::string icon_dir = coot::util::append_dir_file(pdd, "images");
+   std::vector<std::string> pixmap_directories_gtk4 = {};
+   pixmap_directories_gtk4.push_back(icon_dir);
 
-  if (local_filename.empty()) return 0;
+   if (local_filename.empty())
+      return 0;
 
-  if (coot::file_exists(std::string("./") + local_filename)) {
-     image = gtk_image_new_from_file(local_filename.c_str());
-  } else {
-     for (unsigned int i=0; i<pixmap_directories_gtk4.size(); i++) {
-        const std::string &d = pixmap_directories_gtk4[i];
-        std::string fn = coot::util::append_dir_file(d, local_filename);
-        if (coot::file_exists(fn)) {
-           image = gtk_image_new_from_file(fn.c_str());
-           //gtk_image_set_pixel_size(GTK_IMAGE(image), 16);
-           break;
+   if (coot::file_exists(std::string("./") + local_filename)) {
+      picture = gtk_picture_new_for_filename(local_filename.c_str());
+   }
+   else {
+        for (unsigned int i=0; i<pixmap_directories_gtk4.size(); i++) {
+           const std::string &d = pixmap_directories_gtk4[i];
+           std::string fn = coot::util::append_dir_file(d, local_filename);
+           if (coot::file_exists(fn)) {
+              picture = gtk_picture_new_for_filename(fn.c_str());
+              break;
+           }
         }
-     }
-  }
-
-  return image;
+   }
+   if (picture) {
+      gtk_picture_set_content_fit(GTK_PICTURE(picture),GTK_CONTENT_FIT_FILL);
+   }
+   return picture;
 }
 
 GtkWidget*
@@ -531,15 +534,20 @@ new_startup_create_splash_screen_window() {
 
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
-   // gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
-   // gtk_window_set_type_hint(GTK_WINDOW (splash_screen_window), GDK_SURFACE_TYPE_HINT_SPLASHSCREEN);
-   GtkWidget *image = create_pixmap_gtk4_version("coot-1.png");
+   gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
+   GtkWidget *picture = create_local_picture("coot-1.png");
 
-   // gtk_widget_set_size_request(image, 660, -1);// make the window wide, not the image
+   gtk_widget_set_hexpand(GTK_WIDGET(picture),TRUE);
+   gtk_widget_set_vexpand(GTK_WIDGET(picture),TRUE);
+
+   gtk_widget_set_halign(GTK_WIDGET(picture),GTK_ALIGN_FILL);
+   gtk_widget_set_halign(GTK_WIDGET(picture),GTK_ALIGN_FILL);
+
+   gtk_widget_set_size_request(picture, 660, 371);
    // std::cout << "@@@@@@@@@@@@@@ create_pixmap_gtk4_version() returned image " << image << std::endl;
-   gtk_widget_show(image);
+   gtk_widget_show(picture);
 
-   gtk_window_set_child(GTK_WINDOW(splash_screen_window), image);
+   gtk_window_set_child(GTK_WINDOW(splash_screen_window), picture);
    return splash_screen_window;
 }
 
