@@ -1360,19 +1360,6 @@ def coot_menubar_menu(menu_label):
         print("ERROR:: python coot_coot_gui_api.main_menumodel() an error occurs using coot_gui_api", e)
 
 
-# Given that we have a menu (e.g. one called "Extensions") provide a
-# cleaner interface to adding something to it:
-#
-# activate_function is a thunk.
-#
-def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
-
-   #  sub_menuitem = Gio.MenuItem()
-   #  menu.append(sub_menuitem)
-   #  sub_menuitem.show()
-   #  sub_menuitem.connect("activate", activate_function)
-   print("in add_simple_coot_menu_menuitem(() use new stye menus")
-
 
 # Make an interesting things GUI for residues of molecule number
 # imol that have alternate conformations.
@@ -5366,17 +5353,8 @@ def add_module_cryo_em_gui():
             c = coot.cell(m)
             coot.set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
 
-        add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                      lambda func: sharpen_blur.sharpen_blur_map_gui())
-
     def flip_hand_local_func():
         map_molecule_chooser_gui("Coot Flip Select Map", lambda imol: coot.flip_hand(imol))
-
-        add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
-                                    lambda func: add_mol_sym_mtrix())
-
-        add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                    lambda func: sharpen_blur.sharpen_blur_map_gui())
 
     def make_masked_maps_using_active_atom():
         active_atom = coot.active_residue_py()
@@ -5457,53 +5435,39 @@ def add_module_cryo_em_gui():
         menu.append("Flip Map Hand",             "app.flip_map_hand")
         menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
 
-        # add_simple_coot_menu_menuitem(menu, "Multi-sharpen...", lambda func: refmac_multi_sharpen_gui())
+        # todo: port this to gtk4
+        # add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
+        # # belongs in Modelling
+        # add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
+        #                             lambda func:
+        #                             generic_chooser_entry_and_file_selector(
+        #                                 "Align Sequence to Model: ",
+        #                                 coot_utils.valid_model_molecule_qm,
+        #                                 "Chain ID",
+        #                                 "",
+        #                                 "Select PIR Alignment file",
+        #                                 lambda imol, chain_id, target_sequence_pif_file:
+        #                                 coot.run_clustalw_alignment(imol, chain_id,
+        #                                                           target_sequence_pif_file)))
 
-        # add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...", lambda func: sharpen_blur.sharpen_blur_map_gui())
+        # add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence", lambda func: ass_seq_assoc_seq())
 
-        # add_simple_coot_menu_menuitem(menu, "Mask Map by Chains", lambda func: make_masked_maps_using_active_atom())
+        # add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
 
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
+        # # Modelling
+        # add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
 
-        # add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle", lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
-
-        # add_simple_coot_menu_menuitem(menu, "Go To Box Middle", lambda func: go_to_box_middle())
-
-        # add_simple_coot_menu_menuitem(menu, "Flip Hand of Map", lambda func: flip_hand_local_func())
-
-        # add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
-
-        # belongs in Modelling
-        add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
-                                    lambda func:
-                                    generic_chooser_entry_and_file_selector(
-                                        "Align Sequence to Model: ",
-                                        coot_utils.valid_model_molecule_qm,
-                                        "Chain ID",
-                                        "",
-                                        "Select PIR Alignment file",
-                                        lambda imol, chain_id, target_sequence_pif_file:
-                                        coot.run_clustalw_alignment(imol, chain_id,
-                                                                  target_sequence_pif_file)))
-
-        add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence", lambda func: ass_seq_assoc_seq())
-
-        add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
-
-        # Modelling
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
-
-        # preferences
-        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(0))
-        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(1))
+        # # preferences
+        # add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(0))
+        # add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(1))
 
 
 def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
         menu = coot_menubar_menu("CCP4")
 
-        add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
-                                      lambda func: acedrg_link.acedrg_link_generation_control_window())
+        # add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
+        #                               lambda func: acedrg_link.acedrg_link_generation_control_window())
 
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():
@@ -5513,9 +5477,9 @@ def add_module_pdbe_gui():
       #     Recent structures from the PDBe
       # ---------------------------------------------------------------------
       #
-      add_simple_coot_menu_menuitem(
-         menu, "PDBe recent structures...",
-         lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
+    #   add_simple_coot_menu_menuitem(
+    #      menu, "PDBe recent structures...",
+    #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
       if coot_utils.command_in_path_qm("refmac5"):
@@ -5523,12 +5487,12 @@ def add_module_pdbe_gui():
       else:
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
-      add_simple_coot_menu_menuitem(
-         menu, "Get from PDBe...",
-         lambda func: generic_single_entry("Get PDBe accession code",
-                                           "", " Get it ",
-                                           lambda text:
-                                           get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+    #   add_simple_coot_menu_menuitem(
+    #      menu, "Get from PDBe...",
+    #      lambda func: generic_single_entry("Get PDBe accession code",
+    #                                        "", " Get it ",
+    #                                        lambda text:
+    #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
 
 
@@ -5582,25 +5546,25 @@ def add_module_refine():
 
       menu = coot_menubar_menu("Refine")
 
-      add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
+    #   add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
+    #   add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
 
-      # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-      add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: coot.set_do_coot_probe_dots_during_refine(1))
-      add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: coot.set_do_coot_probe_dots_during_refine(0))
+    #   # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+    #   add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: coot.set_do_coot_probe_dots_during_refine(1))
+    #   add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: coot.set_do_coot_probe_dots_during_refine(0))
 
-      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints On",  lambda widget: coot.set_draw_moving_atoms_restraints(1))
-      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints Off", lambda widget: coot.set_draw_moving_atoms_restraints(0))
+    #   add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints On",  lambda widget: coot.set_draw_moving_atoms_restraints(1))
+    #   add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints Off", lambda widget: coot.set_draw_moving_atoms_restraints(0))
 
-      add_simple_coot_menu_menuitem(menu, "Refine Fragment", refine_fragment_active_atom)
+    #   add_simple_coot_menu_menuitem(menu, "Refine Fragment", refine_fragment_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Regularize Fragment", regularize_fragment_active_atom)
+    #   add_simple_coot_menu_menuitem(menu, "Regularize Fragment", regularize_fragment_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Regularize Chain", regularize_chain_active_atom)
+    #   add_simple_coot_menu_menuitem(menu, "Regularize Chain", regularize_chain_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs On",  lambda w: coot.set_show_intermediate_atoms_rota_markup(1))
-      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs Off", lambda w: coot.set_show_intermediate_atoms_rota_markup(0))
+    #   add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs On",  lambda w: coot.set_show_intermediate_atoms_rota_markup(1))
+    #   add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs Off", lambda w: coot.set_show_intermediate_atoms_rota_markup(0))
 
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
