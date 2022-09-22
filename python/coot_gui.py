@@ -1258,7 +1258,8 @@ def generic_chooser_and_file_selector(chooser_label,
     label = Gtk.Label(label=chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_for_entry = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+    hbox_buttons.set_homogeneous(True)
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
@@ -1270,8 +1271,8 @@ def generic_chooser_and_file_selector(chooser_label,
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
 
-    ok_button = Gtk.Button(label="  OK  ")
-    cancel_button = Gtk.Button(label=" Cancel ")
+    ok_button = Gtk.Button(label="OK")
+    cancel_button = Gtk.Button(label="Cancel")
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
     window.set_default_size(400, 100)
