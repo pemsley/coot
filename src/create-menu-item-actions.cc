@@ -923,6 +923,9 @@ void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_refine()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
