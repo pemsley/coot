@@ -5435,22 +5435,48 @@ def add_module_cryo_em_gui():
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("Sharpen/Blur...","sharpen_blur_map_gui",sharpen_blur_map_gui_wrapper)
-        add_action("Multi-sharpen","multi_sharpen_map_gui",           multi_sharpen_map_gui_wrapper)
-        add_action("Mask Map by Chains","mask_map_by_chains",              mask_map_by_chains_wrapper)
-        add_action("Go To Map Molecule Middle","go_to_map_molecule_centre",       go_to_map_molecule_centre_wrapper)
-        add_action("Map Box Middle","go_to_map_box_middle",            go_to_map_box_middle_wrapper)
-        add_action("Flip Map Hand","flip_map_hand",                   flip_map_hand_wrapper)
+        add_action("Sharpen/Blur...",
+            "sharpen_blur_map_gui",
+            sharpen_blur_map_gui_wrapper)
+        add_action("Multi-sharpen",
+            "multi_sharpen_map_gui",
+            multi_sharpen_map_gui_wrapper)
+        add_action("Mask Map by Chains",
+            "mask_map_by_chains",
+            mask_map_by_chains_wrapper)
+        add_action("Go To Map Molecule Middle",
+            "go_to_map_molecule_centre",
+            go_to_map_molecule_centre_wrapper)
+        add_action("Map Box Middle",
+            "go_to_map_box_middle",
+            go_to_map_box_middle_wrapper)
+        add_action("Flip Map Hand",
+            "flip_map_hand",
+            flip_map_hand_wrapper)
         # where does this one belong?
-        add_action("Interactive Nudge Residues...","interactive_nudge",               lambda _simple_action, _arg2: interactive_nudge_func())
+        add_action("Interactive Nudge Residues...",
+            "interactive_nudge",
+            lambda _simple_action, _arg2: interactive_nudge_func())
         # belongs in Modelling
-        add_action("Add molecular symmetry using MTRIX","add_mol_sym_mtrix",               add_mol_sym_mtrix_wrapper)
-        add_action("Align and Mutate using ClustalW2","align_and_mutate_using_clustalw2",align_and_mutate_using_clustalw2_wrapper)
-        add_action("Assign Sequence Based on Associated Sequence","ass_seq_assoc_seq",               lambda _simple_action, _arg2: ass_seq_assoc_seq())
-        add_action("Auto-assign Sequence Based on Map","auto_assign_sequence_from_map",   lambda _simple_action, _arg2: auto_assign_sequence_from_map())
+        add_action("Add molecular symmetry using MTRIX",
+            "add_mol_sym_mtrix",
+            add_mol_sym_mtrix_wrapper)
+        add_action("Align and Mutate using ClustalW2",
+            "align_and_mutate_using_clustalw2",
+            align_and_mutate_using_clustalw2_wrapper)
+        add_action("Assign Sequence Based on Associated Sequence",
+            "ass_seq_assoc_seq",
+            lambda _simple_action, _arg2: ass_seq_assoc_seq())
+        add_action("Auto-assign Sequence Based on Map",
+            "auto_assign_sequence_from_map",
+            lambda _simple_action, _arg2: auto_assign_sequence_from_map())
         # belongs in Preferences
-        add_action("No Auto-Recontour Map Mode","set_no_auto_recontour_map",       lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
-        add_action("Enable Auto-Recontour Map Mode","set_auto_recontour_map",          lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
+        add_action("No Auto-Recontour Map Mode",
+            "set_no_auto_recontour_map",
+            lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
+        add_action("Enable Auto-Recontour Map Mode",
+            "set_auto_recontour_map",
+            lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
 
 
 def add_module_ccp4_gui():
