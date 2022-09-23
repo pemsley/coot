@@ -1361,12 +1361,13 @@ def coot_menubar_menu(menu_label):
         print("ERROR:: python coot_coot_gui_api.main_menumodel() an error occurs using coot_gui_api", e)
 
 
-def add_simple_action_to_menu(menu: Gio.Menu, action_name: str, on_activate_callback: Callable[[Gio.SimpleAction,Any],Any]):
+def add_simple_action_to_menu(menu: Gio.Menu, displayed_name: str, action_name: str, on_activate_callback: Callable[[Gio.SimpleAction,Any],Any]):
     """Creates and adds a stateless Gio.SimpleAction globally to the app and appends a corresponding menu item to the menu"""
     app = coot_gui_api.application()
     action = Gio.SimpleAction.new(action_name, None)
     action.connect("activate", on_activate_callback)
     app.add_action(action)
+    menu.append(displayed_name,f"app.{action_name}")
 
 # Make an interesting things GUI for residues of molecule number
 # imol that have alternate conformations.
@@ -5430,43 +5431,26 @@ def add_module_cryo_em_gui():
         cryo_em_menu_button.set_popover(popover)
 
         coot_gui_api.main_toolbar().append(cryo_em_menu_button)
-        app = coot_gui_api.application()
 
-        def add_action(function_name, function):
-            action = Gio.SimpleAction.new(function_name, None)
-            action.connect("activate", function)
-            app.add_action(action)
+        def add_action(displayed_name,action_name,on_activate_callback):
+            add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("sharpen_blur_map_gui",            sharpen_blur_map_gui_wrapper)
-        add_action("multi_sharpen_map_gui",           multi_sharpen_map_gui_wrapper)
-        add_action("add_mol_sym_mtrix",               add_mol_sym_mtrix_wrapper)
-        add_action("flip_map_hand",                   flip_map_hand_wrapper)
-        add_action("mask_map_by_chains",              mask_map_by_chains_wrapper)
-        add_action("go_to_map_molecule_centre",       go_to_map_molecule_centre_wrapper)
-        add_action("go_to_map_box_middle",            go_to_map_box_middle_wrapper)
-        add_action("interactive_nudge",               lambda _simple_action, _arg2: interactive_nudge_func())
-        add_action("align_and_mutate_using_clustalw2",align_and_mutate_using_clustalw2_wrapper)
-        add_action("ass_seq_assoc_seq",               lambda _simple_action, _arg2: ass_seq_assoc_seq())
-        add_action("auto_assign_sequence_from_map",   lambda _simple_action, _arg2: auto_assign_sequence_from_map())
-        add_action("set_no_auto_recontour_map",       lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
-        add_action("set_auto_recontour_map",          lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
-
-        menu.append("Sharpen/Blur...",                             "app.sharpen_blur_map_gui")
-        menu.append("Multi-sharpen",                               "app.multi_sharpen_map_gui")
-        menu.append("Mask Map by Chains",                          "app.mask_map_by_chains")
-        menu.append("Go To Map Molecule Middle",                   "app.go_to_map_molecule_centre")
-        menu.append("Map Box Middle",                              "app.go_to_map_box_middle")
-        menu.append("Flip Map Hand",                               "app.flip_map_hand")
-        menu.append("Add molecular symmetry using MTRIX",          "app.add_mol_sym_mtrix")
-        menu.append("Interactive Nudge Residues...",               "app.interactive_nudge")
+        add_action("Sharpen/Blur...","sharpen_blur_map_gui",sharpen_blur_map_gui_wrapper)
+        add_action("Multi-sharpen","multi_sharpen_map_gui",           multi_sharpen_map_gui_wrapper)
+        add_action("Mask Map by Chains","mask_map_by_chains",              mask_map_by_chains_wrapper)
+        add_action("Go To Map Molecule Middle","go_to_map_molecule_centre",       go_to_map_molecule_centre_wrapper)
+        add_action("Map Box Middle","go_to_map_box_middle",            go_to_map_box_middle_wrapper)
+        add_action("Flip Map Hand","flip_map_hand",                   flip_map_hand_wrapper)
+        # where does this one belong?
+        add_action("Interactive Nudge Residues...","interactive_nudge",               lambda _simple_action, _arg2: interactive_nudge_func())
         # belongs in Modelling
-        menu.append("Align and Mutate using ClustalW2",            "app.align_and_mutate_using_clustalw2")
-        menu.append("Assign Sequence Based on Associated Sequence","app.ass_seq_assoc_seq")
-        menu.append("Auto-assign Sequence Based on Map",           "app.auto_assign_sequence_from_map")
-
-        # preferences
-        menu.append("No Auto-Recontour Map Mode",                  "app.set_no_auto_recontour_map")
-        menu.append("Enable Auto-Recontour Map Mode",              "app.set_auto_recontour_map")
+        add_action("Add molecular symmetry using MTRIX","add_mol_sym_mtrix",               add_mol_sym_mtrix_wrapper)
+        add_action("Align and Mutate using ClustalW2","align_and_mutate_using_clustalw2",align_and_mutate_using_clustalw2_wrapper)
+        add_action("Assign Sequence Based on Associated Sequence","ass_seq_assoc_seq",               lambda _simple_action, _arg2: ass_seq_assoc_seq())
+        add_action("Auto-assign Sequence Based on Map","auto_assign_sequence_from_map",   lambda _simple_action, _arg2: auto_assign_sequence_from_map())
+        # belongs in Preferences
+        add_action("No Auto-Recontour Map Mode","set_no_auto_recontour_map",       lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
+        add_action("Enable Auto-Recontour Map Mode","set_auto_recontour_map",          lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
 
 
 def add_module_ccp4_gui():
