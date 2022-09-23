@@ -43,7 +43,7 @@ void screendump_tga_internal(std::string tga_file,
    unsigned char* pixel_data = new unsigned char[4 * sf * sf * w * h]; // 4 components? Probably not right.
    short int sfw = static_cast<short int>(sf * widget_width);
    short int sfh = static_cast<short int>(sf * widget_height);
-   short int TGAhead[] = {0, 2, 0, 0, 0, 0, sfw, sfh, 24};
+   short int TGAhead[] = {0, 2, 0, 0, 0, 0, sfw, sfh, 32};
 
    std::cout << "screendump_tga application image: scaling " << sf << " " << w << " x " << h
              << " to " << tga_file << std::endl;
@@ -76,11 +76,11 @@ void screendump_tga_internal(std::string tga_file,
    if (err) std::cout << "error:: screendump_tga_internal() post-set glnamedreadbuffer "
                       << err << std::endl;
 
-   glReadPixels(0, 0, sf * w, sf * h, GL_BGR, GL_UNSIGNED_BYTE, pixel_data);
+   glReadPixels(0, 0, sf * w, sf * h, GL_BGRA, GL_UNSIGNED_BYTE, pixel_data);
    err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-glReadpixels "
                                           << err << std::endl;
    fwrite(&TGAhead, sizeof(TGAhead), 1, output_file);
-   fwrite(pixel_data, 3 * sf * sf * w * h, 1, output_file); // 3 components
+   fwrite(pixel_data, 4 * sf * sf * w * h, 1, output_file); // 3 components
    fclose(output_file);
    delete [] pixel_data;
 
