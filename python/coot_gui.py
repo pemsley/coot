@@ -33,6 +33,7 @@
 
 import os
 import types
+from typing import Callable, Any
 import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GObject
@@ -1360,6 +1361,12 @@ def coot_menubar_menu(menu_label):
         print("ERROR:: python coot_coot_gui_api.main_menumodel() an error occurs using coot_gui_api", e)
 
 
+def add_simple_action_to_menu(menu: Gio.Menu, action_name: str, on_activate_callback: Callable[[Gio.SimpleAction,Any],Any]):
+    """Creates and adds a stateless Gio.SimpleAction globally to the app and appends a corresponding menu item to the menu"""
+    app = coot_gui_api.application()
+    action = Gio.SimpleAction.new(action_name, None)
+    action.connect("activate", on_activate_callback)
+    app.add_action(action)
 
 # Make an interesting things GUI for residues of molecule number
 # imol that have alternate conformations.
