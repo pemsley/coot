@@ -5476,7 +5476,7 @@ def add_module_cryo_em_gui():
             lambda _simple_action, _arg2: auto_assign_sequence_from_map())
 
         # belongs in Preferences
-        
+
         add_action("No Auto-Recontour Map Mode",
             "set_no_auto_recontour_map",
             lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
@@ -5487,10 +5487,15 @@ def add_module_cryo_em_gui():
 
 def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
-        menu = coot_menubar_menu("CCP4")
+        menu = Gio.Menu.new()
+        popover = Gtk.PopoverMenu()
+        popover.set_menu_model(menu)
+        ccp4_menu_button = Gtk.MenuButton(label="CCP4")
+        ccp4_menu_button.set_popover(popover)
 
-        # add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
-        #                               lambda func: acedrg_link.acedrg_link_generation_control_window())
+        coot_gui_api.main_toolbar().append(ccp4_menu_button)
+
+        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
 
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():
