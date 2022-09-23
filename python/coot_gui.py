@@ -5453,11 +5453,15 @@ def add_module_cryo_em_gui():
         add_action("Flip Map Hand",
             "flip_map_hand",
             flip_map_hand_wrapper)
+
         # where does this one belong?
+
         add_action("Interactive Nudge Residues...",
             "interactive_nudge",
             lambda _simple_action, _arg2: interactive_nudge_func())
+
         # belongs in Modelling
+
         add_action("Add molecular symmetry using MTRIX",
             "add_mol_sym_mtrix",
             add_mol_sym_mtrix_wrapper)
@@ -5470,7 +5474,9 @@ def add_module_cryo_em_gui():
         add_action("Auto-assign Sequence Based on Map",
             "auto_assign_sequence_from_map",
             lambda _simple_action, _arg2: auto_assign_sequence_from_map())
+
         # belongs in Preferences
+        
         add_action("No Auto-Recontour Map Mode",
             "set_no_auto_recontour_map",
             lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
