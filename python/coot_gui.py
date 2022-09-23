@@ -5531,54 +5531,52 @@ def add_module_pdbe_gui():
 
 
 def add_module_refine():
-
-   def chain_refine_active_atom(widget):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol     = active_atom[0]
-         aa_chain_id = active_atom[1]
-         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-         coot.refine_residues(aa_imol, all_residues)
-
-
-   def all_atom_refine_active_atom(widget):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         all_residues_in_mol = coot_utils.all_residues(aa_imol)
-         coot.refine_residues(aa_imol, all_residues_in_mol)
+    def chain_refine_active_atom(widget):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol     = active_atom[0]
+            aa_chain_id = active_atom[1]
+            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
+            coot.refine_residues(aa_imol, all_residues)
 
 
-   def refine_fragment_active_atom(w):
-      active_atom = coot.active_residue()
-      print("###### active_atom", active_atom)
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
-         res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-         coot.refine_residues(aa_imol, res_list)
+    def all_atom_refine_active_atom(widget):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            all_residues_in_mol = coot_utils.all_residues(aa_imol)
+            coot.refine_residues(aa_imol, all_residues_in_mol)
 
 
-   def regularize_fragment_active_atom(w):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
+    def refine_fragment_active_atom(w):
+        active_atom = coot.active_residue()
+        print("###### active_atom", active_atom)
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
+            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
+            coot.refine_residues(aa_imol, res_list)
 
-         res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-         coot.regularize_residues(aa_imol, res_list)
 
-   def regularize_chain_active_atom(w):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_chain_id = active_atom[1]
-         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-         coot.regularize_residues(aa_imol, all_residues)
+    def regularize_fragment_active_atom(w):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
 
-   if coot_gui_api.main_menumodel():
+            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
+            coot.regularize_residues(aa_imol, res_list)
 
-      menu = coot_menubar_menu("Refine")
+    def regularize_chain_active_atom(w):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_chain_id = active_atom[1]
+            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
+            coot.regularize_residues(aa_imol, all_residues)
+
+    if coot_gui_api.main_menumodel():
+        menu = coot_menubar_menu("Refine")
 
     #   add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
 
