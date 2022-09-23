@@ -5531,7 +5531,7 @@ def add_module_pdbe_gui():
 
 
 def add_module_refine():
-    def chain_refine_active_atom(widget):
+    def chain_refine_active_atom(_simple_action,_arg2):
         active_atom = coot.active_residue()
         if active_atom:
             aa_imol     = active_atom[0]
@@ -5540,7 +5540,7 @@ def add_module_refine():
             coot.refine_residues(aa_imol, all_residues)
 
 
-    def all_atom_refine_active_atom(widget):
+    def all_atom_refine_active_atom(_simple_action,_arg2):
         active_atom = coot.active_residue()
         if active_atom:
             aa_imol = active_atom[0]
@@ -5548,7 +5548,7 @@ def add_module_refine():
             coot.refine_residues(aa_imol, all_residues_in_mol)
 
 
-    def refine_fragment_active_atom(w):
+    def refine_fragment_active_atom(_simple_action,_arg2):
         active_atom = coot.active_residue()
         print("###### active_atom", active_atom)
         if active_atom:
@@ -5558,7 +5558,7 @@ def add_module_refine():
             coot.refine_residues(aa_imol, res_list)
 
 
-    def regularize_fragment_active_atom(w):
+    def regularize_fragment_active_atom(_simple_action,_arg2):
         active_atom = coot.active_residue()
         if active_atom:
             aa_imol = active_atom[0]
@@ -5567,7 +5567,7 @@ def add_module_refine():
             res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
             coot.regularize_residues(aa_imol, res_list)
 
-    def regularize_chain_active_atom(w):
+    def regularize_chain_active_atom(_simple_action,_arg2):
         active_atom = coot.active_residue()
         if active_atom:
             aa_imol = active_atom[0]
@@ -5576,27 +5576,27 @@ def add_module_refine():
             coot.regularize_residues(aa_imol, all_residues)
 
     if coot_gui_api.main_menumodel():
-        menu = coot_menubar_menu("Refine")
+        menu = attach_module_menu_button("Refine")
 
-    #   add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
+        add_simple_action_to_menu(menu, "All-Atom Refine","all_atom_refine_active_atom", all_atom_refine_active_atom)
 
-    #   add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
+        add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
 
-    #   # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-    #   add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: coot.set_do_coot_probe_dots_during_refine(1))
-    #   add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: coot.set_do_coot_probe_dots_during_refine(0))
+        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        add_simple_action_to_menu(menu, "Contact Dots On","contact_dots_on",  lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        add_simple_action_to_menu(menu, "Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-    #   add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints On",  lambda widget: coot.set_draw_moving_atoms_restraints(1))
-    #   add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints Off", lambda widget: coot.set_draw_moving_atoms_restraints(0))
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",  lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
-    #   add_simple_coot_menu_menuitem(menu, "Refine Fragment", refine_fragment_active_atom)
+        add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)
 
-    #   add_simple_coot_menu_menuitem(menu, "Regularize Fragment", regularize_fragment_active_atom)
+        add_simple_action_to_menu(menu, "Regularize Fragment","regularize_fragment_active_atom", regularize_fragment_active_atom)
 
-    #   add_simple_coot_menu_menuitem(menu, "Regularize Chain", regularize_chain_active_atom)
+        add_simple_action_to_menu(menu, "Regularize Chain","regularize_chain_active_atom", regularize_chain_active_atom)
 
-    #   add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs On",  lambda w: coot.set_show_intermediate_atoms_rota_markup(1))
-    #   add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs Off", lambda w: coot.set_show_intermediate_atoms_rota_markup(0))
+        add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
+        add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
 
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
