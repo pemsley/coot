@@ -178,6 +178,12 @@ void setup_python_with_coot_modules(int argc, char **argv) {
          // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
          // idioms.
          // PyImport_ImportModule("extensions");
+
+         // this should not be called if we are not starting the graphics. But for now, add
+         // it without that test
+         //
+         PyObject *gui_module = PyImport_ImportModule("coot_gui");
+         std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
       }
    }
 
