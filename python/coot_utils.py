@@ -30,8 +30,6 @@ import coot
 # import coot_gui # circular dependency
 from redefine_functions import * # 20220828-PE this needs fixing
 
-print("coot_utils.py says hello")
-
 # hack this in for now
 global use_gui_qm
 use_gui_qm = False
@@ -4029,7 +4027,9 @@ def find_exe(program_name, *args, **kwargs):
     search_disk = False
     if (use_gui_qm and not no_search):
         try:
-            search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+            # no coot_gui stuff in coot_utils. 20220923-PE
+            # search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+            pass
         except NameError as e:
             pass
     if search_disk:
