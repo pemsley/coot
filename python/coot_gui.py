@@ -5381,29 +5381,40 @@ def add_module_cryo_em_gui():
                                                       aa_alt_conf, aa_res_spec]:
                 interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
-        def sharpen_blur_map_gui_wrapper(simple_action, arg2):
+        def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
             sharpen_blur.sharpen_blur_map_gui()
 
-        def multi_sharpen_map_gui_wrapper(simple_action, arg2):
+        def multi_sharpen_map_gui_wrapper(_simple_action, _arg2):
             refmac_multi_sharpen_gui()
 
-        def mask_map_by_chains_wrapper(simple_action, arg2):
+        def mask_map_by_chains_wrapper(_simple_action, _arg2):
             make_masked_maps_using_active_atom()
 
-        def go_to_map_molecule_centre_wrapper(simple_action, arg2):
+        def go_to_map_molecule_centre_wrapper(_simple_action, _arg2):
             imol_map = coot.imol_refinement_map()
             coot.go_to_map_molecule_centre(imol_map)
 
-        def add_mol_sym_mtrix_wrapper(simple_action, arg2):
+        def add_mol_sym_mtrix_wrapper(_simple_action, _arg2):
             # the internals of add_mol_sym_mtrix() can go here - we don't need this
             # extra function call.
             add_mol_sym_mtrix()
 
-        def go_to_map_box_middle_wrapper(simple_action, arg2):
+        def go_to_map_box_middle_wrapper(_simple_action, _arg2):
             go_to_box_middle()
 
-        def flip_map_hand_wrapper(simple_action, arg2):
+        def flip_map_hand_wrapper(_simple_action, _arg2):
             flip_hand_local_func()
+
+        def align_and_mutate_using_clustalw2_wrapper(_simple_action, _arg2):
+            generic_chooser_entry_and_file_selector(
+                "Align Sequence to Model: ",
+                coot_utils.valid_model_molecule_qm,
+                "Chain ID",
+                "",
+                "Select PIR Alignment file",
+                lambda imol, chain_id, target_sequence_pif_file:
+                coot.run_clustalw_alignment(imol, chain_id,
+                                            target_sequence_pif_file))
 
         menu = Gio.Menu.new()
         popover = Gtk.PopoverMenu()
@@ -5419,47 +5430,36 @@ def add_module_cryo_em_gui():
             action.connect("activate", function)
             app.add_action(action)
 
-        add_action("sharpen_blur_map_gui",      sharpen_blur_map_gui_wrapper)
-        add_action("multi_sharpen_map_gui",     multi_sharpen_map_gui_wrapper)
-        add_action("add_mol_sym_mtrix",         add_mol_sym_mtrix_wrapper)
-        add_action("flip_map_hand",             flip_map_hand_wrapper)
-        add_action("mask_map_by_chains",        mask_map_by_chains_wrapper)
-        add_action("go_to_map_molecule_centre", go_to_map_molecule_centre_wrapper)
-        add_action("go_to_map_box_middle",      go_to_map_box_middle_wrapper)
+        add_action("sharpen_blur_map_gui",            sharpen_blur_map_gui_wrapper)
+        add_action("multi_sharpen_map_gui",           multi_sharpen_map_gui_wrapper)
+        add_action("add_mol_sym_mtrix",               add_mol_sym_mtrix_wrapper)
+        add_action("flip_map_hand",                   flip_map_hand_wrapper)
+        add_action("mask_map_by_chains",              mask_map_by_chains_wrapper)
+        add_action("go_to_map_molecule_centre",       go_to_map_molecule_centre_wrapper)
+        add_action("go_to_map_box_middle",            go_to_map_box_middle_wrapper)
+        add_action("interactive_nudge",               lambda _simple_action, _arg2: interactive_nudge_func())
+        add_action("align_and_mutate_using_clustalw2",align_and_mutate_using_clustalw2_wrapper)
+        add_action("ass_seq_assoc_seq",               lambda _simple_action, _arg2: ass_seq_assoc_seq())
+        add_action("auto_assign_sequence_from_map",   lambda _simple_action, _arg2: auto_assign_sequence_from_map())
+        add_action("set_no_auto_recontour_map",       lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
+        add_action("set_auto_recontour_map",          lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
 
-        menu.append("Sharpen/Blur...",           "app.sharpen_blur_map_gui")
-        menu.append("Multi-sharpen",             "app.multi_sharpen_map_gui")
-        menu.append("Mask Map by Chains",        "app.mask_map_by_chains")
-        menu.append("Go To Map Molecule Middle", "app.go_to_map_molecule_centre")
-        menu.append("Map Box Middle",            "app.go_to_map_box_middle")
-        menu.append("Flip Map Hand",             "app.flip_map_hand")
-        menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
+        menu.append("Sharpen/Blur...",                             "app.sharpen_blur_map_gui")
+        menu.append("Multi-sharpen",                               "app.multi_sharpen_map_gui")
+        menu.append("Mask Map by Chains",                          "app.mask_map_by_chains")
+        menu.append("Go To Map Molecule Middle",                   "app.go_to_map_molecule_centre")
+        menu.append("Map Box Middle",                              "app.go_to_map_box_middle")
+        menu.append("Flip Map Hand",                               "app.flip_map_hand")
+        menu.append("Add molecular symmetry using MTRIX",          "app.add_mol_sym_mtrix")
+        menu.append("Interactive Nudge Residues...",               "app.interactive_nudge")
+        # belongs in Modelling
+        menu.append("Align and Mutate using ClustalW2",            "app.align_and_mutate_using_clustalw2")
+        menu.append("Assign Sequence Based on Associated Sequence","app.ass_seq_assoc_seq")
+        menu.append("Auto-assign Sequence Based on Map",           "app.auto_assign_sequence_from_map")
 
-        # todo: port this to gtk4
-        # add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
-        # # belongs in Modelling
-        # add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
-        #                             lambda func:
-        #                             generic_chooser_entry_and_file_selector(
-        #                                 "Align Sequence to Model: ",
-        #                                 coot_utils.valid_model_molecule_qm,
-        #                                 "Chain ID",
-        #                                 "",
-        #                                 "Select PIR Alignment file",
-        #                                 lambda imol, chain_id, target_sequence_pif_file:
-        #                                 coot.run_clustalw_alignment(imol, chain_id,
-        #                                                           target_sequence_pif_file)))
-
-        # add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence", lambda func: ass_seq_assoc_seq())
-
-        # add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
-
-        # # Modelling
-        # add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
-
-        # # preferences
-        # add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(0))
-        # add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(1))
+        # preferences
+        menu.append("No Auto-Recontour Map Mode",                  "app.set_no_auto_recontour_map")
+        menu.append("Enable Auto-Recontour Map Mode",              "app.set_auto_recontour_map")
 
 
 def add_module_ccp4_gui():
