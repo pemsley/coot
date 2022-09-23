@@ -33,7 +33,7 @@ def acedrg_link_generation_control_window():
 
     # main body
     window = Gtk.Window()
-    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
     inside_hbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     inside_hbox_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     inside_hbox_3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
