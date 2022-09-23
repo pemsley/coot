@@ -5320,6 +5320,24 @@ def associate_pir_wih_molecule_gui(do_alignment_flag):
                                             lambda imol, ch_id, file_name: lambda_fn(imol, ch_id, file_name))
 
 
+def attach_module_menu_button(module_name: str) -> Gio.Menu:
+    """
+    Creates a new MenuButton and attaches it to the main toolbar.
+
+    To be used with extension modules.
+
+    Returns the button's Gio.Menu
+    """
+    menu = Gio.Menu.new()
+    popover = Gtk.PopoverMenu()
+    popover.set_menu_model(menu)
+    module_menu_button = Gtk.MenuButton(label=module_name)
+    module_menu_button.set_popover(popover)
+
+    coot_gui_api.main_toolbar().append(module_menu_button)
+    return menu
+
+
 def add_module_cryo_em():
     if coot_gui_api.main_menumodel():
         add_module_cryo_em_gui()
@@ -5424,13 +5442,7 @@ def add_module_cryo_em_gui():
                 coot.run_clustalw_alignment(imol, chain_id,
                                             target_sequence_pif_file))
 
-        menu = Gio.Menu.new()
-        popover = Gtk.PopoverMenu()
-        popover.set_menu_model(menu)
-        cryo_em_menu_button = Gtk.MenuButton(label="Cryo-EM")
-        cryo_em_menu_button.set_popover(popover)
-
-        coot_gui_api.main_toolbar().append(cryo_em_menu_button)
+        menu = attach_module_menu_button("Cryo-EM")
 
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
@@ -5487,13 +5499,7 @@ def add_module_cryo_em_gui():
 
 def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
-        menu = Gio.Menu.new()
-        popover = Gtk.PopoverMenu()
-        popover.set_menu_model(menu)
-        ccp4_menu_button = Gtk.MenuButton(label="CCP4")
-        ccp4_menu_button.set_popover(popover)
-
-        coot_gui_api.main_toolbar().append(ccp4_menu_button)
+        menu = attach_module_menu_button("CCP4")
 
         add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
 
