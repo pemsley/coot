@@ -8892,13 +8892,6 @@ just the cell and symmetry)
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="button1">
-                <property name="label" translatable="yes"> Close </property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="refinement_and_regularization_vbox_container">
             <property name="orientation">vertical</property>
@@ -8988,38 +8981,68 @@ just the cell and symmetry)
                     <child>
                       <object class="GtkGrid">
                         <property name="margin-bottom">2</property>
+                        <property name="column-spacing">4</property>
+                        <property name="row-spacing">4</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Overall Weight</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Geman-McClure alpha</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">1</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Lennard-Jones epsilon</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">2</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Rama Restraints Weight </property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">3</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Torsion Weight</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">4</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_overall_weight_combobox">
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
                           </object>
                         </child>
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_geman_mcclure_alpha_combobox">
                             <property name="active">2</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
                             <items>
                               <item translatable="yes">0.001</item>
                               <item translatable="yes">0.003</item>
@@ -9036,6 +9059,10 @@ just the cell and symmetry)
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_lennard_jones_epsilon_combobox">
                             <property name="active">3</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">2</property>
+                            </layout>
                             <items>
                               <item translatable="yes">0.1</item>
                               <item translatable="yes">0.2</item>
@@ -9050,6 +9077,10 @@ just the cell and symmetry)
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_rama_restraints_combobox">
                             <property name="active">3</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">3</property>
+                            </layout>
                             <items>
                               <item translatable="yes">0.1</item>
                               <item translatable="yes">0.2</item>
@@ -9067,6 +9098,10 @@ just the cell and symmetry)
                         <child>
                           <object class="GtkComboBoxText" id="refine_params_torsion_weight_combobox">
                             <property name="active">3</property>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">4</property>
+                            </layout>
                             <items>
                               <item translatable="yes">0.1</item>
                               <item translatable="yes">0.2</item>
@@ -9091,6 +9126,7 @@ just the cell and symmetry)
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="halign">GTK_ALIGN_END</property>
                     <child>
                       <object class="GtkButton" id="refinement_and_regularization_vbox_close_button">
                         <property name="label" translatable="yes"> Close </property>
@@ -9104,6 +9140,13 @@ just the cell and symmetry)
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes"> Close </property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+              </object>
         </child>
       </object>
     </child>
