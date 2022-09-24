@@ -30,7 +30,7 @@ public:
       // maybe this should throw an exception on out-of-range?
       return molecules[imol];
    }
-   mmdb::Manger *mol operator[] (unsigned int imol) {
+   mmdb::Manager *operator[] (unsigned int imol) {
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
       } else {
