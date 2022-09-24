@@ -192,10 +192,8 @@
 
     (let* ((coot-tmp-dir (get-directory "coot-download"))
 	   (down-code (string-downcase accession-code))
-	   (pdb-file-name (append-dir-file coot-tmp-dir
-					   (string-append "pdb" down-code ".ent")))
-	   (mtz-file-name (append-dir-file coot-tmp-dir
-					   (string-append down-code "_map.mtz"))))
+	   (pdb-file-name (append-dir-file coot-tmp-dir (string-append "pdb" down-code ".ent")))
+	   (mtz-file-name (append-dir-file coot-tmp-dir (string-append down-code "_map.mtz"))))
 
       (format #t "::::::::: pdb-file-name: ~s~%" pdb-file-name)
       (format #t "::::::::: mtz-file-name: ~s~%" mtz-file-name)
@@ -225,6 +223,7 @@
   ;; (define eds-core "some://thing") ;; for web pages
   (define eds-core "https://www.ebi.ac.uk/pdbe/entry/pdb")
   (define eds-coords-site "https://www.ebi.ac.uk/pdbe/entry-files/download")
+  (define eds-entry-files "https://www.ebi.ac.uk/pdbe/entry-files")
   ;; now the map mtz files are like this:
   ;; https://www.ebi.ac.uk/pdbe/coordinates/files/zz/4zzn/4zzn_map.mtz
 
@@ -250,6 +249,11 @@
 	  (if (eq? #f coot-tmp-dir)
 	      (format #t "Can't make coot-download directory~%")
 
+              ;; 20220916-PE
+              ;; was: 760	12:13	wget https://www.ebi.ac.uk/pdbe/coordinates/files/ab/4abd/4abd_map.mtz
+              ;; now  759	12:12	wget https://www.ebi.ac.uk/pdbe/entry-files/4abd_map.mtz
+
+
 	      (let* ((down-id (string-downcase id))
 		     (target-pdb-file (string-append "pdb" down-id ".ent"))
 		     (target-cif-file (string-append down-id ".cif"))
@@ -260,7 +264,7 @@
                      (target-mtz-file (string-append down-id "_map.mtz"))
                      (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
                      ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
-                     (mtz-url (string-append eds-site "/files/" (mid-chars down-id) down-id "/" down-id "_map.mtz"))
+                     (mtz-url (string-append eds-entry-files "/" down-id "_map.mtz"))
 		     (eds-info-page (string-append eds-core "/" down-id)))
 
 		(print-var model-url)

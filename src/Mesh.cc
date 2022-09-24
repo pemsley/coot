@@ -1915,8 +1915,6 @@ Mesh::draw_with_shadows(Shader *shader_p,
                 << material.do_specularity << std::endl;
       std::cout << "debug:: Mesh::draw_with_shadows(): " << name << " " << shader_p->name << " material.ambient "
                 << glm::to_string(material.ambient) << std::endl;
-      std::cout << "debug:: Mesh::draw_with_shadows(): " << name << " " << shader_p->name << " material.ambient "
-                << glm::to_string(material.ambient) << std::endl;
       std::cout << "debug:: Mesh::draw_with_shadows(): " << name << " " << shader_p->name << " material.diffuse "
                 << glm::to_string(material.diffuse) << std::endl;
       std::cout << "debug:: Mesh::draw_with_shadows(): " << name << " " << shader_p->name << " material.specular "

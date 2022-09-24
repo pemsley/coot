@@ -1,0 +1,13 @@
+
+current_exe_dir=`dirname $0`
+
+if [ $current_exe_dir = . ] ; then 
+  COOT_PREFIX=`dirname $PWD`
+else 
+  COOT_PREFIX=`dirname "$current_exe_dir"`
+fi
+
+export COOT_DATA_DIR=$COOT_PREFIX/share/coot
+
+$COOT_PREFIX/libexec/lidia-bin $*
+

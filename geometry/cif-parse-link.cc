@@ -104,7 +104,6 @@ coot::protein_geometry::init_links(mmdb::mmcif::PData data) {
 void
 coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 
-
    char *s;
    int ierr;
    int ierr_tot = 0;
@@ -172,8 +171,10 @@ coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 			       chem_link_comp_id_1, chem_link_mod_id_1, chem_link_group_comp_1,
 			       chem_link_comp_id_2, chem_link_mod_id_2, chem_link_group_comp_2,
 			       chem_link_name);
-	 // std::cout << "Adding to chem_link_map: " << clink << std::endl;
-	 // chem_link_vec.push_back(clink);
+
+         if (false)
+            std::cout << "Adding to chem_link_map: at " << clink.get_hash_code() << " " << clink << std::endl;
+
 	 chem_link_map[clink.get_hash_code()].push_back(clink);
       } else {
 	 std::cout << "WARNING:: an error occurred when trying to add link: "
@@ -730,7 +731,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    if (it == chem_link_map.end()) {
       it = chem_link_map.find(search_hash_code_b);
       if (it != chem_link_map.end())
-	 switch_order_flag = true; // used?
+	 switch_order_flag = true; // not used
    }
 
    if (debug) {
@@ -739,7 +740,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
          std::cout << "DEBUG:: matching_chem_link() Here is the vector of chem links in the map:" << std::endl;
          const std::vector<chem_link> &v = it->second;
          std::vector<chem_link>::const_iterator itv;
-         for (itv=v.begin(); itv!=v.end(); itv++) {
+         for (itv=v.begin(); itv!=v.end(); ++itv) {
             const chem_link &cl = *itv;
             std::cout << "                 " << cl << std::endl;
          }
@@ -850,7 +851,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       // on a match, set found and add the std::pair<coot::chem_link, bool> to matching_chem_links
 
       std::vector<chem_link>::const_iterator itv;
-      for (itv=v.begin(); itv!=v.end(); itv++) {
+      for (itv=v.begin(); itv!=v.end(); ++itv) {
 	 const chem_link &cl = *itv;
 
          // std::cout << ":::::::::::::::::::::::::: testing comp_id and group match for " << cl << std::endl;
@@ -859,9 +860,10 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug)
-	    std::cout << "DEBUG:: matching_chem_links() ... matching_chem_link: found matching link "
-		      << comp_id_1 << " " << comp_id_2 << " " 
-		      << cl << std::endl;
+	    std::cout << "DEBUG:: @@@@@@@@@@@@@@@@@@@@@@@@@@ matching_chem_links() ... matching_chem_link: testing link "
+		      << comp_id_1 << " " << comp_id_2  << " " << group_1 << " " << group_2
+                      << "    in link " << cl << " @@@@@@@@@@@@ result "
+                      << match_res.first << " " << match_res.second << std::endl;
 
 	 if (false) // was debug but TMI ATM - we are looking for a bug in above code
 	    std::cout << "    checking chem link:                             " << cl << " -> matched: "

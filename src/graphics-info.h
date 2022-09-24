@@ -2584,6 +2584,7 @@ public:
    static short int dynamic_map_size_display;
    static int graphics_sample_step;
    static int dynamic_map_zoom_offset;
+   static float goodsell_chain_colour_wheel_rotation_step;
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
@@ -4548,7 +4549,7 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules();
-   static void draw_model_molecules_with_shadows();
+   static void draw_model_molecules_symmetry_with_shadows();
    static void draw_intermediate_atoms(unsigned int pass_type);
    static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,

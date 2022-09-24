@@ -34,14 +34,17 @@ vec3 make_outline() {
    float depth_centre = texture(screenDepth, TexCoords).r;
    vec3 orig_colour   = texture(screenTexture2, TexCoords).rgb;
    vec3 result = orig_colour;
-   vec2 tex_scale = 1.0/textureSize(screenTexture2, 0);
+   int size = 1;
+   float ts_size = 1.0f; // same as above
+   vec2 tex_scale = ts_size/textureSize(screenTexture2, 0);
    int n_deep_neighbs = 0;
-      for (int ix= -1; ix<=1; ix++) {
-      for (int iy= -1; iy<=1; iy++) {
+      for (int ix= -size; ix<=size; ix++) {
+      for (int iy= -size; iy<=size; iy++) {
          vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
          float depth_ij = texture(screenDepth, offset_coords).x;
          // if ((depth_ij - depth_centre) > 0.1 * (1.0 - 0.1 * depth_centre)) {
-         if ((depth_ij - depth_centre) > 0.1) {
+         float delta_depth = 0.01; // make this a uniform
+         if ((depth_ij - depth_centre) > delta_depth) {
             n_deep_neighbs++;
          }
       }
@@ -49,6 +52,8 @@ vec3 make_outline() {
    if (n_deep_neighbs > 1) {
       float f = 0.1 + depth_centre * 0.6;
       result = vec3(f);
+      // 20220908-PE outline is black
+      result = vec3(0.0f);
    }
    return result;
 
@@ -83,7 +88,8 @@ void main() {
       // the clipping planes. mid should be calculated
       // and passed as a uniform
       float dd = d - rc_z;
-      float mf = abs(focus_blur_strength * dd);
+      // float mf = abs(focus_blur_strength * dd);
+      float mf = abs(focus_blur_strength * 2.0 * dd * dd);
       mf = clamp(mf, 0.0, 1.0);
 
       out_colour = vec4(mix(t1a, t2a, mf));

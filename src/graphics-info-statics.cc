@@ -864,6 +864,9 @@ short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 1; // rot
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
 float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
 
+float graphics_info_t::goodsell_chain_colour_wheel_rotation_step = 0.221;
+
+
 // cell colour
 coot::colour_holder graphics_info_t::cell_colour =
    coot::colour_holder(0.8, 0.8, 0.2);

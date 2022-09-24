@@ -147,6 +147,9 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                                  double b = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 2));
                                  coot::colour_holder ch(r,g,b);
                                  int n_colours = colours.size();
+
+                                 // std::cout << "in set_user_defined_colours_py() colour_index " << colour_index
+                                 // << " colour " << ch << std::endl;
                                  if (colour_index < 10000) {
                                     if (colour_index < n_colours) {
                                        if (colour_index >= 0) {

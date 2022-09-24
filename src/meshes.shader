@@ -144,10 +144,10 @@ void main() {
             dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
 
             // ambient
-            vec4 ambient = 0.4 * light_sources[i].ambient * material.ambient * colour_transfer;
+            vec4 ambient = light_sources[i].ambient * material.ambient * colour_transfer;
 
             // diffuse
-            vec4 diffuse = 0.9 * light_sources[i].diffuse * dp * material.diffuse * colour_transfer;
+            vec4 diffuse = light_sources[i].diffuse * dp * material.diffuse * colour_transfer;
 
             // specular - this is wrong - can result in stretched specular spots.
             //            It looks like the code in moleculestotriangles.shader - does that

@@ -1506,6 +1506,12 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 //! \brief
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
+//! \brief set the ambient
+void set_model_material_ambient(int imol, float r, float g, float b, float alpha);
+
+//! \brief
+void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
+
 //! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
 
@@ -1580,7 +1586,6 @@ void set_bond_smoothness_factor(unsigned int fac);
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);
-
 
 //! \brief set the FPS timing scale factor - default 0.0025
 void set_fps_timing_scale_factor(float f);

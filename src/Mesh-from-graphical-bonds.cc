@@ -432,9 +432,9 @@ Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
       for (int i=0; i<gbc.n_ramachandran_goodness_spots; i++) {
          const coot::Cartesian &position = gbc.ramachandran_goodness_spots_ptr[i].first;
          const float &prob_raw    = gbc.ramachandran_goodness_spots_ptr[i].second;
-         double prob(prob_raw);
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
+         col.scale_intensity(0.6); // calm down the otherwise super-bright Rama ball colours
          glm::vec3 atom_position = cartesian_to_glm(position);
          glm::vec3 ball_position = atom_position + rama_ball_pos_offset_scale * screen_up_dir;
          unsigned int idx_base = vertices.size();
@@ -541,9 +541,11 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
          std::vector<s_generic_vertex> this_dodec_vertices = dodec_vertices; // at the origin to start
          // now move it.
          for (unsigned int j=0; j<dodec_vertices.size(); j++) {
+            auto rm_col = rm.col;
+            rm_col.scale_intensity(0.6);
             this_dodec_vertices[j].pos  += atom_pos;
             this_dodec_vertices[j].pos  += 1.5f * screen_up_dir;
-            this_dodec_vertices[j].color = colour_holder_to_glm(rm.col);
+            this_dodec_vertices[j].color = colour_holder_to_glm(rm_col);
          }
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();

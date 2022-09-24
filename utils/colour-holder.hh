@@ -34,6 +34,7 @@ namespace coot {
       colour_holder(double value, double min, double max,
                     bool use_deuteranomaly_mode,
 		    const std::string &dum); // somewhere between green and red
+      void pastelize(float degree);
       std::string hex() const;
       void rotate_by(float angle); // fractions of a circle
       void scale_intensity(float scale);
