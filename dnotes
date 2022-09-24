@@ -4016,6 +4016,8 @@ INFO::
    o on charybdis: disable the build-latest cron-job
    o on charybdis: clear out pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+                   unfortunately the 1.0 complicated the extraction of the latest release.
+                   So the version is hard coded now! You will need to change it.
    o on charybdis: bash wrap-build-it-for-release.sh
                    that doesn't do the transfer to web server at the moment, so:
                    cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/

@@ -1389,12 +1389,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
          non_bonded_contacts_atom_indices[i].insert(j);
          simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
          simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
-                            nbcf, i, *it,
+                            nbcf, i, j,
                             is_H_non_bonded_contact,
                             fixed_atom_flags, dist_min);
          if (false) // debug
             std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " "
-                              << energy_type_for_atom[*it] << " "
+                              << energy_type_for_atom[j] << " "
                               << is_H_non_bonded_contact << " "
                               << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
                               << dist_min <<  "\n";
