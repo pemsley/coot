@@ -71,6 +71,8 @@ void screendump_tga_internal(std::string tga_file,
 
    std::cout << "debug:: Using framebuffer fbo " << framebuffer_obj << std::endl;
 
+   // This is part of OpenGL 4.4+ - not OpenGL 3.3!
+   //
    glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
    err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() post-set glnamedreadbuffer "
