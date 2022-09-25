@@ -705,7 +705,12 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
 	      it_2->second.hb_type == coot::HB_BOTH)) {
             if (extended_atoms_mode) {
-               r.second -= 0.24; // was 0.4
+               // r.second -= 0.24; // was 0.4
+               // 20220925-PE let's try 0.4 now that we have the above fudge factor
+               r.second -= 0.48; // was 0.24
+               // 20220925-PE These give sensible numbers now.
+               //  std::cout << "debug A cut dist " << energy_type_1 << " " << energy_type_2
+               // << " " << r.second << std::endl;
             } else {
                // actual hydrogens to acceptors can be shorter still
                if (it_1->second.hb_type == coot::HB_HYDROGEN)
@@ -724,7 +729,11 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	        (it_1->second.hb_type == coot::HB_ACCEPTOR ||
 	         it_1->second.hb_type == coot::HB_BOTH)) {
                if (extended_atoms_mode) {
-                  r.second -= 0.24; // was 0.4
+                  // r.second -= 0.24; // was 0.4
+                  // 20220925-PE see above comment
+                  r.second -= 0.48; // was 0.24
+                  // std::cout << "debug B cut dist " << energy_type_1 << " " << energy_type_2
+                  //           << " " << r.second << std::endl;
                } else {
                   // as above
                   // actual hydrogens to acceptors can be shorter still
