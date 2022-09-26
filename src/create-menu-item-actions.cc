@@ -894,6 +894,9 @@ void add_ccp4_module_action(GSimpleAction *simple_action,
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import gui_add_linked_cho");
+   safe_python_command("gui_add_linked_cho.add_module_carbohydrate_gui()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_cryo_em_module_action(GSimpleAction *simple_action,
