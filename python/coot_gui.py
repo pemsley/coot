@@ -2086,14 +2086,15 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     # main line
     window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
-    outside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-    outside_vbox.set_margin_start(10)
-    outside_vbox.set_margin_end(10)
-    outside_vbox.set_margin_top(10)
+    outside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
     outside_vbox.set_margin_bottom(10)
     
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     inside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+    inside_vbox.set_margin_start(10)
+    inside_vbox.set_margin_end(10)
+    inside_vbox.set_margin_top(10)
+    inside_vbox.set_margin_bottom(10)
 
     window.set_default_size(geometry[0], geometry[1])
     window.set_title(window_name)
@@ -2112,6 +2113,8 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
     outside_vbox.append(scrolled_win)
     scrolled_win.set_child(inside_vbox)
+    inside_vbox.set_hexpand(True)
+    inside_vbox.set_vexpand(True)
 
     for button_info in buttons:
         # print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
@@ -2120,6 +2123,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     # outside_vbox.set_border_width(2)
     outside_vbox.append(h_sep)
     ok_button = Gtk.Button(label=close_button_label)
+    ok_button.set_margin_end(10)
     ok_button.set_halign(Gtk.Align.END)
     outside_vbox.append(ok_button)
     ok_button.connect("clicked", close_cb_func, window, post_close_hook)
