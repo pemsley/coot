@@ -2087,8 +2087,13 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    outside_vbox.set_margin_start(10)
+    outside_vbox.set_margin_end(10)
+    outside_vbox.set_margin_top(10)
+    outside_vbox.set_margin_bottom(10)
+    
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
-    inside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    inside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
 
     window.set_default_size(geometry[0], geometry[1])
     window.set_title(window_name)
@@ -2096,7 +2101,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     window.set_child(outside_vbox)
 
     if check_button_label:
-        check_button = Gtk.CheckButton(check_button_label)
+        check_button = Gtk.CheckButton(label=check_button_label)
         # somehow need to execute the function before we can use it in the
         # callback. This is odd to say the least. FIXME
         check_button_func(check_button, inside_vbox)
@@ -2106,7 +2111,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
         outside_vbox.append(check_button)
 
     outside_vbox.append(scrolled_win)
-    scrolled_win.add_with_viewport(inside_vbox)
+    scrolled_win.set_child(inside_vbox)
 
     for button_info in buttons:
         # print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
@@ -2114,10 +2119,11 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
     # outside_vbox.set_border_width(2)
     outside_vbox.append(h_sep)
-    ok_button = Gtk.Button(close_button_label)
-    outside_vbox.pack_end(ok_button, False, False, 0)
+    ok_button = Gtk.Button(label=close_button_label)
+    ok_button.set_halign(Gtk.Align.END)
+    outside_vbox.append(ok_button)
     ok_button.connect("clicked", close_cb_func, window, post_close_hook)
-    window.connect("delete-event", lambda widget : hide_this_window())
+    window.connect("destroy", lambda widget : hide_this_window(widget))
 
     window.show()
     return [inside_vbox, window]

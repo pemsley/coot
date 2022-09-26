@@ -800,6 +800,8 @@ def add_module_carbohydrate_gui():
         lambda _simple_action, _two: add_linked_cho.use_unimodal_pyranose_ring_torsions())
 
     # This should probably become a checkbox??
+    # note: this is duplicated in Restraints
+
     coot_gui.add_simple_action_to_menu(
         menu, "Display Extra Restraints","cho__display_extra_restraints",
         lambda _simple_action, _two: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 1))
