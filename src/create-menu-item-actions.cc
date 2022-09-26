@@ -909,7 +909,7 @@ void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
    safe_python_command("import gui_prosmart");
-   safe_python_command("coot_gui.add_module_prosmart()");
+   safe_python_command("gui_prosmart.add_module_prosmart()");
    g_simple_action_set_enabled(simple_action,FALSE);
 }
 
@@ -922,7 +922,7 @@ void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
    safe_python_command("import gui_prosmart");
-   safe_python_command("coot_gui.add_module_restraints()");
+   safe_python_command("gui_prosmart.add_module_restraints()");
    g_simple_action_set_enabled(simple_action,FALSE);
 }
 
