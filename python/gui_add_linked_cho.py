@@ -614,9 +614,9 @@ class glyco_validate:
 def add_module_carbohydrate_gui():
     menu = coot_gui.attach_module_menu_button("Glyco")
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "N-linked Glycan Addition...",
-        lambda func:
+    coot_gui.add_simple_action_to_menu(
+        menu, "N-linked Glycan Addition...","interactive_add_cho_dialog",
+        lambda _simple_action, _two:
         interactive_add_cho_dialog())
     
     def add_multi_carbo_link_func(link_list):
@@ -642,41 +642,41 @@ def add_module_carbohydrate_gui():
                 s = "New Temperature Factor set to " + str(new_m)
                 coot.info_dialog(s)
         
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Set Default N-linked CHO Atoms B-factor",
-        lambda func: set_default_cho_b_factor_func()
+    coot_gui.add_simple_action_to_menu(
+        menu, "Set Default N-linked CHO Atoms B-factor","set_default_cho_b_factor",
+        lambda _simple_action, _two: set_default_cho_b_factor_func()
     )
 
     
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "N-link add NAG, NAG, BMA",
-        lambda func: add_multi_carbo_link_func([["NAG", "NAG-ASN"],
+    coot_gui.add_simple_action_to_menu(
+        menu, "N-link add NAG, NAG, BMA","multi_carbo_link_NAG_NAG_BMA",
+        lambda _simple_action, _two: add_multi_carbo_link_func([["NAG", "NAG-ASN"],
                                                 ["NAG", "BETA1-4"],
                                                 ["BMA", "BETA1-4"]]))
     
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add a ASN-NAG NAG",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add a BETA1-4 NAG",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add a BETA1-4 BMA",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4"))
     
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA1-2 MAN",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2"))
     
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA1-3 MAN",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3"))
 
     # we should do this only if we are sitting on an SIA.
@@ -684,44 +684,44 @@ def add_module_carbohydrate_gui():
     # good test too...
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA2-3 MAN",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3"))
 
     # # same consideration as above
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA2-3 GAL",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA1-6 MAN",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA1-3 FUC",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an ALPHA1-6 FUC",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6"))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Add an XYP-BMA XYP",
-    #     lambda func:
+    #     lambda _simple_action, _two:
     #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA"))
 
 
     # the mode in the function call now takes take of this
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Auto Fit & Refine On for Link Addition",
-    #     lambda func: coot.set_add_linked_residue_do_fit_and_refine(1))
+    #     lambda _simple_action, _two: coot.set_add_linked_residue_do_fit_and_refine(1))
 
     # coot_gui.add_simple_coot_menu_menuitem(
     #     menu, "Auto Fit & Refine Off for Link Addition",
-    #     lambda func: coot.set_add_linked_residue_do_fit_and_refine(0))
+    #     lambda _simple_action, _two: coot.set_add_linked_residue_do_fit_and_refine(0))
 
     def add_oligo_tree_func(oligo_tree):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -732,30 +732,30 @@ def add_module_carbohydrate_gui():
                                     [aa_chain_id, aa_res_no, aa_ins_code],
                                     oligo_tree)
         
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Add High Mannose",
-        lambda func: add_oligo_tree_func(add_linked_cho.oligomannose_tree()))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Add High Mannose","add_high_mannose",
+        lambda _simple_action, _two: add_oligo_tree_func(add_linked_cho.oligomannose_tree()))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Add Hybrid (Mammal)",
-        lambda func: add_oligo_tree_func(add_linked_cho.hybrid_mammal_tree()))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Add Hybrid (Mammal)","add_hybrid_mammal",
+        lambda _simple_action, _two: add_oligo_tree_func(add_linked_cho.hybrid_mammal_tree()))
     
 #            in practice, no one will be doing this. 
-#            coot_gui.add_simple_coot_menu_menuitem(
+#            coot_gui.add_simple_action_to_menu(
 #                menu, "Add Hybrid (Plant)",
-#                lambda func: add_oligo_tree_func(add_linked_cho.hybrid_plant_derived_tree()))
+#                lambda _simple_action, _two: add_oligo_tree_func(add_linked_cho.hybrid_plant_derived_tree()))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Add Complex (Mammal)",
-        lambda func: add_oligo_tree_func(add_linked_cho.complex_mammal_tree()))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Add Complex (Mammal)","add_complex_mammal",
+        lambda _simple_action, _two: add_oligo_tree_func(add_linked_cho.complex_mammal_tree()))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Add Complex (Plant)",
-        lambda func: add_oligo_tree_func(add_linked_cho.complex_plant_tree()))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Add Complex (Plant)","add_complex_plant",
+        lambda _simple_action, _two: add_oligo_tree_func(add_linked_cho.complex_plant_tree()))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Delete All Carbohydrate",
-        lambda func: add_linked_cho.delete_all_cho())
+    coot_gui.add_simple_action_to_menu(
+        menu, "Delete All Carbohydrate","delete_all_cho",
+        lambda _simple_action, _two: add_linked_cho.delete_all_cho())
 
     def torsion_fit_this_func(refine = False):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -779,35 +779,36 @@ def add_module_carbohydrate_gui():
                 with AutoAccept():
                     refine_residues(aa_imol, [centre_residue])
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Torsion Fit this residue",
-        lambda func: torsion_fit_this_func())
+    coot_gui.add_simple_action_to_menu(
+        menu, "Torsion Fit this residue","torsion_fit_this",
+        lambda _simple_action, _two: torsion_fit_this_func())
 
-    # coot_gui.add_simple_coot_menu_menuitem(
+    # coot_gui.add_simple_action_to_menu(
     #     menu, "Torsion Fit This Residue and Neighbours",
-    #     lambda func: torsion_fit_this_and_neighbours_func())
+    #     lambda _simple_action, _two: torsion_fit_this_and_neighbours_func())
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Torsion Fit & Refine this residue",
-        lambda func: torsion_fit_this_func(True))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Torsion Fit & Refine this residue","torsion_fit_refine_this",
+        lambda _simple_action, _two: torsion_fit_this_func(True))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Add synthetic pyranose plane restraints",
-        lambda func: add_linked_cho.add_synthetic_pyranose_planes())
+    coot_gui.add_simple_action_to_menu(
+        menu, "Add synthetic pyranose plane restraints","add_synthetic_pyranose_planes",
+        lambda _simple_action, _two: add_linked_cho.add_synthetic_pyranose_planes())
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Use Unimodal ring torsion restraints",
-        lambda func: add_linked_cho.use_unimodal_pyranose_ring_torsions())
+    coot_gui.add_simple_action_to_menu(
+        menu, "Use Unimodal ring torsion restraints","use_unimodal_pyranose_ring_torsions",
+        lambda _simple_action, _two: add_linked_cho.use_unimodal_pyranose_ring_torsions())
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Display Extra Restraints",
-        lambda func: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 1))
+    # This should probably become a checkbox??
+    coot_gui.add_simple_action_to_menu(
+        menu, "Display Extra Restraints","cho__display_extra_restraints",
+        lambda _simple_action, _two: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 1))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Undisplay Extra Restraints",
-        lambda func: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 0))
+    coot_gui.add_simple_action_to_menu(
+        menu, "Undisplay Extra Restraints","cho__undisplay_extra_restraints",
+        lambda _simple_action, _two: coot_utils.using_active_atom(set_show_extra_restraints, "aa_imol", 0))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Extract this Tree",
-        lambda func:
+    coot_gui.add_simple_action_to_menu(
+        menu, "Extract this Tree","new_molecule_from_this_glyco_tree",
+        lambda _simple_action, _two:
         add_linked_cho.new_molecule_from_this_glyco_tree())
