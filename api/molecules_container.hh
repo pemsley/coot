@@ -1,3 +1,4 @@
+
 #ifndef MOLECULES_CONTAINER_HH
 #define MOLECULES_CONTAINER_HH
 
@@ -26,11 +27,11 @@ public:
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map);
    coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol);
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol);
-   coot::molecule & operator[] (unsigned int imol) {
+   coot::molecule_t & operator[] (unsigned int imol) {
       // maybe this should throw an exception on out-of-range?
       return molecules[imol];
    }
-   mmdb::Manager *operator[] (unsigned int imol) {
+   mmdb::Manager *mol(unsigned int imol) {
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
       } else {
