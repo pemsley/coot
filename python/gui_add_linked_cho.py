@@ -88,20 +88,14 @@ def interactive_add_cho_dialog():
             gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
 
     # add a widget to allow the user to choose the tree type
-    table = Gtk.Table(3, 2, False)
-    butt_1 = Gtk.RadioButton(None, "High Mannose")
-    butt_2 = Gtk.RadioButton(butt_1, "Hybrid (Mammal)")
-#    butt_3 = Gtk.RadioButton(butt_1, "Hybrid (Plant)")
-    butt_4 = Gtk.RadioButton(butt_1, "Complex (Mammal)")
-    butt_5 = Gtk.RadioButton(butt_1, "Complex (Plant)")
-    butt_6 = Gtk.RadioButton(butt_1, "Expert User Mode")
-
-    butt_1.show()
-    butt_2.show()
- #   butt_3.show()
-    butt_4.show()
-    butt_5.show()
-    butt_6.show()
+    #table = Gtk.Table(3, 2, False)
+    table = Gtk.Grid()
+    butt_1 = Gtk.CheckButton(label = "High Mannose")
+    butt_2 = Gtk.CheckButton(group = butt_1, label = "Hybrid (Mammal)")
+    # butt_3 = Gtk.CheckButton(group = butt_1, label = "Hybrid (Plant)")
+    butt_4 = Gtk.CheckButton(group = butt_1, label = "Complex (Mammal)")
+    butt_5 = Gtk.CheckButton(group = butt_1, label = "Complex (Plant)")
+    butt_6 = Gtk.CheckButton(group = butt_1, label = "Expert User Mode")
 
     # this is now how we do it these days. FIXME-PE
     #     # add buttons for nice(?) layout/order
@@ -112,13 +106,15 @@ def interactive_add_cho_dialog():
     #     table.attach(butt_5, 1, 2, 1, 2, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # complex plant
     #     table.attach(butt_2, 2, 3, 0, 1, Gtk.EXPAND|Gtk.FILL, Gtk.EXPAND|Gtk.FILL, 0, 0) # hybrid mammal
     
-    vbox.pack_start(table, True, True, 2)
-    table.show()
-    vbox.reorder_child(table, 0)
+    vbox.append(table)
+    #vbox.reorder_child(table, 0)
+    #vbox.reorder_child_after(table,vbox.get_first_child())
 
     for butt in [butt_1, butt_2, butt_4, butt_5, butt_6]:
         butt.connect("toggled", lambda func:
                      gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
+
+    vbox.show()
 
     # "global" var post-set-rotation-centre-hook
     # BL Note:: maybe should be a global!?
@@ -126,7 +122,7 @@ def interactive_add_cho_dialog():
     def post_set_rotation_centre_script():
         gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
 
-#
+
 def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
 
     def glyco_id2level_number(glyco_id):
