@@ -2030,14 +2030,13 @@ def add_view_to_views_panel(view_name, view_number):
         views_dialog_vbox.append(button)
         button.show()
 
-# return a list of [h_box_buttons, window]
-#
-# a button is a list of [label, callback, text_description]
-#
-
 
 def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label, post_hook=None):
+    """
+    Returns a list of [h_box_buttons, window]
 
+    a button is a list of [label, callback, text_description]
+    """
     return dialog_box_of_buttons_with_check_button(window_name, geometry,
                                                    buttons, close_button_label,
                                                    False, False, False, post_hook)
