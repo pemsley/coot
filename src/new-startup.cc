@@ -524,7 +524,9 @@ create_local_picture(const std::string &local_filename) {
         }
    }
    if (picture) {
-      gtk_picture_set_content_fit(GTK_PICTURE(picture),GTK_CONTENT_FIT_FILL);
+#if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 8
+      gtk_picture_set_content_fit(GTK_PICTURE(picture), GTK_CONTENT_FIT_FILL);
+#endif
    }
    return picture;
 }
