@@ -164,8 +164,15 @@ def add_module_prosmart():
             run_prosmart(imol_tar, imol_ref, do_side_chains)
             window.destroy()
         window = Gtk.Window()
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        window.set_size_request(240,180)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,spacing=5)
+        hbox.set_homogeneous(True)
+        hbox.set_halign(Gtk.Align.END)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
+        vbox.set_margin_start(10)
+        vbox.set_margin_end(10)
+        vbox.set_margin_top(10)
+        vbox.set_margin_bottom(10)
         h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
         chooser_hint_text_1 = "Target molecule"
         chooser_hint_text_2 = "Reference (high-res) molecule"
@@ -183,7 +190,7 @@ def add_module_prosmart():
         hbox.append(cancel_button)
         window.set_child(vbox)
 
-        cancel_button.connect("clicked", lambda w: w.destroy())
+        cancel_button.connect("clicked", lambda _w: window.close())
 
         go_button.connect("clicked", go_button_cb)
         window.show()
