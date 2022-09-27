@@ -2041,29 +2041,30 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label, po
                                                    buttons, close_button_label,
                                                    False, False, False, post_hook)
 
-# geometry is an improper list of ints
-#
-# return a list of [h_box_buttons, window]
-#
-# a button is a list of [label, callback, (optional: text_description)]
-# where callback is a function that takes one argument (I think).
-#
-# If check_button_label is False, don't make one, otherwise create with
-# the given label and "on" state
-#
-# Add a post hook, to execute a function after the dialog is closed.
-# Default is None.
-#
-# Note:
-#  - if label is "HSep" a horizontal separator is inserted instead of a button
-#  - the description is optional
-#
 def dialog_box_of_buttons_with_check_button(window_name, geometry,
                                             buttons, close_button_label,
                                             check_button_label,
                                             check_button_func,
                                             check_button_is_initially_on_flag,
                                             post_close_hook=None):
+    """
+    geometry is an improper list of ints
+
+    return a list of [h_box_buttons, window]
+
+    a button is a list of [label, callback, (optional: text_description)]
+    where callback is a function that takes one argument (I think).
+
+    If check_button_label is False, don't make one, otherwise create with
+    the given label and "on" state
+
+    Add a post hook, to execute a function after the dialog is closed.
+    Default is None.
+
+    Note:
+    - if label is "HSep" a horizontal separator is inserted instead of a button
+    - the description is optional
+    """
 
     def add_text_to_text_widget(text_box, description):
         textbuffer = text_box.get_buffer()
