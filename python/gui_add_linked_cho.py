@@ -412,11 +412,14 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
 
     def get_tree_type():
         tree_type = "oligomannose"
-        children = vbox.get_children()
-        for child in children:
+        child = vbox.get_first_child()
+        def iterate():
+            child = vbox.get_next_sibling()
+            return child is not None
+        while iterate():
             if type(child) == Gtk.Table:
                 for table_child in child:
-                    if type(table_child) == Gtk.RadioButton:
+                    if type(table_child) == Gtk.CheckButton:
                         if table_child.get_active():
                             l = table_child.get_label()
                             # this is a bit ugly because we are testing that these strings
@@ -448,8 +451,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
                     glyco_id = [0, "unset", "ASN", "", "", aa_res_spec]
         if isinstance(glyco_id, list):
             tree_type = get_tree_type()
-            children = vbox.get_children()
-            for child in children:
+            for child in vbox:
                 if (type(child) == Gtk.Button):
                     glyco_tree_dialog_set_button_active_state(child, glyco_id,
                                                               tree_type)
