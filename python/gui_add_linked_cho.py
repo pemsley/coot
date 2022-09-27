@@ -410,10 +410,11 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
         if not (l == "Update for Current Residue") and not (l == "Refine Tree"):
             button.set_sensitive(l in active_button_label_ls)
 
-# vbox is the vbox of the dialog box of buttons. One of the children of the vbox
-# is the table that contains the buttons
-#
 def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
+    """
+    vbox is the vbox of the dialog box of buttons. One of the children of the vbox
+    is the table that contains the buttons
+    """
 
     def get_tree_type():
         tree_type = "oligomannose"
