@@ -1806,8 +1806,6 @@ def entry_do_button(vbox, hint_text, button_label, button_press_func, entry_text
 
 
 def generic_molecule_chooser(hbox, hint_text):
-
-    menu = Gtk.Menu()
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
@@ -1819,7 +1817,7 @@ def generic_molecule_chooser(hbox, hint_text):
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
 
-    label = Gtk.Label(hint_text)
+    label = Gtk.Label(label=hint_text)
 
     hbox.append(label)
     hbox.append(combobox)

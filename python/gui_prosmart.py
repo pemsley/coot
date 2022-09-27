@@ -166,12 +166,12 @@ def add_module_prosmart():
         window = Gtk.Window()
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        h_sep = Gtk.HSeparator()
-        chooser_hint_text_1 = " Target molecule "
-        chooser_hint_text_2 = " Reference (high-res) molecule "
-        go_button = Gtk.Button(" ProSMART ")
-        cancel_button = Gtk.Button("  Cancel  ")
-        check_button = Gtk.CheckButton("Include Side-chains")
+        h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        chooser_hint_text_1 = "Target molecule"
+        chooser_hint_text_2 = "Reference (high-res) molecule"
+        go_button = Gtk.Button(label="ProSMART")
+        cancel_button = Gtk.Button(label="Cancel")
+        check_button = Gtk.CheckButton(label="Include Side-chains")
 
         combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
         combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
@@ -181,12 +181,12 @@ def add_module_prosmart():
         vbox.append(hbox)
         hbox.append(go_button)
         hbox.append(cancel_button)
-        window.add(vbox)
+        window.set_child(vbox)
 
-        cancel_button.connect("clicked", lambda w: window.destroy())
+        cancel_button.connect("clicked", lambda w: w.destroy())
 
         go_button.connect("clicked", go_button_cb)
-        window.show_all()
+        window.show()
 
     def generate_self_restraint_func(sig):
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -232,8 +232,8 @@ def add_module_prosmart():
     #     menu, "Restraint Representation To Home Atom",
     #     lambda func: restraint_to_ca_func(0))
 
-    # coot_gui.add_simple_coot_menu_menuitem(
-    #     menu, "Run ProSMART...", lambda func: launch_prosmart_gui())
+    add_simple_action_to_menu(
+        menu, "Run ProSMART...","run_prosmart_gui", lambda _simple_action, _arg: launch_prosmart_gui())
 
     ## extra
     
