@@ -145,7 +145,7 @@ def add_module_restraints():
 
 def add_module_prosmart():
     
-    menu = coot_gui.attach_module_menu_button("ProSMART")
+    menu = attach_module_menu_button("ProSMART")
 
     def combobox_to_molecule_number(combobox):
         imol = -1
@@ -198,25 +198,25 @@ def add_module_prosmart():
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
             coot.set_extra_restraints_prosmart_sigma_limits(aa_imol,
                                                         sig_low, sig_high)
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Show Only Deviant Distances Beyond 6",
-        lambda func: prosmart_cut_to_func(-6, 6))
+    add_simple_action_to_menu(
+        menu, "Show Only Deviant Distances Beyond 6","prosmart_cut_to_6",
+        lambda _simple_action, _arg: prosmart_cut_to_func(-6, 6))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Show Only Deviant Distances Beyond 4",
-        lambda func: prosmart_cut_to_func(-4, 4))
+    add_simple_action_to_menu(
+        menu, "Show Only Deviant Distances Beyond 4","prosmart_cut_to_4",
+        lambda _simple_action, _arg: prosmart_cut_to_func(-4, 4))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Show Only Deviant Distances Beyond 2.0",
-        lambda func: prosmart_cut_to_func(-2, 2))
+    add_simple_action_to_menu(
+        menu, "Show Only Deviant Distances Beyond 2.0","prosmart_cut_to_2",
+        lambda _simple_action, _arg: prosmart_cut_to_func(-2, 2))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Show Only Deviant Distances Beyond 1.0",
-        lambda func: prosmart_cut_to_func(-1, 1))
+    add_simple_action_to_menu(
+        menu, "Show Only Deviant Distances Beyond 1.0","prosmart_cut_to_1",
+        lambda _simple_action, _arg: prosmart_cut_to_func(-1, 1))
 
-    coot_gui.add_simple_coot_menu_menuitem(
-        menu, "Undisplay All Extra Distance Restraints",
-        lambda func: prosmart_cut_to_func(0, 0))
+    add_simple_action_to_menu(
+        menu, "Undisplay All Extra Distance Restraints","prosmart_cut_to_0",
+        lambda _simple_action, _arg: prosmart_cut_to_func(0, 0))
 
     def restraint_to_ca_func(state):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
