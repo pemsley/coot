@@ -145,106 +145,104 @@ def add_module_restraints():
 
 def add_module_prosmart():
     
-    if True:
-        if coot_gui_api.main_menubar():
-            menu = coot_gui.coot_menubar_menu("ProSMART")
+    menu = coot_gui.attach_module_menu_button("ProSMART")
 
-            def combobox_to_molecule_number(combobox):
-                imol = -1
-                tree_iter = combobox.get_active_iter()
-                if tree_iter is not None:
-                    model = combobox.get_model()
-                    it = model[tree_iter]
-                    imol = it[0]
-                return imol
+    def combobox_to_molecule_number(combobox):
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
 
-            def launch_prosmart_gui():
-                def go_button_cb(*args):
-                    imol_tar = combobox_to_molecule_number(combobox_tar)
-                    imol_ref = combobox_to_molecule_number(combobox_ref)
-                    do_side_chains = check_button.get_active()
-                    run_prosmart(imol_tar, imol_ref, do_side_chains)
-                    window.destroy()
-                window = Gtk.Window()
-                hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-                vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-                h_sep = Gtk.HSeparator()
-                chooser_hint_text_1 = " Target molecule "
-                chooser_hint_text_2 = " Reference (high-res) molecule "
-                go_button = Gtk.Button(" ProSMART ")
-                cancel_button = Gtk.Button("  Cancel  ")
-                check_button = Gtk.CheckButton("Include Side-chains")
+    def launch_prosmart_gui():
+        def go_button_cb(*args):
+            imol_tar = combobox_to_molecule_number(combobox_tar)
+            imol_ref = combobox_to_molecule_number(combobox_ref)
+            do_side_chains = check_button.get_active()
+            run_prosmart(imol_tar, imol_ref, do_side_chains)
+            window.destroy()
+        window = Gtk.Window()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        h_sep = Gtk.HSeparator()
+        chooser_hint_text_1 = " Target molecule "
+        chooser_hint_text_2 = " Reference (high-res) molecule "
+        go_button = Gtk.Button(" ProSMART ")
+        cancel_button = Gtk.Button("  Cancel  ")
+        check_button = Gtk.CheckButton("Include Side-chains")
 
-                combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
-                combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
+        combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
+        combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
 
-                vbox.append(check_button)
-                vbox.append(h_sep)
-                vbox.append(hbox)
-                hbox.append(go_button)
-                hbox.append(cancel_button)
-                window.add(vbox)
+        vbox.append(check_button)
+        vbox.append(h_sep)
+        vbox.append(hbox)
+        hbox.append(go_button)
+        hbox.append(cancel_button)
+        window.add(vbox)
 
-                cancel_button.connect("clicked", lambda w: window.destroy())
+        cancel_button.connect("clicked", lambda w: window.destroy())
 
-                go_button.connect("clicked", go_button_cb)
-                window.show_all()
+        go_button.connect("clicked", go_button_cb)
+        window.show_all()
 
-            def generate_self_restraint_func(sig):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    generate_local_self_restraints(aa_imol, aa_chain_id, sig)
+    def generate_self_restraint_func(sig):
+        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+            generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
-            def prosmart_cut_to_func(sig_low, sig_high):
-                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    coot.set_extra_restraints_prosmart_sigma_limits(aa_imol,
-                                                               sig_low, sig_high)
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Show Only Deviant Distances Beyond 6",
-                lambda func: prosmart_cut_to_func(-6, 6))
+    def prosmart_cut_to_func(sig_low, sig_high):
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.set_extra_restraints_prosmart_sigma_limits(aa_imol,
+                                                        sig_low, sig_high)
+    coot_gui.add_simple_coot_menu_menuitem(
+        menu, "Show Only Deviant Distances Beyond 6",
+        lambda func: prosmart_cut_to_func(-6, 6))
 
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Show Only Deviant Distances Beyond 4",
-                lambda func: prosmart_cut_to_func(-4, 4))
+    coot_gui.add_simple_coot_menu_menuitem(
+        menu, "Show Only Deviant Distances Beyond 4",
+        lambda func: prosmart_cut_to_func(-4, 4))
 
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Show Only Deviant Distances Beyond 2.0",
-                lambda func: prosmart_cut_to_func(-2, 2))
+    coot_gui.add_simple_coot_menu_menuitem(
+        menu, "Show Only Deviant Distances Beyond 2.0",
+        lambda func: prosmart_cut_to_func(-2, 2))
 
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Show Only Deviant Distances Beyond 1.0",
-                lambda func: prosmart_cut_to_func(-1, 1))
+    coot_gui.add_simple_coot_menu_menuitem(
+        menu, "Show Only Deviant Distances Beyond 1.0",
+        lambda func: prosmart_cut_to_func(-1, 1))
 
-            coot_gui.add_simple_coot_menu_menuitem(
-                menu, "Undisplay All Extra Distance Restraints",
-                lambda func: prosmart_cut_to_func(0, 0))
+    coot_gui.add_simple_coot_menu_menuitem(
+        menu, "Undisplay All Extra Distance Restraints",
+        lambda func: prosmart_cut_to_func(0, 0))
 
-            def restraint_to_ca_func(state):
-                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
+    def restraint_to_ca_func(state):
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
 
-            # # clutter
-            # coot_gui.add_simple_coot_menu_menuitem(
-            #     menu, "Restraint Representation To CA",
-            #     lambda func: restraint_to_ca_func(1))
+    # # clutter
+    # coot_gui.add_simple_coot_menu_menuitem(
+    #     menu, "Restraint Representation To CA",
+    #     lambda func: restraint_to_ca_func(1))
 
-            # coot_gui.add_simple_coot_menu_menuitem(
-            #     menu, "Restraint Representation To Home Atom",
-            #     lambda func: restraint_to_ca_func(0))
+    # coot_gui.add_simple_coot_menu_menuitem(
+    #     menu, "Restraint Representation To Home Atom",
+    #     lambda func: restraint_to_ca_func(0))
 
-            # coot_gui.add_simple_coot_menu_menuitem(
-            #     menu, "Run ProSMART...", lambda func: launch_prosmart_gui())
+    # coot_gui.add_simple_coot_menu_menuitem(
+    #     menu, "Run ProSMART...", lambda func: launch_prosmart_gui())
 
-            ## extra
-            
-            # def delete_all_extra_restraints_func():
-            #     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-            #                                aa_ins_code, aa_atom_name, aa_alt_conf]:
-            #         coot.delete_all_extra_restraints(aa_imol)
+    ## extra
+    
+    # def delete_all_extra_restraints_func():
+    #     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    #                                aa_ins_code, aa_atom_name, aa_alt_conf]:
+    #         coot.delete_all_extra_restraints(aa_imol)
 
-            # coot_gui.add_simple_coot_menu_menuitem(
-            #     menu, "Delete All Extra Restraints",
-            #     lambda func: delete_all_extra_restraints_func())
+    # coot_gui.add_simple_coot_menu_menuitem(
+    #     menu, "Delete All Extra Restraints",
+    #     lambda func: delete_all_extra_restraints_func())
 
