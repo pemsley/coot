@@ -23,58 +23,58 @@ def interactive_add_cho_dialog():
     add_linked_cho.use_unimodal_pyranose_ring_torsions()
     # button list with [label, function]
     buttons = [
-        ["Update for Current Residue", lambda func: dummy_func()], # dummy_func replaced later
-        ["Refine Tree", lambda func: refine_tree_func()],
+        ["Update for Current Residue", lambda _btn: dummy_func()], # dummy_func replaced later
+        ["Refine Tree", lambda _btn: refine_tree_func()],
         ["Add a NAG-ASN NAG",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN")],
         ["Add a BETA1-4 NAG",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4")],
         ["Add a BETA1-4 BMA",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4")],
         ["Add an ALPHA1-2 MAN",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2")],
         ["Add an ALPHA1-3 MAN",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3")],
         ["Add an ALPHA2-3 MAN",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3")],
         ["Add an ALPHA2-3 GAL",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3")],
         ["Add an ALPHA1-6 MAN",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6")],
         ["Add a BETA1-2 NAG",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-2")],
         ["Add a BETA1-4 GAL",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "BETA1-4")],
         ["Add an ALPHA1-2 FUC",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-2")],
         ["Add an ALPHA1-3 FUC",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3")],
         ["Add an ALPHA1-6 FUC",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6")],
         ["Add an BETA1-6 FUL",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUL", "BETA1-6")],
         ["Add an XYP-BMA XYP",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA")],
         ["Add an ALPHA2-3 SIA",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-3")],
         ["Add an ALPHA2-6 SIA",
-         lambda func:
+         lambda _btn:
          add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-6")]
     ]
 
@@ -82,12 +82,10 @@ def interactive_add_cho_dialog():
                                  [420, 600], buttons, "Close")[0]
     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
     # set the callback on the first button
-    children = vbox.get_children()
-    if isinstance(children, list):
-        if len(children) > 0:
-            first_button = children[0]
-            first_button.connect("clicked", lambda func:
-                                 gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
+    first_button = vbox.get_first_child()
+    if first_button:
+        first_button.connect("clicked", lambda _btn:
+            gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
 
     # add a widget to allow the user to choose the tree type
     table = Gtk.Table(3, 2, False)
