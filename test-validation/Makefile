@@ -1,0 +1,24 @@
+
+# to find clipper.pc, you will need to do something like
+# export PKG_CONFIG_PATH=$COOT_DIR/lib/pkgconfig
+
+COOT_DIR=$(HOME)/autobuild/Linux-penelope-gtk4
+
+CXXFLAGS= \
+   -I$(COOT_DIR)/include \
+   -I$(COOT_DIR)/include/coot \
+   `pkg-config --cflags gtk4` `pkg-config --cflags epoxy`  `pkg-config --cflags clipper` \
+   -g -O0 -march=native -std=gnu++11
+
+LDLIBS=-fuse-ld=gold \
+       -L$(COOT_DIR)/lib -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
+       `pkg-config --libs gtk4`  \
+       `pkg-config --libs epoxy` \
+       `pkg-config --libs clipper` \
+        -g \
+        -Wl,--rpath=$(COOT_DIR)/lib \
+        -lfreetype -lm -ldl
+
+gtk4-test-validation-graph: gtk4-test-validation-graph.cc
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+
