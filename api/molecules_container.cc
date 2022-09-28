@@ -73,7 +73,7 @@ molecules_container_t::read_mtz(const std::string &file_name,
    int imol = -1;
 
    coot::molecule_t m;
-   bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, is_a_difference_map, 0, 0);
+   bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, is_a_difference_map);
    if (status) {
       molecules.push_back(m);
       imol = molecules.size() -1;
@@ -87,7 +87,7 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
 
    coot::validation_information_t r;
    if (is_valid_model_molecule(imol_model)) {
-      if (is_valid_model_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map)) {
          // fill these
          mmdb::PResidue *SelResidues = 0;
          int nSelResidues = 0;
