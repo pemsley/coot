@@ -38,6 +38,19 @@ public:
          return nullptr;
       }
    }
+   bool contains_unsaved_models() const {
+      for (const auto &m : molecules) {
+         if (m.have_unsaved_changes()) return true;
+      }
+      return false;
+   }
+   void save_unsaved_model_changes() {
+      for (const auto &m : molecules) {
+         if (m.have_unsaved_changes()) {
+            // something fun here.
+         }
+      }
+   }
 
 };
 
