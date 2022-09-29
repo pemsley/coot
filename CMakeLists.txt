@@ -255,6 +255,8 @@ add_library(coot STATIC
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
+            ${coot_src}/api/prideout-octasphere.cc
+            ${coot_src}/api/oct.cc
             ${coot_src}/api/interfaces.cc
             ${coot_src}/api/coot_molecule.cc
             ${coot_src}/api/molecules_container.cc

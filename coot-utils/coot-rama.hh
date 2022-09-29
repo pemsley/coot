@@ -49,7 +49,7 @@ namespace coot {
 	 std::string residue_name_;
 	 bool is_filled_;
 	 bool is_pre_pro_;
-      
+
       public:
 	 // torsion angles in degrees
 	 phi_psi_t(double phi_in, double psi_in,

@@ -4,6 +4,7 @@
 #include "coot-utils/coot-map-utils.hh"
 
 #include "coords/Bond_lines.h"
+#include "oct.hh"
 
 bool
 molecules_container_t::is_valid_model_molecule(int imol) {
@@ -142,6 +143,11 @@ molecules_container_t::ramachandran_validation(int imol) {
 coot::simple_mesh_t
 molecules_container_t::ramachandran_validation_markup_mesh(int imol) {
 
+   unsigned int num_subdivisions = 2;  // pass this
+   glm::vec3 screen_up_dir(0,0,1); // for now
+   float rama_ball_pos_offset_scale = 0.6; // floats because of glm multiplier
+   float rama_ball_radius = 0.5;
+
    auto prob_raw_to_colour_rotation = [] (float prob) {
                                          if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
                                          // good probabilities have q = 0
@@ -149,39 +155,42 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) {
                                          double q = (1.0 - 2.0 * prob);
                                          q = pow(q, 20.0);
                                          return q;
-                                      };
+   };
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+   };
+
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
 
-#if 0 // doesn't compile yet
+      std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaball = tessellate_octasphere(num_subdivisions);
+
       std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_goodness_spots =
          ramachandran_validation(imol);
       // now convert positions into meshes of balls
       int n_ramachandran_goodness_spots = ramachandran_goodness_spots.size();
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
          const coot::Cartesian &position = ramachandran_goodness_spots[i].first;
-         const float &prob_raw = ramachandran_goodness_spots[i].second;
-         double prob(prob_raw);
+         const float &prob_raw = 0.5; // FIXME - was ramachandran_goodness_spots[i].second;
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
          glm::vec3 atom_position = cartesian_to_glm(position);
          glm::vec3 ball_position = atom_position + rama_ball_pos_offset_scale * screen_up_dir;
-         unsigned int idx_base = vertices.size();
-         unsigned int idx_tri_base = triangles.size();
+         unsigned int idx_base = mesh.vertices.size();
+         unsigned int idx_tri_base = mesh.triangles.size();
          for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
             glm::vec4 col_v4(col.red, col.green, col.blue, 1.0f);
             const glm::vec3 &vertex_position = octaball.first[ibv];
-            s_generic_vertex vertex(ball_position + rama_ball_radius * vertex_position, vertex_position, col_v4);
-            vertices.push_back(vertex);
+            coot::api::vnc_vertex vertex(ball_position + rama_ball_radius * vertex_position, vertex_position, col_v4);
+            mesh.vertices.push_back(vertex);
          }
          std::vector<g_triangle> octaball_triangles = octaball.second;
-         triangles.insert(triangles.end(), octaball_triangles.begin(), octaball_triangles.end());
+         mesh.triangles.insert(mesh.triangles.end(), octaball_triangles.begin(), octaball_triangles.end());
 
-         for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
-            triangles[k].rebase(idx_base);
+         for (unsigned int k=idx_tri_base; k<mesh.triangles.size(); k++)
+            mesh.triangles[k].rebase(idx_base);
       }
-
-#endif
    }
    return mesh;
 }
