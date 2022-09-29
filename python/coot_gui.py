@@ -33,6 +33,7 @@
 
 import os
 import types
+from typing import Callable, Any
 import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GObject
@@ -1258,7 +1259,8 @@ def generic_chooser_and_file_selector(chooser_label,
     label = Gtk.Label(label=chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_for_entry = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+    hbox_buttons.set_homogeneous(True)
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
@@ -1270,8 +1272,8 @@ def generic_chooser_and_file_selector(chooser_label,
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
 
-    ok_button = Gtk.Button(label="  OK  ")
-    cancel_button = Gtk.Button(label=" Cancel ")
+    ok_button = Gtk.Button(label="OK")
+    cancel_button = Gtk.Button(label="Cancel")
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
     window.set_default_size(400, 100)
@@ -1359,19 +1361,13 @@ def coot_menubar_menu(menu_label):
         print("ERROR:: python coot_coot_gui_api.main_menumodel() an error occurs using coot_gui_api", e)
 
 
-# Given that we have a menu (e.g. one called "Extensions") provide a
-# cleaner interface to adding something to it:
-#
-# activate_function is a thunk.
-#
-def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
-
-   #  sub_menuitem = Gio.MenuItem()
-   #  menu.append(sub_menuitem)
-   #  sub_menuitem.show()
-   #  sub_menuitem.connect("activate", activate_function)
-   print("in add_simple_coot_menu_menuitem(() use new stye menus")
-
+def add_simple_action_to_menu(menu: Gio.Menu, displayed_name: str, action_name: str, on_activate_callback: Callable[[Gio.SimpleAction,Any],Any]):
+    """Creates and adds a stateless Gio.SimpleAction globally to the app and appends a corresponding menu item to the menu"""
+    app = coot_gui_api.application()
+    action = Gio.SimpleAction.new(action_name, None)
+    action.connect("activate", on_activate_callback)
+    app.add_action(action)
+    menu.append(displayed_name,f"app.{action_name}")
 
 # Make an interesting things GUI for residues of molecule number
 # imol that have alternate conformations.
@@ -1810,8 +1806,6 @@ def entry_do_button(vbox, hint_text, button_label, button_press_func, entry_text
 
 
 def generic_molecule_chooser(hbox, hint_text):
-
-    menu = Gtk.Menu()
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
@@ -1823,7 +1817,7 @@ def generic_molecule_chooser(hbox, hint_text):
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
 
-    label = Gtk.Label(hint_text)
+    label = Gtk.Label(label=hint_text)
 
     hbox.append(label)
     hbox.append(combobox)
@@ -2036,41 +2030,41 @@ def add_view_to_views_panel(view_name, view_number):
         views_dialog_vbox.append(button)
         button.show()
 
-# return a list of [h_box_buttons, window]
-#
-# a button is a list of [label, callback, text_description]
-#
-
 
 def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label, post_hook=None):
+    """
+    Returns a list of [h_box_buttons, window]
 
+    a button is a list of [label, callback, text_description]
+    """
     return dialog_box_of_buttons_with_check_button(window_name, geometry,
                                                    buttons, close_button_label,
                                                    False, False, False, post_hook)
 
-# geometry is an improper list of ints
-#
-# return a list of [h_box_buttons, window]
-#
-# a button is a list of [label, callback, (optional: text_description)]
-# where callback is a function that takes one argument (I think).
-#
-# If check_button_label is False, don't make one, otherwise create with
-# the given label and "on" state
-#
-# Add a post hook, to execute a function after the dialog is closed.
-# Default is None.
-#
-# Note:
-#  - if label is "HSep" a horizontal separator is inserted instead of a button
-#  - the description is optional
-#
 def dialog_box_of_buttons_with_check_button(window_name, geometry,
                                             buttons, close_button_label,
                                             check_button_label,
                                             check_button_func,
                                             check_button_is_initially_on_flag,
                                             post_close_hook=None):
+    """
+    geometry is an improper list of ints
+
+    return a list of [h_box_buttons, window]
+
+    a button is a list of [label, callback, (optional: text_description)]
+    where callback is a function that takes one argument (I think).
+
+    If check_button_label is False, don't make one, otherwise create with
+    the given label and "on" state
+
+    Add a post hook, to execute a function after the dialog is closed.
+    Default is None.
+
+    Note:
+    - if label is "HSep" a horizontal separator is inserted instead of a button
+    - the description is optional
+    """
 
     def add_text_to_text_widget(text_box, description):
         textbuffer = text_box.get_buffer()
@@ -2090,9 +2084,15 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     # main line
     window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
-    outside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    outside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+    outside_vbox.set_margin_bottom(10)
+    
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
-    inside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    inside_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+    inside_vbox.set_margin_start(10)
+    inside_vbox.set_margin_end(10)
+    inside_vbox.set_margin_top(10)
+    inside_vbox.set_margin_bottom(10)
 
     window.set_default_size(geometry[0], geometry[1])
     window.set_title(window_name)
@@ -2100,7 +2100,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
     window.set_child(outside_vbox)
 
     if check_button_label:
-        check_button = Gtk.CheckButton(check_button_label)
+        check_button = Gtk.CheckButton(label=check_button_label)
         # somehow need to execute the function before we can use it in the
         # callback. This is odd to say the least. FIXME
         check_button_func(check_button, inside_vbox)
@@ -2110,7 +2110,9 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
         outside_vbox.append(check_button)
 
     outside_vbox.append(scrolled_win)
-    scrolled_win.add_with_viewport(inside_vbox)
+    scrolled_win.set_child(inside_vbox)
+    inside_vbox.set_hexpand(True)
+    inside_vbox.set_vexpand(True)
 
     for button_info in buttons:
         # print("DEBUG:: in dialog_box_of_buttons_with_check_button(): button_info:", button_info)
@@ -2118,10 +2120,12 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
     # outside_vbox.set_border_width(2)
     outside_vbox.append(h_sep)
-    ok_button = Gtk.Button(close_button_label)
-    outside_vbox.pack_end(ok_button, False, False, 0)
+    ok_button = Gtk.Button(label=close_button_label)
+    ok_button.set_margin_end(10)
+    ok_button.set_halign(Gtk.Align.END)
+    outside_vbox.append(ok_button)
     ok_button.connect("clicked", close_cb_func, window, post_close_hook)
-    window.connect("delete-event", lambda widget : hide_this_window())
+    window.connect("destroy", lambda widget : hide_this_window(widget))
 
     window.show()
     return [inside_vbox, window]
@@ -5324,6 +5328,24 @@ def associate_pir_wih_molecule_gui(do_alignment_flag):
                                             lambda imol, ch_id, file_name: lambda_fn(imol, ch_id, file_name))
 
 
+def attach_module_menu_button(module_name: str) -> Gio.Menu:
+    """
+    Creates a new MenuButton and attaches it to the main toolbar.
+
+    To be used with extension modules.
+
+    Returns the button's Gio.Menu
+    """
+    menu = Gio.Menu.new()
+    popover = Gtk.PopoverMenu()
+    popover.set_menu_model(menu)
+    module_menu_button = Gtk.MenuButton(label=module_name)
+    module_menu_button.set_popover(popover)
+
+    coot_gui_api.main_toolbar().append(module_menu_button)
+    return menu
+
+
 def add_module_cryo_em():
     if coot_gui_api.main_menumodel():
         add_module_cryo_em_gui()
@@ -5365,17 +5387,8 @@ def add_module_cryo_em_gui():
             c = coot.cell(m)
             coot.set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
 
-        add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                      lambda func: sharpen_blur.sharpen_blur_map_gui())
-
     def flip_hand_local_func():
         map_molecule_chooser_gui("Coot Flip Select Map", lambda imol: coot.flip_hand(imol))
-
-        add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX",
-                                    lambda func: add_mol_sym_mtrix())
-
-        add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
-                                    lambda func: sharpen_blur.sharpen_blur_map_gui())
 
     def make_masked_maps_using_active_atom():
         active_atom = coot.active_residue_py()
@@ -5402,107 +5415,101 @@ def add_module_cryo_em_gui():
                                                       aa_alt_conf, aa_res_spec]:
                 interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
-        def sharpen_blur_map_gui_wrapper(simple_action, arg2):
+        def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
             sharpen_blur.sharpen_blur_map_gui()
 
-        def multi_sharpen_map_gui_wrapper(simple_action, arg2):
+        def multi_sharpen_map_gui_wrapper(_simple_action, _arg2):
             refmac_multi_sharpen_gui()
 
-        def mask_map_by_chains_wrapper(simple_action, arg2):
+        def mask_map_by_chains_wrapper(_simple_action, _arg2):
             make_masked_maps_using_active_atom()
 
-        def go_to_map_molecule_centre_wrapper(simple_action, arg2):
+        def go_to_map_molecule_centre_wrapper(_simple_action, _arg2):
             imol_map = coot.imol_refinement_map()
             coot.go_to_map_molecule_centre(imol_map)
 
-        def add_mol_sym_mtrix_wrapper(simple_action, arg2):
+        def add_mol_sym_mtrix_wrapper(_simple_action, _arg2):
             # the internals of add_mol_sym_mtrix() can go here - we don't need this
             # extra function call.
             add_mol_sym_mtrix()
 
-        def go_to_map_box_middle_wrapper(simple_action, arg2):
+        def go_to_map_box_middle_wrapper(_simple_action, _arg2):
             go_to_box_middle()
 
-        def flip_map_hand_wrapper(simple_action, arg2):
+        def flip_map_hand_wrapper(_simple_action, _arg2):
             flip_hand_local_func()
 
-        menu = Gio.Menu.new()
-        popover = Gtk.PopoverMenu()
-        popover.set_menu_model(menu)
-        cryo_em_menu_button = Gtk.MenuButton(label="Cryo-EM")
-        cryo_em_menu_button.set_popover(popover)
+        def align_and_mutate_using_clustalw2_wrapper(_simple_action, _arg2):
+            generic_chooser_entry_and_file_selector(
+                "Align Sequence to Model: ",
+                coot_utils.valid_model_molecule_qm,
+                "Chain ID",
+                "",
+                "Select PIR Alignment file",
+                lambda imol, chain_id, target_sequence_pif_file:
+                coot.run_clustalw_alignment(imol, chain_id,
+                                            target_sequence_pif_file))
 
-        coot_gui_api.main_toolbar().append(cryo_em_menu_button)
-        app = coot_gui_api.application()
+        menu = attach_module_menu_button("Cryo-EM")
 
-        def add_action(function_name, function):
-            action = Gio.SimpleAction.new(function_name, None)
-            action.connect("activate", function)
-            app.add_action(action)
+        def add_action(displayed_name,action_name,on_activate_callback):
+            add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("sharpen_blur_map_gui",      sharpen_blur_map_gui_wrapper)
-        add_action("multi_sharpen_map_gui",     multi_sharpen_map_gui_wrapper)
-        add_action("add_mol_sym_mtrix",         add_mol_sym_mtrix_wrapper)
-        add_action("flip_map_hand",             flip_map_hand_wrapper)
-        add_action("mask_map_by_chains",        mask_map_by_chains_wrapper)
-        add_action("go_to_map_molecule_centre", go_to_map_molecule_centre_wrapper)
-        add_action("go_to_map_box_middle",      go_to_map_box_middle_wrapper)
+        add_action("Sharpen/Blur...",
+            "sharpen_blur_map_gui",
+            sharpen_blur_map_gui_wrapper)
+        add_action("Multi-sharpen",
+            "multi_sharpen_map_gui",
+            multi_sharpen_map_gui_wrapper)
+        add_action("Mask Map by Chains",
+            "mask_map_by_chains",
+            mask_map_by_chains_wrapper)
+        add_action("Go To Map Molecule Middle",
+            "go_to_map_molecule_centre",
+            go_to_map_molecule_centre_wrapper)
+        add_action("Map Box Middle",
+            "go_to_map_box_middle",
+            go_to_map_box_middle_wrapper)
+        add_action("Flip Map Hand",
+            "flip_map_hand",
+            flip_map_hand_wrapper)
 
-        menu.append("Sharpen/Blur...",           "app.sharpen_blur_map_gui")
-        menu.append("Multi-sharpen",             "app.multi_sharpen_map_gui")
-        menu.append("Mask Map by Chains",        "app.mask_map_by_chains")
-        menu.append("Go To Map Molecule Middle", "app.go_to_map_molecule_centre")
-        menu.append("Map Box Middle",            "app.go_to_map_box_middle")
-        menu.append("Flip Map Hand",             "app.flip_map_hand")
-        menu.append("Add molecular symmetry using MTRIX", "app.add_mol_sym_mtrix")
+        # where does this one belong?
 
-        # add_simple_coot_menu_menuitem(menu, "Multi-sharpen...", lambda func: refmac_multi_sharpen_gui())
-
-        # add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...", lambda func: sharpen_blur.sharpen_blur_map_gui())
-
-        # add_simple_coot_menu_menuitem(menu, "Mask Map by Chains", lambda func: make_masked_maps_using_active_atom())
-
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
-
-        # add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle", lambda func: coot.go_to_map_molecule_centre(coot.imol_refinement_map()))
-
-        # add_simple_coot_menu_menuitem(menu, "Go To Box Middle", lambda func: go_to_box_middle())
-
-        # add_simple_coot_menu_menuitem(menu, "Flip Hand of Map", lambda func: flip_hand_local_func())
-
-        # add_simple_coot_menu_menuitem(menu, "Add molecular symmetry using MTRIX", lambda func: add_mol_sym_mtrix())
+        add_action("Interactive Nudge Residues...",
+            "interactive_nudge",
+            lambda _simple_action, _arg2: interactive_nudge_func())
 
         # belongs in Modelling
-        add_simple_coot_menu_menuitem(menu, "Align and Mutate using ClustalW2",
-                                    lambda func:
-                                    generic_chooser_entry_and_file_selector(
-                                        "Align Sequence to Model: ",
-                                        coot_utils.valid_model_molecule_qm,
-                                        "Chain ID",
-                                        "",
-                                        "Select PIR Alignment file",
-                                        lambda imol, chain_id, target_sequence_pif_file:
-                                        coot.run_clustalw_alignment(imol, chain_id,
-                                                                  target_sequence_pif_file)))
 
-        add_simple_coot_menu_menuitem(menu, "Assign Sequence Based on Associated Sequence", lambda func: ass_seq_assoc_seq())
+        add_action("Add molecular symmetry using MTRIX",
+            "add_mol_sym_mtrix",
+            add_mol_sym_mtrix_wrapper)
+        add_action("Align and Mutate using ClustalW2",
+            "align_and_mutate_using_clustalw2",
+            align_and_mutate_using_clustalw2_wrapper)
+        add_action("Assign Sequence Based on Associated Sequence",
+            "ass_seq_assoc_seq",
+            lambda _simple_action, _arg2: ass_seq_assoc_seq())
+        add_action("Auto-assign Sequence Based on Map",
+            "auto_assign_sequence_from_map",
+            lambda _simple_action, _arg2: auto_assign_sequence_from_map())
 
-        add_simple_coot_menu_menuitem(menu, "Auto-assign Sequence Based on Map", lambda func: auto_assign_sequence_from_map())
+        # belongs in Preferences
 
-        # Modelling
-        add_simple_coot_menu_menuitem(menu, "Interactive Nudge Residues...", lambda func: interactive_nudge_func())
-
-        # preferences
-        add_simple_coot_menu_menuitem(menu, "No Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(0))
-        add_simple_coot_menu_menuitem(menu, "Enable Auto-Recontour Map Mode", lambda func: coot.set_auto_recontour_map(1))
+        add_action("No Auto-Recontour Map Mode",
+            "set_no_auto_recontour_map",
+            lambda _simple_action, _arg2: coot.set_auto_recontour_map(0))
+        add_action("Enable Auto-Recontour Map Mode",
+            "set_auto_recontour_map",
+            lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
 
 
 def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
-        menu = coot_menubar_menu("CCP4")
+        menu = attach_module_menu_button("CCP4")
 
-        add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
-                                      lambda func: acedrg_link.acedrg_link_generation_control_window())
+        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
 
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():
@@ -5512,9 +5519,9 @@ def add_module_pdbe_gui():
       #     Recent structures from the PDBe
       # ---------------------------------------------------------------------
       #
-      add_simple_coot_menu_menuitem(
-         menu, "PDBe recent structures...",
-         lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
+    #   add_simple_coot_menu_menuitem(
+    #      menu, "PDBe recent structures...",
+    #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
       if coot_utils.command_in_path_qm("refmac5"):
@@ -5522,84 +5529,82 @@ def add_module_pdbe_gui():
       else:
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
-      add_simple_coot_menu_menuitem(
-         menu, "Get from PDBe...",
-         lambda func: generic_single_entry("Get PDBe accession code",
-                                           "", " Get it ",
-                                           lambda text:
-                                           get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+    #   add_simple_coot_menu_menuitem(
+    #      menu, "Get from PDBe...",
+    #      lambda func: generic_single_entry("Get PDBe accession code",
+    #                                        "", " Get it ",
+    #                                        lambda text:
+    #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
 
 
 def add_module_refine():
-
-   def chain_refine_active_atom(widget):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol     = active_atom[0]
-         aa_chain_id = active_atom[1]
-         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-         coot.refine_residues(aa_imol, all_residues)
-
-
-   def all_atom_refine_active_atom(widget):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         all_residues_in_mol = coot_utils.all_residues(aa_imol)
-         coot.refine_residues(aa_imol, all_residues_in_mol)
+    def chain_refine_active_atom(_simple_action,_arg2):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol     = active_atom[0]
+            aa_chain_id = active_atom[1]
+            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
+            coot.refine_residues(aa_imol, all_residues)
 
 
-   def refine_fragment_active_atom(w):
-      active_atom = coot.active_residue()
-      print("###### active_atom", active_atom)
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
-         res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-         coot.refine_residues(aa_imol, res_list)
+    def all_atom_refine_active_atom(_simple_action,_arg2):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            all_residues_in_mol = coot_utils.all_residues(aa_imol)
+            coot.refine_residues(aa_imol, all_residues_in_mol)
 
 
-   def regularize_fragment_active_atom(w):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
+    def refine_fragment_active_atom(_simple_action,_arg2):
+        active_atom = coot.active_residue()
+        print("###### active_atom", active_atom)
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
+            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
+            coot.refine_residues(aa_imol, res_list)
 
-         res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-         coot.regularize_residues(aa_imol, res_list)
 
-   def regularize_chain_active_atom(w):
-      active_atom = coot.active_residue()
-      if active_atom:
-         aa_imol = active_atom[0]
-         aa_chain_id = active_atom[1]
-         all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-         coot.regularize_residues(aa_imol, all_residues)
+    def regularize_fragment_active_atom(_simple_action,_arg2):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
 
-   if coot_gui_api.main_menumodel():
+            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
+            coot.regularize_residues(aa_imol, res_list)
 
-      menu = coot_menubar_menu("Refine")
+    def regularize_chain_active_atom(_simple_action,_arg2):
+        active_atom = coot.active_residue()
+        if active_atom:
+            aa_imol = active_atom[0]
+            aa_chain_id = active_atom[1]
+            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
+            coot.regularize_residues(aa_imol, all_residues)
 
-      add_simple_coot_menu_menuitem(menu, "All-Atom Refine", all_atom_refine_active_atom)
+    if coot_gui_api.main_menumodel():
+        menu = attach_module_menu_button("Refine")
 
-      add_simple_coot_menu_menuitem(menu, "Chain Refine", chain_refine_active_atom)
+        add_simple_action_to_menu(menu, "All-Atom Refine","all_atom_refine_active_atom", all_atom_refine_active_atom)
 
-      # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-      add_simple_coot_menu_menuitem(menu, "Contact Dots On",  lambda widget: coot.set_do_coot_probe_dots_during_refine(1))
-      add_simple_coot_menu_menuitem(menu, "Contact Dots Off", lambda widget: coot.set_do_coot_probe_dots_during_refine(0))
+        add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints On",  lambda widget: coot.set_draw_moving_atoms_restraints(1))
-      add_simple_coot_menu_menuitem(menu, "Intermediate Atom Restraints Off", lambda widget: coot.set_draw_moving_atoms_restraints(0))
+        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        add_simple_action_to_menu(menu, "Contact Dots On","contact_dots_on",  lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        add_simple_action_to_menu(menu, "Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-      add_simple_coot_menu_menuitem(menu, "Refine Fragment", refine_fragment_active_atom)
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",  lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
-      add_simple_coot_menu_menuitem(menu, "Regularize Fragment", regularize_fragment_active_atom)
+        add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Regularize Chain", regularize_chain_active_atom)
+        add_simple_action_to_menu(menu, "Regularize Fragment","regularize_fragment_active_atom", regularize_fragment_active_atom)
 
-      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs On",  lambda w: coot.set_show_intermediate_atoms_rota_markup(1))
-      add_simple_coot_menu_menuitem(menu, "Rama Goodness Dodecs Off", lambda w: coot.set_show_intermediate_atoms_rota_markup(0))
+        add_simple_action_to_menu(menu, "Regularize Chain","regularize_chain_active_atom", regularize_chain_active_atom)
+
+        add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
+        add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
 
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):

@@ -885,27 +885,37 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED gpointer user_data) {
 }
 
-void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+void add_ccp4_module_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_ccp4()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import gui_add_linked_cho");
+   safe_python_command("gui_add_linked_cho.add_module_carbohydrate_gui()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
-void add_cryo_em_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+void add_cryo_em_module_action(GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
 
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_cryo_em()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import gui_prosmart");
+   safe_python_command("gui_prosmart.add_module_prosmart()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -916,11 +926,17 @@ void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import gui_prosmart");
+   safe_python_command("gui_prosmart.add_module_restraints()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_refine()");
+   g_simple_action_set_enabled(simple_action,FALSE);
 }
 
 void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
