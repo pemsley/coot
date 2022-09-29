@@ -758,6 +758,8 @@ scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::cout << "setup python window entry " << python_entry << std::endl;
       // 20220810-PE we only want to do this once. How do I do that?
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      GtkWindow* main_window = GTK_WINDOW(graphics_info_t::get_main_window());
+      gtk_window_set_transient_for(GTK_WINDOW(scripting_dialog),main_window);
       gtk_widget_show(scripting_dialog);
    } else {
       std::cout << "ERROR:: Null scripting dialog or entry" << std::endl;
