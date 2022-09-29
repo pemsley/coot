@@ -115,7 +115,7 @@ void screendump_tga(const std::string &file_name) {
 /*                         perspective,blur,AO on/off */
 /*  ----------------------------------------------------------------------- */
 
-               // maybe these functions need their own file?
+// maybe these functions need their own file? Yes. shader-settings.cc
 
 void set_use_perspective_projection(short int state) {
 
@@ -395,12 +395,17 @@ void set_effects_shader_gamma(float f) {
    graphics_draw();
 }
 
-
 void set_fps_timing_scale_factor(float f) {
 
    graphics_info_t::fps_times_scale_factor = f;
    graphics_draw();
 
+}
+
+//! \brief draw background image
+void set_draw_background_image(bool state) {
+   graphics_info_t::draw_background_image_flag = state;
+   graphics_draw();
 }
 
 //! \brief set the shadow softness (1, 2 or 3)

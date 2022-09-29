@@ -133,7 +133,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
                      meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
 		     texture-meshes-for-ssao.shader texture-meshes-with-shadows.shader \
 		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader \
-		     rotation-centre-cross-hairs-for-ssao.shader
+		     rotation-centre-cross-hairs-for-ssao.shader background-image.shader
 
 
 

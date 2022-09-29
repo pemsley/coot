@@ -432,6 +432,11 @@ TextureMesh::draw(Shader *shader_p,
                       << err << std::endl;
 
    shader_p->Use();
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw::draw() "
+                      << shader_p->name << " shader::Use() " << err << std::endl;
+
    const std::string &shader_name = shader_p->name;
 
    // Bind the textures
@@ -444,6 +449,10 @@ TextureMesh::draw(Shader *shader_p,
    }
 
    // std::cout << "mvp: " << glm::to_string(mvp) << std::endl;
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: TextureMesh::draw::draw() "
+                      << shader_p->name << " pre mvp uniform " << err << std::endl;
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, glm::value_ptr(mvp));
    err = glGetError();

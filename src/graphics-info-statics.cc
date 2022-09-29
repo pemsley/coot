@@ -1596,6 +1596,11 @@ Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;
 Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow_highlighted;
 bool graphics_info_t::hud_refinement_dialog_arrow_is_moused_over = false;
 
+Texture        graphics_info_t::texture_for_background_image;
+HUDTextureMesh graphics_info_t::tmesh_for_background_image = HUDTextureMesh("tmesh-for-background-image");
+Shader         graphics_info_t::shader_for_background_image;
+bool           graphics_info_t::draw_background_image_flag = false; // uses "background-image.png"
+
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;

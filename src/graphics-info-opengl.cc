@@ -46,6 +46,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_dof_blur_by_texture_combination,
                                                            shader_for_texture_meshes,
                                                            shader_for_meshes,
+                                                           shader_for_background_image,
                                                            // camera_facing_quad_shader,
 
                                                            // from crows
@@ -115,6 +116,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
+   shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
    shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
    shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
    shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);

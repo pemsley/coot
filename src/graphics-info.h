@@ -2501,6 +2501,11 @@ public:
    static TextureMesh tmesh_for_camera_facing_quad;
    static Shader camera_facing_quad_shader;  // uses camera-facing-quad-shader-for-testing.shader
 
+   static Texture texture_for_background_image;
+   static HUDTextureMesh tmesh_for_background_image; // a HUDTextureMesh because we don't need tanget, bitangent
+   static Shader shader_for_background_image;
+   static bool draw_background_image_flag;
+
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
    //

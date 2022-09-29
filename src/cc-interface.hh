@@ -1590,6 +1590,9 @@ void set_draw_gl_ramachandran_plot_during_refinement(short int state);
 //! \brief set the FPS timing scale factor - default 0.0025
 void set_fps_timing_scale_factor(float f);
 
+//! \brief draw background image
+void set_draw_background_image(bool state);
+
 // testing function
 void read_test_gltf_models();
 
