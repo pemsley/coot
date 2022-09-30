@@ -2079,42 +2079,14 @@ void
 on_refinement_and_regularization_vbox_close_button_clicked(GtkButton       *button,
                                                                                gpointer         user_data) {
 
-
-   // we need this function for "older" versions of Gtk.
-   // //
-   // auto gtk_overlay_remove_overlay = [] (GtkContainer *c, GtkWidget *w) {
-   //                                      GtkWidget *designated_child = gtk_bin_get_child(GTK_BIN(c));
-   //                                      if (w == designated_child) {
-   //                                         // GTK_CONTAINER_CLASS(gtk_overlay_parent_class)->remove(c, w);
-   //                                      }
-   //                                   };
-
-   GtkWidget *dialog = widget_from_builder("refinement_and_regularization_parameters_dialog");
-   GtkWidget *vbox_container = widget_from_builder("refinement_and_regularization_vbox_container");
-   GtkWidget *vbox_outer     = widget_from_builder("refinement_and_regularization_vbox_outer"); // inside vbox_container
-   GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
-
-   // 20220601-PE Oh, the overlays have changed - great...
-   //
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-   gtk_container_remove(GTK_CONTAINER(overlay), vbox_outer);
-   gtk_container_add(GTK_CONTAINER(vbox_container), vbox_outer); // so it's there for next time.
-                                                                 // see graphics_info_t::show_refinement_and_regularization_parameters_dialog()
-
-   std::cout << "in on_refinement_and_regularization_vbox_close_button_clicked() FIXME" << std::endl;
-#endif
-
-   gtk_widget_hide(vbox_outer);
+   GtkWidget *frame = widget_from_builder("refinement_and_regularization_parameters_frame");
+   gtk_widget_set_visible(frame,FALSE);
 
    // pressing the button means that the focus goes elsewhere (not sure where). So bring it back to the graphics
    // widget;
-
-   graphics_info_t g;
-   GtkWidget *glarea = g.glareas[0];
+   
+   GtkWidget *glarea = graphics_info_t::glareas[0];
    gtk_widget_grab_focus(glarea);
-
-
 }
 
 extern "C" G_MODULE_EXPORT

@@ -6026,8 +6026,6 @@ Do you want to continue?
             <child type="overlay">
               <object class="GtkFrame" id="refinement_and_regularization_parameters_frame">
                 <!-- <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property> -->
-                <!-- <signal name="close" handler="on_refinement_and_regularization_parameters_dialog_close" swapped="no"/> -->
-                <!-- <signal name="response" handler="on_refinement_and_regularization_parameters_dialog_response" swapped="no"/> -->
                 <property name="halign">end</property>
                 <property name="valign">start</property>
                 <property name="visible">False</property>
