@@ -6088,7 +6088,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">AutoFit Rotamer</property>
                     <property name="icon-name">auto-fit-rotamer</property>
                     <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
+		                <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
                   </object>
                 </child>
                 <child>
@@ -6096,7 +6096,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Rotamers</property>
                     <property name="icon-name">rotamers</property>
                     <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
                   </object>
                 </child>
                 <child>
@@ -6104,7 +6104,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Edit Chi Angles</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">edit-chi</property>
-		    <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
+		                <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
                   </object>
                 </child>
                 <child>
@@ -6112,7 +6112,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Flip Peptide</property>
                     <property name="icon-name">flip-peptide</property>
                     <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
                   </object>
                 </child>
                 <child>
@@ -6120,7 +6120,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Sidechain 180° Flip</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">side-chain-180</property>
-		    <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
                   </object>
                 </child>
                 <child>
@@ -6128,7 +6128,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">mutate</property>
-		    <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
+		                <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
                   </object>
                 </child>
                 <child>
@@ -6143,7 +6143,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Add Terminal Residue</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">add-peptide-1</property>
-		    <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
                   </object>
                 </child>
                 <child>
@@ -6158,7 +6158,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Undo</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">undo</property>
-		    <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
                   </object>
                 </child>
                 <child>
@@ -6166,7 +6166,7 @@ Do you want to continue?
                     <property name="label" translatable="yes">Redo</property>
                     <property name="can-focus">0</property>
                     <property name="icon-name">redo</property>
-		    <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
+		                <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
                   </object>
                 </child>
               </object>
