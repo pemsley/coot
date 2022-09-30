@@ -70,32 +70,9 @@ extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_refine_control_button_clicked(GtkButton       *button,
                                                                    gpointer         user_data) {
-   graphics_info_t g;
-   g.show_refinement_and_regularization_parameters_dialog();
+   graphics_info_t::show_refinement_and_regularization_parameters_frame();
 }
 
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_refinement_and_regularization_parameters_dialog_close(GtkDialog *dialog,
-                                                                              gpointer   user_data) {
-   gtk_widget_hide(GTK_WIDGET(dialog));
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_refinement_and_regularization_parameters_dialog_response(GtkDialog       *dialog,
-                                                                                gint             response_id,
-                                                                                gpointer         user_data) {
-
-   std::cout << "in on_refinement_and_regularization_parameters_dialog_response() got response_id " << response_id << std::endl;
-   if (response_id == GTK_RESPONSE_CLOSE) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
-   }
-}
 
 
 // extern "C" G_MODULE_EXPORT
