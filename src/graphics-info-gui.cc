@@ -418,17 +418,10 @@ graphics_info_t::show_refinement_and_regularization_parameters_dialog() {
 
       // gtk_widget_hide(dialog); // has nothing in it now.
 
-#if (GTK_MAJOR_VERSION == 4)
       gtk_widget_show(vbox_outer);
       gtk_widget_set_halign(vbox_outer, GTK_ALIGN_END);
       gtk_widget_set_valign(vbox_outer, GTK_ALIGN_START);
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox_outer);
-#else
-      gtk_widget_show_all(vbox_outer);
-      gtk_widget_set_halign(vbox_outer, GTK_ALIGN_END);
-      gtk_widget_set_valign(vbox_outer, GTK_ALIGN_START);
-      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox_outer);
-#endif
    } //vbox outer not realized
 }
 
