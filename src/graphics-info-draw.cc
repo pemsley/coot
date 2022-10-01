@@ -836,7 +836,7 @@ graphics_info_t::draw_model_molecules() {
 }
 
 void
-graphics_info_t::draw_model_molecules_with_shadows() {
+graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
 
    if (show_symmetry) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -1807,7 +1807,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    // convert these to read the shadow texture
 
-   draw_model_molecules_with_shadows(); // does symmetry
+   draw_model_molecules_symmetry_with_shadows(); // does symmetry
 
    draw_outlined_active_residue();
 

@@ -250,10 +250,38 @@ void set_model_material_specular(int imol, float specular_strength, float shinin
    if (is_valid_model_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       m.material_for_models.specular_strength = specular_strength;
-      m.material_for_models.shininess         = shininess;
+      m.material_for_models.shininess = shininess;
+      m.molecule_as_mesh.set_material_specularity(specular_strength, shininess);
+      // how about doing this instead of above? (not tested)
+      // m.set_material(m.material_for_models);
       graphics_draw();
    }
 }
+
+void set_model_material_diffuse(int imol, float r, float g, float b, float a) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      glm::vec4 d(r,g,b,a);
+      m.material_for_models.diffuse = d;
+      m.molecule_as_mesh.set_material_diffuse(d);
+      graphics_draw();
+   }
+}
+
+//! \brief set the ambient material multipler - default is 0.2
+void set_model_material_ambient(int imol, float r, float g, float b, float a) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      glm::vec4 ambient(r,g,b,a);
+      m.material_for_models.ambient = ambient;
+      m.molecule_as_mesh.set_material_ambient(ambient);
+   }
+   graphics_draw();
+}
+
+
 
 
 void reload_map_shader() {
@@ -418,6 +446,7 @@ void set_bond_smoothness_factor(unsigned int fac) {
    // rebonding of the molecules might be needed here.
    graphics_draw();
 }
+
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state) {

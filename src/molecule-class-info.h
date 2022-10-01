@@ -2017,7 +2017,7 @@ public:        //                      public
 
    // save yourself and update have_unsaved_changes_flag status
    //
-   int save_coordinates(const std::string filename,
+   int save_coordinates(const std::string &filename,
 			bool save_hydrogens=1,
 			bool save_aniso_records=1,
 			bool save_conect_records=0);
@@ -3673,6 +3673,9 @@ public:        //                      public
    std::vector<glm::vec4> make_colour_table() const;
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   void set_material_in_molecules_as_mesh(const Material &material) {
+      molecule_as_mesh.set_material(material);
+   }
    Mesh molecule_as_mesh; // non-instancing
    Mesh molecule_as_mesh_atoms_1; // for instancing
    Mesh molecule_as_mesh_atoms_2; // for instancing

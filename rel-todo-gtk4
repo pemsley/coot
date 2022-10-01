@@ -15,9 +15,11 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-Does the show_updating_maps_chooser() work? In refinement branch even?
+----
 
-Make the validation balls and dodecs less bright. ::: 1
+Make a "framework" program for validation for Jakub - make a list of generic residue validation blocks.
+
+Does the show_updating_maps_chooser() work? In refinement branch even?
 
 Enable splash screen: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
@@ -214,3 +216,5 @@ Get the Range button working (using new events) generic range define. ::: 2
 Add "Repeat previous zone" to refinement menu items. ::: 0.4
 * Done.
 
+Make the validation balls and dodecs less bright. ::: 0.3
+* Done.

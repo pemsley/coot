@@ -36,7 +36,9 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
 
-bin_PROGRAMS = lidia
+libexec_PROGRAMS = lidia-bin
+
+dist_bin_SCRIPTS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc lbg-flev.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc  \
@@ -58,7 +60,7 @@ libcoot_lidia_la_LIBADD = \
 # 
 libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
+lidia_bin_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
 pkginclude_HEADERS = lbg.hh w-atom.hh w-bond.hh wmolecule.hh topological-equivalence.hh \
         graphics-c-interface-functions.hh \
@@ -76,12 +78,12 @@ pkgincludedir = $(includedir)/coot/lbg
 # I have to force the output of libtool.  Bleugh.  Hmm...
 # Anyway, thankyou Gary Vaughan.
 wl=-Wl,
-lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+lidia_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # res spec output operator means we include libcoot-coord-utils
 # (if that is annoying, then remove it and expand it by hand)
 #
-lidia_LDADD = ./libcoot-lidia.la \
+lidia_bin_LDADD = ./libcoot-lidia.la \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \

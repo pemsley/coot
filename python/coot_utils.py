@@ -26,11 +26,10 @@ import os
 import re
 import string
 import numbers
+import math
 import coot
 # import coot_gui # circular dependency
 from redefine_functions import * # 20220828-PE this needs fixing
-
-print("coot_utils.py says hello")
 
 # hack this in for now
 global use_gui_qm
@@ -4029,7 +4028,9 @@ def find_exe(program_name, *args, **kwargs):
     search_disk = False
     if (use_gui_qm and not no_search):
         try:
-            search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+            # no coot_gui stuff in coot_utils. 20220923-PE
+            # search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+            pass
         except NameError as e:
             pass
     if search_disk:
@@ -4729,7 +4730,7 @@ def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
 #  some coot commands
 #
 
-import os
+
 import sys
 from contextlib import contextmanager
 
@@ -4763,8 +4764,57 @@ def stdout_redirected(to=os.devnull, stdout=None):
             os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
 
-# Back to Paul's scripting.
-# This needs to follow find_exe
+
+n_alphafold_cols = 60
+
+def make_alphafold_colours():
+    cols = []
+    for i in range(n_alphafold_cols):
+        f = float(i)/float(n_alphafold_cols)
+        r = 0.2 + 0.8 * (1.0 - f)
+        g = 1.0 * (0.7 - 1.2 * abs(f - 0.5))
+        b = 0.1 + 0.9 * f
+        ss = r * r + g * g + 0.9 * b * b
+        s = math.sqrt(ss)
+        r /= s
+        g /= s
+        b /= s
+        cols.append((i, [r,g,b]))
+    return cols
+
+def alphafold_pae_to_colour_index(pae):
+    f_col = pae * float(n_alphafold_cols) / 100.0
+    col_index = int(f_col)
+    return col_index
+
+def make_specs_list(file_name):
+    specs_list = []
+    if os.path.exists(file_name):
+        with open(file_name) as f:
+            lines = f.readlines()
+            for line in lines:
+                if line[:4] == "ATOM":
+                    if line[12:16] == " CA ":
+                        pae_string = line[60:66]
+                        pae = float(pae_string)
+                        chain_id = line[21:22]
+                        res_no_string = line[22:26]
+                        res_no = int(res_no_string)
+                        ins_code = "" # :-)
+                        spec = [chain_id, res_no, ins_code]
+                        ci = alphafold_pae_to_colour_index(pae)
+                        specs_list.append((spec, ci))
+    return specs_list
+
+
+def alphafold_pLDDT_colours(imol):
+    file_name = molecule_name(imol)
+    colours = make_alphafold_colours()
+    set_user_defined_colours_py(colours)
+    specs_list = make_specs_list(file_name)
+    set_user_defined_atom_colour_by_residue_py(imol, specs_list)
+    graphics_to_user_defined_atom_colours_representation(imol)
+
 
 # if you don't have mogul, set this to False
 global use_mogul

@@ -3199,6 +3199,21 @@ void set_colour_by_chain_goodsell_mode(int imol) {
    add_to_history_typed(cmd, args);
 }
 
+//! \brief set the goodsell chain colour colour wheel step (default 0.22)
+void set_goodsell_chain_colour_wheel_step(float s) {
+
+   graphics_info_t::goodsell_chain_colour_wheel_rotation_step = s;
+   // now generate new bonds for all molecules drawn in goodsell mode.
+   for (int i=0; i<graphics_n_molecules(); i++) {
+      if (is_valid_model_molecule(i)) {
+         // molecules seem not to know that if they are drawn in goodsell mode. Hmm.
+      }
+   }
+   graphics_draw();
+
+}
+
+
 void set_colour_by_molecule(int imol) {
 
    if (is_valid_model_molecule(imol)) {

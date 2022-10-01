@@ -1364,6 +1364,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
                    << comp_id_2 << "\" group-2 \"" << group_2 << "\"" << std::endl;
 
       try {
+         // this can throw an exception
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
@@ -1741,9 +1742,7 @@ coot::restraints_container_t::general_link_find_close_link(const std::vector<std
 	 r.second = 1;
       }
    }
-
    return r;
-
 }
 
 std::string
@@ -1954,7 +1953,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	    }
 
 
-	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++) {
+	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); ++it) {
 	       
 	       if (it->second.size() > 3) {
 		  
@@ -1978,7 +1977,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  
 		  std::vector<bool> other_fixed_flags = make_fixed_flags(it->second);
 
-		  if (debug) { // debug
+		  if (debug) {
 		     for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++) {
 			std::cout << "other fixed flags " << other_fixed_flags[ii] << std::endl;
 		     }

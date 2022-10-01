@@ -4119,6 +4119,7 @@ if [ "$build_guile_cairo" = true ] ; then
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       else
+         echo no file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
          exit
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then

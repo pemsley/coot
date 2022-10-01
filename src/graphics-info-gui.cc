@@ -392,43 +392,49 @@ graphics_info_t::show_refinement_and_regularization_parameters_dialog() {
       }
 
       if (g.do_torsion_restraints)
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), TRUE);
       else
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_torsions_checkbutton), FALSE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), FALSE);
 
       if (g.do_trans_peptide_restraints)
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), TRUE);
       else
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_transpep_checkbutton), FALSE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), FALSE);
 
       if (Geom_p()->planar_peptide_restraint_state())
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), TRUE);
       else
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_planepep_checkbutton), FALSE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), FALSE);
 
       if (g.do_rama_restraints)
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), TRUE);
       else
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_rama_restr_checkbutton), FALSE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), FALSE);
 
-
+#if GTK_MAJOR_VERSION == 3
       GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
-
       // gtk_container_remove(GTK_CONTAINER(vbox_container), vbox_outer);
       // 20220602-PE maybe this is what I want instead now?
       gtk_widget_hide(vbox_outer);
-      
+#endif
+
       gtk_widget_hide(dialog); // has nothing in it now.
+
 #if (GTK_MAJOR_VERSION == 4)
       
 #else
       gtk_widget_show_all(vbox_outer);
 #endif
+
+#if GTK_MAJOR_VERSION == 3
       gtk_widget_set_halign(vbox_outer, GTK_ALIGN_END);
       gtk_widget_set_valign(vbox_outer, GTK_ALIGN_START);
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox_outer);
+#endif
 
-      // gtk_widget_show(dialog); // 20220413-PE not these days.
+#if (GTK_MAJOR_VERSION == 4)
+      gtk_widget_show(dialog); // 20220413-PE not these days.
+#endif
    }
 }
 
