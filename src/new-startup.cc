@@ -617,7 +617,7 @@ new_startup_application_activate(GtkApplication *application,
 
    // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
    // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
-   GtkWidget *graphics_hbox = widget_from_builder("main_window_hbox", builder);
+   GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox", builder);
    GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
    // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
 
