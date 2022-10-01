@@ -29,8 +29,6 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-Gtk3: decrease the brightness of the rama balls and rota dodecs.
-
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
@@ -40,6 +38,8 @@ Fix the Ctrl-drag function ::: 0.5
 Fix the Map Parameters dialog widgets ::: 2
 
 Fix "Edit Chi Angles" button ::: 1
+
+New dialog for map masking ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
