@@ -238,8 +238,8 @@ and DELFWT/PHDELFWT) can be changed using ...[something]
 */
 std::vector<int> auto_read_make_and_draw_maps(const char *filename);
 /*! \brief set the flag to do a difference map (too) on auto-read MTZ */
-std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *filename);
-std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &file_name);
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &file_name);
 
 /* ----- remove wiget functions from this header GTK-FIXME
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
