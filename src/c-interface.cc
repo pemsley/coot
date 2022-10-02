@@ -5467,8 +5467,8 @@ void set_grey_carbon_colour(int imol, float r, float g, float b) {
    if (is_valid_model_molecule(imol)) {
       coot::colour_t col(r,g,b);
       graphics_info_t::molecules[imol].set_bespoke_carbon_atom_colour(col);
+      graphics_draw();
    }
-   // no graphics draw... Hmm.
 }
 
 /* undocumented feature for development. */

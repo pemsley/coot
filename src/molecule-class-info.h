@@ -760,8 +760,14 @@ public:        //                      public
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
    bool use_bespoke_grey_colour_for_carbon_atoms;
    coot::colour_t bespoke_carbon_atoms_colour;
-   void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
-   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
+   void set_use_bespoke_carbon_atom_colour(bool state) {
+      use_bespoke_grey_colour_for_carbon_atoms = state;
+      make_bonds_type_checked("set_use_bespoke_carbon_atom_colour");
+   }
+   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) {
+      bespoke_carbon_atoms_colour = col;
+      make_bonds_type_checked("set_bespoke_carbon_atom_colour");
+   }
 
    std::string name_;
    std::string get_name() const { return name_; }
