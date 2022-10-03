@@ -750,20 +750,27 @@ scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "launch the python dialog here" << std::endl;
-
    GtkWidget *scripting_dialog = widget_from_builder("python_window");
-   GtkWidget *python_entry     = widget_from_builder("python_window_entry");
-   if (scripting_dialog && python_entry) {
-      std::cout << "setup python window entry " << python_entry << std::endl;
-      // 20220810-PE we only want to do this once. How do I do that?
+   if(scripting_dialog == NULL) {
+      g_error("'python_window' from builder is NULL");
+      return;
+   }
+   // Since 'transient-for' is only set after initialization,
+   // this allows us to easily check if the Python window is already initialized.
+   if (gtk_window_get_transient_for(GTK_WINDOW(scripting_dialog)) == NULL) {
+      g_debug("Initializing Python window...");
+      GtkWidget *python_entry = widget_from_builder("python_window_entry");
+      if(python_entry == NULL) {
+         g_error("'python_window_entry' from builder is NULL");
+         return;
+      }
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
       GtkWindow* main_window = GTK_WINDOW(graphics_info_t::get_main_window());
       gtk_window_set_transient_for(GTK_WINDOW(scripting_dialog),main_window);
-      gtk_widget_show(scripting_dialog);
    } else {
-      std::cout << "ERROR:: Null scripting dialog or entry" << std::endl;
+      g_debug("Python window already initialized");
    }
+   gtk_widget_show(scripting_dialog);
 
 }
 

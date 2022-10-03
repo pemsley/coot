@@ -1997,7 +1997,7 @@ on_python_scripting_entry_key_controller_key_released(GtkEventControllerKey *con
 void
 setup_python_window_entry(GtkWidget *entry) {
 
-   std::cout << "---------------- setup_python_window_entry() adding controller" << std::endl;
+   g_debug("setup_python_window_entry(): adding key event controller");
 
    GtkEventController *key_controller = gtk_event_controller_key_new();
 
