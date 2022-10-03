@@ -1926,88 +1926,89 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
 }
 #endif
 
-
 gboolean
-on_python_scripting_entry_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                     guint                  keyval,
-                                     guint                  keycode,
-                                     guint                  modifiers,
-                                     GtkEntry              *entry) {
-
-   graphics_info_t g;
-   std::cout << "python key press!" << std::endl;
-
+on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
+                                                      guint                  keyval,
+                                                      guint                  keycode,
+                                                      GdkModifierType        modifiers,
+                                                      GtkEntry              *entry) {
    gboolean handled = TRUE;
+   
+   switch(keyval) {
+      case GDK_KEY_Up: {
+         const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (entry_txt) {
+
+            std::string search_string(entry_txt);
+
+            std::string t = graphics_info_t::command_history.get_previous_command();
+            gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         }
+         break;
+      }
+      case GDK_KEY_Down: {
+         std::string t = graphics_info_t::command_history.get_next_command();
+         gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         break;
+      }
+      default: {
+         handled = FALSE;
+         g_debug("Python window entry: Unhandled key: %s",gdk_keyval_name(keyval));
+      }
+   }
    return gboolean(handled);
 }
 
+
 void
-on_python_scripting_entry_key_controller_key_released(GtkEventControllerKey *controller,
-                                                      guint                  keyval,
-                                                      guint                  keycode,
-                                                      guint                  modifiers,
-                                                      GtkEntry              *entry) {
+on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
+   const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+   g_info("Running python command: '%s'",entry_txt);
+   PyRun_SimpleString(entry_txt);
 
-   graphics_info_t g;
-   // std::cout << "python key released!" << std::endl;
-
-   // 36 is Enter
-   // std::cout << "keycode: " << keycode << std::endl;
-
-   if (keycode == 36) {
-      const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
-      std::cout << "act on this text: " << entry_txt << std::endl;
-      std::string entry_text_as_string(entry_txt); // important to make a copy
-      PyRun_SimpleString(entry_txt);
-
-      // clear the entry
-      gtk_editable_set_text(GTK_EDITABLE(entry), "");
-      g.command_history.add_to_history(entry_text_as_string);
-   }
-
-   if (keycode == 111) {
-
-      // up arrow
-      const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
-      if (entry_txt) {
-
-         std::string search_string(entry_txt);
-
-         // std::string t = g.command_history.get_previous_command_starting_with(search_string);
-
-         std::string t = g.command_history.get_previous_command();
-         gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
-      }
-
-   }
-
-   if (keycode == 116) {
-
-      // downarrow.
-      std::string t = g.command_history.get_next_command();
-      gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
-
-   }
+   // clear the entry
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+   // add a copy of the text to history
+   graphics_info_t::command_history.add_to_history(std::string(entry_txt));
 }
-
-
 
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void
 setup_python_window_entry(GtkWidget *entry) {
-
-   g_debug("setup_python_window_entry(): adding key event controller");
-
    GtkEventController *key_controller = gtk_event_controller_key_new();
 
-   // what about the "activate" signal?
+   // for executing Python commands
+   g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
+
+   // for 'Up' and 'Down' keys, i.e. history lookup
    g_signal_connect(key_controller, "key-pressed",
-                    G_CALLBACK(on_python_scripting_entry_key_controller_key_pressed), entry);
-   g_signal_connect(key_controller, "key-released",
-                    G_CALLBACK(on_python_scripting_entry_key_controller_key_released), entry);
+                    G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
    gtk_widget_add_controller(entry, key_controller);
 
+}
+
+
+gboolean
+on_python_scripting_window_key_pressed(
+      GtkEventControllerKey  *controller,
+      guint                  keyval,
+      guint                  keycode,
+      GdkModifierType        modifiers,
+      GtkWindow              *dialog) {
+   gboolean handled = TRUE;
+   switch (keyval) {
+      case GDK_KEY_Escape: {
+         gtk_window_close(dialog);
+         break;
+      }
+      default: {
+         g_debug("Python window: unhandled key: %s",gdk_keyval_name(keyval));
+         handled = FALSE;
+         break;
+      }
+   }
+   return gboolean(handled);
 }
 
 void
@@ -2029,12 +2030,17 @@ show_python_scripting_window() {
       setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
       GtkWindow* main_window = GTK_WINDOW(graphics_info_t::get_main_window());
       gtk_window_set_transient_for(GTK_WINDOW(scripting_dialog),main_window);
+
+      // for 'Esc' key to close the window
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+      g_signal_connect(key_controller, "key-pressed",
+         G_CALLBACK(on_python_scripting_window_key_pressed), scripting_dialog);
+      gtk_widget_add_controller(scripting_dialog, key_controller);
    } else {
       g_debug("Python window already initialized");
    }
    gtk_widget_show(scripting_dialog);
 }
-
 
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
@@ -2048,23 +2054,6 @@ setup_guile_window_entry(GtkWidget *entry) {
 #endif //  USE_GUILE
 
 }
-
-#ifdef USE_PYTHON
-void python_window_enter_callback(GtkWidget *widget,
-                                  GtkWidget *entry ) {
-
-   const gchar *entry_text = gtk_editable_get_text(GTK_EDITABLE(entry));
-   std::string entry_text_as_string(entry_text); // important to make a copy
-   PyRun_SimpleString(entry_text);
-
-  // clear the entry
-  gtk_editable_set_text(GTK_EDITABLE(entry), "");
-
-  graphics_info_t g;
-  g.command_history.add_to_history(entry_text_as_string);
-
-}
-#endif
 
 
 #ifdef USE_GUILE
