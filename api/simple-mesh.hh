@@ -14,6 +14,7 @@ namespace coot {
       simple_mesh_t() {}
       simple_mesh_t(const std::vector<api::vnc_vertex> &vertices_in,
                     const std::vector<g_triangle> &triangles_in) : vertices(vertices_in), triangles(triangles_in) {}
+      void translate(const glm::vec3 &t);
    };
 }
 

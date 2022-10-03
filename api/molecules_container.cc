@@ -7,7 +7,7 @@
 #include "oct.hh"
 
 bool
-molecules_container_t::is_valid_model_molecule(int imol) {
+molecules_container_t::is_valid_model_molecule(int imol) const {
    bool status = false;
    if (imol >= 0) {
       int ms = molecules.size();
@@ -19,7 +19,7 @@ molecules_container_t::is_valid_model_molecule(int imol) {
 }
 
 bool
-molecules_container_t::is_valid_map_molecule(int imol) {
+molecules_container_t::is_valid_map_molecule(int imol) const {
    bool status = false;
    if (imol >= 0) {
       int ms = molecules.size();
@@ -131,17 +131,86 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
    return r;
 }
 
+#include "vertex.hh" // neeeded?
+
+coot::simple_mesh_t
+molecules_container_t::test_origin_cube() const {
+
+   coot::simple_mesh_t mesh;
+
+   std::vector<coot::api::vnc_vertex> vertices;
+   std::vector<g_triangle> triangles;
+   
+
+   glm::vec4 c(0.5, 0.2, 0.5, 1.0); // colour
+
+   // bottom
+   coot::api::vnc_vertex v0(glm::vec3(0, 0, 0), glm::vec3(0,0,-1), c); vertices.push_back(v0);
+   coot::api::vnc_vertex v1(glm::vec3(1, 0, 0), glm::vec3(0,0,-1), c); vertices.push_back(v1);
+   coot::api::vnc_vertex v2(glm::vec3(0, 1, 0), glm::vec3(0,0,-1), c); vertices.push_back(v2);
+   coot::api::vnc_vertex v3(glm::vec3(1, 1, 0), glm::vec3(0,0,-1), c); vertices.push_back(v3);
+
+   // top
+   coot::api::vnc_vertex v4(glm::vec3(0, 0, 1), glm::vec3(0,0,1), c); vertices.push_back(v4);
+   coot::api::vnc_vertex v5(glm::vec3(1, 0, 1), glm::vec3(0,0,1), c); vertices.push_back(v5);
+   coot::api::vnc_vertex v6(glm::vec3(0, 1, 1), glm::vec3(0,0,1), c); vertices.push_back(v6);
+   coot::api::vnc_vertex v7(glm::vec3(1, 1, 1), glm::vec3(0,0,1), c); vertices.push_back(v7);
+
+   // left
+   coot::api::vnc_vertex v8 (glm::vec3(0, 0, 0), glm::vec3(-1,0,0), c); vertices.push_back(v8);
+   coot::api::vnc_vertex v9 (glm::vec3(0, 1, 0), glm::vec3(-1,0,0), c); vertices.push_back(v9);
+   coot::api::vnc_vertex v10(glm::vec3(0, 0, 1), glm::vec3(-1,0,0), c); vertices.push_back(v10);
+   coot::api::vnc_vertex v11(glm::vec3(0, 1, 1), glm::vec3(-1,0,0), c); vertices.push_back(v11);
+
+   // right
+   coot::api::vnc_vertex v12(glm::vec3(1, 0, 0), glm::vec3(1,0,0), c); vertices.push_back(v12);
+   coot::api::vnc_vertex v13(glm::vec3(1, 1, 0), glm::vec3(1,0,0), c); vertices.push_back(v13);
+   coot::api::vnc_vertex v14(glm::vec3(1, 0, 1), glm::vec3(1,0,0), c); vertices.push_back(v14);
+   coot::api::vnc_vertex v15(glm::vec3(1, 1, 1), glm::vec3(1,0,0), c); vertices.push_back(v15);
+
+   // front
+   coot::api::vnc_vertex v16(glm::vec3(0, 0, 0), glm::vec3(0,-1,0), c); vertices.push_back(v16);
+   coot::api::vnc_vertex v17(glm::vec3(1, 0, 0), glm::vec3(0,-1,0), c); vertices.push_back(v17);
+   coot::api::vnc_vertex v18(glm::vec3(0, 0, 1), glm::vec3(0,-1,0), c); vertices.push_back(v18);
+   coot::api::vnc_vertex v19(glm::vec3(1, 0, 1), glm::vec3(0,-1,0), c); vertices.push_back(v19);
+
+   // back
+   coot::api::vnc_vertex v20(glm::vec3(0, 1, 0), glm::vec3(0,1,0), c); vertices.push_back(v20);
+   coot::api::vnc_vertex v21(glm::vec3(1, 1, 0), glm::vec3(0,1,0), c); vertices.push_back(v21);
+   coot::api::vnc_vertex v22(glm::vec3(0, 1, 1), glm::vec3(0,1,0), c); vertices.push_back(v22);
+   coot::api::vnc_vertex v23(glm::vec3(1, 1, 1), glm::vec3(0,1,0), c); vertices.push_back(v23);
+
+   triangles.push_back(g_triangle( 0, 1, 2));
+   triangles.push_back(g_triangle( 1, 2, 3));
+   triangles.push_back(g_triangle( 4, 5, 6));
+   triangles.push_back(g_triangle( 5, 6, 7));
+   triangles.push_back(g_triangle( 8, 9,10));
+   triangles.push_back(g_triangle( 9,10,11));
+   triangles.push_back(g_triangle(12,13,14));
+   triangles.push_back(g_triangle(13,14,15));
+   triangles.push_back(g_triangle(16,17,18));
+   triangles.push_back(g_triangle(17,18,19));
+   triangles.push_back(g_triangle(20,21,22));
+   triangles.push_back(g_triangle(21,22,23));
+
+   coot::simple_mesh_t m(vertices, triangles);
+   m.translate(glm::vec3(-0.5, -0.5, -0.5));
+   return m;
+}
 
 std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >
-molecules_container_t::ramachandran_validation(int imol) {
+molecules_container_t::ramachandran_validation(int imol) const {
 
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
+   if (is_valid_model_molecule(imol))
+      v = molecules[imol].ramachandran_validation();
 
    return v;
 }
 
+
 coot::simple_mesh_t
-molecules_container_t::ramachandran_validation_markup_mesh(int imol) {
+molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
 
    unsigned int num_subdivisions = 2;  // pass this
    glm::vec3 screen_up_dir(0,0,1); // for now

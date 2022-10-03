@@ -260,6 +260,8 @@ add_library(coot STATIC
             ${coot_src}/api/interfaces.cc
             ${coot_src}/api/coot_molecule.cc
             ${coot_src}/api/molecules_container.cc
+            ${coot_src}/api/rama-plot-phi-psi.cc
+            ${coot_src}/api/simple-mesh.cc
 
 )
 

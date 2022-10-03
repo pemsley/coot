@@ -1,9 +1,10 @@
 
 #include "coot_molecule.hh"
 #include "ideal/pepflip.hh"
+#include "rama-plot-phi-psi.hh"
 
 bool
-coot::molecule_t::is_valid_model_molecule() {
+coot::molecule_t::is_valid_model_molecule() const {
 
    bool status = false;
    if (atom_sel.mol)
@@ -13,7 +14,7 @@ coot::molecule_t::is_valid_model_molecule() {
 }
 
 bool
-coot::molecule_t::is_valid_map_molecule() {
+coot::molecule_t::is_valid_map_molecule() const {
 
    bool status = false;
    if (! xmap.is_null()) {
@@ -49,4 +50,13 @@ int coot::molecule_t::flipPeptide(const coot::residue_spec_t &rs, const std::str
    int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
    return result;
 
+}
+
+
+std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >
+coot::molecule_t::ramachandran_validation() const {
+
+   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
+
+   return v;
 }

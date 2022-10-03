@@ -16,8 +16,8 @@ class molecules_container_t {
 public:
    molecules_container_t() {}
 
-   bool is_valid_model_molecule(int);
-   bool is_valid_map_molecule(int);
+   bool is_valid_model_molecule(int) const;
+   bool is_valid_map_molecule(int) const;
 
    int flipPeptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf);
    int flipPeptide(int imol, const std::string &cid, const std::string &alt_conf);
@@ -25,8 +25,9 @@ public:
    int read_mtz(const std::string &file_name, const std::string &f, const std::string &phi, const std::string &weight,
                 bool use_weight, bool is_a_difference_map);
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map);
-   coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol);
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol);
+   coot::simple_mesh_t test_origin_cube() const;
+   coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol) const;
+   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol) const;
    coot::molecule_t & operator[] (unsigned int imol) {
       // maybe this should throw an exception on out-of-range?
       return molecules[imol];

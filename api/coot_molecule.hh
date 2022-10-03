@@ -5,7 +5,9 @@
 
 #include <clipper/core/xmap.h>
 #include "coot-utils/atom-selection-container.hh"
+#include "coot-utils/coot-rama.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "coords/Cartesian.h"
 
 namespace coot {
 
@@ -39,14 +41,16 @@ namespace coot {
 
       // utils
 
-      bool is_valid_model_molecule();
-      bool is_valid_map_molecule();
+      bool is_valid_model_molecule() const;
+      bool is_valid_map_molecule() const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid);
 
       // functions
 
       int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
       bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
+      std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
+      
 
    };
 }
