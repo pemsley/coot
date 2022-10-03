@@ -5998,12 +5998,30 @@ Do you want to continue?
         </child>
 
         <child>
+          <object class="GtkLabel" id="toolbar_expander">
+            <property name="label" translatable="no"></property>
+            <property name="can-focus">0</property>
+            <property name="hexpand">True</property>
+          </object>
+        </child>
+
+        <child>
           <object class="GtkButton" id="add_toolbar_buttons_button">
             <property name="label" translatable="yes">+</property>
             <property name="can-focus">0</property>
             <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
             <property name="margin-start">6</property>
             <property name="halign">end</property> <!-- doesn't work -->
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkButton" id="python_scripting_button">
+            <property name="label" translatable="yes">Py</property>
+            <property name="can-focus">0</property>
+            <!-- <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/> -->
+            <property name="margin-start"></property>
+            <property name="halign">end</property> 
           </object>
         </child>
 
