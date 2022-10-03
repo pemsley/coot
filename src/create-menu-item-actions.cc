@@ -358,7 +358,6 @@ G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *label = widget_from_builder("accession_code_label");
    //gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
    g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
-   g_info("it's me");
    GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
    gtk_overlay_add_overlay(GTK_OVERLAY(overlay),frame);
    gtk_widget_show(frame);

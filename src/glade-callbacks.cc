@@ -1718,12 +1718,11 @@ on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
 extern "C" G_MODULE_EXPORT
 void
-on_accession_code_get_it_button_clicked    (GtkButton       *button,
-                                                                gpointer         user_data) {
+on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
-   GtkWidget *dialog = widget_from_builder("accession_code_window");
-   handle_get_accession_code(dialog, entry);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   handle_get_accession_code(frame, entry);
 }
 
 

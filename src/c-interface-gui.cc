@@ -2302,7 +2302,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
 /* Accession code, and dispatch guile command to download and display
    the model.  Hmmm.  */
-void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
+void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    auto python_network_get = [] (const std::string text, int n) {
 
@@ -2349,14 +2349,14 @@ void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
       std::string text_s = std::string(text_c);
       std::string text = coot::util::remove_trailing_whitespace(text_s);
       std::cout << "PDB Accession Code: " << text << std::endl;
-      std::cout << "dialog: " << dialog << std::endl;
-      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "mode"));
+      std::cout << "frame: " << frame << std::endl;
+      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "mode"));
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
       python_network_get(text_c, n);
    }
 
    // and hide the accession code window
-   gtk_widget_hide(dialog);
+   gtk_widget_hide(frame);
 }
 
 
