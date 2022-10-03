@@ -2010,6 +2010,30 @@ setup_python_window_entry(GtkWidget *entry) {
 
 }
 
+void
+show_python_scripting_window() {
+   GtkWidget *scripting_dialog = widget_from_builder("python_window");
+   if(scripting_dialog == NULL) {
+      g_error("'python_window' from builder is NULL");
+      return;
+   }
+   // Since 'transient-for' is only set after initialization,
+   // this allows us to easily check if the Python window is already initialized.
+   if (gtk_window_get_transient_for(GTK_WINDOW(scripting_dialog)) == NULL) {
+      g_debug("Initializing Python window...");
+      GtkWidget *python_entry = widget_from_builder("python_window_entry");
+      if(python_entry == NULL) {
+         g_error("'python_window_entry' from builder is NULL");
+         return;
+      }
+      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      GtkWindow* main_window = GTK_WINDOW(graphics_info_t::get_main_window());
+      gtk_window_set_transient_for(GTK_WINDOW(scripting_dialog),main_window);
+   } else {
+      g_debug("Python window already initialized");
+   }
+   gtk_widget_show(scripting_dialog);
+}
 
 
 // We want to evaluate the string when we get a carriage return

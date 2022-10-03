@@ -10597,6 +10597,12 @@ on_add_toolbar_buttons_button
    info_dialog("WARNING:: This doesn't do anything yet (sorry).\nI'm just testing the layout.");
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
+   show_python_scripting_window();
+}
+
 
 extern "C" G_MODULE_EXPORT
 void
