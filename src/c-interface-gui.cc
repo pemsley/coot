@@ -1938,17 +1938,16 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
       case GDK_KEY_Up: {
          const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
          if (entry_txt) {
-
-            std::string search_string(entry_txt);
-
             std::string t = graphics_info_t::command_history.get_previous_command();
             gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+            g_debug("Setting command entry text to '%s'",t.c_str());
          }
          break;
       }
       case GDK_KEY_Down: {
          std::string t = graphics_info_t::command_history.get_next_command();
          gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         g_debug("Setting command entry text to '%s'",t.c_str());
          break;
       }
       default: {
@@ -1966,10 +1965,10 @@ on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
    g_info("Running python command: '%s'",entry_txt);
    PyRun_SimpleString(entry_txt);
 
-   // clear the entry
-   gtk_editable_set_text(GTK_EDITABLE(entry), "");
    // add a copy of the text to history
    graphics_info_t::command_history.add_to_history(std::string(entry_txt));
+   // clear the entry
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
 }
 
 // We want to evaluate the string when we get a carriage return
@@ -1978,12 +1977,13 @@ void
 setup_python_window_entry(GtkWidget *entry) {
    GtkEventController *key_controller = gtk_event_controller_key_new();
 
-   // for executing Python commands
-   g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
-
    // for 'Up' and 'Down' keys, i.e. history lookup
    g_signal_connect(key_controller, "key-pressed",
                     G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
+
+   // for executing Python commands
+   g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
+
    gtk_widget_add_controller(entry, key_controller);
 
 }
