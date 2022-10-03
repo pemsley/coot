@@ -8886,6 +8886,7 @@ just the cell and symmetry)
   <object class="GtkWindow" id="python_window">
     <property name="title" translatable="yes">Coot: Python Scripting</property>
     <property name="default-width">500</property>
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox41">
         <property name="orientation">vertical</property>
