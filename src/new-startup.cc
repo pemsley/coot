@@ -460,10 +460,11 @@ install_icons_into_theme(GtkWidget *w) {
 
 void
 on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventControllerKey *controller,
-                                      guint                  keyval,
-                                      guint                  keycode,
-                                      guint                  modifiers,
-                                      GtkEntry              *entry) {
+                                                                    guint                  keyval,
+                                                                    guint                  keycode,
+                                                                    guint                  modifiers,
+                                                                    GtkEntry              *entry) {
+
    std::cout << "in on_go_to_residue_keyboarding_mode_entry_key_controller_key_released() "
              << keycode << std::endl;
    GtkWidget *window = widget_from_builder("keyboard_go_to_residue_window");

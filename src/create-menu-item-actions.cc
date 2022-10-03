@@ -261,16 +261,45 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    curlew();
 }
 
+
+// this function should live in setup_gui_components.cc
+//
+void handle_get_monomer_code(GtkWidget *widget); // use the header?
+//
+void on_get_monomer_entry_key_controller_key_released(G_GNUC_UNUSED GtkEventControllerKey *controller,
+                                                      G_GNUC_UNUSED guint                  keyval,
+                                                      guint                                keycode,
+                                                      G_GNUC_UNUSED guint                  modifiers,
+                                                      GtkEntry                            *entry) {
+
+   graphics_info_t g;
+   // std::cout << "python key released!" << std::endl;
+
+   // 36 is Enter, 9 is Esc
+   std::cout << "keycode: " << keycode << std::endl;
+
+   if (keycode == 36) {
+      handle_get_monomer_code(GTK_WIDGET(entry)); // should be just a GTK_ENTRY if you feel
+                                                  // like cleaning it up one day
+   }
+
+   if (keycode == 9) {
+      GtkWidget *widget = widget_from_builder("get_monomer_vbox");
+      gtk_widget_hide(widget);
+   }
+}
+
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
+
 
    GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
    if (! overlay) {
       std::cout << "get_monomer_action(): No overlay" << std::endl;
       return;
    }
-   GtkWidget *vbox    = widget_from_builder("get_monomer_vbox");
+   GtkWidget *vbox           = widget_from_builder("get_monomer_vbox");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
       gtk_widget_set_visible(no_entry_frame, FALSE); // initially
@@ -281,6 +310,14 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_valign(vbox, GTK_ALIGN_START);
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
+
+   {  // this block should live in setup_gui_components.cc - don't add another controller here!
+
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_get_monomer_entry_key_controller_key_released), entry);
+      gtk_widget_add_controller(entry, key_controller);
+   }
+
    gtk_widget_set_can_focus(entry, TRUE);
    gtk_widget_set_focusable(entry, TRUE);
    gtk_widget_grab_focus(entry);
