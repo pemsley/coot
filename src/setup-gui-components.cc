@@ -3,8 +3,7 @@
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 
-gboolean
-generic_hide_on_escape_controller_cb(
+gboolean generic_hide_on_escape_controller_cb(
       GtkEventControllerKey  *controller,
       guint                  keyval,
       guint                  keycode,
