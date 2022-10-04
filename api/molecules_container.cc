@@ -263,3 +263,24 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
    }
    return mesh;
 }
+
+
+mmdb::Atom *
+molecules_container_t::get_atom(int imol, const coot::atom_spec_t &atom_spec) const {
+
+   mmdb::Atom *r = nullptr;
+   if (is_valid_model_molecule(imol)) {
+      return molecules[imol].get_atom(atom_spec);
+   }
+   return r;
+}
+
+mmdb::Residue *
+molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue_spec) const {
+
+   mmdb::Residue *r = nullptr;
+   if (is_valid_model_molecule(imol)) {
+      return molecules[imol].get_residue(residue_spec);
+   }
+   return r;
+}

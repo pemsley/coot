@@ -1,4 +1,5 @@
 
+#include "coot-utils/coot-coord-utils.hh"
 #include "coot_molecule.hh"
 #include "ideal/pepflip.hh"
 #include "rama-plot-phi-psi.hh"
@@ -59,4 +60,23 @@ coot::molecule_t::ramachandran_validation() const {
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
 
    return v;
+}
+
+
+// returns either the specified atom or null if not found
+mmdb::Atom *
+coot::molecule_t::get_atom(const coot::atom_spec_t &atom_spec) const {
+
+   mmdb::Atom *at = coot::util::get_atom(atom_spec, atom_sel.mol);
+   return at;
+}
+
+
+// returns either the specified residue or null if not found
+mmdb::Residue *
+coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
+
+   mmdb::Residue *r = coot::util::get_residue(residue_spec, atom_sel.mol);
+   return r;
+
 }

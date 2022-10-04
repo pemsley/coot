@@ -52,6 +52,10 @@ public:
          }
       }
    }
+   // returns either the specified atom or null if not found
+   mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
+   // returns either the specified residue or null if not found
+   mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &residue_spec) const;
 
 };
 
