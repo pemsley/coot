@@ -355,6 +355,8 @@ G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *frame = widget_from_builder("accession_code_frame");
    // this is probably equivalent
    //gtk_widget_set_visible(frame,TRUE);
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   gtk_widget_grab_focus(entry);
    gtk_widget_show(frame);
 }
 
