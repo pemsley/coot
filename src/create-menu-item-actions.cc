@@ -264,28 +264,15 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
-
-   GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
-   if (! overlay) {
-      std::cout << "get_monomer_action(): No overlay" << std::endl;
-      return;
-   }
-   GtkWidget *vbox    = widget_from_builder("get_monomer_vbox");
+   GtkWidget *frame    = widget_from_builder("get_monomer_frame");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
-      gtk_widget_set_visible(no_entry_frame, FALSE); // initially
-
-   gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
-
-   gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
-   gtk_widget_set_valign(vbox, GTK_ALIGN_START);
+      gtk_widget_set_visible(no_entry_frame, FALSE); // each time "get_monomer" is shown
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
-   gtk_widget_set_can_focus(entry, TRUE);
-   gtk_widget_set_focusable(entry, TRUE);
    gtk_widget_grab_focus(entry);
 
-   gtk_widget_show(vbox);
+   gtk_widget_show(frame);
 }
 
 

@@ -42,9 +42,9 @@ void setup_fetch_pdb_using_code() {
 }
 
 void setup_get_monomer() {
-   GtkWidget* vbox = widget_from_builder("get_monomer_vbox");
+   GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
-   setup_generic_hide_on_escape_controller(entry,vbox);
+   setup_generic_hide_on_escape_controller(entry,frame);
 }
 
 void setup_gui_components() {

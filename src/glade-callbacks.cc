@@ -5018,8 +5018,8 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
    if (entry) {
       handle_get_monomer_code(entry);
    }
-   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(vbox);
+   GtkWidget *frame = widget_from_builder("get_monomer_frame");
+   gtk_widget_hide(frame);
 }
 
 extern "C" G_MODULE_EXPORT
