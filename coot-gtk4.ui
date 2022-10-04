@@ -5987,6 +5987,8 @@ Do you want to continue?
               <object class="GtkFrame" id="accession_code_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkBox" id="vbox40">
                     <property name="orientation">vertical</property>

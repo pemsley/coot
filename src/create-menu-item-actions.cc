@@ -353,6 +353,8 @@ fetch_pdb_using_code_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 G_GNUC_UNUSED GVariant *parameter,
 G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *frame = widget_from_builder("accession_code_frame");
+   // this is probably equivalent
+   //gtk_widget_set_visible(frame,TRUE);
    gtk_widget_show(frame);
 }
 
