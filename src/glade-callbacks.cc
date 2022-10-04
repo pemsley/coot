@@ -5022,13 +5022,16 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
    gtk_widget_hide(vbox);
 }
 
-
 extern "C" G_MODULE_EXPORT
-void on_get_monomer_cancel_button_clicked(GtkButton       *button,
+void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
-
-   GtkWidget *widget = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(widget);
+   GtkWidget* frame_widget = GTK_WIDGET(user_data);
+   if(frame_widget) {
+      gtk_widget_hide(frame_widget);
+   } else {
+      g_error("'user_data' is NULL. Cannot hide overlay frame.");
+   }
+   
 }
 
 

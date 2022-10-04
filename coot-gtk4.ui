@@ -5999,17 +5999,24 @@ Do you want to continue?
                       </object>
                     </child>
                     <child>
+                      <object class="GtkEntry" id="accession_code_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkBox">
-                        <child>
-                          <object class="GtkEntry" id="accession_code_entry">
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                          </object>
-                        </child>
+                        <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkButton" id="accession_code_get_it_button">
                             <property name="label" translatable="yes">Get Structure</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_accession_code_get_it_button_clicked" swapped="no"/>
+                          </object>
+                          <object class="GtkButton" id="accession_code_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
                             <property name="can-focus">1</property>
                             <property name="receives-default">1</property>
                             <signal name="clicked" handler="on_accession_code_get_it_button_clicked" swapped="no"/>
@@ -6706,69 +6713,6 @@ Do you want to continue?
     </child>
   </object>
 
-  <object class="GtkDialog" id="old_libcheck_monomer_dialog">
-    <property name="title" translatable="yes">Coot: Get monomer molecule</property>
-    <child>
-      <object class="GtkBox" id="dialog-vbox43">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox81">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="libcheck_monomer_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_get_monomer_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="libcheck_monomer_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_get_monomer_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="vbox105">
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel">
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox80">
-                <child>
-                  <object class="GtkLabel" id="label151">
-                    <property name="label" translatable="yes">  3 Letter Code: </property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="libcheck_monomer_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label152">
-                <property name="label" translatable="yes">  Note: Code is Case Sensitive  </property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-
   <!-- Made in Cambalache -->
       <object class="GtkBox" id="get_monomer_vbox">
         <property name="orientation">vertical</property>
@@ -6806,7 +6750,7 @@ Do you want to continue?
             <child>
               <object class="GtkButton" id="get_monomer_cancel_button">
                 <property name="label">Cancel</property>
-                <signal name="clicked" handler="on_get_monomer_cancel_button_clicked"/>
+                <signal name="clicked" handler="on_generic_overlay_frame_cancel_button_clicked" swapped="no" object="get_monomer_vbox"/>
               </object>
             </child>
             <child>
