@@ -153,6 +153,10 @@ HUDMesh::setup_vertices_and_triangles_for_tooltip_background() {
 void
 HUDMesh::setup_buffers() {
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: HUDMesh setup_buffers() --- start ---\n";
+
    if (triangles.empty()) return;
    if (vertices.empty()) return;
 
@@ -203,20 +207,20 @@ HUDMesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
       err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
       err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
    }
 
    // std::cout << "HUDMesh::setup_buffers() indices " << n_bytes << " bytes" << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
-   GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_simple_triangles()\n";
 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);

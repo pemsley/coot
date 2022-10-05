@@ -2947,6 +2947,10 @@ graphics_info_t::setup_lights() {
 void
 graphics_info_t::setup_hud_geometry_bars() {
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() --start-- error " << err << std::endl;
+
    if (! glareas[0]) return;
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
@@ -2956,11 +2960,27 @@ graphics_info_t::setup_hud_geometry_bars() {
    int h = allocation.height;
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   // shader_for_hud_geometry_bars.Use(); no need.
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() A error " << err << std::endl;
+
+   // gtk_gl_area_attach_buffers(gl_area); // needed? I think not (because we are in the base framebuffer when
+                                           // this function is called) and it causes an glError to be set.
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() B error " << err << std::endl;
 
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() C error " << err << std::endl;
+
    mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() C error " << err << std::endl;
 
    // If not found in this directory, then try default directory.
    texture_for_hud_geometry_labels_map["Rama"].init("hud-label-rama-small.png");
@@ -2992,7 +3012,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
-   std::cout << "---------- done setup_hud_geometry_bars" << std::endl;
+   std::cout << "---------- done setup_hud_geometry_bars()" << std::endl;
 
 }
 
@@ -3006,31 +3026,30 @@ graphics_info_t::setup_hud_buttons() {
 
    // std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
    //          << " glareas[0] " << glareas[0] << std::endl;
-   attach_buffers();
+
+   // attach_buffers(__FUNCTION__); // 20221005-PE not need, we are in the right framebuffer already.
+                                    // And it causes a gl error to be set if it is called
 
    GError* error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() current GError on glarea " << error->message << std::endl;
-   // else
-   //    std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() post attach_buffers() error " << err << std::endl;
    error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() 2 current GError on glarea " << error->message << std::endl;
-   // else
-   //    std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
 
-   // std::cout << "in setup_hud_buttons() 1 " << std::endl;
-   // shader_for_hud_buttons.Use(); // 20220605-PE I don't need to do this to setup the mesh.
-   // std::cout << "in setup_hud_buttons() 2 " << std::endl;
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
-   // std::cout << "in setup_hud_buttons() 3 " << std::endl;
+
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
-   // maybe mesh_for_hud_buttons.close() ?
-   // std::cout << "in setup_hud_buttons() done " << std::endl;
+
+   err = glGetError();
+   if (err)
+      std::cout << "debug:: in setup_hud_buttons() finish " << std::endl;
+
+   std::cout << "---------- done setup_hud_buttons()" << std::endl;
 }
 
 void
@@ -4860,11 +4879,12 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
                       << std::endl;
 
    const unsigned int max_happy_faces = 200; // surely enough?
-   
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() "
-                      << "Post attach buffers err is " << err << std::endl;
+
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   // gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   // err = glGetError();
+   // if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() "
+   //                    << "Post attach buffers err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
    // texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
@@ -4875,6 +4895,9 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
    tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
 
+   err = glGetError();
+   if (err) std::cout << "GL ERROR::- setup_draw_for_happy_face_residue_markers_init() "
+                      << "--- end --- err is " << err << std::endl;
 }
 
 void
@@ -4882,15 +4905,19 @@ graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
 
    // run this once - called from realize()
 
-   attach_buffers();
-   GLenum err = glGetError();
-   if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
-                      << "--- start --- err is " << err << std::endl;
+
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   //             and setup_draw_for_happy_face_residue_markers_init()
+   // attach_buffers();
+   // GLenum err = glGetError();
+   // if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
+   //                    << "--- start --- err is " << err << std::endl;
 
    const unsigned int max_anchored_atoms = 200;
 
-   attach_buffers();
-   err = glGetError();
+   // attach_buffers();
+
+   GLenum err = glGetError();
    if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
                       << "Post attach_buffers() err is " << err << std::endl;
 
@@ -5140,10 +5167,14 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 void
 graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 
-   attach_buffers();
-   GLenum err = glGetError();
-   if (err)
-      std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   //             and setup_draw_for_happy_face_residue_markers_init()
+   //             We are already in the correct framebuffer.
+   //
+   // attach_buffers();
+   // GLenum err = glGetError();
+   // if (err)
+   //    std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
 
    texture_for_bad_nbc_atom_pair_markers.init("angry-diego.png");
    float ts = 0.7; // relative texture size

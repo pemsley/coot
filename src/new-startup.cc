@@ -147,7 +147,7 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   std::cout << "DEBUG: -----------------@@@ new_startup_on_glarea_resize() "
+   std::cout << "DEBUG: --- new_startup_on_glarea_resize() "
              <<  width << " " << height << std::endl;
    graphics_info_t g;
    // for the GL widget, not the window.
@@ -363,7 +363,7 @@ on_glarea_motion_leave(GtkEventControllerMotion *controller,
 
 void setup_gestures(GtkWidget *glarea) {
 
-      std::cout << "================= setting up GTK4 style event controlllers ====================" << std::endl;
+      std::cout << "========== setting up GTK4 style event controlllers ==============" << std::endl;
 
       GtkEventController *key_controller = gtk_event_controller_key_new();
 
