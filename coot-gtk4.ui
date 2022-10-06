@@ -318,7 +318,7 @@
         <item>
           <attribute name="label">Map Skeleton...</attribute>
         </item>
-        <submenu>
+        <submenu id="modules-menu">
           <attribute name="label">Modules...</attribute>
             <item>
               <attribute name="label">CCP4</attribute>
@@ -5981,10 +5981,11 @@ Do you want to continue?
               </child>
 
               <child>
-                <object class="GtkButton" id="add_toolbar_buttons_button">
+                <object class="GtkMenuButton" id="add_module_menubutton">
                   <property name="label" translatable="yes">+</property>
+                  <property name="tooltip-text">Load an extension module</property>
                   <property name="can-focus">0</property>
-                  <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+                  <!-- <signal name="clicked" handler="on_add_module_menubutton_clicked" swapped="no"/> -->
                   <property name="margin-start">6</property>
                   <property name="halign">end</property>
                 </object>

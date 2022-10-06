@@ -4,6 +4,12 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 
+void setup_menubuttons() {
+   GtkWidget* add_module_menubutton = widget_from_builder("add_module_menubutton");
+   GMenuModel *modules_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "modules-menu"))
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
+}
+
 gboolean generic_hide_on_escape_controller_cb(
       GtkEventControllerKey  *controller,
       guint                  keyval,
@@ -53,6 +59,7 @@ void setup_get_monomer() {
 
 void setup_gui_components() {
    g_info("Initializing UI components...");
+   setup_menubuttons();
    setup_get_monomer();
    setup_accession_code_frame();
    g_info("Done initializing UI components.");
