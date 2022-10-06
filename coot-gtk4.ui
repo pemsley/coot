@@ -49,7 +49,8 @@
         </item>
         <item>
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
-          <attribute name="action">app.fetch_pdb_and_map_using_pdb_redo_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">pdb-redo</attribute>
         </item>
         <item>
          <attribute name="label">Fetch Corresponding AlphaFold Model &amp; Superpose</attribute>

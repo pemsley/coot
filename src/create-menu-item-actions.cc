@@ -346,6 +346,8 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
          return COOT_ACCESSION_CODE_WINDOW_OCA;
       } else if(mode_name == "eds") {
          return COOT_ACCESSION_CODE_WINDOW_EDS;
+      } else if (mode_name == "pdb-redo"){
+         return COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
       } else {
          g_error("Unrecognized mode name for the accession code frame: %s",mode_name.c_str());
          // fallback
@@ -360,6 +362,7 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
    switch(mode_num) {
       case COOT_ACCESSION_CODE_WINDOW_EDS:
       case COOT_ACCESSION_CODE_WINDOW_OCA:
+      case COOT_ACCESSION_CODE_WINDOW_PDB_REDO:
       {
          gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
          break;
@@ -378,21 +381,6 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
    //gtk_widget_set_visible(frame,TRUE);
    gtk_widget_show(frame);
 }
-
-void
-fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
-
-   int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   set_transient_for_main_window(window);
-   gtk_widget_show(window);
-}
-
 
 void
 fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2054,7 +2042,6 @@ create_actions(GtkApplication *application) {
 
    add_action(             "search_monomer_library_action",           search_monomer_library_action);
    add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
-   add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
    add_action( "fetch_alphafold_model_for_uniprot_id_action", fetch_alphafold_model_for_uniprot_id_action);
