@@ -58,7 +58,8 @@
         </item>
          <item>
          <attribute name="label">Fetch AlphaFold Model using Uniprot ID...</attribute>
-          <attribute name="action">app.fetch_alphafold_model_for_uniprot_id_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">uniprot-id</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDBe Ligand Description</attribute>

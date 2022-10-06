@@ -348,6 +348,8 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
          return COOT_ACCESSION_CODE_WINDOW_EDS;
       } else if (mode_name == "pdb-redo"){
          return COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+      } else if(mode_name == "uniprot-id") {
+         return COOT_UNIPROT_ID;
       } else {
          g_error("Unrecognized mode name for the accession code frame: %s",mode_name.c_str());
          // fallback
@@ -366,6 +368,9 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
       {
          gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
          break;
+      }
+      case COOT_UNIPROT_ID:{
+         gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
       }
       default: {
          g_error("Unrecognized mode number for the accession code frame: %i",mode_num);
@@ -392,19 +397,6 @@ fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_
       int imol = pp.second.first;
       fetch_and_superpose_alphafold_models(imol);
    }
-}
-
-void
-fetch_alphafold_model_for_uniprot_id_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                            G_GNUC_UNUSED GVariant *parameter,
-                                            G_GNUC_UNUSED gpointer user_data) {
-   graphics_info_t g;
-   int n = COOT_UNIPROT_ID;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
-   gtk_window_set_title(GTK_WINDOW(window), "Fetch AlphaFold Model");
-
 }
 
 void
@@ -2044,7 +2036,6 @@ create_actions(GtkApplication *application) {
    add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
-   add_action( "fetch_alphafold_model_for_uniprot_id_action", fetch_alphafold_model_for_uniprot_id_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
