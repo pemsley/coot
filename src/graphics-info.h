@@ -2568,7 +2568,7 @@ public:
    static Texture texture_for_hud_refinement_dialog_arrow_highlighted;
    static bool hud_refinement_dialog_arrow_is_moused_over;
 
-   void show_refinement_and_regularization_parameters_dialog(); // 20211102-PE it's here because the dialog can be
+   static void show_refinement_and_regularization_parameters_frame(); // 20211102-PE it's here because the dialog can be
                                                                 // shown by pressing the green arrow during refinement.
 
    static float get_x_base_for_hud_geometry_bars();

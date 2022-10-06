@@ -5952,231 +5952,512 @@ Do you want to continue?
     <property name="orientation">vertical</property>
 
     <child>
-      <object class="GtkBox" id="main_window_toolbar_hbox">
+        <object class="GtkBox" id="main_window_toolbar_hbox_outer">
         <property name="orientation">horizontal</property>
-        <style>
-          <class name="toolbar"/>
-        </style>
-        <child>
-          <object class="GtkButton" id="toolbar_reset_view_button">
-            <property name="label" translatable="yes">Reset View</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">reset-view</property>
-            <signal name="clicked" handler="reset_view" swapped="no"/>
-            <!-- <child> -->
-            <!--   <object class="GtkImage"> -->
-            <!--     <property name="icon-name">"reset-view.png"</property> -->
-            <!--   </object> -->
-            <!-- </child> -->
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="toolbar_display_manager_button">
-            <property name="label" translatable="yes">Display Manager</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">display-manager</property>
-            <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
-          </object>
-        </child>
+          <child>
+            <object class="GtkBox" id="main_window_toolbar_hbox">
+              <property name="orientation">horizontal</property>
+              <style>
+                <class name="toolbar"/>
+              </style>
+              <child>
+                <object class="GtkButton" id="toolbar_reset_view_button">
+                  <property name="label" translatable="yes">Reset View</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">reset-view</property>
+                  <signal name="clicked" handler="reset_view" swapped="no"/>
+                  <!-- <child> -->
+                  <!--   <object class="GtkImage"> -->
+                  <!--     <property name="icon-name">"reset-view.png"</property> -->
+                  <!--   </object> -->
+                  <!-- </child> -->
+                </object>
+              </child>
+              <child>
+                <object class="GtkButton" id="toolbar_display_manager_button">
+                  <property name="label" translatable="yes">Display Manager</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">display-manager</property>
+                  <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="go_to_atom_button">
-            <property name="label" translatable="yes">Go to Atom...</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">go-to-atom</property>
-            <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
-          </object>
-        </child>
+              <child>
+                <object class="GtkButton" id="go_to_atom_button">
+                  <property name="label" translatable="yes">Go to Atom...</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">go-to-atom</property>
+                  <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="go_to_ligand_button">
-            <property name="label" translatable="yes">Go to (Next) Ligand</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">go-to-ligand</property>
-            <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
-          </object>
-        </child>
+              <child>
+                <object class="GtkButton" id="go_to_ligand_button">
+                  <property name="label" translatable="yes">Go to (Next) Ligand</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">go-to-ligand</property>
+                  <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="add_toolbar_buttons_button">
-            <property name="label" translatable="yes">+</property>
-            <property name="can-focus">0</property>
-            <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
-            <property name="margin-start">6</property>
-            <property name="halign">end</property> <!-- doesn't work -->
-          </object>
-        </child>
+            </object>
+          </child>
+          <child>
+            <object class="GtkBox" id="main_window_toolbar_hbox_end">
+              <property name="orientation">horizontal</property>
+              <style>
+                <class name="toolbar"/>
+              </style>
+              <child>
+                <object class="GtkLabel" id="toolbar_expander">
+                  <property name="label" translatable="no"></property>
+                  <property name="can-focus">0</property>
+                  <property name="hexpand">True</property>
+                </object>
+              </child>
 
-      </object>
+              <child>
+                <object class="GtkButton" id="add_toolbar_buttons_button">
+                  <property name="label" translatable="yes">+</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+                  <property name="margin-start">6</property>
+                  <property name="halign">end</property>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkButton" id="python_scripting_button">
+                  <property name="label" translatable="yes">Py</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
+                  <property name="margin-start"></property>
+                  <property name="halign">end</property> 
+                </object>
+              </child>
+
+            </object>
+          </child>
+        </object>
     </child>
 
     <child>
-      <object class="GtkOverlay" id="main_window_graphics_overlay">
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-
+      <object class="GtkBox" id="main_window_hbox">
         <child>
-          <object class="GtkBox" id="main_window_hbox">
-
+          <object class="GtkOverlay" id="main_window_graphics_overlay">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
             <!-- container for the GTKGLArea -->
             <child>
               <object class="GtkBox" id="main_window_graphics_hbox">
                 <property name="orientation">horizontal</property>
+                <!-- This is where the GTKGLArea is placed at runtime -->
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="refinement_and_regularization_parameters_frame">
+                <!-- <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property> -->
+                <property name="halign">end</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <child>
+                  <object class="GtkBox" id="refinement_and_regularization_vbox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkFrame">
+                        <child>
+                          <object class="GtkBox">
+                            <property name="margin-start">8</property>
+                            <property name="margin-end">8</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkCheckButton" id="refine_params_use_torsions_checkbutton">
+                                <property name="label" translatable="yes">Use Torsion Restraints</property>
+                                <property name="name">refine_params_use_torsions_checkbutton</property>
+                                <property name="can-focus">1</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="refine_params_use_planar_peptides_checkbutton">
+                                <property name="label" translatable="yes">Use Planar Peptide Restraints</property>
+                                <property name="can-focus">1</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="refine_params_use_trans_peptide_restraints_checkbutton">
+                                <property name="label" translatable="yes">Use Trans-peptide Restraints</property>
+                                <property name="can-focus">1</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
+                                <property name="label" translatable="yes">Use Ramachandran Restraints</property>
+                                <property name="can-focus">1</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Restraints </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <child>
+                          <object class="GtkBox">
+                            <property name="margin-start">8</property>
+                            <property name="margin-end">8</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkCheckButton" id="sec_str_rest_no_rest_radiobutton">
+                                <property name="label" translatable="yes">No Secondary Structure Restraints</property>
+                                <property name="can-focus">1</property>
+                                <property name="active">1</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="sec_str_rest_helix_rest_radiobutton">
+                                <property name="label" translatable="yes">Alpha Helix Restraints</property>
+                                <property name="can-focus">1</property>
+                                <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="sec_str_rest_strand_rest_radiobutton">
+                                <property name="label" translatable="yes">Beta Strand Restraints</property>
+                                <property name="can-focus">1</property>
+                                <property name="group">sec_str_rest_no_rest_radiobutton</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Secondary Structure Restraints </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <child>
+                          <object class="GtkGrid">
+                            <property name="margin-bottom">2</property>
+                            <property name="column-spacing">4</property>
+                            <property name="row-spacing">4</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Overall Weight</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">0</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Geman-McClure alpha</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">1</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Lennard-Jones epsilon</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">2</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Rama Restraints Weight </property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">3</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Torsion Weight</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">4</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="refine_params_overall_weight_combobox">
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="row">0</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="refine_params_geman_mcclure_alpha_combobox">
+                                <property name="active">2</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="row">1</property>
+                                </layout>
+                                <items>
+                                  <item translatable="yes">0.001</item>
+                                  <item translatable="yes">0.003</item>
+                                  <item translatable="yes">0.01</item>
+                                  <item translatable="yes">0.03</item>
+                                  <item translatable="yes">0.1</item>
+                                  <item translatable="yes">0.3</item>
+                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">3.0</item>
+                                  <item translatable="yes">1.0</item>
+                                </items>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="refine_params_lennard_jones_epsilon_combobox">
+                                <property name="active">3</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="row">2</property>
+                                </layout>
+                                <items>
+                                  <item translatable="yes">0.1</item>
+                                  <item translatable="yes">0.2</item>
+                                  <item translatable="yes">0.5</item>
+                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">2.0</item>
+                                  <item translatable="yes">5.0</item>
+                                  <item translatable="yes">10.0</item>
+                                </items>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="refine_params_rama_restraints_combobox">
+                                <property name="active">3</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="row">3</property>
+                                </layout>
+                                <items>
+                                  <item translatable="yes">0.1</item>
+                                  <item translatable="yes">0.2</item>
+                                  <item translatable="yes">0.5</item>
+                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">2.0</item>
+                                  <item translatable="yes">5.0</item>
+                                  <item translatable="yes">10.0</item>
+                                  <item translatable="yes">20.0</item>
+                                  <item translatable="yes">50.0</item>
+                                  <item translatable="yes">100.0</item>
+                                </items>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="refine_params_torsion_weight_combobox">
+                                <property name="active">3</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="row">4</property>
+                                </layout>
+                                <items>
+                                  <item translatable="yes">0.1</item>
+                                  <item translatable="yes">0.2</item>
+                                  <item translatable="yes">0.5</item>
+                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">2.0</item>
+                                  <item translatable="yes">5.0</item>
+                                  <item translatable="yes">10.0</item>
+                                  <item translatable="yes">20.0</item>
+                                  <item translatable="yes">50.0</item>
+                                  <item translatable="yes">100.0</item>
+                                </items>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="halign">GTK_ALIGN_END</property>
+                        <child>
+                          <object class="GtkButton" id="refinement_and_regularization_vbox_close_button">
+                            <property name="label" translatable="yes"> Close </property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_refinement_and_regularization_vbox_close_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="main_window_vbox_inner">
+            <property name="orientation">vertical</property>
+            <property name="spacing">2</property>
+            <!-- <style> -->
+            <!--   <class name="toolbar"/> -->
+            <!-- </style> -->
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_refine_regularize_button">
+                <property name="label" translatable="yes">R/RC</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_map_button">
+                <property name="label" translatable="yes">Map...</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="select_residue_range_toggle_button">
+                <property name="label" translatable="yes">Range</property>
+                <property name="can-focus">0</property>
+                <signal name="toggled" handler="on_model_toolbar_range_define_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
 
             <child>
-              <object class="GtkBox" id="main_window_vbox_inner">
-                <property name="orientation">vertical</property>
-                <property name="spacing">2</property>
-                <!-- <style> -->
-                <!--   <class name="toolbar"/> -->
-                <!-- </style> -->
-                <child>
-                  <object class="GtkButton" id="vertical_toolbar_refine_regularize_button">
-                    <property name="label" translatable="yes">R/RC</property>
-                    <property name="can-focus">0</property>
-                    <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="vertical_toolbar_map_button">
-                    <property name="label" translatable="yes">Map...</property>
-                    <property name="can-focus">0</property>
-                    <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="select_residue_range_toggle_button">
-                    <property name="label" translatable="yes">Range</property>
-                    <property name="can-focus">0</property>
-                    <signal name="toggled" handler="on_model_toolbar_range_define_togglebutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkMenuButton" id="refine_menubutton">
-                    <property name="label" translatable="yes">Refine</property>
-                    <property name="can-focus">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="fixed_atoms_menubutton">
-                    <property name="label" translatable="yes">Fixed Atoms</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">anchor</property>
-                    <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
-                    <property name="label" translatable="yes">Rigid Body Fit</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">rigid-body</property>
-                    <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="rotate_translate_menubutton">
-                    <property name="label" translatable="yes">Rotate/Translate</property>
-                    <property name="icon-name">rtz</property>
-                    <property name="can-focus">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="vertical_toolbar_testbutton_4">
-                    <property name="label" translatable="yes">AutoFit Rotamer</property>
-                    <property name="icon-name">auto-fit-rotamer</property>
-                    <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="vertical_toolbar_testbutton_5">
-                    <property name="label" translatable="yes">Rotamers</property>
-                    <property name="icon-name">rotamers</property>
-                    <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
-                    <property name="label" translatable="yes">Edit Chi Angles</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">edit-chi</property>
-		    <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="flip_peptide_button">
-                    <property name="label" translatable="yes">Flip Peptide</property>
-                    <property name="icon-name">flip-peptide</property>
-                    <property name="can-focus">0</property>
-		    <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="side_chain_180_flip_button">
-                    <property name="label" translatable="yes">Sidechain 180° Flip</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">side-chain-180</property>
-		    <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="mutate_and_autofit_menubutton">
-                    <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">mutate</property>
-		    <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="simple_mutate_menubutton">
-                    <property name="label" translatable="yes">Simple Mutate</property>
-                    <property name="icon-name">mutate-auto-fit</property>
-                    <property name="can-focus">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
-                    <property name="label" translatable="yes">Add Terminal Residue</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">add-peptide-1</property>
-		    <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="delete_menubutton">
-                    <property name="label" translatable="yes">Delete...</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">gtk-delete</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="undo_button">
-                    <property name="label" translatable="yes">Undo</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">undo</property>
-		    <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="redo_button">
-                    <property name="label" translatable="yes">Redo</property>
-                    <property name="can-focus">0</property>
-                    <property name="icon-name">redo</property>
-		    <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
-                  </object>
-                </child>
+              <object class="GtkMenuButton" id="refine_menubutton">
+                <property name="label" translatable="yes">Refine</property>
+                <property name="can-focus">0</property>
               </object>
             </child>
-
+            <child>
+              <object class="GtkMenuButton" id="fixed_atoms_menubutton">
+                <property name="label" translatable="yes">Fixed Atoms</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">anchor</property>
+                <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
+                <property name="label" translatable="yes">Rigid Body Fit</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">rigid-body</property>
+                <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="rotate_translate_menubutton">
+                <property name="label" translatable="yes">Rotate/Translate</property>
+                <property name="icon-name">rtz</property>
+                <property name="can-focus">0</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_4">
+                <property name="label" translatable="yes">AutoFit Rotamer</property>
+                <property name="icon-name">auto-fit-rotamer</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_5">
+                <property name="label" translatable="yes">Rotamers</property>
+                <property name="icon-name">rotamers</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_rotamers_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
+                <property name="label" translatable="yes">Edit Chi Angles</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">edit-chi</property>
+                <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="flip_peptide_button">
+                <property name="label" translatable="yes">Flip Peptide</property>
+                <property name="icon-name">flip-peptide</property>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_flip_peptide_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="side_chain_180_flip_button">
+                <property name="label" translatable="yes">Sidechain 180° Flip</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">side-chain-180</property>
+                <signal name="clicked" handler="on_model_toolbar_side_chain_180_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="mutate_and_autofit_menubutton">
+                <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">mutate</property>
+                <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="simple_mutate_menubutton">
+                <property name="label" translatable="yes">Simple Mutate</property>
+                <property name="icon-name">mutate-auto-fit</property>
+                <property name="can-focus">0</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
+                <property name="label" translatable="yes">Add Terminal Residue</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">add-peptide-1</property>
+                <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="delete_menubutton">
+                <property name="label" translatable="yes">Delete...</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">gtk-delete</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="undo_button">
+                <property name="label" translatable="yes">Undo</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">undo</property>
+                <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="redo_button">
+                <property name="label" translatable="yes">Redo</property>
+                <property name="can-focus">0</property>
+                <property name="icon-name">redo</property>
+                <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
+              </object>
+            </child>
           </object>
         </child>
       </object>
     </child>
-
     <child>
       <object class="GtkStatusbar" id="main_window_statusbar">
         <signal name="text-pushed" handler="on_main_window_statusbar_text_pushed" swapped="no"/>
@@ -8636,6 +8917,7 @@ just the cell and symmetry)
   <object class="GtkWindow" id="python_window">
     <property name="title" translatable="yes">Coot: Python Scripting</property>
     <property name="default-width">500</property>
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox41">
         <property name="orientation">vertical</property>
@@ -8884,278 +9166,7 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkDialog" id="refinement_and_regularization_parameters_dialog">
-    <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property>
-    <signal name="close" handler="on_refinement_and_regularization_parameters_dialog_close" swapped="no"/>
-    <signal name="response" handler="on_refinement_and_regularization_parameters_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkBox" id="refinement_and_regularization_vbox_container">
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkBox" id="refinement_and_regularization_vbox_outer">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkFrame">
-                    <child>
-                      <object class="GtkBox">
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_torsions_checkbutton">
-                            <property name="label" translatable="yes">Use Torsion Restraints</property>
-                            <property name="name">refine_params_use_torsions_checkbutton</property>
-                            <property name="can-focus">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_planar_peptides_checkbutton">
-                            <property name="label" translatable="yes">Use Planar Peptide Restraints</property>
-                            <property name="can-focus">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_trans_peptide_restraints_checkbutton">
-                            <property name="label" translatable="yes">Use Trans-peptide Restraints</property>
-                            <property name="can-focus">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
-                            <property name="label" translatable="yes">Use Ramachandran Restraints</property>
-                            <property name="can-focus">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes"> Restraints </property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame">
-                    <child>
-                      <object class="GtkBox">
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkCheckButton" id="sec_str_rest_no_rest_radiobutton">
-                            <property name="label" translatable="yes">No Secondary Structure Restraints</property>
-                            <property name="can-focus">1</property>
-                            <property name="active">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="sec_str_rest_helix_rest_radiobutton">
-                            <property name="label" translatable="yes">Alpha Helix Restraints</property>
-                            <property name="can-focus">1</property>
-                            <property name="group">sec_str_rest_no_rest_radiobutton</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="sec_str_rest_strand_rest_radiobutton">
-                            <property name="label" translatable="yes">Beta Strand Restraints</property>
-                            <property name="can-focus">1</property>
-                            <property name="group">sec_str_rest_no_rest_radiobutton</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes"> Secondary Structure Restraints </property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame">
-                    <child>
-                      <object class="GtkGrid">
-                        <property name="margin-bottom">2</property>
-                        <property name="column-spacing">4</property>
-                        <property name="row-spacing">4</property>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">Overall Weight</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">Geman-McClure alpha</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">Lennard-Jones epsilon</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">Rama Restraints Weight </property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">3</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">Torsion Weight</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">4</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="refine_params_overall_weight_combobox">
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="refine_params_geman_mcclure_alpha_combobox">
-                            <property name="active">2</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">1</property>
-                            </layout>
-                            <items>
-                              <item translatable="yes">0.001</item>
-                              <item translatable="yes">0.003</item>
-                              <item translatable="yes">0.01</item>
-                              <item translatable="yes">0.03</item>
-                              <item translatable="yes">0.1</item>
-                              <item translatable="yes">0.3</item>
-                              <item translatable="yes">1.0</item>
-                              <item translatable="yes">3.0</item>
-                              <item translatable="yes">1.0</item>
-                            </items>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="refine_params_lennard_jones_epsilon_combobox">
-                            <property name="active">3</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">2</property>
-                            </layout>
-                            <items>
-                              <item translatable="yes">0.1</item>
-                              <item translatable="yes">0.2</item>
-                              <item translatable="yes">0.5</item>
-                              <item translatable="yes">1.0</item>
-                              <item translatable="yes">2.0</item>
-                              <item translatable="yes">5.0</item>
-                              <item translatable="yes">10.0</item>
-                            </items>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="refine_params_rama_restraints_combobox">
-                            <property name="active">3</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">3</property>
-                            </layout>
-                            <items>
-                              <item translatable="yes">0.1</item>
-                              <item translatable="yes">0.2</item>
-                              <item translatable="yes">0.5</item>
-                              <item translatable="yes">1.0</item>
-                              <item translatable="yes">2.0</item>
-                              <item translatable="yes">5.0</item>
-                              <item translatable="yes">10.0</item>
-                              <item translatable="yes">20.0</item>
-                              <item translatable="yes">50.0</item>
-                              <item translatable="yes">100.0</item>
-                            </items>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="refine_params_torsion_weight_combobox">
-                            <property name="active">3</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">4</property>
-                            </layout>
-                            <items>
-                              <item translatable="yes">0.1</item>
-                              <item translatable="yes">0.2</item>
-                              <item translatable="yes">0.5</item>
-                              <item translatable="yes">1.0</item>
-                              <item translatable="yes">2.0</item>
-                              <item translatable="yes">5.0</item>
-                              <item translatable="yes">10.0</item>
-                              <item translatable="yes">20.0</item>
-                              <item translatable="yes">50.0</item>
-                              <item translatable="yes">100.0</item>
-                            </items>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel">
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="halign">GTK_ALIGN_END</property>
-                    <child>
-                      <object class="GtkButton" id="refinement_and_regularization_vbox_close_button">
-                        <property name="label" translatable="yes"> Close </property>
-                        <property name="can-focus">1</property>
-                        <property name="receives-default">1</property>
-                        <signal name="clicked" handler="on_refinement_and_regularization_vbox_close_button_clicked" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-         <child type="action">
-              <object class="GtkButton" id="button1">
-                <property name="label" translatable="yes"> Close </property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="-7">button1</action-widget>
-    </action-widgets>
-    <child type="titlebar">
-    </child>
-  </object>
+  
 
   <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
     <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
