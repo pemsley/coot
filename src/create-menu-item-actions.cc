@@ -335,6 +335,49 @@ search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   gchar* mode_name_cstr;
+   g_variant_get(parameter,"s",&mode_name_cstr);
+   std::string mode_name(mode_name_cstr);
+   auto mode_num_from_name = [](const std::string& mode_name){
+      if(mode_name == "oca") {
+         return COOT_ACCESSION_CODE_WINDOW_OCA;
+      } else if(mode_name = "eds") {
+         return COOT_ACCESSION_CODE_WINDOW_EDS;
+      } else {
+         g_error("Unrecognized mode name for the accession code frame: %s",mode_name.c_str());
+         // fallback
+         return COOT_ACCESSION_CODE_WINDOW_OCA;
+      }
+   };
+   int mode_num = mode_num_from_name(mode_name);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   switch(mode_num) {
+      case COOT_ACCESSION_CODE_WINDOW_EDS:
+      case COOT_ACCESSION_CODE_WINDOW_OCA:
+      {
+         gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+         break;
+      }
+      default: {
+         g_error("Unrecognized mode number for the accession code frame: %i",mode_num);
+         // fallback
+         gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+         break;
+      }
+   }
+
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   gtk_widget_grab_focus(entry);
+   // this is probably equivalent
+   //gtk_widget_set_visible(frame,TRUE);
+   gtk_widget_show(frame);
+}
+
 void
 fetch_pdb_using_code_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 G_GNUC_UNUSED GVariant *parameter,
@@ -2035,7 +2078,8 @@ create_actions(GtkApplication *application) {
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
 
-   add_action(           "search_monomer_library_action",           search_monomer_library_action);
+   add_action(             "search_monomer_library_action",           search_monomer_library_action);
+   add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
    add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
    add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
    add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
