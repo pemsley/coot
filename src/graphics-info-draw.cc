@@ -2555,252 +2555,6 @@ void print_opengl_info() {
 
 }
 
-void
-on_glarea_realize(GtkGLArea *glarea) {
-
-   auto setup_test_texture = [] () {
-                                graphics_info_t g;
-                                // g.texture_for_camera_facing_quad.init("some-test-label.png");
-                                g.texture_for_camera_facing_quad.init("hud-label-rama.png");
-                                // camera facing quad test
-                                float image_apect_ratio = static_cast<float>(395)/static_cast<float>(93); // testt-label.png pixels
-                                g.tmesh_for_camera_facing_quad.setup_camera_facing_quad(image_apect_ratio, 1.0, 0.0, 0.0);
-                                GLenum err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
-                                g.tmesh_for_hud_image_testing.setup_quad();
-                                err = glGetError(); if (err) std::cout << "realize() D err " << err << std::endl;
-                             };
-
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
-
-   // 1 and 1 here!
-
-   // std::cout << "debug:: on_glarea_realize() about to make_current()" << std::endl;
-   gtk_gl_area_make_current(glarea);
-   GLenum err = glGetError();
-   err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
-   if (gtk_gl_area_get_error(glarea) != NULL) {
-      std::cout << "OOPS:: on_glarea_realize() error on gtk_gl_area_make_current()" << std::endl;
-      return;
-   }
-   if (gtk_gl_area_get_error(GTK_GL_AREA(glarea)) != NULL) {
-      std::cout << "ERROR:: GLArea in an error state - goodbye " << std::endl;
-      return;
-   }
-
-   gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
-
-   // GLX_SAMPLE_BUFFERS_ARB
-   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_multisample.txt
-   // gdk/x11/gdkglcontext-x11.c
-   // glXGetConfig(dpy, &visual_list[0], GLX_SAMPLE_BUFFERS_ARB, &gl_info[i].num_multisample);
-
-   // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface
-
-   print_opengl_info();
-
-   graphics_info_t g;
-   bool status = true; // was g.init_shaders();
-
-   if (status == true) {
-      // happy path
-
-      g.init_buffers();
-
-      err = glGetError();
-      if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
-
-      // graphics_info_t::shader_for_screen.Use(); // needed?
-
-      err = glGetError();
-      if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
-
-      // g.init_shaders(); // here are errors
-
-      if (graphics_info_t::use_framebuffers) {
-         unsigned int index_offset = 0;
-         graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 1;
-         graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 2;
-         graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 3;
-         graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
-                                                << err << std::endl;
-         index_offset = 4;
-         graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
-         err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
-                                                << err << std::endl;
-
-	 g.init_shaders();
-
-      }
-
-      // g.init_shaders();  - no validation failure here
-
-      // std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_hud_text.name << std::endl;
-      setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
-      // std::cout << "DEBUG:: calling setup_hud_text for shader " << g.shader_for_atom_labels.name << std::endl;
-      setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
-
-      g.tmesh_for_hud_refinement_dialog_arrow = HUDTextureMesh("HUD tmesh for refinement dialog arrow");
-      g.tmesh_for_hud_refinement_dialog_arrow.setup_quad();
-      g.texture_for_hud_refinement_dialog_arrow             = Texture("refinement-dialog-arrrow.png", Texture::DIFFUSE);
-      g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png", Texture::DIFFUSE);
-
-      g.tmesh_for_shadow_map.setup_quad();
-
-      gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
-
-      glEnable(GL_DEPTH_TEST);
-
-      // At some stage, enable this.  Currently (I think) the winding on the atoms is the wrong
-      // way around - replace with octaspheres and octahemispheres.
-      // I have just now changed the winding on the "solid" map triangles - and now it looks
-      // fine.
-      // 
-      // glEnable(GL_CULL_FACE); // if I enable this, then I get to see the back side
-      // of the atoms. It's a weird look.
-
-      // Make antialised lines - not in this
-      if (false) {
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-         glEnable(GL_LINE_SMOOTH);
-      }
-
-      g.setup_lights();
-
-      float x_scale = 4.4;  // what are these numbers!?
-      float y_scale = 1.2;
-      x_scale = 1.002;
-      y_scale = 1.002;
-      g.tmesh_for_labels.setup_camera_facing_quad(x_scale, y_scale, 0.0, 0.0);
-
-      g.setup_hud_geometry_bars();
-
-      g.setup_hud_buttons();
-
-      g.setup_rama_balls();
-
-      g.setup_key_bindings();
-
-      float double_rama_size = 0.8; // scaled by 0.5 in the gl-rama draw call.
-      g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
-                                                      // and allow it to be set in the API
-
-      g.setup_draw_for_happy_face_residue_markers_init();
-
-      g.setup_draw_for_bad_nbc_atom_pair_markers();
-
-      g.setup_draw_for_anchored_atom_markers_init();
-
-      g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
-
-      if (false) { // testing how textures work
-         setup_test_texture();
-      }
-
-      g.init_framebuffers();
-      g.init_joey_ssao_stuff();
-
-      err = glGetError();
-      if (err) std::cout << "#### GL ERROR on_glarea_realize() --end-- with err " << err << std::endl;
-
-      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
-      graphics_info_t::previous_frame_time_for_per_second_counter = tp_now;
-
-      unsigned int frame_time_history_list_max_n_elements = 500;
-      std::vector<s_generic_vertex> empty_vertices(frame_time_history_list_max_n_elements + 40); // +40 for base and grid lines
-      std::vector<unsigned int> empty_indices(1500, 0); // or some number
-      g.lines_mesh_for_hud_lines.setup_vertices_and_indices(empty_vertices, empty_indices);
-
-      // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(glarea));
-      // gboolean legacy_flag = gdk_gl_context_is_legacy(context);
-      // std::cout << "INFO:: gdk_gl_context_is_legacy() returns " << legacy_flag << std::endl;
-
-      Material dummy_material;
-      std::vector<s_generic_vertex> outline_empty_vertices(1000);
-      std::vector<g_triangle> outline_empty_triangles(1000);
-      g.mesh_for_outline_of_active_residue.import(outline_empty_vertices, outline_empty_triangles);
-      g.mesh_for_outline_of_active_residue.setup(dummy_material);
-
-      // Is this the place to set the window as unresizable?
-      // No, it isn't. As far as I can see gtk_window_set_resizable() expands
-      // the window in Y fully.  That's not what I want, of course.
-      if (false) {
-         GtkWidget *window = widget_from_builder("main_window");
-	 gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
-      }
-
-#if 0 // reproduced in new-startup.cc
-      std::cout << "================= setting up GTK4 style event conrolllers ====================" << std::endl;
-
-      GtkEventController *key_controller = gtk_event_controller_key_new();
-
-      g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_glarea_key_controller_key_pressed),  glarea);
-      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_glarea_key_controller_key_released), glarea);
-      gtk_widget_add_controller(GTK_WIDGET(glarea), key_controller);
-
-      GtkGesture *drag_controller_secondary = gtk_gesture_drag_new();
-      GtkGesture *drag_controller_primary   = gtk_gesture_drag_new();
-      GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
-      GtkGesture *click_controller          = gtk_gesture_click_new();
-
-      GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
-      GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
-
-      // #ifdef __APPLE__
-      //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
-      //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
-      // #endif
-
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
-
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_primary));
-      g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_primary),  glarea);
-      g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_glarea_drag_update_primary), glarea);
-      g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_glarea_drag_end_primary),    glarea);
-
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_secondary), GDK_BUTTON_SECONDARY);
-
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_secondary));
-      g_signal_connect(drag_controller_secondary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_secondary),  glarea);
-      g_signal_connect(drag_controller_secondary, "drag-update", G_CALLBACK(on_glarea_drag_update_secondary), glarea);
-      g_signal_connect(drag_controller_secondary, "drag-end",    G_CALLBACK(on_glarea_drag_end_secondary),    glarea);
-
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_middle), GDK_BUTTON_MIDDLE);
-
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER (drag_controller_middle));
-      g_signal_connect(drag_controller_middle, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_middle),  glarea);
-      g_signal_connect(drag_controller_middle, "drag-update", G_CALLBACK(on_glarea_drag_update_middle), glarea);
-      g_signal_connect(drag_controller_middle, "drag-end",    G_CALLBACK(on_glarea_drag_end_middle),    glarea);
-
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(click_controller));
-      g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_glarea_click),  glarea);
-
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
-      g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
-
-#endif // reproduced in new-startup.cc
-
-      // add this while we are testing.
-      load_tutorial_model_and_data();
-
-   } else {
-      std::cout << "ERROR:: Shader compilation (init_shaders()) failed " << std::endl;
-      exit(1);
-   }
-}
 
 
 gboolean
@@ -2840,63 +2594,6 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.reset_hud_buttons_size_and_position();
 }
 
-
-GtkWidget *create_gtkglarea_widget() {
-
-   // the use_gtk_builder flag really means "was invoked from the path that..."
-
-   auto get_gl_widget_dimension_scale_factor  = [] () {
-                                                   int sf = 1;
-                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
-                                                   if (e) {
-                                                      std::string ee(e);
-                                                      sf = std::stoi(ee);
-                                                   }
-                                                   return sf;
-                                                };
-
-   GtkWidget *glarea = gtk_gl_area_new();
-
-   // allow the user to set the major and minor version (for debugging)
-
-   int opengl_major_version = 3;
-   int opengl_minor_version = 3;
-   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
-   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
-   if (e1) {
-      std::string e1s(e1);
-      opengl_major_version = std::stoi(e1s);
-   }
-   if (e2) {
-      std::string e2s(e2);
-      opengl_minor_version = std::stoi(e2s);
-   }
-
-   if (false) // 20220501-PE we don't need to see this on startup this anymore
-      std::cout << "DEBUG:: setting OpenGL required version to "
-                << opengl_major_version << " " << opengl_minor_version << std::endl;
-
-   gtk_gl_area_set_required_version(GTK_GL_AREA(glarea), opengl_major_version, opengl_minor_version);
-
-   g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
-   g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
-   g_signal_connect(glarea, "resize",  G_CALLBACK(on_glarea_resize),  NULL);
-
-   gtk_widget_set_can_focus(glarea, TRUE);
-   gtk_widget_set_focusable(glarea, TRUE);
-
-   unsigned int dimensions = 700; // was 300, before vertical toolbar
-   // if (! use_gtk_builder) dimensions = 900;
-   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(glarea,
-                               gl_widget_dimension_scale_factor * dimensions,
-                               gl_widget_dimension_scale_factor * dimensions);
-
-   gtk_widget_set_hexpand(glarea, TRUE);
-   gtk_widget_set_vexpand(glarea, TRUE);
-
-   return glarea;
-}
 
 void
 graphics_info_t::draw_measure_distance_and_angles() {
@@ -2947,6 +2644,10 @@ graphics_info_t::setup_lights() {
 void
 graphics_info_t::setup_hud_geometry_bars() {
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() --start-- error " << err << std::endl;
+
    if (! glareas[0]) return;
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
@@ -2956,11 +2657,27 @@ graphics_info_t::setup_hud_geometry_bars() {
    int h = allocation.height;
    float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   // shader_for_hud_geometry_bars.Use(); no need.
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() A error " << err << std::endl;
+
+   // gtk_gl_area_attach_buffers(gl_area); // needed? I think not (because we are in the base framebuffer when
+                                           // this function is called) and it causes an glError to be set.
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() B error " << err << std::endl;
 
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() C error " << err << std::endl;
+
    mesh_for_hud_geometry.setup_instancing_buffer(500, sizeof(HUD_bar_attribs_t));
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: setup_hud_geometry_bars() C error " << err << std::endl;
 
    // If not found in this directory, then try default directory.
    texture_for_hud_geometry_labels_map["Rama"].init("hud-label-rama-small.png");
@@ -2992,7 +2709,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
-   std::cout << "---------- done setup_hud_geometry_bars" << std::endl;
+   std::cout << "---------- done setup_hud_geometry_bars()" << std::endl;
 
 }
 
@@ -3006,31 +2723,30 @@ graphics_info_t::setup_hud_buttons() {
 
    // std::cout << "debug:: in setup_hud_buttons() use_graphics_interface_flag " << use_graphics_interface_flag
    //          << " glareas[0] " << glareas[0] << std::endl;
-   attach_buffers();
+
+   // attach_buffers(__FUNCTION__); // 20221005-PE not need, we are in the right framebuffer already.
+                                    // And it causes a gl error to be set if it is called
 
    GError* error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() current GError on glarea " << error->message << std::endl;
-   // else
-   //    std::cout << "debug:: in setup_hud_buttons() no error" << std::endl;
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: setup_hud_buttons() post attach_buffers() error " << err << std::endl;
    error = gtk_gl_area_get_error(GTK_GL_AREA(glareas[0]));
    if (error)
       std::cout << "debug:: in setup_hud_buttons() 2 current GError on glarea " << error->message << std::endl;
-   // else
-   //    std::cout << "debug:: in setup_hud_buttons() 2 no error" << std::endl;
 
-   // std::cout << "in setup_hud_buttons() 1 " << std::endl;
-   // shader_for_hud_buttons.Use(); // 20220605-PE I don't need to do this to setup the mesh.
-   // std::cout << "in setup_hud_buttons() 2 " << std::endl;
    mesh_for_hud_buttons.setup_vertices_and_triangles_for_button(); // instanced button
-   // std::cout << "in setup_hud_buttons() 3 " << std::endl;
+
    unsigned int n_buttons_max = 20; // surely 6 is enough?
    mesh_for_hud_buttons.setup_instancing_buffer(n_buttons_max, sizeof(HUD_button_info_t));
-   // maybe mesh_for_hud_buttons.close() ?
-   // std::cout << "in setup_hud_buttons() done " << std::endl;
+
+   err = glGetError();
+   if (err)
+      std::cout << "debug:: in setup_hud_buttons() finish " << std::endl;
+
+   std::cout << "---------- done setup_hud_buttons()" << std::endl;
 }
 
 void
@@ -4624,8 +4340,10 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int width, int height) {
 
-   if (use_framebuffers) {
+   std::cout << "DEBUG:: reset_frame_buffers() " << width << " " << height
+             << " use_framebuffers: " << use_framebuffers << std::endl;
 
+   if (use_framebuffers) {
 
       // 20220108-PE note to self. Try using the framebuffer::reset() function instead
 
@@ -4860,11 +4578,12 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
                       << std::endl;
 
    const unsigned int max_happy_faces = 200; // surely enough?
-   
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() "
-                      << "Post attach buffers err is " << err << std::endl;
+
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   // gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   // err = glGetError();
+   // if (err) std::cout << "GL ERROR:: setup_draw_for_happy_face_residue_markers_init() "
+   //                    << "Post attach buffers err is " << err << std::endl;
 
    // If not found in this directory, then try default directory.
    // texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
@@ -4875,6 +4594,9 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
    tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
 
+   err = glGetError();
+   if (err) std::cout << "GL ERROR::- setup_draw_for_happy_face_residue_markers_init() "
+                      << "--- end --- err is " << err << std::endl;
 }
 
 void
@@ -4882,15 +4604,19 @@ graphics_info_t::setup_draw_for_anchored_atom_markers_init() {
 
    // run this once - called from realize()
 
-   attach_buffers();
-   GLenum err = glGetError();
-   if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
-                      << "--- start --- err is " << err << std::endl;
+
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   //             and setup_draw_for_happy_face_residue_markers_init()
+   // attach_buffers();
+   // GLenum err = glGetError();
+   // if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
+   //                    << "--- start --- err is " << err << std::endl;
 
    const unsigned int max_anchored_atoms = 200;
 
-   attach_buffers();
-   err = glGetError();
+   // attach_buffers();
+
+   GLenum err = glGetError();
    if (err) std::cout << "Error::- setup_draw_for_anchored_atom_markers_init() "
                       << "Post attach_buffers() err is " << err << std::endl;
 
@@ -5140,10 +4866,14 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 void
 graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 
-   attach_buffers();
-   GLenum err = glGetError();
-   if (err)
-      std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
+   // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
+   //             and setup_draw_for_happy_face_residue_markers_init()
+   //             We are already in the correct framebuffer.
+   //
+   // attach_buffers();
+   // GLenum err = glGetError();
+   // if (err)
+   //    std::cout << "GL ERROR:: start of setup_draw_bad_nbc_atom_pair_markers() "  << err << std::endl;
 
    texture_for_bad_nbc_atom_pair_markers.init("angry-diego.png");
    float ts = 0.7; // relative texture size

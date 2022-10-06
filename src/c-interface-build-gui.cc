@@ -1488,31 +1488,26 @@ show_fix_nomenclature_errors_gui(int imol,
 void
 handle_get_monomer_code(GtkWidget *entry_widget) {
 
-   GtkWidget *frame = widget_from_builder("get_monomer_no_entry_frame");
+   GtkWidget *failed_to_get_monomer_frame = widget_from_builder("get_monomer_no_entry_frame");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry_widget));
+   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
 
-   if (! frame) return;
+   if (! failed_to_get_monomer_frame) return;
 
    std::string text_s(text);
    text_s = coot::util::Upper(text_s);
 
    // this is set below
-   int no_entry_frame_shown = gtk_widget_is_visible(frame);
+   int no_entry_frame_shown = gtk_widget_is_visible(failed_to_get_monomer_frame);
 
    if (no_entry_frame_shown == 0) { // normal case
 
       int imol = get_monomer(text_s);
 
       if (is_valid_model_molecule(imol)) {
-
-         GtkWidget *window = widget_from_builder("get_monomer_dialog");
-         if (window)
-            gtk_widget_hide(window);
-         else
-            std::cout << "failed to lookup window in handle_get_libcheck_monomer_code"
-                      << std::endl;
+         gtk_widget_hide(vbox);
       } else {
-         gtk_widget_show(frame);
+         gtk_widget_show(failed_to_get_monomer_frame);
       }
 
    } else {
@@ -1524,9 +1519,13 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
          info_dialog("WARNING:: Failed to import molecule");
       }
 
-      GtkWidget *window = widget_from_builder("get_monomer_dialog");
-      if (window)
-         gtk_widget_hide(window);
+      // get_monomer_dialog no longer exists
+      //
+      // GtkWidget *window = widget_from_builder("get_monomer_dialog");
+      // if (window)
+      //    gtk_widget_hide(window);
+
+      gtk_widget_hide(vbox);
    }
 }
 
