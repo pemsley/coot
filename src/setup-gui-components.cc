@@ -36,8 +36,9 @@ void setup_accession_code_frame() {
    GtkWidget *frame = widget_from_builder("accession_code_frame");
    GtkWidget* entry = widget_from_builder("accession_code_entry");
    g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
-      handle_get_accession_code(frame, entry);
-   }),NULL);
+      GtkWidget* frame = GTK_WIDGET(user_data);
+      handle_get_accession_code(frame, GTK_WIDGET(entry));
+   }),frame);
    setup_generic_hide_on_escape_controller(entry,frame);
 }
 
