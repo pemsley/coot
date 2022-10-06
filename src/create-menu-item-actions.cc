@@ -371,6 +371,7 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
       }
       case COOT_UNIPROT_ID:{
          gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+         break;
       }
       default: {
          g_error("Unrecognized mode number for the accession code frame: %i",mode_num);
