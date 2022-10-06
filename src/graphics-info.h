@@ -1192,9 +1192,6 @@ public:
    static int ramachandran_plot_x_position;
    static int ramachandran_plot_y_position;
 
-   static int distances_and_angles_dialog_x_position;
-   static int distances_and_angles_dialog_y_position;
-
    static bool stroke_characters;
    static void printString(const std::string &s,
 			   const double &x, const double &y, const double &z);
