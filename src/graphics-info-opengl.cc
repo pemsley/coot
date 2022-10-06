@@ -1350,6 +1350,7 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
 void
 graphics_info_t::resize_framebuffers_textures_renderbuffers(int width, int height) {
 
+   std::cout << "DEBUG:: resize_framebuffers_textures_renderbuffers() " << width << " " << height << std::endl;
 
    framebuffer_for_effects.reset(width, height);
    blur_x_framebuffer.reset(width, height);

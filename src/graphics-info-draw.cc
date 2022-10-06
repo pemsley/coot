@@ -4340,8 +4340,10 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int width, int height) {
 
-   if (use_framebuffers) {
+   std::cout << "DEBUG:: reset_frame_buffers() " << width << " " << height
+             << " use_framebuffers: " << use_framebuffers << std::endl;
 
+   if (use_framebuffers) {
 
       // 20220108-PE note to self. Try using the framebuffer::reset() function instead
 
