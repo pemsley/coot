@@ -4861,7 +4861,7 @@ on_geometry_dialog_close_button_clicked
 
   GtkWidget *frame = widget_from_builder("geometry_frame");
   store_geometry_dialog(NULL);
-  gtk_widget_hide(dialog);
+  gtk_widget_hide(frame);
 }
 
 
