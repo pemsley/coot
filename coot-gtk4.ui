@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="4.0"/>
 
   <menu id="menubar">
     <submenu>
@@ -318,41 +318,6 @@
         <item>
           <attribute name="label">Map Skeleton...</attribute>
         </item>
-        <submenu>
-          <attribute name="label">Modules...</attribute>
-            <item>
-              <attribute name="label">CCP4</attribute>
-              <attribute name="action">app.add_ccp4_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Carbohydrate</attribute>
-              <attribute name="action">app.add_carbohydrate_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Cryo-EM</attribute>
-              <attribute name="action">app.add_cryo_em_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">ProSMART</attribute>
-              <attribute name="action">app.add_prosmart_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">RCrane</attribute>
-              <attribute name="action">app.add_rcrane_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Restraints</attribute>
-              <attribute name="action">app.add_restraints_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Refine</attribute>
-              <attribute name="action">app.add_refine_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">SHELX</attribute>
-              <attribute name="action">app.add_shelx_module_action</attribute>
-            </item>
-        </submenu>
 
         <item>
           <attribute name="label">Run Script...</attribute>
@@ -873,6 +838,42 @@
       <item>
         <attribute name="label" translatable="yes">Regularize Single Residue</attribute>
         <attribute name="action">app.refine_regularize_single_residue</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="modules-menu">
+    <section>
+      <item>
+        <attribute name="label">CCP4</attribute>
+        <attribute name="action">app.add_ccp4_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Carbohydrate</attribute>
+        <attribute name="action">app.add_carbohydrate_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Cryo-EM</attribute>
+        <attribute name="action">app.add_cryo_em_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">ProSMART</attribute>
+        <attribute name="action">app.add_prosmart_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">RCrane</attribute>
+        <attribute name="action">app.add_rcrane_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Restraints</attribute>
+        <attribute name="action">app.add_restraints_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Refine</attribute>
+        <attribute name="action">app.add_refine_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">SHELX</attribute>
+        <attribute name="action">app.add_shelx_module_action</attribute>
       </item>
     </section>
   </menu>
@@ -5981,10 +5982,11 @@ Do you want to continue?
               </child>
 
               <child>
-                <object class="GtkButton" id="add_toolbar_buttons_button">
+                <object class="GtkMenuButton" id="add_module_menubutton">
                   <property name="label" translatable="yes">+</property>
+                  <property name="tooltip-text">Load an extension module</property>
                   <property name="can-focus">0</property>
-                  <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+                  <!-- <signal name="clicked" handler="on_add_module_menubutton_clicked" swapped="no"/> -->
                   <property name="margin-start">6</property>
                   <property name="halign">end</property>
                 </object>

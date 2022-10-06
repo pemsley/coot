@@ -10592,15 +10592,6 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_add_toolbar_buttons_button
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   info_dialog("WARNING:: This doesn't do anything yet (sorry).\nI'm just testing the layout.");
-}
-
-extern "C" G_MODULE_EXPORT
-void
 on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
    show_python_scripting_window();
 }
