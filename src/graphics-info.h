@@ -4512,7 +4512,7 @@ string   static std::string sessionid;
    // ---------------------------------------------
    static bool shaders_have_been_compiled;
    bool init_shaders(); // return status (true = OK)
-   void init_framebuffers();// 20220129-PE a crows thing
+   void init_framebuffers(unsigned int width, unsigned int height);// 20220129-PE a crows thing
 
    // draw-2 functions
    void init_screen_quads();
@@ -4943,7 +4943,7 @@ string   static std::string sessionid;
    static void render_3d_scene_for_ssao(); // c.f. above, this one doesn't pass the gl_area.
                                            // I don't know which is best.
    static void render_3d_scene_with_shadows(); // change the shader from meshes.shader to meshes-with-shadows.shader
-   void init_joey_ssao_stuff();
+   void init_joey_ssao_stuff(int w, int h);
    void read_some_test_models();
 
    static std::vector<Model> models; // from crows 20220129-PE

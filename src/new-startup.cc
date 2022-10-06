@@ -17,35 +17,44 @@ void init_framebuffers(GtkWidget *glarea) {
 
    // std::cout << "DEBUG:: use_framebuffers: " << graphics_info_t::use_framebuffers << std::endl;
 
+   std::cout << "----- start init_framebuffers() ----" << std::endl;
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "ERROR:: init_framebuffers() --- start --- err is " << err << std::endl;
+
    if (graphics_info_t::use_framebuffers) {
       unsigned int index_offset = 0;
-      GLenum err;
       graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
       err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
                                              << err << std::endl;
-      index_offset = 1;
+      // index_offset = 1;
       graphics_info_t::blur_y_framebuffer.init(w, h, index_offset, "blur-y");
       err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_y_framebuffer init() err is "
                                              << err << std::endl;
-      index_offset = 2;
+      // index_offset = 2;
       graphics_info_t::blur_x_framebuffer.init(w, h, index_offset, "blur-x");
       err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_x_framebuffer init() err is "
                                              << err << std::endl;
-      index_offset = 3;
+      // index_offset = 3;
       graphics_info_t::combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
       err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
                                              << err << std::endl;
-      index_offset = 4;
+      // index_offset = 4;
       graphics_info_t::blur_framebuffer.init(w, h, index_offset, "blur");
       err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                              << err << std::endl;
+      err = glGetError();
+      if (err)
+         std::cout << "ERROR:: init_framebuffers() --- done --- err is " << err << std::endl;
    }
 
+   std::cout << "----- done init_framebuffers() ----" << std::endl;
 }
 
 
@@ -68,13 +77,16 @@ new_startup_realize(GtkWidget *gl_area) {
 
    print_opengl_info();
 
+   int w = 500;
+   int h = 500;
+
    graphics_info_t g;
-   init_framebuffers(gl_area); // Hmm - I don't know what this does compared to below.
-   g.init_framebuffers();
+   // init_framebuffers(gl_area); // Hmm - I don't know what this does compared to below.
    g.init_buffers();
-   g.init_joey_ssao_stuff();
    g.init_shaders();
    g.setup_lights();
+   g.init_framebuffers(w, h);
+   g.init_joey_ssao_stuff(w, h);
 
    float x_scale = 4.4;  // what are these numbers!?
    float y_scale = 1.2;
@@ -97,9 +109,6 @@ new_startup_realize(GtkWidget *gl_area) {
    std::vector<s_generic_vertex> empty_vertices(frame_time_history_list_max_n_elements + 40);
    std::vector<unsigned int> empty_indices(1500, 0); // or some number
    g.lines_mesh_for_hud_lines.setup_vertices_and_indices(empty_vertices, empty_indices);
-
-   int w = 500;
-   int h = 500;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
    setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
@@ -153,7 +162,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   // g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
+   g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
 
    if (false) {
 

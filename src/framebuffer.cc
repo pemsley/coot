@@ -17,6 +17,9 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
 
    name = name_in;
 
+   if (width  == 0) std::cout << "ERROR:: in framebuffer::init() " << name << " width is 0" << std::endl;
+   if (height == 0) std::cout << "ERROR:: in framebuffer::init() " << name << " height is 0" << std::endl;
+
    GLenum err = glGetError();
    if (err)
       std::cout << "--- start framebuffer " << name << " init() err is " << err << std::endl;
@@ -192,7 +195,8 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
    // exist in the current GL context.
 
    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      std::cout << "xxxxxxxxxxxxxxxxxxxxx Error! FrameBuffer " << name << " is not complete" << std::endl;
+      std::cout << "xxxxxxx GL ERROR:: framebuffer::generate_framebuffer_object() FrameBuffer \""
+                << name << "\" width " << width << " height " << height << " is not complete" << std::endl;
    } else {
       // std::cout << "xxxxxxxxxxxxxxxxxxxxx FrameBuffer " << name << " is complete" << std::endl;
       filled = true;
@@ -274,7 +278,7 @@ framebuffer::generate_framebuffer_object_test(unsigned int width, unsigned int h
    // exist in the current GL context.
 
    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      std::cout << "xxxxxxxxxxxxxxxxxxxxx Error! FrameBuffer " << name << " is not complete" << std::endl;
+      std::cout << "xxxxxxxxxxxxxxxxxxxxx Error! FrameBuffer \"" << name << "\" is not complete" << std::endl;
    } else {
       // std::cout << "xxxxxxxxxxxxxxxxxxxxx FrameBuffer " << name << " is complete" << std::endl;
       filled = true;
