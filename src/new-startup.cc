@@ -6,7 +6,7 @@
 
 #include "graphics-info.h"
 #include "create-menu-item-actions.hh"
-
+#include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
 
 void print_opengl_info();
@@ -682,7 +682,7 @@ new_startup_application_activate(GtkApplication *application,
    setup_gestures(gl_area);
 
    create_actions(application);
-
+   setup_gui_components();
    setup_go_to_residue_keyboarding_mode_entry_signals();
 
    // hack in these values for argc, argv for now

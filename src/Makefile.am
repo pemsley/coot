@@ -344,6 +344,8 @@ check_PROGRAMS = test-coot-align test-cholesky
 coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
         new-startup.cc \
+        setup-gui-components.cc \
+        setup-gui-components.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 

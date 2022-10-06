@@ -1718,12 +1718,11 @@ on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
 extern "C" G_MODULE_EXPORT
 void
-on_accession_code_get_it_button_clicked    (GtkButton       *button,
-                                                                gpointer         user_data) {
+on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
-   GtkWidget *dialog = widget_from_builder("accession_code_window");
-   handle_get_accession_code(dialog, entry);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   handle_get_accession_code(frame, entry);
 }
 
 
@@ -5019,17 +5018,20 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
    if (entry) {
       handle_get_monomer_code(entry);
    }
-   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(vbox);
+   GtkWidget *frame = widget_from_builder("get_monomer_frame");
+   gtk_widget_hide(frame);
 }
 
-
 extern "C" G_MODULE_EXPORT
-void on_get_monomer_cancel_button_clicked(GtkButton       *button,
+void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
-
-   GtkWidget *widget = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(widget);
+   GtkWidget* frame_widget = GTK_WIDGET(user_data);
+   if(frame_widget) {
+      gtk_widget_hide(frame_widget);
+   } else {
+      g_error("'user_data' is NULL. Cannot hide overlay frame.");
+   }
+   
 }
 
 
