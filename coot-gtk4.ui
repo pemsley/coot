@@ -6031,7 +6031,7 @@ Do you want to continue?
                   <property name="label" translatable="yes">Py</property>
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
-                  <property name="margin-start"></property>
+                  <property name="margin-start">2</property>
                   <property name="halign">end</property> 
                 </object>
               </child>
