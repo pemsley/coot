@@ -4,9 +4,17 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 
+// this function is both defined and implemented here.
+// No other files should ever need it.
+inline GMenuModel *menu_model_from_builder(const std::string& m_name) {
+
+   GMenuModel *m = G_MENU_MODEL(graphics_info_t::get_gobject_from_builder(m_name));
+   return m;
+}
+
 void setup_menubuttons() {
    GtkWidget* add_module_menubutton = widget_from_builder("add_module_menubutton");
-   GMenuModel *modules_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "modules-menu"))
+   GMenuModel *modules_menu = menu_model_from_builder("modules-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
 }
 
