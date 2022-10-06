@@ -2,6 +2,7 @@
 
 #include <gtk/gtk.h>
 #include "graphics-info.h"
+#include "c-interface-gtk-widgets.h"
 
 gboolean generic_hide_on_escape_controller_cb(
       GtkEventControllerKey  *controller,
@@ -39,6 +40,9 @@ void setup_accession_code_frame() {
 void setup_get_monomer() {
    GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
+   g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
+      handle_get_monomer_code(GTK_WIDGET(entry));
+   }),NULL);
    setup_generic_hide_on_escape_controller(entry,frame);
 }
 
