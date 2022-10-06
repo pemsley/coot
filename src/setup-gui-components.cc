@@ -34,7 +34,11 @@ void setup_generic_hide_on_escape_controller(GtkWidget* target_widget, GtkWidget
 
 void setup_accession_code_frame() {
    GtkWidget *frame = widget_from_builder("accession_code_frame");
-   setup_generic_hide_on_escape_controller(widget_from_builder("accession_code_entry"),frame);
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
+      handle_get_accession_code(frame, entry);
+   }),NULL);
+   setup_generic_hide_on_escape_controller(entry,frame);
 }
 
 void setup_get_monomer() {
