@@ -4859,11 +4859,9 @@ on_geometry_dialog_close_button_clicked
   gtk_widget_hide(dialog);
 #endif
 
-  GtkWidget *dialog = widget_from_builder("geometry_dialog");
+  GtkWidget *frame = widget_from_builder("geometry_frame");
   store_geometry_dialog(NULL);
   gtk_widget_hide(dialog);
-  
-
 }
 
 
@@ -4874,25 +4872,6 @@ on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
 {
   if (gtk_toggle_button_get_active(togglebutton))
     do_angle_define();
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_dialog_destroy             (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-
-  /* OK, so the user moved the dialog somewhere, we want to store that
-     position before we go. */
-
-/* Nope!  we can't do the cast of object->widget, (then widget->window
-   is NULL) and store function fails. */
-/*   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, GTK_WIDGET(object)); */
-
-  /* However, we do want to unset the geometry_dialog pointer */
-   store_geometry_dialog(NULL);
 
 }
 
