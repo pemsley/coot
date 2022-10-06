@@ -565,40 +565,30 @@ new_startup_create_splash_screen_window() {
    return splash_screen_window;
 }
 
+// needs to be packed in a gpointer (use dynamic allocation)
+struct application_activate_data {
+   int argc;
+   char** argv;
+   GtkWidget* splash_screen;
+   GtkApplication* application;
+   GtkWidget* app_window;
 
+   application_activate_data(int _argc, char** _argv) {
+      argc = _argc;
+      argv = _argv;
+      splash_screen = nullptr;
+      application = nullptr;
+      app_window = nullptr;
+   }
+};
 
 void
 new_startup_application_activate(GtkApplication *application,
-                                 gpointer splash_screen) {
+                                 gpointer user_data) {
+   
+   application_activate_data* activate_data = (application_activate_data*) user_data;
 
-   GtkBuilder *builder = gtk_builder_new();
-   if (GTK_IS_BUILDER(builder)) {
-   } else {
-      std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
-                << std::endl;
-      return;
-   }
-
-   std::string dir = coot::package_data_dir();
-   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-   std::string glade_file_name = "coot-gtk4.ui";
-   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
-   if (coot::file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
-
-   GError* error = NULL;
-   gboolean status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
-   if (status == FALSE) {
-      std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
-      std::cout << error->message << std::endl;
-      exit(0);
-   }
-
-   GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-   graphics_info_t::statusbar = sb;
-   // std::cout << "debug:: statusbar: " << sb << std::endl;
-
-   install_icons_into_theme(GTK_WIDGET(sb));
+   activate_data->application = application;
 
    std::string window_name = "GTK4 Coot-" + std::string(VERSION);
    GtkWidget *app_window = gtk_application_window_new(application);
@@ -607,61 +597,20 @@ new_startup_application_activate(GtkApplication *application,
    setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
    graphics_info_t::set_main_window(app_window);
 
-   guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
-   // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+   activate_data->app_window = app_window;
 
-   graphics_info_t::set_gtkbuilder(builder);
-
-   // GMenu *menu = create_menu_by_hand(application);
-   GMenu *menubar = G_MENU(graphics_info_t::get_gobject_from_builder("menubar"));
-   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
-   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
-   
-   // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
-   // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
-   GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox");
-   GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox");
-   gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
-
-   gtk_window_present(GTK_WINDOW(app_window));
-   // gtk_widget_show(window);
-
-   GtkWidget *gl_area = new_startup_create_glarea_widget();
-   graphics_info_t::glareas.push_back(gl_area);
-   gtk_widget_show(gl_area);
-   // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
-   gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
-   gtk_window_set_application(GTK_WINDOW(app_window), application);
-   gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
-   gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-   gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
-   gtk_widget_show(app_window);
-
-   setup_gestures(gl_area);
-
-   create_actions(application);
-   setup_gui_components();
-   setup_go_to_residue_keyboarding_mode_entry_signals();
-
-   // hack in these values for argc, argv for now
-   int argc = 0;
-   char ** argv = 0;
-   setup_python_with_coot_modules(argc, argv);
-
-   // load_tutorial_model_and_data();
-
-   gtk_window_destroy(GTK_WINDOW(splash_screen));
-}
-
-// move these to the top.
-void setup_symm_lib();
-void check_reference_structures_dir();
+   g_idle_add(+[](gpointer user_data) -> gboolean {
 
 
-int new_startup(int argc, char **argv) {
+      application_activate_data* activate_data = (application_activate_data*) user_data;
 
-   auto python_init = [argc, argv] () {
-      if (true) {
+      GtkWindow* splash_screen = GTK_WINDOW(activate_data->splash_screen);
+      GtkWidget* app_window = activate_data->app_window;
+      GtkApplication* application = GTK_APPLICATION(activate_data->application);
+      int argc = activate_data->argc;
+      char** argv = activate_data->argv;
+
+      auto python_init = [argc, argv] () {
          setup_python_basic(argc, argv);
          setup_python_coot_module();
 
@@ -671,14 +620,114 @@ int new_startup(int argc, char **argv) {
          // setup_python_with_coot_modules(argc, argv);
          // So it is done in new_startup_application_activate().
 
+      };
+
+      graphics_info_t graphics_info;
+
+      graphics_info.application = application;
+
+      graphics_info.init();
+
+      GtkBuilder *builder = gtk_builder_new();
+      if (GTK_IS_BUILDER(builder)) {
+      } else {
+         std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
+                  << std::endl;
+         exit(0);
       }
-   };
+
+      std::string dir = coot::package_data_dir();
+      std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+      std::string glade_file_name = "coot-gtk4.ui";
+      std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
+      if (coot::file_exists(glade_file_name))
+         glade_file_full = glade_file_name;
+
+      GError* error = NULL;
+      gboolean status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+      if (status == FALSE) {
+         std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+         std::cout << error->message << std::endl;
+         exit(0);
+      }
+
+      python_init();
+
+      // set this by parsing the command line arguments
+      graphics_info.use_graphics_interface_flag = true;
+
+
+      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
+      graphics_info_t::statusbar = sb;
+      // std::cout << "debug:: statusbar: " << sb << std::endl;
+
+      install_icons_into_theme(GTK_WIDGET(sb));
+
+      
+
+      guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
+      // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+
+      graphics_info_t::set_gtkbuilder(builder);
+
+      // GMenu *menu = create_menu_by_hand(application);
+      GMenu *menubar = G_MENU(graphics_info_t::get_gobject_from_builder("menubar"));
+      gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
+      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+
+      // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
+      // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
+      GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox");
+      GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox");
+      gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
+
+      gtk_window_present(GTK_WINDOW(app_window));
+      // gtk_widget_show(window);
+
+      GtkWidget *gl_area = new_startup_create_glarea_widget();
+      graphics_info_t::glareas.push_back(gl_area);
+      gtk_widget_show(gl_area);
+      // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
+      gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
+      gtk_window_set_application(GTK_WINDOW(app_window), application);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
+      gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
+      gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
+      gtk_widget_show(app_window);
+
+      setup_gestures(gl_area);
+
+      create_actions(application);
+      setup_gui_components();
+      setup_go_to_residue_keyboarding_mode_entry_signals();
+
+      setup_python_with_coot_modules(argc, argv);
+      delete activate_data;
+
+      // load_tutorial_model_and_data();
+      g_idle_add(+[](gpointer data)-> gboolean {
+         GtkWindow* splash_screen = GTK_WINDOW(data);
+         gtk_window_destroy(splash_screen);
+         return G_SOURCE_REMOVE;
+      },splash_screen);
+
+      return G_SOURCE_REMOVE;
+   },activate_data);
+
+}
+
+// move these to the top.
+void setup_symm_lib();
+void check_reference_structures_dir();
+
+
+int new_startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
-   graphics_info_t graphics_info;
+   
    setup_symm_lib();
    check_reference_structures_dir();
    gtk_init();
@@ -686,28 +735,16 @@ int new_startup(int argc, char **argv) {
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_show(splash_screen);
 
-   // This has been copied from gtk3 branch, from the do_splash_screen function.
-   // This ensures that the splashscreen is able to be properly loaded
-   while(g_main_context_iteration(NULL,TRUE) == FALSE);
-   while (g_main_context_pending(NULL)) {
-      usleep(3000);
-      g_main_context_iteration(NULL,TRUE);
-   }
-
-   graphics_info.init();
-
-   python_init();
-
-   // set this by parsing the command line arguments
-   graphics_info.use_graphics_interface_flag = true;
-
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
-   graphics_info.application = app;
-   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), splash_screen);
    g_application_register(G_APPLICATION(app), NULL, &error);
+
+   auto* activate_data = new application_activate_data(argc,argv);
+   activate_data->splash_screen = splash_screen;
+   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
 
    int status = g_application_run (G_APPLICATION (app), argc, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
