@@ -261,6 +261,34 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    curlew();
 }
 
+
+// this function should live in setup_gui_components.cc
+//
+void handle_get_monomer_code(GtkWidget *widget); // use the header?
+//
+void on_get_monomer_entry_key_controller_key_released(G_GNUC_UNUSED GtkEventControllerKey *controller,
+                                                      G_GNUC_UNUSED guint                  keyval,
+                                                      guint                                keycode,
+                                                      G_GNUC_UNUSED guint                  modifiers,
+                                                      GtkEntry                            *entry) {
+
+   graphics_info_t g;
+   // std::cout << "python key released!" << std::endl;
+
+   // 36 is Enter, 9 is Esc
+   std::cout << "keycode: " << keycode << std::endl;
+
+   if (keycode == 36) {
+      handle_get_monomer_code(GTK_WIDGET(entry)); // should be just a GTK_ENTRY if you feel
+                                                  // like cleaning it up one day
+   }
+
+   if (keycode == 9) {
+      GtkWidget *widget = widget_from_builder("get_monomer_vbox");
+      gtk_widget_hide(widget);
+   }
+}
+
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
@@ -270,6 +298,14 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_set_visible(no_entry_frame, FALSE); // each time "get_monomer" is shown
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
+
+   {  // this block should live in setup_gui_components.cc - don't add another controller here!
+
+      GtkEventController *key_controller = gtk_event_controller_key_new();
+      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_get_monomer_entry_key_controller_key_released), entry);
+      gtk_widget_add_controller(entry, key_controller);
+   }
+   
    gtk_widget_grab_focus(entry);
 
    gtk_widget_show(frame);
@@ -734,21 +770,7 @@ scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "launch the python dialog here" << std::endl;
-
-   GtkWidget *scripting_dialog = widget_from_builder("python_window");
-   GtkWidget *python_entry     = widget_from_builder("python_window_entry");
-   if (scripting_dialog && python_entry) {
-      std::cout << "setup python window entry " << python_entry << std::endl;
-      // 20220810-PE we only want to do this once. How do I do that?
-      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
-      GtkWindow* main_window = GTK_WINDOW(graphics_info_t::get_main_window());
-      gtk_window_set_transient_for(GTK_WINDOW(scripting_dialog),main_window);
-      gtk_widget_show(scripting_dialog);
-   } else {
-      std::cout << "ERROR:: Null scripting dialog or entry" << std::endl;
-   }
-
+   show_python_scripting_window();
 }
 
 void

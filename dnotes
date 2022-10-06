@@ -10817,3 +10817,32 @@ Mon 12 Sep 18:29:06 BST 2022
 
    have a look at vkbasalt - related to mangohud maybe?
 
+---
+Tue 27 Sep 17:26:28 BST 2022
+
+convert to overlay:
+
+-   set_transient_for_main_window(window);
+-   gtk_widget_show(window);
++   // set_transient_for_main_window(window);
++   // gtk_widget_show(window);
++
++
++   //  ---------------- User an overlay ---------
++
++   {
++      GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
++      GtkWidget *vbox    = widget_from_builder("new_accession_code_vbox"); // create this
++
++      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
++      gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
++      gtk_widget_set_valign(vbox, GTK_ALIGN_START);
++
++      GtkWidget *entry = widget_from_builder("new_get_accession_code_entry");
++      gtk_widget_set_can_focus(entry, TRUE);
++      gtk_widget_set_focusable(entry, TRUE);
++      gtk_widget_grab_focus(entry);
++
++      gtk_widget_show(vbox);
++   }
++

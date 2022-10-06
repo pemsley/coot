@@ -146,70 +146,141 @@ graphics_info_t::init_shaders() {
 
 
 void
-graphics_info_t::init_framebuffers() { // 20220129-PE a crows thing
+graphics_info_t::init_framebuffers(unsigned int width, unsigned int height) { // 20220129-PE a crows thing
+
+   // width and height are passed becasue the window has not been realised yet so it has zero width and height.
+
+   std::cout << "------------- init_framebuffers() start ----------- " << std::endl;
 
    unsigned int index_offset = 0;
-   GLenum err;
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: init_framebuffers start () err is " << err << std::endl;
 
    GtkAllocation allocation;
    auto gl_area = glareas[0]; // conversion from crows
-   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
-   float w = allocation.width;
-   float h = allocation.height;
+   // gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+
+   float w = width; // allocation.width;
+   float h = height; // allocation.height;
+
+   std::cout << "------------- init_framebuffers() w " << w << " h " << h << " ----------- " << std::endl;
 
    // di.framebuffer_for_shadows.init(1024, 1024, index_offset, "shadows"); Hmmm too tricky to integrate
    // while I don't know what I'm doing
 
    // ------------------ Shadow framebuffer ------------------------
 
-   // (this doesn't use the framebuffer class - it should)
+   auto make_the_shadow_framebuffer = [] (unsigned int &depthMap_framebuffer,
+                                          unsigned int &depthMap_texture,
+                                          unsigned int texture_width,
+                                          unsigned int texture_height) {
 
-   glGenFramebuffers(1, &shadow_depthMap_framebuffer);
-   glGenTextures(1, &shadow_depthMap_texture);
-   glBindTexture(GL_TEXTURE_2D, shadow_depthMap_texture);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_texture_width, shadow_texture_height, 0, GL_DEPTH_COMPONENT,
-                GL_FLOAT, NULL);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-   float clampColour[] = {1.0f, 1.0f, 1.0f, 1.0f};
-   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColour);
+      glGenFramebuffers(1, &depthMap_framebuffer);
+      glGenTextures(1, &depthMap_texture);
+      glBindTexture(GL_TEXTURE_2D, depthMap_texture);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texture_width, texture_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+      float clampColour[] = {1.0f, 1.0f, 1.0f, 1.0f};
+      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColour);
 
-   glBindFramebuffer(GL_FRAMEBUFFER, shadow_depthMap_framebuffer);
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_depthMap_texture, 0);
-   glDrawBuffer(GL_NONE);
-   glReadBuffer(GL_NONE);
+      glBindFramebuffer(GL_FRAMEBUFFER, depthMap_framebuffer);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap_texture, 0);
 
-   // glBindFramebuffer(GL_FRAMEBUFFER, 0); // standard OpenGL
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));  // GTK OpenGL
+      // for shadow framebuffer we do this
+      glDrawBuffer(GL_NONE);
+      glReadBuffer(GL_NONE);
+
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+         std::cout << "Framebuffer for shadow depthmap not complete!" << std::endl;
+      else
+         std::cout << "Framebuffer for shadow depthmap was complete!" << std::endl;
+   
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: init_framebuffers() post shadow depthmap, error is " << err << std::endl;
+
+      // glBindFramebuffer(GL_FRAMEBUFFER, 0); // standard OpenGL
+      // gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));  // GTK OpenGL comment out - testing
+   };
+
+   auto make_generic_framebuffer = [] (const std::string &framebuffer_name,
+                                       unsigned int &depthMap_framebuffer,
+                                       unsigned int &depthMap_texture,
+                                       unsigned int texture_width,
+                                       unsigned int texture_height) {
+
+      glGenFramebuffers(1, &depthMap_framebuffer);
+      glGenTextures(1, &depthMap_texture);
+      glBindTexture(GL_TEXTURE_2D, depthMap_texture);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, texture_width, texture_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+      float clampColour[] = {1.0f, 1.0f, 1.0f, 1.0f};
+      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColour);
+
+      glBindFramebuffer(GL_FRAMEBUFFER, depthMap_framebuffer);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap_texture, 0);
+
+      // for shadow framebuffer we do this
+      glDrawBuffer(GL_NONE);
+      glReadBuffer(GL_NONE);
+
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+         std::cout << "Framebuffer for " << framebuffer_name << " not complete!" << std::endl;
+      else
+         std::cout << "Framebuffer for " << framebuffer_name << " was complete!" << std::endl;
+   
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: init_framebuffers() post shadow depthmap, error is " << err << std::endl;
+
+      // glBindFramebuffer(GL_FRAMEBUFFER, 0); // standard OpenGL
+      // gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));  // GTK OpenGL comment out - testing
+   };
+
+
+   make_generic_framebuffer("shadow-depth-framebuffer", shadow_depthMap_framebuffer, shadow_depthMap_texture,
+                            shadow_texture_width, shadow_texture_height);
+
+   w = 100;
+   h = 100;
 
    // ------------------ AO framebuffer ------------------------
 
-   unsigned int attachment_index_colour_texture = 0; // CHECKME
-
-   // ------------------ AO framebuffer ------------------------
-
-   attachment_index_colour_texture = 0; // CHECKME
+   unsigned int attachment_index_colour_texture = 0;
    framebuffer_for_effects.init(w, h, attachment_index_colour_texture, "effects-framebuffer");
+
+   // unsigned int effects_fbo = 0;
+   // unsigned int effects_depth_texture = 0;
+   // make_generic_framebuffer("effects-framebuffer", effects_fbo, effects_depth_texture, w, h);
+   // make_generic_framebuffer("effects-framebuffer", effects_fbo, effects_depth_texture, w, h);
 
    // ------------------ DOF blur framebuffers ------------------------
 
    // index_offset is added to GL_COLOR_ATTACHMENT0 in the call too glFramebufferTexture()
    //
-   index_offset = 4;
+   index_offset = 0;
    blur_y_framebuffer.init(w, h, index_offset, "blur-y");
    err = glGetError();
    if (err) std::cout << "GL ERROR:: post blur_y_framebuffer init() err is " << err << std::endl;
-   index_offset = 3;
+   index_offset = 0;
    blur_x_framebuffer.init(w, h, index_offset, "blur-x");
    err = glGetError();
    if (err) std::cout << "GL ERROR::post blur_x_framebuffer init() err is " << err << std::endl;
-   index_offset = 5;
+   index_offset = 0;
    combine_textures_using_depth_framebuffer.init(w, h, index_offset, "new-blur");
-   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_combine framebuffer init() err is "
-                                          << err << std::endl;
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERR:: init_framebuffers() post blur_combine framebuffer init() err is "
+                << err << std::endl;
 
+   std::cout << "------------- init_framebuffers() done ----------- " << std::endl;
 }
 
 
@@ -836,7 +907,7 @@ graphics_info_t::generate_ssao_kernel_samples() {
 
 
 void
-graphics_info_t::init_joey_ssao_stuff() {
+graphics_info_t::init_joey_ssao_stuff(int w, int h) {
 
    // need to init this stuff:
    //
@@ -860,13 +931,20 @@ graphics_info_t::init_joey_ssao_stuff() {
    // // Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
    // static Camera camera;
 
-   attach_buffers();
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: init_joey_ssao_stuff() --- start --- err is " << err << std::endl;
 
-   GtkAllocation allocation;
-   auto gl_area = glareas[0];
-   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
+   // attach_buffers();
+   // err = glGetError();
+   // if (err) std::cout << "GL ERROR:: init_joey_ssao_stuff() post attach_buffers() err is " << err << std::endl;
+
+   // thw window is not realized yet, so the w and h are passed.
+   // GtkAllocation allocation;
+   // auto gl_area = glareas[0];
+   // gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   // int w = allocation.width;
+   // int h = allocation.height;
 
 
    {
@@ -893,7 +971,7 @@ graphics_info_t::init_joey_ssao_stuff() {
          glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
          glEnableVertexAttribArray(1);
          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
-         GLenum err = glGetError();
+         err = glGetError();
          if (err) std::cout << "init_screen_quads() err is " << err << std::endl;
 
          unsigned int quadVBO;  // this separate names and put it into the display_info_t as data members.
@@ -977,14 +1055,19 @@ graphics_info_t::init_joey_ssao_stuff() {
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
       // finally check if framebuffer is complete
       if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-         std::cout << "Framebuffer not complete!" << std::endl;
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+         std::cout << "Framebuffer for SSAO GBuffer not complete!" << w << " " << h << std::endl;
+      else
+         std::cout << "Framebuffer for SSAO GBuffer was complete!" << w << " " << h << std::endl;
+
+      // you are not allowed to bind this in opengl.
+      // glBindFramebuffer(GL_FRAMEBUFFER, 0);
    }
 
    // also create framebuffer to hold SSAO processing stage
    // -----------------------------------------------------
 
-   glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
+   glGenFramebuffers(1, &ssaoFBO);
+   glGenFramebuffers(1, &ssaoBlurFBO);
    glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 
    // SSAO color buffer
@@ -995,7 +1078,10 @@ graphics_info_t::init_joey_ssao_stuff() {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-      std::cout << "SSAO Framebuffer not complete!" << std::endl;
+      std::cout << "SSAO Framebuffer not complete! " << w << " " << h << std::endl;
+   else
+      std::cout << "SSAO Framebuffer was complete!" << w << " " << h << std::endl;
+
    // and blur stage
    glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
    glGenTextures(1, &ssaoColorBufferBlur);
@@ -1005,7 +1091,9 @@ graphics_info_t::init_joey_ssao_stuff() {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-      std::cout << "SSAO Blur Framebuffer not complete!" << std::endl;
+      std::cout << "SSAO Blur Framebuffer not complete!" << w << " " << h << std::endl;
+   else
+      std::cout << "SSAO Blur Framebuffer was complete!" << w << " " << h << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
    generate_ssao_kernel_samples();
@@ -1031,7 +1119,7 @@ graphics_info_t::init_joey_ssao_stuff() {
    // std::cout << "DEBUG:: in init_joey_ssao_stuff() gPosition gNormal gAlbedo noiseTexture "
    // << gPosition << " " << gNormal << " " << gAlbedo << " " << noiseTexture << std::endl;
 
-   GLenum err = glGetError();
+   err = glGetError();
    if (err)
       std::cout << "ERROR init_joey_ssao_stuff() end err is " << err << std::endl;
    
@@ -1262,6 +1350,7 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
 void
 graphics_info_t::resize_framebuffers_textures_renderbuffers(int width, int height) {
 
+   std::cout << "DEBUG:: resize_framebuffers_textures_renderbuffers() " << width << " " << height << std::endl;
 
    framebuffer_for_effects.reset(width, height);
    blur_x_framebuffer.reset(width, height);

@@ -5916,62 +5916,93 @@ Do you want to continue?
     <property name="orientation">vertical</property>
 
     <child>
-      <object class="GtkBox" id="main_window_toolbar_hbox">
+        <object class="GtkBox" id="main_window_toolbar_hbox_outer">
         <property name="orientation">horizontal</property>
-        <style>
-          <class name="toolbar"/>
-        </style>
-        <child>
-          <object class="GtkButton" id="toolbar_reset_view_button">
-            <property name="label" translatable="yes">Reset View</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">reset-view</property>
-            <signal name="clicked" handler="reset_view" swapped="no"/>
-            <!-- <child> -->
-            <!--   <object class="GtkImage"> -->
-            <!--     <property name="icon-name">"reset-view.png"</property> -->
-            <!--   </object> -->
-            <!-- </child> -->
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="toolbar_display_manager_button">
-            <property name="label" translatable="yes">Display Manager</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">display-manager</property>
-            <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
-          </object>
-        </child>
+          <child>
+            <object class="GtkBox" id="main_window_toolbar_hbox">
+              <property name="orientation">horizontal</property>
+              <style>
+                <class name="toolbar"/>
+              </style>
+              <child>
+                <object class="GtkButton" id="toolbar_reset_view_button">
+                  <property name="label" translatable="yes">Reset View</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">reset-view</property>
+                  <signal name="clicked" handler="reset_view" swapped="no"/>
+                  <!-- <child> -->
+                  <!--   <object class="GtkImage"> -->
+                  <!--     <property name="icon-name">"reset-view.png"</property> -->
+                  <!--   </object> -->
+                  <!-- </child> -->
+                </object>
+              </child>
+              <child>
+                <object class="GtkButton" id="toolbar_display_manager_button">
+                  <property name="label" translatable="yes">Display Manager</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">display-manager</property>
+                  <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="go_to_atom_button">
-            <property name="label" translatable="yes">Go to Atom...</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">go-to-atom</property>
-            <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
-          </object>
-        </child>
+              <child>
+                <object class="GtkButton" id="go_to_atom_button">
+                  <property name="label" translatable="yes">Go to Atom...</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">go-to-atom</property>
+                  <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="go_to_ligand_button">
-            <property name="label" translatable="yes">Go to (Next) Ligand</property>
-            <property name="can-focus">0</property>
-            <property name="icon-name">go-to-ligand</property>
-            <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
-          </object>
-        </child>
+              <child>
+                <object class="GtkButton" id="go_to_ligand_button">
+                  <property name="label" translatable="yes">Go to (Next) Ligand</property>
+                  <property name="can-focus">0</property>
+                  <property name="icon-name">go-to-ligand</property>
+                  <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
+                </object>
+              </child>
 
-        <child>
-          <object class="GtkButton" id="add_toolbar_buttons_button">
-            <property name="label" translatable="yes">+</property>
-            <property name="can-focus">0</property>
-            <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
-            <property name="margin-start">6</property>
-            <property name="halign">end</property> <!-- doesn't work -->
-          </object>
-        </child>
+            </object>
+          </child>
+          <child>
+            <object class="GtkBox" id="main_window_toolbar_hbox_end">
+              <property name="orientation">horizontal</property>
+              <style>
+                <class name="toolbar"/>
+              </style>
+              <child>
+                <object class="GtkLabel" id="toolbar_expander">
+                  <property name="label" translatable="no"></property>
+                  <property name="can-focus">0</property>
+                  <property name="hexpand">True</property>
+                </object>
+              </child>
 
-      </object>
+              <child>
+                <object class="GtkButton" id="add_toolbar_buttons_button">
+                  <property name="label" translatable="yes">+</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+                  <property name="margin-start">6</property>
+                  <property name="halign">end</property>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkButton" id="python_scripting_button">
+                  <property name="label" translatable="yes">Py</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
+                  <property name="margin-start">2</property>
+                  <property name="halign">end</property> 
+                </object>
+              </child>
+
+            </object>
+          </child>
+        </object>
     </child>
 
     <child>
@@ -8850,6 +8881,7 @@ just the cell and symmetry)
   <object class="GtkWindow" id="python_window">
     <property name="title" translatable="yes">Coot: Python Scripting</property>
     <property name="default-width">500</property>
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox41">
         <property name="orientation">vertical</property>
