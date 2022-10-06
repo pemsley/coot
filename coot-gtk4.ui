@@ -39,11 +39,13 @@
         </item>
         <item>
           <attribute name="label">Fetch PDB using Accession Code...</attribute>
-          <attribute name="action">app.fetch_pdb_using_code_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">oca</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB &amp; Map using EDS...</attribute>
-          <attribute name="action">app.fetch_pdb_and_map_using_eds_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">eds</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
