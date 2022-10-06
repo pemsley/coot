@@ -610,59 +610,17 @@ new_startup_application_activate(GtkApplication *application,
    guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
    // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
 
-   graphics_info_t g;
-   g.set_gtkbuilder(builder);
-
-   // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
-   // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
-   GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox", builder);
-   GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
-   // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
+   graphics_info_t::set_gtkbuilder(builder);
 
    // GMenu *menu = create_menu_by_hand(application);
-   GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
+   GMenu *menubar = G_MENU(graphics_info_t::get_gobject_from_builder("menubar"));
    gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
-
-   // toolbar button - connect the refine menu to the GtkMenuButton
-   GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton", builder);
-   GMenuModel *refine_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "refine-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(refine_menubutton), refine_menu);
-
-   GtkWidget *fixed_atoms_menubutton = widget_from_builder("fixed_atoms_menubutton");
-   GMenuModel *fixed_atoms_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "fixed-atoms-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(fixed_atoms_menubutton), fixed_atoms_menu);
-
-   GtkWidget *delete_menubutton = widget_from_builder("delete_menubutton");
-   GMenuModel *delete_item_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "delete-item-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(delete_menubutton), delete_item_menu);
-
-   // move this function to where it can be called when we click on the "Mutate"
-   // button (both of them, I suppose).
-   // The builder argument may not be necessary when moved to somewhere sensible.
-   auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type,
-                                                  GtkBuilder *builder) {
-      if (residue_type == "PROTEIN") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-protein-menu"));
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-      if (residue_type == "NUCLEIC-ACID") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-nucleic-acid-menu"));
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-   };
-
-
-   add_typed_menu_to_mutate_menubutton("PROTEIN", builder);
-
+   
+   // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
+   // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
+   GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox");
+   GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox");
    gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
    gtk_window_present(GTK_WINDOW(app_window));
