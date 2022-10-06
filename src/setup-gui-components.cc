@@ -31,12 +31,8 @@ void setup_generic_hide_on_escape_controller(GtkWidget* target_widget, GtkWidget
    gtk_widget_add_controller(target_widget, key_controller);
 }
 
-void setup_fetch_pdb_using_code() {
-   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+void setup_accession_code_frame() {
    GtkWidget *frame = widget_from_builder("accession_code_frame");
-   //GtkWidget *label = widget_from_builder("accession_code_label");
-   //gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
    setup_generic_hide_on_escape_controller(widget_from_builder("accession_code_entry"),frame);
 }
 
@@ -49,6 +45,6 @@ void setup_get_monomer() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_get_monomer();
-   setup_fetch_pdb_using_code();
+   setup_accession_code_frame();
    g_info("Done initializing UI components.");
 }

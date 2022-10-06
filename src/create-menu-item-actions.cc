@@ -339,11 +339,13 @@ void
 fetch_pdb_using_code_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 G_GNUC_UNUSED GVariant *parameter,
 G_GNUC_UNUSED gpointer user_data) {
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
    GtkWidget *frame = widget_from_builder("accession_code_frame");
-   // this is probably equivalent
-   //gtk_widget_set_visible(frame,TRUE);
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
    GtkWidget* entry = widget_from_builder("accession_code_entry");
    gtk_widget_grab_focus(entry);
+   // this is probably equivalent
+   //gtk_widget_set_visible(frame,TRUE);
    gtk_widget_show(frame);
 }
 
@@ -353,12 +355,11 @@ fetch_pdb_and_map_using_eds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                    G_GNUC_UNUSED gpointer user_data) {
 
    int n = COOT_ACCESSION_CODE_WINDOW_EDS;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   set_transient_for_main_window(window);
-   gtk_widget_show(window);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_show(frame);
 }
 
 void
