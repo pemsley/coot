@@ -140,7 +140,6 @@ molecules_container_t::test_origin_cube() const {
 
    std::vector<coot::api::vnc_vertex> vertices;
    std::vector<g_triangle> triangles;
-   
 
    glm::vec4 c(0.5, 0.2, 0.5, 1.0); // colour
 

@@ -265,11 +265,22 @@ add_library(coot STATIC
 
 )
 
-# rget_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
+# target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
 
 target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
 
 set_target_properties(coot PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DNODERAWFS -DFFTW_ENABLE_FLOAT" LINK_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_PTHREADS=1")
+
+
+# this doesn't work. Needs some CMake expertise
+# add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
+# # target_link_options(test-molecules-container PRIVATE -sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 --pre-js coot_env.js)
+# target_link_directories(test-molecules-container PUBLIC .)
+# target_link_libraries(test-molecules-container coot)
+# target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
+# target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
+
+
 
 FILE(WRITE ${CMAKE_BINARY_DIR}/coot/coot_env.js
 Module.preRun = [function() {ENV.COOT_DATA_DIR="${coot_src}"}, function() {ENV.CCP4_LIB="${CMAKE_BINARY_DIR}/ccp4_lib"}]

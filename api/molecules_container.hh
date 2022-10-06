@@ -12,6 +12,7 @@
 class molecules_container_t {
 
    std::vector<coot::molecule_t> molecules;
+   coot::protein_geometry geom;
 
 public:
    molecules_container_t() {}
