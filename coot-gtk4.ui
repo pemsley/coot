@@ -6318,7 +6318,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkBox" id="vbox102">
                         <property name="orientation">vertical</property>
-                        <property name="homogenous">True</property>
+                        <property name="homogeneous">True</property>
                         <property name="spacing">5</property>
                         <child>
                           <object class="GtkToggleButton" id="geometry_distance_togglebutton">
