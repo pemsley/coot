@@ -237,10 +237,6 @@ int graphics_info_t::rotate_translate_y_position = -100;
 int graphics_info_t::ramachandran_plot_x_position = -100;  // initially unset
 int graphics_info_t::ramachandran_plot_y_position = -100;
 
-// save Distances and Angles dialog position
-int graphics_info_t::distances_and_angles_dialog_x_position = -100;  // initially unset
-int graphics_info_t::distances_and_angles_dialog_y_position = -100;
-
 coot::Cartesian graphics_info_t::distance_pos_1 = coot::Cartesian(0.0, 0.0, 0.0);
 coot::Cartesian graphics_info_t::angle_tor_pos_1 = coot::Cartesian(0.0, 0.0, 0.0);
 coot::Cartesian graphics_info_t::angle_tor_pos_2 = coot::Cartesian(0.0, 0.0, 0.0);

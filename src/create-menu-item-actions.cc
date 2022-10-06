@@ -1401,8 +1401,7 @@ distances_and_angles_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-  GtkWidget *widget = wrapped_create_geometry_dialog();
-  set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
+  GtkWidget* widget = widget_from_builder("geometry_frame");
   store_geometry_dialog(widget); /* needed to deactivate the distance
 				    togglebutton after 2nd atoms
 				    clicked in graphics */

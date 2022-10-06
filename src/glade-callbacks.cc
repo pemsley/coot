@@ -4859,12 +4859,9 @@ on_geometry_dialog_close_button_clicked
   gtk_widget_hide(dialog);
 #endif
 
-  GtkWidget *dialog = widget_from_builder("geometry_dialog");
-  store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
+  GtkWidget *frame = widget_from_builder("geometry_frame");
   store_geometry_dialog(NULL);
-  gtk_widget_hide(dialog);
-  
-
+  gtk_widget_hide(frame);
 }
 
 
@@ -4875,44 +4872,6 @@ on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
 {
   if (gtk_toggle_button_get_active(togglebutton))
     do_angle_define();
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_distances_and_angles1_activate      (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-  GtkWidget *widget = wrapped_create_geometry_dialog();
-
-  set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
-
-  store_geometry_dialog(widget); /* needed to deactivate the distance
-				    togglebutton after 2nd atoms
-				    clicked in graphics */
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-  gtk_widget_show(widget);
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_dialog_destroy             (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-
-  /* OK, so the user moved the dialog somewhere, we want to store that
-     position before we go. */
-
-/* Nope!  we can't do the cast of object->widget, (then widget->window
-   is NULL) and store function fails. */
-/*   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, GTK_WIDGET(object)); */
-
-  /* However, we do want to unset the geometry_dialog pointer */
-   store_geometry_dialog(NULL);
 
 }
 

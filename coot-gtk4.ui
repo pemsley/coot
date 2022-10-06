@@ -5333,93 +5333,6 @@ Do you want to continue?
     </child>
   </object>
 
-  <object class="GtkDialog" id="geometry_dialog">
-    <property name="title" translatable="yes">Coot Model Geometry</property>
-    <signal name="destroy" handler="on_geometry_dialog_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="dialog-vbox39">
-        <property name="orientation">vertical</property>
-        <property name="margin-start">4</property>
-        <property name="margin-end">4</property>
-        <property name="margin-top">4</property>
-        <property name="margin-bottom">4</property>
-        <property name="spacing">4</property>
-        <child>
-          <object class="GtkBox" id="vbox102">
-            <property name="orientation">vertical</property>
-            <property name="spacing">4</property>
-            <child>
-              <object class="GtkToggleButton" id="geometry_distance_togglebutton">
-                <property name="label" translatable="yes">  Distance  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_distance_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="geometry_angle_togglebutton">
-                <property name="label" translatable="yes">  Angle  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_angle_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="geometry_torsion_togglebutton">
-                <property name="label" translatable="yes">  Torsion  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_torsion_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkSeparator">
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_last_distance_button">
-                <property name="label" translatable="yes">  Clear Last Distance  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_last_distance_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_all_distances_button">
-                <property name="label" translatable="yes">  Clear All Distances  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_all_distances_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_atom_labels_button">
-                <property name="label" translatable="yes">  Clear All Atom Labels  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_atom_labels_button_clicked" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="action">
-          <object class="GtkButton" id="geometry_dialog_close_button">
-            <property name="label" translatable="yes">  Close  </property>
-            <property name="can-focus">1</property>
-            <property name="use-underline">1</property>
-            <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
-            <property name="margin-start">4</property>
-            <property name="margin-end">4</property>
-            <property name="margin-top">4</property>
-            <property name="margin-bottom">4</property>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-
   <object class="GtkWindow" id="global_map_properties_window">
     <property name="title" translatable="yes">Global map properties window</property>
     <child>
@@ -6381,6 +6294,96 @@ Do you want to continue?
                             <signal name="clicked" handler="on_refinement_and_regularization_vbox_close_button_clicked" swapped="no"/>
                           </object>
                         </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="geometry_frame">
+                <property name="halign">start</property>
+                <property name="valign">end</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <!-- <property name="title" translatable="yes">Coot Model Geometry</property> -->
+                <child>
+                  <object class="GtkBox" id="dialog-vbox39">
+                    <property name="orientation">vertical</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkBox" id="vbox102">
+                        <property name="orientation">vertical</property>
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_distance_togglebutton">
+                            <property name="label" translatable="yes">Distance</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_distance_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_angle_togglebutton">
+                            <property name="label" translatable="yes">Angle</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_angle_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_torsion_togglebutton">
+                            <property name="label" translatable="yes">Torsion</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_torsion_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSeparator">
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_last_distance_button">
+                            <property name="label" translatable="yes">Clear Last Distance</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_last_distance_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_all_distances_button">
+                            <property name="label" translatable="yes">Clear All Distances</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_all_distances_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_atom_labels_button">
+                            <property name="label" translatable="yes">Clear All Atom Labels</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_atom_labels_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="action">
+                      <object class="GtkButton" id="geometry_dialog_close_button">
+                        <property name="label" translatable="yes">Close</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                       </object>
                     </child>
                   </object>
