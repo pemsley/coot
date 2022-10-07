@@ -10405,6 +10405,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="shader_settings_dialog">
     <property name="title" translatable="yes">Coot Shader Settings</property>
     <signal name="close" handler="on_shader_settings_dialog_close" swapped="no"/>
@@ -10435,6 +10436,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         <property name="margin-bottom">2</property>
                         <property name="margin-start">4</property>
                         <property name="margin-end">4</property>
+                        <signal name="toggled" handler="on_shader_settings_basic_mode_togglebutton_toggled" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10478,7 +10480,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkCheckButton" id="shader_settings_do_depth_fog_checkbutton">
                     <property name="label" translatable="yes">Enable</property>
-                    <property name="can-focus">1</property>
+                    <property name="can-focus">0</property>
+                    <signal name="toggled" handler="on_shader_settings_do_depth_fog_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child type="label">
@@ -10505,6 +10508,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                             <property name="can-focus">1</property>
                             <property name="round-digits">2</property>
                             <property name="digits">2</property>
+                            <signal name="value-changed" handler="on_shader_settings_brightness_scale_value_changed" swapped="no"/>
                           </object>
                         </child>
                         <child type="label">
@@ -10530,6 +10534,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10547,6 +10552,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_radius_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10563,6 +10569,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_bias_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10580,6 +10587,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">0</property>
                                     <property name="digits">0</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_n_kernel_samples_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10598,6 +10606,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">0</property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10605,6 +10614,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10612,6 +10622,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10648,6 +10659,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                             <property name="can-focus">1</property>
                             <property name="round-digits">2</property>
                             <property name="digits">2</property>
+                            <signal name="value-changed" handler="on_shader_settings_gamma_scale_value_changed" swapped="no"/>
                           </object>
                         </child>
                         <child type="label">
@@ -10673,6 +10685,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_shadow_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10691,6 +10704,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">0</property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_0_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10698,6 +10712,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10705,6 +10720,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10712,6 +10728,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">3</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_3_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10732,6 +10749,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1 </property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10739,6 +10757,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10746,6 +10765,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">3 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10753,6 +10773,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">4 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10760,6 +10781,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">5 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10767,6 +10789,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">6 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10802,6 +10825,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Off</property>
                                     <property name="can-focus">1</property>
                                     <property name="active">1</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                                 <child>
@@ -10809,6 +10833,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Depth Blur</property>
                                     <property name="can-focus">1</property>
                                     <property name="group">shader_settings_depth_blur_outline_off_radiobutton</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                                 <child>
@@ -10816,6 +10841,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Outline</property>
                                     <property name="can-focus">1</property>
                                     <property name="group">shader_settings_depth_blur_outline_off_radiobutton</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_outline_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                               </object>
@@ -10827,6 +10853,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_focus_depth_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10843,6 +10870,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
