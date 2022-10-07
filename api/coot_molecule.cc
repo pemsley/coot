@@ -1,4 +1,6 @@
 
+#include <clipper/ccp4/ccp4_map_io.h>
+
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot_molecule.hh"
 #include "ideal/pepflip.hh"
@@ -207,5 +209,21 @@ coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
 
    mmdb::Residue *r = coot::util::get_residue(residue_spec, atom_sel.mol);
    return r;
+
+}
+
+
+int
+coot::molecule_t::writeMap(const std::string &file_name) const {
+
+   int status = 0; // maybe catch an error sometime later?
+
+   clipper::CCP4MAPfile mapout;
+   mapout.open_write(file_name);
+   mapout.export_xmap(xmap);
+   mapout.close_write();
+   status = 1;
+
+   return status;
 
 }

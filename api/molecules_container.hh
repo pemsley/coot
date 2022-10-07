@@ -58,6 +58,8 @@ public:
    // returns either the specified residue or null if not found
    mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &residue_spec) const;
 
+   int writeMap(int imol, const std::string &file_name) const;
+
 };
 
 #endif // MOLECULES_CONTAINER_HH

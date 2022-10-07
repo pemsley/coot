@@ -80,15 +80,26 @@ namespace coot {
       bool is_valid_map_molecule() const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid);
 
-      // functions
+      // model utils
 
-      int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
-      bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
-      std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found
       mmdb::Residue *get_residue(const coot::residue_spec_t &residue_spec) const;
+
+      bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
+
+      // model analysis functions
+
+      std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
+
+      // model-changing functions
+
+      int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+
+      // map functions
+
+      int writeMap(const std::string &file_name) const;
 
    };
 }

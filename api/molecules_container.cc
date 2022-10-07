@@ -286,3 +286,15 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
    }
    return r;
 }
+
+
+int
+molecules_container_t::writeMap(int imol, const std::string &file_name) const {
+
+   int status= 0;
+   if (is_valid_map_molecule(imol)) {
+      status = molecules[imol].writeMap(file_name);
+   }
+   return status;
+
+}
