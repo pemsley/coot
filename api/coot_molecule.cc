@@ -175,13 +175,13 @@ coot::molecule_t::ramachandran_validation() const {
    for (it=ppm.phi_psi.begin(); it!=ppm.phi_psi.end(); ++it) {
       const auto &phi_psi(it->second);
       mmdb::Residue *rp = phi_psi.residue_prev;
-      mmdb::Residue *rm = phi_psi.residue_this;
-      mmdb::Residue *rn = phi_psi.residue_prev;
-      if (rp && rm && rn) {
-         mmdb::Atom *at = rm->GetAtom(" CA "); // 20221006-PE alt-confs another day
+      mmdb::Residue *rt = phi_psi.residue_this;
+      mmdb::Residue *rn = phi_psi.residue_next;
+      if (rp && rt && rn) {
+         mmdb::Atom *at = rt->GetAtom(" CA "); // 20221006-PE alt-confs another day
          if (at) {
             coot::Cartesian pos(at->x, at->y, at->z);
-            coot::util::phi_psi_t cupp(rp, rm, rn);
+            coot::util::phi_psi_t cupp(rp, rt, rn);
             auto p = std::make_pair(pos, cupp);
             v.push_back(p);
          }

@@ -211,6 +211,9 @@ molecules_container_t::ramachandran_validation(int imol) const {
 coot::simple_mesh_t
 molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
 
+   // this function should be pushed into the coot::molecule_t class
+   // (which means that the mesh will be copied)
+
    unsigned int num_subdivisions = 2;  // pass this
    glm::vec3 screen_up_dir(0,0,1); // for now
    float rama_ball_pos_offset_scale = 0.6; // floats because of glm multiplier

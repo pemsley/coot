@@ -45,7 +45,7 @@ namespace rama_plot {
       }
       // this can throw an exception (e.g. bonding atoms too far
       // apart).  Uses get_phi_psi() below
-      phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next);
+      phi_psi_t(mmdb::Residue *prev_res, mmdb::Residue *this_res, mmdb::Residue *next_res);
       phi_psi_t() : phi(0), psi(0) { init(); }
       phi_psi_t(double phi, double psi, const std::string &res_name, const std::string &label,
                 int res_no, const std::string &ins_code, const std::string &chain_id_in, bool is_pre_pro);
