@@ -9,6 +9,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
+#include "simple-mesh.hh"
 
 namespace coot {
 
@@ -67,6 +68,7 @@ namespace coot {
       graphical_bonds_container bonds_box;
       int get_bonds_box_type() const { return bonds_box_type; }
 
+      void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
 
    public:
       atom_selection_container_t atom_sel;
@@ -100,6 +102,8 @@ namespace coot {
       // map functions
 
       int writeMap(const std::string &file_name) const;
+
+      coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) const;
 
    };
 }
