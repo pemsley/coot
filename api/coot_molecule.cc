@@ -192,6 +192,7 @@ coot::molecule_t::ramachandran_validation() const {
          coot::Cartesian dir_3 = ca_pos - cb_pos;
          coot::Cartesian r = dir_1 + dir_2 + dir_3;
          dir = r.unit();
+         status = true;
       } else {
          if (CA && C && N) {
             coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
@@ -201,6 +202,7 @@ coot::molecule_t::ramachandran_validation() const {
             coot::Cartesian dir_2 = ca_pos - n_pos;
             coot::Cartesian r = dir_1 + dir_2;
             dir = r.unit();
+            status = true;
          }
       }
       return std::make_pair(status, dir);
