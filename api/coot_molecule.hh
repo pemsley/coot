@@ -2,6 +2,7 @@
 #define COOT_MOLECULE_HH
 
 #include <utility>
+#include <atomic>
 
 #include <clipper/core/xmap.h>
 #include "coot-utils/atom-selection-container.hh"
@@ -10,6 +11,10 @@
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
 #include "simple-mesh.hh"
+#include "ghost-molecule-display.hh"
+
+#include "density-contour/CIsoSurface.h"
+#include "gensurf.hh"
 
 namespace coot {
 
@@ -70,11 +75,29 @@ namespace coot {
 
       void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
 
+      bool is_EM_map() const;
+      short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
+      short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
+      coot::ghost_molecule_display_t map_ghost_info;
+
+      bool xmap_is_diff_map;
+      bool has_xmap() const { return is_valid_map_molecule(); }
+
+      void clear_draw_vecs();
+      void clear_diff_map_draw_vecs();
+      std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+      std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
+      std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
+
    public:
       atom_selection_container_t atom_sel;
       molecule_t() {}
-      explicit molecule_t(atom_selection_container_t asc) : atom_sel(asc) { bonds_box_type = UNSET_TYPE; }
+      explicit molecule_t(atom_selection_container_t asc) : atom_sel(asc) {
+         bonds_box_type = UNSET_TYPE; is_em_map_cached_flag = false; xmap_is_diff_map = false; }
       clipper::Xmap<float> xmap; // public because the filling function needs access
+
+      // public access to the lock (from threads)
+      static std::atomic<bool> draw_vector_sets_lock;
 
       // utils
 
@@ -103,7 +126,8 @@ namespace coot {
 
       int writeMap(const std::string &file_name) const;
 
-      coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) const;
+      // changes the internal map mesh holder
+      coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
 
    };
 }

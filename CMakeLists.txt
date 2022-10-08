@@ -258,6 +258,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/oct.cc
             ${coot_src}/api/interfaces.cc
             ${coot_src}/api/coot_molecule.cc
+            ${coot_src}/api/coot_molecule_maps.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/simple-mesh.cc
@@ -272,7 +273,7 @@ target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb cl
 
 # set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DNODERAWFS -DFFTW_ENABLE_FLOAT" LINK_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_PTHREADS=1")
 
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
@@ -281,7 +282,11 @@ target_link_directories(test-molecules-container PUBLIC ${dependency_install_dir
 
 # how to use the above: set(dependency_install_dir $ENV{HOME}/autobuild/$ENV{OS}-$ENV{HOST}-gtk3)
 target_link_libraries(test-molecules-container cootapi)
-target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
+target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src
+  ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm
+  ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
+set_target_properties(test-molecules-container PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
+
 # target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
 
 

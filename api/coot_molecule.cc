@@ -1,6 +1,5 @@
 
-#include <clipper/ccp4/ccp4_map_io.h>
-
+#include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot_molecule.hh"
 #include "ideal/pepflip.hh"
@@ -220,29 +219,3 @@ coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
 }
 
 
-int
-coot::molecule_t::writeMap(const std::string &file_name) const {
-
-   int status = 0;
-
-   if (! xmap.is_null()) {
-      clipper::CCP4MAPfile mapout;
-      mapout.open_write(file_name);
-      mapout.export_xmap(xmap);
-      mapout.close_write();
-      status = 1;
-   }
-
-   return status;
-
-}
-
-coot::simple_mesh_t
-coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) const {
-
-   coot::simple_mesh_t m;
-
-   // should the contouring be threaded?
-
-   return m;
-}

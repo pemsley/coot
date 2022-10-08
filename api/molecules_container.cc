@@ -298,3 +298,14 @@ molecules_container_t::writeMap(int imol, const std::string &file_name) const {
    return status;
 
 }
+
+
+coot::simple_mesh_t
+molecules_container_t::get_map_contours_mesh(int imol, clipper::Coord_orth position, float radius, float contour_level) {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_map_molecule(imol)) {
+      mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
+   }
+   return mesh;
+}

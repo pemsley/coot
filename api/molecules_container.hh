@@ -60,6 +60,10 @@ public:
 
    int writeMap(int imol, const std::string &file_name) const;
 
+   // not const because the internal state of a coot_molecule is changed
+   coot::simple_mesh_t get_map_contours_mesh(int imol, clipper::Coord_orth position, float radius, float contour_level);
+
+
 };
 
 #endif // MOLECULES_CONTAINER_HH
