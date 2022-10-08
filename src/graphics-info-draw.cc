@@ -2709,7 +2709,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 label_scale(0.000095, 0.000095/aspect_ratio);
    tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
-   std::cout << "---------- done setup_hud_geometry_bars()" << std::endl;
+   // std::cout << "---------- done setup_hud_geometry_bars()" << std::endl;
 
 }
 
@@ -2746,7 +2746,7 @@ graphics_info_t::setup_hud_buttons() {
    if (err)
       std::cout << "debug:: in setup_hud_buttons() finish " << std::endl;
 
-   std::cout << "---------- done setup_hud_buttons()" << std::endl;
+   // std::cout << "---------- done setup_hud_buttons()" << std::endl;
 }
 
 void
@@ -4340,8 +4340,9 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int width, int height) {
 
-   std::cout << "DEBUG:: reset_frame_buffers() " << width << " " << height
-             << " use_framebuffers: " << use_framebuffers << std::endl;
+   if (false)
+      std::cout << "DEBUG:: reset_frame_buffers() " << width << " " << height
+                << " use_framebuffers: " << use_framebuffers << std::endl;
 
    if (use_framebuffers) {
 

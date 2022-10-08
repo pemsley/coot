@@ -183,7 +183,7 @@ void setup_python_with_coot_modules(int argc, char **argv) {
          // it without that test
          //
          PyObject *gui_module = PyImport_ImportModule("coot_gui");
-         std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
+         // std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
       }
    }
 
