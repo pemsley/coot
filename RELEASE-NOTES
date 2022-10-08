@@ -1,6 +1,5 @@
 
-
-  Release 0.9.8.4
+  Release 0.9.8.5
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
@@ -15,6 +14,10 @@
 
   o BUG-FIX Fix up interesting_residues_gui(). Fixes problem in "Residues with Missing Atoms"
             Reported by EJD.
+
+----
+
+  Release 0.9.8.4 [Fumbled release]
 
 ----
 

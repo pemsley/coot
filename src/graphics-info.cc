@@ -4495,8 +4495,7 @@ graphics_info_t::apply_undo() {
    if (umol == -2) {
       if (use_graphics_interface_flag) {
 	 GtkWidget *dialog = create_undo_molecule_chooser_dialog();
-	 GtkWidget *option_menu = lookup_widget(dialog,
-						"undo_molecule_chooser_option_menu");
+	 // GtkWidget *option_menu = lookup_widget(dialog, "undo_molecule_chooser_option_menu");
 	 // fill_option_menu_with_undo_options(option_menu);
 	 GtkWidget *combobox = lookup_widget(dialog, "undo_molecule_chooser_combobox");
 	 fill_combobox_with_undo_options(combobox);
