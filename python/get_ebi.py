@@ -357,17 +357,17 @@ def get_pdb_redo(text):
             print "getting", url_pdb
             status = net_get_url(url_pdb, pdb_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" (url_pdb, pdb_file_name,
+                print "Failed to get %s %s status %s" %(url_pdb, pdb_file_name,
                                                        status)
             print "getting", url_mtz
             status = net_get_url(url_mtz, mtz_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" (url_mtz, mtz_file_name,
+                print "Failed to get %s %s status %s" %(url_mtz, mtz_file_name,
                                                        status)
             print "getting", url_py
             status = net_get_url(url_py, py_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" (url_py, py_file_name,
+                print "Failed to get %s %s status %s" %(url_py, py_file_name,
                                                        status)
 
             status_imol = read_pdb(pdb_file_name)

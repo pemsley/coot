@@ -4548,6 +4548,9 @@ def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
 
 # Necessary for jligand to find libcheck. Mmmh. Was this required before?!
 # does similar things to the ccp4 console batch. Win only
+# Shouldnt be necessary since we try to setup CCP4 in the startup script.
+# And, $CCP4 probably wont be set any more...
+#
 def setup_ccp4():
     """This will append ccp4 (e.g. CBIN) to PATH, so that we can find
     CCP4 programs in PATH and not only in CBIN. But only if not already
@@ -4567,7 +4570,7 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\\ccp4temp"],
+                "CCP4_SCR": ["C:\ccp4temp"],
                 "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
                 "CBIN": [CCP4, "bin"],
                 "CLIB": [CCP4, "lib"],
@@ -4576,27 +4579,27 @@ def setup_ccp4():
                 "CHTML": [CCP4, "html"],
                 "CINCL": [CCP4, "include"],
                 "CCP4I_TOP": [CCP4, "share", "ccp4i"],
-                "CLIBD_MON": [CCP4, "lib", "data", "monomers"],
+                "CLIBD_MON": [CCP4, "lib", "data", "monomers\\"],
                 "MMCIFDIC": [CCP4, "lib", "ccp4", "cif_mmdic.lib"],
                 "CRANK": [CCP4, "share", "ccp4i", "crank"],
-                "CCP4_OPEN": ["unknown"],
+                "CCP4_OPEN": ["UNKNOWN"],
                 "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
                 }
-            for env_var in ccp4_env_vars:
-                env_dir = os.getenv(env_var)
-                if not env_dir:
-                    # variable not set or empty, so let do so if exists
-                    key = ccp4_env_vars[env_var]
-                    if len(key) > 1:
-                        # dir should be:
-                        value = os.path.join(*key)
+            for env_var, env_dir_ls in ccp4_env_vars.iteritems():
+                current_env_dir = os.getenv(env_var)
+                if not current_env_dir:
+                    # variable not set, so let do so if exists
+                    if len(env_dir_ls) > 1:
+                        env_dir = os.path.join(*env_dir_ls)
+                        if os.path.isdir(env_dir):
+                            # have dir so set variable
                             #print "BL DEBUG:: set env variable to", env_var, value
-                        if os.path.isdir(value):
-                            os.environ[env_var] = value
+                            os.environ[env_var] = env_dir
                     else:
-                        value = key[0]
+                        # set a single value
                         #print "BL DEBUG:: set env variable to", env_var, value
-                        os.environ[env_var] = value
+                        os.environ[env_var] = env_dir_ls[0]
+
             # change PATH!?
             # how to do this cleverly?! Insert after first 3 - wincoot path
             # (better to test for PATH where Coot comes from)
@@ -4804,6 +4807,47 @@ def alphafold_pLDDT_colours(imol):
     graphics_to_user_defined_atom_colours_representation(imol)
 
 
+
+
+def write_current_sequence_as_pir(imol, ch_id, file_name):
+    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+
+def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
+
+    def get_clustalw2_command():
+        clustalw2_command = "clustalw2"
+        ccp4_libexec_path = os.path.join(os.getenv("CCP4"), "libexec") \
+            if os.getenv("CCP4") else ""
+        return find_exe(clustalw2_command, ["PATH", ccp4_libexec_path, "CBIN"])
+
+    current_sequence_pir_file = "current-sequence.pir"
+    aligned_sequence_pir_file = "aligned-sequence.pir"
+    clustalw2_output_file_name = "clustalw2-output-file.log"
+
+    clustalw2_command = get_clustalw2_command()
+    if not clustalw2_command:
+        print "No clustalw2 command!"
+        return False
+    else:
+
+        if os.path.exists("aligned-sequence.pir"):
+            os.remove("aligned-sequence.pir")
+        if os.path.exists("aligned-sequence.dnd"):
+            os.remove("aligned-sequence.dnd")
+        if os.path.exists("current-sequence.dnd"):
+            os.remove("current-sequence.dnd")
+
+        write_current_sequence_as_pir(imol, ch_id, current_sequence_pir_file)
+
+        data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
+                      "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
+        popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
+        associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
+        apply_pir_alignment(imol, ch_id)
+        simple_fill_partial_residues(imol)
+        resolve_clashing_sidechains_by_deletion(imol)
+
+
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe
 
@@ -4812,4 +4856,4 @@ global use_mogul
 use_mogul = True
 if (not command_in_path_qm("mogul")):
     use_mogul = False
-        
+

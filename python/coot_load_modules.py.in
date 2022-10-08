@@ -41,7 +41,14 @@ reduce_command = 'reduce'
 # (default to tips_gui displayed is True).
 # deftexi do_coot_tips_flag
 global do_coot_tips_flag
-do_coot_tips_flag = True
+do_coot_tips_flag = False
+
+# coot tips have been removed from the list of files to load but
+# there may be users who have no_coot_tips() in their ~/.coot script.
+# Or run at startup (like CCP4). Give it an empty function.
+#
+def no_coot_tips():
+    pass
 
 # this is the variable we check so that coot doesn't double-load its extensions
 # - this is set in src/main.cc
