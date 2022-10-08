@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_EXECUTABLE_SUFFIX ".js")
+# set(CMAKE_EXECUTABLE_SUFFIX ".js")
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR}/../coot)
 set(dependency_install_dir $ENV{HOME}/autobuild/$ENV{OS}-$ENV{HOST}-gtk3)
@@ -12,7 +12,7 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.0.06-pre" -DPACKAGE_VER
 
 #  pyrogen, compat, auxil, goograph, src ignored.
 
-add_library(coot STATIC
+add_library(cootapi SHARED
             ${coot_src}/analysis/daca.cc
             ${coot_src}/analysis/kolmogorov.cc
             ${coot_src}/analysis/stats.cc
@@ -37,7 +37,6 @@ add_library(coot STATIC
             ${coot_src}/ideal/pepflip.cc
             ${coot_src}/ideal/parallel-planes.cc
             ${coot_src}/ideal/simple-restraint.cc
-            ${coot_src}/ideal/mini-rsr.cc
             ${coot_src}/ideal/ng.cc
             ${coot_src}/ideal/torsion-bonds.cc
             ${coot_src}/ideal/chi-squareds.cc
@@ -93,6 +92,7 @@ add_library(coot STATIC
             ${coot_src}/coot-utils/spherical-harmonics.cc
             ${coot_src}/coot-utils/peak-search-from-list.cc
             ${coot_src}/coot-utils/helix-analysis.cc
+            ${coot_src}/coot-utils/exp-fit.cc
             ${coot_src}/coot-utils/segmap.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/cablam-markup.cc
@@ -245,7 +245,6 @@ add_library(coot STATIC
             ${coot_src}/ligand/smith-waterman.cc
             ${coot_src}/ligand/tube-finder.cc
             ${coot_src}/ligand/fast-ss-search.cc
-            ${coot_src}/ligand/res-tracer.cc
             ${coot_src}/ligand/rotamer.cc
             ${coot_src}/cootaneer/buccaneer-sequence.cpp
             ${coot_src}/cootaneer/cootaneer-sequence.cpp
@@ -267,17 +266,22 @@ add_library(coot STATIC
 
 # target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
 
-target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
+target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
+target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
+target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
-set_target_properties(coot PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DNODERAWFS -DFFTW_ENABLE_FLOAT" LINK_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_PTHREADS=1")
+# set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DNODERAWFS -DFFTW_ENABLE_FLOAT" LINK_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_PTHREADS=1")
+
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1")
 
 
-# this doesn't work. Needs some CMake expertise
-# add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
+add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
 # # target_link_options(test-molecules-container PRIVATE -sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 --pre-js coot_env.js)
-# target_link_directories(test-molecules-container PUBLIC .)
-# target_link_libraries(test-molecules-container coot)
-# target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
+target_link_directories(test-molecules-container PUBLIC ${dependency_install_dir}/lib .)
+
+# how to use the above: set(dependency_install_dir $ENV{HOME}/autobuild/$ENV{OS}-$ENV{HOST}-gtk3)
+target_link_libraries(test-molecules-container cootapi)
+target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
 # target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
 
 

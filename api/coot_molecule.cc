@@ -55,6 +55,13 @@ int coot::molecule_t::flipPeptide(const coot::residue_spec_t &rs, const std::str
 
 }
 
+void
+coot::molecule_t::makebonds(coot::protein_geometry *geom, std::set<int> &no_bonds_to_these_atoms) {
+
+   // fill me
+}
+
+
 
 void
 coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p, const char *caller) {
