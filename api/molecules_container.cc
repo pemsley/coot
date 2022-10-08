@@ -217,8 +217,6 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
    // (which means that the mesh will be copied)
 
    unsigned int num_subdivisions = 2;  // pass this
-   glm::vec3 screen_up_dir(0,0,1); // for now
-   float rama_ball_pos_offset_scale = 0.6; // floats because of glm multiplier
    float rama_ball_radius = 0.5;
 
    auto prob_raw_to_colour_rotation = [] (float prob) {
@@ -286,8 +284,7 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
          const float &prob_raw = phi_psi_probability(phi_psi, ramachandrans_container);
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
-         glm::vec3 atom_position = cartesian_to_glm(position);
-         glm::vec3 ball_position = atom_position + rama_ball_pos_offset_scale * screen_up_dir;
+         glm::vec3 ball_position = cartesian_to_glm(position);
          unsigned int idx_base = mesh.vertices.size();
          unsigned int idx_tri_base = mesh.triangles.size();
          for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
