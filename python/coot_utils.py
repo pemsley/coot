@@ -2448,6 +2448,14 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             if is_purine(rn_2):
                 atom_list_1 = pyrimidine_to_purine_set
                 atom_list_2 = purine_to_pyrimidine_set
+
+        for atom_name_1, atom_name_2 in zip(atom_list_1, atom_list_2):
+            add_lsq_atom_pair(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
+                              chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
+
+        print "applying matches!"
+        apply_lsq_matches(imol_ref, imol_mov)
+        print "done matches!"
         
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
@@ -2493,7 +2501,13 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 if residue_exists_qm(imol, chain_id_in, (resno - 1), ""):
                     delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
-            if not is_nucleotide(imol_ligand, "A", 1):
+            if (is_nucleotide(imol_ligand, "A", 1) and
+                is_nucleotide(imol, chain_id_in, resno)):
+                overlap_by_base(imol_ligand, "A", 1, "", imol, chain_id_in, resno, "")
+            else:
+                overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+
+            if (not is_nucleotide(imol_ligand, "A", 1)):
                 match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
@@ -2505,15 +2519,16 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)
-                print "BL DEBUG:: new res spec", new_res_spec
-                change_residue_number(imol, new_chain_id,
+                print "BL DEBUG:: new_res_spec", new_res_spec
+                print "BL DEBUG:: change_residue_number to ", resno
+                change_residue_number(imol,
+                                      residue_spec_to_chain_id(new_res_spec),
                                       residue_spec_to_res_no(new_res_spec),
                                       residue_spec_to_ins_code(new_res_spec),
                                       resno, "")
                 if not (new_chain_id == chain_id_in):
                     change_chain_id(imol, new_chain_id, chain_id_in, 1,
-                                    residue_spec_to_res_no(new_res_spec),
-                                    residue_spec_to_res_no(new_res_spec))
+                                    resno, resno) # 1 means "use range"
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()
@@ -2530,10 +2545,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                         dir_atoms = phos_dir[tlc]
                     else:
                         dir_atoms = False
-                    refine_zone(imol, chain_id_in, resno, resno, "")
+                    #refine_zone(imol, chain_id_in, resno, resno, "")
                     if dir_atoms:
-                        spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
-                        refine_zone(imol, chain_id_in, resno, resno, "")
+                        spin_search(imol_map, imol, chain_id_in, resno, "",
+                                    dir_atoms, spin_atoms)
+                        #refine_zone(imol, chain_id_in, resno, resno, "")
                 accept_regularizement()
                 set_refinement_immediate_replacement(replacement_state)
 
@@ -3842,14 +3858,16 @@ def file_to_preferences(filename):
 
     coot_python_dir = os.getenv("COOT_PYTHON_DIR")
     if not coot_python_dir:
-        if is_windows():
+        coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
+        if not os.path.isdir(coot_python_dir) and is_windows():
+            # maybe its old an in another place!?!
             coot_python_dir = os.path.normpath(os.path.join(sys.prefix,
                                                             'lib', 'site-packages', 'coot'))
         else:
             coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
     if not os.path.isdir(coot_python_dir):
-        add_status_bar_text("Missing COO_PYTHON_DIR")
+        add_status_bar_text("Missing COOT_PYTHON_DIR")
     else:
         ref_py = os.path.join(coot_python_dir, filename)
 
@@ -3886,6 +3904,77 @@ def file_to_preferences(filename):
                         shutil.copyfile(ref_py, pref_file)
                         if os.path.isfile(pref_file):
                             execfile(pref_file, globals())
+
+
+# something like this for intermediate atoms also?
+#
+# n-neighbs is either 0 or 1
+#
+def rebuild_residues_using_db_loop(imol, middle_residue_spec, n_neighbs):
+
+    global db_loop_preserve_residue_names
+
+    # utility function
+    #
+    def remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low):
+
+        for residue_idx, res_name in enumerate(saved_residue_names):
+            if isinstance(res_name, str):
+                if res_name == "GLY":
+                    res_no_gly = resno_low + residue_idx
+                    delete_atom(imol_db_loop, ch_id, res_no_gly, "", " CB ", "")
+
+    # main line
+
+    resno_mid = residue_spec_to_res_no(middle_residue_spec)
+    resno_low = resno_mid - n_neighbs
+    resno_high = resno_mid + n_neighbs
+    r = range(resno_mid - 4 - n_neighbs, resno_mid + n_neighbs + 0) + \
+        range(resno_mid + 1 + n_neighbs, resno_mid + 3 + n_neighbs)
+    print "BL DEBUG:: r", r
+    ch_id = residue_spec_to_chain_id(middle_residue_spec)
+    residue_specs = map(lambda res_no: [ch_id, res_no, ""], r)
+
+    loop_mols = protein_db_loops(imol, residue_specs, imol_refinement_map(),
+                                 1, db_loop_preserve_residue_names)
+    residue_spec_of_residues_to_be_replaced = [middle_residue_spec] \
+        if n_neighbs == 0 else map(lambda rno: [ch_id, rno, ""],
+                                   range(resno_low, resno_high + 1))
+
+    saved_residue_names = map(lambda rno: residue_spec_to_residue_name(imol, rno),
+                              residue_spec_of_residues_to_be_replaced)
+
+    if len(loop_mols) > 0:
+        # loop-mols have the correct residue numbering but the wrong chain-id
+        # and residue type
+        imol_db_loop = loop_mols[1][0]
+        tmp_loop_mols = loop_mols[0]
+        chain_id_db_loop = chain_id(imol_db_loop, 0)
+        if not ch_id == chain_id_db_loop:
+            change_chain_id(imol, imol_db_loop, chain_id_db_loop, ch_id, 0, 0, 0)
+        selection = "//" + ch_id + "/" + str(resno_low) + "-" + str(resno_high)
+
+        # if the original residue was a GLY, the imol-db-loop might (probably
+        # will) have CB. If that is the case, then we should remove the CBs now
+        #
+        remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low)
+
+        # this moves atoms, adds atoms if needed, doesn't change the residue name
+        #
+        replace_fragment(imol, imol_db_loop, selection)
+        # tidy up
+        for i in tmp_loop_mols:
+            close_molecule(i)
+
+def go_to_box_middle():
+
+    ls = map_molecule_list()
+    if ls:
+        imol_map = ls[0]
+        c = cell(imol_map)
+        print "BL DEBUG:: c", c
+        rc = map(lambda a: a * 0.5, c[:3])
+        set_rotation_centre(*rc)
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a
