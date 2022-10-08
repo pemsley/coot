@@ -101,10 +101,33 @@ void setup_get_monomer() {
    setup_generic_hide_on_escape_controller(entry,frame);
 }
 
+void attach_css_style_class_to_overlays() {
+
+   GtkCssProvider *provider = gtk_css_provider_new();
+   gtk_css_provider_load_from_data (provider, ".mainWindowOverlayChild { background: rgba(0,0,0,0.7)}", -1);
+
+   auto set_transparency_on_widget = [provider](GtkWidget* widget){
+      GtkStyleContext *context = gtk_widget_get_style_context(widget);
+      gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      gtk_style_context_add_class (context, "mainWindowOverlayChild");
+      g_debug("'mainWindowOverlayChild' CSS class set for: %p",widget);
+   };
+
+   GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
+   GtkWidget* to_skip = widget_from_builder("main_window_graphics_hbox");
+   for(GtkWidget* child = gtk_widget_get_first_child(overlay); 
+       child != nullptr; 
+       child = gtk_widget_get_next_sibling(child)) {
+      if(child != to_skip) 
+         set_transparency_on_widget(child);
+   }
+}
+
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_get_monomer();
    setup_accession_code_frame();
+   attach_css_style_class_to_overlays();
    g_info("Done initializing UI components.");
 }
