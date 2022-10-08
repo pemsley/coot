@@ -1,4 +1,6 @@
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 #include "molecules_container.hh"
 
 int main(int argc, char **argv) {
@@ -15,6 +17,10 @@ int main(int argc, char **argv) {
              << " triangles" << std::endl;
 
    // Let's look at the colours of the balls.
+   if (false)
+      for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
+         std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
+
 
    // --- density mesh
 

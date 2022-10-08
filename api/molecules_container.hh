@@ -7,15 +7,17 @@
 #include "validation-information.hh"
 #include "simple-mesh.hh"
 #include "coords/Cartesian.h"
+#include "coords/ramachandran-container.hh"
 #include "coot-utils/coot-rama.hh"
 
 class molecules_container_t {
 
    std::vector<coot::molecule_t> molecules;
    coot::protein_geometry geom;
+   ramachandrans_container_t ramachandrans_container;
 
 public:
-   molecules_container_t() {}
+   molecules_container_t() : ramachandrans_container(ramachandrans_container_t()) {}
 
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;

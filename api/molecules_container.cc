@@ -1,4 +1,6 @@
 
+#include <iomanip>
+
 #include "molecules_container.hh"
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -232,6 +234,43 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
                               return glm::vec3(c.x(), c.y(), c.z());
    };
 
+   auto phi_psi_probability = [] (const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) {
+
+      const clipper::Ramachandran *rama = &rc.rama;
+
+      if (phi_psi.residue_name() == "PRO") rama = &rc.rama_pro;
+      if (phi_psi.residue_name() == "GLY") rama = &rc.rama_gly;
+
+      // if (phi_psi.residue_name() == "ILE" || phi_psi.residue_name() == "VAL" ) rama = &rc.rama_ileval;
+      // if (phi_psi.is_pre_pro())
+      // if (phi_psi.residue_name() != "GLY")
+      // rama = &rc.rama_pre_pro;
+
+      double rama_prob = rama->probability(clipper::Util::d2rad(phi_psi.phi()),
+                                           clipper::Util::d2rad(phi_psi.psi()));
+      return rama_prob;
+   };
+
+   auto test_ramachandran_probabilities = [] (const ramachandrans_container_t &rc) {
+      
+      std::vector<const clipper::Ramachandran *> ramas = { &rc.rama, &rc.rama_gly, &rc.rama_pro, &rc.rama_non_gly_pro };
+
+      for (unsigned int ir=0; ir<ramas.size(); ir++) {
+         for (unsigned int i=0; i<10; i++) {
+            for (unsigned int j=0; j<10; j++) {
+               double phi = static_cast<double>(i * 36.0) - 180.0;
+               double psi = static_cast<double>(j * 36.0) - 180.0;
+               double p = rc.rama.probability(phi, psi);
+               std::cout << ir << "   "
+                         << std::setw(10) << phi << " " << std::setw(10) << psi << " "
+                         << std::setw(10) << p << std::endl;
+            }
+         }
+      }
+   };
+
+   // test_ramachandran_probabilities(ramachandrans_container); // don't use rama_pre_pro without CLIPPER_HAS_TOP8000
+
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
 
@@ -243,7 +282,8 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
       int n_ramachandran_goodness_spots = ramachandran_goodness_spots.size();
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
          const coot::Cartesian &position = ramachandran_goodness_spots[i].first;
-         const float &prob_raw = 0.5; // FIXME - was ramachandran_goodness_spots[i].second;
+         const coot::util::phi_psi_t &phi_psi = ramachandran_goodness_spots[i].second;
+         const float &prob_raw = phi_psi_probability(phi_psi, ramachandrans_container);
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
          glm::vec3 atom_position = cartesian_to_glm(position);

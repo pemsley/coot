@@ -271,8 +271,7 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
 target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
-# set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DNODERAWFS -DFFTW_ENABLE_FLOAT" LINK_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_PTHREADS=1")
-
+# add in -DCLIPPER_HAS_TOP8000=1
 set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 
