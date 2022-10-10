@@ -2289,18 +2289,6 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *o
 }
 #endif
 
-// Caller (optionally) clears the vbox something like this:
-//      GtkWidget *vbox = widget_from_builder("check_chiral_volumes_dialog_vbox");
-//      auto my_delete_box_items = [] (GtkWidget *widget, void *data) { gtk_container_remove(GTK_CONTAINER(data), widget); };
-//      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-// Caller creates a new combobox_molecule, shows it and packs it,
-//       GtkWidget *combobox_new = gtk_combo_box_new();
-//      gtk_widget_show(combobox_new);
-//      gtk_box_pack_start(GTK_BOX(vbox), combobox_new, FALSE, FALSE, 4);
-// Caller then calls this function
-//
-// Maybe fill_combobox_with_molecule_options() can be used like this too?
-//
 void
 graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule,
                                                             GCallback callback_func,

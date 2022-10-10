@@ -7041,7 +7041,6 @@ on_fit_loop_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
-   // fit_loop_from_widget(w); // we don't need to pass the widget, we can look it up when we get there
    fit_loop_using_dialog();
    gtk_widget_hide(w);
 
@@ -7250,16 +7249,15 @@ on_change_chain_residue_range_yes_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_sequence_do_autofit_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_mutate_sequence_do_autofit_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer        user_data) {
+
    int imol_map = -1;
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       imol_map = imol_refinement_map();
       if (imol_map == -1) {
-	 gtk_toggle_button_set_active(togglebutton, FALSE);
+	 gtk_check_button_set_active(checkbutton, FALSE);
 	 show_select_map_dialog();
 	 info_dialog("A map has not yet been assigned for Refinement/Fitting");
       }
@@ -7268,11 +7266,9 @@ on_mutate_sequence_do_autofit_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   /* not doing anything?! */
+on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled(GtkToggleButton *togglebutton,
+                                                                   gpointer         user_data) {
+   /* not doing anything because the button state read at execution time  */
 }
 
 extern "C" G_MODULE_EXPORT

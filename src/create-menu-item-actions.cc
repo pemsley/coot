@@ -672,6 +672,27 @@ align_and_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void
+fit_loop_by_database_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+  wrapped_fit_loop_db_loop_dialog();
+
+}
+
+#include "fit-loop.hh" // move up
+
+void
+fit_loop_by_ramachandran_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
+   gtk_widget_show(w);
+
+}
+
 
 void
 ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1014,7 +1035,6 @@ void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       coot_add_hydrogen_atoms(imol);
    }
-         
 }
 
 void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1627,7 +1647,7 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
-void
+ void
 unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
@@ -2081,6 +2101,8 @@ create_actions(GtkApplication *application) {
    // Calculate
 
    add_action(       "align_and_mutate_action",        align_and_mutate_action);
+   add_action(   "fit_loop_by_database_search",     fit_loop_by_database_search);
+   add_action("fit_loop_by_ramachandran_search",fit_loop_by_ramachandran_search);
    add_action(         "ligand_builder_action",          ligand_builder_action);
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
    add_action(             "run_script_action",              run_script_action);

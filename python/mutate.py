@@ -120,10 +120,9 @@ def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
             altloc = ""
             inscode = ""
             resno = ires + start_res_no
-            print("auto-fit-best-rotamer ", resno, altloc, inscode, chain_id,
-                  imol, mol_for_map, clash)
-            score = coot.auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
-                                               imol, mol_for_map, clash, 0.5)
+            # print("debug:: auto-fit-best-rotamer ", resno, altloc, inscode, chain_id, imol, mol_for_map, clash, 0.5)
+            #score =      coot.auto_fit_best_rotamer(resno, altloc, inscode, chain_id, imol, mol_for_map, clash, 0.5)
+            score = coot.auto_fit_best_rotamer(imol, chain_id, resno, inscode, altloc, mol_for_map, clash, 0.5)
             print("   Best score: ", score)
 #          coot_utils.number_list(start_res_no,stop_res_no)
         if (backup_mode == 1):

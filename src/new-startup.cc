@@ -202,9 +202,9 @@ GtkWidget *new_startup_create_glarea_widget() {
 }
 
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
+                                  double          x,
+                                  double          y,
+                                  GtkWidget      *area) {
    graphics_info_t g;
 
 #ifdef __APPLE__
@@ -215,9 +215,9 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
+                                   double          delta_x,
+                                   double          delta_y,
+                                   GtkWidget      *area) {
 
    graphics_info_t g;
 
@@ -240,9 +240,9 @@ void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
 
 
 void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
+                                    double          x,
+                                    double          y,
+                                    GtkWidget      *area) {
    graphics_info_t g;
    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
 }
