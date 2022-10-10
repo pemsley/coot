@@ -182,20 +182,25 @@ molecules_container_t::test_origin_cube() const {
    coot::api::vnc_vertex v23(glm::vec3(1, 1, 1), glm::vec3(0,1,0), c); vertices.push_back(v23);
 
    triangles.push_back(g_triangle( 0, 1, 2));
-   triangles.push_back(g_triangle( 1, 2, 3));
+   triangles.push_back(g_triangle( 1, 3, 2));
    triangles.push_back(g_triangle( 4, 5, 6));
-   triangles.push_back(g_triangle( 5, 6, 7));
+   triangles.push_back(g_triangle( 5, 7, 6));
    triangles.push_back(g_triangle( 8, 9,10));
-   triangles.push_back(g_triangle( 9,10,11));
+   triangles.push_back(g_triangle( 9,11,10));
    triangles.push_back(g_triangle(12,13,14));
-   triangles.push_back(g_triangle(13,14,15));
+   triangles.push_back(g_triangle(13,15,14));
    triangles.push_back(g_triangle(16,17,18));
-   triangles.push_back(g_triangle(17,18,19));
+   triangles.push_back(g_triangle(17,19,18));
    triangles.push_back(g_triangle(20,21,22));
-   triangles.push_back(g_triangle(21,22,23));
+   triangles.push_back(g_triangle(21,23,22));
+
+   for (auto &vertex : vertices) {
+      vertex.pos *= 10.0;
+      vertex.pos += glm::vec3(-5.0, -5.0, -5.0);
+   }
 
    coot::simple_mesh_t m(vertices, triangles);
-   m.translate(glm::vec3(-0.5, -0.5, -0.5));
+   // m.translate(glm::vec3(-0.5, -0.5, -0.5));
    return m;
 }
 

@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
    int status = 0;
 
    molecules_container_t mc;
-   int imol = mc.read_pdb("test.pdb");
+   int imol = mc.read_pdb("pdb5a3h.ent");
 
    // --- rama mesh
    
