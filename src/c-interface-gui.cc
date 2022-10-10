@@ -1901,10 +1901,14 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 
 
 
-void
-reveal_python_scripting_entry() {
+void reveal_python_scripting_entry() {
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
    gtk_revealer_set_reveal_child(revealer,TRUE);
+}
+
+void toggle_reveal_python_scripting_entry() {
+   GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
+   gtk_revealer_set_reveal_child(revealer,!gtk_revealer_get_reveal_child(revealer));
 }
 
 // We want to evaluate the string when we get a carriage return

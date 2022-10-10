@@ -504,6 +504,7 @@ void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					       GtkPositionType pos);
 void setup_guile_window_entry(GtkWidget *entry);
 void reveal_python_scripting_entry();
+void toggle_reveal_python_scripting_entry();
 
 /*  Check if this is needed still, I think not. */
 #ifdef USE_GUILE

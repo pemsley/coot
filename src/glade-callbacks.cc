@@ -8959,14 +8959,6 @@ on_toolbar_display_manager_molecules_all_activate(GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_calculate_scripting_scheme1_activate (GMenuItem     *menuitem,
-                                         gpointer         user_data) {
-
-   post_scheme_scripting_window();
-}
-
-extern "C" G_MODULE_EXPORT
-void
 on_aboutdialog_close                   (GtkDialog       *dialog,
                                         gpointer         user_data)
 {
@@ -10527,7 +10519,7 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
-   reveal_python_scripting_entry();
+   toggle_reveal_python_scripting_entry();
 }
 
 
