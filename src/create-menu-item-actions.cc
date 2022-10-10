@@ -756,7 +756,7 @@ scripting_python_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   show_python_scripting_window();
+   reveal_python_scripting_entry();
 }
 
 void

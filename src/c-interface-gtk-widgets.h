@@ -503,18 +503,14 @@ void change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer da
 void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
 					       GtkPositionType pos);
 void setup_guile_window_entry(GtkWidget *entry);
-void setup_python_window_entry(GtkWidget *entry);
+void reveal_python_scripting_entry();
+void toggle_reveal_python_scripting_entry();
 
 /*  Check if this is needed still, I think not. */
 #ifdef USE_GUILE
 void guile_window_enter_callback( GtkWidget *widget,
 				  GtkWidget *entry );
 #endif /* USE_GUILE */
-
-#ifdef USE_PYTHON
-void python_window_enter_callback( GtkWidget *widget,
-				   GtkWidget *entry );
-#endif /* USE_PYTHON */
 
 /*  ----------------------------------------------------------------------- */
 /*                  Monomer                                                 */

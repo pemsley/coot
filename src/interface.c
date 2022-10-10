@@ -4753,51 +4753,6 @@ create_dynarama_properties_window (void)
   return dynarama_properties_window;
 }
 
-GtkWidget*
-create_python_window (void)
-{
-  GtkWidget *python_window;
-  GtkWidget *vbox41;
-  GtkWidget *scrolledwindow4;
-  GtkWidget *python_window_text;
-  GtkWidget *python_window_entry;
-
-  python_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_object_set_data (GTK_OBJECT (python_window), "python_window", python_window);
-  gtk_container_set_border_width (GTK_CONTAINER (python_window), 10);
-  gtk_window_set_title (GTK_WINDOW (python_window), _("window2"));
-
-  vbox41 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_ref (vbox41);
-  gtk_object_set_data_full (GTK_OBJECT (python_window), "vbox41", vbox41,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (vbox41);
-  gtk_container_add (GTK_CONTAINER (python_window), vbox41);
-
-  scrolledwindow4 = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_ref (scrolledwindow4);
-  gtk_object_set_data_full (GTK_OBJECT (python_window), "scrolledwindow4", scrolledwindow4,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (scrolledwindow4);
-  gtk_box_pack_start (GTK_BOX (vbox41), scrolledwindow4, TRUE, TRUE, 0);
-
-  python_window_text = gtk_text_new (NULL, NULL);
-  gtk_widget_ref (python_window_text);
-  gtk_object_set_data_full (GTK_OBJECT (python_window), "python_window_text", python_window_text,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (python_window_text);
-  gtk_container_add (GTK_CONTAINER (scrolledwindow4), python_window_text);
-
-  python_window_entry = gtk_entry_new ();
-  gtk_widget_ref (python_window_entry);
-  gtk_object_set_data_full (GTK_OBJECT (python_window), "python_window_entry", python_window_entry,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (python_window_entry);
-  gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
-  gtk_widget_set_usize (python_window_entry, 220, -2);
-
-  return python_window;
-}
 
 GtkWidget*
 create_find_ligand_dialog (void)

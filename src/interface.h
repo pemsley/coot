@@ -34,7 +34,6 @@ GtkWidget* create_phs_cell_choice_window (void);
 GtkWidget* create_accession_code_window (void);
 GtkWidget* create_dynarama_window (void);
 GtkWidget* create_dynarama_properties_window (void);
-GtkWidget* create_python_window (void);
 GtkWidget* create_find_ligand_dialog (void);
 GtkWidget* create_find_ligand_many_atoms_dialog (void);
 GtkWidget* create_model_refine_dialog (void);

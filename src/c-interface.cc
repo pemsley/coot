@@ -7124,44 +7124,6 @@ void post_scheme_scripting_window() {
 
 }
 
-/*! \brief pop-up a scripting window for pythoning */
-void post_python_scripting_window() {
-
-#ifdef USE_PYTHON
-
-   bool do_script_scripting_gui = false;
-
-   if (graphics_info_t::python_gui_loaded_flag == TRUE)
-      do_script_scripting_gui = true;
-
-   do_script_scripting_gui = false; // for now, because coot_gui.coot_gui()
-                                    // all sorts of nasty old stuff in it.
-
-   if (do_script_scripting_gui) {
-
-      PyRun_SimpleString("coot_gui.coot_gui()");
-
-   } else {
-
-      // let's load the simple window
-
-      GtkWidget *window = widget_from_builder("python_window");
-
-      // python_entry = lookup_widget(window, "python_window_entry");
-
-      // old but better python script? Hmm.
-      // Probably not. Anyway, for another time to resolve/delete
-      GtkWidget *python_entry = widget_from_builder("python_window_entry");
-      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
-      gtk_widget_show(window);
-
-   }
-
-#else
-  std::cout << "No python" << std::endl;
-#endif
-
-}
 
 
 /* called from c-inner-main */

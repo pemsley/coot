@@ -8956,35 +8956,6 @@ on_toolbar_display_manager_molecules_all_activate(GMenuItem     *menuitem,
 
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_calculate_scripting_python1_activate (GMenuItem     *menuitem,
-                                         gpointer         user_data) {
-
-  post_python_scripting_window();
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-gboolean
-on_python_window_delete_event(GtkWidget       *widget,
-                              GdkEvent        *event,
-                              gpointer         user_data) {
-
-   gtk_widget_hide(widget);
-   return TRUE;
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_calculate_scripting_scheme1_activate (GMenuItem     *menuitem,
-                                         gpointer         user_data) {
-
-   post_scheme_scripting_window();
-}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -10548,7 +10519,7 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_python_scripting_button(GtkToggleButton *togglebutton, gpointer user_data) {
-   show_python_scripting_window();
+   toggle_reveal_python_scripting_entry();
 }
 
 
@@ -12091,26 +12062,6 @@ on_residue_type_chooser_entry_key_press_event
       gtk_widget_hide(window);
    }
    return FALSE;
-}
-#endif
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-void
-on_python_window_entry_activate        (GtkEntry        *entry,
-                                        gpointer         user_data)
-{
-
-}
-
-extern "C" G_MODULE_EXPORT
-gboolean
-on_python_window_entry_key_press_event (GtkWidget       *widget,
-                                        GdkEventKey     *event,
-                                        gpointer         user_data)
-{
-
-  return FALSE;
 }
 #endif
 
