@@ -6393,7 +6393,7 @@ Do you want to continue?
               </object>
             </child>
             <child type="overlay">
-              <object class="GtkRevealer" id="python_scripting_revealer">
+              <object class="Gtk  aler" id="python_scripting_revealer">
                 <property name="halign">fill</property>
                 <property name="valign">end</property>
                 <property name="hexpand">True</property>

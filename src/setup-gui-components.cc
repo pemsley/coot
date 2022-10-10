@@ -123,11 +123,83 @@ void attach_css_style_class_to_overlays() {
    }
 }
 
+gboolean
+on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
+                                                      guint                  keyval,
+                                                      guint                  keycode,
+                                                      GdkModifierType        modifiers,
+                                                      GtkEntry              *entry) {
+   gboolean handled = TRUE;
+   
+   switch(keyval) {
+      case GDK_KEY_Up: {
+         const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (entry_txt) {
+            std::string t = graphics_info_t::command_history.get_previous_command();
+            gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+            g_debug("Setting command entry text to '%s'",t.c_str());
+         }
+         break;
+      }
+      case GDK_KEY_Down: {
+         std::string t = graphics_info_t::command_history.get_next_command();
+         gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         g_debug("Setting command entry text to '%s'",t.c_str());
+         break;
+      }
+      case GDK_KEY_Escape: {
+          g_idle_add(+[](gpointer data)-> gboolean {
+            GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
+            gtk_revealer_set_reveal_child(revealer,FALSE);
+            return G_SOURCE_REMOVE;
+         },NULL);
+         break;
+      }
+      default: {
+         handled = FALSE;
+         g_debug("Python scripting entry: Unhandled key: %s",gdk_keyval_name(keyval));
+      }
+   }
+   return gboolean(handled);
+}
+
+
+void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
+   const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
+   g_info("Running python command: '%s'",entry_txt);
+   PyRun_SimpleString(entry_txt);
+
+   // add a copy of the text to history
+   graphics_info_t::command_history.add_to_history(std::string(entry_txt));
+   // clear the entry
+   gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+void setup_python_scripting_entry() {
+   GtkWidget *entry = widget_from_builder("python_scripting_entry");
+   if(entry == NULL) {
+      g_error("'python_scripting_entry' from builder is NULL");
+      return;
+   }
+   GtkEventController *key_controller_entry = gtk_event_controller_key_new();
+
+   // for 'Up' and 'Down' keys, i.e. history lookup
+   // and for 'Esc' key to hide the revealer
+   g_signal_connect(key_controller_entry, "key-pressed",
+                    G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
+
+   // for executing Python commands
+   g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
+
+   gtk_widget_add_controller(entry, key_controller_entry);
+}
+
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_get_monomer();
    setup_accession_code_frame();
+   setup_python_scripting_entry();
    attach_css_style_class_to_overlays();
    g_info("Done initializing UI components.");
 }
