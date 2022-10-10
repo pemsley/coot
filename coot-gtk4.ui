@@ -6392,6 +6392,19 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+            <child type="overlay">
+              <object class="GtkRevealer" id="python_scripting_revealer">
+              <property name="halign">center</property>
+              <property name="valign">end</property>
+              <property name="visible">True</property>
+              <property name="can_focus">True</property>
+              <child>
+                  <object class="GtkEntry" id="python_window_entry_test">
+                    <property name="can-focus">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
 
