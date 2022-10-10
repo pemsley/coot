@@ -55,6 +55,7 @@ public:
          }
       }
    }
+
    // returns either the specified atom or null if not found
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
    // returns either the specified residue or null if not found
@@ -63,7 +64,8 @@ public:
    int writeMap(int imol, const std::string &file_name) const;
 
    // not const because the internal state of a coot_molecule is changed
-   coot::simple_mesh_t get_map_contours_mesh(int imol, clipper::Coord_orth position, float radius, float contour_level);
+   coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
+                                             float radius, float contour_level);
 
 
 };

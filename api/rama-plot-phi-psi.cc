@@ -144,6 +144,8 @@ rama_plot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1,
 
 }
 
+#if 0 // emscripten hates it
+
 // from ../src/rama-plot.cc
 //
 // this can throw an exception (e.g. bonding atoms too far
@@ -161,6 +163,7 @@ rama_plot::phi_psi_t::phi_psi_t(mmdb::Residue *prev_res, mmdb::Residue *this_res
       }
    }
 }
+#endif
 
 
 // from ../src/rama-plot.cc
@@ -190,16 +193,12 @@ rama_plot::phi_psis_for_model_t::generate_phi_psis(mmdb::Manager *mol_in) {
                   mmdb::Residue *res_next = chain_p->GetResidue(ires+1);
 
                   if (res_prev && residue_p && res_next) {
-                     try {
-                        // coot::phi_psi_t constructor can throw an error
-                        // (e.g. bonding atoms too far apart).
+
+                     std::pair<bool, rama_plot::phi_psi_t> bpp = rama_plot::util::get_phi_psi(res_prev, residue_p, res_next);
+                     if (bpp.first) {
                         coot::residue_spec_t spec(residue_p);
-                        rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
+                        const rama_plot::phi_psi_t &pp = bpp.second;
                         add_phi_psi(spec, pp);
-                     }
-                     catch (const std::runtime_error &rte) {
-                        // nothing too bad, just don't add that residue
-                        // to the plot
                      }
                   }
                }

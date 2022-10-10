@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
    clipper::Coord_orth p(55, 10, 10);
    float radius = 12;
    float contour_level = 0.13;
-   coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p, radius, contour_level);
+   coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
    std::cout << "density mesh: " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
 
