@@ -110,13 +110,13 @@ def clear_backup_gui():
         frame = gtk.Frame("Old Backups")
         vbox = gtk.VBox(False, 3)
         hbox = gtk.HBox(False, 10)
-        ok_button = gtk.Button(" Clear up ")
-        cancel_button = gtk.Button(" Stay messy ")
+        ok_button = gtk.Button(label=" Clear up ")
+        cancel_button = gtk.Button(label=" Stay messy ")
         h_sep = gtk.HSeparator()
         label_str = "  There are " + str(file_stats[0]) + \
                     " old backup files (%.1fMb) \n" %file_stats[1] + \
                     "   Delete Them?"
-        label = gtk.Label(label_str)
+        label = gtk.Label(label=label_str)
         ok_button.connect("clicked", lambda w: list(map(eval, ["delete_coot_backup_files('delete')", "coot_real_exit(0)"])))
         cancel_button.connect("clicked", lambda w: coot.coot_real_exit(0))
 

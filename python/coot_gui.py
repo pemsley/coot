@@ -116,8 +116,7 @@ def smiles_gui():
         if coot.enhanced_ligand_coot_p():
             text = Gtk.Label(label="  [SMILES interface works by using Pyrogen]  ")
         else:
-            text = Gtk.Label(
-                "  [SMILES interface works by using CCP4's LIBCHECK]  ")
+            text = Gtk.Label(label="  [SMILES interface works by using CCP4's LIBCHECK]  ")
         go_button = Gtk.Button(label="  Go  ")
         vbox.append(hbox1)
         vbox.append(hbox2)
@@ -173,10 +172,10 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    function_label = Gtk.Label(function_label)
+    function_label = Gtk.Label(label=function_label)
     smiles_entry = Gtk.Entry()
     cancel_button = Gtk.Button(label="  Cancel  ")
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
 
     vbox.append(hbox1)
     vbox.append(hbox2)
@@ -257,7 +256,7 @@ def generic_double_entry(label_1, label_2,
     smiles_entry = Gtk.Entry()
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     cancel_button = Gtk.Button(label="  Cancel  ")
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
 
     vbox.append(hbox1)
     vbox.append(hbox2)
@@ -347,7 +346,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
     hbox3 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     cancel_button = Gtk.Button(label="  Cancel  ")
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
 
     # all the labelled entries
     #
@@ -358,7 +357,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
         entry_1_default_text = entry_info[1]
         hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
-        label = Gtk.Label(entry_1_hint_text)
+        label = Gtk.Label(label=entry_1_hint_text)
         entry = Gtk.Entry()
         entries.append(entry)
 
@@ -445,7 +444,7 @@ def molecule_centres_gui():
         if (coot.is_valid_model_molecule(molecule_number)):
             name = coot.molecule_name(molecule_number)
             label = str(molecule_number) + " " + name
-            button = Gtk.Button(label)
+            button = Gtk.Button(label=label)
             button.connect("clicked", callback_func, molecule_number, label)
             vbox.add(button)
     window.show()
@@ -638,7 +637,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
             # and fix it button
 
             label = baddie_items[0]
-            button = Gtk.Button(label)
+            button = Gtk.Button(label=label)
 
             inside_vbox.append(hbox)
             hbox.append(button)
@@ -652,7 +651,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
                     fix_button_name = button_name
                 else:
                     fix_button_name = "  Fix  "
-                fix_button = Gtk.Button(fix_button_name)
+                fix_button = Gtk.Button(label=fix_button_name)
                 hbox.pack_end(fix_button, False, False, 2)
                 fix_button.show()
                 fix_button.connect("clicked", fix_func_call, fix_func)
@@ -920,8 +919,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
 
     window = Gtk.Window(title="Molecule Chooser")
     window.set_title('Coot: Molecule Chooser')
-    label = Gtk.Label()
-    label.set_label(chooser_label)
+    label = Gtk.Label(label=chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10)
     vbox.set_margin_top(10)
     vbox.set_margin_bottom(10)
@@ -1731,9 +1729,9 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)      # for Go and Cancel
-    function_label = Gtk.Label(hint_text)
+    function_label = Gtk.Label(label=hint_text)
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
     cancel_button = Gtk.Button(label="  Cancel  ")
 
     # fill_option_menu_with_number_options(option_menu, number_list, default_option_value)
@@ -1784,7 +1782,7 @@ def entry_do_button(vbox, hint_text, button_label, button_press_func, entry_text
     hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     entry = Gtk.Entry()
     button = Gtk.Button(label=button_label)
-    label = Gtk.Label(hint_text)
+    label = Gtk.Label(label=hint_text)
 
     hbox.append(label)
     hbox.append(entry)
@@ -2024,7 +2022,7 @@ def view_saver_gui():
 def add_view_to_views_panel(view_name, view_number):
     global views_dialog_vbox
     if (views_dialog_vbox):
-        button = Gtk.Button(view_name)
+        button = Gtk.Button(label=view_name)
         button.connect(
             "clicked", lambda func: coot.go_to_view_number(view_number, 0))
         views_dialog_vbox.append(button)
@@ -2247,7 +2245,7 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
             inside_vbox.append(h_box)
 
     outside_vbox.set_border_width(2)
-    ok_button = Gtk.Button(close_button_label)
+    ok_button = Gtk.Button(label=close_button_label)
     outside_vbox.pack_end(ok_button, False, False, 2)
     ok_button.connect("clicked", lambda w: window.destroy())
     window.show()
@@ -2319,7 +2317,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
     inside_vbox.append(extra_widget)
 
     outside_vbox.set_border_width(2)
-    ok_button = Gtk.Button(close_button_label)
+    ok_button = Gtk.Button(label=close_button_label)
     outside_vbox.pack_end(ok_button, False, False, 0)
     ok_button.connect("clicked", lambda w: window.destroy())
 
@@ -2384,12 +2382,12 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
         button_ls.append(button)
 
     outside_vbox.set_border_width(2)
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
     outside_vbox.append(button_hbox)
     button_hbox.append(go_button)
     go_button.connect("clicked", go_function_event, button_ls)
     if (cancel_button_label):
-        cancel_button = Gtk.Button(cancel_button_label)
+        cancel_button = Gtk.Button(label=cancel_button_label)
         button_hbox.append(cancel_button)
         cancel_button.connect("clicked", cancel_function_cb)
 
@@ -2870,7 +2868,7 @@ def transform_map_using_lsq_matrix_gui():
     ok_button = Gtk.Button(label="  Transform  ")
     usage = "Note that this will transform the current refinement map " + \
             "to around the screen centre"
-    usage_label = Gtk.Label(usage)
+    usage_label = Gtk.Label(label=usage)
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     frame_info_ref = atom_sel_frame("Reference")
     frame_info_mov = atom_sel_frame("Moving")
@@ -4222,7 +4220,7 @@ def residue_range_gui(func, function_text, go_button_label):
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     function_label = Gtk.Label(function_text)
     cancel_button = Gtk.Button(label="  Cancel  ")
-    go_button = Gtk.Button(go_button_label)
+    go_button = Gtk.Button(label=go_button_label)
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     # the first residue range
     outside_vbox_residue_range = residue_range_widget_info[0]
@@ -4921,7 +4919,7 @@ def water_coordination_gui():
                 atom_spec = water_info[0]
                 t = atom_spec_to_text(atom_spec)
                 bump_text = make_bump_text(imol, water_info)
-                button = Gtk.Button(t + bump_text)
+                button = Gtk.Button(label=t + bump_text)
                 if not is_a_metal_site_too_qm(atom_spec, metal_results):
                     results_vbox.append(button)
                     button.show()
@@ -5878,7 +5876,7 @@ def yes_no_dialog(label_text, title_text=None):
                         (Gtk.STOCK_YES, Gtk.RESPONSE_ACCEPT,
                          Gtk.STOCK_NO, Gtk.RESPONSE_REJECT))
     ifont = Gtk.gdk.Font("fixed")
-    label = Gtk.Label(label_text)
+    label = Gtk.Label(label=label_text)
     dialog.vbox.pack_end(label, True, True, 0)
     dialog.show()
     result = dialog.run()
@@ -6117,9 +6115,9 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     model_chooser_label = "Model"
     map_chooser_label   = "Map (with data info attached)"
     diff_map_chooser_label   = "Difference Map"
-    label_for_map      = Gtk.Label(map_chooser_label)
-    label_for_diff_map = Gtk.Label(diff_map_chooser_label)
-    label_for_model    = Gtk.Label(model_chooser_label)
+    label_for_map      = Gtk.Label(label=map_chooser_label)
+    label_for_diff_map = Gtk.Label(label=diff_map_chooser_label)
+    label_for_model    = Gtk.Label(label=model_chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
