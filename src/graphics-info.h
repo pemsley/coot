@@ -172,6 +172,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "glarea_tick_function.hh"
 
+#include "utils/logging.hh" // 20221008-PE - aftter years of thinking about it, let's do it.
+
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
 	 NEW_COORDS_ADD = 1,                 // not used?
@@ -951,6 +953,8 @@ public:
    //
    void init();
    void setup_key_bindings();
+
+   logging log;
 
    static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;

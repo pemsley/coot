@@ -241,9 +241,11 @@
           <attribute name="label">Fit Loop...</attribute>
           <item>
             <attribute name="label">Fit Loop by Database Search...</attribute>
+            <attribute name="action">app.fit_loop_by_database_search</attribute>
           </item>
           <item>
             <attribute name="label">Fit Loop by Ramachandran Search...</attribute>
+            <attribute name="action">app.fit_loop_by_ramachandran_search</attribute>
           </item>
         </submenu>
         <item>
@@ -7368,7 +7370,7 @@ density (too big to be waters):
                   <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_combobox">
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkComboBoxText" id="mutate_molecule_combobox">
+                      <object class="GtkComboBoxText" id="mutate_sequence_molecule_combobox">
                       </object>
                     </child>
                   </object>
@@ -7385,7 +7387,7 @@ density (too big to be waters):
                       <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_chain_combobox_text">
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkComboBoxText" id="mutate_molecule_chain_combobox">
+                          <object class="GtkComboBoxText" id="mutate_sequence_chain_combobox_text">
                           </object>
                         </child>
                       </object>
@@ -7524,6 +7526,7 @@ density (too big to be waters):
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="mutate_sequence_cancel_button">
                 <property name="label" translatable="yes">   Cancel   </property>
@@ -12035,26 +12038,6 @@ Move a copy?</property>
     <child>
       <object class="GtkBox" id="dialog-vbox68">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox110">
-                <child>
-                  <object class="GtkButton" id="find_blobs_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_find_blobs_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_blobs_ok_button">
-                    <property name="label" translatable="yes">  Find Blobs  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox127">
             <property name="orientation">vertical</property>
@@ -12130,6 +12113,26 @@ Move a copy?</property>
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox110">
+            <child>
+              <object class="GtkButton" id="find_blobs_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_find_blobs_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="find_blobs_ok_button">
+                <property name="label" translatable="yes">  Find Blobs  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>

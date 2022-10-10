@@ -672,6 +672,27 @@ align_and_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void
+fit_loop_by_database_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+  wrapped_fit_loop_db_loop_dialog();
+
+}
+
+#include "fit-loop.hh" // move up
+
+void
+fit_loop_by_ramachandran_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
+   gtk_widget_show(w);
+
+}
+
 
 void
 ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1014,7 +1035,6 @@ void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       coot_add_hydrogen_atoms(imol);
    }
-         
 }
 
 void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1586,27 +1606,54 @@ void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction 
                                                     G_GNUC_UNUSED GVariant *parameter,
                                                     G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "dynamic_atom_overlaps_and_other_outliers";
+      std::string function = "quick_test_validation_outliers_dialog";
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import dynamic_atom_overlaps_and_other_outliers");
+      safe_python_command(sc);
+   }
+
 }
 
 void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
-
+   info_dialog("Oops! No Refmac Log Validation yet");
 }
 
 void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "find_baddies";
+      std::string function = "validation_outliers_dialog";
+      int imol_map = imol_refinement_map();
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(imol_map)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import find_baddies");
+      safe_python_command(sc);
+   }
+
 }
 
-          
-void
+ void
 unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "dynamic menus unmodelled blobs" << std::endl;
+   GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
+   gtk_widget_show(w);
 }
 
 
@@ -2054,6 +2101,8 @@ create_actions(GtkApplication *application) {
    // Calculate
 
    add_action(       "align_and_mutate_action",        align_and_mutate_action);
+   add_action(   "fit_loop_by_database_search",     fit_loop_by_database_search);
+   add_action("fit_loop_by_ramachandran_search",fit_loop_by_ramachandran_search);
    add_action(         "ligand_builder_action",          ligand_builder_action);
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
    add_action(             "run_script_action",              run_script_action);

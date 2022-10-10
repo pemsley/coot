@@ -389,33 +389,33 @@ def make_quick_test_validation_buttons(imol):
     i = make_quick_test_validation_info(imol)
     return i
 
-if True:
+# if True:
 
-    def get_existing_submenu(menu, submenu_label):
-       label_dict = {}
-       for menu_child in menu.get_children():
-         for c in menu_child.get_children():
-           try:
-             t = c.get_text()
-             if t == submenu_label:
-               return menu_child
-           except KeyError as e:
-             pass
+#     def get_existing_submenu(menu, submenu_label):
+#        label_dict = {}
+#        for menu_child in menu.get_children():
+#          for c in menu_child.get_children():
+#            try:
+#              t = c.get_text()
+#              if t == submenu_label:
+#                return menu_child
+#            except KeyError as e:
+#              pass
 
-    if coot_gui_api.main_menumodel():
+#     if coot_gui_api.main_menumodel():
 
-        def make_quick_test_validation_dialog_func():
-            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-                update_button = quick_test_validation_outliers_dialog(aa_imol)
-                global post_manipulation_script
-                def emit_update_button_clicked_script(*args):
-                    update_button.emit("clicked")
-                post_manipulation_script = emit_update_button_clicked_script
+#         def make_quick_test_validation_dialog_func():
+#             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+#                 update_button = quick_test_validation_outliers_dialog(aa_imol)
+#                 global post_manipulation_script
+#                 def emit_update_button_clicked_script(*args):
+#                     update_button.emit("clicked")
+#                 post_manipulation_script = emit_update_button_clicked_script
 
-        menu = coot_gui.coot_menubar_menu("Validate")
-        print("%%% debug in top level of dynamic_atom_overlaps_and_other_outliers menu:", menu)
-        coot_gui.add_simple_coot_menu_menuitem(menu, "Overlaps, Peptides, CBeta, Rama & Rota Outliers",
-                                               lambda func: make_quick_test_validation_dialog_func())
+#         menu = coot_gui.coot_menubar_menu("Validate")
+#         print("%%% debug in top level of dynamic_atom_overlaps_and_other_outliers menu:", menu)
+#         coot_gui.add_simple_coot_menu_menuitem(menu, "Overlaps, Peptides, CBeta, Rama & Rota Outliers",
+#                                                lambda func: make_quick_test_validation_dialog_func())
 
 
 
