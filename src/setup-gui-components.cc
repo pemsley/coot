@@ -104,7 +104,7 @@ void setup_get_monomer() {
 void attach_css_style_class_to_overlays() {
 
    GtkCssProvider *provider = gtk_css_provider_new();
-   gtk_css_provider_load_from_data (provider, ".mainWindowOverlayChild { background: rgba(0,0,0,0.7)}", -1);
+   gtk_css_provider_load_from_data (provider, ".mainWindowOverlayChild { background: rgba(0,0,0,0.7); }", -1);
 
    auto set_transparency_on_widget = [provider](GtkWidget* widget){
       GtkStyleContext *context = gtk_widget_get_style_context(widget);
