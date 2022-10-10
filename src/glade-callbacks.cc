@@ -8956,16 +8956,6 @@ on_toolbar_display_manager_molecules_all_activate(GMenuItem     *menuitem,
 
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_calculate_scripting_python1_activate (GMenuItem     *menuitem,
-                                         gpointer         user_data) {
-
-  post_python_scripting_window();
-
-}
-
-
 
 extern "C" G_MODULE_EXPORT
 void

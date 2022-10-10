@@ -3190,8 +3190,6 @@ void post_scripting_window();
 /*! \brief pop-up a scripting window for scheming */
 void post_scheme_scripting_window();
 
-/*! \brief pop-up a scripting window for pythoning */
-void post_python_scripting_window();
 
 /* called from c-inner-main */
 void run_command_line_scripts();
