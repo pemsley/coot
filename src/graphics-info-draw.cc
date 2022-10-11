@@ -6108,7 +6108,7 @@ graphics_info_t::unfullscreen() {
       
       //GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
 
-      if(false)
+      if(false) {
          GtkWidget *vbox       = widget_from_builder("main_window_vbox");
          GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
 
