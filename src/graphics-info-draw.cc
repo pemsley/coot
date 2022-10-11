@@ -6080,7 +6080,7 @@ graphics_info_t::fullscreen() {
       }
 #endif
 
-      graphics_info_t g::add_status_bar_text(""); // clear it
+      graphics_info_t::add_status_bar_text(""); // clear it
    } else {
       g_error("%p is not a Gtk.Window !", window);
    }
