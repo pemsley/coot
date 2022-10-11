@@ -6030,7 +6030,7 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
 void
 graphics_info_t::fullscreen() {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
 
    if (GTK_IS_WINDOW(window)) {
 
@@ -6093,7 +6093,7 @@ graphics_info_t::fullscreen() {
 void
 graphics_info_t::unfullscreen() {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    if (GTK_IS_WINDOW(window)) {
       gtk_window_unfullscreen(GTK_WINDOW(window));
 
