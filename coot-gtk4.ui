@@ -5822,10 +5822,6 @@ Do you want to continue?
   <object class="GtkImage" id="image37">
   </object>
 
-  <object class="GtkWindow" id="main_window">
-    <property name="title" translatable="yes">Coot Main Window</property>
-  </object>
-
 
   <!-- this vbox goes into the main application window -->
   <object class="GtkBox" id="main_window_vbox">
