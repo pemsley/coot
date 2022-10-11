@@ -2328,6 +2328,12 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
    }
+   
+   GtkTreeModel *model = GTK_TREE_MODEL(store);
+   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
+   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
+   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
 
    for (unsigned int ii=0; ii<molecule_indices.size(); ii++) {
       const auto &imol = molecule_indices[ii];
@@ -2335,9 +2341,9 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       if (imol == imol_active) {
          // 20220415-PE this doesn't work (for renumber residues - annoying)
 
-         std::cout << "!!!!!!!!!!! setting active on a gtk combobox " << ii << std::endl;
-         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), ii);
-         // std::cout << "done setting active on a gtk combobox " << ii << std::endl;
+         std::cout << "!!!!!!!!!!! setting active on a gtk combobox " << imol_active << std::endl;
+         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), imol_active);
+         std::cout << "!!!!!!!!!!! combobox get_active() returns " <<  gtk_combo_box_get_active(GTK_COMBO_BOX(combobox_molecule)) << std::endl;
          if (GTK_IS_COMBO_BOX(combobox_molecule))
             std::cout << "!!!!!!!!!!! " << "combobox is a combobox" << std::endl;
          if (GTK_IS_COMBO_BOX_TEXT(combobox_molecule))
@@ -2345,11 +2351,6 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       }
    }
 
-   GtkTreeModel *model = GTK_TREE_MODEL(store);
-   GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
-   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_molecule), renderer, "text", 1, NULL);
-   gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_molecule), model);
 
    if (callback_func)
       g_signal_connect(combobox_molecule, "changed", callback_func, NULL);
