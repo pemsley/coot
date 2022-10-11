@@ -28,14 +28,14 @@ pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)                 \
-	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
+	-I$(top_srcdir)                     \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)   \
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'   	\
+	-DDATADIR='"$(datadir)"'       \
 	$(COOT_WINDOWS_CFLAGS)
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
@@ -58,7 +58,21 @@ libcoot_coords_la_LIBADD = \
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS = test-phenix-geo test-transform
+check_PROGRAMS = test-phenix-geo test-transform test-side-chain-densities
+
+# wrong build order - coords depends on this directory (because it uses rotamer info)
+# solve by changing the directory for test-side-chain-densities to be in coords
+
+test_side_chain_densities_SOURCES = test-side-chain-densities.cc
+
+test_side_chain_densities_LDADD = \
+	$(top_builddir)/ligand/libcoot-ligand.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coords/libcoot-coords.la        \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 test_transform_SOURCES = test-transform.cc
 

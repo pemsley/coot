@@ -29,7 +29,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/xmap-stats.hh"
-#include "side-chain-densities.hh"
+#include "ligand/side-chain-densities.hh"
 
 void
 make_useable_grid_points(int n_steps, float grid_box_radius,
@@ -75,6 +75,9 @@ check_stats(int n_steps, float grid_box_radius, const std::string &res_name,
    // do the stats look like the side chain that they are supposed to be?
 
    // Show me a dotted grids where the size is proportional to the mean
+
+   // make sure that you've made the link from the source side-chain-data directory
+   // to the current directory
 
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
    coot::residue_spec_t spec_this(chain_id, res_no, "");

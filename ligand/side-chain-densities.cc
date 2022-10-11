@@ -1804,10 +1804,13 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
             }
          }
 
+         if (rot == "none") do_it = false;
+
          if (do_it) {
 
-            if (false)
+            if (false) // interesting but TMI.
                std::cout << "debug:: in compare_block_vs_all_rotamers(): rot_dir: " << rot_dir << std::endl;
+
             // std::cout << "debug:: in compare_block_vs_all_rotamers(): block var " << block.var << std::endl;
             std::pair<bool, double> p = compare_block_vs_rotamer(block, residue_p, rot_dir, xmap);
             if (p.first) {
@@ -1817,7 +1820,9 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
                probability_map[key] = p.second;
             }
          } else {
-            std::cout << "debug:: in compare_block_vs_rotamer() do_it was false " << rot_dir << std::endl;
+            // too noisy
+            if (false)
+               std::cout << "debug:: in compare_block_vs_rotamer() do_it was false " << rot_dir << std::endl;
          }
       }
    }
@@ -2138,6 +2143,11 @@ coot::side_chain_densities::check_stats(mmdb::Residue *residue_p,
                                         const std::string &res_name,
                                         const std::string &rot_name) const {
 
+   if (useable_grid_points.size() == 0) {
+      std::cout << "ERROR:: useable_grid_points size is 0 " << std::endl;
+      return;
+   }
+
    int n_per_side = n_steps * 2 + 1;
    float step_size = grid_box_radius/static_cast<float>(n_steps);
    std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
@@ -2150,8 +2160,8 @@ coot::side_chain_densities::check_stats(mmdb::Residue *residue_p,
       std::string file_name = rot_dir + "/" + "stats.table";
       std::ifstream f(file_name.c_str());
       if (f) {
+         std::cout << "DEBUG:: check_stats() reading " << file_name << std::endl;
          std::string line;
-         unsigned int n_grid_points = 0;
          std::map<unsigned int, std::tuple<double, double, double> > grid_map;
          while (std::getline(f, line)) {
             std::vector<std::string> words = coot::util::split_string_no_blanks(line);
@@ -2176,18 +2186,23 @@ coot::side_chain_densities::check_stats(mmdb::Residue *residue_p,
                      clipper::Coord_orth pt_in_grid = make_pt_in_grid(ix, iy, iz, step_size, axes);
                      clipper::Coord_orth pt_grid_point = cb_pt + pt_in_grid;
 
-                     std::cout << "check-stats mean "
+                     std::cout << "check-stats "
                                << idx << " "
                                << pt_grid_point.x() << " "
                                << pt_grid_point.y() << " "
                                << pt_grid_point.z() << " "
-                               << std::get<0>(grid_map[idx])
+                               << "mean "   << std::get<0>(grid_map[idx])
+                               << " stddev " << std::get<1>(grid_map[idx])
                                << std::endl;
                   }
                }
             }
          }
+      } else {
+         std::cout << "WARNING:: check_stats() file not found: " << file_name << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: check_stats() empty axes" << std::endl;
    }
 }
 
@@ -2422,8 +2437,8 @@ coot::side_chain_densities::set_magic_number(const std::string &mn_name, double 
 
 std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > >
 coot::get_fragment_sequence_scores(mmdb::Manager *mol,
-                             const coot::fasta_multi &fam,
-                             const clipper::Xmap<float> &xmap) {
+                                   const coot::fasta_multi &fam,
+                                   const clipper::Xmap<float> &xmap) {
 
 
    // score blocks of sequences (of which there are, say, 21000)
@@ -2454,7 +2469,7 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
    std::cout << "INFO:: number of sequences in sequence file: " << n_sequences << std::endl;
 
    for (const auto &range : fc.ranges) {
-      std::cout << "::::::::::::::::::::::::::::::::: new-range" << std::endl;
+      std::cout << "::: new-range" << std::endl;
       auto tp_0 = std::chrono::high_resolution_clock::now();
       coot::side_chain_densities scd;
       std::vector<coot::side_chain_densities::results_t> results;
