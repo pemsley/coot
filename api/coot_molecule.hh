@@ -54,11 +54,14 @@ namespace coot {
 
       molecule_save_info_t save_info;
 
-      void makebonds(coot::protein_geometry *geom, std::set<int> &no_bonds_to_these_atoms);
+      int imol_no; // this molecule's index in the container vector
+
+      // private
+      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms);
 
 #if defined __has_builtin
 #if __has_builtin (__builtin_FUNCTION)
-      void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = __builtin_FUNCTION());
+      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, const char *s = __builtin_FUNCTION());
       void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, const char *s = __builtin_FUNCTION());
 #else
       void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
@@ -72,6 +75,17 @@ namespace coot {
       int bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()
       graphical_bonds_container bonds_box;
       int get_bonds_box_type() const { return bonds_box_type; }
+
+      // this is the bond dictionary also mode.
+      // 20221011-PE force_rebonding arg is not currently used.
+      void make_colour_by_chain_bonds(coot::protein_geometry *geom,
+                                      const std::set<int> &no_bonds_to_these_atoms,
+                                      bool change_c_only_flag,
+                                      bool goodsell_mode,
+                                      bool do_rota_markup=false,
+                                      coot::rotamer_probability_tables *rotamer_tables_p = nullptr,
+                                      bool force_rebonding=true);
+      void make_ca_bonds();
 
       void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
 
@@ -90,10 +104,11 @@ namespace coot {
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
    public:
+
       atom_selection_container_t atom_sel;
       molecule_t() {}
-      explicit molecule_t(atom_selection_container_t asc) : atom_sel(asc) {
-         bonds_box_type = UNSET_TYPE; is_em_map_cached_flag = false; xmap_is_diff_map = false; }
+      explicit molecule_t(atom_selection_container_t asc, int imol_no_in) : atom_sel(asc) {
+         bonds_box_type = UNSET_TYPE; is_em_map_cached_flag = false; xmap_is_diff_map = false; imol_no = imol_no_in; }
       clipper::Xmap<float> xmap; // public because the filling function needs access
 
       // public access to the lock (from threads)
@@ -101,12 +116,16 @@ namespace coot {
 
       // utils
 
+      int get_molecule_index() const { return imol_no; }
+      // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
       bool is_valid_map_molecule() const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid);
 
       // model utils
 
+      // public
+      void make_bonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p);
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found
@@ -117,16 +136,21 @@ namespace coot {
       // model analysis functions
 
       std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
+      // not const because it recalculates the bonds.
+      coot::simple_mesh_t get_rotamer_dodecs(coot::protein_geometry *geom_p,
+                                             coot::rotamer_probability_tables *rpt);
 
       // model-changing functions
 
       int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+      int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
+                           const clipper::Xmap<float> &xmap);
 
       // map functions
 
       int writeMap(const std::string &file_name) const;
 
-      // changes the internal map mesh holder
+      // changes the internal map mesh holder (hence not const)
       coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
 
    };

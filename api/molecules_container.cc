@@ -62,8 +62,13 @@ molecules_container_t::read_pdb(const std::string &file_name) {
    int status = -1;
    atom_selection_container_t asc = get_atom_selection(file_name);
    if (asc.read_success) {
-      molecules.push_back(coot::molecule_t(asc));
-      status = molecules.size() -1;
+      // 20221011-PE this constructor doesn't (at the moment) call make_bonds(). I
+      // don't know if that is a good idea.
+      int imol = molecules.size();
+      coot::molecule_t m = coot::molecule_t(asc, imol);
+      m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
+      molecules.push_back(m);
+      status = imol;
    }
    return status;
 }
@@ -352,4 +357,30 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
       mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
    }
    return mesh;
+}
+
+
+// get the rotamer dodecs for the model
+coot::simple_mesh_t
+molecules_container_t::get_rotamer_dodecs(int imol) {
+   coot::simple_mesh_t m;
+   if (is_valid_model_molecule(imol))
+      return molecules[imol].get_rotamer_dodecs(&geom, &rot_prob_tables);
+   return m;
+}
+
+
+int
+molecules_container_t::auto_fit_rotamer(int imol,
+                                        const std::string &chain_id, int res_no, const std::string &ins_code,
+                                        int imol_map) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, xmap);
+      }
+   }
+   return status;
 }

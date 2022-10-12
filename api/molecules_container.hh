@@ -9,14 +9,17 @@
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
 #include "coot-utils/coot-rama.hh"
+#include "utils/coot-utils.hh"
 
 class molecules_container_t {
 
    std::vector<coot::molecule_t> molecules;
    coot::protein_geometry geom;
+   coot::rotamer_probability_tables rot_prob_tables;
    ramachandrans_container_t ramachandrans_container;
 
 public:
+
    molecules_container_t() : ramachandrans_container(ramachandrans_container_t()) {}
 
    bool is_valid_model_molecule(int) const;
@@ -55,6 +58,20 @@ public:
          }
       }
    }
+   void fill_rotamer_probability_tables() {
+      if (! rot_prob_tables.tried_and_failed()) {
+
+         std::string tables_dir = coot::package_data_dir();
+         char *data_dir = getenv("COOT_DATA_DIR");
+         if (data_dir) {
+            tables_dir = data_dir;
+         }
+         tables_dir += "/rama-data";
+         rot_prob_tables.set_tables_dir(tables_dir);
+         rot_prob_tables.fill_tables();
+      }
+   }
+
 
    // returns either the specified atom or null if not found
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
@@ -67,6 +84,18 @@ public:
    coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
                                              float radius, float contour_level);
 
+   // get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   coot::simple_mesh_t get_rotamer_dodecs(int imol);
+
+   // this is here for wrapping - does nothing at the moment
+   int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, int imol_map);
+
+   // add these
+   //
+   // delete_atom
+   // delete residue
+   // add_terminal_residue
+   // update_map
 
 };
 

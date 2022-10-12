@@ -262,6 +262,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/simple-mesh.cc
+            ${coot_src}/api/make-a-dodec.cc
 
 )
 

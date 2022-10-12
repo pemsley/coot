@@ -4135,6 +4135,8 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    box.add_deuterium_spots(deuterium_spots);
    // box.add_ramachandran_goodness_spots(ramachandran_goodness_spots); not in this function (I guess)
 
+   box.add_rotamer_goodness_markup(dodecs);
+
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
    box.add_bad_CA_CA_dist_spots(bad_CA_CA_dist_spots);
@@ -5759,7 +5761,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 
    short int symm_flag = 0;
    // for these side chain atoms
-   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false);
+   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -6193,7 +6195,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
    };
    // std::map<std::string, std::vector<std::vector<std::tuple<std::string, std::string, std::string> > > > atom_name_ele_map; // and alt-conf
    std::map<std::string, std::vector<std::vector<atom_string_bits_t> > > atom_name_ele_map; // and alt-conf
-   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
+   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); ++it) {
       const std::string &monomer_name(it->first);
       const std::vector<mmdb::Residue *> &v = it->second;
       atom_name_ele_map[monomer_name].resize(v.size());
@@ -6222,7 +6224,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
    std::vector<std::string>   trp_rings_atom_names = {" CG ", " CD1", " NE1", " CE2", " CD2", " CE3", " CZ3", " CH2", " CZ2"};
    std::vector<std::string>     G_rings_atom_names = {" N9 ", " C8 ", " N7 ", " C5 ", " C4 ", " N3 ", " C2 ", " N1 ", " C6 "}; // "A" is same
 
-   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
+   for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); ++it) {
       const std::string &monomer_name(it->first);
       const std::string &res_name = monomer_name;
       const std::vector<mmdb::Residue *> &rv = it->second;
@@ -6518,7 +6520,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
          }
 
       } else {
-         std::cout << "Bond this type by distance " << monomer_name << std::endl;
+         std::cout << "DEBUG:: add_residue_monomer_bonds(): Bond this type by distance " << monomer_name << std::endl;
       }
    }
 }
@@ -6528,7 +6530,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
                                                                               int imol,
                                                                               int draw_hydrogens_flag,
                                                                               bool draw_missing_loops_flag,
-                                                                              bool do_goodsell_colour_mode) {
+                                                                              bool do_goodsell_colour_mode,
+                                                                              bool do_rotamer_markup) {
    //  timer here.
 
    // 1) waters and metals
@@ -6616,6 +6619,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
+
+   if (do_rotamer_markup)
+      add_rotamer_goodness_markup(asc);
 
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
@@ -6784,16 +6790,17 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_sele
                                                                  int draw_hydrogens_flag,
                                                                  bool draw_missing_loops_flag,
                                                                  short int change_c_only_flag,
-                                                                 bool do_goodsell_colour_mode) {
+                                                                 bool do_goodsell_colour_mode,
+                                                                 bool do_rotamer_markup) {
 
    if (change_c_only_flag) {
       do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol,
                                                               draw_hydrogens_flag, draw_missing_loops_flag,
-                                                              do_goodsell_colour_mode);
+                                                              do_goodsell_colour_mode, do_rotamer_markup);
    } else {
       bool use_asc_atom_selection_flag = true; // 20220226-PE I don't know
       do_colour_by_chain_bonds(asc, use_asc_atom_selection_flag, imol, draw_hydrogens_flag, draw_missing_loops_flag,
-                               false, false);
+                               false, false, do_rotamer_markup);
    }
 }
 
@@ -6814,7 +6821,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 					       int draw_hydrogens_flag,
                                                bool draw_missing_loops_flag,
 					       short int change_c_only_flag,
-					       bool do_goodsell_colour_mode) {
+					       bool do_goodsell_colour_mode,
+                                               bool do_ramachandran_markup) {
 
 
    coot::my_atom_colour_map_t atom_colour_map;
@@ -6825,7 +6833,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                                                  draw_hydrogens_flag,
                                                  draw_missing_loops_flag,
                                                  change_c_only_flag,
-                                                 do_goodsell_colour_mode);
+                                                 do_goodsell_colour_mode,
+                                                 do_ramachandran_markup);
 
       return;
    }

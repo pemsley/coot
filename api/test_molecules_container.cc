@@ -8,6 +8,8 @@ int main(int argc, char **argv) {
    int status = 0;
 
    molecules_container_t mc;
+   mc.fill_rotamer_probability_tables();
+
    int imol = mc.read_pdb("pdb5a3h.ent");
 
    // --- rama mesh
@@ -21,6 +23,11 @@ int main(int argc, char **argv) {
       for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
          std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
 
+   // Rama dodecs
+   coot::simple_mesh_t rota_mesh = mc.get_rotamer_dodecs(imol);
+   std::cout << "rota mesh: " << rota_mesh.vertices.size() << " vertices and " << rota_mesh.triangles.size()
+             << " triangles" << std::endl;
+
 
    // --- density mesh
 
@@ -32,6 +39,8 @@ int main(int argc, char **argv) {
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
    std::cout << "density mesh: " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
+
+
 
    return status;
 

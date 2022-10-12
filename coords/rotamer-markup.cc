@@ -15,14 +15,19 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
    std::vector<rotamer_markup_container_t> dodecs;
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
 
+
 #ifdef HAVE_CXX_THREAD
    unsigned int n_threads = coot::get_max_number_of_threads();
 
    // std::vector<coot::generic_display_object_t::dodec_t> dodecs;
 
+   // std::cout << "in get_rotamer_dodecs() Here 1 with rotamer_probability_tables_p "
+   // << rotamer_probability_tables_p << std::endl;
+
    if (rotamer_probability_tables_p) {
 
       if (asc.mol) {
+
 	 std::vector<std::pair<mmdb::Residue *, mmdb::Atom *> > residues;
 	 int imod = 1;
 
