@@ -89,6 +89,9 @@ int main(int argc, char **argv) {
             std::cout << " Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
          }
       }
+   } else {
+      std::cout << "Two commandline args needed.\n";
+      return 2;
    }
 
    return 0;
