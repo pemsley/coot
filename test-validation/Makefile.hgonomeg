@@ -19,8 +19,8 @@ LDLIBS=-fuse-ld=mold \
         -Wl,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl
 
-gtk4-test-validation-graph: gtk4-test-validation-graph.cc
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+# gtk4-test-validation-graph: gtk4-test-validation-graph.cc
+# 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 HEADERS = \
     residue-validation-information.hh \
@@ -33,8 +33,8 @@ SOURCES = \
 
 OBJS := $(patsubst %.cc,%.o,$(SOURCES))
 
-%.o: $(HEADERS)
-	$(CXX) $(CXXFLAGS) -c $(patsubst %.o,%.cc,$@) -o $@
+%.o: %.cc $(HEADERS)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 gtk4-test-validation-graph: $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)
