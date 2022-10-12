@@ -84,6 +84,8 @@ void build_main_window(GtkWindow* main_window) {
    gtk_window_set_child(main_window,vbox);
 
    GtkWidget* host_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
+   CootValidationGraph* validation_graph = coot_validation_graph_new();
+   gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(validation_graph));
 
    gtk_box_append(GTK_BOX(vbox),host_frame);
    GtkWidget* target_label = gtk_label_new("");
