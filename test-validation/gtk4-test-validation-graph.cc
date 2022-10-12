@@ -5,6 +5,7 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "validation-information.hh"
+#include <gtk/gtk.h>
 
 bool
 read_mtz(const std::string &file_name,
@@ -89,10 +90,26 @@ int main(int argc, char **argv) {
             std::cout << " Residue:\t" << ri.residue_spec << "\t\tDistortion:\t" << ri.distortion << "\t\tAtom spec:\t" << ri.atom_spec << std::endl;
          }
       }
+
+      gtk_init();
+      
+      GtkApplication* app = gtk_application_new("org.pemsley.Test-validation-graphs",G_APPLICATION_FLAGS_NONE);
+      GError *error = NULL;
+      g_application_register(G_APPLICATION(app), NULL, &error);
+
+      
+      g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
+         //GtkWindow* win = GTK_WINDOW(user_data);
+         GtkWidget* win = gtk_application_window_new(app);
+         gtk_application_add_window(app,GTK_WINDOW(win));
+         gtk_widget_show(win);
+      }),NULL);
+
+
+      return g_application_run(G_APPLICATION(app),0,0);
    } else {
       std::cout << "Two commandline args needed.\n";
       return 2;
    }
 
-   return 0;
 }
