@@ -84,9 +84,9 @@ int main(int argc, char **argv) {
       // now do something (i.e. make a pretty interactive graph) with vi.
 
       for (const auto &cvi : vi.cviv) {
-         std::cout << "Chain " << cvi.chain_id << std::endl;
+         std::cout << "Chain: " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << " Residue:\t" << ri.residue_spec << "\t\tDistortion:\t" << ri.distortion << "\t\tAtom spec:\t" << ri.atom_spec << std::endl;
          }
       }
    } else {
