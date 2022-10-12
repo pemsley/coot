@@ -1096,7 +1096,7 @@ void
 on_main_window_resize_window_up_arrow_clicked(GtkButton       *button,
                                                                   gpointer         user_data) {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    GtkAllocation allocation;
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
@@ -1104,7 +1104,11 @@ on_main_window_resize_window_up_arrow_clicked(GtkButton       *button,
    int h_new = h - 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 #if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "fix the resizing here " << std::endl;
+   std::cout << "Resizing: A number of GdkWindow APIs are no longer available. "
+   "This includes gdk_window_reparent(), gdk_window_set_geometry_hints(), "
+   "gdk_window_raise(), gdk_window_restack(), gdk_window_move(), "
+   "gdk_window_resize(). If you need to manually control the position "
+   "or stacking of your X11 windows, you you will have to use Xlib apis." << std::endl;
 #else
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
 #endif
@@ -1117,7 +1121,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_main_window_resize_window_down_arrow_clicked(GtkButton       *button,
                                                                   gpointer         user_data) {
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    GtkAllocation allocation;
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
@@ -1125,7 +1129,11 @@ on_main_window_resize_window_down_arrow_clicked(GtkButton       *button,
    int h_new = h + 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 #if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "fix the resizing here " << std::endl;
+   std::cout << "Resizing: A number of GdkWindow APIs are no longer available. "
+   "This includes gdk_window_reparent(), gdk_window_set_geometry_hints(), "
+   "gdk_window_raise(), gdk_window_restack(), gdk_window_move(), "
+   "gdk_window_resize(). If you need to manually control the position "
+   "or stacking of your X11 windows, you you will have to use Xlib apis." << std::endl;
 #else
    gtk_window_resize(GTK_WINDOW(window), w, h_new);
 #endif
@@ -1136,7 +1144,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_main_window_resize_window_left_arrow_clicked(GtkButton       *button,
                                                                   gpointer         user_data) {
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    GtkAllocation allocation;
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
@@ -1144,7 +1152,11 @@ on_main_window_resize_window_left_arrow_clicked(GtkButton       *button,
    int w_new = w - 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 #if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "fix the resizing here " << std::endl;
+   std::cout << "Resizing: A number of GdkWindow APIs are no longer available. "
+   "This includes gdk_window_reparent(), gdk_window_set_geometry_hints(), "
+   "gdk_window_raise(), gdk_window_restack(), gdk_window_move(), "
+   "gdk_window_resize(). If you need to manually control the position "
+   "or stacking of your X11 windows, you you will have to use Xlib apis." << std::endl;
 #else
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
 #endif
@@ -1156,7 +1168,7 @@ void
 on_main_window_resize_window_right_arrow_clicked(GtkButton       *button,
                                                  gpointer         user_data) {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    GtkAllocation allocation;
    gtk_widget_get_allocation(window, &allocation);
    int w = allocation.width;
@@ -1164,7 +1176,11 @@ on_main_window_resize_window_right_arrow_clicked(GtkButton       *button,
    int w_new = w + 30;
    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 #if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "fix the resizing here " << std::endl;
+   std::cout << "Resizing: A number of GdkWindow APIs are no longer available. "
+   "This includes gdk_window_reparent(), gdk_window_set_geometry_hints(), "
+   "gdk_window_raise(), gdk_window_restack(), gdk_window_move(), "
+   "gdk_window_resize(). If you need to manually control the position "
+   "or stacking of your X11 windows, you you will have to use Xlib apis." << std::endl;
 #else
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
 #endif

@@ -6030,41 +6030,37 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
 void
 graphics_info_t::fullscreen() {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
 
    if (GTK_IS_WINDOW(window)) {
 
       // GtkWidget *vbox       = widget_from_builder("main_window_vbox");
       // GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
-      // GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      // GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
 
       // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
-      // GtkWidget *menu_bar_frame   = widget_from_builder("main_window_menubar");
+      GtkWidget* sidebar = widget_from_builder("main_window_vbox_inner");
 
-      // // std::cout << "hiding menu_bar_frame " << menu_bar_frame << std::endl;
-      // gtk_widget_hide(menu_bar_frame);
-      // // std::cout << "hiding tool_bar " << tool_bar << std::endl;
-      // gtk_widget_hide(tool_bar);
+      gtk_widget_hide(tool_bar);
+      gtk_widget_hide(sidebar);
+      gtk_widget_hide(status_bar);
 
 
       std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
       gtk_window_fullscreen(GTK_WINDOW(window));
-
-      GdkToplevel* toplevel = GDK_TOPLEVEL(window);
-      GdkToplevelState state = gdk_toplevel_get_state(toplevel);
-      std::cout << "Debug:: toplevel state " << window << " " << state << std::endl;
+      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window),FALSE);
 
 
 #if (GTK_MAJOR_VERSION >= 4)
       // std::cout << "no gtk_container_remove() in fullscreen" << std::endl;
 #else
-         gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
-         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
-         // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
-         gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
-         gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
-         gtk_widget_grab_focus(glareas[0]);
+      gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
+      // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
+      gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
+      gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
+      gtk_widget_grab_focus(glareas[0]);
 
 
       if (false) {
@@ -6084,8 +6080,10 @@ graphics_info_t::fullscreen() {
       }
 #endif
 
-      graphics_info_t g;
-      g.add_status_bar_text(""); // clear it
+      graphics_info_t::add_status_bar_text(""); // clear it
+
+   } else {
+      g_error("%p is not a Gtk.Window !", window);
    }
 }
 
@@ -6093,32 +6091,35 @@ graphics_info_t::fullscreen() {
 void
 graphics_info_t::unfullscreen() {
 
-   GtkWidget *window = widget_from_builder("main_window");
+   GtkWidget *window = graphics_info_t::get_main_window();
    if (GTK_IS_WINDOW(window)) {
       gtk_window_unfullscreen(GTK_WINDOW(window));
+      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window),TRUE);
 
-      // unoverlay and reparent here.
+      GtkWidget* sidebar    = widget_from_builder("main_window_vbox_inner");
+      GtkWidget* tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget* status_bar = widget_from_builder("main_window_statusbar");
+      // That likely requires porting:
+      
+      //GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
 
-      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
-      GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar");
-      GtkWidget *menu_bar   = widget_from_builder("main_window_menubar");
-      GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
+      if(false) {
+         GtkWidget *vbox       = widget_from_builder("main_window_vbox");
+         GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
 
-#if (GTK_MAJOR_VERSION > 3)
-      gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
-      gtk_box_append(GTK_BOX(vbox), tool_bar);
+         gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), tool_bar);
+         gtk_box_append(GTK_BOX(vbox), tool_bar);
 
-      gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), status_bar);
-      gtk_box_append(GTK_BOX(vbox), status_bar);
-#endif
+         gtk_overlay_remove_overlay(GTK_OVERLAY(overlay), status_bar);
+         gtk_box_append(GTK_BOX(vbox), status_bar);
+      }
 
-      std::cout << "show widget " << menu_bar << std::endl;
-      std::cout << "show widget " << tool_bar << std::endl;
-
-      gtk_widget_show(menu_bar);
+      
+      //gtk_widget_show(tool_bar_frame);
       gtk_widget_show(tool_bar);
-      gtk_widget_show(tool_bar_frame);
+      gtk_widget_show(sidebar);
+      gtk_widget_show(status_bar);
+} else {
+      g_error("%p is not a Gtk.Window !", window);
    }
 }

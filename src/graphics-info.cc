@@ -340,7 +340,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
       gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE);
 
-      GtkWidget *main_window = widget_from_builder("main_window");
+      GtkWidget *main_window = graphics_info_t::get_main_window();
       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
    }
    return dialog;
