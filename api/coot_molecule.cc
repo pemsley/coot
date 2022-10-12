@@ -1,4 +1,8 @@
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot_molecule.hh"
@@ -458,13 +462,19 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
          }
 
          glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
+         auto this_dodec_colour = colour_holder_to_glm(rm.col);
 
          std::vector<coot::api::vnc_vertex> this_dodec_vertices = dodec_vertices; // at the origin to start
 
          // now move it.
-         for (unsigned int j=0; j<dodec_vertices.size(); j++) {
-            this_dodec_vertices[j].pos  += atom_pos;
-            this_dodec_vertices[j].color = colour_holder_to_glm(rm.col);
+         for (unsigned int j=0; j<this_dodec_vertices.size(); j++) {
+            auto &vertex = this_dodec_vertices[j];
+            vertex.pos  += atom_pos;
+            vertex.color = this_dodec_colour;
+            if (false)
+               std::cout << "atom_pos " << glm::to_string(vertex.pos)
+                         << " rama_markup_col " << rm.col
+                         << " color " << glm::to_string(vertex.color) << std::endl;
          }
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
