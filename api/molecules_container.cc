@@ -66,7 +66,7 @@ molecules_container_t::read_pdb(const std::string &file_name) {
       // don't know if that is a good idea.
       int imol = molecules.size();
       coot::molecule_t m = coot::molecule_t(asc, imol);
-      m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
+      // m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
       molecules.push_back(m);
       status = imol;
    }
