@@ -6082,11 +6082,6 @@ graphics_info_t::fullscreen() {
 
       graphics_info_t::add_status_bar_text(""); // clear it
 
-      g_timeout_add(10000,+[](gpointer user_data) -> gboolean {
-         std::cout<<"TODO: Auto-unfullscreening is to be removed after the global shortcuts work again.\n";
-         graphics_info_t::unfullscreen();
-         return FALSE;
-      },NULL);
    } else {
       g_error("%p is not a Gtk.Window !", window);
    }
