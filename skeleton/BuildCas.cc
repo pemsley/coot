@@ -2818,13 +2818,13 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
 	 break; 
    }
 
-   if (min_dist == 9999999.9) { 
+   if (min_dist > 9999999.8) {
       std::cout << "!!!! WARNING !!!! prebuilt atoms not found "
 	   << "in prebuilt_exclusion_score. " << std::endl; 
       min_dist = 9.9; 
    } 
 
-   float score; 
+   float score;
 
    if (min_dist < dist_crit) { 
       score = 0;

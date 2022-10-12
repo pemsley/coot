@@ -3562,7 +3562,7 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
                             centre_at_grid_point_f.w() + new_box_c/input_xmap.cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(input_gs), box1.coord_grid(input_gs));
-   std::cout << "grid in reference map: " << grid.format() << std::endl;
+   std::cout << "DEUBG:: grid in reference map: " << grid.format() << std::endl;
 
    clipper::Xmap_base::Map_reference_coord ix(input_xmap);
    for (int u = grid.min().u(); u < grid.max().u(); u++) {
@@ -3570,17 +3570,17 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
          for (int w = grid.min().w(); w < grid.max().w(); w++) {
             ix.set_coord(clipper::Coord_grid(u, v, w)); // don't copy this. using set_coord() is slow
             float f = input_xmap[ix];
-            if (f != 11111111111111111111111111111111111110.0) {
+            if (true) {
                clipper::Coord_grid cg = ix.coord() - offset;
                xmap.set_data(cg, f);
-               if (true)
+               if (false)
                   std::cout << "set xmap: from " << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
             }
          }
       }
    }
 
-   {
+   if (false) {
       clipper::Xmap_base::Map_reference_coord ix(input_xmap);
       for (int u = grid.min().u(); u < grid.max().u(); u++) {
          for (int v = grid.min().v(); v < grid.max().v(); v++) {
@@ -3589,7 +3589,7 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
                clipper::Coord_grid cg = ix.coord() - offset;
                float f1 = input_xmap[ix];
                float f2 = xmap.get_data(cg);
-               std::cout << " test-get from " << ix.coord().format() << " to " << cg.format() << " "
+               std::cout << "DEBUG:: test-get from " << ix.coord().format() << " to " << cg.format() << " "
                          << f1 << " " << f2 << std::endl;
             }
          }
