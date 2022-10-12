@@ -75,6 +75,20 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
    return r;
 }
 
+void build_main_window(GtkWindow* main_window) {
+   GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+   gtk_widget_set_margin_bottom(vbox,10);
+   gtk_widget_set_margin_top(vbox,10);
+   gtk_widget_set_margin_start(vbox,10);
+   gtk_widget_set_margin_end(vbox,10);
+   gtk_window_set_child(main_window,vbox);
+
+   GtkWidget* host_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
+
+   gtk_box_append(GTK_BOX(vbox),host_frame);
+   GtkWidget* target_label = gtk_label_new("");
+   gtk_box_append(GTK_BOX(vbox),target_label);
+}
 
 int main(int argc, char **argv) {
 
@@ -104,6 +118,7 @@ int main(int argc, char **argv) {
          GtkWidget* win = gtk_application_window_new(app);
          gtk_application_add_window(app,GTK_WINDOW(win));
          gtk_window_set_application(GTK_WINDOW(win),app);
+         build_main_window(GTK_WINDOW(win));
          gtk_widget_show(win);
       }),NULL);
 
