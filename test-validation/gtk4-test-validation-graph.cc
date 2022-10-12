@@ -5,6 +5,7 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "validation-information.hh"
+#include "validation-graph-widget.hh"
 #include <gtk/gtk.h>
 
 bool
@@ -102,6 +103,7 @@ int main(int argc, char **argv) {
          //GtkWindow* win = GTK_WINDOW(user_data);
          GtkWidget* win = gtk_application_window_new(app);
          gtk_application_add_window(app,GTK_WINDOW(win));
+         gtk_window_set_application(GTK_WINDOW(win),app);
          gtk_widget_show(win);
       }),NULL);
 

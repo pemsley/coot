@@ -24,12 +24,14 @@ LDLIBS=-fuse-ld=mold \
 
 HEADERS = \
     residue-validation-information.hh \
-    validation-information.hh
+    validation-information.hh \
+    validation-graph-widget.hh
 
 SOURCES = \
     residue-validation-information.cc \
     validation-information.cc \
-    gtk4-test-validation-graph.cc
+    validation-graph-widget.cc \
+    gtk4-test-validation-graph.cc 
 
 OBJS := $(patsubst %.cc,%.o,$(SOURCES))
 
