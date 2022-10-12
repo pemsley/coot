@@ -8,7 +8,7 @@ CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
    `pkg-config --cflags gtk4` `pkg-config --cflags epoxy`  `pkg-config --cflags clipper` \
-   -g -O0 -march=native -std=c++17
+   -ggdb -O2 -march=native -std=c++17
 
 LDLIBS=-fuse-ld=mold \
        -L$(COOT_DIR)/lib -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
