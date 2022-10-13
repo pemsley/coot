@@ -51,6 +51,446 @@ coot::molecule_t::cid_to_residue_spec(const std::string &cid) {
    return std::make_pair(status, rs);
 }
 
+void
+coot::molecule_t::make_backup() {
+
+   // nothing done yet.
+
+}
+
+bool
+coot::molecule_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const {
+
+   bool matches = false;
+   if (atom_sel.n_selected_atoms > 0) {
+      if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
+         return false;
+      } else {
+         std::string atom_name_mov = at->name;
+         std::string ins_code_mov  = at->GetInsCode();
+         std::string alt_conf_mov  = at->altLoc;
+         std::string chain_id_mov  = at->GetChainID();
+         int resno_mov = at->GetSeqNum();
+
+         std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->name;
+         std::string ins_code_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetInsCode();
+         std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc;
+         std::string chain_id_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetChainID();
+         int resno_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetSeqNum();
+
+         if (atom_name_ref == atom_name_mov) {
+            if (ins_code_ref == ins_code_mov) {
+               if (resno_ref == resno_mov) {
+                  if (alt_conf_ref == alt_conf_mov) {
+                     if (chain_id_mov == chain_id_ref) { // 20170612 extra condition added, Oliver Clarke bug
+                        matches = true;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return matches;
+}
+
+
+int
+coot::molecule_t::full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const {
+
+   return full_atom_spec_to_atom_index(atom_spec.chain_id,
+                                       atom_spec.res_no,
+                                       atom_spec.ins_code,
+                                       atom_spec.atom_name,
+                                       atom_spec.alt_conf);
+
+}
+
+// return -1 on no atom found.
+int
+coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
+                                               int resno,
+                                               const std::string &insertion_code,
+                                               const std::string &atom_name,
+                                               const std::string &alt_conf) const {
+
+   int iatom_index = -1;
+
+   // some protection for null molecule.
+   if (! atom_sel.mol) {
+      std::cout << "ERROR:: null molecule for molecule number "
+                << imol_no << " pointer: " << atom_sel.mol
+                << " (in full_atom_spec_to_atom_index)" << std::endl;
+      return -1;
+   }
+
+   int selHnd = atom_sel.mol->NewSelection();
+   int idx = 0;
+
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(),
+                            resno, insertion_code.c_str(), // start, insertion code
+                            resno, insertion_code.c_str(), // end, insertion code
+                            "*", // residue name
+                            atom_name.c_str(),
+                            "*", // elements
+                            alt_conf.c_str()); // alt locs
+
+   int nSelAtoms;
+   mmdb::PPAtom local_SelAtom;
+   atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
+
+   if (false)
+      std::cout << "DEBUG:: full_atom_spec_to_atom_index() for :" << chain << ": "
+                << resno << " :" << insertion_code << ": :"
+                << atom_name << ": :" << alt_conf << ": finds " << nSelAtoms <<  " atoms\n";
+
+   if (nSelAtoms == 0) {
+
+      std::cout << "WARNING:: full_atom_spec_to_atom_index() Could not find "
+                << "\"" << atom_name << "\"," << "\"" << alt_conf  << "\"" << "/"
+                << resno << insertion_code << "/" << chain << " in this molecule: ("
+                <<  imol_no << ") " << name << std::endl;
+
+      int selHnd2 = atom_sel.mol->NewSelection(); // d
+
+      atom_sel.mol->SelectAtoms(selHnd2, 0,
+                                chain.c_str(),
+                                resno, "*", // start, insertion code
+                                resno, "*", // end, insertion code
+                                "*", // residue name
+                                "*", // atom name
+                                "*", // elements
+                                "*"); // alt locs
+
+      atom_sel.mol->GetSelIndex(selHnd2, local_SelAtom, nSelAtoms);
+
+      if (false) { // debugging.
+         std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
+         std::cout << "debgu:: full_atom_spec_to_atom_index() resno " << resno
+                   << " (cf MinInt4) " << mmdb::MinInt4 << "\n";
+         if (resno == mmdb::MinInt4) {
+            std::cout << "      residue with resno MinInt4\n";
+         } else {
+            for (int i=0; i<nSelAtoms; i++) {
+               std::cout << "      " << local_SelAtom[i] << "\n";
+            }
+         }
+      }
+
+      atom_sel.mol->DeleteSelection(selHnd2);
+
+   } else {
+
+      if (nSelAtoms != 1) {
+         // the wildcard atom selection case "*HO2"
+         short int found = 0;
+         for (int i=0; i<nSelAtoms; i++) {
+            if (std::string(local_SelAtom[i]->GetChainID()) == chain) {
+               if (local_SelAtom[i]->residue->seqNum == resno) {
+                  if (std::string(local_SelAtom[i]->GetInsCode()) == insertion_code) {
+                     if (std::string(local_SelAtom[i]->name) == atom_name) {
+                        if (std::string(local_SelAtom[i]->altLoc) == alt_conf) {
+                           found = 0;
+                           idx = i;
+                           break;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      int iatom_index_udd = -1;
+      int ic;
+      if (local_SelAtom[idx]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
+         iatom_index_udd = ic;
+      }
+      iatom_index = iatom_index_udd;
+   }
+   atom_sel.mol->DeleteSelection(selHnd); // Oh dear, this should have
+                                          // been in place for years
+                                          // (shouldn't it?) 20071121
+   return iatom_index;
+}
+
+
+
+
+// helper function for above function
+bool
+coot::molecule_t::movable_atom(mmdb::Atom *mol_atom, bool replace_coords_with_zero_occ_flag) const {
+
+   bool m = true;
+
+   if ((mol_atom->occupancy < 0.0001) &&
+       (mol_atom->occupancy > -0.0001))
+      if (replace_coords_with_zero_occ_flag == 0)
+         m = 0; // zero occupancy and "dont move zero occ atoms is set"
+   return m;
+}
+
+
+// We just added a new atom to a residue, now we need to adjust the
+// occupancy of the other atoms (so that we don't get residues with
+// atoms whose occupancy is greater than 1.0 (Care for SHELX molecule?)).
+// at doesn't have to be in residue.
+//
+// Perhaps this can be a utility function?
+//
+void
+coot::molecule_t::adjust_occupancy_other_residue_atoms(mmdb::Atom *at,
+                                                       mmdb::Residue *residue,
+                                                       short int force_sum_1_flag) {
+
+   if (!is_from_shelx_ins_flag) {
+      int nResidueAtoms;
+      mmdb::PPAtom ResidueAtoms = 0;
+      residue->GetAtomTable(ResidueAtoms, nResidueAtoms);
+      float new_atom_occ = at->occupancy;
+      std::string new_atom_name(at->name);
+      std::string new_atom_altconf(at->altLoc);
+      std::vector<mmdb::Atom *> same_name_atoms;
+      float sum_occ = 0;
+      for (int i=0; i<nResidueAtoms; i++) {
+         std::string this_atom_name(ResidueAtoms[i]->name);
+         std::string this_atom_altloc(ResidueAtoms[i]->altLoc);
+         if (this_atom_name == new_atom_name) {
+            if (this_atom_altloc != new_atom_altconf) {
+               same_name_atoms.push_back(ResidueAtoms[i]);
+               sum_occ += ResidueAtoms[i]->occupancy;
+            }
+         }
+      }
+
+      //
+      if (sum_occ > 0.01) {
+         if (same_name_atoms.size() > 0) {
+            float other_atom_occ_sum = 0.0;
+            for (unsigned int i=0; i<same_name_atoms.size(); i++)
+               other_atom_occ_sum += same_name_atoms[i]->occupancy;
+
+            float remainder = 1.0 - new_atom_occ;
+            float f = remainder/other_atom_occ_sum;
+            for (unsigned int i=0; i<same_name_atoms.size(); i++) {
+               if (0) // debug
+                  std::cout << "debug " << same_name_atoms[i]
+                            << " mulitplying occ " << same_name_atoms[i]->occupancy
+                            << " by " << remainder << "/" << other_atom_occ_sum << "\n";
+               same_name_atoms[i]->occupancy *= f;
+            }
+         }
+      }
+   }
+}
+
+
+// Put the regularization results back into the molecule:
+//
+//// Recall that regularized_asc contains an atom_selection_container_t
+// with the new coordinates in.  the mol contains all the molecule and
+// the atom_selection contains just the moving parts.
+//
+void
+coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
+                                 bool change_altconf_occs_flag,
+                                 bool replace_coords_with_zero_occ_flag) {
+
+
+   int n_atom = 0;
+   int tmp_index;
+   bool debug = false;
+   float add_alt_conf_new_atoms_occupancy = 0.5; // was a static in graphics_info_t
+
+   make_backup();
+
+   // debug::
+   if (debug) {
+      std::cout << "DEBUG:: --------------- replace_coords replacing "
+                << asc.n_selected_atoms << " atoms " << std::endl;
+      for (int i=0; i<asc.n_selected_atoms; i++) {
+         mmdb::Atom *atom = asc.atom_selection[i];
+         bool is_ter_state = atom->isTer();
+         std::cout << "DEBUG:: in replace_coords, intermediate atom: chain-id :"
+                   << atom->residue->GetChainID() <<  ": "
+                   << atom->residue->seqNum << " inscode \""
+                   << atom->GetInsCode() << "\" name \""
+                   << atom->name << "\" altloc \""
+                   << atom->altLoc << "\" occupancy: "
+                   << atom->occupancy << " :"
+                   << " TER state: " << is_ter_state << std::endl;
+      }
+   }
+
+   // For each atom in the new set of atoms:
+   //
+   for (int i=0; i<asc.n_selected_atoms; i++) {
+      int idx = -1;
+      mmdb::Atom *atom = asc.atom_selection[i];
+      if (! atom->isTer()) {
+
+         if (debug) { // debug
+            std::cout << "considering replacement for selected atom " << coot::atom_spec_t(atom) << std::endl;
+
+            //
+            // idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+            // atom->residue->seqNum, std::string(atom->name));
+
+         }
+
+         if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+
+            if (debug)
+               std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: "
+                         << asc.UDDOldAtomIndexHandle
+                         << " for atom " << coot::atom_spec_t(atom) << std::endl;
+
+            if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
+
+               if (debug)
+                  std::cout << "OK, good GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
+               if (tmp_index >= 0) {
+                  if (moving_atom_matches(atom, tmp_index)) {
+                     // std::cout << "      DEBUG:: successfully found old atom index" << std::endl;
+                     idx = tmp_index;
+                  } else {
+                     // std::cout << "DEBUG:: atom index mismatch" << std::endl;
+                     idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+                                                        atom->residue->seqNum,
+                                                        std::string(atom->GetInsCode()),
+                                                        std::string(atom->name),
+                                                        std::string(atom->altLoc));
+                     // std::cout << "DEBUG:: full_atom_spec_to_atom_index gives index: " << idx << std::endl;
+                  }
+               } else {
+                  // This shouldn't happen.
+                  std::cout << "Good Handle, bad index found for old atom: specing" << std::endl;
+                  idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+                                                     atom->residue->seqNum,
+                                                     std::string(atom->GetInsCode()),
+                                                     std::string(atom->name),
+                                                     std::string(atom->altLoc));
+               }
+            } else {
+
+               std::cout << "ERROR:: non-bad handle (" << asc.UDDOldAtomIndexHandle
+                         <<  "), but bad GetUDData() for atom " << coot::atom_spec_t(atom) << std::endl;
+
+            }
+         } else {
+
+            if (debug)
+               std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is "
+                         << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+                         << std::endl;
+
+            idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
+                                               atom->residue->seqNum,
+                                               std::string(atom->GetInsCode()),
+                                               std::string(atom->name),
+                                               std::string(atom->altLoc));
+            if (idx == -1) {
+               std::cout << "DEBUG:: idx: " << idx << "\n";
+               std::cout << "ERROR:: failed to find atom in molecule: chain-id :"
+                         << std::string(atom->residue->GetChainID()) <<  ": res_no "
+                         << atom->residue->seqNum << " inscode :"
+                         << std::string(atom->GetInsCode()) << ": name :"
+                         << std::string(atom->name) << ": altloc :"
+                         << std::string(atom->altLoc) << ":" << std::endl;
+            }
+         }
+
+         if (change_altconf_occs_flag) {
+            if (idx >= 0) {
+               n_atom++;
+               mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
+               float atom_occ = atom->occupancy;
+               // if this is a shelx molecule, then we don't change
+               // occupancies this way.  We do it by changing the FVAR
+               if (is_from_shelx_ins_flag) {
+                  atom_occ = mol_atom->occupancy;
+
+                  // OK, one more go.  We have an occupancy of 31 or -31
+                  // say.  Now, the alt conf atoms has been immmediately
+                  // added with the old occupancy for the actual FVAR number
+                  // - this happens before we get to twiddle the occupancy
+                  // slider.  So here we have to find out the index of the
+                  // replaced atom and set it's fvar to whatever the slider
+                  // value had been set to.
+
+                  int fvar_number = coot::ShelxIns::shelx_occ_to_fvar(atom_occ);
+                  if (fvar_number > 1) {
+                     //                std::cout << "DEBUG:: replace_coords: setting fvar number "
+                     //                          <<  fvar_number << " (generated from occ " << atom_occ << ") to "
+                     //                          << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
+                     shelxins.set_fvar(fvar_number, add_alt_conf_new_atoms_occupancy);
+                  }
+
+                  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+                     mol_atom->SetCoordinates(atom->x,
+                                              atom->y,
+                                              atom->z,
+                                              atom_occ,
+                                              mol_atom->tempFactor);
+               } else {
+                  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
+                     mol_atom->SetCoordinates(atom->x,
+                                              atom->y,
+                                              atom->z,
+                                              atom_occ,
+                                              mol_atom->tempFactor);
+               }
+
+               // similarly we adjust occupancy if this is not a shelx molecule
+               if (! is_from_shelx_ins_flag) {
+                  adjust_occupancy_other_residue_atoms(mol_atom, mol_atom->residue, 0);
+               }
+               // std::cout << atom << " coords replace " << idx << " " << mol_atom << std::endl;
+            } else {
+               std::cout << "ERROR:: bad atom index in replace_coords replacing atom: "
+                         << atom << std::endl;
+            }
+         } else {
+
+            // "don't change alt confs" mode
+
+            if (idx != -1 ) {
+               mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
+               if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) {
+                  if (debug) {
+                     coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
+                     coot::Cartesian new_pos(atom->x, atom->y, atom->z);
+                     double d = (new_pos - old_pos).amplitude();
+                     std::cout << "    changing coords for atom with idx " << idx << " "
+                               << coot::atom_spec_t(mol_atom) << std::endl;
+                     std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
+                  }
+                  mol_atom->SetCoordinates(atom->x,
+                                           atom->y,
+                                           atom->z,
+                                           mol_atom->occupancy,
+                                           mol_atom->tempFactor);
+                  n_atom++;
+               }
+            } else {
+               std::cout << "WARNING:: bad atom idx -1" << std::endl;
+            }
+         }
+      }
+   }
+   std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
+   // have_unsaved_changes_flag = 1;
+   save_info.new_modification();
+
+   if (show_symmetry) {  // internal
+      update_symmetry();
+   }
+
+   // make_bonds_type_checked(__FUNCTION__);
+
+}
+
+
 int coot::molecule_t::flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
 
    int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
@@ -487,9 +927,266 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
    return m;
 }
 
+#include "ligand/backrub-rotamer.hh"
+
+std::pair<bool,float>
+coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
+                                  const std::string &ins_code, const std::string &alt_conf,
+                                  const coot::protein_geometry &pg) {
+
+   bool status = false;
+   float score = -1;
+   bool refinement_move_atoms_with_zero_occupancy_flag = true; // pass this?
+
+   residue_spec_t res_spec(chain_id, res_no, ins_code);
+   mmdb::Residue *res = get_residue(res_spec);
+   if (! res) {
+      std::cout << "   WARNING:: residue in molecule :" << chain_id << ": "
+                << res_no << " inscode :" << ins_code << ": altconf :"
+                << alt_conf << ":" << std::endl;
+   } else {
+      std::string monomer_type = res->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+         pg.get_monomer_restraints(monomer_type, imol_no);
+      coot::dictionary_residue_restraints_t restraints = p.second;
+
+      if (p.first) {
+         try {
+
+            mmdb::Residue *prev_res = coot::util::previous_residue(res);
+            mmdb::Residue *next_res = coot::util::next_residue(res);
+            mmdb::Manager *mol = atom_sel.mol;
+            coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
+                             &xmap); // use a pointer for the map
+            std::pair<coot::minimol::molecule,float> m = br.search(restraints);
+            std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
+            score = m.second;
+            status = true;
+            atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
+            replace_coords(fragment_asc, 0, refinement_move_atoms_with_zero_occupancy_flag);
+            if (baddie_waters.size())
+               delete_atoms(baddie_waters);
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "WARNING:: thrown " << rte.what() << std::endl;
+         }
+      } else {
+         std::cout << " No restraints found for " << monomer_type << std::endl;
+      }
+   }
+   return std::pair<bool,float> (status, score);
+}
+
+
 int
 coot::molecule_t::auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
-                                   const clipper::Xmap<float> &xmap) {
+                                   const std::string &alt_conf,
+                                   const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom) {
+
+   int status = 0;
+
+   // let's just use backrub rotamer for now.
+   std::pair<bool, float> r = backrub_rotamer(chain_id, res_no, ins_code, alt_conf, geom);
+   status = r.first;
+
+   return status;
+}
+
+
+int
+coot::molecule_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs) {
+
+   short int was_deleted = 0;
+   int n_deleleted_atoms = 0;
+
+   if (atom_sel.n_selected_atoms > 0) {
+      if (atom_specs.size() > 0)
+         make_backup();
+      for (unsigned int i=0; i<atom_specs.size(); i++) {
+         int SelHnd = atom_sel.mol->NewSelection();
+         // how about a function that calls this:
+         // select_atomspec_atoms(atom_sel.mol, atom_specs[i])
+         // or  a member function of an atom_spec_t:
+         //    atom_specs[i].select_atoms(mol)
+         //
+         mmdb::PAtom *atoms = NULL;
+         int n_atoms;
+         atom_sel.mol->SelectAtoms(SelHnd, 0, atom_specs[i].chain_id.c_str(),
+                                   atom_specs[i].res_no, atom_specs[i].ins_code.c_str(),
+                                   atom_specs[i].res_no, atom_specs[i].ins_code.c_str(),
+                                   "*",
+                                   atom_specs[i].atom_name.c_str(),
+                                   "*",
+                                   atom_specs[i].alt_conf.c_str()
+                                   );
+         atom_sel.mol->GetSelIndex(SelHnd, atoms, n_atoms);
+         if (n_atoms) {
+            delete atoms[0];
+            atoms[0] = NULL;
+            n_deleleted_atoms++;
+            was_deleted = 1;
+         }
+         atom_sel.mol->DeleteSelection(SelHnd);
+      }
+   }
+
+   // potentially
+   if (was_deleted) {
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      // make_bonds_type_checked(__FUNCTION__);
+      // have_unsaved_changes_flag = 1;
+      save_info.new_modification();
+      // unlikely to be necessary:
+      trim_atom_label_table();
+
+      // update_symmetry();
+   }
+
+   return n_deleleted_atoms;
+}
+
+void
+coot::molecule_t::update_symmetry() {
+
+   // 20221013-PE no symmetry yet
+}
+
+void
+coot::molecule_t::trim_atom_label_table() {
+
+   // 20221013-PE no atom labels yet
+}
+
+void
+coot::molecule_t::delete_ghost_selections() {
+
+   // 20221013-PE no ghosts at the moment
+}
+
+int
+coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
+
+   int was_deleted = 0;
+   mmdb::Chain *chain;
+   mmdb::Residue *residue_of_deleted_atom = NULL;
+
+   std::string chain_id = atom_spec.chain_id;
+   int resno            = atom_spec.res_no;
+   std::string ins_code = atom_spec.ins_code;
+   std::string atname   = atom_spec.atom_name;
+   std::string altconf  = atom_spec.alt_conf;
+
+   // run over chains of the existing mol
+   int nchains = atom_sel.mol->GetNumberOfChains(1);
+   for (int ichain=0; ichain<nchains; ichain++) {
+
+      chain = atom_sel.mol->GetChain(1,ichain);
+      std::string mol_chain_id(chain->GetChainID());
+
+      // Note, if in the PDB file, the chain id is not set to
+      // something, A, B, C etc, then the chain id from mmdb is ""
+      // (not " "!)
+
+//       std::cout << "debug:: delete_atom comparing chain_ids :"
+//                 << chain_id << ": vs :" << mol_chain_id << ":"
+//                 << std::endl;
+
+      if (chain_id == mol_chain_id) {
+
+         int nres = chain->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::PResidue res = chain->GetResidue(ires);
+            std::string ins_code_local = res->GetInsCode();
+
+            if (res) {
+//                std::cout << "debug:: delete_atom: comparing residue "
+//                          << res->GetSeqNum() << " :" << ins_code_local
+//                          << ":" << " to " << resno << " :" << ins_code << ":"
+//                          << std::endl;
+               if (res->GetSeqNum() == resno) {
+                  if (ins_code_local == ins_code) {
+
+                     // so we have a matching residue:
+                     // std::cout << "debug:: delete_atom: we have a matching residue "
+                     // << resno << " :" << ins_code << ":" << std::endl;
+
+                     mmdb::PPAtom residue_atoms;
+                     int nResidueAtoms;
+                     std::string mol_atom_name;
+                     res->GetAtomTable(residue_atoms, nResidueAtoms);
+                     for (int iat=0; iat<nResidueAtoms; iat++) {
+
+                        mol_atom_name = residue_atoms[iat]->name;
+                        if (atname == mol_atom_name) {
+
+                           if (std::string(residue_atoms[iat]->altLoc) == altconf) {
+
+                              make_backup();
+                              atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+                              delete_ghost_selections();
+                              res->DeleteAtom(iat);
+                              was_deleted = 1;
+                              residue_of_deleted_atom = res;
+                              break;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+            if (was_deleted)
+               break;
+         }
+      }
+      if (was_deleted)
+         break;
+   }
+
+   // potentially
+   if (was_deleted) {
+      atom_sel.mol->FinishStructEdit();
+
+
+      // Now reset/recalculate the occupancy and the altLoc of the
+      // remaining atoms in the residue with the same atom name.
+      //
+      mmdb::PPAtom atoms = NULL;
+      int n_atoms;
+      mmdb::Atom *at = 0;
+      int n_matching_name = 0;
+      residue_of_deleted_atom->GetAtomTable(atoms, n_atoms);
+      for (int iat=0; iat<n_atoms; iat++) {
+         std::string res_atom_name = atoms[iat]->name;
+         if (res_atom_name == atname) {
+            at = atoms[iat];
+            n_matching_name++;
+         }
+      }
+      if (n_matching_name == 1) { // one atom of this name left in the residue, so
+                                    // remove its altconf string
+         if (at) {
+            strncpy(at->altLoc, "", 2);
+            // set the occupancy to 1.0 of the remaining atom if it was not zero.
+            if (at->occupancy > 0.009)
+               at->occupancy = 1.0;
+         }
+      }
+
+      atom_sel = make_asc(atom_sel.mol);
+      // make_bonds_type_checked(__FUNCTION__);
+      // have_unsaved_changes_flag = 1;
+      save_info.new_modification();
+      // unlikely to be necessary:
+      trim_atom_label_table();
+      update_symmetry();
+   }
+   return was_deleted;
+}
+
+
+int
+coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
 
    int status = 0;
 

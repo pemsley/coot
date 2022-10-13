@@ -15,6 +15,8 @@
 
 #include "density-contour/CIsoSurface.h"
 #include "gensurf.hh"
+#include "coot-utils/coot-shelx.hh"
+
 
 namespace coot {
 
@@ -55,6 +57,9 @@ namespace coot {
       molecule_save_info_t save_info;
 
       int imol_no; // this molecule's index in the container vector
+      std::string name;
+      bool is_from_shelx_ins_flag;
+      ShelxIns shelxins;
 
       // private
       void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms);
@@ -103,12 +108,49 @@ namespace coot {
       std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      void replace_coords(const atom_selection_container_t &asc,
+                          bool change_altconf_occs_flag,
+                          bool replace_coords_with_zero_occ_flag);
+      // helper function for above function
+      bool movable_atom(mmdb::Atom *mol_atom, bool replace_coords_with_zero_occ_flag) const;
+      bool moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const;
+      void adjust_occupancy_other_residue_atoms(mmdb::Atom *at,
+                                                mmdb::Residue *residue,
+                                                short int force_sum_1_flag);
+
+      // return -1 on failure
+      int full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const;
+      // return -1 on no atom found.
+      int full_atom_spec_to_atom_index(const std::string &chain,
+                                       int resno,
+                                       const std::string &insertion_code,
+                                       const std::string &atom_name,
+                                       const std::string &alt_conf) const;
+
+      void make_backup();
+
+      void trim_atom_label_table();
+      void delete_ghost_selections();
+      void update_symmetry();
+      bool show_symmetry;
+
    public:
 
       atom_selection_container_t atom_sel;
       molecule_t() {}
       explicit molecule_t(atom_selection_container_t asc, int imol_no_in) : atom_sel(asc) {
-         bonds_box_type = UNSET_TYPE; is_em_map_cached_flag = false; xmap_is_diff_map = false; imol_no = imol_no_in; }
+         init();
+         imol_no = imol_no_in;
+      }
+
+      void init() { // add imol_no here?
+         bonds_box_type = UNSET_TYPE;
+         is_em_map_cached_flag = false;
+         xmap_is_diff_map = false;
+         is_from_shelx_ins_flag = false;
+         show_symmetry = false;
+      }
+
       clipper::Xmap<float> xmap; // public because the filling function needs access
 
       // public access to the lock (from threads)
@@ -116,6 +158,7 @@ namespace coot {
 
       // utils
 
+      std::string get_name() const { return name; }
       int get_molecule_index() const { return imol_no; }
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
@@ -144,7 +187,17 @@ namespace coot {
 
       int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
       int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
-                           const clipper::Xmap<float> &xmap);
+                           const std::string &alt_conf,
+                           const clipper::Xmap<float> &xmap, const coot::protein_geometry &pg);
+
+      std::pair<bool,float> backrub_rotamer(const std::string &chain_id, int res_no,
+                                            const std::string &ins_code, const std::string &alt_conf,
+                                            const coot::protein_geometry &pg);
+      // return the number of deleted atoms
+      int delete_atoms(const std::vector<coot::atom_spec_t> &atoms);
+      int delete_atom(coot::atom_spec_t &atom_spec);
+      int delete_residue(coot::residue_spec_t &residue_spec);
+      int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
 
       // map functions
 

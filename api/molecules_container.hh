@@ -87,13 +87,20 @@ public:
    // get the rotamer dodecs for the model, not const because it regenerates the bonds.
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
 
-   // this is here for wrapping - does nothing at the moment
-   int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, int imol_map);
+   int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf,
+                        int imol_map);
+
+   int delete_atom(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+                   const std::string &atom_name, const std::string &alt_conf);
+
+   int delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
+   int delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf);
 
    // add these
    //
-   // delete_atom
    // delete residue
+   // delete residues
    // add_terminal_residue
    // update_map
 

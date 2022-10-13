@@ -40,6 +40,11 @@ int main(int argc, char **argv) {
    std::cout << "density mesh: " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
 
+   // add a test for:
+   // delete_atom
+   // delete_atoms
+   // delete_residue
+
 
 
    return status;

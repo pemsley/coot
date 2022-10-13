@@ -373,14 +373,40 @@ molecules_container_t::get_rotamer_dodecs(int imol) {
 int
 molecules_container_t::auto_fit_rotamer(int imol,
                                         const std::string &chain_id, int res_no, const std::string &ins_code,
+                                        const std::string &alt_conf,
                                         int imol_map) {
-
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
-         status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, xmap);
+         status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, alt_conf, xmap, geom);
       }
+   }
+   return status;
+}
+
+
+int
+molecules_container_t::delete_atom(int imol,
+                                   const std::string &chain_id, int res_no, const std::string &ins_code,
+                                   const std::string &atom_name, const std::string &alt_conf) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
+      status = molecules[imol].delete_atom(atom_spec);
+   }
+   return status;
+}
+
+int
+molecules_container_t::delete_residue(int imol,
+                                      const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+      status = molecules[imol].delete_residue(residue_spec);
    }
    return status;
 }
