@@ -358,9 +358,14 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
                                              float radius, float contour_level) {
 
    coot::simple_mesh_t mesh;
-   if (is_valid_map_molecule(imol)) {
-      clipper::Coord_orth position(position_x, position_y, position_z);
-      mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
+   try {
+      if (is_valid_map_molecule(imol)) {
+         clipper::Coord_orth position(position_x, position_y, position_z);
+         mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
+      }
+   }
+   catch (...) {
+      std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
    }
    return mesh;
 }
