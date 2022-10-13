@@ -32,6 +32,12 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+void
+molecules_container_t::geometry_init_standard() {
+   geom.init_standard();
+}
+
+
 int
 molecules_container_t::flipPeptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
 

@@ -192,7 +192,9 @@ namespace coot {
 
       std::pair<bool,float> backrub_rotamer(const std::string &chain_id, int res_no,
                                             const std::string &ins_code, const std::string &alt_conf,
+                                            const clipper::Xmap<float> &xmap,
                                             const coot::protein_geometry &pg);
+
       // return the number of deleted atoms
       int delete_atoms(const std::vector<coot::atom_spec_t> &atoms);
       int delete_atom(coot::atom_spec_t &atom_spec);

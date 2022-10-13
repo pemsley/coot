@@ -932,6 +932,7 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
 std::pair<bool,float>
 coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
                                   const std::string &ins_code, const std::string &alt_conf,
+                                  const clipper::Xmap<float> &xmap_in,
                                   const coot::protein_geometry &pg) {
 
    bool status = false;
@@ -957,7 +958,7 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             mmdb::Residue *next_res = coot::util::next_residue(res);
             mmdb::Manager *mol = atom_sel.mol;
             coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-                             &xmap); // use a pointer for the map
+                             &xmap_in); // use a pointer for the map
             std::pair<coot::minimol::molecule,float> m = br.search(restraints);
             std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
             score = m.second;
@@ -986,7 +987,7 @@ coot::molecule_t::auto_fit_rotamer(const std::string &chain_id, int res_no, cons
    int status = 0;
 
    // let's just use backrub rotamer for now.
-   std::pair<bool, float> r = backrub_rotamer(chain_id, res_no, ins_code, alt_conf, geom);
+   std::pair<bool, float> r = backrub_rotamer(chain_id, res_no, ins_code, alt_conf, xmap, geom);
    status = r.first;
 
    return status;

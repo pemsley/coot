@@ -22,6 +22,8 @@ public:
 
    molecules_container_t() : ramachandrans_container(ramachandrans_container_t()) {}
 
+   void geometry_init_standard();
+
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;
 
