@@ -75,7 +75,7 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
    return r;
 }
 
-void build_main_window(GtkWindow* main_window) {
+void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_graph) {
    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
    gtk_widget_set_margin_bottom(vbox,10);
    gtk_widget_set_margin_top(vbox,10);
@@ -84,7 +84,6 @@ void build_main_window(GtkWindow* main_window) {
    gtk_window_set_child(main_window,vbox);
 
    GtkWidget* host_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
-   CootValidationGraph* validation_graph = coot_validation_graph_new();
    gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(validation_graph));
 
    gtk_box_append(GTK_BOX(vbox),host_frame);
@@ -114,15 +113,17 @@ int main(int argc, char **argv) {
       GError *error = NULL;
       g_application_register(G_APPLICATION(app), NULL, &error);
 
-      
+      CootValidationGraph* graph = coot_validation_graph_new();
+      coot_validation_graph_set_validation_information(graph,std::make_unique<coot::validation_information_t>(vi));
+
       g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
          //GtkWindow* win = GTK_WINDOW(user_data);
          GtkWidget* win = gtk_application_window_new(app);
          gtk_application_add_window(app,GTK_WINDOW(win));
          gtk_window_set_application(GTK_WINDOW(win),app);
-         build_main_window(GTK_WINDOW(win));
+         build_main_window(GTK_WINDOW(win),COOT_COOT_VALIDATION_GRAPH(user_data));
          gtk_widget_show(win);
-      }),NULL);
+      }),graph);
 
 
       return g_application_run(G_APPLICATION(app),0,0);
