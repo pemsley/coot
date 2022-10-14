@@ -57,8 +57,29 @@ demo_measure (GtkWidget      *widget,
   *natural_size = 200;
 }
 
-static void coot_validation_graph_init(CootValidationGraph* ) {
+static void on_left_click (
+  GtkGestureClick* gesture_click,
+  gint n_press,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
+    g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
+    gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
+}
+
+static void coot_validation_graph_init(CootValidationGraph* self) {
     // I think that this is the primary constructor
+
+
+    GtkGesture* click_controller = gtk_gesture_click_new();
+    // left mouse button
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
+
+    g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
+
+    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
 }
 
 static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
