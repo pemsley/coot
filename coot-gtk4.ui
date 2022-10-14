@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gtk+" version="4.0"/>
 
   <menu id="menubar">
     <submenu>
@@ -39,15 +39,18 @@
         </item>
         <item>
           <attribute name="label">Fetch PDB using Accession Code...</attribute>
-          <attribute name="action">app.fetch_pdb_using_code_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">oca</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB &amp; Map using EDS...</attribute>
-          <attribute name="action">app.fetch_pdb_and_map_using_eds_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">eds</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
-          <attribute name="action">app.fetch_pdb_and_map_using_pdb_redo_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">pdb-redo</attribute>
         </item>
         <item>
          <attribute name="label">Fetch Corresponding AlphaFold Model &amp; Superpose</attribute>
@@ -55,7 +58,8 @@
         </item>
          <item>
          <attribute name="label">Fetch AlphaFold Model using Uniprot ID...</attribute>
-          <attribute name="action">app.fetch_alphafold_model_for_uniprot_id_action</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">uniprot-id</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDBe Ligand Description</attribute>
@@ -237,9 +241,11 @@
           <attribute name="label">Fit Loop...</attribute>
           <item>
             <attribute name="label">Fit Loop by Database Search...</attribute>
+            <attribute name="action">app.fit_loop_by_database_search</attribute>
           </item>
           <item>
             <attribute name="label">Fit Loop by Ramachandran Search...</attribute>
+            <attribute name="action">app.fit_loop_by_ramachandran_search</attribute>
           </item>
         </submenu>
         <item>
@@ -314,41 +320,6 @@
         <item>
           <attribute name="label">Map Skeleton...</attribute>
         </item>
-        <submenu>
-          <attribute name="label">Modules...</attribute>
-            <item>
-              <attribute name="label">CCP4</attribute>
-              <attribute name="action">app.add_ccp4_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Carbohydrate</attribute>
-              <attribute name="action">app.add_carbohydrate_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Cryo-EM</attribute>
-              <attribute name="action">app.add_cryo_em_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">ProSMART</attribute>
-              <attribute name="action">app.add_prosmart_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">RCrane</attribute>
-              <attribute name="action">app.add_rcrane_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Restraints</attribute>
-              <attribute name="action">app.add_restraints_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">Refine</attribute>
-              <attribute name="action">app.add_refine_module_action</attribute>
-            </item>
-            <item>
-              <attribute name="label">SHELX</attribute>
-              <attribute name="action">app.add_shelx_module_action</attribute>
-            </item>
-        </submenu>
 
         <item>
           <attribute name="label">Run Script...</attribute>
@@ -872,6 +843,42 @@
       </item>
     </section>
   </menu>
+  <menu id="modules-menu">
+    <section>
+      <item>
+        <attribute name="label">CCP4</attribute>
+        <attribute name="action">app.add_ccp4_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Carbohydrate</attribute>
+        <attribute name="action">app.add_carbohydrate_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Cryo-EM</attribute>
+        <attribute name="action">app.add_cryo_em_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">ProSMART</attribute>
+        <attribute name="action">app.add_prosmart_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">RCrane</attribute>
+        <attribute name="action">app.add_rcrane_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Restraints</attribute>
+        <attribute name="action">app.add_restraints_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Refine</attribute>
+        <attribute name="action">app.add_refine_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">SHELX</attribute>
+        <attribute name="action">app.add_shelx_module_action</attribute>
+      </item>
+    </section>
+  </menu>
 
   <menu id="fixed-atoms-menu">
     <section>
@@ -1158,46 +1165,6 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
               <object class="GtkLabel" id="accept_dialog_accept_label_string">
                 <property name="label" translatable="yes">Accept Refinement?</property>
                 <property name="justify">center</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-  <object class="GtkWindow" id="accession_code_window">
-    <property name="title" translatable="yes">PDB Accession Code </property>
-    <property name="deletable">0</property>
-    <child>
-      <object class="GtkFrame" id="frame34">
-        <child>
-          <object class="GtkBox" id="vbox40">
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="accession_code_window_label">
-                <property name="label" translatable="yes">PDB Accession Code:</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <child>
-                  <object class="GtkEntry" id="accession_code_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="accession_code_get_it_button">
-                    <property name="label" translatable="yes">Get Structure</property>
-                    <property name="can-focus">1</property>
-                    <property name="receives-default">1</property>
-                    <signal name="clicked" handler="on_accession_code_get_it_button_clicked" swapped="no"/>
-                  </object>
-                </child>
               </object>
             </child>
           </object>
@@ -5368,93 +5335,6 @@ Do you want to continue?
     </child>
   </object>
 
-  <object class="GtkDialog" id="geometry_dialog">
-    <property name="title" translatable="yes">Coot Model Geometry</property>
-    <signal name="destroy" handler="on_geometry_dialog_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="dialog-vbox39">
-        <property name="orientation">vertical</property>
-        <property name="margin-start">4</property>
-        <property name="margin-end">4</property>
-        <property name="margin-top">4</property>
-        <property name="margin-bottom">4</property>
-        <property name="spacing">4</property>
-        <child>
-          <object class="GtkBox" id="vbox102">
-            <property name="orientation">vertical</property>
-            <property name="spacing">4</property>
-            <child>
-              <object class="GtkToggleButton" id="geometry_distance_togglebutton">
-                <property name="label" translatable="yes">  Distance  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_distance_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="geometry_angle_togglebutton">
-                <property name="label" translatable="yes">  Angle  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_angle_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="geometry_torsion_togglebutton">
-                <property name="label" translatable="yes">  Torsion  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="toggled" handler="on_geometry_torsion_togglebutton_toggled" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkSeparator">
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_last_distance_button">
-                <property name="label" translatable="yes">  Clear Last Distance  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_last_distance_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_all_distances_button">
-                <property name="label" translatable="yes">  Clear All Distances  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_all_distances_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="geometry_clear_atom_labels_button">
-                <property name="label" translatable="yes">  Clear All Atom Labels  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_geometry_clear_atom_labels_button_clicked" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="action">
-          <object class="GtkButton" id="geometry_dialog_close_button">
-            <property name="label" translatable="yes">  Close  </property>
-            <property name="can-focus">1</property>
-            <property name="use-underline">1</property>
-            <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
-            <property name="margin-start">4</property>
-            <property name="margin-end">4</property>
-            <property name="margin-top">4</property>
-            <property name="margin-bottom">4</property>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-
   <object class="GtkWindow" id="global_map_properties_window">
     <property name="title" translatable="yes">Global map properties window</property>
     <child>
@@ -6017,10 +5897,11 @@ Do you want to continue?
               </child>
 
               <child>
-                <object class="GtkButton" id="add_toolbar_buttons_button">
+                <object class="GtkMenuButton" id="add_module_menubutton">
                   <property name="label" translatable="yes">+</property>
+                  <property name="tooltip-text">Load an extension module</property>
                   <property name="can-focus">0</property>
-                  <signal name="clicked" handler="on_add_toolbar_buttons_button" swapped="no"/>
+                  <!-- <signal name="clicked" handler="on_add_module_menubutton_clicked" swapped="no"/> -->
                   <property name="margin-start">6</property>
                   <property name="halign">end</property>
                 </object>
@@ -6052,6 +5933,120 @@ Do you want to continue?
               <object class="GtkBox" id="main_window_graphics_hbox">
                 <property name="orientation">horizontal</property>
                 <!-- This is where the GTKGLArea is placed at runtime -->
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="get_monomer_frame">
+              <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkBox">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">3 Letter Code</property>
+                            <property name="margin-end">5</property>
+                            <property name="margin-start">5</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="get_monomer_entry">
+                            <property name="can-focus">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="get_monomer_no_entry_frame">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">Not Here. Fetch it?</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkButton" id="get_monomer_cancel_button">
+                            <property name="label">Cancel</property>
+                            <signal name="clicked" handler="on_generic_overlay_frame_cancel_button_clicked" swapped="no" object="get_monomer_frame"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="get_monomer_ok_button">
+                            <property name="label">OK</property>
+                            <signal name="clicked" handler="on_get_monomer_ok_button_clicked"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="accession_code_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox" id="vbox40">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="accession_code_label">
+                        <property name="label" translatable="yes">PDB Accession Code:</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="accession_code_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkButton" id="accession_code_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_generic_overlay_frame_cancel_button_clicked" swapped="no" object="accession_code_frame"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="accession_code_get_it_button">
+                            <property name="label" translatable="yes">Get Structure</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_accession_code_get_it_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
             <child type="overlay">
@@ -6301,6 +6296,96 @@ Do you want to continue?
                             <signal name="clicked" handler="on_refinement_and_regularization_vbox_close_button_clicked" swapped="no"/>
                           </object>
                         </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="geometry_frame">
+                <property name="halign">start</property>
+                <property name="valign">end</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <!-- <property name="title" translatable="yes">Coot Model Geometry</property> -->
+                <child>
+                  <object class="GtkBox" id="dialog-vbox39">
+                    <property name="orientation">vertical</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkBox" id="vbox102">
+                        <property name="orientation">vertical</property>
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_distance_togglebutton">
+                            <property name="label" translatable="yes">Distance</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_distance_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_angle_togglebutton">
+                            <property name="label" translatable="yes">Angle</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_angle_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="geometry_torsion_togglebutton">
+                            <property name="label" translatable="yes">Torsion</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_geometry_torsion_togglebutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSeparator">
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_last_distance_button">
+                            <property name="label" translatable="yes">Clear Last Distance</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_last_distance_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_all_distances_button">
+                            <property name="label" translatable="yes">Clear All Distances</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_all_distances_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="geometry_clear_atom_labels_button">
+                            <property name="label" translatable="yes">Clear All Atom Labels</property>
+                            <property name="can-focus">1</property>
+                            <property name="use-underline">1</property>
+                            <signal name="clicked" handler="on_geometry_clear_atom_labels_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="action">
+                      <object class="GtkButton" id="geometry_dialog_close_button">
+                        <property name="label" translatable="yes">Close</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <signal name="clicked" handler="on_geometry_dialog_close_button_clicked" swapped="no"/>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                       </object>
                     </child>
                   </object>
@@ -6738,120 +6823,6 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
-
-  <object class="GtkDialog" id="old_libcheck_monomer_dialog">
-    <property name="title" translatable="yes">Coot: Get monomer molecule</property>
-    <child>
-      <object class="GtkBox" id="dialog-vbox43">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox81">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="libcheck_monomer_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_get_monomer_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="libcheck_monomer_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_get_monomer_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="vbox105">
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel">
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox80">
-                <child>
-                  <object class="GtkLabel" id="label151">
-                    <property name="label" translatable="yes">  3 Letter Code: </property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="libcheck_monomer_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label152">
-                <property name="label" translatable="yes">  Note: Code is Case Sensitive  </property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-
-  <!-- Made in Cambalache -->
-      <object class="GtkBox" id="get_monomer_vbox">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkBox">
-            <child>
-              <object class="GtkLabel">
-                <property name="label">3 Letter Code</property>
-                <property name="margin-end">4</property>
-                <property name="margin-start">4</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkEntry" id="get_monomer_entry"/>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="get_monomer_no_entry_frame">
-            <child>
-              <object class="GtkLabel">
-                <property name="label">Not Here. Fetch it?</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="homogeneous">True</property>
-            <property name="margin-bottom">4</property>
-            <property name="margin-end">4</property>
-            <property name="margin-start">4</property>
-            <property name="margin-top">4</property>
-            <property name="spacing">4</property>
-            <child>
-              <object class="GtkButton" id="get_monomer_cancel_button">
-                <property name="label">Cancel</property>
-                <signal name="clicked" handler="on_get_monomer_cancel_button_clicked"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="get_monomer_ok_button">
-                <property name="label">OK</property>
-                <signal name="clicked" handler="on_get_monomer_ok_button_clicked"/>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-
 
   <object class="GtkDialog" id="ligand_big_blob_dialog">
     <property name="height-request">250</property>
@@ -7399,7 +7370,7 @@ density (too big to be waters):
                   <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_combobox">
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkComboBoxText" id="mutate_molecule_combobox">
+                      <object class="GtkComboBoxText" id="mutate_sequence_molecule_combobox">
                       </object>
                     </child>
                   </object>
@@ -7416,7 +7387,7 @@ density (too big to be waters):
                       <object class="GtkBox" id="mutate_sequence_hbox_for_molecule_chain_combobox_text">
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkComboBoxText" id="mutate_molecule_chain_combobox">
+                          <object class="GtkComboBoxText" id="mutate_sequence_chain_combobox_text">
                           </object>
                         </child>
                       </object>
@@ -7555,6 +7526,7 @@ density (too big to be waters):
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="mutate_sequence_cancel_button">
                 <property name="label" translatable="yes">   Cancel   </property>
@@ -10436,6 +10408,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="shader_settings_dialog">
     <property name="title" translatable="yes">Coot Shader Settings</property>
     <signal name="close" handler="on_shader_settings_dialog_close" swapped="no"/>
@@ -10466,6 +10439,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         <property name="margin-bottom">2</property>
                         <property name="margin-start">4</property>
                         <property name="margin-end">4</property>
+                        <signal name="toggled" handler="on_shader_settings_basic_mode_togglebutton_toggled" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10509,7 +10483,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkCheckButton" id="shader_settings_do_depth_fog_checkbutton">
                     <property name="label" translatable="yes">Enable</property>
-                    <property name="can-focus">1</property>
+                    <property name="can-focus">0</property>
+                    <signal name="toggled" handler="on_shader_settings_do_depth_fog_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child type="label">
@@ -10536,6 +10511,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                             <property name="can-focus">1</property>
                             <property name="round-digits">2</property>
                             <property name="digits">2</property>
+                            <signal name="value-changed" handler="on_shader_settings_brightness_scale_value_changed" swapped="no"/>
                           </object>
                         </child>
                         <child type="label">
@@ -10561,6 +10537,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10578,6 +10555,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_radius_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10594,6 +10572,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_bias_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10611,6 +10590,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">0</property>
                                     <property name="digits">0</property>
+                                    <signal name="value-changed" handler="on_shader_settings_ssao_n_kernel_samples_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10629,6 +10609,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">0</property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_0_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10636,6 +10617,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10643,6 +10625,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_ssao_smoothing_blur_size_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_ssao_smoothing_blur_size_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10679,6 +10662,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                             <property name="can-focus">1</property>
                             <property name="round-digits">2</property>
                             <property name="digits">2</property>
+                            <signal name="value-changed" handler="on_shader_settings_gamma_scale_value_changed" swapped="no"/>
                           </object>
                         </child>
                         <child type="label">
@@ -10704,6 +10688,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_shadow_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10722,6 +10707,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">0</property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_0_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10729,6 +10715,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10736,6 +10723,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10743,6 +10731,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">3</property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_softness_0_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_softness_3_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10763,6 +10752,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">1 </property>
                                         <property name="can-focus">1</property>
                                         <property name="active">1</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_1_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10770,6 +10760,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">2 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_2_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10777,6 +10768,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">3 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_3_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10784,6 +10776,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">4 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_4_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10791,6 +10784,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">5 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_5_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                     <child>
@@ -10798,6 +10792,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                         <property name="label" translatable="yes">6 </property>
                                         <property name="can-focus">1</property>
                                         <property name="group">shader_settings_shadow_texture_resolution_multiplier_1_radiobutton</property>
+                                        <signal name="toggled" handler="on_shader_settings_shadow_texture_resolution_multiplier_6_radiobutton_toggled" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
@@ -10833,6 +10828,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Off</property>
                                     <property name="can-focus">1</property>
                                     <property name="active">1</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_off_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                                 <child>
@@ -10840,6 +10836,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Depth Blur</property>
                                     <property name="can-focus">1</property>
                                     <property name="group">shader_settings_depth_blur_outline_off_radiobutton</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                                 <child>
@@ -10847,6 +10844,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="label" translatable="yes">Outline</property>
                                     <property name="can-focus">1</property>
                                     <property name="group">shader_settings_depth_blur_outline_off_radiobutton</property>
+                                    <signal name="toggled" handler="on_shader_settings_depth_blur_outline_outline_radiobutton_toggled" swapped="no"/>
                                   </object>
                                 </child>
                               </object>
@@ -10858,6 +10856,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_focus_depth_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -10874,6 +10873,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                     <property name="can-focus">1</property>
                                     <property name="round-digits">2</property>
                                     <property name="digits">2</property>
+                                    <signal name="value-changed" handler="on_shader_settings_depth_blur_strength_scale_value_changed" swapped="no"/>
                                   </object>
                                 </child>
                                 <child type="label">
@@ -12038,26 +12038,6 @@ Move a copy?</property>
     <child>
       <object class="GtkBox" id="dialog-vbox68">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox110">
-                <child>
-                  <object class="GtkButton" id="find_blobs_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_find_blobs_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_blobs_ok_button">
-                    <property name="label" translatable="yes">  Find Blobs  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox127">
             <property name="orientation">vertical</property>
@@ -12133,6 +12113,26 @@ Move a copy?</property>
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox110">
+            <child>
+              <object class="GtkButton" id="find_blobs_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_find_blobs_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="find_blobs_ok_button">
+                <property name="label" translatable="yes">  Find Blobs  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>

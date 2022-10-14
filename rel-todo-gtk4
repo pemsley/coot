@@ -43,6 +43,8 @@ Fix "Edit Chi Angles" button ::: 1
 
 New dialog for map masking ::: 1
 
+GUI: Unmodelled blobs dialog and the resulting blobs dialog. ::: 1
+
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
 

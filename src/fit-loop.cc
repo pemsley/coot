@@ -5,6 +5,8 @@
 
 #include "graphics-info.h"
 
+// 20221010-PE this file is not compiled
+
 void
 new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule, GCallback callback_func, int imol_active) {
 

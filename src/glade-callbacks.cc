@@ -1718,12 +1718,11 @@ on_accession_code_entry_key_press_event (GtkWidget       *widget,
 
 extern "C" G_MODULE_EXPORT
 void
-on_accession_code_get_it_button_clicked    (GtkButton       *button,
-                                                                gpointer         user_data) {
+on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
-   GtkWidget *dialog = widget_from_builder("accession_code_window");
-   handle_get_accession_code(dialog, entry);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   handle_get_accession_code(frame, entry);
 }
 
 
@@ -4860,12 +4859,9 @@ on_geometry_dialog_close_button_clicked
   gtk_widget_hide(dialog);
 #endif
 
-  GtkWidget *dialog = widget_from_builder("geometry_dialog");
-  store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
+  GtkWidget *frame = widget_from_builder("geometry_frame");
   store_geometry_dialog(NULL);
-  gtk_widget_hide(dialog);
-  
-
+  gtk_widget_hide(frame);
 }
 
 
@@ -4876,44 +4872,6 @@ on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
 {
   if (gtk_toggle_button_get_active(togglebutton))
     do_angle_define();
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_distances_and_angles1_activate      (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-  GtkWidget *widget = wrapped_create_geometry_dialog();
-
-  set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
-
-  store_geometry_dialog(widget); /* needed to deactivate the distance
-				    togglebutton after 2nd atoms
-				    clicked in graphics */
-  set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-  gtk_widget_show(widget);
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_dialog_destroy             (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-
-  /* OK, so the user moved the dialog somewhere, we want to store that
-     position before we go. */
-
-/* Nope!  we can't do the cast of object->widget, (then widget->window
-   is NULL) and store function fails. */
-/*   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, GTK_WIDGET(object)); */
-
-  /* However, we do want to unset the geometry_dialog pointer */
-   store_geometry_dialog(NULL);
 
 }
 
@@ -5019,17 +4977,20 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
    if (entry) {
       handle_get_monomer_code(entry);
    }
-   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(vbox);
+   GtkWidget *frame = widget_from_builder("get_monomer_frame");
+   gtk_widget_hide(frame);
 }
 
-
 extern "C" G_MODULE_EXPORT
-void on_get_monomer_cancel_button_clicked(GtkButton       *button,
+void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
-
-   GtkWidget *widget = widget_from_builder("get_monomer_vbox");
-   gtk_widget_hide(widget);
+   GtkWidget* frame_widget = GTK_WIDGET(user_data);
+   if(frame_widget) {
+      gtk_widget_hide(frame_widget);
+   } else {
+      g_error("'user_data' is NULL. Cannot hide overlay frame.");
+   }
+   
 }
 
 
@@ -7080,7 +7041,6 @@ on_fit_loop_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
-   // fit_loop_from_widget(w); // we don't need to pass the widget, we can look it up when we get there
    fit_loop_using_dialog();
    gtk_widget_hide(w);
 
@@ -7289,16 +7249,15 @@ on_change_chain_residue_range_yes_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_sequence_do_autofit_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_mutate_sequence_do_autofit_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer        user_data) {
+
    int imol_map = -1;
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       imol_map = imol_refinement_map();
       if (imol_map == -1) {
-	 gtk_toggle_button_set_active(togglebutton, FALSE);
+	 gtk_check_button_set_active(checkbutton, FALSE);
 	 show_select_map_dialog();
 	 info_dialog("A map has not yet been assigned for Refinement/Fitting");
       }
@@ -7307,11 +7266,9 @@ on_mutate_sequence_do_autofit_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   /* not doing anything?! */
+on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled(GtkToggleButton *togglebutton,
+                                                                   gpointer         user_data) {
+   /* not doing anything because the button state read at execution time  */
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10586,15 +10543,6 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
 {
   GtkWidget *dialog = widget_from_builder("move_molecule_here_dialog");
   fill_move_molecule_here_dialog(dialog);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_add_toolbar_buttons_button
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   info_dialog("WARNING:: This doesn't do anything yet (sorry).\nI'm just testing the layout.");
 }
 
 extern "C" G_MODULE_EXPORT

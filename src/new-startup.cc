@@ -6,7 +6,7 @@
 
 #include "graphics-info.h"
 #include "create-menu-item-actions.hh"
-
+#include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
 
 void print_opengl_info();
@@ -156,8 +156,9 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   std::cout << "DEBUG:: --- new_startup_on_glarea_resize() "
-             <<  width << " " << height << std::endl;
+   if (false)
+      std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
+
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
@@ -211,9 +212,9 @@ void on_glarea_scale_changed(GtkGestureZoom* self,
 }
 
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
+                                  double          x,
+                                  double          y,
+                                  GtkWidget      *area) {
    graphics_info_t g;
 
 #ifdef __APPLE__
@@ -224,9 +225,9 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
+                                   double          delta_x,
+                                   double          delta_y,
+                                   GtkWidget      *area) {
 
    graphics_info_t g;
 
@@ -249,9 +250,9 @@ void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
 
 
 void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
+                                    double          x,
+                                    double          y,
+                                    GtkWidget      *area) {
    graphics_info_t g;
    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
 }
@@ -384,64 +385,63 @@ on_glarea_motion_leave(GtkEventControllerMotion *controller,
 
 void setup_gestures(GtkWidget *glarea) {
 
-      std::cout << "========== start setting up GTK4 style event controlllers" << std::endl;
+   // std::cout << "========== start setting up GTK4 style event controlllers" << std::endl;
 
-      GtkEventController *key_controller = gtk_event_controller_key_new();
-      g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_glarea_key_controller_key_pressed),  glarea);
-      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_glarea_key_controller_key_released), glarea);
-      gtk_widget_add_controller(GTK_WIDGET(glarea), key_controller);
+   GtkGesture *zoom_controller           = gtk_gesture_zoom_new();
+   g_signal_connect(zoom_controller, "scale-changed", G_CALLBACK(on_glarea_scale_changed), glarea);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(zoom_controller));
+   GtkEventController *key_controller = gtk_event_controller_key_new();
 
+   g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_glarea_key_controller_key_pressed),  glarea);
+   g_signal_connect(key_controller, "key-released", G_CALLBACK(on_glarea_key_controller_key_released), glarea);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), key_controller);
 
-      GtkGesture *drag_controller_secondary = gtk_gesture_drag_new();
-      GtkGesture *drag_controller_primary   = gtk_gesture_drag_new();
-      GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
-      GtkGesture *click_controller          = gtk_gesture_click_new();
-      GtkGesture *zoom_controller           = gtk_gesture_zoom_new();
+   GtkGesture *drag_controller_secondary = gtk_gesture_drag_new();
+   GtkGesture *drag_controller_primary   = gtk_gesture_drag_new();
+   GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
+   GtkGesture *click_controller          = gtk_gesture_click_new();
 
-      g_signal_connect(zoom_controller, "scale-changed", G_CALLBACK(on_glarea_scale_changed), glarea);
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(zoom_controller));
+   GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
+   GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
 
-      GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
-      GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
+   // #ifdef __APPLE__
+   //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
+   //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
+   // #endif
 
-      // #ifdef __APPLE__
-      //    mouse_view_rotate_button_mask = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
-      //    mouse_pick_button_mask        = GDK_BUTTON1_MASK; // GDK_BUTTON_PRIMARY
-      // #endif
+   gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
 
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_primary));
+   g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_primary),  glarea);
+   g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_glarea_drag_update_primary), glarea);
+   g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_glarea_drag_end_primary),    glarea);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_primary));
-      g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_primary),  glarea);
-      g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_glarea_drag_update_primary), glarea);
-      g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_glarea_drag_end_primary),    glarea);
+   gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_secondary), GDK_BUTTON_SECONDARY);
 
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_secondary), GDK_BUTTON_SECONDARY);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_secondary));
+   g_signal_connect(drag_controller_secondary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_secondary),  glarea);
+   g_signal_connect(drag_controller_secondary, "drag-update", G_CALLBACK(on_glarea_drag_update_secondary), glarea);
+   g_signal_connect(drag_controller_secondary, "drag-end",    G_CALLBACK(on_glarea_drag_end_secondary),    glarea);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_secondary));
-      g_signal_connect(drag_controller_secondary, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_secondary),  glarea);
-      g_signal_connect(drag_controller_secondary, "drag-update", G_CALLBACK(on_glarea_drag_update_secondary), glarea);
-      g_signal_connect(drag_controller_secondary, "drag-end",    G_CALLBACK(on_glarea_drag_end_secondary),    glarea);
+   gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_middle), GDK_BUTTON_MIDDLE);
 
-      gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_middle), GDK_BUTTON_MIDDLE);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_middle));
+   g_signal_connect(drag_controller_middle, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_middle),  glarea);
+   g_signal_connect(drag_controller_middle, "drag-update", G_CALLBACK(on_glarea_drag_update_middle), glarea);
+   g_signal_connect(drag_controller_middle, "drag-end",    G_CALLBACK(on_glarea_drag_end_middle),    glarea);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(drag_controller_middle));
-      g_signal_connect(drag_controller_middle, "drag-begin",  G_CALLBACK(on_glarea_drag_begin_middle),  glarea);
-      g_signal_connect(drag_controller_middle, "drag-update", G_CALLBACK(on_glarea_drag_update_middle), glarea);
-      g_signal_connect(drag_controller_middle, "drag-end",    G_CALLBACK(on_glarea_drag_end_middle),    glarea);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(click_controller));
+   g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_glarea_click),  glarea);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(click_controller));
-      g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_glarea_click),  glarea);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
+   g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
 
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
-      g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
-
-      GtkEventController *motion_controller = gtk_event_controller_motion_new();
-      gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
-      gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(motion_controller));
-      g_signal_connect(motion_controller, "motion", G_CALLBACK(on_glarea_motion),       glarea);
-      g_signal_connect(motion_controller, "enter",  G_CALLBACK(on_glarea_motion_enter), glarea);
-      g_signal_connect(motion_controller, "leave",  G_CALLBACK(on_glarea_motion_leave), glarea);
+   GtkEventController *motion_controller = gtk_event_controller_motion_new();
+   gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(motion_controller));
+   g_signal_connect(motion_controller, "motion", G_CALLBACK(on_glarea_motion),       glarea);
+   g_signal_connect(motion_controller, "enter",  G_CALLBACK(on_glarea_motion_enter), glarea);
+   g_signal_connect(motion_controller, "leave",  G_CALLBACK(on_glarea_motion_leave), glarea);
 
 }
 
@@ -579,40 +579,30 @@ new_startup_create_splash_screen_window() {
    return splash_screen_window;
 }
 
+// needs to be packed in a gpointer (use dynamic allocation)
+struct application_activate_data {
+   int argc;
+   char** argv;
+   GtkWidget* splash_screen;
+   GtkApplication* application;
+   GtkWidget* app_window;
 
+   application_activate_data(int _argc, char** _argv) {
+      argc = _argc;
+      argv = _argv;
+      splash_screen = nullptr;
+      application = nullptr;
+      app_window = nullptr;
+   }
+};
 
 void
 new_startup_application_activate(GtkApplication *application,
-                                 gpointer splash_screen) {
+                                 gpointer user_data) {
+   
+   application_activate_data* activate_data = (application_activate_data*) user_data;
 
-   GtkBuilder *builder = gtk_builder_new();
-   if (GTK_IS_BUILDER(builder)) {
-   } else {
-      std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
-                << std::endl;
-      return;
-   }
-
-   std::string dir = coot::package_data_dir();
-   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-   std::string glade_file_name = "coot-gtk4.ui";
-   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
-   if (coot::file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
-
-   GError* error = NULL;
-   gboolean status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
-   if (status == FALSE) {
-      std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
-      std::cout << error->message << std::endl;
-      exit(0);
-   }
-
-   GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-   graphics_info_t::statusbar = sb;
-   // std::cout << "debug:: statusbar: " << sb << std::endl;
-
-   install_icons_into_theme(GTK_WIDGET(sb));
+   activate_data->application = application;
 
    std::string window_name = "GTK4 Coot-" + std::string(VERSION);
    GtkWidget *app_window = gtk_application_window_new(application);
@@ -621,103 +611,20 @@ new_startup_application_activate(GtkApplication *application,
    setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
    graphics_info_t::set_main_window(app_window);
 
-   guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
-   // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+   activate_data->app_window = app_window;
 
-   graphics_info_t g;
-   g.set_gtkbuilder(builder);
-
-   // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
-   // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
-   GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox", builder);
-   GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox", builder);
-   // GObject *menubar  = g.get_gobject_from_builder("main_window_menubar");
-
-   // GMenu *menu = create_menu_by_hand(application);
-   GMenu *menubar = G_MENU(g.get_gobject_from_builder("menubar"));
-   gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
-   gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
-
-   // toolbar button - connect the refine menu to the GtkMenuButton
-   GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton", builder);
-   GMenuModel *refine_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "refine-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(refine_menubutton), refine_menu);
-
-   GtkWidget *fixed_atoms_menubutton = widget_from_builder("fixed_atoms_menubutton");
-   GMenuModel *fixed_atoms_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "fixed-atoms-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(fixed_atoms_menubutton), fixed_atoms_menu);
-
-   GtkWidget *delete_menubutton = widget_from_builder("delete_menubutton");
-   GMenuModel *delete_item_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "delete-item-menu"));
-   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(delete_menubutton), delete_item_menu);
-
-   // move this function to where it can be called when we click on the "Mutate"
-   // button (both of them, I suppose).
-   // The builder argument may not be necessary when moved to somewhere sensible.
-   auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type,
-                                                  GtkBuilder *builder) {
-      if (residue_type == "PROTEIN") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-protein-menu"));
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-      if (residue_type == "NUCLEIC-ACID") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = G_MENU_MODEL(gtk_builder_get_object(builder, "mutate-nucleic-acid-menu"));
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-   };
+   g_idle_add(+[](gpointer user_data) -> gboolean {
 
 
-   add_typed_menu_to_mutate_menubutton("PROTEIN", builder);
+      application_activate_data* activate_data = (application_activate_data*) user_data;
 
-   gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
+      GtkWindow* splash_screen = GTK_WINDOW(activate_data->splash_screen);
+      GtkWidget* app_window = activate_data->app_window;
+      GtkApplication* application = GTK_APPLICATION(activate_data->application);
+      int argc = activate_data->argc;
+      char** argv = activate_data->argv;
 
-   gtk_window_present(GTK_WINDOW(app_window));
-   // gtk_widget_show(window);
-
-   GtkWidget *gl_area = new_startup_create_glarea_widget();
-   graphics_info_t::glareas.push_back(gl_area);
-   gtk_widget_show(gl_area);
-   // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
-   gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
-   gtk_window_set_application(GTK_WINDOW(app_window), application);
-   gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
-   gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-   gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
-   gtk_widget_show(app_window);
-
-   setup_gestures(gl_area);
-
-   create_actions(application);
-
-   setup_go_to_residue_keyboarding_mode_entry_signals();
-
-   // hack in these values for argc, argv for now
-   int argc = 0;
-   char ** argv = 0;
-   setup_python_with_coot_modules(argc, argv);
-
-   // load_tutorial_model_and_data();
-
-   gtk_window_destroy(GTK_WINDOW(splash_screen));
-}
-
-// move these to the top.
-void setup_symm_lib();
-void check_reference_structures_dir();
-
-
-int new_startup(int argc, char **argv) {
-
-   auto python_init = [argc, argv] () {
-      if (true) {
+      auto python_init = [argc, argv] () {
          setup_python_basic(argc, argv);
          setup_python_coot_module();
 
@@ -727,14 +634,114 @@ int new_startup(int argc, char **argv) {
          // setup_python_with_coot_modules(argc, argv);
          // So it is done in new_startup_application_activate().
 
+      };
+
+      graphics_info_t graphics_info;
+
+      graphics_info.application = application;
+
+      graphics_info.init();
+
+      GtkBuilder *builder = gtk_builder_new();
+      if (GTK_IS_BUILDER(builder)) {
+      } else {
+         std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
+                  << std::endl;
+         exit(0);
       }
-   };
+
+      std::string dir = coot::package_data_dir();
+      std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+      std::string glade_file_name = "coot-gtk4.ui";
+      std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
+      if (coot::file_exists(glade_file_name))
+         glade_file_full = glade_file_name;
+
+      GError* error = NULL;
+      gboolean status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+      if (status == FALSE) {
+         std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+         std::cout << error->message << std::endl;
+         exit(0);
+      }
+
+      python_init();
+
+      // set this by parsing the command line arguments
+      graphics_info.use_graphics_interface_flag = true;
+
+
+      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
+      graphics_info_t::statusbar = sb;
+      // std::cout << "debug:: statusbar: " << sb << std::endl;
+
+      install_icons_into_theme(GTK_WIDGET(sb));
+
+      
+
+      guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
+      // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+
+      graphics_info_t::set_gtkbuilder(builder);
+
+      // GMenu *menu = create_menu_by_hand(application);
+      GMenu *menubar = G_MENU(graphics_info_t::get_gobject_from_builder("menubar"));
+      gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
+      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
+
+      // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
+      // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
+      GtkWidget *graphics_hbox = widget_from_builder("main_window_graphics_hbox");
+      GtkWidget *graphics_vbox = widget_from_builder("main_window_vbox");
+      gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
+
+      gtk_window_present(GTK_WINDOW(app_window));
+      // gtk_widget_show(window);
+
+      GtkWidget *gl_area = new_startup_create_glarea_widget();
+      graphics_info_t::glareas.push_back(gl_area);
+      gtk_widget_show(gl_area);
+      // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
+      gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
+      gtk_window_set_application(GTK_WINDOW(app_window), application);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
+      gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
+      gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
+      gtk_widget_show(app_window);
+
+      setup_gestures(gl_area);
+
+      create_actions(application);
+      setup_gui_components();
+      setup_go_to_residue_keyboarding_mode_entry_signals();
+
+      setup_python_with_coot_modules(argc, argv);
+      delete activate_data;
+
+      // load_tutorial_model_and_data();
+      g_idle_add(+[](gpointer data)-> gboolean {
+         GtkWindow* splash_screen = GTK_WINDOW(data);
+         gtk_window_destroy(splash_screen);
+         return G_SOURCE_REMOVE;
+      },splash_screen);
+
+      return G_SOURCE_REMOVE;
+   },activate_data);
+
+}
+
+// move these to the top.
+void setup_symm_lib();
+void check_reference_structures_dir();
+
+
+int new_startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
-   graphics_info_t graphics_info;
+   
    setup_symm_lib();
    check_reference_structures_dir();
    gtk_init();
@@ -742,28 +749,16 @@ int new_startup(int argc, char **argv) {
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_show(splash_screen);
 
-   // This has been copied from gtk3 branch, from the do_splash_screen function.
-   // This ensures that the splashscreen is able to be properly loaded
-   while(g_main_context_iteration(NULL,TRUE) == FALSE);
-   while (g_main_context_pending(NULL)) {
-      usleep(3000);
-      g_main_context_iteration(NULL,TRUE);
-   }
-
-   graphics_info.init();
-
-   python_init();
-
-   // set this by parsing the command line arguments
-   graphics_info.use_graphics_interface_flag = true;
-
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
-   graphics_info.application = app;
-   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), splash_screen);
    g_application_register(G_APPLICATION(app), NULL, &error);
+
+   auto* activate_data = new application_activate_data(argc,argv);
+   activate_data->splash_screen = splash_screen;
+   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
 
    int status = g_application_run (G_APPLICATION (app), argc, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;

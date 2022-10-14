@@ -261,68 +261,19 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    curlew();
 }
 
-
-// this function should live in setup_gui_components.cc
-//
-void handle_get_monomer_code(GtkWidget *widget); // use the header?
-//
-void on_get_monomer_entry_key_controller_key_released(G_GNUC_UNUSED GtkEventControllerKey *controller,
-                                                      G_GNUC_UNUSED guint                  keyval,
-                                                      guint                                keycode,
-                                                      G_GNUC_UNUSED guint                  modifiers,
-                                                      GtkEntry                            *entry) {
-
-   graphics_info_t g;
-   // std::cout << "python key released!" << std::endl;
-
-   // 36 is Enter, 9 is Esc
-   std::cout << "keycode: " << keycode << std::endl;
-
-   if (keycode == 36) {
-      handle_get_monomer_code(GTK_WIDGET(entry)); // should be just a GTK_ENTRY if you feel
-                                                  // like cleaning it up one day
-   }
-
-   if (keycode == 9) {
-      GtkWidget *widget = widget_from_builder("get_monomer_vbox");
-      gtk_widget_hide(widget);
-   }
-}
-
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
-
-
-   GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
-   if (! overlay) {
-      std::cout << "get_monomer_action(): No overlay" << std::endl;
-      return;
-   }
-   GtkWidget *vbox           = widget_from_builder("get_monomer_vbox");
+   GtkWidget *frame    = widget_from_builder("get_monomer_frame");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
-      gtk_widget_set_visible(no_entry_frame, FALSE); // initially
-
-   gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
-
-   gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
-   gtk_widget_set_valign(vbox, GTK_ALIGN_START);
+      gtk_widget_set_visible(no_entry_frame, FALSE); // each time "get_monomer" is shown
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
-
-   {  // this block should live in setup_gui_components.cc - don't add another controller here!
-
-      GtkEventController *key_controller = gtk_event_controller_key_new();
-      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_get_monomer_entry_key_controller_key_released), entry);
-      gtk_widget_add_controller(entry, key_controller);
-   }
-
-   gtk_widget_set_can_focus(entry, TRUE);
-   gtk_widget_set_focusable(entry, TRUE);
+   
    gtk_widget_grab_focus(entry);
 
-   gtk_widget_show(vbox);
+   gtk_widget_show(frame);
 }
 
 
@@ -385,48 +336,58 @@ search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
-void
-fetch_pdb_using_code_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   gchar* mode_name_cstr;
+   g_variant_get(parameter,"s",&mode_name_cstr);
+   std::string mode_name(mode_name_cstr);
+   auto mode_num_from_name = [](const std::string& mode_name){
+      if(mode_name == "oca") {
+         return COOT_ACCESSION_CODE_WINDOW_OCA;
+      } else if(mode_name == "eds") {
+         return COOT_ACCESSION_CODE_WINDOW_EDS;
+      } else if (mode_name == "pdb-redo"){
+         return COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+      } else if(mode_name == "uniprot-id") {
+         return COOT_UNIPROT_ID;
+      } else {
+         g_error("Unrecognized mode name for the accession code frame: %s",mode_name.c_str());
+         // fallback
+         return COOT_ACCESSION_CODE_WINDOW_OCA;
+      }
+   };
+   int mode_num = mode_num_from_name(mode_name);
+   g_debug("Accession code fetch frame mode number: %i",mode_num);
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   switch(mode_num) {
+      case COOT_ACCESSION_CODE_WINDOW_EDS:
+      case COOT_ACCESSION_CODE_WINDOW_OCA:
+      case COOT_ACCESSION_CODE_WINDOW_PDB_REDO:
+      {
+         gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+         break;
+      }
+      case COOT_UNIPROT_ID:{
+         gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+         break;
+      }
+      default: {
+         g_error("Unrecognized mode number for the accession code frame: %i",mode_num);
+         // fallback
+         gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+         break;
+      }
+   }
 
-   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   set_transient_for_main_window(window);
-   gtk_widget_show(window);
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   gtk_widget_grab_focus(entry);
+   // this is probably equivalent
+   //gtk_widget_set_visible(frame,TRUE);
+   gtk_widget_show(frame);
 }
-
-void
-fetch_pdb_and_map_using_eds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                   G_GNUC_UNUSED GVariant *parameter,
-                                   G_GNUC_UNUSED gpointer user_data) {
-
-   int n = COOT_ACCESSION_CODE_WINDOW_EDS;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   set_transient_for_main_window(window);
-   gtk_widget_show(window);
-}
-
-void
-fetch_pdb_and_map_using_pdb_redo_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
-
-   int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
-   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   set_transient_for_main_window(window);
-   gtk_widget_show(window);
-}
-
 
 void
 fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -438,19 +399,6 @@ fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_
       int imol = pp.second.first;
       fetch_and_superpose_alphafold_models(imol);
    }
-}
-
-void
-fetch_alphafold_model_for_uniprot_id_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                            G_GNUC_UNUSED GVariant *parameter,
-                                            G_GNUC_UNUSED gpointer user_data) {
-   graphics_info_t g;
-   int n = COOT_UNIPROT_ID;
-   GtkWidget *window = widget_from_builder("accession_code_window");
-   GtkWidget *label = widget_from_builder("accession_code_window_label");
-   gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
-   gtk_window_set_title(GTK_WINDOW(window), "Fetch AlphaFold Model");
-
 }
 
 void
@@ -722,6 +670,27 @@ align_and_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_align_and_mutate_dialog();
    gtk_widget_show(w);
+}
+
+void
+fit_loop_by_database_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+  wrapped_fit_loop_db_loop_dialog();
+
+}
+
+#include "fit-loop.hh" // move up
+
+void
+fit_loop_by_ramachandran_search(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
+   gtk_widget_show(w);
+
 }
 
 
@@ -1066,7 +1035,6 @@ void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       coot_add_hydrogen_atoms(imol);
    }
-         
 }
 
 void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1453,8 +1421,7 @@ distances_and_angles_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-  GtkWidget *widget = wrapped_create_geometry_dialog();
-  set_transient_and_position(COOT_DISTANCES_ANGLES_WINDOW, widget);
+  GtkWidget* widget = widget_from_builder("geometry_frame");
   store_geometry_dialog(widget); /* needed to deactivate the distance
 				    togglebutton after 2nd atoms
 				    clicked in graphics */
@@ -1639,27 +1606,54 @@ void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction 
                                                     G_GNUC_UNUSED GVariant *parameter,
                                                     G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "dynamic_atom_overlaps_and_other_outliers";
+      std::string function = "quick_test_validation_outliers_dialog";
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import dynamic_atom_overlaps_and_other_outliers");
+      safe_python_command(sc);
+   }
+
 }
 
 void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
-
+   info_dialog("Oops! No Refmac Log Validation yet");
 }
 
 void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "find_baddies";
+      std::string function = "validation_outliers_dialog";
+      int imol_map = imol_refinement_map();
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(imol_map)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import find_baddies");
+      safe_python_command(sc);
+   }
+
 }
 
-          
-void
+ void
 unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "dynamic menus unmodelled blobs" << std::endl;
+   GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
+   gtk_widget_show(w);
 }
 
 
@@ -2072,13 +2066,10 @@ create_actions(GtkApplication *application) {
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
 
-   add_action(           "search_monomer_library_action",           search_monomer_library_action);
-   add_action(             "fetch_pdb_using_code_action",             fetch_pdb_using_code_action);
-   add_action(      "fetch_pdb_and_map_using_eds_action",      fetch_pdb_and_map_using_eds_action);
-   add_action( "fetch_pdb_and_map_using_pdb_redo_action", fetch_pdb_and_map_using_pdb_redo_action);
+   add_action(             "search_monomer_library_action",           search_monomer_library_action);
+   add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
-   add_action( "fetch_alphafold_model_for_uniprot_id_action", fetch_alphafold_model_for_uniprot_id_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
@@ -2110,6 +2101,8 @@ create_actions(GtkApplication *application) {
    // Calculate
 
    add_action(       "align_and_mutate_action",        align_and_mutate_action);
+   add_action(   "fit_loop_by_database_search",     fit_loop_by_database_search);
+   add_action("fit_loop_by_ramachandran_search",fit_loop_by_ramachandran_search);
    add_action(         "ligand_builder_action",          ligand_builder_action);
    add_action(          "lsq_superpose_action",           lsq_superpose_action);
    add_action(             "run_script_action",              run_script_action);

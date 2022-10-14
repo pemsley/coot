@@ -1334,11 +1334,6 @@ store_window_position(int window_type, GtkWidget *widget) {
       graphics_info_t::ramachandran_plot_x_position = upositionx;
       graphics_info_t::ramachandran_plot_y_position = upositiony;
    }
-
-   if (window_type == COOT_DISTANCES_ANGLES_WINDOW) {
-      graphics_info_t::distances_and_angles_dialog_x_position = upositionx;
-      graphics_info_t::distances_and_angles_dialog_y_position = upositiony;
-   }
 }
 
 #include "utils/coot-utils.hh"
@@ -2168,51 +2163,31 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       if (widget_type == COOT_DELETE_WINDOW) {
 
-	 bool done_set_pos = false;
-	 if (graphics_info_t::delete_item_widget_x_position > -100) {
-	    if (graphics_info_t::delete_item_widget_y_position > -100) {
+         bool done_set_pos = false;
+         if (graphics_info_t::delete_item_widget_x_position > -100) {
+            if (graphics_info_t::delete_item_widget_y_position > -100) {
 
 #if (GTK_MAJOR_VERSION >= 4)
                std::cout << "in set_transient_and_position() FIXME gtk_window_move()" << std::endl;
 #else
                gtk_window_move(GTK_WINDOW(window),
-                               graphics_info_t::delete_item_widget_x_position,
-                               graphics_info_t::delete_item_widget_y_position);
+                                 graphics_info_t::delete_item_widget_x_position,
+                                 graphics_info_t::delete_item_widget_y_position);
 #endif
 
-               // 	       gtk_widget_set_uposition(window,
-               // 					graphics_info_t::delete_item_widget_x_position,
-               // 					graphics_info_t::delete_item_widget_y_position);
-	       done_set_pos = true;
-	    }
-	 }
-	 if (! done_set_pos) {
-	    int x_pos = graphics_info_t::graphics_x_position - 100;
-	    int y_pos = graphics_info_t::graphics_y_position + 100;
-	    if (x_pos < 5) x_pos = 5;
-	       std::cout << "GTK-FIXME no gtk_widget_set_uposition D" << std::endl;
-	    // gtk_widget_set_uposition(window, x_pos, y_pos);
-	 }
-      }
-      if (widget_type == COOT_DISTANCES_ANGLES_WINDOW) {
-	 bool done_set_pos = false;
-	 if (graphics_info_t::distances_and_angles_dialog_x_position > -100) {
-	    if (graphics_info_t::distances_and_angles_dialog_y_position > -100) {
-	       std::cout << "GTK-FIXME no gtk_widget_set_uposition E" << std::endl;
-// 	       gtk_widget_set_uposition(window,
-// 					graphics_info_t::distances_and_angles_dialog_x_position,
-// 					graphics_info_t::distances_and_angles_dialog_y_position);
-	       done_set_pos = true;
-	    }
-	 }
-	 if (! done_set_pos) {
-	    int x_pos = graphics_info_t::graphics_x_position - 100;
-	    int y_pos = graphics_info_t::graphics_y_position + 100;
-	    if (x_pos < 5) x_pos = 5;
-            if (false) // 20220315-PE I don't care at the moment and this is noisy
-               std::cout << "GTK-FIXME no gtk_widget_set_uposition F" << std::endl;
-	    // gtk_widget_set_uposition(window, x_pos, y_pos);
-	 }
+                     // 	       gtk_widget_set_uposition(window,
+                     // 					graphics_info_t::delete_item_widget_x_position,
+                     // 					graphics_info_t::delete_item_widget_y_position);
+               done_set_pos = true;
+            }
+         }
+         if (! done_set_pos) {
+            int x_pos = graphics_info_t::graphics_x_position - 100;
+            int y_pos = graphics_info_t::graphics_y_position + 100;
+            if (x_pos < 5) x_pos = 5;
+               std::cout << "GTK-FIXME no gtk_widget_set_uposition D" << std::endl;
+            // gtk_widget_set_uposition(window, x_pos, y_pos);
+         }
       }
    }
 }
@@ -2315,7 +2290,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
 /* Accession code, and dispatch guile command to download and display
    the model.  Hmmm.  */
-void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
+void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    auto python_network_get = [] (const std::string text, int n) {
 
@@ -2362,14 +2337,14 @@ void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
       std::string text_s = std::string(text_c);
       std::string text = coot::util::remove_trailing_whitespace(text_s);
       std::cout << "PDB Accession Code: " << text << std::endl;
-      std::cout << "dialog: " << dialog << std::endl;
-      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "mode"));
+      std::cout << "frame: " << frame << std::endl;
+      int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "mode"));
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
       python_network_get(text_c, n);
    }
 
    // and hide the accession code window
-   gtk_widget_hide(dialog);
+   gtk_widget_hide(frame);
 }
 
 
@@ -5128,27 +5103,6 @@ void set_accept_reject_dialog_docked_show(int state){
 
 int accept_reject_dialog_docked_show_state() {
   return graphics_info_t::accept_reject_dialog_docked_show_flag;
-}
-
-GtkWidget *wrapped_create_geometry_dialog() {
-   graphics_info_t g;
-   GtkWidget *w = NULL;
-   if (g.geometry_dialog) {
-      w = g.geometry_dialog;
-      // I'm not sure this magic does anything - it's a transient (and
-      // I don't have a minimize handle for it).
-
-      std::cout << "GTK-FIXME no raise" << std::endl;
-
-//       if (!GTK_WIDGET_MAPPED(w))
-// 	 gtk_widget_show(w);
-//       else
-// 	 gdk_window_raise(w->window);
-   } else {
-      // w = create_geometry_dialog();
-      w = widget_from_builder("geometry_dialog");
-   }
-   return w;
 }
 
 void store_geometry_dialog(GtkWidget *w) {

@@ -55,23 +55,23 @@ def nudge_residues_gui(imol, residue_spec):
     hbox_0 = gtk.HBox(False, 4)
     hbox_1 = gtk.HBox(False, 4)
     hbox_2 = gtk.HBox(False, 4)
-    label_1 = gtk.Label(" Nudge by ")
-    label_2 = gtk.Label(" residues ")
-    label_n = gtk.Label(" Nudge ")
+    label_1 = gtk.Label(label=" Nudge by ")
+    label_2 = gtk.Label(label=" residues ")
+    label_n = gtk.Label(label=" Nudge ")
     res_lab = " residues up and down from " + \
               res_spec_utils.residue_spec_to_chain_id(residue_spec) + " " + \
               str(coot_utils.residue_spec_to_res_no(residue_spec))
-    label_a = gtk.Label(res_lab)
+    label_a = gtk.Label(label=res_lab)
     m_lab = " Nudging residues from Molecule:\n   " + \
             str(imol) + ": " + \
             coot_utils.strip_path(coot.molecule_name(imol))
-    label_m = gtk.Label(m_lab)
+    label_m = gtk.Label(label=m_lab)
     entry = gtk.Entry()
     h_sep = gtk.HSeparator()
     adj = gtk.Adjustment(0., -30., 59., 0.01, 1., 29.)
     slider = gtk.HScale(adj)
     buttons_hbox = gtk.HBox(False, 4)
-    cancel_button = gtk.Button(" Close ")
+    cancel_button = gtk.Button(label=" Close ")
     residue_delta = 5 # but isnt it a variable?!
 
     window.set_title("Nudge Residues")

@@ -29,8 +29,7 @@ import coot_utils
 import mutate
 
 
-def fit_gap(imol, chain_id, start_resno, stop_resno,
-            sequence="", use_rama_restraints=1):
+def fit_gap(imol, chain_id, start_resno, stop_resno, sequence="", use_rama_restraints=1):
 
     imol_map = coot.imol_refinement_map()
     if (imol_map == -1):
@@ -71,10 +70,8 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                             stop_resno, start_resno, sequence)
 
             # get the fit result:
-            result_a = low_density_average(
-                imol_map, imol, chain_id, start_resno, stop_resno)
-            result_b = low_density_average(
-                imol_map, imol_backwards, chain_id, start_resno, stop_resno)
+            result_a = low_density_average(imol_map, imol, chain_id, start_resno, stop_resno)
+            result_b = low_density_average(imol_map, imol_backwards, chain_id, start_resno, stop_resno)
             loop_list = [[imol, result_a], [imol_backwards, result_b]]
 
             # if longer loop (>=6) build half from both sides
@@ -85,19 +82,15 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 start_resno2 = stop_resno1 + 1
                 sequence1 = sequence[0:loop_len//2]
                 sequence2 = sequence[loop_len//2:len(sequence)]
-                fit_gap_generic(imol_both, chain_id,
-                                start_resno1, stop_resno1, sequence1)
-                fit_gap_generic(imol_both, chain_id,
-                                stop_resno2, start_resno2, sequence2)
+                fit_gap_generic(imol_both, chain_id, start_resno1, stop_resno1, sequence1)
+                fit_gap_generic(imol_both, chain_id, stop_resno2, start_resno2, sequence2)
                 # finally refine the 'gap'; check refinement immediate status
                 immediate_refinement_mode = coot.refinement_immediate_replacement_state()
                 coot.set_refinement_immediate_replacement(1)
-                coot.refine_zone(imol_both, chain_id, stop_resno1 - loop_len//3,
-                            start_resno2 + loop_len//3, "")
+                coot.refine_zone(imol_both, chain_id, stop_resno1 - loop_len//3, start_resno2 + loop_len//3, "")
                 coot.accept_regularizement()
                 coot.set_refinement_immediate_replacement(immediate_refinement_mode)
-                result_c = low_density_average(
-                    imol_map, imol_both, chain_id, start_resno, stop_resno)
+                result_c = low_density_average(imol_map, imol_both, chain_id, start_resno, stop_resno)
                 loop_list.append([imol_both, result_c])
 
             # print "BL DEBUG:: fit a, b:", result_a, result_b, result_c
@@ -121,8 +114,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 # we make a fragment for each loop
                 fragment_list = []
                 for i, (imol_loop, result) in enumerate(loop_list):
-                    imol_fragment = coot.new_molecule_by_atom_selection(
-                        imol_loop, atom_selection)
+                    imol_fragment = coot.new_molecule_by_atom_selection(imol_loop, atom_selection)
                     fragment_list.append([imol_fragment, result])
                     coot.set_mol_displayed(imol_fragment, 0)
                     # we close all mols and work with the fragments (except the original one)

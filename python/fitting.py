@@ -628,12 +628,12 @@ def molecules_matching_criteria(test_func):
            for molecule_numbers in passed_molecules:
              imol = molecule_numbers
              name = coot.molecule_name(imol)
-             button = gtk.Button(str(name))
+             button = gtk.Button(label=str(name))
              inside_vbox.append(button)
              button.connect("clicked", centre_on_mol, imol, name)
 
            outside_vbox.set_border_width(6)
-           ok_button = gtk.Button("OK")
+           ok_button = gtk.Button(label="OK")
            outside_vbox.append(ok_button)
            ok_button.connect_object("clicked",delete_event,window)
            window.connect("delete_event", delete_event)
