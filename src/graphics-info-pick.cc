@@ -678,8 +678,9 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
                                         return 2.0 * f - 1.0;
                                      };
 
-             if (false)
-                std::cout << "screen_x " << screen_x << " screen_y " << screen_y
+             if (true)
+                std::cout << "in move_atom_pull_target_postion() "
+                          << " screen_x " << screen_x << " screen_y " << screen_y
                           << " delta " << screen_x - mouse_begin.first  << " "
                           << " delta " << screen_y - mouse_begin.second << " "
                           << std::endl;
@@ -697,6 +698,15 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
    glm::vec3   back_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now,  1.0));
    glm::vec3  front_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now, -1.0));
 
+   bool ok_indexing = false;
+   if (moving_atoms_currently_dragged_atom_index < moving_atoms_asc->n_selected_atoms)
+      if (moving_atoms_currently_dragged_atom_index  >= 0)
+         ok_indexing = true;
+
+   if (ok_indexing == false) {
+      std::cout << "bad indexing for dragged moving atom" << std::endl;
+      return;
+   }
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
    glm::vec3 atom_position(at->x, at->y, at->z);
 
