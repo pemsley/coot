@@ -390,8 +390,14 @@ molecules_container_t::auto_fit_rotamer(int imol,
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         std::cout << "debug:: mc::auto_fit_rotamer() calling the coot_molecule version iwth "
+                   << chain_id << " " << res_no << std::endl;
          status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, alt_conf, xmap, geom);
+      } else {
+         std::cout << "debug:: mc::auto_fit_rotamer() not a valid map index " << imol_map << std::endl;
       }
+   } else {
+      std::cout << "debug:: mc::auto_fit_rotamer() not a valid model molecule " << imol << std::endl;
    }
    return status;
 }

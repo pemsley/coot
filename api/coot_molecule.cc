@@ -939,6 +939,8 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
    float score = -1;
    bool refinement_move_atoms_with_zero_occupancy_flag = true; // pass this?
 
+   std::cout << "debug:: molecule_t::backrub_rotamer() starts " << chain_id << " " << res_no << std::endl;
+
    residue_spec_t res_spec(chain_id, res_no, ins_code);
    mmdb::Residue *res = get_residue(res_spec);
    if (! res) {
