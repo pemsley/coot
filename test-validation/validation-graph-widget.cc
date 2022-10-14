@@ -6,8 +6,8 @@ struct _CootValidationGraph {
     std::unique_ptr<coot::validation_information_t> _vi;
 };
 
-const int COOT_CHAIN_HEIGHT = 80;
-const int COOT_RESIDUE_WIDTH = 5;
+const int COOT_CHAIN_HEIGHT = 120;
+const int COOT_RESIDUE_WIDTH = 7;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.begin(),self->_vi->cviv.end(),
@@ -55,10 +55,10 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         const char* title = self->_vi->name.c_str();
         g_debug("title: %s",title);
         cairo_show_text(cairo_canvas, title);
+        // cairo_paint is the only function that works
+        //cairo_paint(cairo_canvas);
         // 2. Draw axes
-        g_free(cairo_canvas);
-
-        
+        cairo_destroy(cairo_canvas);
 
         float base_height = 0;
         float width_step = w / (float) max_chain_residue_count(self);
@@ -102,7 +102,7 @@ void coot_validation_graph_measure
         {
         case GTK_ORIENTATION_HORIZONTAL:{
             auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * COOT_RESIDUE_WIDTH;
+            *minimum_size = max_chain_residues * COOT_RESIDUE_WIDTH / 2;
             *natural_size = max_chain_residues * COOT_RESIDUE_WIDTH;
             break;
         }
@@ -111,7 +111,7 @@ void coot_validation_graph_measure
             //g_debug("Num of chains: %u",num_of_chains);
             auto size = num_of_chains * COOT_CHAIN_HEIGHT;
             //g_debug("Vertical size: %u",size);
-            *minimum_size = size;
+            *minimum_size = size / 2;
             *natural_size = size;
             break;
         }
