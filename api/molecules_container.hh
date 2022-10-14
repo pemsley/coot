@@ -99,6 +99,8 @@ public:
 
    int delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf);
 
+   int load_dictionary_file(const std::string &monomer_cif_file_name);
+
    // add these
    //
    // delete residue

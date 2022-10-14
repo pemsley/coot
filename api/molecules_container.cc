@@ -390,7 +390,7 @@ molecules_container_t::auto_fit_rotamer(int imol,
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
-         std::cout << "debug:: mc::auto_fit_rotamer() calling the coot_molecule version iwth "
+         std::cout << "debug:: mc::auto_fit_rotamer() calling the coot_molecule version with "
                    << chain_id << " " << res_no << std::endl;
          status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, alt_conf, xmap, geom);
       } else {
@@ -425,5 +425,16 @@ molecules_container_t::delete_residue(int imol,
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
       status = molecules[imol].delete_residue(residue_spec);
    }
+   return status;
+}
+
+
+int
+molecules_container_t::load_dictionary_file(const std::string &monomer_cif_file_name) {
+
+   int status = 0;
+
+   int read_number = 44;
+   geom.init_refmac_mon_lib(monomer_cif_file_name, read_number);
    return status;
 }
