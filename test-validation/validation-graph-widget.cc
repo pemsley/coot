@@ -142,6 +142,7 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
 static void coot_validation_graph_dispose(GObject* _self) {
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(_self);
+    self->_vi.reset(nullptr);
     G_OBJECT_CLASS(coot_validation_graph_parent_class)->dispose(_self);
 }
 
