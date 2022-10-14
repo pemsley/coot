@@ -46,6 +46,15 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
         // 1. Draw text
+        cairo_move_to(cairo_canvas,0,0);
+        cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+        cairo_set_line_width(cairo_canvas,1);
+        cairo_line_to(cairo_canvas, w, h);
+        cairo_set_font_size(cairo_canvas,14);
+        cairo_select_font_face (cairo_canvas, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        const char* title = self->_vi->name.c_str();
+        g_debug("title: %s",title);
+        cairo_show_text(cairo_canvas, title);
         // 2. Draw axes
         g_free(cairo_canvas);
 

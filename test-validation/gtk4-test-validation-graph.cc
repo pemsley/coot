@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
       std::string pdb_file_name = argv[1];
       std::string mtz_file_name = argv[2];
       coot::validation_information_t vi = density_fit_analysis(pdb_file_name, mtz_file_name);
-
+      vi.name = "Sample title";
       // now do something (i.e. make a pretty interactive graph) with vi.
 
       for (const auto &cvi : vi.cviv) {
