@@ -33,27 +33,38 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
 }
 
 coot::atom_spec_t
-molecules_container_t::atom_cid_to_atom_spec(const std::string &cid) const {
+molecules_container_t::atom_cid_to_atom_spec(int imol, const std::string &cid) const {
 
    coot::atom_spec_t spec;
-
-   // this is quite tricky
-
-   //  20221015-PE fill-me FIXME
-   spec = coot::atom_spec_t("A", 10, "", " CA ", "");
-
+   if (is_valid_model_molecule(imol)) {
+      auto p = molecules[imol].cid_to_atom_spec(cid);
+      if (p.first) {
+         spec = p.second;
+      } else {
+         std::cout << "WARNING:: molecule_class_info_t::atom_cid_to_atom_spec() no matching atom " << cid << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
    return spec;
 }
 
 
 coot::residue_spec_t
-molecules_container_t::residue_cid_to_residue_spec(const std::string &cid) const   {
+molecules_container_t::residue_cid_to_residue_spec(int imol, const std::string &cid) const   {
 
    coot::residue_spec_t spec;
 
-   //  20221015-PE fill-me FIXME
-   spec = coot::residue_spec_t("A", 10, "");
-
+   if (is_valid_model_molecule(imol)) {
+      auto p = molecules[imol].cid_to_residue_spec(cid);
+      if (p.first) {
+         spec = p.second;
+      } else {
+         std::cout << "WARNING:: molecule_class_info_t::residue_cid_to_residue_spec() no matching residue " << cid << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
    return spec;
 }
 
@@ -100,12 +111,13 @@ molecules_container_t::flip_peptide(int imol, const coot::residue_spec_t &rs, co
 }
 
 int
-molecules_container_t::flip_peptide(int imol, const std::string &cid, const std::string &alt_conf) {
+molecules_container_t::flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf) {
 
    int result = 0;
    if (is_valid_model_molecule(imol)) {
       auto &m = molecules[imol];
       std::pair<bool, coot::residue_spec_t> rs = m.cid_to_residue_spec(cid);
+      std::cout << "::::::::::: debug:: cid_to_residue_spec() return " << rs.first << " " << rs.second << std::endl;
       if (rs.first)
          result = molecules[imol].flip_peptide(rs.second, alt_conf);
    }
@@ -472,7 +484,7 @@ molecules_container_t::delete_atom_using_cid(int imol, const std::string &cid) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
-      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(cid);
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
       status = molecules[imol].delete_atom(atom_spec);
    }
    return status;
@@ -498,7 +510,7 @@ molecules_container_t::delete_residue_using_cid(int imol, const std::string &cid
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
-      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(cid);
+      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, cid);
       status = molecules[imol].delete_residue(residue_spec);
    }
    return status;

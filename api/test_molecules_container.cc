@@ -1,4 +1,7 @@
 
+#include <iostream>
+#include <iomanip>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include "molecules_container.hh"
@@ -84,10 +87,32 @@ int test_pepflips(molecules_container_t &mc) {
          }
       }
    }
-   if (n_flipped == res_nos.size())
-      status = 1;
+   if (n_flipped == res_nos.size()) {
+
+      std::string residue_cid = "//A/100";
+      auto rs = mc.residue_cid_to_residue_spec(imol, residue_cid);
+      if (! rs.empty()) {
+         const auto &res_spec = rs;
+         coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
+         mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+         if (at) {
+            coot::Cartesian pt_1(at->x, at->y, at->z);
+            mc.flip_peptide_using_cid(imol, residue_cid, "");
+            coot::Cartesian pt_2(at->x, at->y, at->z);
+            double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
+            double d = std::sqrt(dd);
+            if (d > 3.0) {
+               status = 1;
+            }
+         }
+      }
+   }
+
 
    // 20221016-PE now update the maps!
+
+   float rmsd_diff_map_2 = mc.get_map_rmsd_approx(imol_map);
+
 
    return status;
 
@@ -146,7 +171,7 @@ int main(int argc, char **argv) {
    status_string = "FAIL:";
    if (status == 1)
       status_string = "PASS:";
-   std::cout << status_string << " test_density_mesh() test status " << status << std::endl;
+   std::cout << status_string << std::setw(40) << std::left << " test_density_mesh() " << " status " << status << std::endl;
 
  
    // --- auto-fit rotamer
@@ -155,7 +180,7 @@ int main(int argc, char **argv) {
    status_string = "FAIL:";
    if (status == 1)
       status_string = "PASS:";
-   std::cout << status_string << " test_auto_fit_rotamer() test status " << status << std::endl;
+   std::cout << status_string << std::setw(40) << std::left << " test_auto_fit_rotamer() " << " status " << status << std::endl;
 
    // --- pepflips
 
@@ -163,7 +188,7 @@ int main(int argc, char **argv) {
    status_string = "FAIL:";
    if (status == 1)
       status_string = "PASS:";
-   std::cout << status_string << " test_pepflips() test status " << status << std::endl;
+   std::cout << status_string << std::setw(40) << std::left << " test_pepflips() " << " status " << status << std::endl;
 
 
    // add a test for:

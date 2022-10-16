@@ -190,7 +190,8 @@ namespace coot {
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
       bool is_valid_map_molecule() const;
-      std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid);
+      std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
+      std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
 
       // model utils
 

@@ -31,7 +31,7 @@ coot::molecule_t::is_valid_map_molecule() const {
 }
 
 std::pair<bool, coot::residue_spec_t>
-coot::molecule_t::cid_to_residue_spec(const std::string &cid) {
+coot::molecule_t::cid_to_residue_spec(const std::string &cid) const {
 
    bool status = false;
    coot::residue_spec_t rs;
@@ -39,17 +39,39 @@ coot::molecule_t::cid_to_residue_spec(const std::string &cid) {
       int selHnd = atom_sel.mol->NewSelection(); // d
       mmdb::Residue **SelResidues;
       int nSelResidues = 0;
-      atom_sel.mol->Select(selHnd, mmdb::STYPE_CHAIN, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-      atom_sel.mol->DeleteSelection(selHnd);
       if (nSelResidues > 0) {
          mmdb::Residue *residue_p = SelResidues[0];
          coot::residue_spec_t rs_inner(residue_p);
          rs = rs_inner;
          status = true;
       }
+      atom_sel.mol->DeleteSelection(selHnd);
    }
    return std::make_pair(status, rs);
+}
+
+std::pair<bool, coot::atom_spec_t>
+coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
+
+   bool status = false;
+   coot::atom_spec_t atom_spec;
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         mmdb::Atom *atom_p = SelAtoms[0];
+         coot::atom_spec_t atom_spec_inner(atom_p);
+         atom_spec = atom_spec_inner;
+         status = true;
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return std::make_pair(status, atom_spec);
 }
 
 int

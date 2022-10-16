@@ -34,8 +34,9 @@ public:
    int imol_refinement_map; // direct access
    int imol_difference_map; // direct access
 
-   coot::atom_spec_t atom_cid_to_atom_spec(const std::string &cid) const;
-   coot::residue_spec_t residue_cid_to_residue_spec(const std::string &cid) const;
+   // the test for these failing is spec.empty()
+   coot::atom_spec_t atom_cid_to_atom_spec(int imol, const std::string &cid) const;
+   coot::residue_spec_t residue_cid_to_residue_spec(int imol, const std::string &cid) const;
 
    coot::simple_mesh_t test_origin_cube() const;
    coot::molecule_t & operator[] (unsigned int imol) {
@@ -75,7 +76,7 @@ public:
    void save_unsaved_model_changes() {
       for (const auto &m : molecules) {
          if (m.have_unsaved_changes()) {
-            // something fun here.
+            // something fun here. - whatever it is though, don't put it in this header.
          }
       }
    }
@@ -98,9 +99,9 @@ public:
    // returns either the specified residue or null if not found
    mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &residue_spec) const;
 
-   int undo(int imol);
+   int undo(int imol); // 20221016-PE not working yet
 
-   int redo(int imol);
+   int redo(int imol); // 20221016-PE not working yet
 
    // -------------------------------- map utils -------------------------------------------
 
@@ -142,7 +143,7 @@ public:
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    int mutate_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &res_type);
    int flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf);
-   int flip_peptide(int imol, const std::string &cid, const std::string &alt_conf);
+   int flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf);
 
 
    // -------------------------------- coordinates validation ------------------------------
