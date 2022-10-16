@@ -66,7 +66,7 @@
 #include "utils/coot-utils.hh"
 
 #include "coords/mmdb-extras.h"   // 220403
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"

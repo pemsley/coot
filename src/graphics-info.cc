@@ -4600,7 +4600,7 @@ graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
     }
       }
       if (n_mol > 1) {
-    r = -2;
+         r = -2;
       }
    }
    return r;

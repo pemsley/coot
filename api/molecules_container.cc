@@ -32,6 +32,32 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+coot::atom_spec_t
+molecules_container_t::atom_cid_to_atom_spec(const std::string &cid) const {
+
+   coot::atom_spec_t spec;
+
+   // this is quite tricky
+
+   //  20221015-PE fill-me FIXME
+   spec = coot::atom_spec_t("A", 10, "", " CA ", "");
+
+   return spec;
+}
+
+
+coot::residue_spec_t
+molecules_container_t::residue_cid_to_residue_spec(const std::string &cid) const   {
+
+   coot::residue_spec_t spec;
+
+   //  20221015-PE fill-me FIXME
+   spec = coot::residue_spec_t("A", 10, "");
+
+   return spec;
+}
+
+
 void
 molecules_container_t::geometry_init_standard() {
    geom.init_standard();
@@ -39,24 +65,49 @@ molecules_container_t::geometry_init_standard() {
 
 
 int
-molecules_container_t::flipPeptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
+molecules_container_t::undo(int imol) {
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].undo();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+int
+molecules_container_t::redo(int imol) {
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].redo();
+         } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
+
+
+int
+molecules_container_t::flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
 
    int result = 0;
    if (is_valid_model_molecule(imol)) {
-      result = molecules[imol].flipPeptide(rs, alt_conf);
+      result = molecules[imol].flip_peptide(rs, alt_conf);
    }
    return result;
 }
 
 int
-molecules_container_t::flipPeptide(int imol, const std::string &cid, const std::string &alt_conf) {
+molecules_container_t::flip_peptide(int imol, const std::string &cid, const std::string &alt_conf) {
 
    int result = 0;
    if (is_valid_model_molecule(imol)) {
       auto &m = molecules[imol];
       std::pair<bool, coot::residue_spec_t> rs = m.cid_to_residue_spec(cid);
       if (rs.first)
-         result = molecules[imol].flipPeptide(rs.second, alt_conf);
+         result = molecules[imol].flip_peptide(rs.second, alt_conf);
    }
    return result;
 }
@@ -266,7 +317,7 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
    };
 
    auto test_ramachandran_probabilities = [] (const ramachandrans_container_t &rc) {
-      
+
       std::vector<const clipper::Ramachandran *> ramas = { &rc.rama, &rc.rama_gly, &rc.rama_pro, &rc.rama_non_gly_pro };
 
       for (unsigned int ir=0; ir<ramas.size(); ir++) {
@@ -417,6 +468,19 @@ molecules_container_t::delete_atom(int imol,
 }
 
 int
+molecules_container_t::delete_atom_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(cid);
+      status = molecules[imol].delete_atom(atom_spec);
+   }
+   return status;
+}
+
+
+
+int
 molecules_container_t::delete_residue(int imol,
                                       const std::string &chain_id, int res_no, const std::string &ins_code) {
 
@@ -430,6 +494,19 @@ molecules_container_t::delete_residue(int imol,
 
 
 int
+molecules_container_t::delete_residue_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(cid);
+      status = molecules[imol].delete_residue(residue_spec);
+   }
+   return status;
+}
+
+
+
+int
 molecules_container_t::load_dictionary_file(const std::string &monomer_cif_file_name) {
 
    int status = 0;
@@ -437,4 +514,60 @@ molecules_container_t::load_dictionary_file(const std::string &monomer_cif_file_
    int read_number = 44;
    geom.init_refmac_mon_lib(monomer_cif_file_name, read_number);
    return status;
+}
+
+std::vector<std::string>
+molecules_container_t::non_standard_residue_types_in_model(int imol) const {
+   std::vector<std::string> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].non_standard_residue_types_in_model();
+   }
+   return v;
+}
+
+float
+molecules_container_t::get_map_rmsd_approx(int imol) const {
+   float rmsd = -1.1;
+   if (is_valid_map_molecule(imol)) {
+      rmsd = molecules[imol].get_map_rmsd_approx();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return rmsd;
+}
+
+
+std::vector<coot::molecule_t::difference_map_peaks_info_t>
+molecules_container_t::difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const {
+
+   std::vector<coot::molecule_t::difference_map_peaks_info_t> v;
+   if (is_valid_model_molecule(imol_protein)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *m = mol(imol_protein);
+         molecules[imol_map].difference_map_peaks(m, n_rmsd);
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_protein << std::endl;
+   }
+   return v;
+}
+
+
+
+// return a useful message if the addition did not work
+std::pair<int, std::string>
+molecules_container_t::add_terminal_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   int status = 0;
+   std::string message;
+   if (is_valid_model_molecule(imol)) {
+      // status = molecules[imol].add_terminal_residue(chain_id, res_no, ins_code);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+   return std::make_pair(status, message);
+
 }

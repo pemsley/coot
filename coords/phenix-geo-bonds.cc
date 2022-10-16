@@ -20,7 +20,7 @@
  */
 
 #include "mmdb-extras.h"
-#include "mmdb.h"
+#include "mmdb.hh"
 #include "mmdb-crystal.h"  // should be merged with extras
 
 #include "coot-utils/coot-coord-utils.hh"

@@ -21,18 +21,18 @@
 namespace coot {
 
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
-	  COLOUR_BY_CHAIN_BONDS=3,
-	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
-	  BONDS_NO_HYDROGENS=15,
-	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
-	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
-	  CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
-	  COLOUR_BY_MOLECULE_BONDS=8,
-	  COLOUR_BY_RAINBOW_BONDS=9,
-	  COLOUR_BY_B_FACTOR_BONDS=10,
-	  COLOUR_BY_OCCUPANCY_BONDS=11,
-	  COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
-	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
+          COLOUR_BY_CHAIN_BONDS=3,
+          CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+          BONDS_NO_HYDROGENS=15,
+          CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+          CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+          CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
+          COLOUR_BY_MOLECULE_BONDS=8,
+          COLOUR_BY_RAINBOW_BONDS=9,
+          COLOUR_BY_B_FACTOR_BONDS=10,
+          COLOUR_BY_OCCUPANCY_BONDS=11,
+          COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
+          COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
 
    class molecule_t {
 
@@ -51,6 +51,9 @@ namespace coot {
          }
          bool have_unsaved_changes() const {
             return modification_index > last_saved.second;
+         }
+         std::string index_string() const {
+            return std::to_string(modification_index);
          }
       };
 
@@ -127,20 +130,43 @@ namespace coot {
                                        const std::string &atom_name,
                                        const std::string &alt_conf) const;
 
-      void make_backup();
+      std::string name_for_display_manager() const;
+      std::string dotted_chopped_name() const;
+      std::string get_save_molecule_filename(const std::string &dir);
+      std::string make_backup(); // returns warning message, otherwise empty string
+      void save_history_file_name(const std::string &file);
+      std::vector<std::string> history_filename_vec;
+      std::string save_time_string;
+      void restore_from_backup(int history_offset, const std::string &cwd);
+
+      // ====================== SHELX stuff ======================================
+      std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);
+      int read_shelx_ins_file(const std::string &filename);
+      // return the success status, 0 for fail, 1 for good.
+      int add_shelx_string_to_molecule(const std::string &str);
+      bool is_from_shelx_ins() const { return is_from_shelx_ins_flag; }
 
       void trim_atom_label_table();
       void delete_ghost_selections();
       void update_symmetry();
       bool show_symmetry;
+      void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+      void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
    public:
 
       atom_selection_container_t atom_sel;
+      // set this on reading a pdb file
+      float default_temperature_factor_for_new_atoms; // direct access
+
       molecule_t() {}
       explicit molecule_t(atom_selection_container_t asc, int imol_no_in) : atom_sel(asc) {
          init();
          imol_no = imol_no_in;
+         default_temperature_factor_for_new_atoms =
+            util::median_temperature_factor(atom_sel.atom_selection,
+                                            atom_sel.n_selected_atoms,
+                                            99999.9, 0.0, false, false);
       }
 
       void init() { // add imol_no here?
@@ -149,6 +175,7 @@ namespace coot {
          xmap_is_diff_map = false;
          is_from_shelx_ins_flag = false;
          show_symmetry = false;
+         default_temperature_factor_for_new_atoms = 20.0;
       }
 
       clipper::Xmap<float> xmap; // public because the filling function needs access
@@ -175,9 +202,12 @@ namespace coot {
       mmdb::Residue *get_residue(const coot::residue_spec_t &residue_spec) const;
 
       bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
+      int undo();
+      int redo();
 
       // model analysis functions
 
+      std::vector<std::string> non_standard_residue_types_in_model() const;
       std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
       // not const because it recalculates the bonds.
       coot::simple_mesh_t get_rotamer_dodecs(coot::protein_geometry *geom_p,
@@ -185,7 +215,7 @@ namespace coot {
 
       // model-changing functions
 
-      int flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+      int flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
       int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
                            const std::string &alt_conf,
                            const clipper::Xmap<float> &xmap, const coot::protein_geometry &pg);
@@ -201,12 +231,23 @@ namespace coot {
       int delete_residue(coot::residue_spec_t &residue_spec);
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
 
-      // map functions
-
+      // map functions, return -1.1 on not-a-map
+      float get_map_rmsd_approx() const;
       int writeMap(const std::string &file_name) const;
 
       // changes the internal map mesh holder (hence not const)
       coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+
+      class difference_map_peaks_info_t {
+      public:
+         clipper::Coord_orth pos;
+         float peak_height; // nrmsd
+         // maybe other useful stuff here in future
+         difference_map_peaks_info_t(const clipper::Coord_orth &p, float ph) : pos(p), peak_height(ph) {}
+      };
+
+      // the molecule is passed so that the peaks are placed around the protein
+      std::vector<coot::molecule_t::difference_map_peaks_info_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
 
    };
 }

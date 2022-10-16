@@ -33,7 +33,7 @@
 #include "Cartesian.h"
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
-#include "mmdb.h"
+#include "mmdb.hh"
 #include "mmdb-crystal.h"  // should be merged with extras
 
 #include "geometry/lbg-graph.hh"  // aromatic ring systems

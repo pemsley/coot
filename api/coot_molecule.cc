@@ -5,6 +5,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coords/mmdb.hh"
 #include "coot_molecule.hh"
 #include "ideal/pepflip.hh"
 #include "rama-plot-phi-psi.hh"
@@ -51,12 +52,313 @@ coot::molecule_t::cid_to_residue_spec(const std::string &cid) {
    return std::make_pair(status, rs);
 }
 
+int
+coot::molecule_t::undo() {
+   int status = 0;
+
+   return status;
+}
+
+int
+coot::molecule_t::redo() {
+
+   int status = 0;
+
+   return status;
+}
+
+std::string
+coot::molecule_t::name_for_display_manager() const {
+
+   bool show_paths_in_display_manager_flag = false;
+
+   std::string s("");
+   if (show_paths_in_display_manager_flag) {
+      s = name;
+   } else {
+      if (is_valid_model_molecule()) {
+         std::string::size_type islash = name.find_last_of("/");
+         if (islash == std::string::npos) {
+            s = name;
+         } else {
+            s = name.substr(islash+1, name.length());
+         }
+      } else {
+         // This is a map, so we want to strip of xxx/ from each of
+         // the (space separated) strings.
+         // e.g.:
+         // thing/other.mtz -> other.mtz
+         // but
+         // Averaged -> Averaged
+
+         std::vector<std::string> v = coot::util::split_string(name, " ");
+         for (unsigned int i=0; i<v.size(); i++) {
+            if (i > 0)
+               s += " ";
+            std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(v[i]);
+            if (p.second == "")
+               s += v[i];
+            else
+               s += p.second;
+         }
+      }
+   }
+   return s;
+}
+
+std::string
+coot::molecule_t::dotted_chopped_name() const {
+
+   int go_to_atom_menu_label_n_chars_max = 80;
+   std::string ss = coot::util::int_to_string(imol_no);
+   ss += " " ;
+   int ilen = name.length();
+   int left_size = ilen-go_to_atom_menu_label_n_chars_max;
+   if (left_size <= 0) {
+      // no chop
+      left_size = 0;
+   } else {
+      // chop
+      ss += "...";
+   }
+   ss += name.substr(left_size, ilen);
+   return ss;
+}
+
+
+// backups:
+
+// Backup filename: return a stub.
+//
+std::string
+coot::molecule_t::get_save_molecule_filename(const std::string &dir) {
+
+   auto replace_char = [] (const std::string &s, char a) {
+                          std::string r = s;
+                          int slen = s.length();
+                          for (int i=0; i<slen; i++) {
+                             if (r[i] == a)
+                                r[i] = '_';
+                          }
+                          return r;
+                       };
+
+
+   bool decolonify = true;
+   bool backup_compress_files_flag = false;
+   bool unpathed_backup_file_names_flag = false;
+   std::string t_name_1 = name;
+
+   if (unpathed_backup_file_names_flag)
+      t_name_1 = name_for_display_manager();
+   std::string t_name_2 = replace_char(t_name_1, '/');
+   std::string t_name_3 = replace_char(t_name_2, ' ');
+
+   if (save_time_string.empty()) {
+      time_t t;
+      time(&t);
+      char *chars_time = ctime(&t);
+      int l = strlen(chars_time);
+      save_time_string = chars_time;
+      if (! save_time_string.empty()) {
+         std::string::size_type l = save_time_string.length();
+         save_time_string = save_time_string.substr(0, l-1);
+      }
+      save_time_string = replace_char(save_time_string, ' ');
+      save_time_string = replace_char(save_time_string, '/');
+      if (decolonify)
+         save_time_string = replace_char(save_time_string, ':');
+   }
+   std::string time_string = save_time_string;
+   std::string t_name_4 = t_name_3 + "_" + time_string;
+
+   //    std::string index_string = coot::util::int_to_string(history_index);
+   std::string index_string = save_info.index_string();
+   std::string t_name_5 = t_name_4 + "_modification_" + index_string;
+
+   std::string extension = ".pdb";
+   if (coot::is_mmcif_filename(name))
+      extension = ".cif";
+   if (is_from_shelx_ins_flag)
+      extension = ".res";
+   if (backup_compress_files_flag)
+      extension += ".gz";
+
+   std::string t_name_6 = t_name_5 + extension;
+
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_6);
+   return save_file_name;
+
+}
+
 void
+coot::molecule_t::save_history_file_name(const std::string &file) {
+
+   // 20221016-PE fold this function into save_info
+
+   // First, history_index is zero and the vec is zero,
+   // normal service, then another backup: history_index is 1 and vec is 1.
+   //
+   if (save_info.modification_index == history_filename_vec.size()) {
+      history_filename_vec.push_back(file);
+   } else {
+      // we have gone back in history.
+      //
+      if (save_info.modification_index < history_filename_vec.size()) {
+         history_filename_vec[save_info.modification_index] = file;
+      }
+   }
+}
+
+
+#include <sys/stat.h>
+
+std::string
 coot::molecule_t::make_backup() {
 
    // nothing done yet.
 
+   std::string info_message;
+
+   auto make_maybe_backup_dir = [] (const std::string &backup_dir) {
+      return util::create_directory(backup_dir);
+   };
+
+   bool backup_this_molecule = true; // if needed, give user control later
+   bool backup_compress_files_flag = false;
+
+   if (backup_this_molecule) {
+      std::string backup_dir("coot-backup");
+
+      //shall we use the environment variable instead?
+      char *env_var = getenv("COOT_BACKUP_DIR");
+      if (env_var) {
+         struct stat buf;
+
+         // we better debackslash the directory (for windows)
+         std::string tmp_dir = env_var;
+         tmp_dir = coot::util::intelligent_debackslash(tmp_dir);
+         int err = stat(tmp_dir.c_str(), &buf);
+
+         if (!err) {
+            if (! S_ISDIR(buf.st_mode)) {
+               env_var = NULL;
+            }
+         } else {
+            env_var = NULL;
+         }
+      }
+
+      if (env_var)
+         backup_dir = env_var;
+
+      std::cout << "debug in make_backup(): Here B" << std::endl;
+
+      if (atom_sel.mol) {
+         int dirstat = make_maybe_backup_dir(backup_dir);
+
+         if (dirstat != 0) {
+            // fallback to making a directory in $HOME
+            std::string home_dir = coot::get_home_dir();
+            if (! home_dir.empty()) {
+               backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
+               dirstat = make_maybe_backup_dir(backup_dir);
+               if (dirstat != 0) {
+                  std::cout << "WARNING:: backup directory "<< backup_dir
+                            << " failure to exist or create" << std::endl;
+               } else {
+                  std::cout << "INFO using backup directory " << backup_dir << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: backup directory "<< backup_dir
+                         << " failure to exist or create" << std::endl;
+            }
+         }
+
+         std::cout << "debug in make_backup(): Here C" << std::endl;
+         if (dirstat == 0) {
+            // all is hunkey-dorey.  Directory exists.
+
+            std::string backup_file_name = get_save_molecule_filename(backup_dir);
+             std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
+
+            mmdb::byte gz;
+            if (backup_compress_files_flag) {
+               gz = mmdb::io::GZM_ENFORCE;
+            } else {
+               gz = mmdb::io::GZM_NONE;
+            }
+
+            // Writing out a modified binary mmdb like this results in the
+            // file being unreadable (crash in mmdb read).
+            //
+            int istat;
+            if (! is_from_shelx_ins_flag) {
+               bool write_as_cif = false;
+               if (coot::is_mmcif_filename(name))
+                  write_as_cif = true;
+
+               std::cout << "debug in make_backup(): Here D" << std::endl;
+               istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+
+               std::cout << "debug in make_backup(): Here E" << std::endl;
+
+               // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
+               if (istat) {
+                  std::string warn;
+                  warn = "WARNING:: WritePDBASCII failed! Return status ";
+                  warn += istat;
+                  // g.info_dialog_and_text(warn);
+                  info_message = warn;
+               }
+            } else {
+               std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
+               istat = p.first;
+            }
+
+            std::cout << "debug in make_backup(): Here F" << std::endl;
+            save_history_file_name(backup_file_name);
+            // 20221016-PE old history counting - now use save_info.
+            // if (history_index == max_history_index)
+            // max_history_index++;
+            // history_index++;
+            std::cout << "debug in make_backup(): Here G" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
+                   << std::endl;
+      }
+   } else {
+      // Occasionally useful but mostly tedious...
+      // std::cout << "INFO:: backups turned off on this molecule"
+      // << std::endl;
+   }
+   std::cout << "debug in make_backup(): returning" << std::endl;
+   return 0;
+
 }
+
+// shelx stuff
+//
+std::pair<int, std::string>
+coot::molecule_t::write_shelx_ins_file(const std::string &filename) {
+
+   // std::cout << "DEBUG:: starting write_shelx_ins_file in molecule "<< std::endl;
+   // shelxins.debug();
+
+   std::pair<int, std::string> p(1, "");
+
+   if (atom_sel.n_selected_atoms > 0) {
+      p = shelxins.write_ins_file(atom_sel.mol, filename, is_from_shelx_ins_flag);
+//       std::cout << "DEBUG:: in molecule_class_info_t::write_ins_file "
+//                 << "got values " << p.first << " " << p.second
+//                 << std::endl;
+   } else {
+      p.second = "WARNING:: No atoms to write!";
+   }
+   return p;
+}
+
 
 bool
 coot::molecule_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const {
@@ -302,9 +604,9 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
    bool debug = false;
    float add_alt_conf_new_atoms_occupancy = 0.5; // was a static in graphics_info_t
 
-   make_backup();
+   // make_backup();// 20221016-PE why was this here? Ah, for interactive use/intermdiate atoms
+                    // let's remove it for now
 
-   // debug::
    if (debug) {
       std::cout << "DEBUG:: --------------- replace_coords replacing "
                 << asc.n_selected_atoms << " atoms " << std::endl;
@@ -491,7 +793,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
 }
 
 
-int coot::molecule_t::flipPeptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
+int coot::molecule_t::flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
 
    int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
    return result;
@@ -1188,10 +1490,188 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
 }
 
 
+void
+coot::molecule_t::delete_any_link_containing_residue(const coot::residue_spec_t &res_spec) {
+
+   if (atom_sel.mol) {
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if ((res_spec.model_number == imod) || (res_spec.model_number == mmdb::MinInt4)) {
+            mmdb::LinkContainer *links = model_p->GetLinks();
+            int n_links = model_p->GetNumberOfLinks();
+            for (int ilink=1; ilink<=n_links; ilink++) {
+               mmdb::Link *link_p = model_p->GetLink(ilink);
+               // mmdb::Link *link = static_cast<mmdb::Link *>(links->GetContainerClass(ilink));
+
+               if (link_p) {
+
+                  // must pass a valid link_p
+                  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p, model_p);
+                  coot::residue_spec_t res_1(link_atoms.first);
+                  coot::residue_spec_t res_2(link_atoms.second);
+                  // std::cout << "found link " << res_1 << " to "  << res_2 << std::endl;
+                  if (res_spec == res_1) {
+                     delete_link(link_p, model_p);
+                  }
+                  if (res_spec == res_2) {
+                     delete_link(link_p, model_p);
+                  }
+               } else {
+                  std::cout << "ERROR:: Null link_p for link " << ilink << " of " << n_links << std::endl;
+               }
+            }
+         }
+      }
+   }
+}
+
+void
+coot::molecule_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
+
+   // Copy out the links, delete all links and add the saved links back
+
+   std::vector<mmdb::Link *> saved_links;
+   int n_links = model_p->GetNumberOfLinks();
+   for (int ilink=1; ilink<=n_links; ilink++) {
+      mmdb::Link *model_link = model_p->GetLink(ilink);
+      if (model_link != link) {
+         mmdb::Link *copy_link = new mmdb::Link(*model_link);
+         saved_links.push_back(copy_link);
+      }
+   }
+
+   model_p->RemoveLinks();
+   for (unsigned int i=0; i<saved_links.size(); i++) {
+      model_p->AddLink(saved_links[i]);
+   }
+}
+
 int
 coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
 
-   int status = 0;
+   // this body copied from
+   // short int
+   // molecule_class_info_t::delete_residue(int model_number,
+   //              const std::string &chain_id, int resno,
+   //              const std::string &ins_code)
 
-   return status;
+   int was_deleted = 0;
+   if (atom_sel.mol) {
+
+      mmdb::Chain *chain;
+
+      // run over chains of the existing mol
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) {
+
+         if (0)
+            std::cout << "debug:: delete_residue() comparing imod: "
+                      << imod << " and model_number "
+                      << residue_spec.model_number << std::endl;
+
+         if ((imod == residue_spec.model_number) || (residue_spec.model_number == mmdb::MinInt4)) {
+
+            int nchains = atom_sel.mol->GetNumberOfChains(imod);
+            for (int ichain=0; ichain<nchains; ichain++) {
+
+               chain = atom_sel.mol->GetChain(imod,ichain);
+               std::string mol_chain_id(chain->GetChainID());
+
+               if (residue_spec.chain_id == mol_chain_id) {
+
+                  // std::cout << "debug:: matching chain_ids on  " << chain_id << std::endl;
+
+                  int nres = chain->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *res = chain->GetResidue(ires);
+                     if (res) {
+                        if (res->GetSeqNum() == residue_spec.res_no) {
+
+                           // so we have a matching residue:
+                           int iseqno = res->GetSeqNum();
+                           mmdb::pstr inscode = res->GetInsCode();
+                           std::string inscodestr(inscode);
+                           if (residue_spec.ins_code == inscodestr) {
+                              make_backup();
+                              atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+                              delete_ghost_selections();
+                              chain->DeleteResidue(iseqno, inscode);
+                              was_deleted = 1;
+                              res = NULL;
+                              break;
+                           }
+                        }
+                     }
+                  }
+               }
+               if (was_deleted)
+                  break;
+            }
+         }
+      }
+   }
+
+   if (was_deleted) {
+
+      // we can't do this after the modification: it has to be done before
+      // atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+
+      atom_sel.atom_selection = NULL;
+      coot::residue_spec_t spec(residue_spec.model_number, residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code);
+      delete_any_link_containing_residue(spec);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+
+      save_info.new_modification();
+      trim_atom_label_table();
+      update_symmetry();
+   }
+   return was_deleted;
+}
+
+std::vector<std::string>
+coot::molecule_t::non_standard_residue_types_in_model() const {
+
+   std::vector<std::string> v;
+   if (atom_sel.mol) {
+      v = coot::util::non_standard_residue_types_in_molecule(atom_sel.mol);
+   }
+   return v;
+}
+
+
+#include "coot-utils/peak-search.hh"
+
+// the molecule is passed so that the peaks are placed around the protein
+std::vector<coot::molecule_t::difference_map_peaks_info_t>
+coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
+
+   std::vector<coot::molecule_t::difference_map_peaks_info_t> v;
+   if (mol) {
+      coot::peak_search ps(xmap);
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, mol, n_rmsd, true, true, true);
+      for (const auto &peak : peaks) {
+         difference_map_peaks_info_t dmp(peak.first, peak.second);
+         v.push_back(dmp);
+      }
+   } else {
+      std::cout << "ERROR:: " << __FUNCTION__ << "() null mol" << std::endl;
+   }
+   return v;
+}
+
+
+#include "coot-utils/xmap-stats.hh"
+
+// map functions, return -1.1 on not-a-map
+float
+coot::molecule_t::get_map_rmsd_approx() const {
+
+   bool ignore_pseudo_zeros_for_map_stats = false; // set this to true for an EM map
+   bool ipz = ignore_pseudo_zeros_for_map_stats;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, ipz);
+   float rmsd = std::sqrt(mv.variance);
+   return rmsd;
+
 }

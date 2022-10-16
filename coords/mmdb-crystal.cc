@@ -42,7 +42,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
-#include "mmdb.h"
+#include "mmdb.hh"
 #include "mmdb-crystal.h"
 #include "utils/coot-utils.hh" // for Upper
 
