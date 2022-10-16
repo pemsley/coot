@@ -7,6 +7,7 @@
 #include <clipper/core/xmap.h>
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
+#include "coot-utils/sfcalc-genmap.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -152,6 +153,23 @@ namespace coot {
       bool show_symmetry;
       void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
       void delete_link(mmdb::Link *link, mmdb::Model *model_p);
+
+      // use this molecules mol and the passed data to make a map for some other
+      // molecule
+      int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                        const clipper::HKL_data<clipper::data32::Flag> &free,
+                        clipper::Xmap<float> *xmap_p);
+      coot::util::sfcalc_genmap_stats_t
+      sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                        const clipper::HKL_data<clipper::data32::Flag> &free,
+                                        clipper::Xmap<float> *xmap_2fofc_p,
+                                        clipper::Xmap<float> *xmap_fofc_p);
+      void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
+      bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
+      // Why? Something wrong with the atoms after merge?
+      // Let's diagnose.... Return false on non-sane.
+
+      
 
    public:
 

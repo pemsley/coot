@@ -16,11 +16,11 @@ reference_data(const std::string &file) {
    return file; // 20221016-PE for now.
 }
 
-int test_auto_fit_rotamer() {
+int test_auto_fit_rotamer(molecules_container_t &mc_in) {
 
    starting_test(__FUNCTION__);
-
    int status = 0; // initially fail status
+
    molecules_container_t mc;
    mc.geometry_init_standard();
    int imol = mc.read_pdb(reference_data("tm-A.pdb"));
@@ -55,7 +55,6 @@ int test_auto_fit_rotamer() {
 int test_pepflips(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
-
    int status = 0;
 
    // A 14, 18, 20, 49
@@ -113,6 +112,36 @@ int test_pepflips(molecules_container_t &mc) {
 
    float rmsd_diff_map_2 = mc.get_map_rmsd_approx(imol_map);
 
+   std::cout << "rmsd_diff_map_1 " << rmsd_diff_map_1 << " rmsd_diff_map_2 " << rmsd_diff_map_2 << std::endl;
+
+
+   return status;
+
+}
+
+int test_rama_mesh(molecules_container_t &mc)  {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string coords_fn = "tm-A.pdb";
+   int imol = mc.read_pdb(coords_fn);
+
+   coot::simple_mesh_t rvmm = mc.ramachandran_validation_markup_mesh(imol);
+   std::cout << "rama mesh: " << rvmm.vertices.size() << " vertices and " << rvmm.triangles.size()
+             << " triangles" << std::endl;
+
+   // Let's look at the colours of the balls.
+   if (false)
+      for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
+         std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
+
+   // Rama dodecs
+   coot::simple_mesh_t rota_mesh = mc.get_rotamer_dodecs(imol);
+   std::cout << "rota mesh: " << rota_mesh.vertices.size() << " vertices and " << rota_mesh.triangles.size()
+             << " triangles" << std::endl;
+
+   if (rota_mesh.vertices.size() > 2000) status = 1;
 
    return status;
 
@@ -120,6 +149,7 @@ int test_pepflips(molecules_container_t &mc) {
 
 int test_density_mesh(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    int imol_map = mc.read_mtz("rnasa-1.8-all_refmac1.mtz", "FWT", "PHWT", "W", false, false);
 
@@ -136,66 +166,51 @@ int test_density_mesh(molecules_container_t &mc) {
    return status;
 }
 
+int n_tests = 0;
+
+int
+run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_name, molecules_container_t &mc) {
+
+   n_tests++;
+   int status = test_func(mc);
+   std::string status_string = "FAIL: ";
+   if (status == 1)
+      status_string = "PASS: ";
+   std::cout << status_string << std::setw(40) << std::left << test_name << " status " << status << std::endl;
+
+   return status;
+
+}
+
 int main(int argc, char **argv) {
 
    int status = 0;
-   std::string status_string = "FAIL";
 
    molecules_container_t mc;
    mc.geometry_init_standard();
    mc.fill_rotamer_probability_tables();
 
-   std::string coords_fn = "tm-A.pdb";
-   int imol = mc.read_pdb(coords_fn);
-
    // --- rama mesh
-   
-   coot::simple_mesh_t rvmm = mc.ramachandran_validation_markup_mesh(imol);
-   std::cout << "rama mesh: " << rvmm.vertices.size() << " vertices and " << rvmm.triangles.size()
-             << " triangles" << std::endl;
-
-   // Let's look at the colours of the balls.
-   if (false)
-      for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
-         std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
-
-   // Rama dodecs
-   coot::simple_mesh_t rota_mesh = mc.get_rotamer_dodecs(imol);
-   std::cout << "rota mesh: " << rota_mesh.vertices.size() << " vertices and " << rota_mesh.triangles.size()
-             << " triangles" << std::endl;
-
+   status += run_test(test_rama_mesh, "rama mesh", mc);
 
    // --- density mesh
-
-   status = test_density_mesh(mc);
-   status_string = "FAIL:";
-   if (status == 1)
-      status_string = "PASS:";
-   std::cout << status_string << std::setw(40) << std::left << " test_density_mesh() " << " status " << status << std::endl;
-
+   status += run_test(test_density_mesh, "density mesh", mc);
  
    // --- auto-fit rotamer
-
-   status = test_auto_fit_rotamer();
-   status_string = "FAIL:";
-   if (status == 1)
-      status_string = "PASS:";
-   std::cout << status_string << std::setw(40) << std::left << " test_auto_fit_rotamer() " << " status " << status << std::endl;
+   status += run_test(test_auto_fit_rotamer, "auto-fit rotamer", mc);
 
    // --- pepflips
-
-   status = test_pepflips(mc);
-   status_string = "FAIL:";
-   if (status == 1)
-      status_string = "PASS:";
-   std::cout << status_string << std::setw(40) << std::left << " test_pepflips() " << " status " << status << std::endl;
-
+   status += run_test(test_pepflips, "pepflips", mc);
 
    // add a test for:
    // delete_atom
    // delete_atoms
    // delete_residue
+   // rsr triple
 
-   return status;
+   int all_tests_status = 1;
+   if (status == n_tests) all_tests_status = 0;
+
+   return all_tests_status;
 
 }

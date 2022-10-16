@@ -1662,38 +1662,3 @@ coot::molecule_t::non_standard_residue_types_in_model() const {
    return v;
 }
 
-
-#include "coot-utils/peak-search.hh"
-
-// the molecule is passed so that the peaks are placed around the protein
-std::vector<coot::molecule_t::difference_map_peaks_info_t>
-coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
-
-   std::vector<coot::molecule_t::difference_map_peaks_info_t> v;
-   if (mol) {
-      coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, mol, n_rmsd, true, true, true);
-      for (const auto &peak : peaks) {
-         difference_map_peaks_info_t dmp(peak.first, peak.second);
-         v.push_back(dmp);
-      }
-   } else {
-      std::cout << "ERROR:: " << __FUNCTION__ << "() null mol" << std::endl;
-   }
-   return v;
-}
-
-
-#include "coot-utils/xmap-stats.hh"
-
-// map functions, return -1.1 on not-a-map
-float
-coot::molecule_t::get_map_rmsd_approx() const {
-
-   bool ignore_pseudo_zeros_for_map_stats = false; // set this to true for an EM map
-   bool ipz = ignore_pseudo_zeros_for_map_stats;
-   mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, ipz);
-   float rmsd = std::sqrt(mv.variance);
-   return rmsd;
-
-}

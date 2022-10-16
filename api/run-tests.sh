@@ -1,2 +1,2 @@
-./test-molecules-container | egrep 'PASS|FAIL'
+./test-molecules-container | egrep '^PASS|^FAIL|^Starting'
 
