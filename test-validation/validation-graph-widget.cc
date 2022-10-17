@@ -54,6 +54,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
     gdk_rgba_parse (&border_color, "#002000");
     // todo: make this theme-dependent
     gdk_rgba_parse (&attribute_color, "#ffffff");
+    // Gtk 4.10 ?
+    // gtk_widget_get_style_color(widget,&attribute_color);
+    GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
+    gtk_style_context_get_color(style_context,&attribute_color);
+
 
 
     float w = (float) gtk_widget_get_width (widget);
@@ -77,8 +82,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         pango_cairo_show_layout(cairo_canvas, pango_layout);
 
         // I can't get this to render the text where it needs to be, so I'm using cairo directly
+        // gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
-        //gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
         g_object_unref(pango_layout);
         cairo_destroy(cairo_canvas);
         float base_height = TITLE_HEIGHT;
