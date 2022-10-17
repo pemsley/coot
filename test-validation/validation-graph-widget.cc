@@ -89,8 +89,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
-        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 2.f) / (float) self->_vi->cviv.size() - (CHAIN_HEIGHT + CHAIN_SPACING);
-        //float height_step = height_diff + CHAIN_HEIGHT + CHAIN_SPACING;
+        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 2.f) / ((float) self->_vi->cviv.size()) - (CHAIN_HEIGHT + CHAIN_SPACING);
 
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
@@ -133,7 +132,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
-            base_height += CHAIN_SPACING + height_diff;
+            base_height += CHAIN_SPACING/2.f + height_diff;
         }
 
         cairo_destroy(cairo_canvas);
