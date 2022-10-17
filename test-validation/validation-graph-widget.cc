@@ -28,12 +28,12 @@ G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
 
 void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
-    GdkRGBA green, yellow;
+    GdkRGBA green, border_green;
     float w, h;
 
     //   gdk_rgba_parse (&red, "red");
-    gdk_rgba_parse (&green, "green");
-    gdk_rgba_parse (&yellow, "yellow");
+    gdk_rgba_parse (&green, "#008000");
+    gdk_rgba_parse (&border_green, "#002000");
     //   gdk_rgba_parse (&blue, "blue");
 
 
@@ -72,7 +72,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& ri: cvi.rviv) {
                 float bar_height = height_step * ri.distortion / 30.d;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width + 1, base_height - bar_height, width_step - 1, bar_height);
-                float border_width = 1;
+                float border_thickness[] = {1.f,1.f,1.f,1.f};
+                GdkRGBA border_colors[] = {border_green,border_green,border_green,border_green};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
                     &outline,
@@ -80,8 +81,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                     0
                 );
                 gtk_snapshot_append_color(snapshot, &green, &m_graphene_rect);
-                // border is a bit buggy
-                //gtk_snapshot_append_border(snapshot, &outline , &border_width, &yellow);
+                gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
         }
