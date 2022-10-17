@@ -50,11 +50,14 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
         cairo_set_line_width(cairo_canvas,1);
         cairo_line_to(cairo_canvas, w, h);
+        cairo_stroke(cairo_canvas);
         cairo_set_font_size(cairo_canvas,14);
-        cairo_select_font_face (cairo_canvas, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
         const char* title = self->_vi->name.c_str();
         g_debug("title: %s",title);
+        cairo_move_to(cairo_canvas,20,20);
         cairo_show_text(cairo_canvas, title);
+        //cairo_stroke(cairo_canvas);
         // cairo_paint is the only function that works
         //cairo_paint(cairo_canvas);
         // 2. Draw axes
