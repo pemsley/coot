@@ -6,10 +6,17 @@ struct _CootValidationGraph {
     std::unique_ptr<coot::validation_information_t> _vi;
 };
 
+/// Basis for max bar height
 const int CHAIN_HEIGHT = 120;
+/// Used for allocating space for axes and labels
 const int CHAIN_SPACING = 40;
 const int RESIDUE_WIDTH = 3;
+/// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 3;
+/// For drawing the main title
+const int TITLE_HEIGHT = 0;
+/// Space for the axis to be drawn on the left side of the graph
+const int AXIS_MARGIN = 20;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 
@@ -69,17 +76,18 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         cairo_destroy(cairo_canvas);
 
         // 4. Draw residue rectangles
-        float base_height = 0;
-        float width_step = w / (float) max_chain_residue_count(self);
-        float height_step = h / (float) self->_vi->cviv.size();
+        float base_height = TITLE_HEIGHT;
+        float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
+        float height_step = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING) / (float) self->_vi->cviv.size();
         for(const auto& cvi: self->_vi->cviv) {
-            float base_width = 0;
+            float base_width = AXIS_MARGIN;
             base_height += height_step;
             for(const auto& ri: cvi.rviv) {
                 // todo: normalize
                 const float normalization_divisor = 30.f;
-                float bar_height = height_step * ri.distortion / normalization_divisor;
-                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, base_height - bar_height, width_step, bar_height);
+                float bar_height = CHAIN_HEIGHT * ri.distortion / normalization_divisor;
+                float bar_y_offset = base_height + CHAIN_SPACING / 2.f;
+                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, width_step, bar_height);
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GdkRGBA border_colors[] = {border_color,border_color,border_color,border_color};
                 GskRoundedRect outline;
@@ -114,14 +122,14 @@ void coot_validation_graph_measure
         {
         case GTK_ORIENTATION_HORIZONTAL:{
             auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING);
-            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING);
+            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + AXIS_MARGIN;
+            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + AXIS_MARGIN;
             break;
         }
         case GTK_ORIENTATION_VERTICAL:{
             auto num_of_chains = self->_vi->cviv.size();
             //g_debug("Num of chains: %u",num_of_chains);
-            auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING);
+            auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING) + TITLE_HEIGHT;
             //g_debug("Vertical size: %u",size);
             *minimum_size = size;
             *natural_size = size;
