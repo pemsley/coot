@@ -96,15 +96,18 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 float bar_y_offset = base_height + CHAIN_SPACING / 2.f;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, width_step, bar_height);
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
-                GdkRGBA border_colors[] = {border_color,border_color,border_color,border_color};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
                     &outline,
                     &m_graphene_rect,
                     0
                 );
-                // todo: value-based color indication
-                gtk_snapshot_append_color(snapshot, &residue_color, &m_graphene_rect);
+                GdkRGBA residue_color_computed = residue_color;
+                GdkRGBA border_color_computed = border_color;
+                border_color_computed.red = 0.4 * residue.distortion / normalization_divisor;
+                residue_color_computed.red = residue.distortion / normalization_divisor;
+                GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
+                gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
