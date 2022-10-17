@@ -119,9 +119,15 @@ int test_updating_maps(molecules_container_t &mc) {
    int imol_map      = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "FWT",    "PHWT",    "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("gideondoesntapprove.mtz"), "F", "SIGF", "FREER");
-   mc.sfcalc_genmap(imol, imol_map, imol_diff_map); // set to the clipper map, overwritigng the refmac map
-   float rmsd_diff_map_1 = mc.get_map_rmsd_approx(imol_diff_map);
 
+    // set to the clipper map, overwriting the refmac map.
+   //
+   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map);
+   // After you have changed maps the firs time, add a starting point for the gru score:
+   mc.calculate_new_gru_points(imol_diff_map);
+
+   // modify the model by flipping a peptide.
+   //
    std::string residue_cid = "//A/14";
    auto rs = mc.residue_cid_to_residue_spec(imol, residue_cid);
    if (! rs.empty()) {
@@ -129,23 +135,18 @@ int test_updating_maps(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
       mmdb::Atom *at = mc.get_atom(imol, atom_spec);
       if (at) {
-         coot::Cartesian pt_1(at->x, at->y, at->z);
          mc.flip_peptide_using_cid(imol, residue_cid, "");
-         coot::Cartesian pt_2(at->x, at->y, at->z);
-         double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
-         double d = std::sqrt(dd);
-         if (d > 3.0) {
-            status = 1;
-         }
       }
    }
 
-   // 20221016-PE now update the maps!
-   mc.sfcalc_genmap(imol, imol_map, imol_diff_map);
-   float rmsd_diff_map_2 = mc.get_map_rmsd_approx(imol_diff_map);
-   std::cout << "test_updating_maps(): rmsd_diff_map_1 " << rmsd_diff_map_1 << " rmsd_diff_map_2 " << rmsd_diff_map_2 << std::endl;
-   float rmsd_diff = rmsd_diff_map_1 - rmsd_diff_map_2;
-   std::cout << "###### GruPoints gained: " << 10000.0 * rmsd_diff << std::endl;
+   // now update the maps
+   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map);
+   float new_gru_points = mc.calculate_new_gru_points(imol_diff_map);
+   float gpt = mc.gru_points_total();
+   std::cout << "###### GruPoints gained: " << new_gru_points << " gru points total " << gpt << std::endl;
+
+   if (new_gru_points > 4.0)
+      status = 1;
 
    return status;
 

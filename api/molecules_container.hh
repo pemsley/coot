@@ -17,14 +17,36 @@ class molecules_container_t {
    coot::protein_geometry geom;
    coot::rotamer_probability_tables rot_prob_tables;
    ramachandrans_container_t ramachandrans_container;
-   float starting_gru_score_map;
-   float starting_gru_score_model;
-   std::vector<std::pair<float, float> > gru_point_history;
+   class gru_points_t {
+   public:
+      int model_gru_points_delta; // for the latest change, I mean
+      int   map_gru_points_delta;
+      float rmsd_of_difference_map;
+      gru_points_t(float rmsd) {
+         model_gru_points_delta = 0;
+         map_gru_points_delta = 0;
+         rmsd_of_difference_map = rmsd;
+      }
+      gru_points_t(float rmsd_diff_map_current, const gru_points_t &gru_points_prev) {
+         model_gru_points_delta = 0;
+         rmsd_of_difference_map = rmsd_diff_map_current;
+         map_gru_points_delta = gru_points_delta(gru_points_prev);
+      }
+      int gru_points_delta(const gru_points_t &prev) {
+         return int(10000.0 * (prev.rmsd_of_difference_map - rmsd_of_difference_map));
+      }
+      static int total(const std::vector<gru_points_t> &gru_point_history) {
+         int sum = 0;
+         for (const auto &item : gru_point_history) {
+            sum += item.map_gru_points_delta;
+         }
+         return sum;
+      }
+   };
+   std::vector<gru_points_t> gru_point_history; // map and model (model currently not used)
    void init() {
       imol_refinement_map = -1;
       imol_difference_map = -1;
-      starting_gru_score_map   = 0;
-      starting_gru_score_model = 0;
       geometry_init_standard(); // do this by default now
    }
    static std::atomic<bool> on_going_updating_map_lock;
@@ -162,16 +184,11 @@ public:
 
    // -------------------------------- Gru Points ------------------------------------------
 
-   // calling this adds to the gru_points history
-   float calculate_current_gru_points(int imol_model, int imol_map) const;
+   // calling this adds to the gru_points history. Make this pairs when we add model scoring.
+   //
+   int calculate_new_gru_points(int imol_diff_map);
 
-   // so that you can check by how much the gru_points have improved in the recent move.
-   float get_previous_gru_points() const;
-
-   // do these need to be public?
-   void reset_the_gru_points(int imol);
-   float get_gru_points_starting_model_geometry_score(int model) const;
-   float get_gru_points_starting_map_rmsd(int imol_map) const;
+   int gru_points_total() const; // the sum of all the gru ponts accumulated
 
    // reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
    // so, update your contour lines meshes after calling this function.
@@ -188,6 +205,11 @@ public:
    void sfcalc_genmap(int imol_model,
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
+
+   coot::util::sfcalc_genmap_stats_t
+   sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     int imol_updating_difference_map);
 
    // add these
    //

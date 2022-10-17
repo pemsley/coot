@@ -659,3 +659,90 @@ molecules_container_t::sfcalc_genmap(int imol_model,
    }
 }
 
+
+coot::util::sfcalc_genmap_stats_t
+molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
+                                                         int imol_map_2fofc,  // this map should have the data attached.
+                                                         int imol_map_fofc) {
+   coot::util::sfcalc_genmap_stats_t stats;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_2fofc)) {
+         if (is_valid_map_molecule(imol_map_fofc)) {
+            if (molecules[imol_map_fofc].is_difference_map_p()) {
+               try {
+                  if (! on_going_updating_map_lock) {
+                     on_going_updating_map_lock = true;
+                     molecules[imol_map_2fofc].fill_fobs_sigfobs();
+
+                     // 20210815-PE used to be const reference (get_original_fobs_sigfobs() function changed too)
+                     // const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                     // const clipper::HKL_data<clipper::data32::Flag> &free_flag = molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                     // now the full object (40us for RNAse test).
+                     // 20210815-PE OK, the const reference was not the problem. But we will leave it as it is now, for now.
+                     //
+                     clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_map_2fofc].get_original_fobs_sigfobs();
+                     clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_map_2fofc].get_original_rfree_flags();
+
+                     if (fobs_data_p && free_flag_p) {
+
+                        if (true) { // sanity check data
+
+                           const clipper::HKL_info &hkls_check = fobs_data_p->base_hkl_info();
+                           const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+                           const clipper::Cell &cell_check = fobs_data_p->base_cell();
+                           const clipper::HKL_sampling &sampling_check = fobs_data_p->hkl_sampling();
+
+                           std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() imol_map_with_data_attached "
+                                     << imol_map_2fofc << std::endl;
+
+                           std::cout << "DEBUG:: Sanity check in graphics_info_t:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                                     << "base_cell: " << cell_check.format() << " "
+                                     << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                                     << "sampling is null: " << sampling_check.is_null() << " "
+                                     << "resolution: " << hkls_check.resolution().limit() << " "
+                                     << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                                     << "num_reflections: " << hkls_check.num_reflections()
+                                     << std::endl;
+                        }
+
+                        clipper::Xmap<float> &xmap_2fofc = molecules[imol_map_2fofc].xmap;
+                        clipper::Xmap<float> &xmap_fofc  = molecules[imol_map_fofc].xmap;
+                        stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
+
+                     } else {
+                        std::cout << "ERROR:: null data pointer in graphics_info_t::sfcalc_genmaps_using_bulk_solvent() " << std::endl;
+                     }
+                     on_going_updating_map_lock = false;
+                  }
+               }
+               catch (const std::runtime_error &rte) {
+                  std::cout << rte.what() << std::endl;
+               }
+            }
+         }
+      }
+   }
+   return stats;
+}
+
+int
+molecules_container_t::gru_points_total() const { // the sum of all the gru ponts accumulated
+   return gru_points_t::total(gru_point_history);
+}
+
+int
+molecules_container_t::calculate_new_gru_points(int imol_diff_map) {
+
+   float rmsd = get_map_rmsd_approx(imol_diff_map);
+   if (! gru_point_history.empty()) {
+      const gru_points_t &prev = gru_point_history.back();
+      gru_points_t new_points(rmsd, prev);
+      gru_point_history.push_back(new_points);
+      return new_points.map_gru_points_delta;
+   } else {
+      gru_points_t prev = gru_points_t(rmsd);
+      gru_points_t new_points(rmsd, prev);
+      gru_point_history.push_back(new_points);
+      return new_points.map_gru_points_delta;
+   }
+}
