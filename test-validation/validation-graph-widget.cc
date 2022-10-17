@@ -8,6 +8,7 @@ struct _CootValidationGraph {
 
 const int COOT_CHAIN_HEIGHT = 120;
 const int COOT_RESIDUE_WIDTH = 7;
+const double AXIS_LINE_WIDTH = 2;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.begin(),self->_vi->cviv.end(),
@@ -28,41 +29,43 @@ G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
 
 void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
-    GdkRGBA green, border_green;
-    float w, h;
+    // attribute_color is used for drawing labels and axes
+    GdkRGBA residue_color, border_color, attribute_color;
 
-    //   gdk_rgba_parse (&red, "red");
-    gdk_rgba_parse (&green, "#008000");
-    gdk_rgba_parse (&border_green, "#002000");
-    //   gdk_rgba_parse (&blue, "blue");
+    gdk_rgba_parse (&residue_color, "#008000");
+    gdk_rgba_parse (&border_color, "#002000");
+    // todo: make this theme-dependent
+    gdk_rgba_parse (&attribute_color, "#ffffff");
 
 
-    w = (float) gtk_widget_get_width (widget);
-    h = (float) gtk_widget_get_height (widget);
+    float w = (float) gtk_widget_get_width (widget);
+    float h = (float) gtk_widget_get_height (widget);
 
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     if(self->_vi) {
         graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
+        // 1. Draw title
+        // 2. Label each chain
+        // 3. Draw axes
         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
-        // 1. Draw text
-        cairo_move_to(cairo_canvas,0,0);
-        cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
-        cairo_set_line_width(cairo_canvas,1);
-        cairo_line_to(cairo_canvas, w, h);
-        cairo_stroke(cairo_canvas);
-        cairo_set_font_size(cairo_canvas,14);
-        cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-        const char* title = self->_vi->name.c_str();
-        g_debug("title: %s",title);
-        cairo_move_to(cairo_canvas,20,20);
-        cairo_show_text(cairo_canvas, title);
-        //cairo_stroke(cairo_canvas);
-        // cairo_paint is the only function that works
-        //cairo_paint(cairo_canvas);
-        // 2. Draw axes
+
+        // cairo_move_to(cairo_canvas,0,0);
+        // cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
+        // cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
+        // cairo_line_to(cairo_canvas, w, h);
+        // cairo_stroke(cairo_canvas);
+
+        // cairo_set_font_size(cairo_canvas,14);
+        // cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        // const char* title = self->_vi->name.c_str();
+        // g_debug("title: %s",title);
+        // cairo_move_to(cairo_canvas,20,20);
+        // cairo_show_text(cairo_canvas, title);
+        
         cairo_destroy(cairo_canvas);
 
+        // 4. Draw residue rectangles
         float base_height = 0;
         float width_step = w / (float) max_chain_residue_count(self);
         float height_step = h / (float) self->_vi->cviv.size();
@@ -70,17 +73,20 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             float base_width = 0;
             base_height += height_step;
             for(const auto& ri: cvi.rviv) {
-                float bar_height = height_step * ri.distortion / 30.d;
+                // todo: normalize
+                const float normalization_divisor = 30.f;
+                float bar_height = height_step * ri.distortion / normalization_divisor;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width + 1, base_height - bar_height, width_step - 1, bar_height);
                 float border_thickness[] = {1.f,1.f,1.f,1.f};
-                GdkRGBA border_colors[] = {border_green,border_green,border_green,border_green};
+                GdkRGBA border_colors[] = {border_color,border_color,border_color,border_color};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
                     &outline,
                     &m_graphene_rect,
                     0
                 );
-                gtk_snapshot_append_color(snapshot, &green, &m_graphene_rect);
+                // todo: value-based color indication
+                gtk_snapshot_append_color(snapshot, &residue_color, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
