@@ -21,10 +21,18 @@ const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
-    return std::max_element(self->_vi->cviv.begin(),self->_vi->cviv.end(),
+    return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
         [](const auto& lhs, const auto& rhs){
             return lhs.rviv.size() < rhs.rviv.size();
         })->rviv.size();
+}
+
+double max_chain_residue_distortion(const std::vector<coot::residue_validation_information_t>& rviv) {
+    return std::max_element(rviv.cbegin(),rviv.cend(),
+    [](const auto& lhs, const auto& rhs){
+        return lhs.distortion < rhs.distortion;
+    }
+    )->distortion;
 }
 
 G_BEGIN_DECLS
@@ -79,13 +87,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
         float height_step = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING) / (float) self->_vi->cviv.size();
-        for(const auto& cvi: self->_vi->cviv) {
+        for(const auto& chain: self->_vi->cviv) {
             float base_width = AXIS_MARGIN;
             base_height += height_step;
-            for(const auto& ri: cvi.rviv) {
-                // todo: normalize
-                const float normalization_divisor = 30.f;
-                float bar_height = CHAIN_HEIGHT * ri.distortion / normalization_divisor;
+            const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
+            for(const auto& residue: chain.rviv) {
+                float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height + CHAIN_SPACING / 2.f;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, width_step, bar_height);
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
