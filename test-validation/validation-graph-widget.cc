@@ -81,7 +81,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 gtk_snapshot_append_color(snapshot, &green, &m_graphene_rect);
                 // border is a bit buggy
-                gtk_snapshot_append_border(snapshot, &outline , &border_width, &yellow);
+                //gtk_snapshot_append_border(snapshot, &outline , &border_width, &yellow);
                 base_width += width_step;
             }
         }
@@ -105,7 +105,7 @@ void coot_validation_graph_measure
         {
         case GTK_ORIENTATION_HORIZONTAL:{
             auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * COOT_RESIDUE_WIDTH / 2;
+            *minimum_size = max_chain_residues * COOT_RESIDUE_WIDTH;
             *natural_size = max_chain_residues * COOT_RESIDUE_WIDTH;
             break;
         }
@@ -114,7 +114,7 @@ void coot_validation_graph_measure
             //g_debug("Num of chains: %u",num_of_chains);
             auto size = num_of_chains * COOT_CHAIN_HEIGHT;
             //g_debug("Vertical size: %u",size);
-            *minimum_size = size / 2;
+            *minimum_size = size;
             *natural_size = size;
             break;
         }

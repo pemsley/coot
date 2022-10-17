@@ -83,8 +83,12 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
    gtk_widget_set_margin_end(vbox,10);
    gtk_window_set_child(main_window,vbox);
 
+   GtkWidget* host_scrolled_window = gtk_scrolled_window_new();
+   gtk_widget_set_hexpand(host_scrolled_window,TRUE);
+   gtk_widget_set_vexpand(host_scrolled_window,TRUE);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(host_scrolled_window),GTK_WIDGET(validation_graph));
    GtkWidget* host_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
-   gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(validation_graph));
+   gtk_frame_set_child(GTK_FRAME(host_frame),host_scrolled_window);
 
    gtk_box_append(GTK_BOX(vbox),host_frame);
    GtkWidget* target_label = gtk_label_new("");
