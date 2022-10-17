@@ -62,32 +62,49 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     if(self->_vi) {
-        graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
         // 1. Draw title
-        // 2. Label each chain
-        // 3. Draw axes
+        graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
-
-        // cairo_move_to(cairo_canvas,0,0);
-        // cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
-        // cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
-        // cairo_line_to(cairo_canvas, w, h);
-        // cairo_stroke(cairo_canvas);
-
-        // cairo_set_font_size(cairo_canvas,14);
-        // cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-        // const char* title = self->_vi->name.c_str();
-        // g_debug("title: %s",title);
-        // cairo_move_to(cairo_canvas,20,20);
-        // cairo_show_text(cairo_canvas, title);
+        cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
         
-        cairo_destroy(cairo_canvas);
+        // This does not respect GTK theming
+        // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
+        PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+        pango_layout_set_text(pango_layout,self->_vi->name.c_str(),-1);
+        int layout_width, layout_height;
+        pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+        cairo_move_to(cairo_canvas,(w - layout_width) / 2,(TITLE_HEIGHT + layout_height) / 2);
+        pango_cairo_show_layout(cairo_canvas, pango_layout);
 
-        // 4. Draw residue rectangles
+        // I can't get this to render the text where it needs to be, so I'm using cairo directly
+        // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
+        //gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
+        g_object_unref(pango_layout);
+        cairo_destroy(cairo_canvas);
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
         float height_step = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING) / (float) self->_vi->cviv.size();
         for(const auto& chain: self->_vi->cviv) {
+            m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
+            // todo: Label chain
+            // todo: Draw axes
+            cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
+
+            // cairo_move_to(cairo_canvas,0,0);
+            // cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
+            // cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
+            // cairo_line_to(cairo_canvas, w, h);
+            // cairo_stroke(cairo_canvas);
+
+            // cairo_set_font_size(cairo_canvas,14);
+            // cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            // const char* title = self->_vi->name.c_str();
+            // g_debug("title: %s",title);
+            // cairo_move_to(cairo_canvas,20,20);
+            // cairo_show_text(cairo_canvas, title);
+            
+            cairo_destroy(cairo_canvas);
+
             float base_width = AXIS_MARGIN;
             base_height += height_step;
             const double normalization_divisor = max_chain_residue_distortion(chain.rviv);

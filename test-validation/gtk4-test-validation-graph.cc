@@ -83,7 +83,7 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
    gtk_widget_set_margin_end(vbox,10);
    gtk_window_set_child(main_window,vbox);
 
-   GtkWidget* host_frame = gtk_frame_new("");
+   GtkWidget* host_frame = gtk_frame_new(NULL);
 
    gtk_widget_set_margin_bottom(host_frame,10);
    gtk_widget_set_margin_start(host_frame,10);
