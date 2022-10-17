@@ -83,14 +83,25 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
    gtk_widget_set_margin_end(vbox,10);
    gtk_window_set_child(main_window,vbox);
 
+   GtkWidget* host_frame = gtk_frame_new("");
+
+   gtk_widget_set_margin_bottom(host_frame,10);
+   gtk_widget_set_margin_start(host_frame,10);
+   gtk_widget_set_margin_end(host_frame,10);
+   gtk_widget_set_margin_top(host_frame,10);
+
+   gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(validation_graph));
+
    GtkWidget* host_scrolled_window = gtk_scrolled_window_new();
    gtk_widget_set_hexpand(host_scrolled_window,TRUE);
    gtk_widget_set_vexpand(host_scrolled_window,TRUE);
-   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(host_scrolled_window),GTK_WIDGET(validation_graph));
-   GtkWidget* host_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
-   gtk_frame_set_child(GTK_FRAME(host_frame),host_scrolled_window);
+   gtk_widget_set_size_request(host_scrolled_window,720,400);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(host_scrolled_window),GTK_WIDGET(host_frame));
 
-   gtk_box_append(GTK_BOX(vbox),host_frame);
+   GtkWidget* outer_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
+   gtk_frame_set_child(GTK_FRAME(outer_frame),host_scrolled_window);
+
+   gtk_box_append(GTK_BOX(vbox),outer_frame);
    GtkWidget* target_label = gtk_label_new("");
    gtk_box_append(GTK_BOX(vbox),target_label);
 }
@@ -119,6 +130,10 @@ int main(int argc, char **argv) {
 
       CootValidationGraph* graph = coot_validation_graph_new();
       coot_validation_graph_set_validation_information(graph,std::make_unique<coot::validation_information_t>(vi));
+      gtk_widget_set_margin_bottom(GTK_WIDGET(graph),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(graph),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(graph),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(graph),10);
 
       g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
          //GtkWindow* win = GTK_WINDOW(user_data);
