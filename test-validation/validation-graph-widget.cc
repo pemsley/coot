@@ -6,9 +6,12 @@ struct _CootValidationGraph {
     std::unique_ptr<coot::validation_information_t> _vi;
 };
 
-const int COOT_CHAIN_HEIGHT = 120;
-const int COOT_RESIDUE_WIDTH = 7;
+const int CHAIN_HEIGHT = 120;
+const int CHAIN_SPACING = 40;
+const int RESIDUE_WIDTH = 3;
+const int RESIDUE_SPACING = 3;
 const double AXIS_LINE_WIDTH = 2;
+const float RESIDUE_BORDER_WIDTH = 1;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.begin(),self->_vi->cviv.end(),
@@ -76,8 +79,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 // todo: normalize
                 const float normalization_divisor = 30.f;
                 float bar_height = height_step * ri.distortion / normalization_divisor;
-                m_graphene_rect = GRAPHENE_RECT_INIT(base_width + 1, base_height - bar_height, width_step - 1, bar_height);
-                float border_thickness[] = {1.f,1.f,1.f,1.f};
+                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, base_height - bar_height, width_step, bar_height);
+                float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GdkRGBA border_colors[] = {border_color,border_color,border_color,border_color};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
@@ -111,14 +114,14 @@ void coot_validation_graph_measure
         {
         case GTK_ORIENTATION_HORIZONTAL:{
             auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * COOT_RESIDUE_WIDTH;
-            *natural_size = max_chain_residues * COOT_RESIDUE_WIDTH;
+            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING);
+            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING);
             break;
         }
         case GTK_ORIENTATION_VERTICAL:{
             auto num_of_chains = self->_vi->cviv.size();
             //g_debug("Num of chains: %u",num_of_chains);
-            auto size = num_of_chains * COOT_CHAIN_HEIGHT;
+            auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING);
             //g_debug("Vertical size: %u",size);
             *minimum_size = size;
             *natural_size = size;
