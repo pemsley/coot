@@ -95,7 +95,16 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
         for(const auto& chain: self->_vi->cviv) {
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
+
             // Label chain
+            pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+            std::string chain_label = "Chain " + chain.chain_id;
+            pango_layout_set_text(pango_layout,chain_label.c_str(),-1);
+            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+            cairo_move_to(cairo_canvas,0,base_height + layout_height / 2);
+            pango_cairo_show_layout(cairo_canvas, pango_layout);
+
+            g_object_unref(pango_layout);
             // Draw axes
             float axis_y_offset = base_height + CHAIN_SPACING / 2.f;
             cairo_move_to(cairo_canvas,0, axis_y_offset);
