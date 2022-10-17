@@ -52,8 +52,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
     gdk_rgba_parse (&residue_color, "#008000");
     gdk_rgba_parse (&border_color, "#002000");
-    // todo: make this theme-dependent
-    gdk_rgba_parse (&attribute_color, "#ffffff");
+
+    // gdk_rgba_parse (&attribute_color, "#ffffff");
     // Gtk 4.10 ?
     // gtk_widget_get_style_color(widget,&attribute_color);
     GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
@@ -85,37 +85,37 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         // gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
         g_object_unref(pango_layout);
-        cairo_destroy(cairo_canvas);
+
+
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
-        float height_step = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING) / (float) self->_vi->cviv.size();
+        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 2.f) / (float) self->_vi->cviv.size() - (CHAIN_HEIGHT + CHAIN_SPACING);
+        //float height_step = height_diff + CHAIN_HEIGHT + CHAIN_SPACING;
+
+        cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
+
         for(const auto& chain: self->_vi->cviv) {
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
-            // todo: Label chain
-            // todo: Draw axes
-            cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
-
-            // cairo_move_to(cairo_canvas,0,0);
-            // cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
-            // cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
-            // cairo_line_to(cairo_canvas, w, h);
-            // cairo_stroke(cairo_canvas);
-
-            // cairo_set_font_size(cairo_canvas,14);
-            // cairo_select_font_face (cairo_canvas, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-            // const char* title = self->_vi->name.c_str();
-            // g_debug("title: %s",title);
-            // cairo_move_to(cairo_canvas,20,20);
-            // cairo_show_text(cairo_canvas, title);
+            // Label chain
+            // Draw axes
+            float axis_y_offset = base_height + CHAIN_SPACING / 2.f;
+            cairo_move_to(cairo_canvas,0, axis_y_offset);
             
-            cairo_destroy(cairo_canvas);
+            cairo_line_to(cairo_canvas, 0, axis_y_offset + CHAIN_HEIGHT + CHAIN_SPACING / 2.f);
+            cairo_stroke(cairo_canvas);
+
+            
+            base_height += CHAIN_HEIGHT + CHAIN_SPACING / 2.f;
+            cairo_move_to(cairo_canvas,0, base_height + CHAIN_SPACING / 2.f);
+            
+            cairo_line_to(cairo_canvas, w, base_height + CHAIN_SPACING / 2.f);
+            cairo_stroke(cairo_canvas);
 
             float base_width = AXIS_MARGIN;
-            base_height += height_step;
             const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
-                float bar_y_offset = base_height + CHAIN_SPACING / 2.f;
+                float bar_y_offset = base_height;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, width_step, bar_height);
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GskRoundedRect outline;
@@ -133,7 +133,10 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
+            base_height += CHAIN_SPACING + height_diff;
         }
+
+        cairo_destroy(cairo_canvas);
     } else {
         // do nothing
     }
