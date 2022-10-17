@@ -27,6 +27,7 @@ class molecules_container_t {
       starting_gru_score_model = 0;
       geometry_init_standard(); // do this by default now
    }
+   static std::atomic<bool> on_going_updating_map_lock;
 
 public:
 
@@ -154,7 +155,7 @@ public:
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol) const;
 
 
-   // -------------------------------- coordinates and map validation ----------------------
+   // -------------------------------- Coordinates and map validation ----------------------
 
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map);
 
@@ -172,16 +173,21 @@ public:
    float get_gru_points_starting_model_geometry_score(int model) const;
    float get_gru_points_starting_map_rmsd(int imol_map) const;
 
-
-   // -------------------------------- Updating Maps ---------------------------------------
-
    // reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
    // so, update your contour lines meshes after calling this function.
    int connect_updating_maps(int imol_model, int imol_map_2fofc, int imol_map_fofc);
+   // call this before calling connect_updating_maps(). Perhaps this should be associated with the model?
+   // (currently we use a map because that is what Coot used before).
+   void associate_data_mtz_file_with_map(int imol, const std::string &data_mtz_file_name,
+                                         const std::string &f_col, const std::string &sigf_col,
+                                         const std::string &free_r_col);
 
-   // call this before calling connect_updating_maps()
-   void associate_data_mtz_file_with_model(int imol, const std::string &data_mtz_file_name,
-                                           const std::string &f_col, const std::string &sigf_col);
+
+   // -------------------------------- Updating Maps ---------------------------------------
+
+   void sfcalc_genmap(int imol_model,
+                      int imol_map_with_data_attached,
+                      int imol_updating_difference_map);
 
    // add these
    //

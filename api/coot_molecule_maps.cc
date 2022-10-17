@@ -35,7 +35,7 @@ coot::molecule_t::is_EM_map() const {
 
    if (has_xmap()) {
       if (is_em_map_cached_flag == 1) { // -1 means unset
-	 ret_is_em = true;
+         ret_is_em = true;
       }
    }
    return ret_is_em;
@@ -48,12 +48,32 @@ coot::molecule_t::is_em_map_cached_state() {
    if (is_em_map_cached_flag == -1) {
 
       if (has_xmap()) { // FIXME - need to test for NXmap too.
-	 bool is_em = is_EM_map();
-	 is_em_map_cached_flag = is_em;
+         bool is_em = is_EM_map();
+         is_em_map_cached_flag = is_em;
       }
    }
    return is_em_map_cached_flag;
 }
+
+void
+coot::molecule_t::set_map_is_difference_map(bool state) {
+   xmap_is_diff_map = state;
+}
+
+void
+coot::molecule_t::associate_data_mtz_file_with_map(const std::string &data_mtz_file_name,
+                                                   const std::string &f_col, const std::string &sigf_col,
+                                                   const std::string &r_free_col) {
+
+   // where should they be stored?
+   refmac_mtz_filename = data_mtz_file_name;
+   refmac_fobs_col     = f_col;
+   refmac_sigfobs_col  = sigf_col;
+   refmac_r_free_col = r_free_col;
+
+}
+
+
 
 void
 coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, float contour_level) {
@@ -185,12 +205,12 @@ coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, flo
 // this function is outside the coot_molecule class
 
 void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_p,
-					       float contour_level, float dy_radius,
-					       coot::Cartesian centre,
-					       int isample_step,
-					       int iream_start, int n_reams,
-					       bool is_em_map,
-					       std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p) {
+                                               float contour_level, float dy_radius,
+                                               coot::Cartesian centre,
+                                               int isample_step,
+                                               int iream_start, int n_reams,
+                                               bool is_em_map,
+                                               std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p) {
 
    try {
       CIsoSurface<float> my_isosurface;
@@ -358,4 +378,193 @@ coot::molecule_t::get_map_rmsd_approx() const {
    float rmsd = std::sqrt(mv.variance);
    return rmsd;
 
+}
+
+bool
+coot::molecule_t::is_difference_map_p() const {
+
+   short int istat = 0;
+   if (is_valid_map_molecule())
+      if (xmap_is_diff_map)
+         istat = 1;
+   return istat;
+}
+
+// Return a pair.
+//
+// If first string of length 0 on error to construct dataname(s).
+std::pair<std::string, std::string>
+coot::molecule_t::make_import_datanames(const std::string &f_col_in,
+                                        const std::string &phi_col_in,
+                                        const std::string &weight_col_in,
+                                        int use_weights) const {
+
+   // If use_weights return 2 strings, else set something useful only for pair.first
+
+   std::string f_col = f_col_in;
+   std::string phi_col = phi_col_in;
+   std::string weight_col = weight_col_in;
+
+#ifdef WINDOWS_MINGW
+   std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
+   std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
+#else
+   std::string::size_type islash_f   =      f_col.find_last_of("/");
+   std::string::size_type islash_phi =    phi_col.find_last_of("/");
+#endif // MINGW
+
+   short int label_error = 0;
+
+   if (islash_f != std::string::npos) {
+      // f_col is of form e.g. xxx/yyy/FWT
+      if (f_col.length() > islash_f)
+         f_col = f_col.substr(islash_f+1);
+      else
+         label_error = 1;
+   }
+
+   if (islash_phi != std::string::npos) {
+      // phi_col is of form e.g. xxx/yyy/PHWT
+      if (phi_col.length() > islash_phi)
+         phi_col = phi_col.substr(islash_phi+1);
+      else
+         label_error = 1;
+   }
+
+   if (use_weights) {
+      std::string::size_type islash_fom = weight_col.find_last_of("/");
+      if (islash_fom != std::string::npos) {
+         // weight_col is of form e.g. xxx/yyy/WT
+         if (weight_col.length() > islash_fom)
+            weight_col = weight_col.substr(islash_fom+1);
+         else
+            label_error = 1;
+      }
+   }
+
+
+   std::pair<std::string, std::string> p("", "");
+
+   if (!label_error) {
+      std::string no_xtal_dataset_prefix= "/*/*/";
+      if (use_weights) {
+         p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+         p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+      } else {
+         p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+      }
+   }
+   return p;
+}
+
+
+
+#include "clipper/ccp4/ccp4_mtz_io.h"
+#include "clipper/cns/cns_hkl_io.h"
+#include "clipper/cns/cns_map_io.h"
+#include "clipper/core/hkl_compute.h"
+#include "clipper/core/map_utils.h" // Map_stats
+#include "clipper/core/resol_basisfn.h"
+#include "clipper/core/resol_targetfn.h"
+#include "clipper/mmdb/clipper_mmdb.h"
+#include "clipper/clipper-phs.h"
+#include "clipper/contrib/sfcalc_obs.h"
+#include "clipper/contrib/sfscale.h"
+#include "clipper/contrib/sfweight.h"
+
+void
+coot::molecule_t::fill_fobs_sigfobs() {
+
+   // set original_fobs_sigfobs_filled when done
+
+   bool have_sensible_refmac_params = true; // 20221016-PE need to be set properly!
+
+   if (have_sensible_refmac_params) {
+
+      std::cout << "debug:: in fill_fobs_sigfobs() with original_fobs_sigfobs_filled " << original_fobs_sigfobs_filled
+                << " original_fobs_sigfobs_fill_tried_and_failed " << original_fobs_sigfobs_fill_tried_and_failed
+                << std::endl;
+
+      // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
+      // already contains data, then crashiness.
+      //
+
+      if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
+
+         auto tp_0 = std::chrono::high_resolution_clock::now();
+
+         try {
+
+            std::pair<std::string, std::string> p = make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+            clipper::CCP4MTZfile *mtzin_p = new clipper::CCP4MTZfile; // original_fobs_sigfobs contains a pointer to
+                                                                      // a cell in the crystals vector of a CCP4MTZfile.
+                                                                      // The CCP4MTZfile goes out of score and takes
+                                                                      // the crystal vector with it.
+                                                                      // crystals is a vector of crystalinfo, which
+                                                                      // is a structure that contains a MTZcrystal
+                                                                      // which inherits from a Cell
+                                                                      // Or something like that. ccp4_mtz_types.h,
+                                                                      // ccp4_mtz_io.h and ccp4_mtz_io.cpp ::import_hkldata().
+                                                                      // Anyway, something seems to go out of scope when
+                                                                      // the molecule vector is resized. So
+                                                                      // regenerate original_fobs_sigfobs from
+                                                                      // the mtz file every time we need them.
+                                                                      // This leak memory.  Meh... but better than
+                                                                      // crashing. Likewise mtzin_p for R-free.
+                                                                      // (20 each ms for RNAse dataset). 20210816-PE
+
+                                                                      // Later note: now that original_fobs_sigfobs is a pointer
+                                                                      // I probably don't need to mtzin object to be pointers.
+
+            original_fobs_sigfobs_p = new clipper::HKL_data< clipper::datatypes::F_sigF<float> >;
+            original_r_free_flags_p = new clipper::HKL_data< clipper::data32::Flag>;
+
+            mtzin_p->open_read(Refmac_mtz_filename());
+            mtzin_p->import_hkl_data(*original_fobs_sigfobs_p, p.first);
+            mtzin_p->close_read();
+            std::cout << "INFO:: fill_fobs_sigfobs(): reading " << Refmac_mtz_filename() << " provided "
+                      << original_fobs_sigfobs_p->num_obs() << " data using data name: "
+                      << p.first << std::endl;
+            if (original_fobs_sigfobs_p->num_obs() > 10)
+               original_fobs_sigfobs_filled = 1;
+            else
+               original_fobs_sigfobs_fill_tried_and_failed = true;
+
+            // flags
+
+            if (refmac_r_free_flag_sensible) {
+               std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+               // if refmac_r_free_col already has /x/y/Rfree - use that instead
+               if (refmac_r_free_col.length() > 0) {
+                  if (refmac_r_free_col[0] == '/') {
+                     dataname = refmac_r_free_col;
+                     dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
+                  }
+               }
+               std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               clipper::CCP4MTZfile *mtzin_rfree_p = new clipper::CCP4MTZfile;
+               mtzin_rfree_p->open_read(Refmac_mtz_filename());
+               mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
+               mtzin_rfree_p->close_read();
+
+               std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
+                         << original_r_free_flags_p->num_obs() << " R-free flags\n";
+            } else {
+               std::cout << "INFO:: no sensible R-free flag column label\n";
+            }
+         }
+         catch (const clipper::Message_fatal &m) {
+            std::cout << "ERROR:: bad columns " << m.text() << std::endl;
+            have_sensible_refmac_params = false;
+            original_fobs_sigfobs_filled = false;
+            original_fobs_sigfobs_fill_tried_and_failed = true;
+         }
+
+         auto tp_1 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
+      }
+   } else {
+      std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
+   }
 }

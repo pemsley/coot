@@ -8,6 +8,9 @@
 #include "coords/Bond_lines.h"
 #include "oct.hh"
 
+std::atomic<bool> molecules_container_t::on_going_updating_map_lock(false);
+
+
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {
    bool status = false;
@@ -117,7 +120,6 @@ molecules_container_t::flip_peptide_using_cid(int imol, const std::string &cid, 
    if (is_valid_model_molecule(imol)) {
       auto &m = molecules[imol];
       std::pair<bool, coot::residue_spec_t> rs = m.cid_to_residue_spec(cid);
-      std::cout << "::::::::::: debug:: cid_to_residue_spec() return " << rs.first << " " << rs.second << std::endl;
       if (rs.first)
          result = molecules[imol].flip_peptide(rs.second, alt_conf);
    }
@@ -151,9 +153,12 @@ molecules_container_t::read_mtz(const std::string &file_name,
 
    coot::molecule_t m;
    bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, is_a_difference_map);
+   if (is_a_difference_map)
+      m.set_map_is_difference_map(true);
    if (status) {
       molecules.push_back(m);
       imol = molecules.size() -1;
+      std::cout << "################### imol map " << imol << " diff-map-satus " << is_a_difference_map << std::endl;
    }
    return imol;
 }
@@ -583,3 +588,74 @@ molecules_container_t::add_terminal_residue(int imol, const std::string &chain_i
    return std::make_pair(status, message);
 
 }
+
+
+// call this before calling connect_updating_maps()
+void
+molecules_container_t::associate_data_mtz_file_with_map(int imol_map, const std::string &data_mtz_file_name,
+                                                        const std::string &f_col, const std::string &sigf_col,
+                                                        const std::string &free_r_col) {
+   if (is_valid_map_molecule(imol_map)) {
+      molecules[imol_map].associate_data_mtz_file_with_map(data_mtz_file_name, f_col, sigf_col, free_r_col);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+   }
+}
+
+/*! \brief Calculate structure factors from the model and update the given difference
+           map accordingly */
+
+// copied from:
+// void
+// graphics_info_t::sfcalc_genmap(int imol_model,
+//                                int imol_map_with_data_attached,
+//                                int imol_updating_difference_map) {
+void
+molecules_container_t::sfcalc_genmap(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     int imol_updating_difference_map) {
+
+   // I am keen for this function to be fast - so that it can be used with cryo-EM structures
+   //
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         if (true) {
+            if (is_valid_map_molecule(imol_updating_difference_map)) {
+               if (molecules[imol_updating_difference_map].is_difference_map_p()) {
+                  clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
+                  try {
+                     if (! on_going_updating_map_lock) {
+                        on_going_updating_map_lock = true;
+                        molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::F_sigF> *fobs_data =
+                           molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::Flag> *free_flag =
+                           molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                        if (fobs_data && free_flag) {
+                           molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
+                        } else {
+                           std::cout << "sfcalc_genmap() either fobs_data or free_flag were not set " << std::endl;
+                        }
+                        on_going_updating_map_lock = false;
+                     } else {
+                        std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+                     }
+                  }
+                  catch (const std::runtime_error &rte) {
+                     std::cout << rte.what() << std::endl;
+                  }
+               } else {
+                  std::cout << "sfcalc_genmap() not a valid difference map " << imol_updating_difference_map << std::endl;
+               }
+            } else {
+               std::cout << "sfcalc_genmap() not a valid map (diff) " << imol_updating_difference_map << std::endl;
+            }
+         }
+      } else {
+         std::cout << "sfcalc_genmap() not a valid map " << imol_map_with_data_attached << std::endl;
+      }
+   } else {
+      std::cout << "sfcalc_genmap() not a valid model " << imol_model << std::endl;
+   }
+}
+

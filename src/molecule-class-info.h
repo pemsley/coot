@@ -2410,7 +2410,7 @@ public:        //                      public
 
    //
    void set_map_is_difference_map(bool flag);
-   short int is_difference_map_p() const;
+   bool is_difference_map_p() const;
 
 
    // Scripting Refinement:

@@ -6615,7 +6615,6 @@ graphics_info_t::set_merge_molecules_ligand_spec(const coot::residue_spec_t &spe
 /*! \brief Calculate structure factors from the model and update the given difference
            map accordingly */
 void
-
 graphics_info_t::sfcalc_genmap(int imol_model,
                                int imol_map_with_data_attached,
                                int imol_updating_difference_map) {

@@ -1662,3 +1662,99 @@ coot::molecule_t::non_standard_residue_types_in_model() const {
    return v;
 }
 
+int
+coot::molecule_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                const clipper::HKL_data<clipper::data32::Flag> &free,
+                                clipper::Xmap<float> *xmap_p) {
+
+   bool sane = sanity_check_atoms(atom_sel.mol);
+
+   if (sane) {
+      coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+   } else {
+      std::cout << "ERROR:: coordinates were not sane" << std::endl;
+   }
+   return 0;
+}
+
+coot::util::sfcalc_genmap_stats_t
+coot::molecule_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                                         const clipper::HKL_data<clipper::data32::Flag> &free,
+                                                         clipper::Xmap<float> *xmap_2fofc_p,
+                                                         clipper::Xmap<float> *xmap_fofc_p) {
+
+   coot::util::sfcalc_genmap_stats_t stats;
+   bool sane = sanity_check_atoms(atom_sel.mol);
+   if (sane) {
+
+      clipper::Cell cell = xmap_2fofc_p->cell();
+      if (true) {
+         // sanity check data
+         const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
+         const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+
+         std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                   << "cell: " << hkls_check.cell().format() << " "
+                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                   << "resolution: " << hkls_check.resolution().limit() << " "
+                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                   << std::endl;
+      }
+
+      stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
+
+      // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
+      std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
+      std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
+      std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
+      std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+
+   } else {
+      std::cout << "ERROR:: coordinates were not sane" << std::endl;
+   }
+   return stats;
+}
+
+bool
+coot::molecule_t::sanity_check_atoms(mmdb::Manager *mol) const {
+
+   bool sane = true;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) {
+         std::cout << "ERROR:: Bad model " << imod << std::endl;
+         sane = false;
+      } else {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (! chain_p) {
+               std::cout << "ERROR:: Bad chain with index " << ichain << "  in model "
+                         << imod << std::endl;
+               sane = false;
+            } else {
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (! residue_p) {
+                     std::cout << "ERROR:: Bad residue with index " << ires << "  in chain "
+                               << chain_p->GetChainID() << std::endl;
+                     sane = false;
+                  } else {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at) {
+                           std::cout << "ERROR:: Bad atom with index " << iat << "  in residue "
+                                     << coot::residue_spec_t(residue_p) << std::endl;
+                           sane = false;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return sane;
+}

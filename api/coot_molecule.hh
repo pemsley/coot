@@ -106,6 +106,17 @@ namespace coot {
       bool xmap_is_diff_map;
       bool has_xmap() const { return is_valid_map_molecule(); }
 
+      // save the data used for the fourier, so that we can use it to
+      // sharpen the map:
+      // uncommenting the following line causes a crash in the multi-molecule
+      // (expand molecule space) test.
+      bool original_fphis_filled;
+      bool original_fobs_sigfobs_filled;
+      bool original_fobs_sigfobs_fill_tried_and_failed;
+      clipper::HKL_data< clipper::datatypes::F_phi<float> >  *original_fphis_p;
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> > *original_fobs_sigfobs_p;
+      clipper::HKL_data< clipper::data32::Flag> *original_r_free_flags_p;
+
       void clear_draw_vecs();
       void clear_diff_map_draw_vecs();
       std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
@@ -154,18 +165,7 @@ namespace coot {
       void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
       void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
-      // use this molecules mol and the passed data to make a map for some other
-      // molecule
-      int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
-                        const clipper::HKL_data<clipper::data32::Flag> &free,
-                        clipper::Xmap<float> *xmap_p);
-      coot::util::sfcalc_genmap_stats_t
-      sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
-                                        const clipper::HKL_data<clipper::data32::Flag> &free,
-                                        clipper::Xmap<float> *xmap_2fofc_p,
-                                        clipper::Xmap<float> *xmap_fofc_p);
-      void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
-      bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
+      bool sanity_check_atoms(mmdb::Manager *mol) const; // sfcalc_genmap crashes after merge of ligand.
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
 
@@ -187,6 +187,53 @@ namespace coot {
                                             99999.9, 0.0, false, false);
       }
 
+      void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
+      // used to be a const ref. Now return the whole thing!. Caller must call
+      // fill_fobs_sigfobs() directly before using this function - meh, not a good API.
+      // Return a *pointer* to the data so that we don't get this hideous non-reproducable
+      // crash when we access this data item after the moelcule vector has been resized
+      // 20210816-PE.
+      clipper::HKL_data<clipper::data32::F_sigF> *get_original_fobs_sigfobs() const {
+         if (!original_fobs_sigfobs_filled) {
+            std::string m("Original Fobs/sigFobs is not filled");
+            throw(std::runtime_error(m));
+         }
+         return original_fobs_sigfobs_p;
+      }
+
+      clipper::HKL_data<clipper::data32::Flag> *get_original_rfree_flags() const {
+         if (!original_fobs_sigfobs_filled) {
+            std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
+            throw(std::runtime_error(m));
+         }
+         return original_r_free_flags_p;
+      }
+      // use this molecules mol and the passed data to make a map for some other
+      // molecule
+      int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                        const clipper::HKL_data<clipper::data32::Flag> &free,
+                        clipper::Xmap<float> *xmap_p);
+      coot::util::sfcalc_genmap_stats_t
+      sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                        const clipper::HKL_data<clipper::data32::Flag> &free,
+                                        clipper::Xmap<float> *xmap_2fofc_p,
+                                        clipper::Xmap<float> *xmap_fofc_p);
+      // String munging helper function (for reading mtz files).
+      // Return a pair.first string of length 0 on error to construct dataname(s).
+      std::pair<std::string, std::string> make_import_datanames(const std::string &fcol,
+                                                                const std::string &phi_col,
+                                                                const std::string &weight_col,
+                                                                int use_weights) const;
+      // make these private?
+      std::string refmac_fobs_col;
+      std::string refmac_sigfobs_col;
+      std::string refmac_mtz_filename;
+      std::string refmac_r_free_col;
+      std::string Refmac_fobs_col() const { return refmac_fobs_col; }
+      std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
+      std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }
+      int refmac_r_free_flag_sensible;
+
       void init() { // add imol_no here?
          bonds_box_type = UNSET_TYPE;
          is_em_map_cached_flag = false;
@@ -195,6 +242,10 @@ namespace coot {
          show_symmetry = false;
          default_temperature_factor_for_new_atoms = 20.0;
       }
+
+      void associate_data_mtz_file_with_map(const std::string &data_mtz_file_name,
+                                            const std::string &f_col, const std::string &sigf_col,
+                                            const std::string &r_free_col);
 
       clipper::Xmap<float> xmap; // public because the filling function needs access
 
@@ -253,6 +304,8 @@ namespace coot {
       // map functions, return -1.1 on not-a-map
       float get_map_rmsd_approx() const;
       int writeMap(const std::string &file_name) const;
+      void set_map_is_difference_map(bool flag);
+      bool is_difference_map_p() const;
 
       // changes the internal map mesh holder (hence not const)
       coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);

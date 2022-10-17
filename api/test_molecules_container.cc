@@ -60,16 +60,13 @@ int test_pepflips(molecules_container_t &mc) {
    // A 14, 18, 20, 49
    //
    std::vector<coot::residue_spec_t> residues_for_flipping;
-   std::vector<int> res_nos = {13, 18, 20, 49};
+   std::vector<int> res_nos = {14, 18, 20, 49};
    for (const auto &rn : res_nos) {
       coot::residue_spec_t rs("A", rn, "");
       residues_for_flipping.push_back(rs);
    }
 
    int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   int imol_map = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "FWT", "PHWT", "W", false, false);
-
-   float rmsd_diff_map_1 = mc.get_map_rmsd_approx(imol_map);
 
    unsigned int n_flipped = 0;
    for (const auto &res_spec : residues_for_flipping) {
@@ -86,6 +83,10 @@ int test_pepflips(molecules_container_t &mc) {
          }
       }
    }
+
+   // This flip A100 is OK to begin with so flipping it sould make the GruPoints
+   // worse - and it does.
+
    if (n_flipped == res_nos.size()) {
 
       std::string residue_cid = "//A/100";
@@ -106,18 +107,50 @@ int test_pepflips(molecules_container_t &mc) {
          }
       }
    }
+   return status;
+}
 
+int test_updating_maps(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol_map      = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "FWT",    "PHWT",    "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   mc.associate_data_mtz_file_with_map(imol_map, reference_data("gideondoesntapprove.mtz"), "F", "SIGF", "FREER");
+   mc.sfcalc_genmap(imol, imol_map, imol_diff_map); // set to the clipper map, overwritigng the refmac map
+   float rmsd_diff_map_1 = mc.get_map_rmsd_approx(imol_diff_map);
+
+   std::string residue_cid = "//A/14";
+   auto rs = mc.residue_cid_to_residue_spec(imol, residue_cid);
+   if (! rs.empty()) {
+      const auto &res_spec = rs;
+      coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
+      mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+      if (at) {
+         coot::Cartesian pt_1(at->x, at->y, at->z);
+         mc.flip_peptide_using_cid(imol, residue_cid, "");
+         coot::Cartesian pt_2(at->x, at->y, at->z);
+         double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
+         double d = std::sqrt(dd);
+         if (d > 3.0) {
+            status = 1;
+         }
+      }
+   }
 
    // 20221016-PE now update the maps!
-
-   float rmsd_diff_map_2 = mc.get_map_rmsd_approx(imol_map);
-
-   std::cout << "rmsd_diff_map_1 " << rmsd_diff_map_1 << " rmsd_diff_map_2 " << rmsd_diff_map_2 << std::endl;
-
+   mc.sfcalc_genmap(imol, imol_map, imol_diff_map);
+   float rmsd_diff_map_2 = mc.get_map_rmsd_approx(imol_diff_map);
+   std::cout << "test_updating_maps(): rmsd_diff_map_1 " << rmsd_diff_map_1 << " rmsd_diff_map_2 " << rmsd_diff_map_2 << std::endl;
+   float rmsd_diff = rmsd_diff_map_1 - rmsd_diff_map_2;
+   std::cout << "###### GruPoints gained: " << 10000.0 * rmsd_diff << std::endl;
 
    return status;
 
 }
+
 
 int test_rama_mesh(molecules_container_t &mc)  {
 
@@ -202,10 +235,14 @@ int main(int argc, char **argv) {
    // --- pepflips
    status += run_test(test_pepflips, "pepflips", mc);
 
+   // --- updating maps
+   status += run_test(test_updating_maps, "updating maps", mc);
+
    // add a test for:
    // delete_atom
    // delete_atoms
    // delete_residue
+   // undo and redo
    // rsr triple
 
    int all_tests_status = 1;
