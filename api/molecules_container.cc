@@ -35,6 +35,15 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+void
+molecules_container_t::display_molecule_names_table() const {
+
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
+      std::cout << imol << " " << std::setw(40) << molecules[imol].get_name() << std::endl;
+   }
+
+}
+
 coot::atom_spec_t
 molecules_container_t::atom_cid_to_atom_spec(int imol, const std::string &cid) const {
 
@@ -136,7 +145,7 @@ molecules_container_t::read_pdb(const std::string &file_name) {
       // 20221011-PE this constructor doesn't (at the moment) call make_bonds(). I
       // don't know if that is a good idea.
       int imol = molecules.size();
-      coot::molecule_t m = coot::molecule_t(asc, imol);
+      coot::molecule_t m = coot::molecule_t(asc, imol, file_name);
       // m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
       molecules.push_back(m);
       status = imol;
@@ -145,20 +154,34 @@ molecules_container_t::read_pdb(const std::string &file_name) {
 }
 
 int
+molecules_container_t::write_coordinates(int imol, const std::string &file_name) const {
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].write_coordinates(file_name);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
+int
 molecules_container_t::read_mtz(const std::string &file_name,
                                 const std::string &f, const std::string &phi, const std::string &weight,
                                 bool use_weight, bool is_a_difference_map) {
 
-   int imol = -1;
+   int imol = -1; // currently unset
+   int imol_in_hope = molecules.size();
 
-   coot::molecule_t m;
+   std::string name_in = file_name + std::string(" ") + std::string(f) + std::string(" ") + std::string(phi);
+   coot::molecule_t m(name_in, imol_in_hope);
    bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, is_a_difference_map);
    if (is_a_difference_map)
       m.set_map_is_difference_map(true);
    if (status) {
       molecules.push_back(m);
-      imol = molecules.size() -1;
-      std::cout << "################### imol map " << imol << " diff-map-satus " << is_a_difference_map << std::endl;
+      std::cout << "DEBUG:: in read_mtz() imol map: " << imol << " diff-map-status: " << is_a_difference_map << std::endl;
+      imol = imol_in_hope;
    }
    return imol;
 }
@@ -427,7 +450,9 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
 
    coot::simple_mesh_t mesh;
    try {
+      std::cout << ".................. here A in get_map_contours_mesh() " << imol << std::endl;
       if (is_valid_map_molecule(imol)) {
+         std::cout << ".................. here B in get_map_contours_mesh() " << imol << std::endl;
          clipper::Coord_orth position(position_x, position_y, position_z);
          mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
       }
@@ -589,13 +614,12 @@ molecules_container_t::add_terminal_residue(int imol, const std::string &chain_i
 
 }
 
-
-// call this before calling connect_updating_maps()
 void
 molecules_container_t::associate_data_mtz_file_with_map(int imol_map, const std::string &data_mtz_file_name,
                                                         const std::string &f_col, const std::string &sigf_col,
                                                         const std::string &free_r_col) {
    if (is_valid_map_molecule(imol_map)) {
+      // 20221018-PE if free_r_col is not valid then Coot will (currently) crash on the structure factor calculation
       molecules[imol_map].associate_data_mtz_file_with_map(data_mtz_file_name, f_col, sigf_col, free_r_col);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;

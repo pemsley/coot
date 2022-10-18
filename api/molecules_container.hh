@@ -17,6 +17,8 @@ class molecules_container_t {
    coot::protein_geometry geom;
    coot::rotamer_probability_tables rot_prob_tables;
    ramachandrans_container_t ramachandrans_container;
+   static std::atomic<bool> on_going_updating_map_lock;
+
    class gru_points_t {
    public:
       int model_gru_points_delta; // for the latest change, I mean
@@ -49,7 +51,6 @@ class molecules_container_t {
       imol_difference_map = -1;
       geometry_init_standard(); // do this by default now
    }
-   static std::atomic<bool> on_going_updating_map_lock;
 
 public:
 
@@ -84,7 +85,10 @@ public:
          }
          tables_dir += "/rama-data";
          rot_prob_tables.set_tables_dir(tables_dir);
-         rot_prob_tables.fill_tables();
+         bool ignore_lys_and_arg_flag = true; // 20221018-PE remove this flag when rotamer probabiity
+                                              // tables are read from a binary file (and is fast enough
+                                              // to include lys and arg).
+         rot_prob_tables.fill_tables(ignore_lys_and_arg_flag);
       }
    }
 
@@ -105,6 +109,7 @@ public:
    }
    // -------------------------------- generic utils -----------------------------------
 
+   void display_molecule_names_table() const;
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;
 
@@ -116,6 +121,7 @@ public:
    // -------------------------------- coordinates utils -----------------------------------
 
    int read_pdb(const std::string &file_name);
+   int write_coordinates(int imol, const std::string &file_name) const;
 
    // returns either the specified atom or null if not found
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
@@ -128,6 +134,7 @@ public:
 
    // -------------------------------- map utils -------------------------------------------
 
+   // return the imol for the new molecule
    int read_mtz(const std::string &file_name, const std::string &f, const std::string &phi, const std::string &weight,
                 bool use_weight, bool is_a_difference_map);
    int writeMap(int imol, const std::string &file_name) const;

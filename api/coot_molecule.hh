@@ -39,11 +39,16 @@ namespace coot {
 
       class molecule_save_info_t {
       public:
-         std::pair<time_t, unsigned int> last_saved;
-         unsigned int modification_index;
-         molecule_save_info_t() : last_saved(std::make_pair(0,0)), modification_index(0) {}
+         // ints because we subtract from them.
+         std::pair<time_t, int> last_saved;
+         int modification_index;
+         int max_modification_index;
+         molecule_save_info_t() : last_saved(std::make_pair(0,0)), modification_index(0),
+                                  max_modification_index(0) {}
          void new_modification() {
             modification_index++;
+            if (modification_index > max_modification_index)
+               max_modification_index = modification_index;
          }
          void made_a_save() {
             // this is called when the server says that it has saved the file
@@ -55,6 +60,18 @@ namespace coot {
          }
          std::string index_string() const {
             return std::to_string(modification_index);
+         }
+         void set_modification_index(int idx) {
+            // undo() and redo() (acutally restore_from_backup()) use this.
+            // the index is the idx number given to restore_from_backup() by
+            // the functions below
+            modification_index = idx;
+         }
+         int get_previous_modification_index() const {
+            return modification_index - 1;
+         }
+         int get_next_modification_index() const {
+            return modification_index + 1;
          }
       };
 
@@ -149,10 +166,10 @@ namespace coot {
       void save_history_file_name(const std::string &file);
       std::vector<std::string> history_filename_vec;
       std::string save_time_string;
-      void restore_from_backup(int history_offset, const std::string &cwd);
+      void restore_from_backup(int mod_index, const std::string &cwd);
 
       // ====================== SHELX stuff ======================================
-      std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);
+      std::pair<int, std::string> write_shelx_ins_file(const std::string &filename) const;
       int read_shelx_ins_file(const std::string &filename);
       // return the success status, 0 for fail, 1 for good.
       int add_shelx_string_to_molecule(const std::string &str);
@@ -169,7 +186,22 @@ namespace coot {
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
 
-      
+      void init() { // add imol_no here?
+         imol_no = -1; // unset
+         bonds_box_type = UNSET_TYPE;
+         is_em_map_cached_flag = false;
+         xmap_is_diff_map = false;
+         is_from_shelx_ins_flag = false;
+         show_symmetry = false;
+         default_temperature_factor_for_new_atoms = 20.0;
+         original_fphis_filled = false;
+         original_fobs_sigfobs_filled = false;
+         original_fobs_sigfobs_fill_tried_and_failed = false;
+         original_fphis_p = nullptr;
+         original_fobs_sigfobs_p = nullptr;
+         original_r_free_flags_p = nullptr;
+         refmac_r_free_flag_sensible = false;
+      }
 
    public:
 
@@ -177,8 +209,8 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
-      molecule_t() {}
-      explicit molecule_t(atom_selection_container_t asc, int imol_no_in) : atom_sel(asc) {
+      molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) { init(); imol_no = mol_no_in; }
+      explicit molecule_t(atom_selection_container_t asc, int imol_no_in, const std::string &name_in) : name(name_in), atom_sel(asc) {
          init();
          imol_no = imol_no_in;
          default_temperature_factor_for_new_atoms =
@@ -186,6 +218,8 @@ namespace coot {
                                             atom_sel.n_selected_atoms,
                                             99999.9, 0.0, false, false);
       }
+
+      // ----------------------- structure factor stuff ------------------------------------------------------
 
       void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
       // used to be a const ref. Now return the whole thing!. Caller must call
@@ -232,27 +266,20 @@ namespace coot {
       std::string Refmac_fobs_col() const { return refmac_fobs_col; }
       std::string Refmac_sigfobs_col() const { return refmac_sigfobs_col; }
       std::string Refmac_mtz_filename() const { return refmac_mtz_filename; }
-      int refmac_r_free_flag_sensible;
-
-      void init() { // add imol_no here?
-         bonds_box_type = UNSET_TYPE;
-         is_em_map_cached_flag = false;
-         xmap_is_diff_map = false;
-         is_from_shelx_ins_flag = false;
-         show_symmetry = false;
-         default_temperature_factor_for_new_atoms = 20.0;
-      }
+      bool refmac_r_free_flag_sensible;
 
       void associate_data_mtz_file_with_map(const std::string &data_mtz_file_name,
                                             const std::string &f_col, const std::string &sigf_col,
                                             const std::string &r_free_col);
+
+      // ----------------------- xmap
 
       clipper::Xmap<float> xmap; // public because the filling function needs access
 
       // public access to the lock (from threads)
       static std::atomic<bool> draw_vector_sets_lock;
 
-      // utils
+      // ----------------------- utils
 
       std::string get_name() const { return name; }
       int get_molecule_index() const { return imol_no; }
@@ -262,7 +289,7 @@ namespace coot {
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
 
-      // model utils
+      // ----------------------- model utils
 
       // public
       void make_bonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p);
@@ -272,10 +299,11 @@ namespace coot {
       mmdb::Residue *get_residue(const coot::residue_spec_t &residue_spec) const;
 
       bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
-      int undo();
-      int redo();
+      int undo(); // 20221018-PE return status not yet useful
+      int redo(); // likewise
+      int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
 
-      // model analysis functions
+      // ----------------------- model analysis functions
 
       std::vector<std::string> non_standard_residue_types_in_model() const;
       std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;

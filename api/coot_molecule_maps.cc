@@ -70,6 +70,11 @@ coot::molecule_t::associate_data_mtz_file_with_map(const std::string &data_mtz_f
    refmac_fobs_col     = f_col;
    refmac_sigfobs_col  = sigf_col;
    refmac_r_free_col = r_free_col;
+   refmac_r_free_flag_sensible = true; // don't call this function unless this is true
+                                       // ideally, this should be tested. sfcalc_genmaps_using_bulk_solvent()
+                                       // crashes if this flag is not set true.
+                                       // (that's not ideal, just to be clear) - it is however the current
+                                       // state of things.
 
 }
 
@@ -301,6 +306,9 @@ coot::molecule_t::clear_diff_map_draw_vecs() {
 
 coot::simple_mesh_t
 coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) {
+
+
+   std::cout << "!!! ######################################### get_map_contours_mesh() for imol " << imol_no << std::endl;
 
    auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
       return glm::vec3(co.x(), co.y(), co.z());

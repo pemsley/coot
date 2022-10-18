@@ -115,12 +115,14 @@ int test_updating_maps(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol =        mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
    int imol_map      = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "FWT",    "PHWT",    "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("gideondoesntapprove.mtz"), "F", "SIGF", "FREER");
 
-    // set to the clipper map, overwriting the refmac map.
+   mc.display_molecule_names_table();
+
+   // set to the clipper map, overwriting the refmac map.
    //
    mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map);
    // After you have changed maps the firs time, add a starting point for the gru score:
@@ -152,8 +154,48 @@ int test_updating_maps(molecules_container_t &mc) {
 
 }
 
+int test_undo_and_redo(molecules_container_t &mc) {
 
-int test_rama_mesh(molecules_container_t &mc)  {
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   std::string residue_cid = "//A/14";
+   coot::atom_spec_t atom_spec("A", 14, "", " O  ", "");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+   mc.flip_peptide_using_cid(imol, residue_cid, "");
+   coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
+   mc.undo(imol); // deletes atoms so now at_1 is out of date
+   mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+   coot::Cartesian pt_3(at_2->x, at_2->y, at_2->z);
+
+   double dd_1 = coot::Cartesian::lengthsq(pt_1, pt_2);
+   double dd_2 = coot::Cartesian::lengthsq(pt_1, pt_3);
+   double d_1 = std::sqrt(dd_1);
+   double d_2 = std::sqrt(dd_2);
+
+   std::cout << "test_undo(): debug distances " << d_1 << " " << d_2 << std::endl;
+   if (d_1 > 3.0) {
+      if (d_2 < 0.01) {
+
+         // now let's test redo
+         mc.redo(imol); // deletes atoms so now at_1 is out of date
+         mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
+         coot::Cartesian pt_4(at_3->x, at_3->y, at_3->z);
+         // modified and redone should be the same:
+         double dd_3 = coot::Cartesian::lengthsq(pt_2, pt_4);
+         double d_3 = std::sqrt(dd_3);
+         std::cout << "test_undo(): debug distance d3 " << d_3 << std::endl;
+         if (d_3 < 0.01)
+            status = 1;
+      }
+   }
+   return status;
+}
+
+
+int test_rama_balls_mesh(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -185,13 +227,16 @@ int test_density_mesh(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+   // this could be any mtz file I suppose
    int imol_map = mc.read_mtz("rnasa-1.8-all_refmac1.mtz", "FWT", "PHWT", "W", false, false);
+
+   std::cout << "................ test_density_mesh imol_map is " << imol_map << std::endl;
 
    clipper::Coord_orth p(55, 10, 10);
    float radius = 12;
    float contour_level = 0.13;
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-   std::cout << "density mesh: " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+   std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
 
    if (map_mesh.vertices.size() > 30000)
@@ -221,11 +266,12 @@ int main(int argc, char **argv) {
    int status = 0;
 
    molecules_container_t mc;
-   mc.geometry_init_standard();
+
+#if 1
    mc.fill_rotamer_probability_tables();
 
    // --- rama mesh
-   status += run_test(test_rama_mesh, "rama mesh", mc);
+   status += run_test(test_rama_balls_mesh, "rama balls mesh", mc);
 
    // --- density mesh
    status += run_test(test_density_mesh, "density mesh", mc);
@@ -238,6 +284,10 @@ int main(int argc, char **argv) {
 
    // --- updating maps
    status += run_test(test_updating_maps, "updating maps", mc);
+#endif
+
+   // --- undo
+   status += run_test(test_undo_and_redo, "undo and redo", mc);
 
    // add a test for:
    // delete_atom

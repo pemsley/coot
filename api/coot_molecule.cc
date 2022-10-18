@@ -74,10 +74,49 @@ coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
    return std::make_pair(status, atom_spec);
 }
 
+
+// restore from (previous) backup
+void
+coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
+
+   if (false)
+      std::cout << "debug:: restore_from_backup() requested mod_index: " << mod_index
+                << " history size: " << history_filename_vec.size() << std::endl;
+
+   if (history_filename_vec.empty()) {
+      std::cout << "ERROR:: in restore_from_backup(): empty history_filename_vec " << std::endl;
+      return;
+   }
+
+   if (mod_index >= int(history_filename_vec.size())) {
+      std::cout << "ERROR:: in restore_from_backup(): bad mod_index " << mod_index << std::endl;
+      return;
+   }
+   if (mod_index < 0) {
+      std::cout << "ERROR:: in restore_from_backup(): bad mod_index " << mod_index << std::endl;
+      return;
+   }
+
+   std::string file_name = history_filename_vec[mod_index];
+   atom_selection_container_t asc = get_atom_selection(file_name);
+   if (asc.read_success) {
+      save_info.set_modification_index(mod_index);
+      atom_sel.clear_up();
+      atom_sel = asc;
+      // 20221018-PE no bond regeneration, maybe there should be?
+   }
+
+}
+
 int
 coot::molecule_t::undo() {
-   int status = 0;
 
+   make_backup();
+   int status = 0;
+   std::string cwd = coot::util::current_working_dir();
+   int prev_mod_index = save_info.get_previous_modification_index();
+   // std::cout << ":::::::::::::::: undo requests prev_mod_index " << prev_mod_index << std::endl;
+   restore_from_backup(prev_mod_index, cwd);
    return status;
 }
 
@@ -85,16 +124,35 @@ int
 coot::molecule_t::redo() {
 
    int status = 0;
-
+   std::string cwd = coot::util::current_working_dir();
+   int mod_index = save_info.get_next_modification_index();
+   // std::cout << ":::::::::::::::: redo requests mod_index " << mod_index << std::endl;
+   restore_from_backup(mod_index, cwd);
    return status;
+}
+
+int
+coot::molecule_t::write_coordinates(const std::string &file_name) const {
+
+   int err = 1;
+   if (atom_sel.n_selected_atoms > 0) {
+      std::string ext = coot::util::file_name_extension(file_name);
+      if (coot::util::extension_is_for_shelx_coords(ext)) {
+         write_shelx_ins_file(file_name);
+      } else {
+         mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
+         err = coot::write_coords_pdb(atom_sel.mol, file_name);
+      }
+   }
+   return err;
 }
 
 std::string
 coot::molecule_t::name_for_display_manager() const {
 
-   bool show_paths_in_display_manager_flag = false;
-
    std::string s("");
+
+   bool show_paths_in_display_manager_flag = false;
    if (show_paths_in_display_manager_flag) {
       s = name;
    } else {
@@ -238,6 +296,11 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
 std::string
 coot::molecule_t::make_backup() {
 
+   if (false) {
+      std::cout << "start make_backup() for molecule " << imol_no << std::endl;
+      std::cout << "start make_backup() for molecule with " << atom_sel.n_selected_atoms << " atoms " << std::endl;
+   }
+
    // nothing done yet.
 
    std::string info_message;
@@ -274,7 +337,6 @@ coot::molecule_t::make_backup() {
       if (env_var)
          backup_dir = env_var;
 
-      std::cout << "debug in make_backup(): Here B" << std::endl;
 
       if (atom_sel.mol) {
          int dirstat = make_maybe_backup_dir(backup_dir);
@@ -297,12 +359,11 @@ coot::molecule_t::make_backup() {
             }
          }
 
-         std::cout << "debug in make_backup(): Here C" << std::endl;
          if (dirstat == 0) {
             // all is hunkey-dorey.  Directory exists.
 
             std::string backup_file_name = get_save_molecule_filename(backup_dir);
-             std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
+            std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
 
             mmdb::byte gz;
             if (backup_compress_files_flag) {
@@ -320,10 +381,7 @@ coot::molecule_t::make_backup() {
                if (coot::is_mmcif_filename(name))
                   write_as_cif = true;
 
-               std::cout << "debug in make_backup(): Here D" << std::endl;
                istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
-
-               std::cout << "debug in make_backup(): Here E" << std::endl;
 
                // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
                if (istat) {
@@ -338,13 +396,11 @@ coot::molecule_t::make_backup() {
                istat = p.first;
             }
 
-            std::cout << "debug in make_backup(): Here F" << std::endl;
             save_history_file_name(backup_file_name);
             // 20221016-PE old history counting - now use save_info.
             // if (history_index == max_history_index)
             // max_history_index++;
             // history_index++;
-            std::cout << "debug in make_backup(): Here G" << std::endl;
          }
       } else {
          std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
@@ -355,15 +411,13 @@ coot::molecule_t::make_backup() {
       // std::cout << "INFO:: backups turned off on this molecule"
       // << std::endl;
    }
-   std::cout << "debug in make_backup(): returning" << std::endl;
-   return 0;
-
+   return info_message;
 }
 
 // shelx stuff
 //
 std::pair<int, std::string>
-coot::molecule_t::write_shelx_ins_file(const std::string &filename) {
+coot::molecule_t::write_shelx_ins_file(const std::string &filename) const {
 
    // std::cout << "DEBUG:: starting write_shelx_ins_file in molecule "<< std::endl;
    // shelxins.debug();
@@ -371,10 +425,9 @@ coot::molecule_t::write_shelx_ins_file(const std::string &filename) {
    std::pair<int, std::string> p(1, "");
 
    if (atom_sel.n_selected_atoms > 0) {
-      p = shelxins.write_ins_file(atom_sel.mol, filename, is_from_shelx_ins_flag);
-//       std::cout << "DEBUG:: in molecule_class_info_t::write_ins_file "
-//                 << "got values " << p.first << " " << p.second
-//                 << std::endl;
+      // 20221018-PE  restore this when write_ins_file() is const.
+      //              This function needs to be const because write_coordinates() is const.
+      // p = shelxins.write_ins_file(atom_sel.mol, filename, is_from_shelx_ins_flag);
    } else {
       p.second = "WARNING:: No atoms to write!";
    }
@@ -817,7 +870,9 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
 
 int coot::molecule_t::flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
 
+   make_backup();
    int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
+   save_info.new_modification();
    return result;
 
 }
@@ -1289,6 +1344,7 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
             score = m.second;
             status = true;
+            save_info.new_modification();
             atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
             replace_coords(fragment_asc, 0, refinement_move_atoms_with_zero_occupancy_flag);
             if (baddie_waters.size())
@@ -1366,6 +1422,8 @@ coot::molecule_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs)
       save_info.new_modification();
       // unlikely to be necessary:
       trim_atom_label_table();
+
+      save_info.new_modification();
 
       // update_symmetry();
    }
@@ -1507,6 +1565,7 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
       // unlikely to be necessary:
       trim_atom_label_table();
       update_symmetry();
+      save_info.new_modification();
    }
    return was_deleted;
 }
@@ -1648,6 +1707,7 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
       save_info.new_modification();
       trim_atom_label_table();
       update_symmetry();
+      save_info.new_modification();
    }
    return was_deleted;
 }
@@ -1693,12 +1753,14 @@ coot::molecule_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clip
          const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
          const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
 
-         std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+         std::cout << "DEBUG:: Sanity check A in molecule_t::sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
                    << "cell: " << hkls_check.cell().format() << " "
                    << "spacegroup: " << spgr_check.symbol_xhm() << " "
                    << "resolution: " << hkls_check.resolution().limit() << " "
                    << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
                    << std::endl;
+         std::cout << "DEBUG:: Sanity check B in molecule_t::sfcalc_genmaps_using_bulk_solvent(): Cell fofc-map"
+                   << xmap_fofc_p->cell().format() << std::endl;
       }
 
       stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
