@@ -208,16 +208,27 @@ int test_rama_balls_mesh(molecules_container_t &mc) {
              << " triangles" << std::endl;
 
    // Let's look at the colours of the balls.
-   if (false)
+   if (false) // let's not.
       for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
          std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
 
-   // Rama dodecs
+   if (rvmm.vertices.size() > 2000) status = 1;
+   return status;
+
+}
+
+int test_rota_dodecs_mesh(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
    coot::simple_mesh_t rota_mesh = mc.get_rotamer_dodecs(imol);
    std::cout << "rota mesh: " << rota_mesh.vertices.size() << " vertices and " << rota_mesh.triangles.size()
              << " triangles" << std::endl;
 
-   if (rota_mesh.vertices.size() > 2000) status = 1;
+   if (rota_mesh.vertices.size() > 2000)
+      status = 1;
 
    return status;
 
@@ -229,8 +240,6 @@ int test_density_mesh(molecules_container_t &mc) {
    int status = 0;
    // this could be any mtz file I suppose
    int imol_map = mc.read_mtz("rnasa-1.8-all_refmac1.mtz", "FWT", "PHWT", "W", false, false);
-
-   std::cout << "................ test_density_mesh imol_map is " << imol_map << std::endl;
 
    clipper::Coord_orth p(55, 10, 10);
    float radius = 12;
@@ -302,34 +311,45 @@ int main(int argc, char **argv) {
 
    int status = 0;
 
+   bool last_test_only = false;
+   if (argc > 1) {
+      std::string arg(argv[1]);
+      if (arg == "last-test-only")
+         last_test_only = true;
+   }
+
    molecules_container_t mc;
 
-#if 0
    mc.fill_rotamer_probability_tables();
 
-   // --- rama mesh
-   status += run_test(test_rama_balls_mesh, "rama balls mesh", mc);
+   if (! last_test_only) {
 
-   // --- density mesh
-   status += run_test(test_density_mesh, "density mesh", mc);
+      // --- rama mesh
+      status += run_test(test_rama_balls_mesh, "rama balls mesh", mc);
+
+      // --- density mesh
+      status += run_test(test_density_mesh, "density mesh", mc);
  
-   // --- auto-fit rotamer
-   status += run_test(test_auto_fit_rotamer, "auto-fit rotamer", mc);
+      // --- auto-fit rotamer
+      status += run_test(test_auto_fit_rotamer, "auto-fit rotamer", mc);
 
-   // --- pepflips
-   status += run_test(test_pepflips, "pepflips", mc);
+      // --- pepflips
+      status += run_test(test_pepflips, "pepflips", mc);
 
-   // --- updating maps
-   status += run_test(test_updating_maps, "updating maps", mc);
+      // --- updating maps
+      status += run_test(test_updating_maps, "updating maps", mc);
 
-   // --- undo
-   status += run_test(test_undo_and_redo, "undo and redo", mc);
+      // --- undo
+      status += run_test(test_undo_and_redo, "undo and redo", mc);
 
-#endif
+      status += run_test(test_delete_atom, "delete atom", mc);
 
-   status += run_test(test_delete_atom, "delete atom", mc);
+      status += run_test(test_delete_residue, "delete residue", mc);
 
-   status += run_test(test_delete_residue, "delete residue", mc);
+   }
+
+   // --- rotamer dodecahedra mesh
+   status += run_test(test_rota_dodecs_mesh, "rotamer dodecahedra mesh", mc);
 
    // add a test for:
    // delete_atoms

@@ -494,8 +494,11 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
 coot::simple_mesh_t
 molecules_container_t::get_rotamer_dodecs(int imol) {
    coot::simple_mesh_t m;
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       return molecules[imol].get_rotamer_dodecs(&geom, &rot_prob_tables);
+   } else {
+      std::cout << "WARNING:: in " << __FUNCTION__ << "() imol " << imol << " was not a valid model molecule " << std::endl;
+   }
    return m;
 }
 

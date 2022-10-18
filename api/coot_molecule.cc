@@ -1219,6 +1219,10 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
    bool do_rota_markup = true;
    make_colour_by_chain_bonds(geom_p, dummy, true, false, do_rota_markup, rpt, true);
 
+   if (true)
+      std::cout << "DEBUG:: in get_rotamer_dodecs() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
+                << std::endl;
+
    if (bonds_box.n_rotamer_markups > 0) {
 
       auto &vertices = m.vertices;
@@ -1269,7 +1273,11 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
 
       // let's make copies of that and move them around to the residues
 
-      double rama_ball_pos_offset_scale = 1.2; // may need tweaking
+      double rama_ball_pos_offset_scale = 1.5; // may need tweaking, (was 1.2)
+
+      std::cout << "DEBUG:: in get_rotamer_dodecs() there were " << bonds_box.n_rotamer_markups
+                << " rotamer markups " << std::endl;
+
       for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
          const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
          const residue_spec_t &residue_spec = rm.spec;
@@ -1290,8 +1298,8 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
             auto &vertex = this_dodec_vertices[j];
             vertex.pos  += atom_pos;
             vertex.color = this_dodec_colour;
-            if (false)
-               std::cout << "atom_pos " << glm::to_string(vertex.pos)
+            if (true)
+               std::cout << "DEBUG:: in get_rotamer_dodecs() atom_pos " << glm::to_string(vertex.pos)
                          << " rama_markup_col " << rm.col
                          << " color " << glm::to_string(vertex.color) << std::endl;
          }
@@ -1303,6 +1311,8 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
             triangles[jj].rebase(idx_base);
       }
    }
+   std::cout << "DEBUG:: ending get_rotamer_dodecs() with mesh " << m.vertices.size() << " vertices and "
+             << m.triangles.size() << " triangle." << std::endl;
    return m;
 }
 
