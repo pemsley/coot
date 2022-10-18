@@ -101,7 +101,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             std::string chain_label = "Chain " + chain.chain_id;
             pango_layout_set_text(pango_layout,chain_label.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            cairo_move_to(cairo_canvas,0,base_height + layout_height / 2);
+            cairo_move_to(cairo_canvas,0,base_height);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             g_object_unref(pango_layout);
