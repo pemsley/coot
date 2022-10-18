@@ -9,7 +9,7 @@ struct _CootValidationGraph {
 /// Basis for max bar height
 const int CHAIN_HEIGHT = 120;
 /// Used for allocating space for axes and labels
-const int CHAIN_SPACING = 40;
+const int CHAIN_SPACING = 60;
 const int RESIDUE_WIDTH = 3;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 3;
@@ -17,6 +17,7 @@ const int RESIDUE_SPACING = 3;
 const int TITLE_HEIGHT = 0;
 /// Space for the axis to be drawn on the left side of the graph
 const int AXIS_MARGIN = 20;
+const float AXIS_HEIGHT = CHAIN_SPACING / 3.f + CHAIN_HEIGHT;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 
@@ -89,7 +90,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
-        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 2.f) / ((float) self->_vi->cviv.size()) - (CHAIN_HEIGHT + CHAIN_SPACING);
+        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 3.f) / ((float) self->_vi->cviv.size()) - (CHAIN_HEIGHT + CHAIN_SPACING);
 
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
@@ -101,24 +102,24 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             std::string chain_label = "Chain " + chain.chain_id;
             pango_layout_set_text(pango_layout,chain_label.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            cairo_move_to(cairo_canvas,0,base_height);
+            cairo_move_to(cairo_canvas,0,base_height + layout_height);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             g_object_unref(pango_layout);
             // Draw axes
-            float axis_y_offset = base_height + CHAIN_SPACING / 2.f;
-            cairo_move_to(cairo_canvas,0, axis_y_offset);
+
+            float axis_y_offset = base_height + CHAIN_SPACING / 3.f * 2.f;
+
+            cairo_move_to(cairo_canvas, 0, axis_y_offset);
+            cairo_line_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
+            cairo_stroke(cairo_canvas);
             
-            cairo_line_to(cairo_canvas, 0, axis_y_offset + CHAIN_HEIGHT + CHAIN_SPACING / 2.f);
+
+            cairo_move_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
+            cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
-            
-            base_height += CHAIN_HEIGHT + CHAIN_SPACING / 2.f;
-            cairo_move_to(cairo_canvas,0, base_height + CHAIN_SPACING / 2.f);
-            
-            cairo_line_to(cairo_canvas, w, base_height + CHAIN_SPACING / 2.f);
-            cairo_stroke(cairo_canvas);
-
+            base_height += AXIS_HEIGHT + CHAIN_SPACING / 3.f;
             float base_width = AXIS_MARGIN;
             const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             for(const auto& residue: chain.rviv) {
@@ -141,7 +142,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
-            base_height += CHAIN_SPACING/2.f + height_diff;
+            base_height += CHAIN_SPACING/3.f + height_diff;
         }
 
         cairo_destroy(cairo_canvas);
