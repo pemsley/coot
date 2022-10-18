@@ -1298,7 +1298,7 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
             auto &vertex = this_dodec_vertices[j];
             vertex.pos  += atom_pos;
             vertex.color = this_dodec_colour;
-            if (true)
+            if (false)
                std::cout << "DEBUG:: in get_rotamer_dodecs() atom_pos " << glm::to_string(vertex.pos)
                          << " rama_markup_col " << rm.col
                          << " color " << glm::to_string(vertex.color) << std::endl;
