@@ -307,8 +307,7 @@ coot::molecule_t::clear_diff_map_draw_vecs() {
 coot::simple_mesh_t
 coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) {
 
-
-   std::cout << "!!! ######################################### get_map_contours_mesh() for imol " << imol_no << std::endl;
+   // std::cout << "!!! ##### get_map_contours_mesh() for imol " << imol_no << std::endl;
 
    auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
       return glm::vec3(co.x(), co.y(), co.z());
@@ -333,7 +332,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       unsigned int idx_base = vertices.size();
       for (unsigned int i=0; i<tri_con.points.size(); i++) {
          glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-         glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
+         glm::vec3 normal = coord_orth_to_glm(- tri_con.normals[i]); // reverse normal.
          coot::api::vnc_vertex vert(pos, normal, col);
          vertices.push_back(vert);
       }
