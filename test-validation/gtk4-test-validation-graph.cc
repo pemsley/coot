@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
       for (const auto &cvi : vi.cviv) {
          std::cout << "Chain: " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Residue:\t" << ri.residue_spec << "\t\tDistortion:\t" << ri.distortion << "\t\tAtom spec:\t" << ri.atom_spec << std::endl;
+            std::cout << " Residue:\t" << ri.residue_spec << "\t\tDistortion:\t" << ri.distortion << "\t\tLabel:\t" << ri.label <<"\t\tAtom spec:\t" << ri.atom_spec << std::endl;
          }
       }
 

@@ -1,12 +1,29 @@
 #include "validation-graph-widget.hh"
 #include <algorithm>
-#include <map>
+#include <vector>
 
-typedef std::map<graphene_rect_t,void*> coord_cache_t;
+// class GrapheneRectCompare {
+//     public:
+//     bool operator()(const graphene_rect_t& lhs,const graphene_rect_t& rhs) const noexcept {
+//         if (graphene_rect_get_x(&lhs) < graphene_rect_get_x(&rhs)) {
+//             return true;
+//         } else if (graphene_rect_get_y(&lhs) < graphene_rect_get_y(&rhs)) {
+//             return true;
+//         } else if (graphene_rect_get_width(&lhs) < graphene_rect_get_width(&rhs)) {
+//             return true;
+//         } else {
+//             return (graphene_rect_get_height(&lhs) < graphene_rect_get_height(&rhs));
+//         }
+//         //return lhs < rhs;
+//     }
+// };
+
+//typedef std::map<graphene_rect_t,const coot::residue_validation_information_t*, GrapheneRectCompare> coord_cache_t;
+typedef std::vector<std::pair<graphene_rect_t,const coot::residue_validation_information_t*>> coord_cache_t;
 struct _CootValidationGraph {
     GtkWidget parent;
 
-    std::unique_ptr<coot::validation_information_t> _vi;
+    std::unique_ptr<const coot::validation_information_t> _vi;
     std::unique_ptr<coord_cache_t> coordinate_cache;
 };
 
@@ -71,6 +88,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
+
+    self->coordinate_cache->clear();
     if(self->_vi) {
         // 1. Draw title
         graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
@@ -134,6 +153,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
                 m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH, bar_height);
+                //self->coordinate_cache->operator[](m_graphene_rect) = &residue;
+                self->coordinate_cache->push_back(std::pair<graphene_rect_t,const coot::residue_validation_information_t*>{m_graphene_rect,&residue});
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
@@ -204,12 +225,26 @@ static void on_left_click (
 ) {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
     g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
-    gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
+    graphene_point_t point;
+    graphene_point_init(&point,x,y);
+    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const auto& it){
+        return graphene_rect_contains_point(&it.first,&point);
+    });
+    if(self->coordinate_cache->cend() != clicked) {
+        const auto* residue_ptr = clicked->second;
+        g_debug("Clicked on: %s",residue_ptr->label.c_str());
+        gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
+    } else {
+        gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
+    }
 }
 
 static void coot_validation_graph_init(CootValidationGraph* self) {
     // I think that this is the primary constructor
 
+    // I don't know how g_object_new initializes C++ stuff. Better set those up manually
+    self->_vi.reset(nullptr);
+    self->coordinate_cache = std::make_unique<coord_cache_t>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     // left mouse button
@@ -241,11 +276,7 @@ static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
 CootValidationGraph* 
 coot_validation_graph_new()
 {
-    CootValidationGraph* ret = COOT_COOT_VALIDATION_GRAPH(g_object_new (COOT_VALIDATION_GRAPH_TYPE, NULL));
-    // I don't know how g_object_new initializes C++ stuff. Better set those up manually
-    ret->_vi.reset(nullptr);
-    ret->coordinate_cache = std::make_unique<coord_cache_t>();
-    return ret;
+    return COOT_COOT_VALIDATION_GRAPH(g_object_new (COOT_VALIDATION_GRAPH_TYPE, NULL));
 }
 
 
@@ -253,5 +284,7 @@ coot_validation_graph_new()
 G_END_DECLS
 
 void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::unique_ptr<coot::validation_information_t> vi) {
+    // The stored pointers become invalidated
+    self->coordinate_cache->clear();
     self->_vi = std::move(vi);
 }
