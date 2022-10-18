@@ -14,7 +14,7 @@ const int RESIDUE_WIDTH = 3;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 3;
 /// For drawing the main title
-const int TITLE_HEIGHT = 0;
+const int TITLE_HEIGHT = 30;
 /// Space for the axis to be drawn on the left side of the graph
 const int AXIS_MARGIN = 20;
 const float AXIS_HEIGHT = CHAIN_SPACING / 3.f + CHAIN_HEIGHT;
@@ -90,8 +90,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
-        float height_diff = (h - (float)TITLE_HEIGHT - (float) CHAIN_SPACING / 3.f) / ((float) self->_vi->cviv.size()) - (CHAIN_HEIGHT + CHAIN_SPACING);
-
+        const int chain_count = self->_vi->cviv.size();
+        float height_diff = 0;
+        if (chain_count != 1) {
+            height_diff = (h - (float) TITLE_HEIGHT - (float) chain_count * (CHAIN_HEIGHT + CHAIN_SPACING)) / ((float) chain_count - 1.f);
+        }
+        
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
         for(const auto& chain: self->_vi->cviv) {
