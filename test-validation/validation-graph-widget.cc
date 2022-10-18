@@ -1,9 +1,13 @@
 #include "validation-graph-widget.hh"
 #include <algorithm>
+#include <map>
+
+typedef std::map<graphene_rect_t,void*> coord_cache_t;
 struct _CootValidationGraph {
     GtkWidget parent;
 
     std::unique_ptr<coot::validation_information_t> _vi;
+    std::unique_ptr<coord_cache_t> coordinate_cache;
 };
 
 /// Basis for max bar height
@@ -220,6 +224,7 @@ static void coot_validation_graph_dispose(GObject* _self) {
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(_self);
     self->_vi.reset(nullptr);
+    self->coordinate_cache.reset(nullptr);
     G_OBJECT_CLASS(coot_validation_graph_parent_class)->dispose(_self);
 }
 
@@ -236,7 +241,11 @@ static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
 CootValidationGraph* 
 coot_validation_graph_new()
 {
-    return COOT_COOT_VALIDATION_GRAPH(g_object_new (COOT_VALIDATION_GRAPH_TYPE, NULL));
+    CootValidationGraph* ret = COOT_COOT_VALIDATION_GRAPH(g_object_new (COOT_VALIDATION_GRAPH_TYPE, NULL));
+    // I don't know how g_object_new initializes C++ stuff. Better set those up manually
+    ret->_vi.reset(nullptr);
+    ret->coordinate_cache = std::make_unique<coord_cache_t>();
+    return ret;
 }
 
 
