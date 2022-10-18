@@ -46,6 +46,7 @@ class molecules_container_t {
       }
    };
    std::vector<gru_points_t> gru_point_history; // map and model (model currently not used)
+
    void init() {
       imol_refinement_map = -1;
       imol_difference_map = -1;
@@ -127,6 +128,10 @@ public:
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
    // returns either the specified residue or null if not found
    mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &residue_spec) const;
+   // returns either the specified atom or null if not found
+   mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
+   // returns either the specified residue or null if not found
+   mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
 
    int undo(int imol); // 20221016-PE not working yet
 

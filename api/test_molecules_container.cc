@@ -245,6 +245,44 @@ int test_density_mesh(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_atom(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   std::string atom_cid = "//A/14/O";
+   mmdb::Atom *at_1 = mc.get_atom_using_cid(imol, atom_cid);
+   if (at_1) {
+      mc.delete_atom(imol, "A", 14, "", " O  ", "");
+      mmdb::Atom *at_2 = mc.get_atom_using_cid(imol, atom_cid);
+      if (at_2) {
+         // bad, it was not deleted
+      } else {
+         status = 1;
+      }
+   }
+   return status;
+}
+
+int test_delete_residue(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   std::string residue_cid = "//A/14";
+   mmdb::Residue *r_1 = mc.get_residue_using_cid(imol, residue_cid);
+   if (r_1) {
+      mc.delete_residue(imol, "A", 14, "");
+      mmdb::Residue *r_2 = mc.get_residue_using_cid(imol, residue_cid);
+      if (r_2) {
+         // bad, it was not deleted
+      } else {
+         status = 1;
+      }
+   }
+   return status;
+}
+
 int n_tests = 0;
 
 int
@@ -258,7 +296,6 @@ run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_n
    std::cout << status_string << std::setw(40) << std::left << test_name << " status " << status << std::endl;
 
    return status;
-
 }
 
 int main(int argc, char **argv) {
@@ -267,7 +304,7 @@ int main(int argc, char **argv) {
 
    molecules_container_t mc;
 
-#if 1
+#if 0
    mc.fill_rotamer_probability_tables();
 
    // --- rama mesh
@@ -284,16 +321,18 @@ int main(int argc, char **argv) {
 
    // --- updating maps
    status += run_test(test_updating_maps, "updating maps", mc);
-#endif
 
    // --- undo
    status += run_test(test_undo_and_redo, "undo and redo", mc);
 
+#endif
+
+   status += run_test(test_delete_atom, "delete atom", mc);
+
+   status += run_test(test_delete_residue, "delete residue", mc);
+
    // add a test for:
-   // delete_atom
    // delete_atoms
-   // delete_residue
-   // undo and redo
    // rsr triple
 
    int all_tests_status = 1;

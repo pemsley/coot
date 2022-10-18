@@ -431,6 +431,32 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
    return r;
 }
 
+// returns either the specified atom or null if not found
+mmdb::Atom *
+molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
+
+   mmdb::Atom *at = nullptr;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
+      if (p.first)
+         at = molecules[imol].get_atom(p.second);
+   }
+   return at;
+}
+
+// returns either the specified residue or null if not found
+mmdb::Residue *
+molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) const {
+   mmdb::Residue *residue_p = nullptr;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> p = molecules[imol].cid_to_residue_spec(cid);
+      if (p.first)
+         residue_p = molecules[imol].get_residue(p.second);
+   }
+   return residue_p;
+}
+
+
 
 int
 molecules_container_t::writeMap(int imol, const std::string &file_name) const {
