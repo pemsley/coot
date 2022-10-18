@@ -10,9 +10,9 @@ struct _CootValidationGraph {
 const int CHAIN_HEIGHT = 120;
 /// Used for allocating space for axes and labels
 const int CHAIN_SPACING = 60;
-const int RESIDUE_WIDTH = 3;
+const int RESIDUE_WIDTH = 4;
 /// Breathing space for residue rectangle's borders
-const int RESIDUE_SPACING = 3;
+const int RESIDUE_SPACING = 1;
 /// For drawing the main title
 const int TITLE_HEIGHT = 30;
 /// Space for the axis to be drawn on the left side of the graph
@@ -129,7 +129,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
-                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, width_step, bar_height);
+                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH, bar_height);
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GskRoundedRect outline;
                 gsk_rounded_rect_init_from_rect(
