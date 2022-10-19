@@ -218,14 +218,29 @@ void coot_validation_graph_measure
     }
 }
 
+inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* self, gdouble x, gdouble y) {
+
+    graphene_point_t point;
+    graphene_point_init(&point,x,y);
+    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const auto& it){
+        return graphene_rect_contains_point(&it.first,&point);
+    });
+    return clicked;
+}
+
 static void on_hover (
-  GtkEventControllerMotion* hover_controller,
-  gdouble x,
-  gdouble y,
-  gpointer user_data
+    GtkEventControllerMotion* hover_controller,
+    gdouble x,
+    gdouble y,
+    gpointer user_data
 ) {
+
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
-    g_debug("Hover over widget: %p, at x: %f, y: %f",self,x,y);
+    coord_cache_t::const_iterator hovered = residue_from_coords(self,x,y);
+    if(self->coordinate_cache->cend() != hovered) {
+        const auto* residue_ptr = hovered->second;
+        g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
+    }
 }
 
 static void on_left_click (
@@ -237,11 +252,7 @@ static void on_left_click (
 ) {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
     g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
-    graphene_point_t point;
-    graphene_point_init(&point,x,y);
-    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const auto& it){
-        return graphene_rect_contains_point(&it.first,&point);
-    });
+    coord_cache_t::const_iterator clicked = residue_from_coords(self,x,y);
     if(self->coordinate_cache->cend() != clicked) {
         const auto* residue_ptr = clicked->second;
         g_debug("Clicked on: %s",residue_ptr->label.c_str());
