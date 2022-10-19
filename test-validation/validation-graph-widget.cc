@@ -218,6 +218,16 @@ void coot_validation_graph_measure
     }
 }
 
+static void on_hover (
+  GtkEventControllerMotion* hover_controller,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
+    g_debug("Hover over widget: %p, at x: %f, y: %f",self,x,y);
+}
+
 static void on_left_click (
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -250,12 +260,16 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
     self->coordinate_cache = std::make_unique<coord_cache_t>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
+    GtkEventController* hover_controller = gtk_event_controller_motion_new();
+
     // left mouse button
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
-
     g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
 
+    g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
+
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
+    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
 }
 
 static void coot_validation_graph_dispose(GObject* _self) {
