@@ -236,7 +236,7 @@ static void on_left_click (
         const auto* residue_ptr = clicked->second;
         g_debug("Clicked on: %s",residue_ptr->label.c_str());
         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
-        g_signal_emit(self,residue_clicked_signal,0);
+        g_signal_emit(self,residue_clicked_signal,0,residue_ptr);
     } else {
         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
     }
@@ -266,7 +266,6 @@ static void coot_validation_graph_dispose(GObject* _self) {
     G_OBJECT_CLASS(coot_validation_graph_parent_class)->dispose(_self);
 }
 
-
 static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
     residue_clicked_signal = g_signal_new("residue-clicked",
@@ -277,7 +276,8 @@ static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
         NULL /* accumulator data */,
         NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
         G_TYPE_NONE /* return_type */,
-        0     /* n_params */
+        1     /* n_params */,
+        G_TYPE_POINTER
     );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_validation_graph_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_validation_graph_measure;
