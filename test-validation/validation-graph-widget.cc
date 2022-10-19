@@ -31,7 +31,7 @@ struct _CootValidationGraph {
 const int CHAIN_HEIGHT = 120;
 /// Used for allocating space for axes and labels
 const int CHAIN_SPACING = 60;
-const int RESIDUE_WIDTH = 4;
+const int RESIDUE_WIDTH = 6;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 1;
 /// For drawing the main title
