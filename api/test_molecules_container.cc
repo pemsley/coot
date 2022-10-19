@@ -277,6 +277,7 @@ int test_delete_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
    int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
    std::string residue_cid = "//A/14";
    mmdb::Residue *r_1 = mc.get_residue_using_cid(imol, residue_cid);
@@ -289,6 +290,55 @@ int test_delete_residue(molecules_container_t &mc) {
          status = 1;
       }
    }
+   return status;
+}
+
+coot::Cartesian atom_to_cartesian(mmdb::Atom *at) {
+
+   return coot::Cartesian(at->x, at->y, at->z);
+
+}
+
+int test_rsr(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+
+   // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+   // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
+
+   mc.set_imol_refinement_map(imol_map);
+
+   std::string chain_id = "A";
+   int res_no = 14; // this residue is problematic in gideondoesntapprove.pdb
+   std::string ins_code;
+
+   coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
+   coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
+   mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
+   mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
+   coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
+   coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
+   
+   coot::molecule_t::refine_residues_mode mode = coot::molecule_t::SPHERE;
+   mc.refine_residues(imol, "A", 14, "", "", mode);
+   coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
+   coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+
+   double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
+   double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
+   double d_1 = std::sqrt(dd_n_1);
+   double d_2 = std::sqrt(dd_n_2);
+
+   std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
+
+   if (d_1 > 0.1)
+      if (d_2 > 0.1)
+         status = true;
+
    return status;
 }
 
@@ -324,32 +374,18 @@ int main(int argc, char **argv) {
 
    if (! last_test_only) {
 
-      // --- rama mesh
-      status += run_test(test_rama_balls_mesh, "rama balls mesh", mc);
-
-      // --- density mesh
-      status += run_test(test_density_mesh, "density mesh", mc);
- 
-      // --- auto-fit rotamer
-      status += run_test(test_auto_fit_rotamer, "auto-fit rotamer", mc);
-
-      // --- pepflips
-      status += run_test(test_pepflips, "pepflips", mc);
-
-      // --- updating maps
-      status += run_test(test_updating_maps, "updating maps", mc);
-
-      // --- undo
-      status += run_test(test_undo_and_redo, "undo and redo", mc);
-
-      status += run_test(test_delete_atom, "delete atom", mc);
-
-      status += run_test(test_delete_residue, "delete residue", mc);
-
+      status += run_test(test_rama_balls_mesh,  "rama balls mesh",          mc);
+      status += run_test(test_density_mesh,     "density mesh",             mc);
+      status += run_test(test_auto_fit_rotamer, "auto-fit rotamer",         mc);
+      status += run_test(test_pepflips,         "pepflips",                 mc);
+      status += run_test(test_updating_maps,    "updating maps",            mc);
+      status += run_test(test_undo_and_redo,    "undo and redo",            mc);
+      status += run_test(test_delete_atom,      "delete atom",              mc);
+      status += run_test(test_delete_residue,   "delete residue",           mc);
+      status += run_test(test_rota_dodecs_mesh, "rotamer dodecahedra mesh", mc);
    }
 
-   // --- rotamer dodecahedra mesh
-   status += run_test(test_rota_dodecs_mesh, "rotamer dodecahedra mesh", mc);
+   status += run_test(test_rsr, "rsr", mc);
 
    // add a test for:
    // delete_atoms

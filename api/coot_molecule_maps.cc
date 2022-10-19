@@ -347,7 +347,6 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
       }
    }
-   
 
    return m;
 }

@@ -2470,7 +2470,6 @@ graphics_info_t::get_rotamer_dodecs() {
          clipper::Coord_orth screen_y(top.x-bottom.x,
                                       top.y-bottom.y,
                                       top.z-bottom.z);
-
          for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
             clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
@@ -2480,7 +2479,11 @@ graphics_info_t::get_rotamer_dodecs() {
             dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
             dodecs.push_back(dodec);
          }
+      } else {
+         std::cout << "WARNING:: in " << __FUNCTION__ << " regularize_object_bonds_box.n_rotamer_markups was 0" << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: in " << __FUNCTION__ << " regularize_object_bonds_box.num_colours was 0" << std::endl;
    }
    return dodecs;
 }

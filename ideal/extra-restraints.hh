@@ -19,7 +19,12 @@
  * 02110-1301, USA
  */
 
+#ifndef EXTRA_RESTRAINTS_HH
+#define EXTRA_RESTRAINTS_HH
+
+
 #include "coot-utils/coot-coord-utils.hh"
+#include "parallel-planes.hh"
 
 namespace coot {
    
@@ -272,3 +277,7 @@ namespace coot {
    };
 
 }
+
+
+#endif // EXTRA_RESTRAINTS_HH
+

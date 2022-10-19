@@ -11,6 +11,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
+#include "ideal/extra-restraints.hh"
 #include "simple-mesh.hh"
 #include "ghost-molecule-display.hh"
 
@@ -21,6 +22,7 @@
 
 namespace coot {
 
+   // give this a type
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
           COLOUR_BY_CHAIN_BONDS=3,
           CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
@@ -186,6 +188,8 @@ namespace coot {
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
 
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
+
       void init() { // add imol_no here?
          imol_no = -1; // unset
          bonds_box_type = UNSET_TYPE;
@@ -204,6 +208,9 @@ namespace coot {
       }
 
    public:
+
+      enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
+      std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, refine_residues_mode mode) const;
 
       atom_selection_container_t atom_sel;
       // set this on reading a pdb file
@@ -302,6 +309,8 @@ namespace coot {
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
+      std::vector<coot::atom_spec_t> get_fixed_atoms() const;
+      bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
 
       // ----------------------- model analysis functions
 
@@ -329,7 +338,13 @@ namespace coot {
       int delete_residue(coot::residue_spec_t &residue_spec);
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
 
-      // map functions, return -1.1 on not-a-map
+      // ----------------------- refinement
+
+      coot::extra_restraints_t extra_restraints;
+
+      // ----------------------- map functions
+
+      // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;
       int writeMap(const std::string &file_name) const;
       void set_map_is_difference_map(bool flag);

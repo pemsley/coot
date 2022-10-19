@@ -435,6 +435,105 @@ coot::molecule_t::write_shelx_ins_file(const std::string &filename) const {
 }
 
 
+std::vector<mmdb::Residue *>
+coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_residues_mode mode) const {
+
+   // why is this not in utils? Make it so.
+
+   auto all_residues = [] (mmdb::Manager *mol) {
+
+      std::vector<mmdb::Residue *> rv;
+      if (!mol) return rv;
+      int n_models = mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            mmdb::Chain *chain_p;
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               chain_p = model_p->GetChain(ichain);
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::Residue *residue_p;
+               for (int ires=0; ires<nres; ires++) {
+                  residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     rv.push_back(residue_p);
+                  }
+               }
+            }
+         }
+      }
+      return rv;
+   };
+
+   std::vector<mmdb::Residue *> rv;
+   mmdb::Manager *mol = atom_sel.mol;
+   mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, mol);
+   if (residue_p) {
+      if (mode == SINGLE) {
+         rv.push_back(residue_p);
+      }
+      if (mode == TRIPLE) {
+         mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
+         mmdb::Residue *r_m_1 = coot::util::get_previous_residue(residue_spec, mol);
+         if (r_m_1) rv.push_back(r_m_1);
+         if (true ) rv.push_back(residue_p);
+         if (r_p_1) rv.push_back(r_p_1);
+      }
+      if (mode == QUINTUPLE) {
+         mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
+         mmdb::Residue *r_p_2 = coot::util::get_following_residue(coot::residue_spec_t(r_p_1), mol);
+         mmdb::Residue *r_m_1 = coot::util::get_previous_residue(residue_spec, mol);
+         mmdb::Residue *r_m_2 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_1), mol);
+         if (r_m_2) rv.push_back(r_m_2);
+         if (r_m_1) rv.push_back(r_m_1);
+         if (true ) rv.push_back(residue_p);
+         if (r_p_1) rv.push_back(r_p_1);
+         if (r_p_2) rv.push_back(r_p_2);
+      }
+      if (mode == HEPTUPLE) {
+         mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
+         mmdb::Residue *r_p_2 = coot::util::get_following_residue(coot::residue_spec_t(r_p_1), mol);
+         mmdb::Residue *r_p_3 = coot::util::get_following_residue(coot::residue_spec_t(r_p_2), mol);
+         mmdb::Residue *r_m_1 = coot::util::get_previous_residue(residue_spec, mol);
+         mmdb::Residue *r_m_2 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_1), mol);
+         mmdb::Residue *r_m_3 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_2), mol);
+         if (r_m_3) rv.push_back(r_m_3);
+         if (r_m_2) rv.push_back(r_m_2);
+         if (r_m_1) rv.push_back(r_m_1);
+         if (true ) rv.push_back(residue_p);
+         if (r_p_1) rv.push_back(r_p_1);
+         if (r_p_2) rv.push_back(r_p_2);
+         if (r_p_3) rv.push_back(r_p_3);
+      }
+      if (mode == CHAIN) {
+         mmdb::Chain *chain_p = residue_p->GetChain();
+         rv = coot::util::residues_in_chain(chain_p);
+      }
+      if (mode == ALL) {
+         rv = all_residues(mol);
+      }
+      if (mode == SPHERE) {
+         float radius = 4.2;
+         // do these need to be sorted here?
+         auto v = coot::residues_near_residue(residue_p, mol, radius);
+         rv.push_back(residue_p);
+         std::move(v.begin(), v.end(), std::back_inserter(rv));
+      }
+      if (mode == BIG_SPHERE) {
+         float radius = 14.2;
+         // do these need to be sorted here?
+         auto v = coot::residues_near_residue(residue_p, mol, radius);
+         rv.push_back(residue_p);
+         std::move(v.begin(), v.end(), std::back_inserter(rv));
+      }
+   }
+
+   return rv;
+}
+
+
+
 bool
 coot::molecule_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const {
 
@@ -1297,7 +1396,7 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
          for (unsigned int j=0; j<this_dodec_vertices.size(); j++) {
             auto &vertex = this_dodec_vertices[j];
             vertex.pos  += atom_pos;
-            vertex.normal = -vertex.normal;
+            vertex.normal = -vertex.normal;  // 20221018-PE reverse the normal - hmm.
             vertex.color = this_dodec_colour;
             if (false)
                std::cout << "DEBUG:: in get_rotamer_dodecs() atom_pos " << glm::to_string(vertex.pos)
@@ -1830,4 +1929,19 @@ coot::molecule_t::sanity_check_atoms(mmdb::Manager *mol) const {
       }
    }
    return sane;
+}
+
+// refinement is done in the container
+// int
+// coot::molecule_t::refine_residues(const residue_spec_t &residue_spec, refine_residues_mode mode) {
+
+//    int status = 0;
+   
+//    return status;
+// }
+
+std::vector<coot::atom_spec_t>
+coot::molecule_t::get_fixed_atoms() const {
+
+   return fixed_atom_specs;
 }
