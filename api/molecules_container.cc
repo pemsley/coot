@@ -902,6 +902,24 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
    return status;
 }
 
+int
+molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, coot::molecule_t::refine_residues_mode mode) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
+         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode);
+      } else {
+         std::cout << "Not a valid map molecule " << imol_refinement_map << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
 
 int
 molecules_container_t::refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,

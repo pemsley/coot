@@ -342,6 +342,52 @@ int test_rsr(molecules_container_t &mc) {
    return status;
 }
 
+int test_rsr_using_atom_cid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+
+   // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+   // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
+
+   mc.set_imol_refinement_map(imol_map);
+
+   std::string chain_id = "A";
+   int res_no = 14; // this residue is problematic in gideondoesntapprove.pdb
+   std::string ins_code;
+
+   std::string cid = "//A/14/CA";
+
+   coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
+   coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
+   mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
+   mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
+   coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
+   coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
+   
+   coot::molecule_t::refine_residues_mode mode = coot::molecule_t::SPHERE;
+   mc.refine_residues_using_atom_cid(imol, cid, mode);
+   coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
+   coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+
+   double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
+   double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
+   double d_1 = std::sqrt(dd_n_1);
+   double d_2 = std::sqrt(dd_n_2);
+
+   std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
+
+   if (d_1 > 0.1)
+      if (d_2 > 0.1)
+         status = true;
+
+   return status;
+}
+
+
 int n_tests = 0;
 
 int
@@ -383,9 +429,10 @@ int main(int argc, char **argv) {
       status += run_test(test_delete_atom,      "delete atom",              mc);
       status += run_test(test_delete_residue,   "delete residue",           mc);
       status += run_test(test_rota_dodecs_mesh, "rotamer dodecahedra mesh", mc);
+      status += run_test(test_rsr,              "rsr",                      mc);
    }
 
-   status += run_test(test_rsr, "rsr", mc);
+   status += run_test(test_rsr_using_atom_cid, "rsr using atom cid", mc);
 
    // add a test for:
    // delete_atoms

@@ -290,6 +290,7 @@ public:
 
    // -------------------------------- coordinates refinement ------------------------------
 
+   int refine_residues_using_atom_cid(int imol, const std::string &cid, coot::molecule_t::refine_residues_mode mode);
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf,
                        coot::molecule_t::refine_residues_mode mode);
