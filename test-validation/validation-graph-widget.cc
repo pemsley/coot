@@ -251,11 +251,10 @@ static void on_left_click (
   gpointer user_data
 ) {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
-    g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
+    //g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
     coord_cache_t::const_iterator clicked = residue_from_coords(self,x,y);
     if(self->coordinate_cache->cend() != clicked) {
         const auto* residue_ptr = clicked->second;
-        g_debug("Clicked on: %s",residue_ptr->label.c_str());
         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
         g_signal_emit(self,residue_clicked_signal,0,residue_ptr);
     } else {
@@ -274,8 +273,9 @@ gboolean query_tooltip (
     coord_cache_t::const_iterator hovered = residue_from_coords(self,x,y);
     if(self->coordinate_cache->cend() != hovered) {
         const auto* residue_ptr = hovered->second;
-        g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
+        // g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
         gtk_tooltip_set_text(tooltip,residue_ptr->label.c_str());
+        // todo: remove magic numbers
         GdkRectangle rect = {x,y - 20,100,100};
         gtk_tooltip_set_tip_area(tooltip,&rect);
         return TRUE;

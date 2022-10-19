@@ -108,9 +108,11 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
 
    g_signal_connect(validation_graph,"residue-clicked",
       G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
          g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
       })
-   ,NULL);
+   ,target_label);
 }
 
 int main(int argc, char **argv) {
