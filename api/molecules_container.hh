@@ -152,6 +152,7 @@ class molecules_container_t {
       continue_threaded_refinement_loop = false;
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
+      map_sampling_rate = 2.0;
    }
 
 public:
@@ -237,13 +238,15 @@ public:
    // returns either the specified residue or null if not found
    mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
 
-   int undo(int imol); // 20221016-PE not working yet
+   int undo(int imol);
 
-   int redo(int imol); // 20221016-PE not working yet
+   int redo(int imol);
 
    // -------------------------------- map utils -------------------------------------------
 
    // return the imol for the new molecule
+   float map_sampling_rate;
+   void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
    int read_mtz(const std::string &file_name, const std::string &f, const std::string &phi, const std::string &weight,
                 bool use_weight, bool is_a_difference_map);
    int writeMap(int imol, const std::string &file_name) const;

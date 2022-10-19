@@ -49,10 +49,10 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               std::string phi_col,
                               std::string weight_col,
                               short int use_weights,
-                              short int is_diff_map) {
+                              float sampling_rate) {
 
    return coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
-                                 use_weights, is_diff_map, 0, 0);
+                                        use_weights, 0, 0, sampling_rate);
 }
 
 bool
@@ -62,9 +62,9 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               std::string phi_col,
                               std::string weight_col,
                               short int use_weights,
-                              short int is_diff_map,
                               float reso_limit_high,
-                              short int use_reso_limit_high) {
+                              short int use_reso_limit_high,
+                              float sampling_rate) {
 
   if (!file_exists(mtz_file_name))
       return 0;
@@ -112,10 +112,9 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
   }
 
-  xmap->init( myhkl.spacegroup(), myhkl.cell(),
-              clipper::Grid_sampling( myhkl.spacegroup(),
-                                      myhkl.cell(),
-                                      fft_reso));
+  std::cout << "--------------------- in map_fill_from_mtz() sampling_rate " << sampling_rate << std::endl;
+  clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso);
+  xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
   std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
   std::cout << "doing fft..." << std::endl;
   xmap->fft_from( fphidata );                  // generate map

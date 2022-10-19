@@ -182,7 +182,7 @@ molecules_container_t::read_mtz(const std::string &file_name,
 
    std::string name_in = file_name + std::string(" ") + std::string(f) + std::string(" ") + std::string(phi);
    coot::molecule_t m(name_in, imol_in_hope);
-   bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, is_a_difference_map);
+   bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, map_sampling_rate);
    if (is_a_difference_map)
       m.set_map_is_difference_map(true);
    if (status) {
