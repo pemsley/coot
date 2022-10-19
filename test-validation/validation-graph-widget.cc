@@ -228,20 +228,20 @@ inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* se
     return clicked;
 }
 
-static void on_hover (
-    GtkEventControllerMotion* hover_controller,
-    gdouble x,
-    gdouble y,
-    gpointer user_data
-) {
+// static void on_hover (
+//     GtkEventControllerMotion* hover_controller,
+//     gdouble x,
+//     gdouble y,
+//     gpointer user_data
+// ) {
 
-    CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
-    coord_cache_t::const_iterator hovered = residue_from_coords(self,x,y);
-    if(self->coordinate_cache->cend() != hovered) {
-        const auto* residue_ptr = hovered->second;
-        g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
-    }
-}
+//     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
+//     coord_cache_t::const_iterator hovered = residue_from_coords(self,x,y);
+//     if(self->coordinate_cache->cend() != hovered) {
+//         const auto* residue_ptr = hovered->second;
+//         g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
+//     }
+// }
 
 static void on_left_click (
   GtkGestureClick* gesture_click,
@@ -263,24 +263,46 @@ static void on_left_click (
     }
 }
 
+gboolean query_tooltip (
+    CootValidationGraph* self,
+    gint x,
+    gint y,
+    gboolean keyboard_mode,
+    GtkTooltip* tooltip,
+    gpointer user_data
+) {
+    coord_cache_t::const_iterator hovered = residue_from_coords(self,x,y);
+    if(self->coordinate_cache->cend() != hovered) {
+        const auto* residue_ptr = hovered->second;
+        g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
+        gtk_tooltip_set_text(tooltip,residue_ptr->label.c_str());
+        GdkRectangle rect = {x,y - 20,100,100};
+        gtk_tooltip_set_tip_area(tooltip,&rect);
+        return TRUE;
+    } else
+        return FALSE;
+}
+
 static void coot_validation_graph_init(CootValidationGraph* self) {
     // I think that this is the primary constructor
+    gtk_widget_set_has_tooltip(GTK_WIDGET(self),TRUE);
+    g_signal_connect(self,"query-tooltip",G_CALLBACK(query_tooltip),NULL);
 
     // I don't know how g_object_new initializes C++ stuff. Better set those up manually
     self->_vi.reset(nullptr);
     self->coordinate_cache = std::make_unique<coord_cache_t>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
-    GtkEventController* hover_controller = gtk_event_controller_motion_new();
+    // GtkEventController* hover_controller = gtk_event_controller_motion_new();
 
     // left mouse button
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
     g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
 
-    g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
+    // g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
 
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
-    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
+    // gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
 }
 
 static void coot_validation_graph_dispose(GObject* _self) {
