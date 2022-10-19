@@ -20,6 +20,8 @@
 
 //typedef std::map<graphene_rect_t,const coot::residue_validation_information_t*, GrapheneRectCompare> coord_cache_t;
 typedef std::vector<std::pair<graphene_rect_t,const coot::residue_validation_information_t*>> coord_cache_t;
+
+static guint residue_clicked_signal;
 struct _CootValidationGraph {
     GtkWidget parent;
 
@@ -31,7 +33,7 @@ struct _CootValidationGraph {
 const int CHAIN_HEIGHT = 120;
 /// Used for allocating space for axes and labels
 const int CHAIN_SPACING = 60;
-const int RESIDUE_WIDTH = 6;
+const int RESIDUE_WIDTH = 9;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 1;
 /// For drawing the main title
@@ -234,6 +236,7 @@ static void on_left_click (
         const auto* residue_ptr = clicked->second;
         g_debug("Clicked on: %s",residue_ptr->label.c_str());
         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
+        g_signal_emit(self,residue_clicked_signal,0);
     } else {
         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
     }
@@ -266,7 +269,16 @@ static void coot_validation_graph_dispose(GObject* _self) {
 
 static void coot_validation_graph_class_init(CootValidationGraphClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
-
+    residue_clicked_signal = g_signal_new("residue-clicked",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        0     /* n_params */
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_validation_graph_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_validation_graph_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_validation_graph_dispose;

@@ -104,6 +104,10 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
    gtk_box_append(GTK_BOX(vbox),outer_frame);
    GtkWidget* target_label = gtk_label_new("");
    gtk_box_append(GTK_BOX(vbox),target_label);
+
+   g_signal_connect(validation_graph,"residue-clicked",G_CALLBACK(+[](CootValidationGraph* self, gpointer userdata){
+      g_debug("Inside 'residue-clicked' handler.");
+   }),NULL);
 }
 
 int main(int argc, char **argv) {
