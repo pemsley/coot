@@ -323,7 +323,7 @@ int test_rsr(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
    
-   coot::molecule_t::refine_residues_mode mode = coot::molecule_t::SPHERE;
+   std::string mode = "SPHERE";
    mc.refine_residues(imol, "A", 14, "", "", mode);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
@@ -368,7 +368,7 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
    
-   coot::molecule_t::refine_residues_mode mode = coot::molecule_t::SPHERE;
+   std::string mode = "SPHERE";
    mc.refine_residues_using_atom_cid(imol, cid, mode);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);

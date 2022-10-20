@@ -209,8 +209,7 @@ namespace coot {
 
    public:
 
-      enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
-      std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, refine_residues_mode mode) const;
+      // enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
 
       atom_selection_container_t atom_sel;
       // set this on reading a pdb file
@@ -341,6 +340,9 @@ namespace coot {
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
+      // refinement tool
+      std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
+
 
       // ----------------------- map functions
 

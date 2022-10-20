@@ -290,10 +290,11 @@ public:
 
    // -------------------------------- coordinates refinement ------------------------------
 
-   int refine_residues_using_atom_cid(int imol, const std::string &cid, coot::molecule_t::refine_residues_mode mode);
+   // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
+   //
+   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                       const std::string &alt_conf,
-                       coot::molecule_t::refine_residues_mode mode);
+                       const std::string &alt_conf, const std::string &mode);
 
    // -------------------------------- coordinates validation ------------------------------
 

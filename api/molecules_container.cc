@@ -903,7 +903,7 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 }
 
 int
-molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, coot::molecule_t::refine_residues_mode mode) {
+molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
@@ -923,8 +923,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
 
 int
 molecules_container_t::refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                                       const std::string &alt_conf,
-                                       coot::molecule_t::refine_residues_mode mode) {
+                                       const std::string &alt_conf, const std::string &mode) {
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);

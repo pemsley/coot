@@ -436,7 +436,7 @@ coot::molecule_t::write_shelx_ins_file(const std::string &filename) const {
 
 
 std::vector<mmdb::Residue *>
-coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_residues_mode mode) const {
+coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std::string &mode) const {
 
    // why is this not in utils? Make it so.
 
@@ -470,17 +470,17 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_res
    mmdb::Manager *mol = atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, mol);
    if (residue_p) {
-      if (mode == SINGLE) {
+      if (mode == "SINGLE") {
          rv.push_back(residue_p);
       }
-      if (mode == TRIPLE) {
+      if (mode == "TRIPLE") {
          mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
          mmdb::Residue *r_m_1 = coot::util::get_previous_residue(residue_spec, mol);
          if (r_m_1) rv.push_back(r_m_1);
          if (true ) rv.push_back(residue_p);
          if (r_p_1) rv.push_back(r_p_1);
       }
-      if (mode == QUINTUPLE) {
+      if (mode == "QUINTUPLE") {
          mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
          mmdb::Residue *r_p_2 = coot::util::get_following_residue(coot::residue_spec_t(r_p_1), mol);
          mmdb::Residue *r_m_1 = coot::util::get_previous_residue(residue_spec, mol);
@@ -491,7 +491,7 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_res
          if (r_p_1) rv.push_back(r_p_1);
          if (r_p_2) rv.push_back(r_p_2);
       }
-      if (mode == HEPTUPLE) {
+      if (mode == "HEPTUPLE") {
          mmdb::Residue *r_p_1 = coot::util::get_following_residue(residue_spec, mol);
          mmdb::Residue *r_p_2 = coot::util::get_following_residue(coot::residue_spec_t(r_p_1), mol);
          mmdb::Residue *r_p_3 = coot::util::get_following_residue(coot::residue_spec_t(r_p_2), mol);
@@ -506,21 +506,21 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_res
          if (r_p_2) rv.push_back(r_p_2);
          if (r_p_3) rv.push_back(r_p_3);
       }
-      if (mode == CHAIN) {
+      if (mode == "CHAIN") {
          mmdb::Chain *chain_p = residue_p->GetChain();
          rv = coot::util::residues_in_chain(chain_p);
       }
-      if (mode == ALL) {
+      if (mode == "ALL") {
          rv = all_residues(mol);
       }
-      if (mode == SPHERE) {
+      if (mode == "SPHERE") {
          float radius = 4.2;
          // do these need to be sorted here?
          auto v = coot::residues_near_residue(residue_p, mol, radius);
          rv.push_back(residue_p);
          std::move(v.begin(), v.end(), std::back_inserter(rv));
       }
-      if (mode == BIG_SPHERE) {
+      if (mode == "BIG_SPHERE") {
          float radius = 8.0;
          // do these need to be sorted here?
          auto v = coot::residues_near_residue(residue_p, mol, radius);
@@ -985,7 +985,7 @@ void
 coot::molecule_t::make_bonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p) {
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
-   make_bonds_type_checked(geom, rot_prob_tables_p, __FUNCTION__);
+   make_bonds_type_checked(geom, rot_prob_tables_p);
 
    std::cout << "debug:: in molecule_t::make_bonds() " << bonds_box.n_bonds() << " bonds " << bonds_box.n_atoms() << " atoms "
              << std::endl;
