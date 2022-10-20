@@ -521,11 +521,15 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, refine_res
          std::move(v.begin(), v.end(), std::back_inserter(rv));
       }
       if (mode == BIG_SPHERE) {
-         float radius = 14.2;
+         float radius = 8.0;
          // do these need to be sorted here?
          auto v = coot::residues_near_residue(residue_p, mol, radius);
+         std::cout << "big_sphere ############### v size " << v.size() << std::endl;
          rv.push_back(residue_p);
-         std::move(v.begin(), v.end(), std::back_inserter(rv));
+         // std::move(v.begin(), v.end(), std::back_inserter(rv));
+         for (const auto &r : v)
+            rv.push_back(r);
+         std::cout << "big_sphere ############### rv size " << rv.size() << std::endl;
       }
    }
 
@@ -1945,3 +1949,22 @@ coot::molecule_t::get_fixed_atoms() const {
 
    return fixed_atom_specs;
 }
+
+#if 0
+#include "add-terminal-residue.hh"
+
+std::pair<int, std::string>
+coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, const std::string &new_res_type,
+                                                const coot::protein_geometry &geom,
+                                                const clipper::Xmap<float> &xmap) {
+
+   std::string terminus_type("C");
+   mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
+   float bf_new = default_temperature_factor_for_new_atoms;
+   std::pair<int, std::string> r = add_terminal_residue(imol_no, terminus_type, residue_p,
+                                                        atom_sel.mol, atom_sel.UDDAtomIndexHandle,
+                                                        spec.chain_id, new_res_type,
+                                                        bf_new, xmap, geom);
+   return r;
+}
+#endif
