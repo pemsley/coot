@@ -399,6 +399,16 @@ coot::molecule_t::make_backup() {
 
                istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
 
+               if (true) { // 20221021-PE this should not be needed
+                  struct stat buf;
+                  int err = stat(backup_file_name.c_str(), &buf);
+                  if (err == 0) {
+                     std::cout << "DEBUG:: in make_backup() " << backup_file_name << " confirmed as existing" << std::endl;
+                  } else {
+                     std::cout << "DEBUG:: in make_backup() " << backup_file_name << " does not exist!" << std::endl;
+                  }
+               }
+
                // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
                if (istat) {
                   std::string warn;
