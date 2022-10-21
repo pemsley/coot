@@ -1865,8 +1865,26 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
 	 }
       }
    }
-
    return rr;
-   
+}
 
+
+int
+molecules_container_t::mutate(int imol, const std::string &cid, const std::string &new_residue_type) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (true) {
+         // clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
+         coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
+         coot::residue_spec_t residue_spec(atom_spec);
+         status = molecules[imol].mutate(residue_spec, new_residue_type);
+         std::cout << "mutate status " << status << std::endl;
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 }

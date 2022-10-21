@@ -112,7 +112,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
   }
 
-  clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso);
+  clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
   xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
   std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
   std::cout << "doing fft..." << std::endl;

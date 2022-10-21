@@ -323,7 +323,7 @@ namespace coot {
       coot::simple_mesh_t get_rotamer_dodecs(coot::protein_geometry *geom_p,
                                              coot::rotamer_probability_tables *rpt);
 
-      // model-changing functions
+      // ------------------------ model-changing functions
 
       int flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
       int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
@@ -346,6 +346,8 @@ namespace coot {
                                                                 const std::string &new_res_type,
                                                                 const coot::protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap);
+
+      int mutate(const coot::residue_spec_t &spec, const std::string &new_res_type);
 
 
       // ----------------------- refinement

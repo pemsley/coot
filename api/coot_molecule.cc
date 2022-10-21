@@ -2025,7 +2025,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
    if (residue_p) {
-      std::string terminus_type = coot::get_term_type_x(residue_p, atom_sel.mol);
+      std::string terminus_type = coot::get_term_type(residue_p, atom_sel.mol);
       float bf_new = default_temperature_factor_for_new_atoms;
       r = add_terminal_residue(imol_no, terminus_type, residue_p,
                                atom_sel.mol, atom_sel.UDDAtomIndexHandle,
@@ -2037,3 +2037,14 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
    return r;
 }
 
+
+int
+coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &new_res_type) {
+
+   mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
+   int status = coot::util::mutate(residue_p, new_res_type);
+   std::cout << "mutate status " << status << std::endl;
+   write_coordinates("mutated.pdb");
+   return status;
+
+}

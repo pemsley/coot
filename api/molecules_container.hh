@@ -152,7 +152,7 @@ class molecules_container_t {
       continue_threaded_refinement_loop = false;
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
-      map_sampling_rate = 2.0;
+      map_sampling_rate = 2.2;
    }
 
 public:
@@ -294,6 +294,8 @@ public:
    int mutate_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &res_type);
    int flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf);
    int flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf);
+
+   int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
    // -------------------------------- coordinates refinement ------------------------------
 
