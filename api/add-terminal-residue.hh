@@ -26,7 +26,7 @@ namespace coot {
 
    void remove_ter_atoms(mmdb::Manager *mol, mmdb::Residue *residue_p);
 
-   std::string get_term_type(mmdb::Residue *residue_p, mmdb::Manager *mol);
+   std::string get_term_type_x(mmdb::Residue *residue_p, mmdb::Manager *mol);
 
 }
 

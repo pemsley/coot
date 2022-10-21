@@ -116,7 +116,7 @@ coot::remove_TER_internal(mmdb::Manager *mol, mmdb::Residue *residue_p) {
 // altlocs at least.
 //
 std::string
-coot::get_term_type(mmdb::Residue *residue_p, mmdb::Manager *mol) {
+coot::get_term_type_x(mmdb::Residue *residue_p, mmdb::Manager *mol) {
 
    std::string term_type = "not-terminal-residue"; // returned thing
 
