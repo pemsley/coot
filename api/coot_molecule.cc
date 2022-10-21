@@ -2043,7 +2043,7 @@ coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &ne
 
    mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
    int status = coot::util::mutate(residue_p, new_res_type);
-   std::cout << "mutate status " << status << std::endl;
+   // std::cout << "mutate status " << status << std::endl;
    write_coordinates("mutated.pdb");
    return status;
 

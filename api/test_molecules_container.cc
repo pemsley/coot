@@ -500,9 +500,9 @@ int test_mutate(molecules_container_t &mc) {
    coot::atom_spec_t atom_spec_ser("A", 270, "", " OG ",""); // current SER
    coot::atom_spec_t atom_spec_tyr("A", 270, "", " OH ",""); // TYR
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_ser);
-   std::string cid = "//A/27O/CA";
    if (at_1) {
-      std::cout << "debug:: found atom at_1 " << at_1 << std::endl;
+      // std::cout << "debug:: found atom at_1 " << at_1 << std::endl;
+      std::string cid = "//A/270/CA";
       int mutate_status = mc.mutate(imol, cid, "TYR");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_tyr);
       if (at_2) {
@@ -515,7 +515,6 @@ int test_mutate(molecules_container_t &mc) {
       std::cout << "failed to find at_1" << std::endl;
    }
    return status;
-
 }
 
 
@@ -563,20 +562,20 @@ int main(int argc, char **argv) {
 
    if (! last_test_only) {
 
-      status += run_test(test_rama_balls_mesh,   "rama balls mesh",           mc);
-      status += run_test(test_density_mesh,      "density mesh",              mc);
-      status += run_test(test_auto_fit_rotamer,  "auto-fit rotamer",          mc);
-      status += run_test(test_pepflips,          "pepflips",                  mc);
-      status += run_test(test_updating_maps,     "updating maps",             mc);
-      status += run_test(test_undo_and_redo,     "undo and redo",             mc);
-      status += run_test(test_delete_atom,       "delete atom",               mc);
-      status += run_test(test_delete_residue,    "delete residue",            mc);
+      status += run_test(test_rama_balls_mesh,    "rama balls mesh",          mc);
+      status += run_test(test_density_mesh,       "density mesh",             mc);
+      status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
+      status += run_test(test_pepflips,           "pepflips",                 mc);
+      status += run_test(test_updating_maps,      "updating maps",            mc);
+      status += run_test(test_undo_and_redo,      "undo and redo",            mc);
+      status += run_test(test_delete_atom,        "delete atom",              mc);
+      status += run_test(test_delete_residue,     "delete residue",           mc);
       status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
       status += run_test(test_delete_chain,       "delete chain",             mc);
       status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
-      status += run_test(test_add_terminal_residue, "add terminal residue", mc);
+      status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
    }
 
    status += run_test(test_mutate, "mutate", mc);

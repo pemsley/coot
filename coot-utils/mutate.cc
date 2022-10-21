@@ -30,13 +30,13 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    catch (const std::runtime_error &mess) {
    } 
 
-   bool verb = false;
-   if (verb) { 
-      std::cout << "Mutate Atom Tables" << std::endl;
-      std::cout << "Before " << residue_spec_t(residue) <<std::endl;
+   bool verbose = false;
+   if (verbose) {
+      std::cout << "mutate_internal() Mutate Atom Tables" << std::endl;
+      std::cout << "mutate_internal() Before " << residue_spec_t(residue) <<std::endl;
       for(int i=0; i<nResidueAtoms; i++)
          std::cout << residue_atoms[i]->name << std::endl;
-      std::cout << "To be replaced by: " << residue_spec_t(std_residue) << std::endl;
+      std::cout << "mutate_internal() To be replaced by: " << residue_spec_t(std_residue) << std::endl;
       for(int i=0; i<n_std_ResidueAtoms; i++)
          std::cout << std_residue_atoms[i]->name << std::endl;
    }
@@ -83,6 +83,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
          std_residue_atoms[i]->tempFactor = b_factor;
          mmdb::Atom *copy_at = new mmdb::Atom;
          copy_at->Copy(std_residue_atoms[i]);
+         // std::cout << "adding atom " << coot::atom_spec_t(copy_at) << std::endl;
          residue->AddAtom(copy_at);
          if (use_old_seg_id) {
             strcpy(copy_at->segID, old_seg_id_for_residue_atoms.c_str());
@@ -91,6 +92,8 @@ coot::util::mutate_internal(mmdb::Residue *residue,
             strcpy(copy_at->altLoc, alt_conf.c_str());
       }
    }
+
+   std::cout << "end of mutate_internal() residue has type " << residue->GetResName() << std::endl;
 
    residue->SetResName(std_residue->GetResName());
    residue->TrimAtomTable();
@@ -111,8 +114,9 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    std_res_unoriented->GetAtomTable(residue_atoms, nResidueAtoms);
+
    if (nResidueAtoms == 0) {
-      std::cout << " something broken in atom residue selection in ";
+      std::cout << "ERROR:: something broken in atom residue selection in ";
       std::cout << "mutate, got 0 atoms" << std::endl;
    } else {
       for(int iat=0; iat<nResidueAtoms; iat++) {
