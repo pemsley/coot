@@ -327,6 +327,7 @@ int test_rsr(molecules_container_t &mc) {
    mc.refine_residues(imol, "A", 14, "", "", mode);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+   mc.write_coordinates(imol, "refined-with-big-sphere.pdb");
 
    double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
    double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
@@ -349,9 +350,6 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
    int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
-
-   // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-   // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
 
    mc.set_imol_refinement_map(imol_map);
 
@@ -384,6 +382,113 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
       if (d_2 > 0.1)
          status = true;
 
+   return status;
+}
+
+int test_add_terminal_residue(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+   mc.set_imol_refinement_map(imol_map);
+
+   // test adding to the N-terminus
+   bool part_one_done = false;
+   coot::atom_spec_t atom_spec_in_new_residue("A", 284, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
+   if (! at_1) { // it's not there to begin with
+      mc.add_terminal_residue_directly(imol, "A", 285, "");
+      mc.write_coordinates(imol, "with-added-terminal-residue.pdb");
+      mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
+      if (at_2) {
+         // now test that it is there
+         coot::Cartesian reference_pos(76.3, 59, 23);
+         coot::Cartesian atom_pos = atom_to_cartesian(at_2);
+         double dd = coot::Cartesian::lengthsq(reference_pos, atom_pos);
+         double d = std::sqrt(dd);
+         std::cout << "debug d1 in test_add_terminal_residue " << d << std::endl;
+         if (d < 1.0)
+            part_one_done = true;
+      } else {
+         std::cout << "ERROR:: failed to find atom " << atom_spec_in_new_residue << std::endl;
+      }
+   } else {
+      std::cout << "ERROR:: atom already exists " << atom_spec_in_new_residue << std::endl;
+   }
+
+
+   // test adding to the C-terminus
+   bool part_two_done = false;
+   atom_spec_in_new_residue = coot::atom_spec_t("A", 279, "", " O  ","");
+   at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
+   if (! at_1) { // it's not there to begin with
+      mc.add_terminal_residue_directly(imol, "A", 278, "");
+      mc.write_coordinates(imol, "with-added-terminal-residue.pdb");
+      mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
+      if (at_2) {
+         // now test that it is there
+         coot::Cartesian reference_pos(67.3, 60, 23);
+         coot::Cartesian atom_pos = atom_to_cartesian(at_2);
+         double dd = coot::Cartesian::lengthsq(reference_pos, atom_pos);
+         double d = std::sqrt(dd);
+         std::cout << "debug d2 in test_add_terminal_residue " << d << std::endl;
+         if (d < 2.0)
+            part_two_done = true;
+      } else {
+         std::cout << "ERROR:: failed to find atom " << atom_spec_in_new_residue << std::endl;
+      }
+   } else {
+      std::cout << "ERROR:: atom already exists " << atom_spec_in_new_residue << std::endl;
+   }
+
+   if (part_one_done && part_two_done)
+      status = 1;
+
+   return status;
+}
+
+int test_delete_chain(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      mc.delete_using_cid(imol, "/1/A/20/CA", "CHAIN");
+      mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+      if (at_2) {
+         // fail - it should not be there
+      } else {
+         status = 1;
+      }
+   } else {
+      std::cout << "ERROR:: existing atom in imol not found " << atom_spec << std::endl;
+   }
+   return status;
+}
+
+int test_delete_molecule(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      mc.delete_using_cid(imol, "/1/A/20/CA", "MOLECULE");
+      mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+      if (at_2) {
+         // fail - it should not be there
+      } else {
+         status = 1;
+      }
+   } else {
+      std::cout << "ERROR:: existing atom in imol not found " << atom_spec << std::endl;
+   }
    return status;
 }
 
@@ -420,19 +525,23 @@ int main(int argc, char **argv) {
 
    if (! last_test_only) {
 
-      status += run_test(test_rama_balls_mesh,  "rama balls mesh",          mc);
-      status += run_test(test_density_mesh,     "density mesh",             mc);
-      status += run_test(test_auto_fit_rotamer, "auto-fit rotamer",         mc);
-      status += run_test(test_pepflips,         "pepflips",                 mc);
-      status += run_test(test_updating_maps,    "updating maps",            mc);
-      status += run_test(test_undo_and_redo,    "undo and redo",            mc);
-      status += run_test(test_delete_atom,      "delete atom",              mc);
-      status += run_test(test_delete_residue,   "delete residue",           mc);
-      status += run_test(test_rota_dodecs_mesh, "rotamer dodecahedra mesh", mc);
-      status += run_test(test_rsr,              "rsr",                      mc);
+      status += run_test(test_rama_balls_mesh,   "rama balls mesh",           mc);
+      status += run_test(test_density_mesh,      "density mesh",              mc);
+      status += run_test(test_auto_fit_rotamer,  "auto-fit rotamer",          mc);
+      status += run_test(test_pepflips,          "pepflips",                  mc);
+      status += run_test(test_updating_maps,     "updating maps",             mc);
+      status += run_test(test_undo_and_redo,     "undo and redo",             mc);
+      status += run_test(test_delete_atom,       "delete atom",               mc);
+      status += run_test(test_delete_residue,    "delete residue",            mc);
+      status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
+      status += run_test(test_rsr,                "rsr",                      mc);
+      status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
+      status += run_test(test_delete_chain,       "delete chain",             mc);
+      status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
+
    }
 
-   status += run_test(test_rsr_using_atom_cid, "rsr using atom cid", mc);
+   status += run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // add a test for:
    // delete_atoms

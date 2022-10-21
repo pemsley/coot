@@ -218,6 +218,7 @@ public:
    void display_molecule_names_table() const;
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;
+   int close_molecule(int imol);
 
    // -------------------------------- geometry/dictionaries --------------------------------
 
@@ -264,6 +265,9 @@ public:
    int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf,
                         int imol_map);
 
+   //where scope in ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE"]
+   int delete_using_cid(int imol, const std::string &cid, const std::string &scope);
+
    int delete_atom(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                    const std::string &atom_name, const std::string &alt_conf);
    int delete_atom_using_cid(int imol, const std::string &cid);
@@ -275,8 +279,12 @@ public:
                                           const std::string &alt_conf);
    int delete_residue_atoms_using_cid(int imol, const std::string &cid);
 
-   // return a useful message if the addition did not work
-   std::pair<int, std::string> add_terminal_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+   int delete_chain_using_cid(int imol, const std::string &cid);
+
+   //! @return a useful message if the addition did not work
+   std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+   //! @return a useful message if the addition did not work
+   std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    // updates imol_model (of course)
    int add_waters(int imol_model, int imol_map);
@@ -286,7 +294,6 @@ public:
    int mutate_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &res_type);
    int flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf);
    int flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf);
-
 
    // -------------------------------- coordinates refinement ------------------------------
 

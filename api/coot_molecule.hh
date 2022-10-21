@@ -225,6 +225,10 @@ namespace coot {
                                             99999.9, 0.0, false, false);
       }
 
+      // ------------------------ close
+
+      int close_yourself();
+
       // ----------------------- structure factor stuff ------------------------------------------------------
 
       void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
@@ -336,6 +340,13 @@ namespace coot {
       int delete_atom(coot::atom_spec_t &atom_spec);
       int delete_residue(coot::residue_spec_t &residue_spec);
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
+      int delete_chain_using_atom_cid(const std::string &cid);
+
+      std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
+                                                                const std::string &new_res_type,
+                                                                const coot::protein_geometry &geom,
+                                                                const clipper::Xmap<float> &xmap);
+
 
       // ----------------------- refinement
 

@@ -42,6 +42,21 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+int
+molecules_container_t::close_molecule(int imol) {
+
+   int status = 0;
+   int ms = molecules.size(); // type change
+   if (imol < ms) {
+      if (imol >= 0) {
+         molecules[imol].close_yourself();
+         status = 1;
+      }
+   }
+   return status;
+}
+
+
 void
 molecules_container_t::display_molecule_names_table() const {
 
@@ -187,8 +202,9 @@ molecules_container_t::read_mtz(const std::string &file_name,
       m.set_map_is_difference_map(true);
    if (status) {
       molecules.push_back(m);
-      std::cout << "DEBUG:: in read_mtz() imol map: " << imol << " diff-map-status: " << is_a_difference_map << std::endl;
       imol = imol_in_hope;
+      std::cout << "DEBUG:: in read_mtz() " << file_name << " imol map: " << imol
+                << " diff-map-status: " << is_a_difference_map << std::endl;
    }
    return imol;
 }
@@ -572,16 +588,55 @@ molecules_container_t::delete_residue(int imol,
 
 
 int
-molecules_container_t::delete_residue_using_cid(int imol, const std::string &cid) {
+molecules_container_t::delete_residue_using_cid(int imol, const std::string &residue_cid) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
-      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, cid);
+      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, residue_cid);
       status = molecules[imol].delete_residue(residue_spec);
    }
    return status;
 }
 
+int
+molecules_container_t::delete_residue_atoms_using_cid(int imol, const std::string &atom_cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
+      coot::residue_spec_t residue_spec(atom_spec);
+      status = molecules[imol].delete_residue(residue_spec);
+   }
+   return status;
+}
+
+
+int
+molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol))
+      status = molecules[imol].delete_chain_using_atom_cid(cid);
+   return status;
+}
+
+
+
+//where scope in ["ATOM","WATER", "RESIDUE","CHAIN","MOLECULE"]
+int
+molecules_container_t::delete_using_cid(int imol, const std::string &cid, const std::string &scope) {
+
+   int status = 0;
+   if (scope == "ATOM")
+      status = delete_atom_using_cid(imol, cid);
+   if (scope == "RESIDUE")
+      status = delete_residue_atoms_using_cid(imol, cid);
+   if (scope == "CHAIN")
+      status = delete_chain_using_cid(imol, cid);
+   if (scope == "MOLECULE")
+      status = close_molecule(imol);
+   return status;
+}
 
 
 int
@@ -636,18 +691,27 @@ molecules_container_t::difference_map_peaks(int imol_map, int imol_protein, floa
 
 // return a useful message if the addition did not work
 std::pair<int, std::string>
-molecules_container_t::add_terminal_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+molecules_container_t::add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
 
+   std::string new_res_type = "ALA";
    int status = 0;
    std::string message;
+
    if (is_valid_model_molecule(imol)) {
-      // status = molecules[imol].add_terminal_residue(chain_id, res_no, ins_code);
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
+         coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+         std::pair<int, std::string> m = molecules[imol].add_terminal_residue_directly(residue_spec, new_res_type,
+                                                                                       geom, xmap);
+         status  = m.first;
+         message = m.second;
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
+      }
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-
    return std::make_pair(status, message);
-
 }
 
 void

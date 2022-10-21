@@ -263,6 +263,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/simple-mesh.cc
             ${coot_src}/api/make-a-dodec.cc
+            ${coot_src}/api/add-terminal-residue.cc
 
 )
 

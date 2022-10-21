@@ -20,6 +20,22 @@ coot::molecule_t::is_valid_model_molecule() const {
 
 }
 
+int
+coot::molecule_t::close_yourself() {
+
+   int status = 1;
+   if (is_valid_model_molecule()) {
+      atom_sel.clear_up();
+      status = 1;
+   }
+   if (is_valid_map_molecule()) {
+      clipper::Xmap<float> xmap_empty;
+      xmap = xmap_empty;
+      status = 1;
+   }
+   return status;
+}
+
 bool
 coot::molecule_t::is_valid_map_molecule() const {
 
@@ -1816,6 +1832,7 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
       coot::residue_spec_t spec(residue_spec.model_number, residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code);
       delete_any_link_containing_residue(spec);
       atom_sel.mol->FinishStructEdit();
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
       atom_sel = make_asc(atom_sel.mol);
 
       save_info.new_modification();
@@ -1825,6 +1842,43 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
    }
    return was_deleted;
 }
+
+int
+coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
+
+   int done = 0;
+
+   std::pair<bool, atom_spec_t> spec_pair = cid_to_atom_spec(cid);
+   if (spec_pair.first) {
+      const auto &spec = spec_pair.second;
+      const std::string &chain_id =  spec.chain_id;
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               if (chain_p) {
+                  std::string this_chain_id(chain_p->GetChainID());
+                  if (this_chain_id == chain_id) {
+                     make_backup();
+                     model_p->DeleteChain(ichain);
+                     done = true;
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (done) {
+      atom_sel.mol->FinishStructEdit();
+      // update_molecule_after_additions();
+   }
+
+   return done;
+}
+
 
 std::vector<std::string>
 coot::molecule_t::non_standard_residue_types_in_model() const {
@@ -1950,7 +2004,7 @@ coot::molecule_t::get_fixed_atoms() const {
    return fixed_atom_specs;
 }
 
-#if 0
+
 #include "add-terminal-residue.hh"
 
 std::pair<int, std::string>
@@ -1958,13 +2012,18 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
                                                 const coot::protein_geometry &geom,
                                                 const clipper::Xmap<float> &xmap) {
 
-   std::string terminus_type("C");
+   std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
-   float bf_new = default_temperature_factor_for_new_atoms;
-   std::pair<int, std::string> r = add_terminal_residue(imol_no, terminus_type, residue_p,
-                                                        atom_sel.mol, atom_sel.UDDAtomIndexHandle,
-                                                        spec.chain_id, new_res_type,
-                                                        bf_new, xmap, geom);
+   if (residue_p) {
+      std::string terminus_type = coot::get_term_type(residue_p, atom_sel.mol);
+      float bf_new = default_temperature_factor_for_new_atoms;
+      std::pair<int, std::string> r = add_terminal_residue(imol_no, terminus_type, residue_p,
+                                                           atom_sel.mol, atom_sel.UDDAtomIndexHandle,
+                                                           spec.chain_id, new_res_type,
+                                                           bf_new, xmap, geom);
+   } else {
+      std::cout << "WARNING:: in add_terminal_residue_directly() null residue_p " << std::endl;
+   }
    return r;
 }
-#endif
+
