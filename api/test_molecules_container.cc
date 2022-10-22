@@ -519,6 +519,25 @@ int test_mutate(molecules_container_t &mc) {
 }
 
 
+int test_weird_delete(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   coot::atom_spec_t atom_spec("A", 151, "", " N  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      mc.delete_using_cid(imol, "//A/151", "RESIDUE");
+      coot::residue_spec_t res_spec("A", 151, "");
+      mmdb::Residue *r = mc.get_residue(imol, res_spec);
+      if (!r)
+         status = 1;
+   } else {
+      std::cout << "ERROR:: failed to find test atom " << atom_spec << std::endl;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -576,13 +595,14 @@ int main(int argc, char **argv) {
       status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
       status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
       status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
+      status += run_test(test_mutate,              "mutate",                  mc);
+      status += run_test(test_delete_atom,        "delete atom",              mc);
    }
 
-   status += run_test(test_mutate, "mutate", mc);
 
-      status += run_test(test_delete_atom,        "delete atom",              mc);
+   status += run_test(test_weird_delete,        "delete II",              mc);
 
-   int all_tests_status = 1;
+   int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
 
    return all_tests_status;

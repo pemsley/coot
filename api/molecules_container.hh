@@ -169,10 +169,12 @@ public:
    coot::residue_spec_t residue_cid_to_residue_spec(int imol, const std::string &cid) const;
 
    coot::simple_mesh_t test_origin_cube() const;
+#ifndef SWIG
    coot::molecule_t & operator[] (unsigned int imol) {
       // maybe this should throw an exception on out-of-range?
       return molecules[imol];
    }
+#endif
    mmdb::Manager *get_mol(unsigned int imol) const { // 20221018-PE function name change
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
@@ -347,13 +349,6 @@ public:
    sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map);
-
-   class simple_coord_t {
-   public:
-      float x, y, z;
-      simple_coord_t() : x(0), y(0), z(0) {}
-      simple_coord_t(const float &x_in, const float &y_in, const float &z_in) : x(x_in), y(y_in), z(z_in) {}
-   };
 
    //! Given a point on the front clipping plane (x1, y1, z1) and a point on the back clipping plane (x2, y2, z2)
    //! this function searches imol_refinement_map (if set) to find a the centre of a blob above the contour level.
