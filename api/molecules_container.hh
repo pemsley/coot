@@ -296,8 +296,8 @@ public:
    int delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    int mutate_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &res_type);
-   int flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf);
-   int flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf);
+   int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
+   int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 

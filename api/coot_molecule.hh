@@ -325,7 +325,7 @@ namespace coot {
 
       // ------------------------ model-changing functions
 
-      int flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf);
+      int flip_peptide(const coot::atom_spec_t &rs, const std::string &alt_conf);
       int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
                            const std::string &alt_conf,
                            const clipper::Xmap<float> &xmap, const coot::protein_geometry &pg);

@@ -135,24 +135,26 @@ molecules_container_t::redo(int imol) {
 
 
 int
-molecules_container_t::flip_peptide(int imol, const coot::residue_spec_t &rs, const std::string &alt_conf) {
+molecules_container_t::flip_peptide(int imol, const coot::atom_spec_t &as, const std::string &alt_conf) {
 
    int result = 0;
    if (is_valid_model_molecule(imol)) {
-      result = molecules[imol].flip_peptide(rs, alt_conf);
+      result = molecules[imol].flip_peptide(as, alt_conf);
    }
    return result;
 }
 
 int
-molecules_container_t::flip_peptide_using_cid(int imol, const std::string &cid, const std::string &alt_conf) {
+molecules_container_t::flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf) {
 
    int result = 0;
    if (is_valid_model_molecule(imol)) {
       auto &m = molecules[imol];
-      std::pair<bool, coot::residue_spec_t> rs = m.cid_to_residue_spec(cid);
-      if (rs.first)
-         result = molecules[imol].flip_peptide(rs.second, alt_conf);
+      std::pair<bool, coot::atom_spec_t> as = m.cid_to_atom_spec(atom_cid);
+      if (as.first) {
+         const auto &atom_spec = as.second;
+         result = molecules[imol].flip_peptide(atom_spec, alt_conf); // N check in here
+      }
    }
    return result;
 }

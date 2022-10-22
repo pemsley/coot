@@ -74,13 +74,15 @@ int test_pepflips(molecules_container_t &mc) {
       mmdb::Atom *at = mc.get_atom(imol, atom_spec);
       if (at) {
          coot::Cartesian pt_1(at->x, at->y, at->z);
-         mc.flip_peptide(imol, res_spec, "");
+         mc.flip_peptide(imol, atom_spec, "");
          coot::Cartesian pt_2(at->x, at->y, at->z);
          double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
          double d = std::sqrt(dd);
-         if (d > 3.0) {
+         std::cout << "debug:: in test_pepflips() for " << atom_spec << " d is " << d << std::endl;
+         if (d > 3.0)
             n_flipped++;
-         }
+      } else {
+         std::cout << "ERROR:: in test_pepflips() failed to find atom " << atom_spec << std::endl;
       }
    }
 
@@ -89,15 +91,15 @@ int test_pepflips(molecules_container_t &mc) {
 
    if (n_flipped == res_nos.size()) {
 
-      std::string residue_cid = "//A/100";
-      auto rs = mc.residue_cid_to_residue_spec(imol, residue_cid);
-      if (! rs.empty()) {
-         const auto &res_spec = rs;
-         coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
-         mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+      // test Atom cid and that flipping the N atom flips the previous residue
+      std::string atom_cid = "//A/100/N";
+      auto atom_spec = mc.atom_cid_to_atom_spec(imol, atom_cid);
+      if (! atom_cid.empty()) {
+         coot::atom_spec_t atom_spec_of_moving_O("A", 99, "", " O  ", "");
+         mmdb::Atom *at = mc.get_atom(imol, atom_spec_of_moving_O);
          if (at) {
             coot::Cartesian pt_1(at->x, at->y, at->z);
-            mc.flip_peptide_using_cid(imol, residue_cid, "");
+            mc.flip_peptide_using_cid(imol, atom_cid, "");
             coot::Cartesian pt_2(at->x, at->y, at->z);
             double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
             double d = std::sqrt(dd);
@@ -585,7 +587,6 @@ int main(int argc, char **argv) {
       status += run_test(test_rama_balls_mesh,    "rama balls mesh",          mc);
       status += run_test(test_density_mesh,       "density mesh",             mc);
       status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
-      status += run_test(test_pepflips,           "pepflips",                 mc);
       status += run_test(test_updating_maps,      "updating maps",            mc);
       status += run_test(test_undo_and_redo,      "undo and redo",            mc);
       status += run_test(test_delete_residue,     "delete residue",           mc);
@@ -598,10 +599,11 @@ int main(int argc, char **argv) {
       status += run_test(test_mutate,              "mutate",                  mc);
       status += run_test(test_delete_atom,        "delete atom",              mc);
       status += run_test(test_weird_delete,        "delete II",               mc);
+      status += run_test(test_rsr,                "rsr",                      mc);
    }
 
 
-   status += run_test(test_rsr,                "rsr",                      mc);
+   status += run_test(test_pepflips,           "pepflips",                 mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

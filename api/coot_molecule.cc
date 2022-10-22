@@ -997,10 +997,13 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
 }
 
 
-int coot::molecule_t::flip_peptide(const coot::residue_spec_t &rs, const std::string &alt_conf) {
+int coot::molecule_t::flip_peptide(const coot::atom_spec_t &as_in, const std::string &alt_conf) {
 
    make_backup();
-   int result = coot::pepflip(atom_sel.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
+   coot::atom_spec_t as = as_in;
+   if (as.atom_name == " N  ")
+      as.res_no--;
+   int result = coot::pepflip(atom_sel.mol, as.chain_id, as.res_no, as.ins_code, alt_conf);
    save_info.new_modification();
    return result;
 
