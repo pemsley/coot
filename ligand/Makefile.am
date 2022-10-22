@@ -82,7 +82,14 @@ libcoot_res_tracer_la_SOURCES = libres-tracer.cc rama-rsr-extend-fragments.cc ne
 
 libcoot_res_tracer_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-libcoot_res_tracer_la_LIBADD = libcoot-ligand.la
+libcoot_res_tracer_la_LIBADD = libcoot-ligand.la           \
+	$(top_builddir)/ideal/libcoot-ideal.la             \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \

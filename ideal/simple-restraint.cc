@@ -1759,8 +1759,9 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            if (dist > 0.25) { // 20220503-PE was 0.05 - we want to see angy diego only when the
-                               // atom are really too close
+            const double &dist_crit = 0.55; // 20220924-PE was 0.25 - but that made too many
+            if (dist > dist_crit) { // 20220503-PE was 0.05 - we want to see angy diego only when the
+                                    // atom are really too close
 
                // if this is slow, add the result of this test as a boolean as the restraint
                // is being created, is_close_main_chain_nbc_flag is part of a simple_restraint;

@@ -6219,6 +6219,11 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    //
    if (! scm_boot_guile_booted) return SCM_BOOL_F;
 
+   if (scheme_command.empty()) {
+      std::cout << "ERROR:: in safe_scheme_command() empty scheme_command" << std::endl;
+      return SCM_BOOL_F;
+   }
+   
    // std::cout << "starting safe_scheme_command() with scheme_command " << scheme_command << std::endl;
 
    // return SCM_BOOL_F;
@@ -6792,6 +6797,23 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
 }
 
 #ifndef EMSCRIPTEN
+// static
+void
+graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
+
+   user_defined_colours = user_defined_colours_in;
+   std::vector<glm::vec4> t_cols(user_defined_colours.size());
+   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+      const auto &col = user_defined_colours[i];
+      float alpha = 1.0; // put alpha into coot::colour_holder
+      t_cols[i] = glm::vec4(col.red, col.green, col.blue, alpha);
+   }
+   if (! user_defined_colours.empty())
+      texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
+
+}
+
+
 // static
 void
 graphics_info_t::check_keyboard_history_for_easter_egg_codes() {

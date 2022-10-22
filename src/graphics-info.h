@@ -2575,6 +2575,11 @@ public:
    static Shader camera_facing_quad_shader;  // uses camera-facing-quad-shader-for-testing.shader
 #endif
 
+   static Texture texture_for_background_image;
+   static HUDTextureMesh tmesh_for_background_image; // a HUDTextureMesh because we don't need tanget, bitangent
+   static Shader shader_for_background_image;
+   static bool draw_background_image_flag;
+
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
    //
@@ -2582,6 +2587,7 @@ public:
    static short int dynamic_map_size_display;
    static int graphics_sample_step;
    static int dynamic_map_zoom_offset;
+   static float goodsell_chain_colour_wheel_rotation_step;
 
    // uses cif_dictionary_filename_vec.
    //imol_enc can be the model molecule number or
@@ -2705,7 +2711,7 @@ public:
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
 					       mmdb::PPAtom atoms, int n_atoms);
-   static void fill_output_residue_info_widget_atom(GtkWidget *widget,
+   static void fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidget *widget,
 						    int imol, mmdb::PAtom atom, int iat);
    // and the keypres callbacks for the above
    static gboolean on_residue_info_occ_entry_key_release_event (GtkWidget       *widget,
@@ -3113,14 +3119,11 @@ public:
    void reset_residue_info_edits() { // set residue_info_edits to zero elements
       residue_info_edits->resize(0);
    }
-#ifndef EMSCRIPTEN
+
    void residue_info_release_memory(GtkWidget *dialog);
    void apply_residue_info_changes(GtkWidget *t);
-   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
-   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
-#endif
-   static void  residue_info_add_b_factor_edit(coot::select_atom_info sai, float val);
-   static void  residue_info_add_occ_edit(     coot::select_atom_info sai, float val);
+   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
+   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
 
    void add_picked_atom_info_to_status_bar(int imol, int atom_index);
 
@@ -3375,6 +3378,9 @@ public:
                                                  // hydrogen bonds. c.f. update_bad_nbc_atom_pair_marker_positions()
 
    static bool find_hydrogen_torsions_flag;
+
+   static Texture texture_for_hud_colour_bar;
+   static HUDTextureMesh tmesh_for_hud_colour_bar;
 
    // pickable moving atoms molecule
    // (we want to be able to avoid picking hydrogen atoms if the
@@ -3994,8 +4000,8 @@ public:
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+   int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
-   
 
    // -------- Texture Meshes (for importing glTF models) -------------
 #ifndef EMSCRIPTEN
@@ -4635,13 +4641,14 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules();
-   static void draw_model_molecules_with_shadows();
+   static void draw_model_molecules_symmetry_with_shadows();
    static void draw_intermediate_atoms(unsigned int pass_type);
    static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_hud_refinement_dialog_arrow_tab();
+   static void draw_hud_colour_bar();
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
@@ -4746,7 +4753,11 @@ string   static std::string sessionid;
    // by default, user-defined colours are on a colour wheel, but we can overwride that
    // by setting actual user defined colours for give colour indices
    //
+
    static std::vector<coot::colour_holder> user_defined_colours;
+   // this function sets up the colour bar too and enables its drawing. It will need extra args for
+   // the tick marks.
+   static void set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in);
    static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
    // run glColor3f())
    static void set_bond_colour_from_user_defined_colours(int icol);

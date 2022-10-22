@@ -130,11 +130,11 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
             if (PyTuple_Check(item_py)) {
                unsigned int l2 = PyObject_Length(item_py);
                if (l2 == 2) {
-                  std::cout << "l2 = 2 for " << item_py << std::endl;
+                  // std::cout << "l2 = 2 for " << item_py << std::endl;
                   PyObject *colour_index_py = PyTuple_GetItem(item_py, 0);
                   PyObject *colour_list_py  = PyTuple_GetItem(item_py, 1);
-                  std::cout << "debug colour_index_py " << colour_index_py << std::endl;
-                  std::cout << "colour_list_py " << colour_list_py << std::endl;
+                  // std::cout << "debug colour_index_py " << colour_index_py << std::endl;
+                  // std::cout << "colour_list_py " << colour_list_py << std::endl;
                   if (colour_index_py) {
                      if (colour_list_py) {
                         if (PyLong_Check(colour_index_py)) {
@@ -147,6 +147,9 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                                  double b = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 2));
                                  coot::colour_holder ch(r,g,b);
                                  int n_colours = colours.size();
+
+                                 // std::cout << "in set_user_defined_colours_py() colour_index " << colour_index
+                                 // << " colour " << ch << std::endl;
                                  if (colour_index < 10000) {
                                     if (colour_index < n_colours) {
                                        if (colour_index >= 0) {
@@ -158,6 +161,9 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                                           colours.reserve(2 * colour_index);
                                        colours.resize(colour_index+1);
                                        colours[colour_index] = ch;
+                                       if (false)
+                                          std::cout << "debug:: colours " << colour_index
+                                                    << " set to " << ch << std::endl;
                                     }
                                  }
                               }
@@ -168,7 +174,7 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                }
             }
          }
-         graphics_info_t::user_defined_colours = colours;
+         graphics_info_t::set_user_defined_colours(colours);
       }
    }
 }

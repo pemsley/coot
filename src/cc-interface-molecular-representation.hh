@@ -14,6 +14,9 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 #endif // USE_GUILE
 
 // not dependent on scm or python
+
+int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
+
 void remove_molecular_representation(int imol, int rep_no);
 
 #endif // USE_MOLECULES_TO_TRIANGLES

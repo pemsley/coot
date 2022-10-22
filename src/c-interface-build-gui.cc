@@ -1157,7 +1157,6 @@ GtkWidget *wrapped_create_fixed_atom_dialog() {
    // graphics_info_t::fixed_atom_dialog = w;
 
    GtkWidget *w = widget_from_builder("fixed_atom_dialog");
-   gtk_widget_show(w);
    return w;
 }
 

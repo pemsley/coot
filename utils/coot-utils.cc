@@ -1195,6 +1195,7 @@ coot::file_exists(const std::string &filename) {
    }
 }
 
+
 bool
 coot::file_is_empty(const std::string &filename) {
 
@@ -1208,6 +1209,37 @@ coot::file_is_empty(const std::string &filename) {
          return true;
    }
    return false;
+}
+
+bool
+coot::file_exists_and_non_empty(const std::string &file_name) {
+   bool status = false;
+   if (coot::file_exists(file_name)) {
+      struct stat buf;
+      int istat = stat(file_name.c_str(), &buf);
+      if (istat == 0) { // success
+         if (buf.st_size > 0) {
+            status = true;
+         }
+      }
+   }
+   return status;
+}
+
+bool
+coot::file_exists_and_non_tiny(const std::string &file_name, unsigned int tiny_size_max) {
+
+   bool status = false;
+   if (coot::file_exists(file_name)) {
+      struct stat buf;
+      int istat = stat(file_name.c_str(), &buf);
+      if (istat == 0) { // success
+         if (buf.st_size > tiny_size_max) {
+            status = true;
+         }
+      }
+   }
+   return status;
 }
 
 

@@ -4016,6 +4016,8 @@ INFO::
    o on charybdis: disable the build-latest cron-job
    o on charybdis: clear out pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+                   unfortunately the 1.0 complicated the extraction of the latest release.
+                   So the version is hard coded now! You will need to change it.
    o on charybdis: bash wrap-build-it-for-release.sh
                    that doesn't do the transfer to web server at the moment, so:
                    cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
@@ -10625,4 +10627,45 @@ Wed 29 Jun 04:10:16 BST 2022
   Look for "maching learning exmples" here
 
   https://www.neuraldesigner.com/blog - you will need to sign up first though.
+
+
+----
+Wed  3 Aug 06:46:59 BST 2022
+
+ Here's how to do a protected download:
+
+   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   // make coot-download if needed
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+   bool needs_downloading = true;
+   if (coot::file_exists_and_non_empty(fn))
+      needs_downloading = false;
+   if (needs_downloading) {
+      coot_get_url(url.c_str(), fn.c_str());
+   }
+
+----
+Wed 10 Aug 07:45:45 BST 2022
+
+  how to make sphinx documentation:
+
+  "Sphinx documentation requires first generating Doxygen documentation, then using the outputted xml with Breathe,
+  to generated the sphinx documentation."
+
+  https://github.com/tbattz/openGLPlotLive
+
+----
+Wed 10 Aug 08:58:04 BST 2022
+
+  OpenGL text (better than I have done it so far)
+
+  https://sourceforge.net/projects/ftgl/
+
+----
+Sun 25 Sep 14:06:27 BST 2022
+
+   6pkh is a candidate for glyco tutorial.  Needs blurring.
 

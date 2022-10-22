@@ -1060,8 +1060,6 @@ on_open_map1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
 
    gtk_widget_show (map_name_chooser);
    add_is_difference_map_checkbutton(map_name_chooser);
-
-   gtk_widget_show(map_name_chooser);
    set_directory_for_filechooser(map_name_chooser);
 
 }
@@ -1211,9 +1209,8 @@ on_go_to_atom_cancel_button_clicked_gtkbuilder_callback    (GtkButton       *but
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_atom1_activate_gtkbuilder_callback                (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_go_to_atom1_activate_gtkbuilder_callback (GtkMenuItem     *menuitem,
+                                             gpointer         user_data) {
      GtkWidget *widget;
 
      /* fills the window too */
@@ -1674,6 +1671,28 @@ on_fetch_pdb_and_map_using_pdb_redo1_activate_gtkbuilder_callback
    gtk_widget_show(window);
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_corresponding_alphafold_model_and_superpose1_activate
+                                        (GtkMenuItem     *menuitem,
+					 gpointer         user_data) {
+
+  fetch_and_superpose_alphafold_models_using_active_molecule();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_fetch_alphafold_model_using_uniprot_id1_activate(GtkMenuItem     *menuitem,
+                                                    gpointer         user_data) {
+   int n = COOT_UNIPROT_ID;
+   GtkWidget *window = widget_from_builder("accession_code_window");
+   g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
+   gtk_widget_show(window);
+
+}
+
 
 
 extern "C" G_MODULE_EXPORT
@@ -3401,6 +3420,20 @@ on_go_to_atom_atom_name_entry_key_press_event_gtkbuilder_callback (GtkWidget    
 
   return FALSE;
 }
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_go_to_atom_show_HOH_checkbutton_toggled(GtkToggleButton *togglebutton,
+                                           gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton))
+      std::cout << "Now show the waters" << std::endl;
+   else
+      std::cout << "Now hide the waters" << std::endl;
+
+   return FALSE;
+}
+
 
 
 extern "C" G_MODULE_EXPORT
@@ -9329,37 +9362,38 @@ void
 on_map_name_filechooserdialog1_response_gtkbuilder_callback
                                         (GtkDialog       *dialog,
                                         gint             response_id,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
+   // ------------------------------------- this function is not used. ----------------------------
+   // 20220809-PE Delete it.
+
+   std::cout << "------------------------ this function is not used ---------------------------"
+             << std::endl;
 
    if (response_id == GTK_RESPONSE_OK) {
+
       const char* filename;
       char *sfile;
       GtkWidget* map_name_fileselection1;
-      GtkWidget *checkbutton;
       short int is_diff_map_flag = 0;
 
-      map_name_fileselection1 = GTK_WIDGET(widget_from_builder(
-							 "map_name_filechooserdialog1"));
-      save_directory_from_filechooser(map_name_fileselection1);
+      GtkWidget *map_name_filechooser = widget_from_builder("map_name_filechooserdialog1");
+      save_directory_from_filechooser(map_name_filechooser);
 
       /* I don't think that we need to malloc this. */
 
-      checkbutton = widget_from_builder(
-				  "map_filechooser_is_difference_map_button");
-
+      GtkWidget *checkbutton = widget_from_builder("map_filechooser_is_difference_map_button");
       if (checkbutton)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
 	    is_diff_map_flag = 1;
 
       filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1));
 
-
       printf("CCP4 map filename: %s\n", filename);
       sfile = (char *) malloc (1001);
       strncpy(sfile, filename, 1000);
 
-      gtk_widget_hide(map_name_fileselection1); /* the file browser,
+      gtk_widget_hide(map_name_filechooser); /* the file browser,
 						      when destroyed,
 						      scribbles over
 						      filename. */
@@ -9367,10 +9401,7 @@ on_map_name_filechooserdialog1_response_gtkbuilder_callback
       free(sfile);
 
    } else {
-      GtkWidget *map_name_fileselection1 = widget_from_builder(
-							 "map_name_filechooserdialog1");
-
-      gtk_widget_hide(map_name_fileselection1);
+      gtk_widget_hide(GTK_WIDGET(dialog));
    }
 
 }

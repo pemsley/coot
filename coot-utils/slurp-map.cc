@@ -96,9 +96,13 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    }
 
    int mode = -1;
+   int data_size = 4; // 4 bytes for a float
    mode = *reinterpret_cast<int *>(data+12);
+   if (mode == 0) data_size = 1;
+   if (mode == 1) data_size = 2;
+   if (mode == 6) data_size = 2; // two-byte integer. Needs fixing in the casting.
    if (debug)
-      std::cout << "mode " << mode << std::endl;
+      std::cout << "slurp_map() mode: " << mode << std::endl;
 
    int nx_start = -1, ny_start = -1, nz_start = -1;
    int mx = -1, my = -1, mz = -1;
@@ -242,7 +246,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    // mrc.set_coord() is slow - it can be multi-threaded.
    // much faster than using conventional map loading though.
 
-   auto fill_map_sections = [] (std::pair<unsigned int, unsigned int> start_stop_section_index,
+   auto fill_map_sections = [data_size] (std::pair<unsigned int, unsigned int> start_stop_section_index,
                                 clipper::Xmap<float> *xmap,
                                 int n_secs, int n_rows, int n_cols,
                                 int nx_start, int ny_start, int nz_start,
@@ -263,10 +267,17 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                         mrc.set_coord(clipper::Coord_grid(crs[axis_order_xyz[0]],
                                                                           crs[axis_order_xyz[1]],
                                                                           crs[axis_order_xyz[2]]));
-                                        float f = *reinterpret_cast<const float *>(map_data + 4 * offset);
-                                        if (f >  10000) f = 0;
-                                        if (f < -10000) f = 0;
-                                        (*xmap)[mrc] = f;
+                                        if (data_size == 4) { // typical floating point data
+                                           float f = *reinterpret_cast<const float *>(map_data + 4 * offset);
+                                           if (f >  10000) f = 0;
+                                           if (f < -10000) f = 0;
+                                           (*xmap)[mrc] = f;
+                                        }
+                                        if (data_size == 1) {
+                                           const char *c = reinterpret_cast<const char *>(map_data + offset);
+                                           int ii = *c;
+                                           (*xmap)[mrc] = static_cast<float>(ii);
+                                        }
                                         offset++;
                                      }
                                   }

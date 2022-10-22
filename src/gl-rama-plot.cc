@@ -219,32 +219,32 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
    for (int imod=1; imod<=n_models; imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
+         int nchains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 2) { 
-	       for (int ires=1; ires<(nres-1); ires++) { 
+            int nres = chain_p->GetNumberOfResidues();
+            if (nres > 2) {
+               for (int ires=1; ires<(nres-1); ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		  mmdb::Residue *res_prev = coot::util::previous_residue(residue_p);
-		  mmdb::Residue *res_next = coot::util::next_residue(residue_p);
-		  if (res_prev && residue_p && res_next) {
-		     try {
-			// rama_plot::phi_psi_t constructor can throw an error
-			// (e.g. bonding atoms too far apart).
-			coot::residue_spec_t spec(residue_p);
-			rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
+                  mmdb::Residue *res_prev = coot::util::previous_residue(residue_p);
+                  mmdb::Residue *res_next = coot::util::next_residue(residue_p);
+                  if (res_prev && residue_p && res_next) {
+                     try {
+                        // rama_plot::phi_psi_t constructor can throw an error
+                        // (e.g. bonding atoms too far apart).
+                        coot::residue_spec_t spec(residue_p);
+                        rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
                         pp.imol = imol;
                         r[spec] = pp;
-		     }
-		     catch (const std::runtime_error &rte) {
-			// nothing too bad, just don't add that residue
-			// to the plot
-		     }
-		  }
-	       }
-	    }
-	 }
+                     }
+                     catch (const std::runtime_error &rte) {
+                        // nothing too bad, just don't add that residue
+                        // to the plot
+                     }
+                  }
+               }
+            }
+         }
       }
    }
 
@@ -434,6 +434,18 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    // glDisable(GL_DEPTH_TEST); // interesting.
    // glDisable(GL_BLEND);
+
+
+   // first check that there is something to draw before drawing anything.
+   //
+   if (hud_tmesh_for_other_normal.have_no_instances()  &&
+       hud_tmesh_for_other_outlier.have_no_instances() &&
+       hud_tmesh_for_pro_normal.have_no_instances()    &&
+       hud_tmesh_for_pro_outlier.have_no_instances()   &&
+       hud_tmesh_for_gly_normal.have_no_instances()    &&
+       hud_tmesh_for_gly_outlier.have_no_instances()) {
+      return;
+   }
 
    glDisable(GL_BLEND);
 

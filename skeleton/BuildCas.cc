@@ -2801,7 +2801,7 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
       // std::cout << "DEBUG: prebuilt_exclusion_score: i=" << i << std::endl; 
       
       for (unsigned int n=0; n< build[i].size(); n++) { 
-	 
+
 	 // cout << "DEBUG: prebuilt_exclusion_score: n=" << n << endl; 
 	 // cout << "build[" << i << "][" << n <<"] is " << build[i][n] << endl; 
 	 dist = (build[i][n].pos - trial_point).amplitude(); 
@@ -2818,11 +2818,11 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
 	 break; 
    }
 
-   if (min_dist > 9999999.8) {
+   if (min_dist > 9999999.0) {
       std::cout << "!!!! WARNING !!!! prebuilt atoms not found "
 	   << "in prebuilt_exclusion_score. " << std::endl; 
       min_dist = 9.9; 
-   } 
+   }
 
    float score;
 

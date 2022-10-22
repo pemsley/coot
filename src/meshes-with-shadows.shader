@@ -218,7 +218,12 @@ void main() {
 
             // specular_strength = specular_strength * 0.0;
 
-	    vec4 ambient = scale_factor_n_lights * colour_transfer * material.ambient * 0.3;
+            // there is a mishmash of colouring schemes here. The vertex has a colour
+            // but we also have access to the ambient and diffuse Material colours
+            // (and they can be changed via the API, whereas the vertex colour cannot).
+            // Let's try to handle both. A bit messy.
+
+	    vec4 ambient = scale_factor_n_lights * colour_transfer * material.ambient;
 	    vec4 diffuse = scale_factor_n_lights * colour_transfer * material.diffuse * dp;
 	    // diffuse = dp * vec4(0.5, 0.5, 0.5, 1.0);
 
@@ -250,7 +255,8 @@ void main() {
             if (shadow_specular < 0.95)
                shadow_specular = 0;
 
-	    vec4 add_col = ambient + diffuse * shadow_diffuse + specular * shadow_specular;
+            vec4 add_col = ambient + diffuse * shadow_diffuse + specular * shadow_specular * specular_strength;
+	    // vec4 add_col = ambient + diffuse * shadow_diffuse;
 
             // is this right? It looks a bit weird - but maybe it's the effects shader...
             

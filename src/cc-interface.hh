@@ -243,8 +243,8 @@ and DELFWT/PHDELFWT) can be changed using ...[something]
 */
 std::vector<int> auto_read_make_and_draw_maps(const char *filename);
 /*! \brief set the flag to do a difference map (too) on auto-read MTZ */
-std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *filename);
-std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &file_name);
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &file_name);
 
 /* ----- remove wiget functions from this header GTK-FIXME
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
@@ -1428,6 +1428,14 @@ void stop_curl_download(const char *file_name); // stop curling the to file_name
 
 std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
 
+//! \brief fetch and superpose AlphaFold models corresponding to model
+//!
+//! model must have Uniprot DBREF info in the header.
+void fetch_and_superpose_alphafold_models(int imol);
+
+//! \brief return the model number
+int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
+
 #endif /* USE_LIBCURL */
 
 
@@ -1508,6 +1516,12 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 //! \brief
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
+//! \brief set the ambient
+void set_model_material_ambient(int imol, float r, float g, float b, float alpha);
+
+//! \brief
+void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
+
 //! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
 
@@ -1583,15 +1597,20 @@ void set_bond_smoothness_factor(unsigned int fac);
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);
 
-
 //! \brief set the FPS timing scale factor - default 0.0025
 void set_fps_timing_scale_factor(float f);
+
+//! \brief draw background image
+void set_draw_background_image(bool state);
 
 // testing function
 void read_test_gltf_models();
 
 //! \brief load a gltf model
 void load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief reset the frame buffers
+void reset_framebuffers();
 
 
 /*  ----------------------------------------------------------------------- */

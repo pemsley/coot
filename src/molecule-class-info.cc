@@ -128,7 +128,7 @@ cartesian_to_glm(const coot::Cartesian &c) {
 }
 
 void
-molecule_class_info_t::setup_internal() {
+molecule_class_info_t::setup_internal() { // init
 
    atom_sel.atom_selection = NULL;
    atom_sel.n_selected_atoms = 0;
@@ -3869,14 +3869,50 @@ molecule_class_info_t::make_colour_table() const {
 
    bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
 
+   float gcwrs = graphics_info_t::goodsell_chain_colour_wheel_rotation_step;
+
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
          colour_table[icol] = col;
       } else {
-         coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-         colour_table[icol] = cc.to_glm();
+         if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
+            if (! graphics_info_t::user_defined_colours.empty()) {
+               int n_ud_colours = graphics_info_t::user_defined_colours.size();
+               if (icol < n_ud_colours) {
+                  const coot::colour_holder &col = graphics_info_t::user_defined_colours[icol];
+                  glm::vec4 ud_col(col.red, col.green, col.blue, 1.0);
+                  colour_table[icol] = ud_col;
+               } else {
+                  std::cout << "WARNING:: in make_colour_table() out of index colour COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS "
+                            << icol << " " << graphics_info_t::user_defined_colours.size() << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: in make_colour_table() user_defined_colours was empty " << std::endl;
+            }
+         } else {
+            if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+               // goodsell colours start at 100. There are 2 colours per chain, so for A and be chains the
+               // colour indices are 100, 101, 102, 103.
+               // std::cout << "goodsell mode " << icol << " " << bonds_box.bonds_[icol].num_lines << std::endl;
+               if (bonds_box.bonds_[icol].num_lines > 0) {
+                  coot::colour_holder ch(0.8, 0.5, 0.6);
+                  int ic = icol - 100;
+                  bool is_C = !(ic %2);
+                  int chain_index = ic/2;
+                  float rotation_amount = gcwrs * static_cast<float>(chain_index);
+                  if (is_C)
+                     ch.pastelize(0.19); // 0.28 was too much.
+                  ch.rotate_by(rotation_amount);
+                  colour_table[icol] = colour_holder_to_glm(ch);
+               }
+            } else {
+               coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+               colour_table[icol] = cc.to_glm();
+            }
+         }
       }
    }
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
@@ -3914,16 +3950,21 @@ molecule_class_info_t::make_colour_table() const {
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
+   // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() " << std::endl;
+
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
 
    // num_subdivisions = 2 corresponds to n_slices = 16 ie.. num_slices = 4 * 2^(n_subdivision)
 
    unsigned int n_stacks = 2; // top and bottom stacks.
-   float atom_radius = 0.02 * bond_width; // use atom_radius_scale_factor
+   float atom_radius = 0.02 * bond_width * atom_radius_scale_factor;
    if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    float bond_radius = atom_radius;
+
+   // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
+   //           << " bond_radius " << bond_radius << "  atom_radius " << atom_radius << std::endl;
 
    // do smooth
    if (graphics_info_t::bond_smoothness_factor == 1) {
@@ -3941,6 +3982,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
 
    // std::cout << "######################## imol_no " << imol_no << std::endl;
    // std::cout << "######################## is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule << std::endl;
+
    if (atom_sel.mol) {
 
       std::vector<glm::vec4> colour_table = make_colour_table();
@@ -3950,8 +3992,8 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
          // non zero. It should be zero. Fix later.
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() colour_table size " << colour_table.size() << std::endl;
          std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.num_colours " << bonds_box.num_colours << std::endl;
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres " << bonds_box.n_consolidated_atom_centres
-                   << std::endl;
+         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres "
+                   << bonds_box.n_consolidated_atom_centres << std::endl;
       }
 
       if (graphics_info_t::use_graphics_interface_flag)
@@ -4078,8 +4120,6 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
 //enum { BALL_AND_STICK, BALLS_NOT_BONDS };
 void
 molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode) {
-
-   std::cout << "Here in set_model_molecule_representation_style() " << mode << std::endl;
 
    // we should use goodsell colouring by default here
 
@@ -7326,7 +7366,7 @@ molecule_class_info_t::add_pointer_multiatom(mmdb::Residue *res_p,
 //
 // optional args save_hydrogens and save_aniso_records.
 int
-molecule_class_info_t::save_coordinates(const std::string filename,
+molecule_class_info_t::save_coordinates(const std::string &filename,
                                         bool save_hydrogens,
                                         bool save_aniso_records,
                                         bool save_conect_records) {
@@ -9941,6 +9981,12 @@ molecule_class_info_t::debug(bool debug_atoms_also_flag) const {
 
 void
 molecule_class_info_t::clear_all_fixed_atoms() {
+
+   std::cout << "m::clear_all_fixed_atoms() " << fixed_atom_specs.size() << std::endl;
+
+   for (unsigned int i=0; i<fixed_atom_specs.size(); i++) {
+      mark_atom_as_fixed(fixed_atom_specs[i], false);
+   }
    fixed_atom_specs.clear();
    fixed_atom_positions.clear();
 }
@@ -9989,7 +10035,7 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
                               std::vector<coot::atom_spec_t>::iterator it;
                               for (it=fixed_atom_specs.begin();
                                    it != fixed_atom_specs.end();
-                                   it++) {
+                                   ++it) {
                                  if (atom_spec == *it) {
                                     std::cout << "INFO:: removed " << atom_spec
                                               << " from fixed atom." << std::endl;
@@ -10338,4 +10384,41 @@ molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
    }
    return status;
 }
+
+
+
+// Don't forget to call graphics_info_t::attach_buffers() before calling this function
+void
+molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                                   const std::string &mesh_name) {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
+   molecular_mesh_generator_t mmg;
+   Material material;
+
+   material.do_specularity = true;
+   material.shininess = 256;
+   material.specular_strength = 0.55;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         if (n_res > 1) {
+            // the indexing into the user_defined_colours vector is in the UDD data of the residue
+            std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
+               mmg.get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(atom_sel.mol, chain_p, user_defined_colours);
+            Mesh mesh(verts_and_tris);
+            mesh.set_name(mesh_name);
+            meshes.push_back(mesh);
+            meshes.back().setup(material);
+         }
+      }
+   }
 #endif
+
+}

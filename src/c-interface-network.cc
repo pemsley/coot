@@ -414,6 +414,86 @@ PyObject *curl_progress_info_py(const char *file_name) {
 #endif // USE_PYTHON
 #endif /* USE_LIBCURL */
 
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+
+void fetch_and_superpose_alphafold_models_using_active_molecule() {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      int imol = aa.second.first;
+      fetch_and_superpose_alphafold_models(imol);
+   }
+}
+
+void fetch_and_superpose_alphafold_models(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         bool found_a_uniprot_dbref = false;
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_refs = chain_p->GetNumberOfDBRefs();
+               std::string chain_id = chain_p->GetChainID();
+               for (int ref_no=0; ref_no<n_refs; ref_no++) {
+                  mmdb::DBReference  *ref = chain_p->GetDBRef(ref_no);  // 0..nDBRefs-1
+                  std::string db = ref->database;
+                  std::string db_accession = ref->dbAccession;
+                  std::cout << "INFO:: DBREF Chain " << chain_id << " " << db << " " << db_accession << std::endl;
+                  if (db == "UNP") {  // uniprot
+                     found_a_uniprot_dbref = true;
+                     int imol_af = fetch_alphafold_model_for_uniprot_id(db_accession);
+                     if (is_valid_model_molecule(imol_af)) {
+                        superpose_with_chain_selection(imol, imol_af, chain_id.c_str(), "A", 1, 0, 0);
+                        graphics_info_t g;
+                        g.molecules[imol_af].ca_plus_ligands_representation(g.Geom_p(), true);
+                        graphics_draw();
+                     }
+                  }
+               }
+            }
+         }
+         if (!found_a_uniprot_dbref) {
+            std::cout << "INFO:: no DBREF found in molecule header " << imol << std::endl;
+         }
+      }
+   }
+}
+
+int
+fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
+
+   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   // make coot-download if needed
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+   bool needs_downloading = true;
+   int imol = -1;
+   if (coot::file_exists_and_non_tiny(fn, 500))
+      needs_downloading = false;
+   if (needs_downloading) {
+      coot_get_url(url.c_str(), fn.c_str());
+      if (coot::file_exists_and_non_tiny(fn, 500)) {
+         imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+      } else {
+         std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
+         info_dialog(m.c_str());
+      }
+   } else {
+      graphics_info_t g;
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+      graphics_draw();
+   }
+   return imol;
+}
+
+
 
 #ifdef USE_LIBCURL
 void stop_curl_download(const char *file_name) {  // stop curling the to file_name;

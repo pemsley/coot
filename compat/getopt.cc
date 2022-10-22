@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>             /* getenv() */
+#include <cstring>
 
 #include <cstring>
 #include "coot-getopt.h"

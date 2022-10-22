@@ -2266,6 +2266,11 @@ void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
                                             python_command = "import get_ebi ; get_ebi.get_pdb_redo(";
                                             python_command += single_quote(text);
                                             python_command += ")";
+                                         } else {
+                                            // this does not use a python script
+                                            if (n == COOT_UNIPROT_ID) {
+                                               fetch_alphafold_model_for_uniprot_id(text);
+                                            }
                                          }
                                       }
                                    }
@@ -6230,7 +6235,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                // I want a function that returns preferences_dir
                std::string home_directory = coot::get_home_dir();
                if (!home_directory.empty()) {
-                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                   std::cout << "debug:: attempting to copy " << dl_fn << " as " << preferences_file_name << std::endl;
                   int status = coot::copy_file(dl_fn, preferences_file_name); // it returns a bool actually
@@ -6271,7 +6276,7 @@ curlew_uninstall_extension_file(const std::string &file_name) {
    std::string home = coot::get_home_dir();
    if (!home.empty()) {
       std::string home_directory(home);
-      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
       std::string renamed_file_name = preferences_file_name + "_uninstalled";
       if (coot::file_exists(preferences_file_name)) {
@@ -6365,7 +6370,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			      // I want a function that returns preferences_dir
                               std::string home_directory = coot::get_home_dir();
                               if (!home_directory.empty()) {
-				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
 #ifndef WINDOWS_MINGW

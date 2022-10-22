@@ -22,8 +22,8 @@ AC_MSG_CHECKING([for glob (in windows)])
        LIBS="$save_LIBS $ac_GLOB_LIBS"
        CFLAGS="$save_CXXFLAGS $ac_GLOB_CFLAGS"
        #
-       AC_TRY_LINK([#include <glob.h>] ,[ ], have_generic_glob=yes, have_generic_glob=no)
-       AC_TRY_COMPILE([#include <glob.h>] ,[ ], have_glob=yes, have_glob=no)
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <glob.h> ]], [[ ]])],[have_generic_glob=yes],[have_generic_glob=no])
+       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <glob.h> ]], [[ ]])],[have_glob=yes],[have_glob=no])
        AC_MSG_RESULT($have_glob)
 
 if test x$have_glob = xyes; then

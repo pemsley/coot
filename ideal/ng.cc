@@ -1389,12 +1389,12 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
          non_bonded_contacts_atom_indices[i].insert(j);
          simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
          simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
-                            nbcf, i, *it,
+                            nbcf, i, j,
                             is_H_non_bonded_contact,
                             fixed_atom_flags, dist_min);
          if (false) // debug
             std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " "
-                              << energy_type_for_atom[*it] << " "
+                              << energy_type_for_atom[j] << " "
                               << is_H_non_bonded_contact << " "
                               << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
                               << dist_min <<  "\n";
@@ -1468,6 +1468,11 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                                            is_fixed_first_residue,
                                            is_fixed_second_residue,
                                            geom);
+
+   if (restraints_usage_flag & TORSIONS_MASK)
+      lrc.n_link_torsion_restr += add_link_torsion(link_type, res_1, res_2,
+                                                   is_fixed_first_residue, is_fixed_second_residue, geom);
+
 
    if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
       if (do_trans_peptide_restraints) {
@@ -2064,7 +2069,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    if (false) {
       std::cout << "debug----------- fixed_atom_indices " << std::endl;
       std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
          std::cout << "   fixed atoms: " << *it << std::endl;
    }
 
@@ -2073,9 +2078,11 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    new_linked_residue_list_t nlrs;
 
    std::set<unsigned int> fixed_atom_flags_set;
-   std::set<int>::const_iterator it;
-   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
-      fixed_atom_flags_set.insert(*it);
+   {
+      std::set<int>::const_iterator it;
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
+         fixed_atom_flags_set.insert(*it);
+   }
    contacts_by_bricks cb(atom, n_atoms, fixed_atom_flags_set);
    cb.set_dist_max(3.0);
    std::vector<std::set<unsigned int> > vcontacts;
@@ -2091,9 +2098,9 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
          if (! n_set.empty()) {
             mmdb::Atom *at_1 = atom[i];
             std::cout << "vcontact for " << i << " " << atom_spec_t(at_1) << ": ";
-            std::set<unsigned int>::const_iterator it;
-            for (it=n_set.begin(); it!=n_set.end(); it++) {
-               mmdb::Atom *at_2 = atom[*it];
+            std::set<unsigned int>::const_iterator it_inner;
+            for (it_inner=n_set.begin(); it_inner!=n_set.end(); ++it_inner) {
+               mmdb::Atom *at_2 = atom[*it_inner];
                std::cout << " " << atom_spec_t(at_2);
             }
             std::cout << std::endl;
@@ -2107,7 +2114,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
       // if (! is_fully_linked_ng(at_1->residue, residue_link_count_map)) {
       if (true) {
          std::set<unsigned int>::const_iterator it;
-         for (it=n_set.begin(); it!=n_set.end(); it++) {
+         for (it=n_set.begin(); it!=n_set.end(); ++it) {
             mmdb::Atom *at_2 = atom[*it];
 
             mmdb::Residue *res_1 = at_1->residue;
@@ -2119,7 +2126,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                continue;
             }
 
-            if (at_2->residue->chain == at_1->residue->chain) {
+            // Keitaro wanted this test deleted. OK. 20220917-PE
+            // if (at_2->GetChain() == at_1->GetChain()) {
+            //
+            if (true) {
 
                // no links for non-moving bumping residues
                //
@@ -2145,14 +2155,11 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                << residue_spec_t(res_1) << " "
                                << residue_spec_t(res_2) << std::endl;
                      std::cout << "Here are the pairs in the linked set " << std::endl;
-                     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it;
-                     for (it=residue_pair_link_set.begin(); it!=residue_pair_link_set.end(); it++)
-                        std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second)
+                     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it_inner;
+                     for (it_inner=residue_pair_link_set.begin(); it_inner!=residue_pair_link_set.end(); ++it_inner)
+                        std::cout << "   " << residue_spec_t(it_inner->first) << " " << residue_spec_t(it_inner->second)
                                   << std::endl;
                   }
-
-                  mmdb::Residue *res_1 = at_1->residue;
-                  mmdb::Residue *res_2 = at_2->residue;
 
                   if (nlrs.already_added_p(res_1, res_2))
                      continue;

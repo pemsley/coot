@@ -786,8 +786,14 @@ public:        //                      public
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
    bool use_bespoke_grey_colour_for_carbon_atoms;
    coot::colour_t bespoke_carbon_atoms_colour;
-   void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
-   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
+   void set_use_bespoke_carbon_atom_colour(bool state) {
+      use_bespoke_grey_colour_for_carbon_atoms = state;
+      make_bonds_type_checked("set_use_bespoke_carbon_atom_colour");
+   }
+   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) {
+      bespoke_carbon_atoms_colour = col;
+      make_bonds_type_checked("set_bespoke_carbon_atom_colour");
+   }
 
    std::string name_;
    std::string get_name() const { return name_; }
@@ -2061,7 +2067,7 @@ public:        //                      public
 
    // save yourself and update have_unsaved_changes_flag status
    //
-   int save_coordinates(const std::string filename,
+   int save_coordinates(const std::string &filename,
 			bool save_hydrogens=1,
 			bool save_aniso_records=1,
 			bool save_conect_records=0);
@@ -3573,6 +3579,10 @@ void draw_map_molecule(bool draw_transparent_maps,
    int add_molecular_representation(const std::string &atom_selection,
 				    const std::string &colour_scheme,
 				    const std::string &style);
+
+   // for AlphaFold pLDDT colouring
+   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                    const std::string &mesh_name);
    void remove_molecular_representation(int idx);
 
    // carbohydrate validation tools
@@ -3745,6 +3755,9 @@ void draw_map_molecule(bool draw_transparent_maps,
 #ifndef EMSCRIPTEN
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   void set_material_in_molecules_as_mesh(const Material &material) {
+      molecule_as_mesh.set_material(material);
+   }
    Mesh molecule_as_mesh; // non-instancing
    Mesh molecule_as_mesh_atoms_1; // for instancing
    Mesh molecule_as_mesh_atoms_2; // for instancing

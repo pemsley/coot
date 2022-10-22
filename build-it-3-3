@@ -394,7 +394,9 @@
 # 6.05 20220706 Use https:: instead of ftp::
 # 6.06 20220707 try export LD_LIBRARY_PATH=$install_top_dir/lib in Coot section
 # 6.07 20220710 libffi fixes for python
-script_version=6.07
+# 6.08 20220803-PE pygobject cleanups
+# 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
+script_version=6.09
 
 
 
@@ -2086,7 +2088,7 @@ fi
 
 # set build_pygobject here
 if [ ! -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-    build_pygobject=1
+    build_pygobject=true
 fi
 
 
@@ -2710,6 +2712,10 @@ fi
 #
 echo testing to see if meson exists in path yet
 echo testing to see if meson exists in path yet 2>&1
+echo which meson
+which meson
+echo meson --version
+meson --version
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
@@ -2733,6 +2739,10 @@ if $build_meson = true ; then
    python3 setup.py build
    python3 setup.py install
    cd -
+   echo which meson
+   which meson
+   echo meson --version
+   meson --version
    ) > $HOSTLOGDIR/07b-meson.txt 2>&1
 else
    echo not building meson
@@ -2812,8 +2822,10 @@ if [ "$build_glib" = true ] ; then
     #
     # meson can't find libffi on its own, so I will export the library here
     export LDFLAGS=-L$install_top_dir/lib64
-    export CFLAGS=-I$install_top_dir/include
-    if CC=gcc meson -Dprefix=$install_top_dir build ; then
+    export  CFLAGS=-I$install_top_dir/include
+    # we install the libs in $install_top_dir (otherwise it would install in $install_top_dir/lib/x86_64-linux-gnu
+    # and libtool would mess up and fail to properly link it (in Coot's compile)
+    if CC=gcc meson -Dprefix=$install_top_dir -Dlibdir=$install_top_dir/lib build ; then
        cd build
        ninja
        ninja install
@@ -2824,6 +2836,7 @@ if [ "$build_glib" = true ] ; then
 else
     echo not building glib:
 fi
+
 
 ###############################################################################
 ##########         gobject-introspection                          #############
@@ -2875,7 +2888,17 @@ if test "$build_gobject_introspection" = true ; then
    /bin/pkg-config --cflags glib-2.0
    /bin/pkg-config --libs glib-2.0
 
-   if CC=gcc meson -Dprefix=$install_top_dir build ; then
+   echo building in:
+   pwd
+
+   echo which meson
+   which meson
+   meson --version
+
+   export CC=gcc
+   # $install_top_dir/bin/meson is important, otherwise the wrong meson
+   # is used.
+   if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -2884,6 +2907,7 @@ if test "$build_gobject_introspection" = true ; then
    else
       echo meson failed
    fi
+   export -n CC
    cd ..
    ) > $HOSTLOGDIR/07d-gobject-introspection.txt 2>&1
 fi
@@ -2920,31 +2944,26 @@ if [ true ] ; then
    else
       echo installation has pycairo
    fi
+fi
 
-   echo BUILDING pygobject:
-   #
-   pygobject_major_minor_version=3.29
-   pygobject_major_minor_version=3.30
-   pygobject_major_minor_version=3.36
-   pygobject_major_minor_version=3.42
-   pygobject_version=3.29.1
-   pygobject_version=3.30.5
-   pygobject_version=3.42.1
+pygobject_major_minor_version=3.29
+pygobject_major_minor_version=3.30
+pygobject_major_minor_version=3.36
+pygobject_major_minor_version=3.42
+pygobject_version=3.29.1
+pygobject_version=3.30.5
+pygobject_version=3.42.1
 
-   date
-   pwd
-   skip_build=false
-   if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-         skip_build=true
-      fi
+date
+pwd
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+      skip_build=true
    fi
 fi
 
-
-if [ true ] ; then
-
-   if [ $skip_build = false ] ; then
+if [ $skip_build = false ] ; then
 
       echo BUILDING pygobject $pygobject_version:
       (
@@ -2977,9 +2996,6 @@ if [ true ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
-   else
-      echo skip build of gobject
-   fi
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
@@ -3970,29 +3986,6 @@ if [ "$build_gmp" = true ] ; then
       fi
    fi
 
-   # echo gmp skip_this $skip_this
-
-   if [ $skip_this = false ] ; then
-      echo BUILDING gmp
-      (
-      echo ========================= build gmp =================================
-      if [ -e $AUTOBUILD_SOURCES/gmp-$gmp_version.tar.xz ] ; then
-         tar xf $AUTOBUILD_SOURCES/gmp-$gmp_version.tar.xz
-      else
-         exit
-      fi
-      cd gmp-$gmp_version
-      echo ./configure --prefix=$install_top_dir
-      if ./configure --prefix=$install_top_dir  ; then
-         if $MAKE ; then
-            make install
-         fi
-      fi
-      cd -
-      ) > $HOSTLOGDIR/22-gmp.txt 2>&1
-   else
-      echo not building gmp
-   fi
 fi
 
 if [ "$build_guile" = true ] ; then
@@ -4006,6 +3999,7 @@ if [ "$build_guile" = true ] ; then
    # echo guile skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING guile: 2>& 1
       echo BUILDING guile:
       (
       echo ========================= build guile =================================
@@ -4121,6 +4115,7 @@ if [ "$build_guile_cairo" = true ] ; then
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       else
+         echo no file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
          exit
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then

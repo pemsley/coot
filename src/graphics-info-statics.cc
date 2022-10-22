@@ -853,6 +853,9 @@ short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 1; // rot
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
 float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
 
+float graphics_info_t::goodsell_chain_colour_wheel_rotation_step = 0.221;
+
+
 // cell colour
 coot::colour_holder graphics_info_t::cell_colour =
    coot::colour_holder(0.8, 0.8, 0.2);
@@ -1593,6 +1596,11 @@ Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;
 Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow_highlighted;
 bool graphics_info_t::hud_refinement_dialog_arrow_is_moused_over = false;
 
+Texture        graphics_info_t::texture_for_background_image;
+HUDTextureMesh graphics_info_t::tmesh_for_background_image = HUDTextureMesh("tmesh-for-background-image");
+Shader         graphics_info_t::shader_for_background_image;
+bool           graphics_info_t::draw_background_image_flag = false; // uses "background-image.png"
+
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;
@@ -1710,3 +1718,6 @@ HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for
 bool graphics_info_t::stereo_style_2010 = false;
 
 bool graphics_info_t::ignore_pseudo_zeros_for_map_stats = true;
+
+HUDTextureMesh graphics_info_t::tmesh_for_hud_colour_bar = HUDTextureMesh("tmesh for HUD colour bar");
+Texture graphics_info_t::texture_for_hud_colour_bar;

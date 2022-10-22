@@ -50,7 +50,7 @@ if ${PKG_CONFIG} clipper ; then
    save_CXXFLAGS="$CXXFLAGS"
    CXXFLAGS="$CXXFLAGS $CLIPPER_CXXFLAGS"
    AC_LANG_PUSH(C++)
-   AC_TRY_COMPILE([#include <clipper/clipper.h>],[clipper::Ramachandran rama; rama.init( clipper::Ramachandran::All2 ) ], have_top8000=yes, have_top8000=no)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <clipper/clipper.h>]], [[clipper::Ramachandran rama; rama.init( clipper::Ramachandran::All2 ) ]])],[have_top8000=yes],[have_top8000=no])
    if test $have_top8000 = yes ; then
       CLIPPER_CXXFLAGS="$CLIPPER_CXXFLAGS -DCLIPPER_HAS_TOP8000"
       top8000=true

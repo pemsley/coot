@@ -44,62 +44,66 @@
 	 (> n 0)))))
 
 
-
 (greg-testcase "Non-Autoloads" #t
-   (lambda ()
+               (lambda ()
 
-     (define (get-ccp4-version)
-       (let ((s (string-split (shell-command-to-string "cad -i") #\newline)))
-	 (let loop ((s s))
-	   (cond 
-	    ((null? s) #f)
-	    ((string-match "CCP4 software suite: patch level" (car s))
-	     (let ((sl (string->list-of-strings (car s))))
-	       (car (reverse sl))))
-	    (else (loop (cdr s)))))))
+                 ;; 20220917-PE
+                 ;; as of 8.0 The monomer library no longer contains LIG!
+                 ;; So this test is no longer relevant.
 
-     (define (old-ccp4-restraints?)
-       (if (not have-ccp4?)
-           #f
-	   (let ((v (get-ccp4-version)))
-	     (if (not (string? v))
-		 #t ;; bizarre
-		 (string<? v "6.2")))))
+     ;; (define (get-ccp4-version)
+     ;;   (let ((s (string-split (shell-command-to-string "cad -i") #\newline)))
+     ;;     (let loop ((s s))
+     ;;       (cond 
+     ;;        ((null? s) #f)
+     ;;        ((string-match "CCP4 software suite: patch level" (car s))
+     ;;         (let ((sl (string->list-of-strings (car s))))
+     ;;           (car (reverse sl))))
+     ;;        (else (loop (cdr s)))))))
 
-     (let ((r-1 (monomer-restraints "LIG"))
-	   (o (old-ccp4-restraints?)))
-       (greg-pdb "test-LIG.pdb")
-       (let ((r-2 (monomer-restraints "LIG")))
-	 (remove-non-auto-load-residue-name "LIG")
-	 (greg-pdb "test-LIG.pdb")
-	 (let ((r-3 (monomer-restraints "LIG")))
-	   (delete-restraints "LIG")
-	   (add-non-auto-load-residue-name "LIG")
-	   (let ((r-4 (monomer-restraints "LIG")))
+     ;; (define (old-ccp4-restraints?)
+     ;;   (if (not have-ccp4?)
+     ;;       #f
+     ;;       (let ((v (get-ccp4-version)))
+     ;;         (if (not (string? v))
+     ;;    	 #t ;; bizarre
+     ;;    	 (string<? v "6.2")))))
 
-	     ;; r-1, r-2, r-4 should be #f, r-3 should be filled.
-	     (if (all-true? 
-		  (list 
-		   (eq? #f r-1)
-		   (eq? #f r-2)
-		   (eq? #f r-4)
-		   ;; just to be clear here: either this is modern
-		   ;; restraints and we should get a list in r-3... or
-		   ;; this is old restraints. Either of those should
-		   ;; result in a PASS.
-                   (or 
-                    (and (not (old-ccp4-restraints?))
-                         (list? r-3))
-                    (old-ccp4-restraints?))))
-		 #t ;; good return value
-		 (begin
-		   (format #t "restraints: r-1 ~s~%" r-1)
-		   (format #t "restraints: r-2 ~s~%" r-2)
-		   (format #t "restraints: r-3 ~s~%" r-3)
-		   (format #t "restraints: r-4 ~s~%" r-4)
-		   #f))))))))
+     ;; (let ((r-1 (monomer-restraints "LIG"))
+     ;;       (o (old-ccp4-restraints?)))
+     ;;   (greg-pdb "test-LIG.pdb")
+     ;;   (let ((r-2 (monomer-restraints "LIG")))
+     ;;     (remove-non-auto-load-residue-name "LIG")
+     ;;     (greg-pdb "test-LIG.pdb")
+     ;;     (let ((r-3 (monomer-restraints "LIG")))
+     ;;       (delete-restraints "LIG")
+     ;;       (add-non-auto-load-residue-name "LIG")
+     ;;       (let ((r-4 (monomer-restraints "LIG")))
+
+     ;;         ;; r-1, r-2, r-4 should be #f, r-3 should be filled.
+     ;;         (if (all-true? 
+     ;;    	  (list 
+     ;;    	   (eq? #f r-1)
+     ;;    	   (eq? #f r-2)
+     ;;    	   (eq? #f r-4)
+     ;;    	   ;; just to be clear here: either this is modern
+     ;;    	   ;; restraints and we should get a list in r-3... or
+     ;;    	   ;; this is old restraints. Either of those should
+     ;;    	   ;; result in a PASS.
+     ;;               (or 
+     ;;                (and (not (old-ccp4-restraints?))
+     ;;                     (list? r-3))
+     ;;                (old-ccp4-restraints?))))
+     ;;    	 #t ;; good return value
+     ;;    	 (begin
+     ;;    	   (format #t "restraints: r-1 ~s~%" r-1)
+     ;;    	   (format #t "restraints: r-2 ~s~%" r-2)
+     ;;    	   (format #t "restraints: r-3 ~s~%" r-3)
+     ;;    	   (format #t "restraints: r-4 ~s~%" r-4)
+     ;;    	   #f))))))))
 
 
+                 #t))
 
 
 (greg-testcase "Merge molecules of a ligand with a spec" #t

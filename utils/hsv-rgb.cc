@@ -114,6 +114,22 @@ coot::hsv_to_colour(const std::vector<float> &hsv) {
    return colour_holder(v[0],v[1],v[2]);
 }
 
+void
+coot::colour_holder::pastelize(float degree) {
+
+   float col[3] = {red, green, blue};
+   for (unsigned int i=0; i<3; i++) {
+      const float &cc = col[i];
+      float r = 1.0f - cc;
+      col[i] += r * degree;
+      col[i] *= (1.0f - 0.5f * degree); // I don't want bright pastel
+   }
+   red   = col[0];
+   green = col[1];
+   blue  = col[2];
+
+}
+
 // 
 coot::colour_holder::colour_holder(const std::string &hex_colour_string) { 
 

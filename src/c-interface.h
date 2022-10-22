@@ -2259,6 +2259,9 @@ void set_colour_by_chain(int imol);
 /*! \brief colour molecule number imol by chain type, goodsell-like colour scheme */
 void set_colour_by_chain_goodsell_mode(int imol);
 
+/*! \brief set the goodsell chain colour colour wheel step (default 0.22) */
+void set_goodsell_chain_colour_wheel_step(float s);
+
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol);
 
@@ -7265,7 +7268,9 @@ void set_show_graphics_ligand_view(int state);
 /*! \name Experimental */
 /*! \{ */
 
-// void add_ligand_builder_menu_item_maybe();
+void fetch_and_superpose_alphafold_models_using_active_molecule();
+
+// void add_ligand_builder_menu_item_maybe(); // what does this do?
 
 /*!  \brief display the ligand builder dialog */
 void start_ligand_builder_gui();

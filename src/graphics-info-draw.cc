@@ -822,7 +822,7 @@ graphics_info_t::draw_model_molecules() {
 }
 
 void
-graphics_info_t::draw_model_molecules_with_shadows() {
+graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
 
    if (show_symmetry) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -1412,8 +1412,6 @@ graphics_info_t::draw_anchored_atom_markers()  {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
          glm::mat4 view_rotation = get_model_rotation();
-         unsigned int draw_count     = 100; // number of times drawn
-         unsigned int draw_count_max = 100;
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_anchored_atom_markers.Bind(0);
          tmesh_for_anchored_atom_markers.draw_instances(&shader_for_happy_face_residue_markers,
@@ -1535,6 +1533,103 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       Shader &shader = shader_for_hud_image_texture;
       tmesh_for_hud_refinement_dialog_arrow.draw(&shader, HUDTextureMesh::TOP_RIGHT);
    }
+}
+
+void
+graphics_info_t::draw_hud_colour_bar() {
+
+   // I think that all the draw_hud_*() functions should be passed h, w.
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
+
+   // ---------------- draw HUD colour texture ---------------------------------------
+
+   auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
+                                           const glm::vec2 &offset_natural,
+                                           float scale_x_natural, float scale_y_natural,
+                                           int glarea_width, int glarea_height) {
+
+      glm::vec2 offset_rel = glm::vec2(0,0);
+
+      // we don't need to be clever now that the shader is passed
+      // the relative origin.
+      // So this code may not be needed.
+
+      float w = static_cast<float>(glarea_width);
+      float h = static_cast<float>(glarea_height);
+
+      float wr = static_cast<float>(900)/static_cast<float>(glarea_width);
+      float hr = static_cast<float>(900)/static_cast<float>(glarea_height);
+
+      if (spo == HUDTextureMesh::TOP_LEFT)
+         offset_rel = glm::vec2(-1.0 + offset_natural.x/wr, 1.0 + offset_natural.y/hr) - offset_natural;
+      if (spo == HUDTextureMesh::BOTTOM_LEFT)
+         offset_rel = glm::vec2(wr - 1.0, hr - 1.0) * offset_natural;
+      if (spo == HUDTextureMesh::BOTTOM_RIGHT)
+         offset_rel = glm::vec2(1.0 + offset_natural.x/wr, -1.0 + offset_natural.y/hr);
+
+      if (spo == HUDTextureMesh::TOP_RIGHT) {
+      }
+
+      glm::vec2 scales_new(scale_x_natural * wr, scale_y_natural * hr);
+
+      return std::pair<glm::vec2, glm::vec2>(offset_rel, scales_new);
+   };
+
+
+   if (user_defined_colours.empty()) return;
+
+   glDisable(GL_DEPTH_TEST);
+   texture_for_hud_colour_bar.Bind(0);
+
+   tmesh_for_hud_colour_bar.set_scales(glm::vec2(0.5, 0.02));
+
+   glm::vec2 position_natural(-1.0f, -0.07f); // relative to top right // was -0.06
+   tmesh_for_hud_colour_bar.set_position(position_natural);
+
+   // I think that we need a HUDTextureMesh::TOP_MIDDLE position "target"
+   //
+   auto p_s = get_munged_offset_and_scale(HUDTextureMesh::TOP_RIGHT, position_natural, 1.0, 1.0, w, h);
+   glm::vec2 munged_position_offset = p_s.first;
+   glm::vec2 munged_scales = p_s.second;
+   tmesh_for_hud_colour_bar.set_window_resize_position_correction(munged_position_offset);
+   tmesh_for_hud_colour_bar.set_window_resize_scales_correction(munged_scales);
+
+   Shader &shader = shader_for_hud_image_texture;
+   tmesh_for_hud_colour_bar.draw(&shader, HUDTextureMesh::TOP_RIGHT);
+
+   // ---------------- draw HUD colour text ---------------------------------------
+
+   // label and tick marks
+
+   // these text positions need to be relative to the colour bar on window-resize. They are not.
+
+   std::vector<std::pair<std::string, glm::vec2> > positioned_texts;
+   positioned_texts.push_back(std::make_pair("pLDDT", glm::vec2(-0.63, 0.896)));
+   positioned_texts.push_back(std::make_pair(  "0.0", glm::vec2(-0.53, 0.95)));
+   positioned_texts.push_back(std::make_pair( "25.0", glm::vec2(-0.28, 0.95)));
+   positioned_texts.push_back(std::make_pair( "50.0", glm::vec2(-0.03, 0.95)));
+   positioned_texts.push_back(std::make_pair( "75.0", glm::vec2( 0.22, 0.95)));
+   positioned_texts.push_back(std::make_pair("100.0", glm::vec2( 0.45, 0.95)));
+
+   for (unsigned int i=0; i<positioned_texts.size(); i++) {
+
+      std::string label = positioned_texts[i].first;
+      const auto &pos = positioned_texts[i].second;
+      bool use_label_highlight = false;
+      glm::vec2 label_scale(0.00008, 0.00008 * aspect_ratio);
+      tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
+      tmesh_for_hud_geometry_tooltip_label.set_position(pos);
+      tmesh_for_hud_geometry_tooltip_label.set_window_resize_position_correction(munged_position_offset);
+      tmesh_for_hud_geometry_tooltip_label.set_window_resize_scales_correction(munged_scales);
+      tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
+                                                      &shader_for_hud_geometry_tooltip_text,
+                                                      ft_characters);
+   }
+
 }
 
 
@@ -1696,7 +1791,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    // convert these to read the shadow texture
 
-   draw_model_molecules_with_shadows(); // does symmetry
+   draw_model_molecules_symmetry_with_shadows(); // does symmetry
 
    draw_outlined_active_residue();
 
@@ -2290,15 +2385,13 @@ GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
       opengl_minor_version = std::stoi(e2s);
    }
 
-   if (false) // 20220501-PE we don't need to see on startup this anymore
-      std::cout << "DEBUG:: setting OpenGL required version to "
+   if (e1 || e2)
+      std::cout << "INFO:: setting OpenGL required version to "
                 << opengl_major_version << " " << opengl_minor_version << std::endl;
 
    gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
 
-   unsigned int dimensions = 700;
-   if (! use_gtk_builder) dimensions = 900;
-   dimensions = 900;
+   unsigned int dimensions = 900;
    int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
    gtk_widget_set_size_request(w,
                                gl_widget_dimension_scale_factor * dimensions,
@@ -2606,12 +2699,6 @@ graphics_info_t::draw_hud_ramachandran_plot() {
    int w = allocation.width;
    int h = allocation.height;
 
-   // auto tp_0 = std::chrono::high_resolution_clock::now();
-
-   // 20220403-PE Do I want to draw this only if there are Rama restraints? No.
-   // This test was added in 5cba65a245693929a276961928124b112e10291b
-   // if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
-   //       draw_gl_ramachandran_plot = false;p
    if (draw_gl_ramachandran_plot_flag) {
       if (draw_gl_ramachandran_plot_user_control_flag) {
          if (moving_atoms_asc) {
@@ -2625,9 +2712,6 @@ graphics_info_t::draw_hud_ramachandran_plot() {
       }
    }
 
-   // auto tp_1 = std::chrono::high_resolution_clock::now();
-   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "INFO:: draw_ramachandran_plot() " << d10 << " microseconds" << std::endl;
 }
 
 void
@@ -3684,6 +3768,8 @@ graphics_info_t::draw_hud_elements() {
    draw_hud_fps();
 
    draw_hud_refinement_dialog_arrow_tab();
+
+   draw_hud_colour_bar();
 
 }
 
