@@ -597,10 +597,11 @@ int main(int argc, char **argv) {
       status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
       status += run_test(test_mutate,              "mutate",                  mc);
       status += run_test(test_delete_atom,        "delete atom",              mc);
+      status += run_test(test_weird_delete,        "delete II",               mc);
    }
 
 
-   status += run_test(test_weird_delete,        "delete II",              mc);
+   status += run_test(test_rsr,                "rsr",                      mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

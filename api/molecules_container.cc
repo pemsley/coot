@@ -941,6 +941,9 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
                                               mol,
                                               fixed_atom_specs, &xmap);
       
+      if (refinement_is_quiet)
+         restraints.set_quiet_reporting();
+
       restraints.add_map(map_weight);
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       flags = coot::TYPICAL_RESTRAINTS;
@@ -953,12 +956,12 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
       int imol = 0; // dummy
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
                                  1.0, do_rama_plot_restraints, true, true, false, pseudos);
-
       int nsteps_max = 4000;
       short int print_chi_sq_flag = 1;
       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
-      gd.print();
+      if (! refinement_is_quiet)
+         gd.print();
       
    } else {
       std::cout << "WARNING:: refinement map " << imol_refinement_map << " is not a valid map" << std::endl;
@@ -996,7 +999,6 @@ molecules_container_t::refine_residues(int imol, const std::string &chain_id, in
       std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(residue_spec, mode);
 
       if (! rv.empty()) {
-         std::cout << "################### rv size " << rv.size() << std::endl;
          refine_direct(imol, rv, alt_conf, mol);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;

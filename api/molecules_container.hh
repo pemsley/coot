@@ -70,6 +70,7 @@ class molecules_container_t {
 
    coot::restraints_container_t *last_restraints;
    bool continue_threaded_refinement_loop;
+   bool refinement_is_quiet;
    int cif_dictionary_read_number;
    // return the state of having found restraints.
    std::string adjust_refinement_residue_name(const std::string &resname) const;
@@ -147,6 +148,7 @@ class molecules_container_t {
       geometry_init_standard(); // do this by default now
       refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
       imol_moving_atoms = -1;
+      refinement_is_quiet = true;
       cif_dictionary_read_number = 40;
       // refinement
       continue_threaded_refinement_loop = false;
@@ -306,6 +308,7 @@ public:
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode);
+   void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
    // -------------------------------- coordinates validation ------------------------------
 
