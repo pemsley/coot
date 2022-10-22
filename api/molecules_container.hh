@@ -312,6 +312,7 @@ public:
    coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol) const;
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol) const;
 
+   void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol);
 
    // -------------------------------- Coordinates and map validation ----------------------
 
@@ -347,12 +348,24 @@ public:
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map);
 
-   // add these
-   //
-   // delete residue
-   // delete residues
-   // add_terminal_residue
-   // update_map
+   class simple_coord_t {
+   public:
+      float x, y, z;
+      simple_coord_t() : x(0), y(0), z(0) {}
+      simple_coord_t(const float &x_in, const float &y_in, const float &z_in) : x(x_in), y(y_in), z(z_in) {}
+   };
+
+   //! Given a point on the front clipping plane (x1, y1, z1) and a point on the back clipping plane (x2, y2, z2)
+   //! this function searches imol_refinement_map (if set) to find a the centre of a blob above the contour level.
+   //! Blobs at the "front" are selected in preference to blobs at the back.
+   //! If no blob is found, then the first of the pair is false.
+   //! If it is found, then the second is (obviously) the centre of the blob.
+   //! 20221022-PE in future, this function should/will be provided with a list of displayed maps and their
+   //! contour levels - but for now, it uses (only) imol_refinement_map.
+   //! blob_under_pointer_to_screen_centre().
+   std::pair<bool, clipper::Coord_orth> go_to_blob(float x1, float y1, float z1, float x2, float y2, float z2,
+                                                   float contour_level);
+
 
 };
 

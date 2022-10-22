@@ -1883,3 +1883,23 @@ molecules_container_t::mutate(int imol, const std::string &cid, const std::strin
    }
    return status;
 }
+
+#include "coot-utils/blob-line.hh"
+
+std::pair<bool, clipper::Coord_orth>
+molecules_container_t::go_to_blob(float x1, float y1, float z1, float x2, float y2, float z2, float contour_level) {
+
+   std::pair<bool, clipper::Coord_orth> p;
+
+   clipper::Coord_orth p1(x1,y1,z1);
+   clipper::Coord_orth p2(x2,y2,z2);
+
+   // iterate through all the maps (another day)
+
+   if (is_valid_map_molecule(imol_refinement_map)) {
+      const clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
+      std::pair<bool, clipper::Coord_orth> pp = coot::find_peak_along_line_favour_front(p1, p2, contour_level, xmap);
+      p = pp;
+   }
+   return p;
+}

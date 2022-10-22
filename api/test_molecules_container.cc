@@ -267,6 +267,7 @@ int test_delete_atom(molecules_container_t &mc) {
       if (at_2) {
          // bad, it was not deleted
       } else {
+         mc.delete_using_cid(imol, "/1/B/200/CA", "ATOM");
          status = 1;
       }
    }
@@ -568,18 +569,18 @@ int main(int argc, char **argv) {
       status += run_test(test_pepflips,           "pepflips",                 mc);
       status += run_test(test_updating_maps,      "updating maps",            mc);
       status += run_test(test_undo_and_redo,      "undo and redo",            mc);
-      status += run_test(test_delete_atom,        "delete atom",              mc);
       status += run_test(test_delete_residue,     "delete residue",           mc);
+      status += run_test(test_delete_chain,       "delete chain",             mc);
       status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
-      status += run_test(test_delete_chain,       "delete chain",             mc);
       status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
       status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
    }
 
    status += run_test(test_mutate, "mutate", mc);
 
+      status += run_test(test_delete_atom,        "delete atom",              mc);
 
    int all_tests_status = 1;
    if (status == n_tests) all_tests_status = 0;

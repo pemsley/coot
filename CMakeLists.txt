@@ -106,6 +106,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/bonded-pairs.cc
             ${coot_src}/coot-utils/c-beta-deviations.cc
             ${coot_src}/coot-utils/atom-tools.cc
+            ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-rama.cc
             ${coot_src}/coot-utils/secondary-structure-headers.cc
             ${coot_src}/coot-utils/helix-like.cc
