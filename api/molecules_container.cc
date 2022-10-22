@@ -1907,3 +1907,19 @@ molecules_container_t::go_to_blob(float x1, float y1, float z1, float x2, float 
    }
    return p;
 }
+
+
+int
+molecules_container_t::side_chain_180(int imol, const std::string &atom_cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
+      coot::residue_spec_t residue_spec(atom_spec);
+      status = molecules[imol].side_chain_180(residue_spec, atom_spec.alt_conf, &geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}

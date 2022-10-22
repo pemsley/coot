@@ -349,6 +349,8 @@ namespace coot {
 
       int mutate(const coot::residue_spec_t &spec, const std::string &new_res_type);
 
+      int side_chain_180(const coot::residue_spec_t &residue_spec, const std::string &alt_conf,
+                         coot::protein_geometry *geom_p); // sub functions are non-const
 
       // ----------------------- refinement
 

@@ -2051,3 +2051,19 @@ coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &ne
    return status;
 
 }
+
+#include "ligand/side-chain.hh"
+
+int
+coot::molecule_t::side_chain_180(const coot::residue_spec_t &residue_spec, const std::string &alt_conf,
+                                 coot::protein_geometry *geom_p) {
+
+   int status = 0;
+   mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, atom_sel.mol);
+   if (residue_p) {
+      // sub functions us coot::protein_geometry *geom_p. Maybe they change it?
+      coot::do_180_degree_side_chain_flip(residue_spec, alt_conf, atom_sel.mol, geom_p); // void
+      status = 1;
+   }
+   return status;
+}

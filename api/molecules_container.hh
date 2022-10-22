@@ -301,6 +301,8 @@ public:
 
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
+   int side_chain_180(int imol, const std::string &atom_cid);
+
    // -------------------------------- coordinates refinement ------------------------------
 
    // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};

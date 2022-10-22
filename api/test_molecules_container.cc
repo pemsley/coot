@@ -132,14 +132,13 @@ int test_updating_maps(molecules_container_t &mc) {
 
    // modify the model by flipping a peptide.
    //
-   std::string residue_cid = "//A/14";
-   auto rs = mc.residue_cid_to_residue_spec(imol, residue_cid);
-   if (! rs.empty()) {
-      const auto &res_spec = rs;
-      coot::atom_spec_t atom_spec(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, " O  ","");
+   std::string atom_cid = "//A/14/CA";
+   auto as = mc.atom_cid_to_atom_spec(imol, atom_cid);
+   if (! as.empty()) {
+      coot::atom_spec_t atom_spec(as.chain_id, as.res_no, as.ins_code, " O  ","");
       mmdb::Atom *at = mc.get_atom(imol, atom_spec);
       if (at) {
-         mc.flip_peptide_using_cid(imol, residue_cid, "");
+         mc.flip_peptide_using_cid(imol, atom_cid, "");
       }
    }
 
@@ -162,11 +161,11 @@ int test_undo_and_redo(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   std::string residue_cid = "//A/14";
+   std::string atom_cid = "//A/14/CA";
    coot::atom_spec_t atom_spec("A", 14, "", " O  ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
-   mc.flip_peptide_using_cid(imol, residue_cid, "");
+   mc.flip_peptide_using_cid(imol, atom_cid, "");
    coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
    mc.undo(imol); // deletes atoms so now at_1 is out of date
    mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
@@ -540,14 +539,38 @@ int test_weird_delete(molecules_container_t &mc) {
    return status;
 }
 
+int test_side_chain_180(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   coot::atom_spec_t atom_spec("A", 268, "", " OD1","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+      std::string atom_cid = "//A/268/CA";
+      mc.side_chain_180(imol, atom_cid);
+      coot::Cartesian atom_pos_2 = atom_to_cartesian(at_1);
+      double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+      double d = std::sqrt(dd);
+      // std::cout << "debug test_side_chain_180 d " << d << std::endl;
+      if (d > 2.0) // its 2.09
+         status = 1.0;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
    int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
    coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
+      coot::Cartesian atom_pos = atom_to_cartesian(at_1);
    }
    return status;
 }
@@ -586,6 +609,7 @@ int main(int argc, char **argv) {
 
       status += run_test(test_rama_balls_mesh,    "rama balls mesh",          mc);
       status += run_test(test_density_mesh,       "density mesh",             mc);
+      status += run_test(test_pepflips,           "pepflips",                 mc);
       status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
       status += run_test(test_updating_maps,      "updating maps",            mc);
       status += run_test(test_undo_and_redo,      "undo and redo",            mc);
@@ -602,8 +626,8 @@ int main(int argc, char **argv) {
       status += run_test(test_rsr,                "rsr",                      mc);
    }
 
+   status += run_test(test_side_chain_180,        "side-chain 180",               mc);
 
-   status += run_test(test_pepflips,           "pepflips",                 mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
