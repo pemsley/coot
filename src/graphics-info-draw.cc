@@ -2699,12 +2699,6 @@ graphics_info_t::draw_hud_ramachandran_plot() {
    int w = allocation.width;
    int h = allocation.height;
 
-   // auto tp_0 = std::chrono::high_resolution_clock::now();
-
-   // 20220403-PE Do I want to draw this only if there are Rama restraints? No.
-   // This test was added in 5cba65a245693929a276961928124b112e10291b
-   // if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
-   //       draw_gl_ramachandran_plot = false;p
    if (draw_gl_ramachandran_plot_flag) {
       if (draw_gl_ramachandran_plot_user_control_flag) {
          if (moving_atoms_asc) {
@@ -2718,9 +2712,6 @@ graphics_info_t::draw_hud_ramachandran_plot() {
       }
    }
 
-   // auto tp_1 = std::chrono::high_resolution_clock::now();
-   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "INFO:: draw_ramachandran_plot() " << d10 << " microseconds" << std::endl;
 }
 
 void

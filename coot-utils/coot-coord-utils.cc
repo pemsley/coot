@@ -4060,7 +4060,7 @@ coot::mol_is_anisotropic(mmdb::Manager *mol) {
          for (int iat=0; iat<n_atoms; iat++) {
             at = residue_p->GetAtom(iat);
             if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
-               is_aniso;
+               is_aniso = true;
                break;
             }
          }
