@@ -234,6 +234,9 @@ public:
    int read_pdb(const std::string &file_name);
    int write_coordinates(int imol, const std::string &file_name) const;
 
+   // Mode is "COLOUR-BY-CHAIN-AND-DICTIONARY"
+   coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode);
+
    // returns either the specified atom or null if not found
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
    // returns either the specified residue or null if not found

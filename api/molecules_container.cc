@@ -494,6 +494,19 @@ molecules_container_t::writeMap(int imol, const std::string &file_name) const {
 
 }
 
+// Mode is "COLOUR-BY-CHAIN-AND-DICTIONARY" or "CA+LIGANDS"
+coot::simple_mesh_t
+molecules_container_t::get_bonds_mesh(int imol, const std::string &mode) {
+
+   coot::simple_mesh_t sm;
+   if (is_valid_model_molecule(imol)) {
+      sm = molecules[imol].get_bonds_mesh(mode, &geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return sm;
+}
+
 
 coot::simple_mesh_t
 molecules_container_t::get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,

@@ -258,12 +258,16 @@ add_library(cootapi SHARED
             ${coot_src}/api/prideout-octasphere.cc
             ${coot_src}/api/oct.cc
             ${coot_src}/api/interfaces.cc
+            ${coot_src}/api/colour-functions.cc
+            ${coot_src}/api/coot-colour.cc
             ${coot_src}/api/coot_molecule.cc
             ${coot_src}/api/coot_molecule_maps.cc
+            ${coot_src}/api/coot_molecule_bonds.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/simple-mesh.cc
             ${coot_src}/api/make-a-dodec.cc
+            ${coot_src}/api/cylinder.cc
             ${coot_src}/api/add-terminal-residue.cc
 
 )

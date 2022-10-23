@@ -205,7 +205,7 @@ int test_rama_balls_mesh(molecules_container_t &mc) {
    int imol = mc.read_pdb(coords_fn);
 
    coot::simple_mesh_t rvmm = mc.ramachandran_validation_markup_mesh(imol);
-   std::cout << "rama mesh: " << rvmm.vertices.size() << " vertices and " << rvmm.triangles.size()
+   std::cout << "debug:: rama mesh: " << rvmm.vertices.size() << " vertices and " << rvmm.triangles.size()
              << " triangles" << std::endl;
 
    // Let's look at the colours of the balls.
@@ -561,6 +561,26 @@ int test_side_chain_180(molecules_container_t &mc) {
    return status;
 }
 
+int test_bonds_mesh(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol, mode);
+
+   if (mesh.vertices.size() > 1000)
+      if (mesh.triangles.size() > 1000)
+         status = 1;
+
+   std::cout << "INFO:: bonds mesh: " << mesh.vertices.size() << " vertices and " << mesh.triangles.size()
+             << " triangles" << std::endl;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -624,9 +644,10 @@ int main(int argc, char **argv) {
       status += run_test(test_delete_atom,        "delete atom",              mc);
       status += run_test(test_weird_delete,        "delete II",               mc);
       status += run_test(test_rsr,                "rsr",                      mc);
+      status += run_test(test_side_chain_180,     "side-chain 180",           mc);
    }
 
-   status += run_test(test_side_chain_180,        "side-chain 180",               mc);
+   status += run_test(test_bonds_mesh,        "bonds mesh",      mc);
 
 
    int all_tests_status = 1; // fail!

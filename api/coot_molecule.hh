@@ -19,6 +19,9 @@
 #include "gensurf.hh"
 #include "coot-utils/coot-shelx.hh"
 
+#include "coot-colour.hh" // put this in utils
+
+#include "coords/mmdb-extras.h"
 
 namespace coot {
 
@@ -114,6 +117,14 @@ namespace coot {
                                       coot::rotamer_probability_tables *rotamer_tables_p = nullptr,
                                       bool force_rebonding=true);
       void make_ca_bonds();
+      // just a copy of the version in src
+      float bonds_colour_map_rotation;
+      std::vector<glm::vec4> make_colour_table() const;
+      glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, int bonds_box_type) const;
+      coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
+      coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
+      bool use_bespoke_grey_colour_for_carbon_atoms;
+      coot::colour_t bespoke_carbon_atoms_colour;
 
       void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
 
@@ -205,6 +216,12 @@ namespace coot {
          original_fobs_sigfobs_p = nullptr;
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
+
+         float rotate_colour_map_on_read_pdb = 0.24;
+         bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
+         while (bonds_colour_map_rotation > 360.0)
+            bonds_colour_map_rotation -= 360.0;
+         
       }
 
    public:
@@ -215,7 +232,7 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
-      molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) { init(); imol_no = mol_no_in; }
+      molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {init(); imol_no = mol_no_in; }
       explicit molecule_t(atom_selection_container_t asc, int imol_no_in, const std::string &name_in) : name(name_in), atom_sel(asc) {
          init();
          imol_no = imol_no_in;
@@ -313,7 +330,21 @@ namespace coot {
       int redo(); // likewise
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
       std::vector<coot::atom_spec_t> get_fixed_atoms() const;
+
+
+      // ----------------------- model bonds
+
+      coot::simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom);
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
+      void set_use_bespoke_carbon_atom_colour(bool state) {
+         use_bespoke_grey_colour_for_carbon_atoms = state;
+         // make_bonds_type_checked("set_use_bespoke_carbon_atom_colour");
+      }
+      void set_bespoke_carbon_atom_colour(const coot::colour_t &col) {
+         bespoke_carbon_atoms_colour = col;
+         // make_bonds_type_checked("set_bespoke_carbon_atom_colour");
+      }
+      
 
       // ----------------------- model analysis functions
 
