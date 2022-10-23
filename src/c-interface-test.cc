@@ -457,22 +457,9 @@ int test_function(int i, int j) {
 
 #include "ligand/libres-tracer.hh"
 
+void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
+void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
 
-void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
-   // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
-   bool unlocked = false;
-   while (! mol_edit_lock.compare_exchange_weak(unlocked, true)) {
-      // std::cout << "test_function_scm() failed to get the mol_edit_lock" << std::endl;
-      std::this_thread::sleep_for(std::chrono::microseconds(100));
-      unlocked = false;
-   }
-   // std::cout << "debug:: test_function_scm() got the lock" << std::endl;
-}
-
-void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
-   mol_edit_lock = false;
-   // std::cout << "debug:: test_function_scm() released the lock" << std::endl;
-};
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {

@@ -1445,7 +1445,7 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  Mew Screendump                                          */
+/*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
 void screendump_tga(const std::string &file_name);
 void set_framebuffer_scale_factor(unsigned int sf);
@@ -2033,6 +2033,9 @@ std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_i
 
 //! \brief write the sequence for imol as fasta
 void write_sequence(int imol, const std::string &file_name);
+
+//! \brief build the structure from the map
+void res_tracer(const std::string &pir_file_name);
 
 /* \} */
 
