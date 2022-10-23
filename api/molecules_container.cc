@@ -716,6 +716,23 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
    return std::make_pair(status, message);
 }
 
+// 20221023-PE return an int for now so that I can write the binding
+int
+molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
+      if (! atom_spec.empty()) {
+         auto p = add_terminal_residue_directly(imol, atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code);
+         status = p.first;
+      }
+   }
+   return status;
+}
+
+
+
 void
 molecules_container_t::associate_data_mtz_file_with_map(int imol_map, const std::string &data_mtz_file_name,
                                                         const std::string &f_col, const std::string &sigf_col,

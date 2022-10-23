@@ -288,7 +288,9 @@ public:
    //! @return a useful message if the addition did not work
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! @return a useful message if the addition did not work
-   std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
+   // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
+   // get rid of the pair as a return, so that I can compile the binding
+   int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    // updates imol_model (of course)
    int add_waters(int imol_model, int imol_map);
