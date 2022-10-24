@@ -40,7 +40,9 @@ const int RESIDUE_SPACING = 1;
 /// For drawing the main title
 const int TITLE_HEIGHT = 30;
 /// Space for the axis to be drawn on the left side of the graph
-const int AXIS_MARGIN = 30;
+const int AXIS_MARGIN = 35;
+/// Space reserved for the axis labels. Axis is drawn at this X offset.
+const int AXIS_LABEL_MARGIN = 25;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
@@ -144,28 +146,28 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             float axis_y_offset = base_height + CHAIN_SPACING / 3.f * 2.f;
 
             // main vertical axis
-            cairo_move_to(cairo_canvas, 0, axis_y_offset);
-            cairo_line_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
+            cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset);
+            cairo_line_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
             const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             // vertical axis markers
             for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
                 float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
-                cairo_move_to(cairo_canvas, 0, axis_y_offset + marker_offset);
-                cairo_line_to(cairo_canvas, MARKER_LENGTH, axis_y_offset + marker_offset);
+                cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN - MARKER_LENGTH, axis_y_offset + marker_offset);
+                cairo_line_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
                 
                 double marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
                 std::string marker_label = "<span size=\"x-small\" >" + std::to_string(marker_level).erase(4) + "</span>";
                 pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
                 pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-                cairo_move_to(cairo_canvas,MARKER_LENGTH,axis_y_offset + marker_offset - layout_height/2.f);
+                cairo_move_to(cairo_canvas, 0,axis_y_offset + marker_offset - layout_height/2.f);
                 pango_cairo_show_layout(cairo_canvas, pango_layout);
             }
             
             // horizontal axis
-            cairo_move_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
+            cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
