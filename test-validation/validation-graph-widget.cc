@@ -50,10 +50,10 @@ const unsigned int VERTICAL_MARKER_COUNT = 4;
 
 // COMPUTED VALUES:
 
-const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 3.f / 8.f;
-const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING / 4.f;
+const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 2.f / 5.f;
+const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING / 5.f;
 const float AXIS_HEIGHT = GRAPH_X_AXIS_SEPARATION + CHAIN_HEIGHT;
-const float AXIS_VERT_OFFSET = CHAIN_SPACING * 3.f / 4.f;
+const float AXIS_VERT_OFFSET = CHAIN_SPACING * 4.f / 5.f;
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
