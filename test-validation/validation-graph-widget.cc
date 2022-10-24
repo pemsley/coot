@@ -225,8 +225,8 @@ void coot_validation_graph_measure
         {
         case GTK_ORIENTATION_HORIZONTAL:{
             auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + AXIS_MARGIN;
-            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + AXIS_MARGIN;
+            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + GRAPH_HORIZ_OFFSET;
+            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + GRAPH_HORIZ_OFFSET;
             break;
         }
         case GTK_ORIENTATION_VERTICAL:{
