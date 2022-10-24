@@ -43,6 +43,7 @@ const int AXIS_MARGIN = 20;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
+const unsigned int VERTICAL_MARKER_COUNT = 5;
 
 // COMPUTED VALUES:
 
@@ -148,10 +149,13 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             cairo_line_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
-            // top vertical axis marker
-            cairo_move_to(cairo_canvas, 0, axis_y_offset);
-            cairo_line_to(cairo_canvas, MARKER_LENGTH, axis_y_offset);
-            cairo_stroke(cairo_canvas);
+            // vertical axis markers
+            for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
+                float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
+                cairo_move_to(cairo_canvas, 0, axis_y_offset + marker_offset);
+                cairo_line_to(cairo_canvas, MARKER_LENGTH, axis_y_offset + marker_offset);
+                cairo_stroke(cairo_canvas);
+            }
             
             // horizontal axis
             cairo_move_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
