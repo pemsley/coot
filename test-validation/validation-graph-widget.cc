@@ -51,6 +51,10 @@ const unsigned int VERTICAL_MARKER_COUNT = 4;
 // COMPUTED VALUES:
 
 const float AXIS_HEIGHT = CHAIN_SPACING / 3.f + CHAIN_HEIGHT;
+const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING /3.f;
+const float AXIS_VERT_OFFSET = CHAIN_SPACING / 3.f * 2.f;
+const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING/3.f;
+const float GRAPH_VERT_OFFSET = CHAIN_SPACING / 3.f;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
@@ -119,8 +123,6 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         // I can't get this to render the text where it needs to be, so I'm using cairo directly
         // gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
-        
-
 
         float base_height = TITLE_HEIGHT;
         float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
@@ -139,11 +141,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             std::string chain_markup = "<span size=\"medium\" weight=\"bold\">Chain " + chain.chain_id + "</span>";
             pango_layout_set_markup(pango_layout,chain_markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            cairo_move_to(cairo_canvas,0,base_height - layout_height / 2.f + CHAIN_SPACING /3.f);
+            cairo_move_to(cairo_canvas,0,base_height - layout_height / 2.f + CHAIN_LABEL_VERT_OFFSET);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
+
             // Draw axes
 
-            float axis_y_offset = base_height + CHAIN_SPACING / 3.f * 2.f;
+            float axis_y_offset = base_height + AXIS_VERT_OFFSET;
 
             // main vertical axis
             cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset);
@@ -171,7 +174,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
-            base_height += AXIS_HEIGHT + CHAIN_SPACING / 3.f;
+            base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
             float base_width = AXIS_MARGIN;
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
@@ -195,7 +198,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
                 base_width += width_step;
             }
-            base_height += CHAIN_SPACING/3.f + height_diff;
+            base_height += GRAPH_X_AXIS_SEPARATION + height_diff;
         }
         g_object_unref(pango_layout);
         cairo_destroy(cairo_canvas);
