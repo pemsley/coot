@@ -39,10 +39,10 @@ const int RESIDUE_WIDTH = 9;
 const int RESIDUE_SPACING = 1;
 /// For drawing the main title
 const int TITLE_HEIGHT = 30;
-/// Space for the axis to be drawn on the left side of the graph
-const int AXIS_MARGIN = 35;
-/// Space reserved for the axis labels. Axis is drawn at this X offset.
-const int AXIS_LABEL_MARGIN = 25;
+/// Space between the y-axis and the left-most bar in the graph
+const int GRAPH_Y_AXIS_SEPARATION = 10;
+/// Space reserved for the y-axis and its' labels. Axis is drawn at this X offset.
+const int AXIS_MARGIN = 25;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
@@ -50,11 +50,14 @@ const unsigned int VERTICAL_MARKER_COUNT = 4;
 
 // COMPUTED VALUES:
 
+const int GRAPH_HORIZ_OFFSET = AXIS_MARGIN + GRAPH_Y_AXIS_SEPARATION;
 const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 2.f / 5.f;
+/// Space between the x-axis and the bottom of the graph
 const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING / 5.f;
 const float AXIS_HEIGHT = GRAPH_X_AXIS_SEPARATION + CHAIN_HEIGHT;
 const float AXIS_VERT_OFFSET = CHAIN_SPACING * 4.f / 5.f;
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
+const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
@@ -149,16 +152,16 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             float axis_y_offset = base_height + AXIS_VERT_OFFSET;
 
             // main vertical axis
-            cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset);
-            cairo_line_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + AXIS_HEIGHT);
+            cairo_move_to(cairo_canvas, AXIS_MARGIN, axis_y_offset);
+            cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
             const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             // vertical axis markers
             for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
                 float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
-                cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN - MARKER_LENGTH, axis_y_offset + marker_offset);
-                cairo_line_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + marker_offset);
+                cairo_move_to(cairo_canvas, MARKER_VERT_PLACEMENT, axis_y_offset + marker_offset);
+                cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
                 
                 double marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
@@ -170,12 +173,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             }
             
             // horizontal axis
-            cairo_move_to(cairo_canvas, AXIS_LABEL_MARGIN, axis_y_offset + AXIS_HEIGHT);
+            cairo_move_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
             base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
-            float base_width = AXIS_MARGIN;
+            float base_width = GRAPH_HORIZ_OFFSET;
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
