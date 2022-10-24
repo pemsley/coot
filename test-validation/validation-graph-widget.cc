@@ -115,7 +115,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         // I can't get this to render the text where it needs to be, so I'm using cairo directly
         // gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
-        g_object_unref(pango_layout);
+        
 
 
         float base_height = TITLE_HEIGHT;
@@ -132,14 +132,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
 
             // Label chain
-            pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
             std::string chain_label = "Chain " + chain.chain_id;
             pango_layout_set_text(pango_layout,chain_label.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             cairo_move_to(cairo_canvas,0,base_height + layout_height / 2);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
-
-            g_object_unref(pango_layout);
             // Draw axes
 
             float axis_y_offset = base_height + CHAIN_SPACING / 3.f * 2.f;
@@ -189,7 +186,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             }
             base_height += CHAIN_SPACING/3.f + height_diff;
         }
-
+        g_object_unref(pango_layout);
         cairo_destroy(cairo_canvas);
     } else {
         // do nothing
