@@ -40,9 +40,13 @@ const int RESIDUE_SPACING = 1;
 const int TITLE_HEIGHT = 30;
 /// Space for the axis to be drawn on the left side of the graph
 const int AXIS_MARGIN = 20;
-const float AXIS_HEIGHT = CHAIN_SPACING / 3.f + CHAIN_HEIGHT;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
+const int MARKER_LENGTH = 3;
+
+// COMPUTED VALUES:
+
+const float AXIS_HEIGHT = CHAIN_SPACING / 3.f + CHAIN_HEIGHT;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
     return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
@@ -139,11 +143,17 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
             float axis_y_offset = base_height + CHAIN_SPACING / 3.f * 2.f;
 
+            // main vertical axis
             cairo_move_to(cairo_canvas, 0, axis_y_offset);
             cairo_line_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
-            
 
+            // top vertical axis marker
+            cairo_move_to(cairo_canvas, 0, axis_y_offset);
+            cairo_line_to(cairo_canvas, MARKER_LENGTH, axis_y_offset);
+            cairo_stroke(cairo_canvas);
+            
+            // horizontal axis
             cairo_move_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
             cairo_line_to(cairo_canvas, w, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
