@@ -149,7 +149,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
             // Draw axes
 
-            float axis_y_offset = base_height + AXIS_VERT_OFFSET;
+            const float axis_y_offset = base_height + AXIS_VERT_OFFSET;
 
             // main vertical axis
             cairo_move_to(cairo_canvas, AXIS_MARGIN, axis_y_offset);
