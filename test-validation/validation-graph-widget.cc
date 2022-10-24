@@ -44,7 +44,7 @@ const int AXIS_MARGIN = 30;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
-const unsigned int VERTICAL_MARKER_COUNT = 5;
+const unsigned int VERTICAL_MARKER_COUNT = 4;
 
 // COMPUTED VALUES:
 
