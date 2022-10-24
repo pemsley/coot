@@ -1,5 +1,6 @@
 #include "validation-graph-widget.hh"
 #include <algorithm>
+#include <string>
 #include <vector>
 
 // class GrapheneRectCompare {
@@ -39,7 +40,7 @@ const int RESIDUE_SPACING = 1;
 /// For drawing the main title
 const int TITLE_HEIGHT = 30;
 /// Space for the axis to be drawn on the left side of the graph
-const int AXIS_MARGIN = 20;
+const int AXIS_MARGIN = 30;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
@@ -106,7 +107,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         // This does not respect GTK theming
         // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
         PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-        pango_layout_set_text(pango_layout,self->_vi->name.c_str(),-1);
+        std::string title_markup = "<span size=\"large\" weight=\"bold\">" + self->_vi->name + "</span>";
+        pango_layout_set_markup(pango_layout,title_markup.c_str(),-1);
         int layout_width, layout_height;
         pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
         cairo_move_to(cairo_canvas,(w - layout_width) / 2,(TITLE_HEIGHT + layout_height) / 2);
@@ -132,10 +134,10 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
 
             // Label chain
-            std::string chain_label = "Chain " + chain.chain_id;
-            pango_layout_set_text(pango_layout,chain_label.c_str(),-1);
+            std::string chain_markup = "<span size=\"medium\" weight=\"bold\">Chain " + chain.chain_id + "</span>";
+            pango_layout_set_markup(pango_layout,chain_markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            cairo_move_to(cairo_canvas,0,base_height + layout_height / 2);
+            cairo_move_to(cairo_canvas,0,base_height - layout_height / 2.f + CHAIN_SPACING /3.f);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
             // Draw axes
 
@@ -146,12 +148,20 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             cairo_line_to(cairo_canvas, 0, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
+            const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             // vertical axis markers
             for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
                 float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
                 cairo_move_to(cairo_canvas, 0, axis_y_offset + marker_offset);
                 cairo_line_to(cairo_canvas, MARKER_LENGTH, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
+                
+                double marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                std::string marker_label = "<span size=\"x-small\" >" + std::to_string(marker_level).erase(4) + "</span>";
+                pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
+                pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+                cairo_move_to(cairo_canvas,MARKER_LENGTH,axis_y_offset + marker_offset - layout_height/2.f);
+                pango_cairo_show_layout(cairo_canvas, pango_layout);
             }
             
             // horizontal axis
@@ -161,7 +171,6 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
             base_height += AXIS_HEIGHT + CHAIN_SPACING / 3.f;
             float base_width = AXIS_MARGIN;
-            const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
