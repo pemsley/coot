@@ -695,10 +695,10 @@
           <attribute name="label">Check/Delete Waters...</attribute>
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
-        <item>
+        <submenu id="density_fit_analysis_item">
           <attribute name="label">Density fit analysis...</attribute>
           <attribute name="action">app.density_fit_analysis_item_action</attribute>
-        </item>
+        </submenu>
         <item>
           <attribute name="label">Difference Map Peaks...</attribute>
           <attribute name="action">app.difference_map_peaks_item_action</attribute>

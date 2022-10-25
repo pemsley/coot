@@ -54,6 +54,11 @@ void setup_menubuttons() {
    add_typed_menu_to_mutate_menubutton("PROTEIN");
 }
 
+void setup_graph_submenus() {
+   GMenuModel *density_fit_analysis_item = menu_model_from_builder("density_fit_analysis_item");
+   g_debug("submenu ptr: %p",density_fit_analysis_item);
+}
+
 gboolean generic_hide_on_escape_controller_cb(
       GtkEventControllerKey  *controller,
       guint                  keyval,
@@ -197,6 +202,7 @@ void setup_python_scripting_entry() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
+   setup_graph_submenus();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
