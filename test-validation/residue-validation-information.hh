@@ -13,6 +13,7 @@ namespace coot {
       residue_spec_t residue_spec;
       atom_spec_t atom_spec;
       double distortion;
+      // what is this for? The color is computed in the widget at draw-time. 
       std::string block_colour;
       std::string label;
    };
