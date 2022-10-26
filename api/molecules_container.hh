@@ -171,7 +171,9 @@ public:
    coot::residue_spec_t residue_cid_to_residue_spec(int imol, const std::string &cid) const;
 
    coot::simple_mesh_t test_origin_cube() const;
-#ifndef SWIG
+
+#ifdef SWIG
+#else
    coot::molecule_t & operator[] (unsigned int imol) {
       // maybe this should throw an exception on out-of-range?
       return molecules[imol];
@@ -255,8 +257,11 @@ public:
    // return the imol for the new molecule
    float map_sampling_rate;
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
+   // return the new molecule number or -1 on failure
    int read_mtz(const std::string &file_name, const std::string &f, const std::string &phi, const std::string &weight,
                 bool use_weight, bool is_a_difference_map);
+   // return the new molecule number or -1 on failure
+   int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
    int writeMap(int imol, const std::string &file_name) const;
    float get_map_rmsd_approx(int imol_map) const;
 
@@ -300,7 +305,6 @@ public:
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
    int delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
-   int mutate_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &res_type);
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
    int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
@@ -370,7 +374,6 @@ public:
    //! blob_under_pointer_to_screen_centre().
    std::pair<bool, clipper::Coord_orth> go_to_blob(float x1, float y1, float z1, float x2, float y2, float z2,
                                                    float contour_level);
-
 
 };
 

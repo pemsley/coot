@@ -295,12 +295,13 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
    // First, history_index is zero and the vec is zero,
    // normal service, then another backup: history_index is 1 and vec is 1.
    //
-   if (save_info.modification_index == history_filename_vec.size()) {
+   int history_filename_vec_size = history_filename_vec.size();
+   if (save_info.modification_index == history_filename_vec_size) {
       history_filename_vec.push_back(file);
    } else {
       // we have gone back in history.
       //
-      if (save_info.modification_index < history_filename_vec.size()) {
+      if (save_info.modification_index < history_filename_vec_size) {
          history_filename_vec[save_info.modification_index] = file;
       }
    }
@@ -353,6 +354,7 @@ coot::molecule_t::make_backup() {
       if (env_var)
          backup_dir = env_var;
 
+      backup_dir = "";
 
       if (atom_sel.mol) {
          int dirstat = make_maybe_backup_dir(backup_dir);
@@ -1003,6 +1005,7 @@ int coot::molecule_t::flip_peptide(const coot::atom_spec_t &as_in, const std::st
    coot::atom_spec_t as = as_in;
    if (as.atom_name == " N  ")
       as.res_no--;
+   std::cout << "------------- calling library function coot::pepflip with residue number " << as.res_no << std::endl;
    int result = coot::pepflip(atom_sel.mol, as.chain_id, as.res_no, as.ins_code, alt_conf);
    save_info.new_modification();
    return result;

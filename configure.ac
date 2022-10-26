@@ -446,6 +446,7 @@ pixmaps/icons/Makefile
 textures/Makefile
 rama-data/Makefile
 man/Makefile
+api/Makefile
 pli/Makefile
 fonts/Makefile
 pyrogen/Makefile

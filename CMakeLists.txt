@@ -142,6 +142,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/reduce.cc
             ${coot_src}/coot-utils/contact-info.cc
             ${coot_src}/coot-utils/hole.cc
+            ${coot_src}/coot-utils/slurp-map.cc
             ${coot_src}/coot-utils/read-sm-cif.cc
             ${coot_src}/coords/phenix-geo-bonds.cc
             ${coot_src}/coords/Bond_lines_ext.cc

@@ -211,6 +211,80 @@ molecules_container_t::read_mtz(const std::string &file_name,
    return imol;
 }
 
+#include "clipper-ccp4-map-file-wrapper.hh"
+#include "coot-utils/slurp-map.hh"
+
+int
+molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_difference_map) {
+
+   int imol = -1; // currently unset
+   int imol_in_hope = molecules.size();
+   bool done = false;
+
+   if (coot::util::is_basic_em_map_file(file_name)) {
+
+      // fill xmap
+      bool check_only = false;
+      coot::molecule_t m(file_name, imol_in_hope);
+      clipper::Xmap<float> &xmap = m.xmap;
+      done = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
+      try {
+         // what's the point of this now?
+         clipper_map_file_wrapper file;
+         file.open_read(file_name);
+         // set_is_em_map(file); // sets is_em_map_cached_flag
+         // em = is_em_map_cached_flag;
+      }
+      catch (const clipper::Message_base &exc) {
+      std::cout << "WARNING:: failed to open " << file_name << std::endl;
+      // bad_read = true;
+      }
+
+      if (done)
+         molecules.push_back(m);
+   }
+
+   if (! done) {
+         std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
+         // clipper::CCP4MAPfile file;
+         clipper_map_file_wrapper w_file;
+         try {
+            w_file.open_read(file_name);
+
+            // em = set_is_em_map(file);
+
+            bool use_xmap = true; // not an nxmap
+            if (true) {
+               clipper::Grid_sampling fgs = w_file.grid_sampling();
+               clipper::Cell fcell = w_file.cell();
+               double vol = fcell.volume();
+               if (vol < 1.0) {
+                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                            << std::endl;
+                  // bad_read = true;
+               } else {
+                  try {
+                     clipper::CCP4MAPfile file;
+                     file.open_read(file_name);
+                     clipper::Xmap<float> xmap;
+                     file.import_xmap(xmap);
+                  }
+                  catch (const clipper::Message_generic &exc) {
+                     std::cout << "WARNING:: failed to read " << file_name
+                               << " Bad ASU (inconsistant gridding?)." << std::endl;
+                     // bad_read = true;
+                  }
+               }
+            }
+         } catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << file_name << std::endl;
+            // bad_read = true;
+         }
+   }
+   return imol;
+}
+
+
 
 coot::validation_information_t
 molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
@@ -625,6 +699,15 @@ molecules_container_t::delete_residue_atoms_using_cid(int imol, const std::strin
    return status;
 }
 
+int
+molecules_container_t::delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id,
+                                                          int res_no, const std::string &ins_code,
+                                                          const std::string &alt_conf) {
+  int status = 0;
+  return status;
+}
+
+
 
 int
 molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) {
@@ -745,6 +828,14 @@ molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const s
 }
 
 
+// reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
+// so, update your contour lines meshes after calling this function.
+int
+molecules_container_t::connect_updating_maps(int imol_model, int imol_map_2fofc, int imol_map_fofc) {
+   int status = 0;
+
+   return status;
+}
 
 void
 molecules_container_t::associate_data_mtz_file_with_map(int imol_map, const std::string &data_mtz_file_name,
@@ -1952,4 +2043,43 @@ molecules_container_t::side_chain_180(int imol, const std::string &atom_cid) {
    }
    return status;
 
+}
+
+void
+molecules_container_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
+
+   // 20221025-PE fill me later.
+   
+}
+
+int
+molecules_container_t::add_waters(int imol_model, int imol_map) {
+
+   int status = 0;
+
+   // 20221025-PE Fill me later
+
+   return status;
+
+}
+
+
+int
+molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   int status = 0;
+
+   // 20221025-PE Fill me later
+
+   return status;
+}
+
+int
+molecules_container_t::fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   int status = 0;
+
+   // 20221025-PE Fill me later
+
+   return status;
 }

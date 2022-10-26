@@ -11,8 +11,9 @@ namespace coot {
       clipper::RTop_orth rtop;
       int SelectionHandle;
       graphical_bonds_container bonds_box;
-#ifndef EMSCRIPTEN
-      Mesh mesh;
+#ifdef EMSCRIPTEN
+#else
+      // Mesh mesh; 20221025-PE not in this directory
 #endif
       std::string name;
       std::string chain_id;
@@ -29,12 +30,14 @@ namespace coot {
       }
       void update_bonds(mmdb::Manager *mol); // the parent's mol
 #ifndef EMSCRIPTEN
+#if 0 // 20221025-PE  Hmm.
       void draw(Shader *shader,
                 const glm::mat4 &mvp,
                 const glm::mat4 &view_rotation_matrix,
                 const std::map<unsigned int, lights_info_t> &lights,
                 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                 const glm::vec4 &background_colour);
+#endif
 #endif
       bool is_empty() { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,

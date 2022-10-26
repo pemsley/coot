@@ -7792,6 +7792,8 @@ molecule_class_info_t::make_backup() { // changes history details
       if (env_var)
          backup_dir = env_var;
 
+      backup_dir = "";
+
       if (atom_sel.mol) {
          int dirstat = make_maybe_backup_dir(backup_dir);
 

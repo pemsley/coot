@@ -649,6 +649,9 @@ int main(int argc, char **argv) {
 
    status += run_test(test_bonds_mesh,        "bonds mesh",      mc);
 
+   // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+
+   // add a setting for running refinement after things like rotamer or peptide flipping.
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
