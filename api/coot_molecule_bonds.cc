@@ -1126,8 +1126,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    simple_mesh_t m;
 
    int udd_handle_bonded_type = 0; // FIXME
-   float atom_radius = 0.3;
-   float bond_radius = 0.2;
+   float atom_radius = 0.13;
+   float bond_radius = 0.13;
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
    unsigned int n_stacks = 2;
