@@ -78,10 +78,10 @@ namespace sm_wat {
    };
 
    std::vector<cell_t> smith_waterman(const std::string &sequence,
-                                      const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                                      const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    std::vector<std::vector<std::pair<bool, float> > > construct_H(const std::string &target_sequence);
-   float s(char a, const std::map<std::string, double> &b);
+   float s(char a, const std::map<std::string, std::pair<std::string, double> > &b);
    float W_gap_sequence(int k);
    float W_gap_residues(int k);
 
@@ -89,27 +89,27 @@ namespace sm_wat {
                              int types_idx,
                              const std::vector<std::vector<std::pair<bool, float> > > &H,
                              const std::string &target_sequence,
-                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    float score_with_method_2(int seq_idx,
                              int types_idx,
                              const std::vector<std::vector<std::pair<bool, float> > > &H,
                              const std::string &target_sequence,
-                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    float score_with_method_3(int seq_idx,
                              int types_idx,
                              const std::vector<std::vector<std::pair<bool, float> > > &H,
                              const std::string &target_sequence,
-                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                             const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    void fill_scoring_matrix(std::vector<std::vector<std::pair<bool, float> > > &H,
                             const std::string &target_sequence,
-                            const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                            const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
    
    float H_i_j(int seq_idx, int types_idx, const std::vector<std::vector<std::pair<bool, float> > > &H,
                const std::string &target_sequence,
-               const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+               const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    std::pair<float, std::vector<sm_wat::cell_t> >
    backtrack(const std::vector<std::vector<std::pair<bool, float> > > &H);
@@ -120,21 +120,21 @@ namespace sm_wat {
                     const std::vector<cell_t> &cells_from_better_traces);
 
    std::vector<std::vector<std::pair<bool, float> > > construct_H(const std::string &target_sequence,
-                                                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                                                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
    void print_alignment(const std::vector<cell_t> &indexed_sequences, // currently reverse order
                         const std::string &sequence,
-                        const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                        const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
 
-   std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > >
+   std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > >
    get_side_chain_density_scores_for_residues(const std::vector<mmdb::Residue *> &a_run_of_residues,
                                               const clipper::Xmap<float> &xmap);
    
 
    void apply_alignment_to_model(const std::vector<sm_wat::cell_t> &alignment,
                                  const std::string &target_sequence,
-                                 const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues);
+                                 const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues);
 
 
    // this is the API function that you want
