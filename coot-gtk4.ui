@@ -707,10 +707,10 @@
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
         </item>
-        <item>
+        <submenu id="geometry_analysis_item">
           <attribute name="label">Geometry analysis...</attribute>
           <attribute name="action">app.geometry_analysis_item_action</attribute>
-        </item>
+        </submenu>
         <item>
           <attribute name="label">GLN and ASN B-factor Outliers...</attribute>
           <attribute name="action">app.gln_and_asn_b_factor_outlier_item_action</attribute>
