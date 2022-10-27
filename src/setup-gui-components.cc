@@ -56,7 +56,9 @@ void setup_menubuttons() {
 
 void setup_graph_submenus() {
    GMenuModel *density_fit_analysis_item = menu_model_from_builder("density_fit_analysis_item");
+   GMenuModel *geometry_analysis_item = menu_model_from_builder("geometry_analysis_item");
    g_debug("submenu ptr: %p",density_fit_analysis_item);
+   g_debug("submenu ptr: %p",geometry_analysis_item);
 }
 
 gboolean generic_hide_on_escape_controller_cb(
