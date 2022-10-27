@@ -1,13 +1,20 @@
-#include "setup-gui-components.hh"
-
+#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
+#include "setup-gui-components.hh"
 
 // this function is both defined and implemented here.
 // No other files should ever need it.
 inline GMenuModel* menu_model_from_builder(const std::string& m_name) {
    GMenuModel *m = G_MENU_MODEL(graphics_info_t::get_gobject_from_builder(m_name));
+   return m;
+}
+
+// this function is both defined and implemented here.
+// No other files should ever need it.
+inline GMenu* menu_from_builder(const std::string& m_name) {
+   GMenu *m = G_MENU(graphics_info_t::get_gobject_from_builder(m_name));
    return m;
 }
 
@@ -55,10 +62,19 @@ void setup_menubuttons() {
 }
 
 void setup_graph_submenus() {
-   GMenuModel *density_fit_analysis_item = menu_model_from_builder("density_fit_analysis_item");
-   GMenuModel *geometry_analysis_item = menu_model_from_builder("geometry_analysis_item");
+   GMenu *density_fit_analysis_item = menu_from_builder("density_fit_analysis_item");
+   GMenu *geometry_analysis_item = menu_from_builder("geometry_analysis_item");
    g_debug("submenu ptr: %p",density_fit_analysis_item);
    g_debug("submenu ptr: %p",geometry_analysis_item);
+   // the int is going to be replaced with graph type enum.
+   // This is just a proof of concept.
+   std::map<int,GMenu*> menu_map;
+   menu_map[0] = density_fit_analysis_item;
+   menu_map[1] = geometry_analysis_item;
+   for(auto i = menu_map.begin();i != menu_map.end();i++) {
+      g_menu_insert(i->second,0,"test","app.dummy");
+   }
+
 }
 
 gboolean generic_hide_on_escape_controller_cb(
