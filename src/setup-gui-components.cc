@@ -116,7 +116,7 @@ void setup_accession_code_frame() {
    setup_generic_hide_on_escape_controller(entry,frame);
 }
 
-void setup_vertical_pane_size_request() {
+void setup_vertical_pane_sizing() {
    GtkWidget *vbox = widget_from_builder("main_window_vbox_inner");
    GtkWidget *pane = widget_from_builder("validation_graph_pane");
    GtkWidget *paned_widget = widget_from_builder("main_window_vertical_pane");
@@ -238,7 +238,7 @@ void setup_python_scripting_entry() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
-   setup_vertical_pane_size_request();
+   setup_vertical_pane_sizing();
    setup_graph_submenus();
    setup_get_monomer();
    setup_accession_code_frame();
