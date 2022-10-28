@@ -1923,9 +1923,10 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
                for (int iat=0; iat<n_residue_atoms; iat++) {
                   at = residue_atoms[iat];
                   std::string ele(at->element);
-                  if (ele == " H") {
+                  if (ele == " H")
                      atoms_to_be_deleted.push_back(at);
-                  }
+                  if (ele == " D")
+                     atoms_to_be_deleted.push_back(at);
                }
             }
          }

@@ -3206,3 +3206,20 @@
                      #t ; OK, it didn't move much
                      ))))))))
 ;;
+
+
+;; Lucrezia Catapano bug
+;;
+(greg-testcase "Delete Deuterium Atoms Also" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "pdb7a0l.ent"))) ;; 20221028-PE new model in greg data.
+       (if (valid-model-molecule? imol)
+           (begin
+             (delete-hydrogen-atoms imol)
+             (let ((imol-new (new-molecule-by-atom-selection imol "//A/*/*[D]")))
+               (let ((v (valid-model-molecule? imol-new)))
+                 ;; Coot should not allow the creation of imol-new - because it should
+                 ;; have no atoms in it.
+                 (print-var v)
+                 (not v))))))))
