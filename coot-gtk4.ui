@@ -6595,12 +6595,91 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
+                  <object class="GtkSeparator">
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="margin-start">2</property>
+                    <property name="margin-end">2</property>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkComboBox">
 
                   </object>
                 </child>
                 <child>
+                  <object class="GtkSeparator">
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="margin-start">2</property>
+                    <property name="margin-end">2</property>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkGrid">
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Density fit</property>
+                        <layout>
+                          <property name="row">0</property>
+                          <property name="column">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Temp Factor</property>
+                        <layout>
+                          <property name="row">1</property>
+                          <property name="column">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Rama</property>
+                        <layout>
+                          <property name="row">2</property>
+                          <property name="column">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Rota</property>
+                        <layout>
+                          <property name="row">3</property>
+                          <property name="column">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Omega</property>
+                        <layout>
+                          <property name="row">0</property>
+                          <property name="column">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">Geometry</property>
+                        <layout>
+                          <property name="row">1</property>
+                          <property name="column">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">NCS</property>
+                        <layout>
+                          <property name="row">2</property>
+                          <property name="column">1</property>
+                        </layout>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
