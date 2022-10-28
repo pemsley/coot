@@ -330,7 +330,7 @@ namespace coot {
       }
 #endif // SWIG
 
-      std::string format();
+      std::string format() const;
 
       std::string label() const;
 
