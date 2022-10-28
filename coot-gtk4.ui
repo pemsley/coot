@@ -6396,7 +6396,7 @@ Do you want to continue?
                 <property name="visible">True</property>
                 <property name="transition-type">GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP</property>
                 <property name="transition-duration">350</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkOverlay" id="python_scripting_overlay">
                     <child>
@@ -6428,6 +6428,15 @@ Do you want to continue?
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkNotebook" id="validation_graph_notebook">
+                <property name="halign">fill</property>
+                <property name="valign">end</property>
+                <property name="hexpand">True</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
               </object>
             </child>
           </object>
