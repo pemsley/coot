@@ -111,12 +111,7 @@ namespace coot {
       // tested against a residue not in a hierarchy.
       bool matches_spec(mmdb::Atom *atom) const;
 
-      std::string format() const {
-	 std::ostringstream s;
-	 if (!(s << *this))
-	    return "";
-	 return s.str();
-      }
+      std::string format() const;
 
       std::string label() const;
 
@@ -335,12 +330,7 @@ namespace coot {
       }
 #endif // SWIG
 
-      std::string format() const {
-	 std::ostringstream s;
-	 if (!(s << *this))
-	    return "";
-	 return s.str();
-      }
+      std::string format();
 
       std::string label() const;
 

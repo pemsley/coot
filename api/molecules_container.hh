@@ -375,6 +375,13 @@ public:
    std::pair<bool, clipper::Coord_orth> go_to_blob(float x1, float y1, float z1, float x2, float y2, float z2,
                                                    float contour_level);
 
+#ifdef SWIG
+   PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh);
+   PyObject *get_pythonic_bonds_mesh(int imol);
+   PyObject *get_pythonic_model_mesh(int imol, unsigned int mesh_index);
+   PyObject *get_pythonic_map_mesh(int imol, float x, float y, float z, float radius, float contour_level);
+#endif
+
 };
 
 #endif // MOLECULES_CONTAINER_HH

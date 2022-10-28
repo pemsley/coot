@@ -344,7 +344,8 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
+# Use swig flags properly. Remove COOT_USE_GTK2_INTERFACE
+SWIG_FLAGS="-DSWIG -DCOOT_USE_GTK2_INTERFACE"
 AC_SUBST(SWIG_FLAGS)
 
 
@@ -430,10 +431,7 @@ greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
 goograph/Makefile
-lbg/Makefile
 doc/Makefile
-src/Makefile
-src/coot
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile
@@ -457,12 +455,17 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
-rcrane/Makefile
 ])
 AC_OUTPUT
+
 # removed setup/Makefile
 # po/Makefile.in
+
+# 2022-10-28
 # lbg/Makefile
+# rcrane/Makefile
+# src/Makefile
+# src/coot
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile

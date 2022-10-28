@@ -19,8 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef EMSCRIPTEN_THING
-
 #include <Python.h> // this is here get round header warnings
 
 #include <sys/types.h>  // for stating
@@ -5359,5 +5357,3 @@ lbg_info_t::pe_test_function() {
 
 #endif
 }
-
-#endif // EMSCRIPTEM

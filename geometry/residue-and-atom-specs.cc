@@ -63,6 +63,24 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
 
 }
 
+// 20221028-PE move format into the .cc file so that we don't have << SWIG problems.
+std::string
+coot::atom_spec_t::format() const {
+   std::ostringstream s;
+   if (!(s << *this))
+      return "";
+   return s.str();
+}
+
+std::string
+coot::residue_spec_t::format() const {
+   std::ostringstream s;
+   if (!(s << *this))
+      return "";
+   return s.str();
+}
+
+
 // formatted as if you'd clicked on it in the graphics window
 // But the residue type is missing - see below
 std::string

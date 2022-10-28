@@ -183,19 +183,6 @@ add_library(cootapi SHARED
             ${coot_src}/mini-mol/mini-mol-utils.cc
             ${coot_src}/mini-mol/mini-mol.cc
             ${coot_src}/mini-mol/atom-quads.cc
-            ${coot_src}/lbg/lbg.cc
-            ${coot_src}/lbg/residue-circles.cc
-            ${coot_src}/lbg/graphics-c-interface-functions-blanks.cc
-            ${coot_src}/lbg/lbg-search.cc
-            ${coot_src}/lbg/lbg-flev.cc
-            ${coot_src}/lbg/lbg-callbacks.cc
-            ${coot_src}/lbg/alerts-list.cc
-            ${coot_src}/lbg/qed-interface.cc
-            ${coot_src}/lbg/lbg-callbacks-outer.cc
-            ${coot_src}/lbg/wmolecule.cc
-            ${coot_src}/lbg/alerts.cc
-            ${coot_src}/lbg/lbg-drag-and-drop.cc
-            ${coot_src}/lbg/qed-properties.cc
             ${coot_src}/cootilus/nautilus-tools.cpp
             ${coot_src}/cootilus/cootilus-build.cpp
             ${coot_src}/cootilus/nucleicacid_db.cpp
