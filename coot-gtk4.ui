@@ -6436,8 +6436,6 @@ Do you want to continue?
         <child>
           <object class="GtkPaned" id="main_window_vertical_pane">
             <property name="orientation">vertical</property>
-            <property name="shrink-start-child">False</property>
-            <property name="resize-start-child">False</property>
             <child>
               <object class="GtkBox" id="main_window_vbox_inner">
                 <property name="orientation">vertical</property>
@@ -6585,7 +6583,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkLabel" id="validation_graph_pane">
                 <property name="label">Test</property>
               </object>
             </child>

@@ -3,6 +3,7 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
 // No other files should ever need it.
@@ -115,6 +116,23 @@ void setup_accession_code_frame() {
    setup_generic_hide_on_escape_controller(entry,frame);
 }
 
+void setup_vertical_pane_size_request() {
+   GtkWidget *vbox = widget_from_builder("main_window_vbox_inner");
+   GtkWidget *pane = widget_from_builder("validation_graph_pane");
+   GtkWidget *paned_widget = widget_from_builder("main_window_vertical_pane");
+   GtkRequisition* pane_req = gtk_requisition_new();
+   GtkRequisition* vbox_req = gtk_requisition_new();
+   gtk_widget_get_preferred_size(vbox,NULL,vbox_req);
+   gtk_widget_get_preferred_size(pane,NULL,pane_req);
+   gtk_widget_set_size_request(paned_widget,-1,vbox_req->height+pane_req->height);
+   gtk_requisition_free(pane_req);
+   gtk_requisition_free(vbox_req);
+
+   // For some reason, setting this doesn't work in the .ui file
+   gtk_paned_set_shrink_start_child(GTK_PANED(paned_widget),FALSE);
+   gtk_paned_set_resize_start_child(GTK_PANED(paned_widget),FALSE);
+}
+
 void setup_get_monomer() {
    GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
@@ -220,6 +238,7 @@ void setup_python_scripting_entry() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
+   setup_vertical_pane_size_request();
    setup_graph_submenus();
    setup_get_monomer();
    setup_accession_code_frame();
