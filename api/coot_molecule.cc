@@ -337,6 +337,11 @@ coot::molecule_t::make_backup() {
 
       //shall we use the environment variable instead?
       char *env_var = getenv("COOT_BACKUP_DIR");
+
+#ifdef EMSCRIPTEN
+
+#else
+
       if (env_var) {
          struct stat buf;
 
@@ -353,6 +358,7 @@ coot::molecule_t::make_backup() {
             env_var = NULL;
          }
       }
+#endif
 
       if (env_var)
          backup_dir = env_var;
