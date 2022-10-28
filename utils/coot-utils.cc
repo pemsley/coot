@@ -157,6 +157,8 @@ coot::util::create_directory(const std::string &dir_name_in) {
 #else
 
 #ifdef EMSCRIPTEN
+      mode_t mkdir_mode = 0755;
+      istat = mkdir(dir_name.c_str(), mkdir_mode);
 #else
       if (change_permission) {
          mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR; // over-ridden
@@ -175,6 +177,7 @@ coot::util::create_directory(const std::string &dir_name_in) {
 	 // was a directory already
 	 istat = 0; // return as if we made it
       }
+#endif
 #endif
    }
 
