@@ -188,8 +188,42 @@ int test_undo_and_redo(molecules_container_t &mc) {
          double dd_3 = coot::Cartesian::lengthsq(pt_2, pt_4);
          double d_3 = std::sqrt(dd_3);
          std::cout << "test_undo(): debug distance d3 " << d_3 << std::endl;
-         if (d_3 < 0.01)
-            status = 1;
+         if (d_3 < 0.01) {
+
+            mc.flip_peptide_using_cid(imol, "//A/20/CA", "");
+            mc.flip_peptide_using_cid(imol, "//A/22/CA", "");
+
+            coot::atom_spec_t atom_spec_b("A", 24, "", " O  ", "");
+            mmdb::Atom *at_5 = mc.get_atom(imol, atom_spec_b);
+            coot::Cartesian pt_5(at_5->x, at_5->y, at_5->z);
+            mc.flip_peptide_using_cid(imol, "//A/24/CA", "");
+            mmdb::Atom *at_6 = mc.get_atom(imol, atom_spec_b);
+            coot::Cartesian pt_6(at_6->x, at_6->y, at_6->z);
+            mc.undo(imol);
+            mmdb::Atom *at_7 = mc.get_atom(imol, atom_spec_b);
+            coot::Cartesian pt_7(at_7->x, at_7->y, at_7->z);
+            mc.redo(imol);
+            mmdb::Atom *at_8 = mc.get_atom(imol, atom_spec_b);
+            coot::Cartesian pt_8(at_8->x, at_8->y, at_8->z);
+
+            if (true) { // debugging
+               std::cout << "pt_4 " << pt_4 << std::endl;
+               std::cout << "pt_5 " << pt_5 << std::endl;
+               std::cout << "pt_6 " << pt_6 << std::endl;
+               std::cout << "pt_7 " << pt_7 << std::endl;
+               std::cout << "pt_8 " << pt_8 << std::endl;
+            }
+
+            double dd_4 = coot::Cartesian::lengthsq(pt_6, pt_7);
+            double dd_5 = coot::Cartesian::lengthsq(pt_6, pt_8);
+            double d_4 = std::sqrt(dd_4);
+            double d_5 = std::sqrt(dd_5);
+
+            std::cout << "debug d_4 " << d_4 << " dd_5 " << d_5 << std::endl;
+            if (dd_4 > 3.0)
+               if (dd_5 < 0.01)
+                  status = 1;
+         }
       }
    }
    return status;
@@ -632,7 +666,6 @@ int main(int argc, char **argv) {
       status += run_test(test_pepflips,           "pepflips",                 mc);
       status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
       status += run_test(test_updating_maps,      "updating maps",            mc);
-      status += run_test(test_undo_and_redo,      "undo and redo",            mc);
       status += run_test(test_delete_residue,     "delete residue",           mc);
       status += run_test(test_delete_chain,       "delete chain",             mc);
       status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
@@ -645,9 +678,11 @@ int main(int argc, char **argv) {
       status += run_test(test_weird_delete,        "delete II",               mc);
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_side_chain_180,     "side-chain 180",           mc);
+      status += run_test(test_bonds_mesh,        "bonds mesh",      mc);
    }
 
-   status += run_test(test_bonds_mesh,        "bonds mesh",      mc);
+
+   status += run_test(test_undo_and_redo,      "undo and redo",            mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

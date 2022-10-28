@@ -95,7 +95,7 @@ coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
 void
 coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: restore_from_backup() requested mod_index: " << mod_index
                 << " history size: " << history_filename_vec.size() << std::endl;
 
@@ -353,8 +353,6 @@ coot::molecule_t::make_backup() {
 
       if (env_var)
          backup_dir = env_var;
-
-      backup_dir = "";
 
       if (atom_sel.mol) {
          int dirstat = make_maybe_backup_dir(backup_dir);
@@ -1005,7 +1003,6 @@ int coot::molecule_t::flip_peptide(const coot::atom_spec_t &as_in, const std::st
    coot::atom_spec_t as = as_in;
    if (as.atom_name == " N  ")
       as.res_no--;
-   std::cout << "------------- calling library function coot::pepflip with residue number " << as.res_no << std::endl;
    int result = coot::pepflip(atom_sel.mol, as.chain_id, as.res_no, as.ins_code, alt_conf);
    save_info.new_modification();
    return result;
