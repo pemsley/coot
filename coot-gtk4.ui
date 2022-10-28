@@ -6583,8 +6583,26 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="validation_graph_pane">
-                <property name="label">Test</property>
+              <object class="GtkBox" id="validation_graph_pane">
+                <property name="orientation">vertical</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-end">5</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Validation Graphs</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkComboBox">
+
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkGrid">
+                  </object>
+                </child>
               </object>
             </child>
           </object>
