@@ -66,7 +66,7 @@ int test_pepflips(molecules_container_t &mc) {
       residues_for_flipping.push_back(rs);
    }
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    unsigned int n_flipped = 0;
    for (const auto &res_spec : residues_for_flipping) {
@@ -117,10 +117,10 @@ int test_updating_maps(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol =        mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   int imol_map      = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "FWT",    "PHWT",    "W", false, false);
-   int imol_diff_map = mc.read_mtz(reference_data("gideondoesntapprove.mtz"), "DELFWT", "PHDELWT", "W", false, true);
-   mc.associate_data_mtz_file_with_map(imol_map, reference_data("gideondoesntapprove.mtz"), "F", "SIGF", "FREER");
+   int imol =        mc.read_pdb(reference_data("gideondoesntapprove."));
+   int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT",    "PHWT",    "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
 
    mc.display_molecule_names_table();
 
@@ -160,7 +160,7 @@ int test_undo_and_redo(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string atom_cid = "//A/14/CA";
    coot::atom_spec_t atom_spec("A", 14, "", " O  ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
@@ -229,13 +229,37 @@ int test_undo_and_redo(molecules_container_t &mc) {
    return status;
 }
 
+int test_rama_validation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string coords_fn = reference_data("moorhen-tutorial-structure-number-1.pdb");
+   int imol = mc.read_pdb(coords_fn);
+
+   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > rv = mc.ramachandran_validation(imol);
+
+   bool r_285 = false;
+   bool r_286 = false;
+   for (const auto &r : rv) {
+      // std::cout << " " << r.first << " " << r.second << std::endl;
+      if (r.second.residue_number == 285) r_285 = true;
+      if (r.second.residue_number == 286) r_286 = true;
+   }
+
+   if (r_286 && ! r_285)
+      status = 1;
+
+   return status;
+}
+
 
 int test_rama_balls_mesh(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
-   std::string coords_fn = "tm-A.pdb";
+   std::string coords_fn = reference_data("moorhen-tutorial-structure-number-1.pdb");
    int imol = mc.read_pdb(coords_fn);
 
    coot::simple_mesh_t rvmm = mc.ramachandran_validation_markup_mesh(imol);
@@ -257,7 +281,7 @@ int test_rota_dodecs_mesh(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::simple_mesh_t rota_mesh = mc.get_rotamer_dodecs(imol);
    std::cout << "rota mesh: " << rota_mesh.vertices.size() << " vertices and " << rota_mesh.triangles.size()
              << " triangles" << std::endl;
@@ -293,7 +317,7 @@ int test_delete_atom(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string atom_cid = "//A/14/O";
    mmdb::Atom *at_1 = mc.get_atom_using_cid(imol, atom_cid);
    if (at_1) {
@@ -314,7 +338,7 @@ int test_delete_residue(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string residue_cid = "//A/14";
    mmdb::Residue *r_1 = mc.get_residue_using_cid(imol, residue_cid);
    if (r_1) {
@@ -340,8 +364,8 @@ int test_rsr(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
 
    // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
    // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
@@ -349,7 +373,7 @@ int test_rsr(molecules_container_t &mc) {
    mc.set_imol_refinement_map(imol_map);
 
    std::string chain_id = "A";
-   int res_no = 14; // this residue is problematic in gideondoesntapprove.pdb
+   int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
    std::string ins_code;
 
    coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
@@ -358,7 +382,7 @@ int test_rsr(molecules_container_t &mc) {
    mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
-   
+
    std::string mode = "SPHERE";
    mc.refine_residues(imol, "A", 14, "", "", mode);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
@@ -384,13 +408,13 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
 
    mc.set_imol_refinement_map(imol_map);
 
    std::string chain_id = "A";
-   int res_no = 14; // this residue is problematic in gideondoesntapprove.pdb
+   int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
    std::string ins_code;
 
    std::string cid = "//A/14/CA";
@@ -401,7 +425,7 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
-   
+
    std::string mode = "SPHERE";
    mc.refine_residues_using_atom_cid(imol, cid, mode);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
@@ -425,8 +449,8 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
-   int imol_map = mc.read_mtz("gideondoesntapprove.mtz", "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    // test adding to the N-terminus
@@ -488,7 +512,7 @@ int test_delete_chain(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
@@ -511,7 +535,7 @@ int test_delete_molecule(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -532,7 +556,7 @@ int test_mutate(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec_ser("A", 270, "", " OG ",""); // current SER
    coot::atom_spec_t atom_spec_tyr("A", 270, "", " OH ",""); // TYR
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_ser);
@@ -558,7 +582,7 @@ int test_weird_delete(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 151, "", " N  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -578,7 +602,7 @@ int test_side_chain_180(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 268, "", " OD1","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -600,7 +624,7 @@ int test_bonds_mesh(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol, mode);
@@ -620,7 +644,7 @@ int test_template(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("gideondoesntapprove.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -672,17 +696,18 @@ int main(int argc, char **argv) {
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
       status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
-      status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
       status += run_test(test_mutate,              "mutate",                  mc);
       status += run_test(test_delete_atom,        "delete atom",              mc);
-      status += run_test(test_weird_delete,        "delete II",               mc);
+      status += run_test(test_weird_delete,       "delete II",                mc);
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_side_chain_180,     "side-chain 180",           mc);
-      status += run_test(test_bonds_mesh,        "bonds mesh",      mc);
+      status += run_test(test_bonds_mesh,         "bonds mesh",               mc);
+      status += run_test(test_undo_and_redo,      "undo and redo",            mc);
+      status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
    }
 
 
-   status += run_test(test_undo_and_redo,      "undo and redo",            mc);
+      status += run_test(test_rama_validation,    "rama validation",           mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
