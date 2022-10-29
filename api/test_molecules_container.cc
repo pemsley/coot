@@ -13,7 +13,13 @@ void starting_test(const char *func) {
 // wrap with the directory for the test data.
 std::string
 reference_data(const std::string &file) {
-   return file; // 20221016-PE for now.
+   char *env = getenv("MOORHEN_TEST_DATA_DIR");
+   if (env) {
+      std::string joined = coot::util::append_dir_file(env, file);
+      return joined;
+   } else {
+      return file;
+   }
 }
 
 int test_auto_fit_rotamer(molecules_container_t &mc_in) {
@@ -23,22 +29,22 @@ int test_auto_fit_rotamer(molecules_container_t &mc_in) {
 
    molecules_container_t mc;
    mc.geometry_init_standard();
-   int imol = mc.read_pdb(reference_data("tm-A.pdb"));
-   int imol_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_map)) {
-         coot::residue_spec_t res_spec("A", 89, "");
+         coot::residue_spec_t res_spec("A", 61, "");
          mmdb::Residue *r = coot::util::get_residue(res_spec, mc[imol].atom_sel.mol);
          if (r) {
             mmdb::Atom *cz = r->GetAtom(" CZ ");
             coot::Cartesian pt_1(cz->x, cz->y, cz->z);
-            status = mc.auto_fit_rotamer(imol, "A", 89, "", "", imol_map);
+            status = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
             coot::Cartesian pt_2(cz->x, cz->y, cz->z);
             double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
             double d = std::sqrt(dd);
             std::cout << "d " << d << std::endl;
-            if (d > 7.0)
+            if (d > 6.0)
                status = 1; // yay.
          } else {
             std::cout << "residue not found" << res_spec << std::endl;
@@ -117,7 +123,7 @@ int test_updating_maps(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol =        mc.read_pdb(reference_data("gideondoesntapprove."));
+   int imol =        mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT",    "PHWT",    "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
@@ -298,7 +304,7 @@ int test_density_mesh(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    // this could be any mtz file I suppose
-   int imol_map = mc.read_mtz("rnasa-1.8-all_refmac1.mtz", "FWT", "PHWT", "W", false, false);
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    clipper::Coord_orth p(55, 10, 10);
    float radius = 12;
@@ -365,7 +371,7 @@ int test_rsr(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
    // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
@@ -409,7 +415,7 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    mc.set_imol_refinement_map(imol_map);
 
@@ -450,7 +456,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz("moorhen-tutorial-map-number-1.mtz", "FWT", "PHWT", "W", false, false);
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    // test adding to the N-terminus
