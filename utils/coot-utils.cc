@@ -915,8 +915,13 @@ coot::package_data_dir() {
    std::string pkgdatadir = PKGDATADIR;
    // For binary installers, they use the environment variable:
    char *env = getenv("COOT_DATA_DIR");
-   if (env)
+   if (env) {
       pkgdatadir = std::string(env);
+   } else {
+      char *env = getenv("COOT_PREFIX");
+      if (env)
+         pkgdatadir = std::string(env) + std::string("/share/coot");
+   }
    return pkgdatadir;
 }
 

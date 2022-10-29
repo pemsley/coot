@@ -10,6 +10,7 @@
 ----
 
   Release 0.9.8.4
+  Release 0.9.8.5
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
@@ -225,6 +226,10 @@ major version every year or so.
 [8] the little testing I have done on a recent intel MacBook Pro shows unimpressive
     performance (Iris graphics, retina display)
 [9] Thanks to my Mac-using colleagues for their feedback.
+
+----
+
+  Release 0.9.8.4 [Fumbled release]
 
 ----
 

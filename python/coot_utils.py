@@ -2731,6 +2731,14 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 atom_list_1 = pyrimidine_to_purine_set
                 atom_list_2 = purine_to_pyrimidine_set
 
+        for atom_name_1, atom_name_2 in zip(atom_list_1, atom_list_2):
+            add_lsq_atom_pair(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
+                              chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
+
+        print( "applying matches...")
+        apply_lsq_matches(imol_ref, imol_mov)
+        print( "done matches")
+        
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
     # then use it.
@@ -2776,9 +2784,15 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 if coot.residue_exists_qm(imol, chain_id_in, resno-1, ""):
                     coot.delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
-            if not is_nucleotide(imol_ligand, "A", 1):
-                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
-            coot.delete_residue(imol, chain_id_in, resno, "")
+            if (is_nucleotide(imol_ligand, "A", 1) and
+                is_nucleotide(imol, chain_id_in, resno)):
+                overlap_by_base(imol_ligand, "A", 1, "", imol, chain_id_in, resno, "")
+            else:
+                overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+
+            if (not is_nucleotide(imol_ligand, "A", 1)):
+                match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+            delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             merge_status = new_chain_id_info[0]
             # merge_status is sometimes a spec, sometimes a chain-id pair
@@ -2811,11 +2825,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                         dir_atoms = phos_dir[tlc]
                     else:
                         dir_atoms = False
-                    coot.refine_zone(imol, chain_id_in, resno, resno, "")
+                    #refine_zone(imol, chain_id_in, resno, resno, "")
                     if dir_atoms:
-                        spin_search(imol_map, imol, chain_id_in,
-                                    resno, "", dir_atoms, spin_atoms)
-                        coot.refine_zone(imol, chain_id_in, resno, resno, "")
+                        spin_search(imol_map, imol, chain_id_in, resno, "",
+                                    dir_atoms, spin_atoms)
+                        #refine_zone(imol, chain_id_in, resno, resno, "")
                 coot.accept_regularizement()
                 coot.set_refinement_immediate_replacement(replacement_state)
 
@@ -3771,7 +3785,9 @@ def file_to_preferences(filename):
 
     coot_python_dir = os.getenv("COOT_PYTHON_DIR")
     if not coot_python_dir:
-        if is_windows():
+        coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
+        if not os.path.isdir(coot_python_dir) and is_windows():
+            # maybe its old an in another place!?!
             coot_python_dir = os.path.normpath(os.path.join(sys.prefix,
                                                             'lib', 'site-packages', 'coot'))
         else:
@@ -3779,7 +3795,7 @@ def file_to_preferences(filename):
                 sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
     if not os.path.isdir(coot_python_dir):
-        coot.add_status_bar_text("Missing COO_PYTHON_DIR")
+        coot.add_status_bar_text("Missing COOT_PYTHON_DIR")
     else:
         ref_py = os.path.join(coot_python_dir, filename)
 
@@ -3819,6 +3835,75 @@ def file_to_preferences(filename):
                             exec(compile(open(pref_file, "rb").read(),
                                          pref_file, 'exec'), globals())
 
+
+
+# something like this for intermediate atoms also?
+#
+# n-neighbs is either 0 or 1
+#
+def rebuild_residues_using_db_loop(imol, middle_residue_spec, n_neighbs):
+
+    global db_loop_preserve_residue_names
+
+    # utility function
+    #
+    def remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low):
+
+        for residue_idx, res_name in enumerate(saved_residue_names):
+            if isinstance(res_name, str):
+                if res_name == "GLY":
+                    res_no_gly = resno_low + residue_idx
+                    delete_atom(imol_db_loop, ch_id, res_no_gly, "", " CB ", "")
+
+    # main line
+
+    resno_mid = residue_spec_to_res_no(middle_residue_spec)
+    resno_low = resno_mid - n_neighbs
+    resno_high = resno_mid + n_neighbs
+    r = range(resno_mid - 4 - n_neighbs, resno_mid + n_neighbs + 0) + \
+        range(resno_mid + 1 + n_neighbs, resno_mid + 3 + n_neighbs)
+    ch_id = residue_spec_to_chain_id(middle_residue_spec)
+    residue_specs = map(lambda res_no: [ch_id, res_no, ""], r)
+
+    loop_mols = protein_db_loops(imol, residue_specs, imol_refinement_map(),
+                                 1, db_loop_preserve_residue_names)
+    residue_spec_of_residues_to_be_replaced = [middle_residue_spec] \
+        if n_neighbs == 0 else map(lambda rno: [ch_id, rno, ""],
+                                   range(resno_low, resno_high + 1))
+
+    saved_residue_names = map(lambda rno: residue_spec_to_residue_name(imol, rno),
+                              residue_spec_of_residues_to_be_replaced)
+
+    if len(loop_mols) > 0:
+        # loop-mols have the correct residue numbering but the wrong chain-id
+        # and residue type
+        imol_db_loop = loop_mols[1][0]
+        tmp_loop_mols = loop_mols[0]
+        chain_id_db_loop = chain_id(imol_db_loop, 0)
+        if not ch_id == chain_id_db_loop:
+            change_chain_id(imol, imol_db_loop, chain_id_db_loop, ch_id, 0, 0, 0)
+        selection = "//" + ch_id + "/" + str(resno_low) + "-" + str(resno_high)
+
+        # if the original residue was a GLY, the imol-db-loop might (probably
+        # will) have CB. If that is the case, then we should remove the CBs now
+        #
+        remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low)
+
+        # this moves atoms, adds atoms if needed, doesn't change the residue name
+        #
+        replace_fragment(imol, imol_db_loop, selection)
+        # tidy up
+        for i in tmp_loop_mols:
+            close_molecule(i)
+
+def go_to_box_middle():
+
+    ls = map_molecule_list()
+    if ls:
+        imol_map = ls[0]
+        c = cell(imol_map)
+        rc = map(lambda a: a * 0.5, c[:3])
+        set_rotation_centre(*rc)
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a
@@ -4523,8 +4608,9 @@ def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
 
 # Necessary for jligand to find libcheck. Mmmh. Was this required before?!
 # does similar things to the ccp4 console batch. Win only
-
-
+# Shouldnt be necessary since we try to setup CCP4 in the startup script.
+# And, $CCP4 probably wont be set any more...
+#
 def setup_ccp4():
     """This will append ccp4 (e.g. CBIN) to PATH, so that we can find
     CCP4 programs in PATH and not only in CBIN. But only if not already
@@ -4544,7 +4630,7 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\\ccp4temp"],
+                "CCP4_SCR": ["C:\ccp4temp"],
                 "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
                 "CBIN": [CCP4, "bin"],
                 "CLIB": [CCP4, "lib"],
@@ -4553,10 +4639,10 @@ def setup_ccp4():
                 "CHTML": [CCP4, "html"],
                 "CINCL": [CCP4, "include"],
                 "CCP4I_TOP": [CCP4, "share", "ccp4i"],
-                "CLIBD_MON": [CCP4, "lib", "data", "monomers"],
+                "CLIBD_MON": [CCP4, "lib", "data", "monomers\\"],
                 "MMCIFDIC": [CCP4, "lib", "ccp4", "cif_mmdic.lib"],
                 "CRANK": [CCP4, "share", "ccp4i", "crank"],
-                "CCP4_OPEN": ["unknown"],
+                "CCP4_OPEN": ["UNKNOWN"],
                 "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
             }
             for env_var in ccp4_env_vars:
@@ -4813,12 +4899,53 @@ def alphafold_pLDDT_colours(imol):
     graphics_to_user_defined_atom_colours_representation(imol)
 
 
+
+
+def write_current_sequence_as_pir(imol, ch_id, file_name):
+    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+
+def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
+
+    def get_clustalw2_command():
+        clustalw2_command = "clustalw2"
+        ccp4_libexec_path = os.path.join(os.getenv("CCP4"), "libexec") \
+            if os.getenv("CCP4") else ""
+        return find_exe(clustalw2_command, ["PATH", ccp4_libexec_path, "CBIN"])
+
+    current_sequence_pir_file = "current-sequence.pir"
+    aligned_sequence_pir_file = "aligned-sequence.pir"
+    clustalw2_output_file_name = "clustalw2-output-file.log"
+
+    clustalw2_command = get_clustalw2_command()
+    if not clustalw2_command:
+        print("ERROR:: No clustalw2 command")
+        return False
+    else:
+
+        if os.path.exists("aligned-sequence.pir"):
+            os.remove("aligned-sequence.pir")
+        if os.path.exists("aligned-sequence.dnd"):
+            os.remove("aligned-sequence.dnd")
+        if os.path.exists("current-sequence.dnd"):
+            os.remove("current-sequence.dnd")
+
+        write_current_sequence_as_pir(imol, ch_id, current_sequence_pir_file)
+
+        data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
+                      "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
+        popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
+        associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
+        apply_pir_alignment(imol, ch_id)
+        simple_fill_partial_residues(imol)
+        resolve_clashing_sidechains_by_deletion(imol)
+
+
+####### Back to Paul's scripting.
+####### This needs to follow find_exe
+
 # if you don't have mogul, set this to False
 global use_mogul
+use_mogul = True
+if (not command_in_path_qm("mogul")):
+    use_mogul = False
 
-# use_mogul = True
-use_mogul = False
-
-# this kill's Ctrl-C. So kill this instead.
-# if not command_in_path_qm("mogul"):
-#    use_mogul = False
