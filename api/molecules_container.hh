@@ -26,7 +26,7 @@ class molecules_container_t {
       int model_gru_points_delta; // for the latest change, I mean
       int   map_gru_points_delta;
       float rmsd_of_difference_map;
-      gru_points_t(float rmsd) {
+      explicit gru_points_t(float rmsd) {
          model_gru_points_delta = 0;
          map_gru_points_delta = 0;
          rmsd_of_difference_map = rmsd;
@@ -65,6 +65,7 @@ class molecules_container_t {
    // Now that we are in api, then I am now no longer sure that this should be static
    // or what static means in WebAssembly.
    static clipper::Xmap<float> *dummy_xmap;
+   float map_weight;
 
    static ctpl::thread_pool static_thread_pool; // does this need to be static?
 
@@ -164,7 +165,8 @@ public:
    int imol_refinement_map; // direct access
    int imol_difference_map; // direct access
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
-   float map_weight;
+   void set_map_weight(float w) { map_weight = w; }
+   float get_map_weight() const { return map_weight; }
 
    // the test for these failing is spec.empty()
    coot::atom_spec_t atom_cid_to_atom_spec(int imol, const std::string &cid) const;
@@ -221,6 +223,7 @@ public:
    }
    // -------------------------------- generic utils -----------------------------------
 
+   std::string get_molecule_name(int imol) const;
    void display_molecule_names_table() const;
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;
@@ -234,6 +237,11 @@ public:
    // -------------------------------- coordinates utils -----------------------------------
 
    int read_pdb(const std::string &file_name);
+   int get_monomer(const std::string &monomer_name);
+   int get_monomer_from_dictionary(const std::string &comp_id, bool idealised_flag);
+   // 20221030-PE nice to have one day:
+   // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
+
    int write_coordinates(int imol, const std::string &file_name) const;
 
    // Mode is "COLOUR-BY-CHAIN-AND-DICTIONARY"
@@ -312,6 +320,11 @@ public:
 
    int side_chain_180(int imol, const std::string &atom_cid);
 
+   //! return the new molecule number (or -1 on no atoms selected)
+   int copy_fragment_using_cid(int imol, const std::string &cid);
+   //! return the new molecule number (or -1 on no atoms selected)
+   int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+
    // -------------------------------- coordinates refinement ------------------------------
 
    // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
@@ -319,6 +332,8 @@ public:
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode);
+   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
    // -------------------------------- coordinates validation ------------------------------

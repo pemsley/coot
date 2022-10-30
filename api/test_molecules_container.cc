@@ -451,6 +451,44 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    return status;
 }
 
+int test_rsr_using_residue_range(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.set_imol_refinement_map(imol_map);
+
+   coot::atom_spec_t atom_spec_N_1("A", 130, "", " N  ","");
+   coot::atom_spec_t atom_spec_N_2("A", 133, "", " N  ","");
+   coot::atom_spec_t atom_spec_N_3("A", 137, "", " N  ","");
+   mmdb::Atom *at_N_1 = mc.get_atom(imol, atom_spec_N_1);
+   mmdb::Atom *at_N_2 = mc.get_atom(imol, atom_spec_N_2);
+   mmdb::Atom *at_N_3 = mc.get_atom(imol, atom_spec_N_3);
+   coot::Cartesian atom_pos_N_1_1 = atom_to_cartesian(at_N_1);
+   coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
+   coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
+   float w = mc.get_map_weight();
+   mc.set_map_weight(w * 100.0);
+   mc.refine_residue_range(imol, "A", 131, 136);
+   mc.set_map_weight(w); // restore sanity.
+   coot::Cartesian atom_pos_N_1_2 = atom_to_cartesian(at_N_1);
+   coot::Cartesian atom_pos_N_2_2 = atom_to_cartesian(at_N_2);
+   coot::Cartesian atom_pos_N_3_2 = atom_to_cartesian(at_N_3);
+   double dd_N_1 = coot::Cartesian::lengthsq(atom_pos_N_1_1, atom_pos_N_1_2);
+   double dd_N_2 = coot::Cartesian::lengthsq(atom_pos_N_2_1, atom_pos_N_2_2);
+   double dd_N_3 = coot::Cartesian::lengthsq(atom_pos_N_3_1, atom_pos_N_3_2);
+   double d_N_1 =  std::sqrt(dd_N_1);
+   double d_N_2 =  std::sqrt(dd_N_2);
+   double d_N_3 =  std::sqrt(dd_N_3);
+   // std::cout << "ds: " << d_N_1 << " " << d_N_2 << " " << d_N_3 << std::endl;
+   if (d_N_1 < 0.0001)  // no move
+      if (d_N_3 < 0.0001) // no move
+         if (d_N_2 > 0.08) // move a bit
+            status = 1;
+   return status;
+}
+
 int test_add_terminal_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -490,7 +528,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
    if (! at_1) { // it's not there to begin with
       mc.add_terminal_residue_directly(imol, "A", 278, "");
-      mc.write_coordinates(imol, "with-added-terminal-residue.pdb");
+      // mc.write_coordinates(imol, "with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
          // now test that it is there
@@ -645,6 +683,87 @@ int test_bonds_mesh(molecules_container_t &mc) {
    return status;
 }
 
+int test_copy_fragment_using_residue_range(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      int res_no_start = 131;
+      int res_no_end   = 140;
+      int imol_new = mc.copy_fragment_using_residue_range(imol, "A", res_no_start, res_no_end);
+      if (mc.is_valid_model_molecule(imol_new)) {
+         std::vector<mmdb::Residue *> residues;
+         mmdb::Manager *mol = mc.get_mol(imol_new);
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     residues.push_back(residue_p);
+                  }
+               }
+            }
+         }
+         if (residues.size() == 10) {
+            coot::atom_spec_t atom_spec_2("A", 136, "", " O  ","");
+            mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_2);
+            if (at_2)
+               status = 1;
+         }
+      }
+   }
+   return status;
+}
+
+int test_copy_fragment_using_cid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      std::string cid = "//A/131-140";
+      int imol_new = mc.copy_fragment_using_cid(imol, cid);
+      if (mc.is_valid_model_molecule(imol_new)) {
+         std::vector<mmdb::Residue *> residues;
+         mmdb::Manager *mol = mc.get_mol(imol_new);
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     residues.push_back(residue_p);
+                  }
+               }
+            }
+         }
+         if (residues.size() == 10) {
+            coot::atom_spec_t atom_spec_2("A", 136, "", " O  ","");
+            mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_2);
+            if (at_2)
+               status = 1;
+         }
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -701,19 +820,23 @@ int main(int argc, char **argv) {
       status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
       status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
+      status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
       status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
       status += run_test(test_mutate,              "mutate",                  mc);
       status += run_test(test_delete_atom,        "delete atom",              mc);
       status += run_test(test_weird_delete,       "delete II",                mc);
-      status += run_test(test_rsr,                "rsr",                      mc);
       status += run_test(test_side_chain_180,     "side-chain 180",           mc);
       status += run_test(test_bonds_mesh,         "bonds mesh",               mc);
       status += run_test(test_undo_and_redo,      "undo and redo",            mc);
       status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
+      status += run_test(test_rama_validation,    "rama validation",           mc);
+      status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range", mc);
+      status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
    }
 
 
-      status += run_test(test_rama_validation,    "rama validation",           mc);
+
+   // add a test for refine_residue_range
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

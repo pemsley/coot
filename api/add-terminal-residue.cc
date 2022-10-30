@@ -591,7 +591,7 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
    std::string message;
 
    bool add_terminal_residue_debug_trials = false;
-   int add_terminal_residue_n_phi_psi_trials = 10000;
+   int add_terminal_residue_n_phi_psi_trials = 3000;
    bool add_terminal_residue_add_other_residue_flag = false;
    bool is_from_shelx_ins = false;
 

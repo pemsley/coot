@@ -26,8 +26,8 @@ lib_LTLIBRARIES=libcoot-api.la
 libcoot_api_la_SOURCES = \
 coot_molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
 colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc                                  \
-coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                                          \
-test_molecules_container.cc  molecules_container.cc  make-a-dodec.cc	      prideout-octasphere.cc 
+coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                   molecules_container_modelling.cc \
+molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/ligand/libcoot-ligand.la           \
@@ -54,6 +54,9 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
 dist_python_PYTHON = coot_headless_api.py
 
 pyexec_LTLIBRARIES = _coot_headless_api.la
+
+wrap-coot-api.cc: coot-headless-api.i molecules_container.hh
+	swig -o $@ -python -c++ $<
 
 _coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules_container_swig.cc
 

@@ -87,11 +87,14 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
 
    // std::cout << "------------------- calling make_graphical_bonds_no_thinning() " << std::endl;
 
-   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
+   // 20221030-PE Hmmm..
+   // bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
-   // bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
-                                                // stupid when it comes to thining.
+   // 20221030-PE I think that I actuall want thinning. This needs more thought, I think.
+
+   bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
+                                             // stupid when it comes to thining.
 
    // testing previous values of bonds_box_type
    if (bonds_box_type != coot::COLOUR_BY_CHAIN_BONDS)
@@ -708,8 +711,9 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
          const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
          bool thin = ll.thin_lines_flag;
          float bond_radius_this = bond_radius;
-         if (thin)
+         if (thin) {
             bond_radius_this *= 0.5;
+         }
          float bl = ll.pair_list[j].positions.amplitude();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
@@ -1126,8 +1130,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    simple_mesh_t m;
 
    int udd_handle_bonded_type = 0; // FIXME
-   float atom_radius = 0.13;
-   float bond_radius = 0.13;
+   float atom_radius = 0.12;
+   float bond_radius = 0.12;
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
    unsigned int n_stacks = 2;

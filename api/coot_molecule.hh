@@ -216,6 +216,7 @@ namespace coot {
          original_fobs_sigfobs_p = nullptr;
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
+         use_bespoke_grey_colour_for_carbon_atoms = false;
 
          float rotate_colour_map_on_read_pdb = 0.24;
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
@@ -386,8 +387,10 @@ namespace coot {
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
-      // refinement tool
+      //! refinement tool
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
+      //! resno_start and resno_end are inclusive
+      std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
 
 
       // ----------------------- map functions

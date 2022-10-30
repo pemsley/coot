@@ -559,17 +559,48 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std:
          float radius = 8.0;
          // do these need to be sorted here?
          auto v = coot::residues_near_residue(residue_p, mol, radius);
-         std::cout << "big_sphere ############### v size " << v.size() << std::endl;
          rv.push_back(residue_p);
          // std::move(v.begin(), v.end(), std::back_inserter(rv));
          for (const auto &r : v)
             rv.push_back(r);
-         std::cout << "big_sphere ############### rv size " << rv.size() << std::endl;
       }
    }
 
    return rv;
 }
+
+//! resno_start and resno_end are inclusive
+std::vector<mmdb::Residue *>
+coot::molecule_t::select_residues(const std::string &chain_id, int resno_start, int resno_end) const {
+
+   std::vector<mmdb::Residue *> rv;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id_this(chain_p->GetChainID());
+         if (chain_id_this == chain_id) {
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int res_no_this = residue_p->GetSeqNum();
+                  if (res_no_this >= resno_start) {
+                     if (res_no_this <= resno_end) {
+                        rv.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return rv;
+}
+
 
 
 
@@ -639,8 +670,7 @@ coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
       return -1;
    }
 
-   int selHnd = atom_sel.mol->NewSelection();
-   int idx = 0;
+   int selHnd = atom_sel.mol->NewSelection(); // d
 
    atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(),
                             resno, insertion_code.c_str(), // start, insertion code
@@ -696,16 +726,15 @@ coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
 
    } else {
 
+      int idx = 0;
       if (nSelAtoms != 1) {
          // the wildcard atom selection case "*HO2"
-         short int found = 0;
          for (int i=0; i<nSelAtoms; i++) {
             if (std::string(local_SelAtom[i]->GetChainID()) == chain) {
                if (local_SelAtom[i]->residue->seqNum == resno) {
                   if (std::string(local_SelAtom[i]->GetInsCode()) == insertion_code) {
                      if (std::string(local_SelAtom[i]->name) == atom_name) {
                         if (std::string(local_SelAtom[i]->altLoc) == alt_conf) {
-                           found = 0;
                            idx = i;
                            break;
                         }
@@ -723,9 +752,8 @@ coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
       }
       iatom_index = iatom_index_udd;
    }
-   atom_sel.mol->DeleteSelection(selHnd); // Oh dear, this should have
-                                          // been in place for years
-                                          // (shouldn't it?) 20071121
+   atom_sel.mol->DeleteSelection(selHnd);
+
    return iatom_index;
 }
 

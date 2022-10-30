@@ -56,6 +56,18 @@ molecules_container_t::close_molecule(int imol) {
    return status;
 }
 
+std::string
+molecules_container_t::get_molecule_name(int imol) const {
+
+   int ms = molecules.size();
+   if (imol < ms)
+      if (imol >= 0)
+         return molecules[imol].get_name();
+   return std::string("");
+
+}
+
+
 
 void
 molecules_container_t::display_molecule_names_table() const {
@@ -176,6 +188,48 @@ molecules_container_t::read_pdb(const std::string &file_name) {
    }
    return status;
 }
+
+int
+molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
+                                                   bool idealised_flag) {
+
+   int istat = -1; // unfound molecule
+
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol_enc, idealised_flag);
+   if (mol) {
+      int imol = molecules.size();
+      std::string name = comp_id;
+      name += "_from_dict";
+      // graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
+      // move_molecule_to_screen_centre_internal(imol);
+      atom_selection_container_t asc = make_asc(mol);
+      coot::molecule_t m = coot::molecule_t(asc, imol, name);
+      molecules.push_back(m);
+      istat = imol;
+   } else {
+      std::cout << "WARNING:: Null mol from mol_from_dictionary() with comp_id " << comp_id << " "
+		<< idealised_flag << std::endl;
+   }
+   return istat;
+}
+
+
+int
+molecules_container_t::get_monomer(const std::string &comp_id) {
+
+   int imol = get_monomer_from_dictionary(comp_id, 1); // idealized
+   return imol;
+}
+
+// 20221030-PE nice to have one day
+// int
+// molecules_container_t::get_monomer_molecule_by_network(const std::string &text) {
+
+//    int imol = -1;
+//    return imol;
+// }
+
 
 int
 molecules_container_t::write_coordinates(int imol, const std::string &file_name) const {
@@ -1067,6 +1121,7 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
       if (refinement_is_quiet)
          restraints.set_quiet_reporting();
 
+      std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
       restraints.add_map(map_weight);
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       flags = coot::TYPICAL_RESTRAINTS;
@@ -1118,11 +1173,9 @@ molecules_container_t::refine_residues(int imol, const std::string &chain_id, in
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
       mmdb::Manager *mol = get_mol(imol);
-
       std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(residue_spec, mode);
-
       if (! rv.empty()) {
-         refine_direct(imol, rv, alt_conf, mol);
+         status = refine_direct(imol, rv, alt_conf, mol);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
       }
@@ -1131,6 +1184,26 @@ molecules_container_t::refine_residues(int imol, const std::string &chain_id, in
    }
    return status;
 }
+
+int
+molecules_container_t::refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(chain_id, res_no_start, res_no_end);
+      if (! rv.empty()) {
+         std::string alt_conf = "";
+         mmdb::Manager *mol = get_mol(imol);
+         status = refine_direct(imol, rv, alt_conf, mol);
+      } else {
+         std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
 
 
 coot::refinement_results_t
@@ -1155,8 +1228,8 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
                                                      mmdb::Chain *chain_p) const {
 
    int iserial_no = -1;
-   int current_diff = 999999;
    if (chain_p) {
+      int current_diff = 999999;
       int nres = chain_p->GetNumberOfResidues();
       for (int ires=0; ires<nres; ires++) { // ires is a serial number
 	 mmdb::Residue *residue = chain_p->GetResidue(ires);
