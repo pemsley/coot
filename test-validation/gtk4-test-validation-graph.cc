@@ -73,20 +73,95 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
    return r;
 }
 
+#include "ligand/rotamer.hh"
+
+coot::validation_information_t
+rotamer_analysis(const std::string &pdb_file_name) {
+
+   coot::validation_information_t r;
+
+   // fill these
+   mmdb::PResidue *SelResidues = 0;
+   int nSelResidues = 0;
+
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   int selHnd = atom_sel.mol->NewSelection(); // yes, it's deleted.
+   int imod = 1; // multiple models don't work on validation graphs
+
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
+                        "*", // chain_id
+                        mmdb::ANY_RES, "*",
+                        mmdb::ANY_RES, "*",
+                        "*",  // residue name
+                        "*",  // Residue must contain this atom name?
+                        "*",  // Residue must contain this Element?
+                        "*",  // altLocs
+                        mmdb::SKEY_NEW // selection key
+                        );
+   atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+
+   if (! atom_sel.read_success) {
+
+      std::cout << "Bad pdb file read " << pdb_file_name << std::endl;
+
+   } else {
+
+      for (int ir=0; ir<nSelResidues; ir++) {
+         mmdb::Residue *residue_p = SelResidues[ir];
+         coot::residue_spec_t res_spec(residue_p);
+         mmdb::PAtom *residue_atoms=0;
+         int n_residue_atoms;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+         // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
+
+         if (n_residue_atoms > 5) {
+
+            std::string res_name = residue_p->GetResName();
+            if (true) {
+
+               coot::rotamer rot(residue_p);
+               coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
+               double prob = rpi.probability;
+         
+               std::string l = res_spec.label();
+               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+               const std::string &chain_id = res_spec.chain_id;
+               int this_resno = res_spec.res_no;
+               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+               coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
+               r.add_residue_valiation_informtion(rvi, chain_id);
+            }
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return r;
+}
+
+
 
 int main(int argc, char **argv) {
 
    if (argc > 2) {
       std::string pdb_file_name = argv[1];
       std::string mtz_file_name = argv[2];
-      coot::validation_information_t vi = density_fit_analysis(pdb_file_name, mtz_file_name);
+      coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
+      coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
 
       // now do something (i.e. make a pretty interactive graph) with vi.
 
-      for (const auto &cvi : vi.cviv) {
+      for (const auto &cvi : vid.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << " Density Valdiation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+         }
+      }
+      for (const auto &cvi : vir.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " Rotamer Valdiation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
          }
       }
    }
