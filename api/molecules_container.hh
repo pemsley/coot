@@ -68,6 +68,7 @@ class molecules_container_t {
    float map_weight;
 
    static ctpl::thread_pool static_thread_pool; // does this need to be static?
+   bool show_timings;
 
    coot::restraints_container_t *last_restraints;
    bool continue_threaded_refinement_loop;
@@ -150,6 +151,7 @@ class molecules_container_t {
       refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
       imol_moving_atoms = -1;
       refinement_is_quiet = true;
+      show_timings = true;
       cif_dictionary_read_number = 40;
       // refinement
       continue_threaded_refinement_loop = false;
@@ -173,6 +175,8 @@ public:
    coot::residue_spec_t residue_cid_to_residue_spec(int imol, const std::string &cid) const;
 
    coot::simple_mesh_t test_origin_cube() const;
+   //! set the show_timings flag
+   void set_show_timings(bool s) { show_timings = s; }
 
 #ifdef SWIG
 #else

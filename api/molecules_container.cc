@@ -626,12 +626,20 @@ molecules_container_t::writeMap(int imol, const std::string &file_name) const {
 coot::simple_mesh_t
 molecules_container_t::get_bonds_mesh(int imol, const std::string &mode) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    coot::simple_mesh_t sm;
    if (is_valid_model_molecule(imol)) {
       sm = molecules[imol].get_bonds_mesh(mode, &geom);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   if (show_timings) {
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "---------- timings: for get_bonds_mesh(): : " << d10 << " milliseconds " << std::endl;
+   }
+
    return sm;
 }
 
@@ -640,17 +648,21 @@ coot::simple_mesh_t
 molecules_container_t::get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
                                              float radius, float contour_level) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
-      std::cout << ".................. here A in get_map_contours_mesh() " << imol << std::endl;
       if (is_valid_map_molecule(imol)) {
-         std::cout << ".................. here B in get_map_contours_mesh() " << imol << std::endl;
          clipper::Coord_orth position(position_x, position_y, position_z);
          mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
       }
    }
    catch (...) {
       std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   if (show_timings) {
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "---------- timings: for get_map_contours_mesh(): : " << d10 << " milliseconds " << std::endl;
    }
    return mesh;
 }
