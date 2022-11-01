@@ -6612,8 +6612,18 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
-                  <object class="GtkDropDown" id="validation_graph_model_dropdown">
-
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Model: </property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkDropDown" id="validation_graph_model_dropdown">
+                        <property name="hexpand">True</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -6622,6 +6632,11 @@ Do you want to continue?
                     <property name="margin-bottom">5</property>
                     <property name="margin-start">2</property>
                     <property name="margin-end">2</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Graph types</property>
                   </object>
                 </child>
                 <child>
