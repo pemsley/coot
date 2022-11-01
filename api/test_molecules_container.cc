@@ -776,8 +776,32 @@ int test_move_molecule_here(molecules_container_t &mc) {
    double dd = coot::Cartesian::lengthsq(pos, molecule_centre);
    double d = std::sqrt(dd);
    std::cout << "test_move_molecule_here d " << d << std::endl;
-   if (d < 0.01)
+   if (d < 0.001)
       status = 1;
+   return status;
+}
+
+int test_difference_map_contours(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "", false, true);
+
+   clipper::Coord_orth p(65, 50, 30);
+   float radius = 10;
+   float contour_level = 0.03;
+   coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
+   std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+             << " triangles" << std::endl;
+
+   for (const auto &vertex : map_mesh.vertices) {
+      // std::cout << "vertex " <<  glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+      if (vertex.color[0] > vertex.color[1])
+         if (vertex.color[0] > vertex.color[2])
+            status = 1;
+   }
+   
    return status;
 }
 
@@ -794,6 +818,7 @@ int test_template(molecules_container_t &mc) {
    }
    return status;
 }
+
 
 int n_tests = 0;
 
@@ -849,10 +874,11 @@ int main(int argc, char **argv) {
       status += run_test(test_rama_validation,    "rama validation",           mc);
       status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
+      status += run_test(test_move_molecule_here,    "move_molecule_here",     mc);
    }
 
 
-      status += run_test(test_move_molecule_here,    "move_molecule_here",           mc);
+   status += run_test(test_difference_map_contours,       "difference map density mesh",             mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

@@ -177,6 +177,10 @@ coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, flo
          }
          for (int ii=0; ii<n_reams; ii++)
             threads[ii].join();
+
+         for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
+            std::cout << "draw_diff_map_vector_sets size " << draw_diff_map_vector_sets[i].points.size() << std::endl;
+         }
       }
 
       if (is_dynamically_transformed_map_flag) {
@@ -323,7 +327,9 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    // now convert the contents of the draw-vector sets to a simple_mesh_t.
 
-   coot::colour_holder map_colour(0.4, 0.5, 0.8);
+   coot::colour_holder map_colour(0.4, 0.4, 0.7);
+   if (xmap_is_diff_map)
+      map_colour = coot::colour_holder(0.4, 0.8, 0.4);
 
    std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
    glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
@@ -346,6 +352,31 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
          // date removed map triangle centres block here.
 
       }
+   }
+
+   if (xmap_is_diff_map) {
+      glm::vec4 diff_map_col = glm::vec4(0.8, 0.4, 0.4, 1.0f);
+      for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
+         const coot::density_contour_triangles_container_t &tri_con(*it);
+         unsigned int idx_base = vertices.size();
+         for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+            glm::vec3 normal = coord_orth_to_glm(- tri_con.normals[i]); // reverse normal.
+            coot::api::vnc_vertex vert(pos, normal, diff_map_col);
+            vertices.push_back(vert);
+         }
+         for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+            g_triangle tri(tri_con.point_indices[i].pointID[0],
+                           tri_con.point_indices[i].pointID[1],
+                           tri_con.point_indices[i].pointID[2]);
+            tri.rebase(idx_base);
+            triangles.push_back(tri);
+
+            // date removed map triangle centres block here.
+
+         }
+      }
+
    }
 
    return m;
