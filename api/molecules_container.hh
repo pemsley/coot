@@ -324,6 +324,9 @@ public:
 
    int side_chain_180(int imol, const std::string &atom_cid);
 
+   int move_molecule_to_new_centre(int imol, float x, float y, float z);
+   coot::Cartesian get_molecule_centre(int imol) const;
+
    //! return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &cid);
    //! return the new molecule number (or -1 on no atoms selected)

@@ -12,9 +12,11 @@ public:
       point_id[0] = a0;
       point_id[1] = a1;
       point_id[2] = a2;
+      colour_index = -1;
    }
    g_triangle() {} // for resize
    unsigned int point_id[3];
+   int colour_index;
    unsigned int &operator[] (const unsigned int &i) { return point_id[i]; }
    const unsigned int &operator[] (const unsigned int &i) const { return point_id[i]; }
    void rebase(const unsigned int &idx_base) {

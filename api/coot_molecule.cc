@@ -1327,6 +1327,13 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
                          << " rama_markup_col " << rm.col
                          << " color " << glm::to_string(vertex.color) << std::endl;
          }
+
+         // fill the colour map with the colour for this dodec
+         m.colour_index_to_colour_map[i] = this_dodec_colour;
+
+         // change the colour index of dodec_triangles
+         for (auto &tri : dodec_triangles)
+            tri.colour_index = i;
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
          vertices.insert(vertices.end(), this_dodec_vertices.begin(), this_dodec_vertices.end());
@@ -1959,3 +1966,88 @@ coot::molecule_t::side_chain_180(const coot::residue_spec_t &residue_spec, const
    return status;
 }
 
+
+
+int
+coot::molecule_t::move_molecule_to_new_centre(const coot::Cartesian &new_centre) {
+
+   int status = 0;
+   if (is_valid_model_molecule()) {
+      std::pair<bool, clipper::Coord_orth> cm = coot::centre_of_molecule(atom_sel.mol);
+      if (cm.first) {
+         coot::Cartesian delta = new_centre - coot::Cartesian(cm.second.x(), cm.second.y(), cm.second.z());
+         for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              at->x += delta.x();
+                              at->y += delta.y();
+                              at->z += delta.z();
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
+coot::Cartesian
+coot::molecule_t::get_molecule_centre() const {
+
+   auto mmdb_to_cartesian = [] (mmdb::Atom *at) {
+      return Cartesian(at->x, at->y, at->z);
+   };
+
+   coot::Cartesian c(0,0,0);
+   unsigned int n_atoms_total = 0;
+   if (is_valid_model_molecule()) {
+      std::pair<bool, clipper::Coord_orth> cm = coot::centre_of_molecule(atom_sel.mol);
+      if (cm.first) {
+         for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              coot::Cartesian pt = mmdb_to_cartesian(at);
+                              c += pt;
+                              n_atoms_total++;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (n_atoms_total > 0) {
+      float sf = 1.0/static_cast<float>(n_atoms_total);
+      c = c * sf;
+   }
+   return c;
+}

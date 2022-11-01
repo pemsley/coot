@@ -299,6 +299,8 @@ make_graphical_bonds_spherical_atoms(coot::simple_mesh_t &m, // fill this
                glm::vec3 p = octasphere_geom.first[ii] * sc + t;
                vert = coot::api::vnc_vertex(p, octasphere_geom.first[ii], col);
             }
+            for (auto &tri : octasphere_geom.second)
+               tri.colour_index = icol;
             m.vertices.insert(m.vertices.end(), local_vertices.begin(), local_vertices.end());
             m.triangles.insert(m.triangles.end(), octasphere_geom.second.begin(), octasphere_geom.second.end());
             for (unsigned int k=idx_tri_base; k<m.triangles.size(); k++)
@@ -469,6 +471,9 @@ make_graphical_bonds_hemispherical_atoms(coot::simple_mesh_t &m, // fill m
                                   << local_vertices.size() << " " << coot::atom_spec_t(at)
                                   << " vertex position " << glm::to_string(p5) << std::endl;
                   }
+
+                  for (auto &tri : octasphere_geom.second) // for export to blender
+                     tri.colour_index = icol;
 
                   m.vertices.insert(m.vertices.end(), local_vertices.begin(), local_vertices.end());
                   m.triangles.insert(m.triangles.end(), octasphere_geom.second.begin(), octasphere_geom.second.end());
@@ -738,6 +743,8 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
          } else {
             // cc.add_octahemisphere_end_cap();
          }
+         for (auto &tri : cc.triangles) // for export to blender
+            tri.colour_index = icol;
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
          vertices.insert(vertices.end(), cc.vertices.begin(), cc.vertices.end());
@@ -1143,8 +1150,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
       // something
    }
 
-   // we don't make rotamer dodecs in this function
    std::set<int> no_bonds_to_these_atoms; // empty
+   // we don't make rotamer dodecs in this function
    makebonds(geom, nullptr, no_bonds_to_these_atoms); // this makes the bonds_box.
 
    std::vector<glm::vec4> colour_table = make_colour_table();
@@ -1153,7 +1160,9 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    }
 
    const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
+
    
+
    unsigned int n_bonds = 0;
    for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol_bond];
@@ -1161,6 +1170,15 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    }
    unsigned int allocation_for_vertices  = 68 * n_bonds;
    unsigned int allocation_for_triangles = 80 * n_bonds;
+
+   // "just checking"
+   int cts = colour_table.size();
+   if (cts < gbc.num_colours)
+      std::cout << "ERROR:: wrong size colour table in get_bonds_mesh()" << std::endl;
+   // OK, the the colour map
+   for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
+      m.colour_index_to_colour_map[icol_bond] = colour_table[icol_bond];
+   }
 
    m.vertices.reserve(allocation_for_vertices);
    m.triangles.reserve(allocation_for_triangles);

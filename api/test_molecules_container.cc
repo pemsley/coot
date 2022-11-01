@@ -764,6 +764,23 @@ int test_copy_fragment_using_cid(molecules_container_t &mc) {
    return status;
 }
 
+int test_move_molecule_here(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::Cartesian pos(11,22,33);
+   mc.move_molecule_to_new_centre(imol, pos.x(), pos.y(), pos.z());
+   coot::Cartesian molecule_centre = mc.get_molecule_centre(imol);
+   double dd = coot::Cartesian::lengthsq(pos, molecule_centre);
+   double d = std::sqrt(dd);
+   std::cout << "test_move_molecule_here d " << d << std::endl;
+   if (d < 0.01)
+      status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -835,6 +852,7 @@ int main(int argc, char **argv) {
    }
 
 
+      status += run_test(test_move_molecule_here,    "move_molecule_here",           mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

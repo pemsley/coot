@@ -610,6 +610,31 @@ molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) c
 }
 
 
+int
+molecules_container_t::move_molecule_to_new_centre(int imol, float x, float y, float z) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::Cartesian new_centre(x,y,z);
+      status = molecules[imol].move_molecule_to_new_centre(new_centre);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+coot::Cartesian
+molecules_container_t::get_molecule_centre(int imol) const {
+
+   coot::Cartesian c;
+   if (is_valid_model_molecule(imol)) {
+      c = molecules[imol].get_molecule_centre();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return c;
+}
+
 
 int
 molecules_container_t::writeMap(int imol, const std::string &file_name) const {
