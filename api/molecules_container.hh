@@ -157,6 +157,7 @@ class molecules_container_t {
       continue_threaded_refinement_loop = false;
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
+      map_sampling_rate = 1.8;
    }
 
 public:
