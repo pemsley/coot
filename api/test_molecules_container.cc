@@ -805,6 +805,30 @@ int test_difference_map_contours(molecules_container_t &mc) {
    return status;
 }
 
+int test_jed_flip(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec("A", 225, "", " CZ ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+      std::string atom_cid = "//A/225/CB";
+      bool invert_selection = true;
+      mc.jed_flip(imol, atom_cid, invert_selection);
+      coot::Cartesian atom_pos_2 = atom_to_cartesian(at_1);
+      double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+      double d = std::sqrt(dd);
+      std::cout << "test_jed_flip d " << d << std::endl;
+      mc.write_coordinates(imol, "jed-flip.pdb");
+      if (d > 0.9)
+         status = true;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -815,6 +839,9 @@ int test_template(molecules_container_t &mc) {
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
       coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+      double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
+      double d = std::sqrt(dd);
+      std::cout << "test_ d " << d << std::endl;
    }
    return status;
 }
@@ -854,6 +881,7 @@ int main(int argc, char **argv) {
 
       status += run_test(test_rama_balls_mesh,    "rama balls mesh",          mc);
       status += run_test(test_density_mesh,       "density mesh",             mc);
+      status += run_test(test_difference_map_contours, "difference map density mesh", mc);
       status += run_test(test_pepflips,           "pepflips",                 mc);
       status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
       status += run_test(test_updating_maps,      "updating maps",            mc);
@@ -877,8 +905,7 @@ int main(int argc, char **argv) {
       status += run_test(test_move_molecule_here,    "move_molecule_here",     mc);
    }
 
-
-   status += run_test(test_difference_map_contours,       "difference map density mesh",             mc);
+   status += run_test(test_jed_flip, "JED Flip",       mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

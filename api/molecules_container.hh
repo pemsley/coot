@@ -157,7 +157,6 @@ class molecules_container_t {
       continue_threaded_refinement_loop = false;
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
-      map_sampling_rate = 2.2;
    }
 
 public:
@@ -323,6 +322,9 @@ public:
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
    int side_chain_180(int imol, const std::string &atom_cid);
+
+   //! @return a non-blank message if there is a problem
+   std::string jed_flip(int imol, const std::string &atom_cid, bool invert_selection);
 
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
    coot::Cartesian get_molecule_centre(int imol) const;

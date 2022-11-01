@@ -178,9 +178,6 @@ coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, flo
          for (int ii=0; ii<n_reams; ii++)
             threads[ii].join();
 
-         for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
-            std::cout << "draw_diff_map_vector_sets size " << draw_diff_map_vector_sets[i].points.size() << std::endl;
-         }
       }
 
       if (is_dynamically_transformed_map_flag) {

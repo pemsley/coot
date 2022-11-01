@@ -2155,11 +2155,28 @@ molecules_container_t::side_chain_180(int imol, const std::string &atom_cid) {
 
 }
 
+std::string
+molecules_container_t::jed_flip(int imol, const std::string &atom_cid, bool invert_selection) {
+
+   std::string message;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
+      coot::residue_spec_t res_spec(atom_spec);
+      std::string atom_name = atom_spec.atom_name;
+      std::string alt_conf = "";
+      message = molecules[imol].jed_flip(res_spec, atom_name, alt_conf, invert_selection, &geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return message;
+}
+
+
 void
 molecules_container_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
    // 20221025-PE fill me later.
-   
+
 }
 
 int

@@ -2051,3 +2051,207 @@ coot::molecule_t::get_molecule_centre() const {
    }
    return c;
 }
+
+
+// return a non-empty string on a problem
+//
+std::string
+coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
+                                    const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+                                    const std::string &atom_name,
+                                    bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
+
+   std::string problem_string;
+   unsigned int selected_idx = 0;
+
+   if (interesting_torsions.size() > 0) {
+
+      unsigned int best_fragment_size = 9999;
+      if (interesting_torsions.size() > 1) {
+         // select the best torsion based on fragment size.
+         for (unsigned int i=0; i<interesting_torsions.size(); i++) {
+            std::string atn_1 = interesting_torsions[i].atom_id_2_4c();
+            std::string atn_2 = interesting_torsions[i].atom_id_3_4c();
+            bool reverse = false; // dummy value
+
+            std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+            if (p.first < best_fragment_size) {
+               best_fragment_size = p.first;
+               selected_idx = i;
+            }
+            if (p.second < best_fragment_size) {
+               best_fragment_size = p.second;
+               selected_idx = i;
+            }
+         }
+      }
+
+      const auto &int_tor = interesting_torsions[selected_idx];
+      problem_string = jed_flip_internal(tree, int_tor, atom_name, invert_selection);
+   }
+   return problem_string;
+}
+
+// return a non-null string on a problem
+//
+std::string
+coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
+                                    const coot::dict_torsion_restraint_t &torsion,
+                                    const std::string &atom_name,
+                                    bool invert_selection) {
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
+
+   std::string problem_string;
+
+   make_backup();
+
+   bool reverse = false; // reverse the moving dog<->tail fragment?
+
+   if (invert_selection)
+      reverse = true;
+
+   std::string atn_1 = torsion.atom_id_2_4c();
+   std::string atn_2 = torsion.atom_id_3_4c();
+
+   if (torsion.atom_id_3_4c() == atom_name) {
+      atn_1 = torsion.atom_id_3_4c();
+      atn_2 = torsion.atom_id_2_4c();
+   }
+
+   int period = torsion.periodicity();
+
+   if (period > 1) {
+
+      double angle = 360/double(period);
+      std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, false);
+
+      if (false) {  // debug
+         std::cout << "flip this torsion: " << torsion << std::endl;
+         std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
+                   << std::endl;
+      }
+
+      if (p.first > p.second)
+         reverse = !reverse;
+
+      tree.rotate_about(atn_1, atn_2, angle, reverse);
+      // have_unsaved_changes_flag = 1;
+      save_info.new_modification();
+   } else {
+      problem_string = "Selected torsion had a periodicity of ";
+      problem_string += clipper::String(period);
+   }
+   return problem_string;
+}
+
+
+
+
+std::string
+coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
+                           const std::string &atom_name,
+                           const std::string &alt_conf,
+                           bool invert_selection,
+                           coot::protein_geometry *geom) {
+
+   // std::cout << "########## jed_flip() " << spec << " " << atom_name << " " << invert_selection << std::endl;
+
+   // This function was copied to coot-utils - don't edit this, edit the coot-utils
+   // version and call it from here - possibly delete this.
+   //
+   // But this does have_unsaved_changes_flag and make_backup.
+
+   std::string problem_string;
+
+   mmdb::Residue *residue = get_residue(spec);
+   if (! residue) {
+      std::cout << "WARNING:: no residue " << spec << " found in molecule" << std::endl;
+   } else {
+
+      // Does atom atom_name with given alt_conf exist in this residue?
+      mmdb::Atom *clicked_atom = 0;
+      int clicked_atom_idx = -1;
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         std::string an(residue_atoms[iat]->name);
+         if (an == atom_name) {
+            std::string ac(residue_atoms[iat]->altLoc);
+            if (ac == alt_conf) {
+               clicked_atom = residue_atoms[iat];
+               clicked_atom_idx = iat;
+               break;
+            }
+         }
+      }
+
+      if (! clicked_atom) {
+         std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
+      } else {
+         std::string monomer_type = residue->GetResName();
+
+         std::pair<bool, coot::dictionary_residue_restraints_t> p =
+            geom->get_monomer_restraints(monomer_type, imol_no);
+
+         if (! p.first) {
+            std::cout << "WARNING residue type " << monomer_type << " not found in dictionary" << std::endl;
+         } else {
+            bool iht = false;  // include_hydrogen_torsions_flag
+            std::vector<coot::dict_torsion_restraint_t> all_torsions = p.second.get_non_const_torsions(iht);
+
+            if (all_torsions.size() == 0) {
+               problem_string = "There are no non-CONST torsions for this residue type";
+            } else {
+               std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
+               std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
+               for (unsigned int it=0; it<all_torsions.size(); it++) {
+
+                  bool is_ring_torsion_flag = all_torsions[it].is_ring_torsion(ring_atoms_sets);
+                  if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
+                     if (all_torsions[it].atom_id_2_4c() == atom_name)
+                        interesting_torsions.push_back(all_torsions[it]);
+                     if (all_torsions[it].atom_id_3_4c() == atom_name)
+                        interesting_torsions.push_back(all_torsions[it]);
+                  }
+               }
+
+               if (interesting_torsions.size() == 0) {
+                  problem_string = "There are no non-CONST non-ring torsions for this atom";
+               } else {
+
+                  // make a constructor?
+                  atom_selection_container_t residue_asc;
+                  residue_asc.n_selected_atoms = n_residue_atoms;
+                  residue_asc.atom_selection = residue_atoms;
+                  residue_asc.mol = 0;
+
+                  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
+                  std::vector<std::vector<int> > contact_indices =
+                     contact.get_contact_indices_with_reverse_contacts();
+
+                  try {
+                     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
+                     problem_string = jed_flip_internal(tree, interesting_torsions, atom_name, invert_selection);
+                     atom_sel.mol->FinishStructEdit();
+                  }
+                  catch (const std::runtime_error &rte) {
+                     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+                  }
+                  // make_bonds_type_checked(__FUNCTION__);
+               }
+            }
+         }
+      }
+   }
+   return problem_string;
+}
