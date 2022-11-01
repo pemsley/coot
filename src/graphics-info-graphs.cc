@@ -81,6 +81,11 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
 
+
+void graphics_info_t::refresh_validation_graph_model_list() {
+	g_debug("validation_graph_model_list()");
+}
+
 // Validation stuff	    //
 
 

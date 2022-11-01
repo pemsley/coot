@@ -5011,7 +5011,10 @@ string   static std::string sessionid;
                             << s << "() not much more insight \n";
       }
    }
-
+   static void refresh_validation_graph_model_list();
+   private:
+   static GListStore* validation_graph_model_list;
+   public:
 };
 
 
