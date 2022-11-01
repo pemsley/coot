@@ -6612,7 +6612,7 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
-                  <object class="GtkComboBox">
+                  <object class="GtkDropDown" id="validation_graph_model_dropdown">
 
                   </object>
                 </child>
