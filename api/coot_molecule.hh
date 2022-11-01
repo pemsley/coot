@@ -333,6 +333,8 @@ namespace coot {
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
       std::vector<coot::atom_spec_t> get_fixed_atoms() const;
 
+      std::vector<std::string> chains_in_model() const;
+      std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(const std::string &chain_id) const;
 
       // ----------------------- model bonds
 

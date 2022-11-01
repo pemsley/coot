@@ -260,6 +260,9 @@ public:
    // returns either the specified residue or null if not found
    mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
 
+   std::vector<std::string> chains_in_model(int imol) const;
+   std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
+
    int undo(int imol);
 
    int redo(int imol);

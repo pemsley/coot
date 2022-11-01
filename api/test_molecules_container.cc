@@ -847,6 +847,33 @@ int test_template(molecules_container_t &mc) {
 }
 
 
+int test_sequence_generator(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<std::string> chain_ids = mc.chains_in_model(imol);
+   for (const auto &chain_id : chain_ids) {
+      std::vector<std::pair<coot::residue_spec_t, std::string> > seq = mc.get_single_letter_codes_for_chain(imol, chain_id);
+      std::string sp;
+      unsigned int n_wat = 0;
+      for (unsigned int i=0; i<seq.size(); i++) {
+         const std::string &l = seq[i].second;
+         if (l != "~")
+            sp += l;
+         else
+            n_wat++;
+      }
+      std::cout << sp << std::endl;
+      if (sp.length() > 50)
+         if (n_wat == 150)
+            status = 1;
+   }
+   return status;
+}
+
+
 int n_tests = 0;
 
 int
@@ -899,15 +926,16 @@ int main(int argc, char **argv) {
       status += run_test(test_bonds_mesh,         "bonds mesh",               mc);
       status += run_test(test_undo_and_redo,      "undo and redo",            mc);
       status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
-      status += run_test(test_rama_validation,    "rama validation",           mc);
+      status += run_test(test_rama_validation,    "rama validation",          mc);
       status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_move_molecule_here,    "move_molecule_here",     mc);
+      status += run_test(test_move_molecule_here,    "move_molecule_here",    mc);
+      status += run_test(test_jed_flip,             "JED Flip",               mc);
    }
 
-   status += run_test(test_jed_flip, "JED Flip",       mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+   status += run_test(test_sequence_generator,      "Make a sequence string",             mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

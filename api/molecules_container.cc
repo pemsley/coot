@@ -2197,7 +2197,12 @@ molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, 
    int status = 0;
 
    // 20221025-PE Fill me later
-
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+      // molecules[imol].delete_side_chain(res_spec);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
    return status;
 }
 
@@ -2207,6 +2212,36 @@ molecules_container_t::fill_side_chain(int imol, const std::string &chain_id, in
    int status = 0;
 
    // 20221025-PE Fill me later
-
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+      // molecules[imol].fill_side_chain(res_spec);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
    return status;
+}
+
+
+std::vector<std::string>
+molecules_container_t::chains_in_model(int imol) const {
+
+   std::vector<std::string> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].chains_in_model();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+std::vector<std::pair<coot::residue_spec_t, std::string> >
+molecules_container_t::get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const {
+
+   std::vector<std::pair<coot::residue_spec_t, std::string> > v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_single_letter_codes_for_chain(chain_id);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
 }

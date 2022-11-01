@@ -2255,3 +2255,48 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
    }
    return problem_string;
 }
+
+
+std::vector<std::string>
+coot::molecule_t::chains_in_model() const {
+
+   std::vector<std::string> v;
+   if (is_valid_model_molecule())
+      v = util::chains_in_molecule(atom_sel.mol);
+
+   return v;
+}
+
+
+std::vector<std::pair<coot::residue_spec_t, std::string> >
+coot::molecule_t::get_single_letter_codes_for_chain(const std::string &chain_id) const {
+
+   std::vector<std::pair<coot::residue_spec_t, std::string> > v;
+   if (is_valid_model_molecule()) {
+
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id_this(chain_p->GetChainID());
+            if (chain_id_this == chain_id) {
+               int nres;
+               mmdb::PResidue *residue_table = 0;
+               chain_p->GetResidueTable(residue_table, nres);
+               std::vector<std::pair<mmdb::Residue *, int> > sorted = util::sort_residues_by_seqno(residue_table, nres);
+
+               for (unsigned int ires=0; ires<sorted.size(); ires++) {
+                  const auto &r(sorted[ires]);
+                  residue_spec_t res_spec(r.first);
+                  std::string res_name(r.first->GetResName());
+                  std::string s = util::three_letter_to_one_letter_with_specials(res_name);
+                  v.push_back(std::make_pair(res_spec, s));
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
