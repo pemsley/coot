@@ -62,22 +62,6 @@ void setup_menubuttons() {
    add_typed_menu_to_mutate_menubutton("PROTEIN");
 }
 
-void setup_graph_submenus() {
-   GMenu *density_fit_analysis_item = menu_from_builder("density_fit_analysis_item");
-   GMenu *geometry_analysis_item = menu_from_builder("geometry_analysis_item");
-   g_debug("submenu ptr: %p",density_fit_analysis_item);
-   g_debug("submenu ptr: %p",geometry_analysis_item);
-   // the int is going to be replaced with graph type enum.
-   // This is just a proof of concept.
-   std::map<int,GMenu*> menu_map;
-   menu_map[0] = density_fit_analysis_item;
-   menu_map[1] = geometry_analysis_item;
-   for(auto i = menu_map.begin();i != menu_map.end();i++) {
-      g_menu_insert(i->second,0,"test","app.dummy");
-   }
-
-}
-
 gboolean generic_hide_on_escape_controller_cb(
       GtkEventControllerKey  *controller,
       guint                  keyval,
@@ -239,7 +223,6 @@ void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_vertical_pane_sizing();
-   setup_graph_submenus();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
