@@ -12230,6 +12230,12 @@ on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
    return TRUE;
 }
 
+extern "C" G_MODULE_EXPORT
+void 
+on_validation_graph_model_dropdown_activated(GtkDropDown* self, gpointer user_data) {
+   g_debug("todo");
+}
+
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT
 gboolean

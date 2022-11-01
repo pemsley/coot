@@ -371,7 +371,7 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 
 void
 graphics_info_t::update_validation_graphs(int imol) {
-
+	g_debug("update_validation_graphs() called");
 #ifdef HAVE_GOOCANVAS
    update_ramachandran_plot(imol);
    // now update the geometry graphs, so get the asc
