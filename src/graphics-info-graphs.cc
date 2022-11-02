@@ -21,6 +21,8 @@
  * 02110-1301, USA
  */
 
+#include "validation-graphs.hh"
+#include "widget-from-builder.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -110,10 +112,42 @@ void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 	active_validation_graph_model_idx = new_model_idx;
 }
 
+void create_tab_for_validation_graph(coot::validation_graph_type type) {
+	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+	// we assume that when this function is called, there is no tab for the graph type
+	GtkWidget* child_frame = gtk_frame_new(NULL);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child_frame, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+}
+
+void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
+	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+	auto find_tab_idx = [notebook](coot::validation_graph_type graph_type) -> int {
+		std::string target_label = coot::validation_graph_type_to_human_name(graph_type);
+		for(int i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));i++) {
+			const char* page_label = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),i));
+			if (!page_label) {
+				g_error("NULL page label");
+			}
+			if (page_label == target_label) {
+				return i;
+			}
+		}
+		return -1;
+	};
+	auto idx = find_tab_idx(type);
+	if (idx == -1) {
+		g_warning("Failed to find tab for graph type: %s",coot::validation_graph_type_to_human_name(type).c_str());
+	} else {
+		gtk_notebook_remove_page(GTK_NOTEBOOK(notebook),idx);
+	}
+}
+
 void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
+	create_tab_for_validation_graph(type);
 	g_warning("todo: implement \"graphics_info_t::create_validation_graph()\"");
 }
 void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
+	destroy_tab_for_validation_graph(type);
 	g_warning("todo: implement \"dgraphics_info_t::destroy_validation_graph()\"");
 }
 
