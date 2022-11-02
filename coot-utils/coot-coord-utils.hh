@@ -760,6 +760,7 @@ namespace coot {
       std::vector<std::string> residue_types_in_residue_vec(const std::vector<mmdb::Residue *> &residues);
 
       std::vector<std::string> chains_in_molecule(mmdb::Manager *mol);
+      std::vector<mmdb::Residue *> residues_in_molecule(mmdb::Manager *mol);
       std::vector<mmdb::Residue *> residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in);
       std::vector<mmdb::Residue *> residues_in_chain(mmdb::Chain *chain_p);
       int number_of_residues_in_molecule(mmdb::Manager *mol);
