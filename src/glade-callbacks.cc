@@ -12232,7 +12232,7 @@ on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
 
 extern "C" G_MODULE_EXPORT
 void 
-on_validation_graph_model_dropdown_activated(GtkDropDown* self, gpointer user_data) {
+on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data) {
    g_debug("todo");
 }
 

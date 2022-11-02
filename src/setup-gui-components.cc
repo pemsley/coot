@@ -118,8 +118,9 @@ void setup_vertical_pane_sizing() {
 }
 
 void setup_validation_graph_pane() {
-   GtkWidget* model_dropdown = widget_from_builder("validation_graph_model_dropdown");
-   gtk_drop_down_set_model(GTK_DROP_DOWN(model_dropdown),G_LIST_MODEL(graphics_info_t::validation_graph_model_list));
+   GtkWidget* model_combobox = widget_from_builder("validation_graph_model_combobox");
+   gtk_combo_box_set_model(GTK_COMBO_BOX(model_combobox),GTK_TREE_MODEL(graphics_info_t::validation_graph_model_list));
+   gtk_combo_box_set_id_column(GTK_COMBO_BOX(model_combobox),0);
 }
 
 void setup_get_monomer() {

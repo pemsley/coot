@@ -84,13 +84,22 @@
 
 void graphics_info_t::refresh_validation_graph_model_list() {
 	g_debug("validation_graph_model_list()");
-	g_list_store_remove_all(validation_graph_model_list);
+	
+	gtk_tree_model_foreach(
+		GTK_TREE_MODEL(validation_graph_model_list),
+		+[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
+			GtkListStore* list = GTK_LIST_STORE(model);
+			return ! gtk_list_store_remove(list,iter);
+		},
+		NULL
+	);
 	for(int i=0; i<graphics_info_t::n_molecules(); i++) {
 		if (graphics_info_t::molecules[i].has_model()) {
-			gpointer dropdown_object = g_object_new(G_TYPE_OBJECT,"label",G_TYPE_GSTRING,NULL);
-			GString* label_str = g_string_new(graphics_info_t::molecules[i].dotted_chopped_name().c_str());
-			g_object_set(dropdown_object,"label",label_str);
-			g_list_store_append(validation_graph_model_list,dropdown_object);
+			std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+			GtkTreeIter iter;
+			gtk_list_store_append(validation_graph_model_list,&iter);
+			g_debug("Label: %s",label.c_str());
+			gtk_list_store_set(validation_graph_model_list,&iter,0,label.c_str(),-1);
 		}
 	}
 }

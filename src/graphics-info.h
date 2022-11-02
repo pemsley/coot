@@ -5012,7 +5012,7 @@ string   static std::string sessionid;
       }
    }
    static void refresh_validation_graph_model_list();
-   static GListStore* validation_graph_model_list;
+   static GtkListStore* validation_graph_model_list;
 };
 
 
