@@ -4,6 +4,7 @@
 
 #include <gtk/gtk.h>
 #include <type_traits>
+#include <string>
 namespace coot {
 
 
@@ -19,7 +20,7 @@ namespace coot {
     /// For using as unsigned char like so:
     /// `static_cast<validation_graph_type_repr_t>(enum_instance)`
     typedef std::underlying_type<validation_graph_type>::type validation_graph_type_repr_t;
-
+    std::string validation_graph_type_to_human_name(validation_graph_type graph_type);
 
     //todo: remove this class later
     class validation_graphs_t {
