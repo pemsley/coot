@@ -5012,9 +5012,7 @@ string   static std::string sessionid;
       }
    }
    static void refresh_validation_graph_model_list();
-   private:
    static GListStore* validation_graph_model_list;
-   public:
 };
 
 

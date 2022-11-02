@@ -117,6 +117,11 @@ void setup_vertical_pane_sizing() {
    gtk_paned_set_resize_start_child(GTK_PANED(paned_widget),FALSE);
 }
 
+void setup_validation_graph_pane() {
+   GtkWidget* model_dropdown = widget_from_builder("validation_graph_model_dropdown");
+   gtk_drop_down_set_model(GTK_DROP_DOWN(model_dropdown),G_LIST_MODEL(graphics_info_t::validation_graph_model_list));
+}
+
 void setup_get_monomer() {
    GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
@@ -223,6 +228,7 @@ void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_vertical_pane_sizing();
+   setup_validation_graph_pane();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
