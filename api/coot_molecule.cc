@@ -98,6 +98,12 @@ coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
 void
 coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 
+   auto print_history = [] (const std::vector<std::string> &history_filename_vec) {
+      for (unsigned int i=0; i<history_filename_vec.size(); i++) {
+         std::cout << "  " << i << " " << history_filename_vec[i] << std::endl;
+      }
+   };
+
    if (true)
       std::cout << "debug:: restore_from_backup() requested mod_index: " << mod_index
                 << " history size: " << history_filename_vec.size() << std::endl;
@@ -109,10 +115,12 @@ coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 
    if (mod_index >= int(history_filename_vec.size())) {
       std::cout << "ERROR:: in restore_from_backup(): bad mod_index " << mod_index << std::endl;
+      print_history(history_filename_vec);
       return;
    }
    if (mod_index < 0) {
       std::cout << "ERROR:: in restore_from_backup(): bad mod_index " << mod_index << std::endl;
+      print_history(history_filename_vec);
       return;
    }
 
