@@ -12243,6 +12243,55 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
    }
 }
 
+
+void
+on_validation_graph_checkbutton_toggled(GtkCheckButton* self, int graph_type) {
+   g_warning("todo: use enums!");
+   g_debug("todo: graph type %i",graph_type);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_density_fit_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_temp_factor_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,1);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rota_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,2);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rama_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,3);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_omega_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,4);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,5);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_ncs_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,6);
+}
+
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT
 gboolean

@@ -6651,6 +6651,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Density fit</property>
+                        <signal name="toggled" handler="on_density_fit_graph_toggled"></signal>
                         <layout>
                           <property name="row">0</property>
                           <property name="column">0</property>
@@ -6660,6 +6661,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Temp Factor</property>
+                        <signal name="toggled" handler="on_temp_factor_graph_toggled"></signal>
                         <layout>
                           <property name="row">1</property>
                           <property name="column">0</property>
@@ -6669,6 +6671,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Rama</property>
+                        <signal name="toggled" handler="on_rama_graph_toggled"></signal>
                         <layout>
                           <property name="row">2</property>
                           <property name="column">0</property>
@@ -6678,6 +6681,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Rota</property>
+                        <signal name="toggled" handler="on_rota_graph_toggled"></signal>
                         <layout>
                           <property name="row">3</property>
                           <property name="column">0</property>
@@ -6687,6 +6691,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Omega</property>
+                        <signal name="toggled" handler="on_omega_graph_toggled"></signal>
                         <layout>
                           <property name="row">0</property>
                           <property name="column">1</property>
@@ -6696,6 +6701,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">Geometry</property>
+                        <signal name="toggled" handler="on_geometry_graph_toggled"></signal>
                         <layout>
                           <property name="row">1</property>
                           <property name="column">1</property>
@@ -6705,6 +6711,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkCheckButton">
                         <property name="label">NCS</property>
+                        <signal name="toggled" handler="on_ncs_graph_toggled"></signal>
                         <layout>
                           <property name="row">2</property>
                           <property name="column">1</property>
