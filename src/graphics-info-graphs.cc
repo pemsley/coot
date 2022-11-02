@@ -83,7 +83,7 @@
 
 
 void graphics_info_t::refresh_validation_graph_model_list() {
-	g_debug("validation_graph_model_list()");
+	g_debug("refresh_validation_graph_model_list()");
 	
 	gtk_tree_model_foreach(
 		GTK_TREE_MODEL(validation_graph_model_list),
@@ -98,10 +98,16 @@ void graphics_info_t::refresh_validation_graph_model_list() {
 			std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
 			GtkTreeIter iter;
 			gtk_list_store_append(validation_graph_model_list,&iter);
-			g_debug("Label: %s",label.c_str());
-			gtk_list_store_set(validation_graph_model_list,&iter,0,label.c_str(),-1);
+			// g_debug("Label: %s",label.c_str());
+			gtk_list_store_set(validation_graph_model_list,&iter,0,label.c_str(),1,i,-1);
 		}
 	}
+	g_warning("todo: Add a call to update_validation_graphs()");
+}
+
+void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
+	g_warning("Todo: display/rebuild validation graphs [model with index %i]",new_model_idx);
+	active_validation_graph_model_idx = new_model_idx;
 }
 
 // Validation stuff	    //

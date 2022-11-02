@@ -459,7 +459,8 @@ graphics_info_t::init() {
       preset_number_refmac_cycles->push_back(20);
       preset_number_refmac_cycles->push_back(50);
 
-      validation_graph_model_list = gtk_list_store_new(1,G_TYPE_STRING);
+      validation_graph_model_list = gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_INT);
+      active_validation_graph_model_idx = -1;
 
    }
 

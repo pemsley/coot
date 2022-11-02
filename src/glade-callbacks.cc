@@ -12233,7 +12233,14 @@ on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
 extern "C" G_MODULE_EXPORT
 void 
 on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data) {
-   g_debug("todo");
+   GtkTreeIter iter;
+   if (gtk_combo_box_get_active_iter(self,&iter)) {
+      int new_active_model;
+      gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
+      graphics_info_t::update_active_validation_graph_model(new_active_model);
+   } else {
+      g_warning("Could not get active iter in validation graph model ComboBox");
+   }
 }
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
