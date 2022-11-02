@@ -142,7 +142,7 @@ coot::molecule_t::undo() {
    int status = 0;
    std::string cwd = coot::util::current_working_dir();
    int prev_mod_index = save_info.get_previous_modification_index();
-   // std::cout << ":::::::::::::::: undo requests prev_mod_index " << prev_mod_index << std::endl;
+   std::cout << ":::::::::::::::: undo requests prev_mod_index " << prev_mod_index << std::endl;
    restore_from_backup(prev_mod_index, cwd);
    return status;
 }
@@ -153,7 +153,7 @@ coot::molecule_t::redo() {
    int status = 0;
    std::string cwd = coot::util::current_working_dir();
    int mod_index = save_info.get_next_modification_index();
-   // std::cout << ":::::::::::::::: redo requests mod_index " << mod_index << std::endl;
+   std::cout << ":::::::::::::::: redo requests mod_index " << mod_index << std::endl;
    restore_from_backup(mod_index, cwd);
    return status;
 }
@@ -2298,6 +2298,8 @@ coot::molecule_t::eigen_flip_residue(const coot::residue_spec_t &residue_spec) {
 
       // have_unsaved_changes_flag = 1;
       save_info.new_modification();
+      std::cout << "DEBUG:: eigen_flip_residue() now save_info modification_index " << save_info.modification_index
+                << std::endl;
 
       replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
    }
