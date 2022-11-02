@@ -49,6 +49,7 @@
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
 
+#include "validation-graphs.hh"
 #include "widget-from-builder.hh"
 
 void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
@@ -12245,51 +12246,50 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
 
 
 void
-on_validation_graph_checkbutton_toggled(GtkCheckButton* self, int graph_type) {
-   g_warning("todo: use enums!");
-   g_debug("todo: graph type %i",graph_type);
+on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
+   g_debug("todo: graph type %u",static_cast<coot::validation_graph_type_repr_t>(graph_type));
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_density_fit_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,0);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_fit);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_temp_factor_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,1);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::temp_factor);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_rota_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,2);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::rota);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_rama_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,3);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::rama);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_omega_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,4);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::omega);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_geometry_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,5);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::geometry);
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_ncs_graph_toggled(GtkCheckButton* self, gpointer user_data) {
-   on_validation_graph_checkbutton_toggled(self,6);
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::ncs);
 }
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
