@@ -71,7 +71,7 @@ coot::util::residue_types_in_molecule(mmdb::Manager *mol) {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in residues_in_molecule: "
+                  std::cout << "NULL chain in residues_types_in_molecule: "
                             << std::endl;
                } else { 
                   int nres = chain->GetNumberOfResidues();
@@ -1529,7 +1529,7 @@ coot::util::max_number_of_residues_in_chain(mmdb::Manager *mol) {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in residues_in_molecule: "
+                  std::cout << "NULL chain in max_number_of_residues_in_chain: "
                             << std::endl;
                } else { 
                   int nres = chain->GetNumberOfResidues();
@@ -1592,16 +1592,15 @@ coot::util::max_min_max_residue_range(mmdb::Manager *mol) {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in residues_in_molecule: "
+                  std::cout << "NULL chain in max_min_max_residue_range: "
                             << std::endl;
                } else { 
                   int nres = chain->GetNumberOfResidues();
                   if (nres > 0) { 
                      int min_resno = 99999;
                      int max_resno = -99999;
-                     int this_resno;
                      for (int i=0; i<nres; i++) {
-                        this_resno = chain->GetResidue(i)->GetSeqNum();
+                        int this_resno = chain->GetResidue(i)->GetSeqNum();
                         if (this_resno > max_resno)
                            max_resno = this_resno;
                         if (this_resno < min_resno)
@@ -2097,7 +2096,7 @@ coot::util::min_resno_in_chain(mmdb::Chain *chain_p) {
       // This should not be necessary. It seem to be a
       // result of mmdb corruption elsewhere - possibly
       // DeleteChain in update_molecule_to().
-      std::cout << "NULL chain in residues_in_molecule: "
+      std::cout << "NULL chain in min_resno_in_chain: "
                 << std::endl;
    } else { 
       int nres = chain_p->GetNumberOfResidues();
@@ -2126,7 +2125,7 @@ coot::util::max_resno_in_chain(mmdb::Chain *chain_p) {
       // This should not be necessary. It seem to be a
       // result of mmdb corruption elsewhere - possibly
       // DeleteChain in update_molecule_to().
-      std::cout << "NULL chain in residues_in_molecule: "
+      std::cout << "NULL chain in max_resno_in_chain: "
                 << std::endl;
    } else { 
       int nres = chain_p->GetNumberOfResidues();
@@ -9202,6 +9201,28 @@ coot::util::residues_in_chain(mmdb::Chain *chain_p) {
    return v;
 }
 
+std::vector<mmdb::Residue *>
+coot::util::residues_in_molecule(mmdb::Manager *mol) {
+
+   std::vector<mmdb::Residue *> v;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  v.push_back(residue_p);
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
 
 std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> >
 coot::interface_residues(mmdb::Manager *mol,
