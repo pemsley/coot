@@ -115,8 +115,9 @@ void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 void create_tab_for_validation_graph(coot::validation_graph_type type) {
 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
 	// we assume that when this function is called, there is no tab for the graph type
-	GtkWidget* child_frame = gtk_frame_new(NULL);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child_frame, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+	GtkWidget* sw = gtk_scrolled_window_new();
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), gtk_label_new("TODO"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sw, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
 }
 
 void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
