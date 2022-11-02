@@ -73,6 +73,73 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
    return r;
 }
 
+#include "coot-utils/coot-map-utils.hh"
+
+coot::validation_information_t
+density_correlation(const std::string &pdb_file_name, const std::string &mtz_file_name) {
+
+   coot::validation_information_t r;
+
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   if (atom_sel.read_success) {
+      clipper::Xmap<float> xmap;
+      bool status = read_mtz(mtz_file_name, "FWT", "PHWT", "W", 0, 0, &xmap);
+      if (status) {
+
+         // signature:
+         //
+         // std::vector<std::pair<coot::residue_spec_t, float> >
+         //    coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
+         //                                                     const std::vector<coot::residue_spec_t> &specs,
+         //                                                     unsigned short int atom_mask_mode,
+         //                                                     float atom_radius, // for masking
+         //                                                     const clipper::Xmap<float> &reference_map)
+
+         // atom_mask_mode:
+         //
+         // 0: all-atoms
+         // 1: main-chain atoms if is standard amino-acid, else all atoms
+         // 2: side-chain atoms if is standard amino-acid, else all atoms
+         // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+
+         unsigned short int atom_mask_mode = 0;
+         float atom_radius = 2.0;
+
+         std::vector<coot::residue_spec_t> residue_specs;
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(atom_sel.mol);
+         for (unsigned int i=0; i<residues.size(); i++)
+            residue_specs.push_back(coot::residue_spec_t(residues[i]));
+
+         std::vector<std::pair<coot::residue_spec_t, float> > correlations =  
+            coot::util::map_to_model_correlation_per_residue(atom_sel.mol,
+                                                             residue_specs,
+                                                             atom_mask_mode,
+                                                             atom_radius, // for masking
+                                                             xmap);
+
+         std::vector<std::pair<coot::residue_spec_t, float> >::const_iterator it;
+         for (it=correlations.begin(); it!=correlations.end(); ++it) {
+            const auto &r_spec(it->first);
+            const auto &correl(it->second);
+
+            std::string atom_name = " CA ";
+            coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
+            std::string label = "Correl: ";
+            coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
+            r.add_residue_valiation_informtion(rvi, r_spec.chain_id);
+            
+         }
+      } else {
+         std::cout << "Bad mtz file read " << mtz_file_name << std::endl;
+      }
+   } else {
+      std::cout << "Bad read for pdb file " << pdb_file_name << std::endl;
+   }
+   return r;
+}
+
+
+
 #include "ligand/rotamer.hh"
 
 coot::validation_information_t
@@ -149,13 +216,20 @@ int main(int argc, char **argv) {
       std::string mtz_file_name = argv[2];
       coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
       coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
+      coot::validation_information_t vic = density_correlation(pdb_file_name, mtz_file_name);
 
       // now do something (i.e. make a pretty interactive graph) with vi.
 
       for (const auto &cvi : vid.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Density Valdiation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << " Density Fit Validation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+         }
+      }
+      for (const auto &cvi : vic.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " Density Correlation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
          }
       }
       for (const auto &cvi : vir.cviv) {
