@@ -85,9 +85,12 @@
 void graphics_info_t::refresh_validation_graph_model_list() {
 	g_debug("validation_graph_model_list()");
 	g_list_store_remove_all(validation_graph_model_list);
-	for(int i=0; i<g.n_molecules(); i++) {
-		if (g.molecules[i].has_model()) {
-			g_list_store_append(validation_graph_model_list,g_string_new(graphics_info_t::molecules[i].dotted_chopped_name().c_str()));
+	for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+		if (graphics_info_t::molecules[i].has_model()) {
+			gpointer dropdown_object = g_object_new(G_TYPE_OBJECT,"label",G_TYPE_GSTRING,NULL);
+			GString* label_str = g_string_new(graphics_info_t::molecules[i].dotted_chopped_name().c_str());
+			g_object_set(dropdown_object,"label",label_str);
+			g_list_store_append(validation_graph_model_list,dropdown_object);
 		}
 	}
 }

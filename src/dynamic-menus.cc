@@ -315,14 +315,16 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
 			    (gpointer) sub_menu);
 
       for(int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model()) {
-	    std::string name = graphics_info_t::molecules[i].dotted_chopped_name();
-            if (false)
-               std::cout << "debug:: in add_on_validation_graph_mol_options sub_menu_name:"
-                         << sub_menu_name << " " << sub_menu << std::endl;
-	    add_validation_mol_menu_item(i, name, sub_menu, callback);
-	 }
+         if (g.molecules[i].has_model()) {
+            std::string name = graphics_info_t::molecules[i].dotted_chopped_name();
+                  if (false)
+                     std::cout << "debug:: in add_on_validation_graph_mol_options sub_menu_name:"
+                              << sub_menu_name << " " << sub_menu << std::endl;
+            add_validation_mol_menu_item(i, name, sub_menu, callback);
+         }
       }
+
+      
    } else {
       std::cout << "ERROR:: in add_on_validation_graph_mol_options() sub menu not found: "
                 << sub_menu_name << " for menu " << menu << std::endl;
