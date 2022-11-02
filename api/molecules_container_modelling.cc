@@ -73,3 +73,28 @@ molecules_container_t::copy_fragment_using_residue_range(int imol, const std::st
    }
    return imol_new;
 }
+
+
+void
+molecules_container_t::eigen_flip_ligand(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+      coot::minimol::molecule mm = molecules[imol].eigen_flip_residue(residue_spec);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+
+void
+molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &residue_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      coot::minimol::molecule mm = molecules[imol].eigen_flip_residue(residue_spec);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}

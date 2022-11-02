@@ -84,6 +84,7 @@ namespace coot {
       molecule_save_info_t save_info;
 
       int imol_no; // this molecule's index in the container vector
+      int ligand_flip_number;
       std::string name;
       bool is_from_shelx_ins_flag;
       ShelxIns shelxins;
@@ -204,6 +205,7 @@ namespace coot {
 
       void init() { // add imol_no here?
          imol_no = -1; // unset
+         ligand_flip_number = 0;
          bonds_box_type = UNSET_TYPE;
          is_em_map_cached_flag = false;
          xmap_is_diff_map = false;
@@ -404,6 +406,10 @@ namespace coot {
                                     const coot::dict_torsion_restraint_t &torsion,
                                     const std::string &atom_name,
                                     bool invert_selection);
+
+      coot::minimol::molecule eigen_flip_residue(const residue_spec_t &residue_spec);
+
+
       
       // ----------------------- refinement
 

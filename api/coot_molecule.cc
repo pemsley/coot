@@ -2198,6 +2198,9 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
       if (! clicked_atom) {
          std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
       } else {
+
+         make_backup();
+
          std::string monomer_type = residue->GetResName();
 
          std::pair<bool, coot::dictionary_residue_restraints_t> p =
@@ -2255,6 +2258,44 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
    }
    return problem_string;
 }
+
+
+#include "ligand/ligand.hh"
+
+coot::minimol::molecule
+coot::molecule_t::eigen_flip_residue(const coot::residue_spec_t &residue_spec) {
+
+   coot::minimol::molecule m;
+
+   mmdb::Residue *res = get_residue(residue_spec);
+   if (!res) {
+      std::cout << "DEBUG:: residue not found " << residue_spec
+                << " in molecule number " << imol_no << std::endl;
+   } else {
+
+      make_backup();
+      coot::ligand lig;
+      coot::minimol::residue r(res);
+      coot::minimol::fragment f(res->GetChainID());
+      f.residues.push_back(coot::minimol::residue(res));
+      coot::minimol::molecule ligand;
+      ligand.fragments.push_back(f);
+
+      ligand_flip_number++;
+      if (ligand_flip_number == 4)
+         ligand_flip_number = 0;
+
+      lig.install_ligand(ligand);
+      m = lig.flip_ligand(ligand_flip_number);
+
+      // have_unsaved_changes_flag = 1;
+      save_info.new_modification();
+
+      replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
+   }
+   return m;
+}
+
 
 
 std::vector<std::string>

@@ -829,6 +829,33 @@ int test_jed_flip(molecules_container_t &mc) {
    return status;
 }
 
+
+int test_sequence_generator(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<std::string> chain_ids = mc.chains_in_model(imol);
+   for (const auto &chain_id : chain_ids) {
+      std::vector<std::pair<coot::residue_spec_t, std::string> > seq = mc.get_single_letter_codes_for_chain(imol, chain_id);
+      std::string sp; // accumlate the sequence of the protein chain.
+      unsigned int n_wat = 0;
+      for (unsigned int i=0; i<seq.size(); i++) {
+         const std::string &l = seq[i].second;
+         if (l != "~")
+            sp += l;
+         else
+            n_wat++;
+      }
+      std::cout << sp << std::endl;
+      if (sp.length() > 50)
+         if (n_wat == 150)
+            status = 1;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -846,29 +873,43 @@ int test_template(molecules_container_t &mc) {
    return status;
 }
 
-
-int test_sequence_generator(molecules_container_t &mc) {
+int test_eigen_flip(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   std::vector<std::string> chain_ids = mc.chains_in_model(imol);
-   for (const auto &chain_id : chain_ids) {
-      std::vector<std::pair<coot::residue_spec_t, std::string> > seq = mc.get_single_letter_codes_for_chain(imol, chain_id);
-      std::string sp;
-      unsigned int n_wat = 0;
-      for (unsigned int i=0; i<seq.size(); i++) {
-         const std::string &l = seq[i].second;
-         if (l != "~")
-            sp += l;
-         else
-            n_wat++;
-      }
-      std::cout << sp << std::endl;
-      if (sp.length() > 50)
-         if (n_wat == 150)
-            status = 1;
+   int imol = mc.get_monomer("ARG");
+   coot::atom_spec_t atom_spec("A", 1, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      coot::Cartesian atom_pos_0 = atom_to_cartesian(at_1);
+      mc.eigen_flip_ligand(imol, "A", 1, "");
+      coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+      mc.eigen_flip_ligand(imol, "A", 1, "");
+      coot::Cartesian atom_pos_2 = atom_to_cartesian(at_1);
+      mc.eigen_flip_ligand(imol, "A", 1, "");
+      coot::Cartesian atom_pos_3 = atom_to_cartesian(at_1);
+      mc.eigen_flip_ligand(imol, "A", 1, "");
+      coot::Cartesian atom_pos_4 = atom_to_cartesian(at_1);
+      double dd_1 = coot::Cartesian::lengthsq(atom_pos_0, atom_pos_1);
+      double dd_2 = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+      double dd_3 = coot::Cartesian::lengthsq(atom_pos_2, atom_pos_3);
+      double dd_4 = coot::Cartesian::lengthsq(atom_pos_3, atom_pos_4);
+      double dd_5 = coot::Cartesian::lengthsq(atom_pos_4, atom_pos_0);
+
+      double d1 = std::sqrt(dd_1);
+      double d2 = std::sqrt(dd_2);
+      double d3 = std::sqrt(dd_3);
+      double d4 = std::sqrt(dd_4);
+      double d5 = std::sqrt(dd_5);
+
+      std::cout << "test_eigen_flip ds " << d1 << " " << d2 << " " << d3 << " " << d4 << " " << d5 << std::endl;
+      if (d1 > 4.0)
+         if (d2 > 4.0)
+            if (d3 > 4.0)
+               if (d4 > 4.0)
+                  if (d5 < 0.01)
+                     status = true;
    }
    return status;
 }
@@ -931,11 +972,12 @@ int main(int argc, char **argv) {
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
       status += run_test(test_move_molecule_here,    "move_molecule_here",    mc);
       status += run_test(test_jed_flip,             "JED Flip",               mc);
+      status += run_test(test_sequence_generator, "Make a sequence string",   mc);
    }
 
+   status += run_test(test_eigen_flip,             "Eigen Flip",               mc);
 
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
-   status += run_test(test_sequence_generator,      "Make a sequence string",             mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

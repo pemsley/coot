@@ -323,6 +323,10 @@ public:
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
    int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
+   void eigen_flip_ligand(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
+   void eigen_flip_ligand_using_cid(int imol, const std::string &residue_cid);
+
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
    int side_chain_180(int imol, const std::string &atom_cid);
