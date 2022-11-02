@@ -12247,6 +12247,11 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
 
 void
 on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
+   if (gtk_check_button_get_active(self)) {
+      graphics_info_t::create_validation_graph(graph_type);
+   } else {
+      graphics_info_t::destroy_validation_graph(graph_type);
+   }
    g_debug("todo: graph type %u",static_cast<coot::validation_graph_type_repr_t>(graph_type));
 }
 

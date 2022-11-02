@@ -29,6 +29,7 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
+#include "validation-graphs.hh"
 // need gtk things
 #include <gtk/gtk.h>
 
@@ -5021,6 +5022,9 @@ string   static std::string sessionid;
    static int active_validation_graph_model_idx;   
    public:
    static void update_active_validation_graph_model(int new_model_idx);
+
+   static void create_validation_graph(coot::validation_graph_type type);
+   static void destroy_validation_graph(coot::validation_graph_type type);
 };
 
 

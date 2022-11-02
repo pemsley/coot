@@ -110,6 +110,13 @@ void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 	active_validation_graph_model_idx = new_model_idx;
 }
 
+void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
+	g_warning("todo: implement \"graphics_info_t::create_validation_graph()\"");
+}
+void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
+	g_warning("todo: implement \"dgraphics_info_t::estroy_validation_graph()\"");
+}
+
 // Validation stuff	    //
 
 
