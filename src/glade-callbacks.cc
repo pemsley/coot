@@ -12252,7 +12252,6 @@ on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_g
    } else {
       graphics_info_t::destroy_validation_graph(graph_type);
    }
-   g_debug("todo: graph type %u",static_cast<coot::validation_graph_type_repr_t>(graph_type));
 }
 
 extern "C" G_MODULE_EXPORT
