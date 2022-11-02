@@ -856,23 +856,6 @@ int test_sequence_generator(molecules_container_t &mc) {
    return status;
 }
 
-int test_template(molecules_container_t &mc) {
-
-   starting_test(__FUNCTION__);
-   int status = 0;
-
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
-   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
-   if (at_1) {
-      coot::Cartesian atom_pos = atom_to_cartesian(at_1);
-      double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
-      double d = std::sqrt(dd);
-      std::cout << "test_ d " << d << std::endl;
-   }
-   return status;
-}
-
 int test_eigen_flip(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -910,6 +893,60 @@ int test_eigen_flip(molecules_container_t &mc) {
                if (d4 > 4.0)
                   if (d5 < 0.01)
                      status = true;
+   }
+   return status;
+}
+
+int test_non_standard_types(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<std::string> nst = mc.get_residue_names_with_no_dictionary(imol);
+
+   // weak test
+   if (nst.empty())
+      status = 1;
+
+   return status;
+}
+
+int test_import_cif_dictionary(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   if (coot::file_exists("ATP.cif")) {
+
+      mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+      int imol = mc.get_monomer("ATP");
+      if (mc.is_valid_model_molecule(imol))
+         status = 1;
+
+   } else {
+
+      std::cout << "SKIP_TEST: test_import_cif_dictionary no ATP.cif in directory" << std::endl;
+      status = 1; // can't test
+
+   }
+
+   return status;
+}
+
+int test_template(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+      double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
+      double d = std::sqrt(dd);
+      std::cout << "test_ d " << d << std::endl;
    }
    return status;
 }
@@ -973,11 +1010,15 @@ int main(int argc, char **argv) {
       status += run_test(test_move_molecule_here,    "move_molecule_here",    mc);
       status += run_test(test_jed_flip,             "JED Flip",               mc);
       status += run_test(test_sequence_generator, "Make a sequence string",   mc);
+      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
    }
 
-   status += run_test(test_eigen_flip,             "Eigen Flip",               mc);
 
-   // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+      status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
+
+
+      // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

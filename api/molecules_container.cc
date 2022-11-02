@@ -190,6 +190,21 @@ molecules_container_t::read_pdb(const std::string &file_name) {
 }
 
 int
+molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, int imol_enc) {
+
+   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
+   cif_dictionary_read_number++;
+
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): success " << r.success << " with "
+             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
+             << r.monomer_idx << std::endl;
+
+   return r.success;
+
+}
+
+
+int
 molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
                                                    bool idealised_flag) {
 
@@ -218,9 +233,18 @@ molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
 int
 molecules_container_t::get_monomer(const std::string &comp_id) {
 
-   int imol = get_monomer_from_dictionary(comp_id, 1); // idealized
+   int imol = get_monomer_from_dictionary(comp_id, true); // idealized
    return imol;
 }
+
+int
+molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, float x, float y, float z) {
+
+   int imol = get_monomer_from_dictionary(comp_id, true);
+   int status = move_molecule_to_new_centre(imol, x, y, z);
+   return status;
+}
+
 
 // 20221030-PE nice to have one day
 // int
@@ -2245,3 +2269,17 @@ molecules_container_t::get_single_letter_codes_for_chain(int imol, const std::st
    }
    return v;
 }
+
+
+std::vector<std::string>
+molecules_container_t::get_residue_names_with_no_dictionary(int imol) const {
+
+   std::vector<std::string> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_residue_names_with_no_dictionary(geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+

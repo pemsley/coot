@@ -241,8 +241,11 @@ public:
    // -------------------------------- coordinates utils -----------------------------------
 
    int read_pdb(const std::string &file_name);
+   //! import a dictionary cif - imol_enc to which molecule does this apply? IMOL_ENC_ANY = -999999
+   int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
    int get_monomer(const std::string &monomer_name);
    int get_monomer_from_dictionary(const std::string &comp_id, bool idealised_flag);
+   int get_monomer_and_position_at(const std::string &comp_id, float x, float y, float z);
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
@@ -262,6 +265,8 @@ public:
 
    std::vector<std::string> chains_in_model(int imol) const;
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
+
+   std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
 
    int undo(int imol);
 
@@ -333,7 +338,6 @@ public:
 
    //! @return a non-blank message if there is a problem
    std::string jed_flip(int imol, const std::string &atom_cid, bool invert_selection);
-
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
    coot::Cartesian get_molecule_centre(int imol) const;
 
@@ -342,7 +346,7 @@ public:
    //! return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
 
-   // -------------------------------- coordinates refinement ------------------------------
+   // -------------------------------- Coordinates Refinement ------------------------------
 
    // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //
@@ -396,6 +400,8 @@ public:
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map);
 
+   // -------------------------------- Go To Blob ---------------------------------------
+
    //! Given a point on the front clipping plane (x1, y1, z1) and a point on the back clipping plane (x2, y2, z2)
    //! this function searches imol_refinement_map (if set) to find a the centre of a blob above the contour level.
    //! Blobs at the "front" are selected in preference to blobs at the back.
@@ -406,6 +412,9 @@ public:
    //! blob_under_pointer_to_screen_centre().
    std::pair<bool, clipper::Coord_orth> go_to_blob(float x1, float y1, float z1, float x2, float y2, float z2,
                                                    float contour_level);
+
+
+   // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG
    PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh);

@@ -102,6 +102,7 @@ std::vector<std::string>
 coot::util::non_standard_residue_types_in_molecule(mmdb::Manager *mol) {
 
    std::vector<std::string> r;
+   if (! mol) return r;
    std::vector<std::string> v = residue_types_in_molecule(mol);
    std::vector<std::string> standards = coot::util::standard_residue_types();
    

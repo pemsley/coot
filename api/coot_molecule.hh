@@ -319,6 +319,7 @@ namespace coot {
       bool is_valid_map_molecule() const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
+      std::vector<std::string> get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const;
 
       // ----------------------- model utils
 

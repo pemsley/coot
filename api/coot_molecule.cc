@@ -2351,3 +2351,10 @@ coot::molecule_t::get_single_letter_codes_for_chain(const std::string &chain_id)
    }
    return v;
 }
+
+std::vector<std::string>
+coot::molecule_t::get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const {
+
+   std::vector<std::string> v = geom.residue_names_with_no_dictionary(atom_sel.mol, imol_no);
+   return v;
+}
