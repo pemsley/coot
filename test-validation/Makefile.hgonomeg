@@ -11,7 +11,7 @@ CXXFLAGS= \
    -ggdb -O2 -march=native -std=c++17
 
 LDLIBS=-fuse-ld=mold \
-       -L$(COOT_DIR)/lib -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
+       -L$(COOT_DIR)/lib -lcoot-ligand -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
        `pkg-config --libs gtk4`  \
        `pkg-config --libs epoxy` \
        `pkg-config --libs clipper` \
