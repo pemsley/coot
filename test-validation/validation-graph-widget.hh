@@ -2,7 +2,25 @@
 #define VALIDATION_GRAPH_WIDGET_HH
 #include <gtk/gtk.h>
 #include "validation-information.hh"
-#include <memory>
+
+#if __cplusplus > 201402L
+    // good times
+
+    #include <memory>
+#else
+    // cope
+
+    #include <memory>
+    // Copied from: https://gist.github.com/chinmaygarde/970fd5bbd124754b7d36
+    // Thank you kind man
+    namespace std {
+        template <typename T, typename... Args>
+        unique_ptr<T> make_unique(Args&&... args) {
+            return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+        }
+    }
+#endif
+
 
 G_BEGIN_DECLS   
 

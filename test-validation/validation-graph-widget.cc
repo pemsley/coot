@@ -1,4 +1,6 @@
 #include "validation-graph-widget.hh"
+#include "residue-validation-information.hh"
+#include "validation-information.hh"
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -60,18 +62,19 @@ const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
 const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 
 size_t max_chain_residue_count(CootValidationGraph* self) {
+    using it_t = coot::chain_validation_information_t;
     return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
-        [](const auto& lhs, const auto& rhs){
+        [](const it_t& lhs, const it_t& rhs){
             return lhs.rviv.size() < rhs.rviv.size();
-        })->rviv.size();
+    })->rviv.size();
 }
 
 double max_chain_residue_distortion(const std::vector<coot::residue_validation_information_t>& rviv) {
+    using it_t = coot::residue_validation_information_t;
     return std::max_element(rviv.cbegin(),rviv.cend(),
-    [](const auto& lhs, const auto& rhs){
+    [](const it_t& lhs, const it_t& rhs){
         return lhs.distortion < rhs.distortion;
-    }
-    )->distortion;
+    })->distortion;
 }
 
 G_BEGIN_DECLS
@@ -250,7 +253,7 @@ inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* se
 
     graphene_point_t point;
     graphene_point_init(&point,x,y);
-    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const auto& it){
+    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const std::pair<graphene_rect_t,const coot::residue_validation_information_t*>& it){
         return graphene_rect_contains_point(&it.first,&point);
     });
     return clicked;
