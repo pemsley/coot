@@ -232,6 +232,7 @@ public:
    bool is_valid_model_molecule(int) const;
    bool is_valid_map_molecule(int) const;
    int close_molecule(int imol);
+   int add_one(int i) const { return i+1; }
 
    // -------------------------------- geometry/dictionaries --------------------------------
 
