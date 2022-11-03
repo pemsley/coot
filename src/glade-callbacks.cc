@@ -52,9 +52,6 @@
 #include "validation-graphs.hh"
 #include "widget-from-builder.hh"
 
-void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
-
-
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
 #include "support.h"
@@ -1724,16 +1721,6 @@ on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *entry = widget_from_builder("accession_code_entry");
    GtkWidget *frame = widget_from_builder("accession_code_frame");
    handle_get_accession_code(frame, entry);
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ramachandran_plot1_activate         (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  add_on_rama_choices();
 }
 
 
@@ -4463,16 +4450,6 @@ on_edit_backbone_torsion_cancel_button_clicked
 
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_sequence_view1_activate             (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   add_on_sequence_view_choices();
-}
-
-
 extern "C" G_MODULE_EXPORT
 void
 on_clear_simple_distances2_activate    (GMenuItem     *menuitem,
@@ -5813,17 +5790,6 @@ on_new_delete_molecules_cancel_button_clicked
    gtk_widget_hide(w);
 
 }
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ramachandran_plot2_activate         (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  add_on_rama_choices();
-
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -7859,43 +7825,6 @@ on_refine_params_use_peptide_omegas_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_probe_clashes1_activate             (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   const char *type = "probe";
-   GtkWidget *menu = widget_from_builder("probe_clashes1");
-   if (menu) {
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_probe_clashes1_activate\n");
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_validate1_activate                  (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-#if 0 // 20211002-PE I no longer wish to do this
-   GtkWidget *menu_item = 0;
-
-   if (probe_available_p() == 0) { /* no */
-      menu_item = widget_from_builder("probe_clashes1");
-      if (!menu_item) {
-         printf("Failed to get probe_clashes1 menu item :-(\n");
-      } else {
-         /* desensitize it */
-         gtk_widget_set_sensitive(menu_item, FALSE);
-      }
-   }
-#endif
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_spin_view_on_off1_activate          (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
@@ -8356,25 +8285,6 @@ on_set_undo_molecule_button_clicked    (GtkButton       *button,
 {
   show_set_undo_molecule_chooser();
 }
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_gln_and_asn_b_factor_outliers1_activate
-                                        (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("gln_and_asn_b_factor_outliers1");
-   if (menu) {
-      const char *type = "gln_and_asn_b_factor_outliers";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_gln_and_asn_b_factor_outliers1_activate\n");
-   }
-}
-
-
-
 
 extern "C" G_MODULE_EXPORT
 void

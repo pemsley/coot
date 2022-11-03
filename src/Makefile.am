@@ -514,8 +514,6 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
-	dynamic-menus.hh         \
-	dynamic-menus.cc         \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \

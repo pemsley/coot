@@ -154,8 +154,6 @@ int setup_database();
 #include "draw.hh" // for test_gtk3_adjustment_changed() - maybe that should go elsewhere?
 #include "draw-2.hh"
 
-#include "dynamic-menus.hh"
-
 #include "widget-from-builder.hh"
 
 void
