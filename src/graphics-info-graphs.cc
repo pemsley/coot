@@ -21,6 +21,8 @@
  * 02110-1301, USA
  */
 
+#include "validation-graphs.hh"
+#include "widget-from-builder.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -80,6 +82,93 @@
 
 #include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
+
+
+void graphics_info_t::refresh_validation_graph_model_list() {
+	g_debug("refresh_validation_graph_model_list() called.");
+	
+	gtk_tree_model_foreach(
+		GTK_TREE_MODEL(validation_graph_model_list),
+		+[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
+			GtkListStore* list = GTK_LIST_STORE(model);
+			return ! gtk_list_store_remove(list,iter);
+		},
+		NULL
+	);
+	for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+		if (graphics_info_t::molecules[i].has_model()) {
+			std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+			GtkTreeIter iter;
+			gtk_list_store_append(validation_graph_model_list,&iter);
+			// g_debug("Label: %s",label.c_str());
+			gtk_list_store_set(validation_graph_model_list,&iter,0,label.c_str(),1,i,-1);
+		}
+	}
+	g_warning("refresh_validation_graph_model_list(): todo: Check if the active model ID is still on the list and react appropriately");
+	// if (model is no longer on the list) {
+	// 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
+	// }
+}
+
+void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
+	g_warning("Todo: Display/rebuild active validation graphs [model with index %i]",new_model_idx);
+	// 1. Update the model active model variable
+	active_validation_graph_model_idx = new_model_idx;
+	// 2. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
+}
+
+void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
+	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+	// we assume that when this function is called, there is no tab for the graph type
+	GtkWidget* sw = gtk_scrolled_window_new();
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), the_graph);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sw, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+}
+
+void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
+	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+	auto find_tab_idx = [notebook](coot::validation_graph_type graph_type) -> int {
+		std::string target_label = coot::validation_graph_type_to_human_name(graph_type);
+		for(int i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));i++) {
+			const char* page_label = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),i));
+			if (!page_label) {
+				g_error("NULL page label");
+			}
+			if (page_label == target_label) {
+				return i;
+			}
+		}
+		return -1;
+	};
+	auto idx = find_tab_idx(type);
+	if (idx == -1) {
+		g_warning("Failed to find tab for graph type: %s",coot::validation_graph_type_to_human_name(type).c_str());
+	} else {
+		gtk_notebook_remove_page(GTK_NOTEBOOK(notebook),idx);
+	}
+}
+
+void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
+	g_warning("todo: Finish implementing \"graphics_info_t::create_validation_graph()\"");
+	// 1. instantiate the validation graph
+	GtkWidget* this_will_be_the_graph = gtk_label_new((coot::validation_graph_type_to_human_name(type)+" TODO: Graph Widget").c_str());
+	// 2. store the graph in std::map
+	if(active_validation_graph_model_idx != -1) {
+		// 3. Compute data
+		// 4. Store the data in std::maps
+		// 5. Set the data for the graph
+	} else {
+		g_warning("graphics_info_t::create_validation_graph(): There is no active validation graph model. An empty graph was created.");
+	}
+	// 6. Show the graph
+	create_tab_for_validation_graph(type,this_will_be_the_graph);
+}
+void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
+	g_warning("todo: implement \"graphics_info_t::destroy_validation_graph()\"");
+	// 1. Remove the graph and its' data from std::maps
+	// 2. Destroy the graph widget
+	destroy_tab_for_validation_graph(type);
+}
 
 // Validation stuff	    //
 
@@ -371,7 +460,10 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 
 void
 graphics_info_t::update_validation_graphs(int imol) {
-
+	g_debug("update_validation_graphs() called");
+	g_warning("Reimplement update_validation_graphs(). "
+	"The function should iterate over the std::map holding validation data for each active graph "
+	"and recompute it, then trigger a redraw.");
 #ifdef HAVE_GOOCANVAS
    update_ramachandran_plot(imol);
    // now update the geometry graphs, so get the asc

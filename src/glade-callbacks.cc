@@ -49,6 +49,7 @@
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
 
+#include "validation-graphs.hh"
 #include "widget-from-builder.hh"
 
 void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
@@ -6084,70 +6085,6 @@ on_save_symmetry_coords_fileselection_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_symmetry_coordinates1_activate (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  setup_save_symmetry_coords();
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_experimental1_activate              (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_analysis1_activate         (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("geometry_analysis1");
-   if (menu) {
-      const char *type = "geometry";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_geometry_analysis1_activate\n");
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_peptide_omega_analysis1_activate    (GMenuItem     *menuitem,
-                                                            gpointer         user_data) {
-
-   GtkWidget *menu = widget_from_builder("peptide_omega_analysis1");
-   if (menu) {
-      const char *type = "omega";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      std::cout << "ERROR:: failed to get menu in on_peptide_omega_analysis1_activate" << std::endl;
-   }
-
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_pukka_puckers_1_activate(GMenuItem     *menuitem,
-                                                gpointer         user_data) {
-
-   GtkWidget *menu = widget_from_builder("pukka_puckers_1");
-   if (menu) {
-      const char *type = "puckers";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      std::cout << "ERROR:: failed to get menu in on_pukka_puckers_activate" << std::endl;
-   }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade(GMenuItem     *menuitem,
                                                                 gpointer         user_data)
 {
@@ -6189,117 +6126,6 @@ on_pepflips_by_difference_map_dialog_response(GtkDialog       *dialog,
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_ncs_differences1_activate           (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("ncs_differences1");
-   if (menu) {
-      const char *type = "ncs-diffs";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_ncs_differences1_activate\n");
-   }
-}
-
-////B B FACTOR
-extern "C" G_MODULE_EXPORT
-void
-on_temp_fact_analysis1_activate
-                                        (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  GtkWidget *menu = widget_from_builder("temp_fact_analysis1");
-  if (menu) {
-     const char *type = "calc b factor";
-     add_on_validation_graph_mol_options(menu, type);
-  } else {
-     std::cout << "ERROR:: failed to get menu in on_temp_fact_analysis1_activate\n";
-  }
-
-}
-////E B FACTOR
-
-extern "C" G_MODULE_EXPORT
-void
-on_temp_fact_variance_analysis1_activate
-                                        (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("temp_fact_variance_analysis1");
-   if (menu) {
-      const char *type = "b factor";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_temp_fact_variance_analysis1_activate\n");
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_rotamer_analysis1_activate          (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("rotamer_analysis1");
-   if (menu) {
-      const char *type = "rotamer";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_rotamer_analysis1_activate\n");
-   }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_density_fit_analysis1_activate      (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *menu = widget_from_builder("density_fit_analysis1");
-   if (menu) {
-      const char *type = "density-fit";
-      add_on_validation_graph_mol_options(menu, type);
-   } else {
-      printf("failed to get menu in on_density_fit1_activate\n");
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_stereo1_activate(GMenuItem     *menuitem,
-                                       gpointer         user_data) {
-
-   //  GtkWidget *w = create_stereo_dialog();
-   GtkWidget *w = widget_from_builder("stereo_dialog");
-   GtkWidget *checkbutton;
-
-   if (stereo_mode_state() == 1) { /* coot::HARDWARE_STEREO_MODE */
-      checkbutton = widget_from_builder("stereo_dialog_hardware_stereo_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
-   if (stereo_mode_state() == 2) { /* coot::SIDE_BY_SIDE_STEREO */
-      checkbutton = widget_from_builder("stereo_dialog_side_by_side_stereo_crosseyed_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
-   if (stereo_mode_state() == 4) { /* coot::SIDE_BY_SIDE_STEREO_WALL_EYE */
-      checkbutton = widget_from_builder("stereo_dialog_side_by_side_stereo_walleyed_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
-   if (stereo_mode_state() == 3) { /* coot::DTI_SIDE_BY_SIDE_STEREO */
-      checkbutton = widget_from_builder("stereo_dialog_dti_side_by_side_stereo_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
-   if (stereo_mode_state() == 5) { /* coot::ZALMAN_STEREO */
-      checkbutton = widget_from_builder("stereo_dialog_zalman_stereo_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
-   gtk_widget_show(w);
-}
 
 
 
@@ -12228,6 +12054,71 @@ on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
 
    gtk_widget_hide(widget);
    return TRUE;
+}
+
+extern "C" G_MODULE_EXPORT
+void 
+on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data) {
+   GtkTreeIter iter;
+   if (gtk_combo_box_get_active_iter(self,&iter)) {
+      int new_active_model;
+      gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
+      graphics_info_t::update_active_validation_graph_model(new_active_model);
+   } else {
+      g_warning("Could not get active iter in validation graph model ComboBox");
+   }
+}
+
+
+void
+on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
+   if (gtk_check_button_get_active(self)) {
+      graphics_info_t::create_validation_graph(graph_type);
+   } else {
+      graphics_info_t::destroy_validation_graph(graph_type);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_density_fit_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_fit);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_temp_factor_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::temp_factor);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rota_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::rota);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_rama_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::rama);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_omega_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::omega);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::geometry);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_ncs_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::ncs);
 }
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS

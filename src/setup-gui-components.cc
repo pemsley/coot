@@ -1,13 +1,21 @@
-#include "setup-gui-components.hh"
-
+#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
+#include "setup-gui-components.hh"
+#include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
 // No other files should ever need it.
 inline GMenuModel* menu_model_from_builder(const std::string& m_name) {
    GMenuModel *m = G_MENU_MODEL(graphics_info_t::get_gobject_from_builder(m_name));
+   return m;
+}
+
+// this function is both defined and implemented here.
+// No other files should ever need it.
+inline GMenu* menu_from_builder(const std::string& m_name) {
+   GMenu *m = G_MENU(graphics_info_t::get_gobject_from_builder(m_name));
    return m;
 }
 
@@ -90,6 +98,29 @@ void setup_accession_code_frame() {
       handle_get_accession_code(frame, GTK_WIDGET(entry));
    }),frame);
    setup_generic_hide_on_escape_controller(entry,frame);
+}
+
+void setup_vertical_pane_sizing() {
+   GtkWidget *vbox = widget_from_builder("main_window_vbox_inner");
+   GtkWidget *pane = widget_from_builder("validation_graph_pane");
+   GtkWidget *paned_widget = widget_from_builder("main_window_vertical_pane");
+   GtkRequisition* pane_req = gtk_requisition_new();
+   GtkRequisition* vbox_req = gtk_requisition_new();
+   gtk_widget_get_preferred_size(vbox,NULL,vbox_req);
+   gtk_widget_get_preferred_size(pane,NULL,pane_req);
+   gtk_widget_set_size_request(paned_widget,-1,vbox_req->height+pane_req->height);
+   gtk_requisition_free(pane_req);
+   gtk_requisition_free(vbox_req);
+
+   // For some reason, setting this doesn't work in the .ui file
+   gtk_paned_set_shrink_start_child(GTK_PANED(paned_widget),FALSE);
+   gtk_paned_set_resize_start_child(GTK_PANED(paned_widget),FALSE);
+}
+
+void setup_validation_graph_pane() {
+   GtkWidget* model_combobox = widget_from_builder("validation_graph_model_combobox");
+   gtk_combo_box_set_model(GTK_COMBO_BOX(model_combobox),GTK_TREE_MODEL(graphics_info_t::validation_graph_model_list));
+   gtk_combo_box_set_id_column(GTK_COMBO_BOX(model_combobox),0);
 }
 
 void setup_get_monomer() {
@@ -197,6 +228,8 @@ void setup_python_scripting_entry() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
+   setup_vertical_pane_sizing();
+   setup_validation_graph_pane();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();

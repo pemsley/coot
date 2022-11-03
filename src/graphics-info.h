@@ -29,6 +29,7 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
+#include "validation-graphs.hh"
 // need gtk things
 #include <gtk/gtk.h>
 
@@ -5011,7 +5012,19 @@ string   static std::string sessionid;
                             << s << "() not much more insight \n";
       }
    }
+   /// Should be called when a model gets added or deleted.
+   /// Updates the GtkListStore for the validation graph model combobox
+   static void refresh_validation_graph_model_list();
+   /// List of label strings (col 0) and model indices (int) (col 1)
+   static GtkListStore* validation_graph_model_list;
+   private:
+   /// -1 if none
+   static int active_validation_graph_model_idx;   
+   public:
+   static void update_active_validation_graph_model(int new_model_idx);
 
+   static void create_validation_graph(coot::validation_graph_type type);
+   static void destroy_validation_graph(coot::validation_graph_type type);
 };
 
 
