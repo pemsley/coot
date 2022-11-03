@@ -142,13 +142,17 @@ rotamer_analysis(const std::string &pdb_file_name) {
    return r;
 }
 
-void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_graph) {
+struct graphs_shipment_t {
+   CootValidationGraph* graph_d;
+   CootValidationGraph* graph_r;
+};
+
+GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
    gtk_widget_set_margin_bottom(vbox,10);
    gtk_widget_set_margin_top(vbox,10);
    gtk_widget_set_margin_start(vbox,10);
    gtk_widget_set_margin_end(vbox,10);
-   gtk_window_set_child(main_window,vbox);
 
    GtkWidget* host_frame = gtk_frame_new(NULL);
 
@@ -177,8 +181,19 @@ void build_main_window(GtkWindow* main_window, CootValidationGraph* validation_g
          GtkLabel* label = GTK_LABEL(userdata);
          gtk_label_set_text(label,residue->label.c_str());
          g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
-      })
-   ,target_label);
+      }),
+   target_label);
+
+   return vbox;
+}
+
+void build_main_window(GtkWindow* main_window, graphs_shipment_t* graphs) {
+   
+   GtkWidget* graph_notebook = gtk_notebook_new();
+   gtk_window_set_child(main_window,graph_notebook);
+
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_d), gtk_label_new("Density fit"));
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_r), gtk_label_new("Rotamer analysis"));
 }
 
 int main(int argc, char **argv) {
@@ -211,21 +226,35 @@ int main(int argc, char **argv) {
       GError *error = NULL;
       g_application_register(G_APPLICATION(app), NULL, &error);
 
-      CootValidationGraph* graph = coot_validation_graph_new();
-      coot_validation_graph_set_validation_information(graph,std::make_unique<coot::validation_information_t>(vid));
-      gtk_widget_set_margin_bottom(GTK_WIDGET(graph),10);
-      gtk_widget_set_margin_start(GTK_WIDGET(graph),10);
-      gtk_widget_set_margin_end(GTK_WIDGET(graph),10);
-      gtk_widget_set_margin_top(GTK_WIDGET(graph),10);
+      graphs_shipment_t* gs = new graphs_shipment_t();
+
+      gs->graph_d = coot_validation_graph_new();
+      gs->graph_r = coot_validation_graph_new();
+
+      coot_validation_graph_set_validation_information(gs->graph_d,std::make_unique<coot::validation_information_t>(vid));
+      coot_validation_graph_set_validation_information(gs->graph_r,std::make_unique<coot::validation_information_t>(vir));
+
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_d),10);
+
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_r),10);
 
       g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
          //GtkWindow* win = GTK_WINDOW(user_data);
          GtkWidget* win = gtk_application_window_new(app);
          gtk_application_add_window(app,GTK_WINDOW(win));
          gtk_window_set_application(GTK_WINDOW(win),app);
-         build_main_window(GTK_WINDOW(win),COOT_COOT_VALIDATION_GRAPH(user_data));
+         graphs_shipment_t* gs = (graphs_shipment_t*)user_data;
+         build_main_window(GTK_WINDOW(win),gs);
          gtk_widget_show(win);
-      }),graph);
+
+         delete gs;
+      }),gs);
 
 
       return g_application_run(G_APPLICATION(app),0,0);
