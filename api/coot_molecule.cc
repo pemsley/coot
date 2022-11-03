@@ -49,6 +49,25 @@ coot::molecule_t::is_valid_map_molecule() const {
    return status;
 }
 
+mmdb::Residue *
+coot::molecule_t::cid_to_residue(const std::string &cid) const {
+
+   mmdb::Residue *residue_p = 0;
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Residue **SelResidues;
+      int nSelResidues = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      if (nSelResidues > 0) {
+         residue_p = SelResidues[0];
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return residue_p;
+}
+
+
 std::pair<bool, coot::residue_spec_t>
 coot::molecule_t::cid_to_residue_spec(const std::string &cid) const {
 
@@ -2357,4 +2376,103 @@ coot::molecule_t::get_residue_names_with_no_dictionary(const coot::protein_geome
 
    std::vector<std::string> v = geom.residue_names_with_no_dictionary(atom_sel.mol, imol_no);
    return v;
+}
+
+
+int
+coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom_selection_cid,
+                                                         int n_atoms,
+                                                         clipper::Coord_orth &rotation_centre,
+                                                         clipper::RTop_orth &rtop) {
+
+   auto mmdb_to_clipper = [] (mmdb::Atom *at) {
+      return clipper::Coord_orth(at->x, at->y, at->z);
+   };
+
+   int status = 0;
+
+   if (is_valid_model_molecule()) {
+
+      mmdb::Atom **selection_atoms = 0;
+      int n_selection_atoms = 0;
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, selection_atoms, n_selection_atoms);
+      // does the number of atoms that we selected actually match the number of atoms that the caller thinks that
+      // we should have selected?
+      if (selection_atoms) {
+         if (n_selection_atoms == n_atoms) {
+            for (int iat=0; iat<n_selection_atoms; iat++) {
+               mmdb::Atom *at = selection_atoms[iat];
+               if (! at->isTer()) {
+                  clipper::Coord_orth pt = mmdb_to_clipper(at);
+                  clipper::Coord_orth p1 = pt - rotation_centre;
+                  clipper::Coord_orth p2 = rtop * p1;
+                  clipper::Coord_orth p3 = p2 - rotation_centre;
+                  at->x = p3.x();
+                  at->y = p3.y();
+                  at->z = p3.z();
+               }
+            }
+         } else {
+            std::cout << "ERROR in apply_transformation_to_atom_selection() mismatch atom in selection "
+                      << n_atoms << " " << n_selection_atoms << std::endl;
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return status;
+}
+
+
+int
+coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms) {
+
+   mmdb::Residue *residue_p = cid_to_residue(residue_cid);
+   return new_positions_for_residue_atoms(residue_p, moved_atoms);
+}
+
+int
+coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms) {
+
+   int n_atoms_moved = 0;
+   if (residue_p) {
+      for (unsigned int i=0; i<moved_atoms.size(); i++) {
+         const moved_atom_t &mva = moved_atoms[i];
+
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::string atom_name(at->GetAtomName());
+               if (atom_name == mva.atom_name) {
+                  std::string alt_conf(at->altLoc);
+                  if (alt_conf == mva.alt_conf) {
+                     at->x = mva.x;
+                     at->y = mva.y;
+                     at->z = mva.z;
+                     n_atoms_moved++;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return n_atoms_moved;
+}
+
+int
+coot::molecule_t::new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues) {
+
+   int status = 0;
+   for (unsigned int i=0; i<moved_residues.size(); i++) {
+      const moved_residue_t &mvr = moved_residues[i];
+      coot::residue_spec_t res_spec(mvr.chain_id, mvr.res_no, mvr.ins_code);
+      mmdb::Residue *residue_p = get_residue(res_spec);
+      new_positions_for_residue_atoms(residue_p, mvr.moved_atoms);
+   }
+   return status;
+
 }

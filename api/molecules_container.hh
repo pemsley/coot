@@ -346,6 +346,18 @@ public:
    //! return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
 
+   int apply_transformation_to_atom_selection(int imol, const std::string &atoms_selection_cid,
+                                              int n_atoms, // for validation of the atom selection, (int because mmdb atom type)
+                                              float m00, float m01, float m02,
+                                              float m10, float m11, float m12,
+                                              float m20, float m21, float m22,
+                                              float c0, float c1, float c2, // the centre of the rotation
+                                              float t0, float t1, float t2); // translation
+
+   int new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::molecule_t::moved_atom_t> &moved_atoms);
+
+   int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::molecule_t::moved_residue_t> &moved_residues);
+
    // -------------------------------- Coordinates Refinement ------------------------------
 
    // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};

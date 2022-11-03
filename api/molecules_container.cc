@@ -2283,3 +2283,53 @@ molecules_container_t::get_residue_names_with_no_dictionary(int imol) const {
    return v;
 }
 
+
+
+int
+molecules_container_t::apply_transformation_to_atom_selection(int imol, const std::string &atoms_selection_cid,
+                                                              int n_atoms, // for validation of the atom selection
+                                                              float m00, float m01, float m02,
+                                                              float m10, float m11, float m12,
+                                                              float m20, float m21, float m22,
+                                                              float c0, float c1, float c2, // the centre of the rotation
+                                                              float t0, float t1, float t2) { // translation
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      clipper::Coord_orth rotation_centre(c0, c1, c2);
+      clipper::Coord_orth t(t0, t1, t2);
+      clipper::Mat33<double> m(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+      clipper::RTop_orth rtop_orth(m, t);
+      status = molecules[imol].apply_transformation_to_atom_selection(atoms_selection_cid, n_atoms, rotation_centre, rtop_orth);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}
+
+
+int
+molecules_container_t::new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::molecule_t::moved_atom_t> &moved_atoms) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].new_positions_for_residue_atoms(residue_cid, moved_atoms);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+int
+molecules_container_t::new_positions_for_atoms_in_residues(int imol, const std::vector<coot::molecule_t::moved_residue_t> &moved_residues) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].new_positions_for_atoms_in_residues(moved_residues);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}

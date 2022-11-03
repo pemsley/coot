@@ -317,6 +317,7 @@ namespace coot {
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
       bool is_valid_map_molecule() const;
+      mmdb::Residue *cid_to_residue(const std::string &cid) const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const;
@@ -410,8 +411,39 @@ namespace coot {
 
       coot::minimol::molecule eigen_flip_residue(const residue_spec_t &residue_spec);
 
+      int apply_transformation_to_atom_selection(const std::string &atom_selection_cid,
+                                                 int n_atoms_in_selection,
+                                                 clipper::Coord_orth &rotation_centre,
+                                                 clipper::RTop_orth &rtop);
 
-      
+      class moved_atom_t {
+      public:
+         std::string atom_name;
+         std::string alt_conf;
+         float x, y, z;
+         int index; // for fast lookup. -1 is used for "unknown"
+         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in) :
+            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(-1) {}
+         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in, int idx) :
+            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(idx) {}
+      };
+
+      class moved_residue_t {
+      public:
+         std::string chain_id;
+         int res_no;
+         std::string ins_code;
+         std::vector<moved_atom_t> moved_atoms;
+         moved_residue_t(const std::string &c, int rn, const std::string &i) : chain_id(c), res_no(rn), ins_code(i) {}
+         void add_atom(const moved_atom_t &mva) {moved_atoms.push_back(mva); }
+      };
+
+      int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms);
+      int new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues);
+
+      // not for wrapping (should be private)
+      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms);
+
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
