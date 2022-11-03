@@ -6437,6 +6437,7 @@ Do you want to continue?
                 <property name="hexpand">True</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="scrollable">True</property>
               </object>
             </child>
           </object>

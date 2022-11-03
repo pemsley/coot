@@ -151,7 +151,7 @@ void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
 void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
 	g_warning("todo: Finish implementing \"graphics_info_t::create_validation_graph()\"");
 	// 1. instantiate the validation graph
-	GtkWidget* this_will_be_the_graph = gtk_label_new("TODO");
+	GtkWidget* this_will_be_the_graph = gtk_label_new((coot::validation_graph_type_to_human_name(type)+" TODO: Graph Widget").c_str());
 	// 2. store the graph in std::map
 	if(active_validation_graph_model_idx != -1) {
 		// 3. Compute data
