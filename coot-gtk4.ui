@@ -695,29 +695,9 @@
           <attribute name="label">Check/Delete Waters...</attribute>
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
-        <submenu id="density_fit_analysis_item">
-          <attribute name="label">Density fit analysis...</attribute>
-          <attribute name="action">app.density_fit_analysis_item_action</attribute>
-        </submenu>
-        <item>
-          <attribute name="label">Difference Map Peaks...</attribute>
-          <attribute name="action">app.difference_map_peaks_item_action</attribute>
-        </item>
         <item>
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
-        </item>
-        <submenu id="geometry_analysis_item">
-          <attribute name="label">Geometry analysis...</attribute>
-          <attribute name="action">app.geometry_analysis_item_action</attribute>
-        </submenu>
-        <item>
-          <attribute name="label">GLN and ASN B-factor Outliers...</attribute>
-          <attribute name="action">app.gln_and_asn_b_factor_outlier_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Incorrect Chiral Volumes...</attribute>
-          <attribute name="action">app.chiral_volumes_item_action</attribute>
         </item>
         <!-- restore this one day -->
         <!-- <item> -->
@@ -725,44 +705,12 @@
         <!--   <attribute name="action">app.on_undo_symmetry_view1_action</attribute> -->
         <!-- </item> -->
         <item>
-          <attribute name="label">NCS Differences...</attribute>
-          <attribute name="action">app.ncs_differences_item_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Overlaps, Peptides, CBeta, Rama &amp; Rota Outliers</attribute>
           <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
         </item>
         <item>
-          <attribute name="label">Peptide Flips from Difference Map...</attribute>
-          <attribute name="action">app.peptide_flips_from_diff_map_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Peptide omega analysis...</attribute>
-          <attribute name="action">app.peptide_omega_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Pukka Puckers...</attribute>
-          <attribute name="action">app.pukka_puckers_item_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Refmac Log Validation</attribute>
           <attribute name="action">app.refmac_log_validation_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ramachandran Plot...</attribute>
-          <attribute name="action">app.ramachandran_plot_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Rotamer analysis...</attribute>
-          <attribute name="action">app.rotamer_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Temp. fact. analysis...</attribute>
-          <attribute name="action">app.temp_factor_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Temp. fact. variance analysis...</attribute>
-          <attribute name="action">app.temp_factor_variance_analysis_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>
