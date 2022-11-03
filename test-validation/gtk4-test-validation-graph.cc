@@ -231,8 +231,8 @@ int main(int argc, char **argv) {
       gs->graph_d = coot_validation_graph_new();
       gs->graph_r = coot_validation_graph_new();
 
-      coot_validation_graph_set_validation_information(gs->graph_d,std::make_unique<coot::validation_information_t>(vid));
-      coot_validation_graph_set_validation_information(gs->graph_r,std::make_unique<coot::validation_information_t>(vir));
+      coot_validation_graph_set_validation_information(gs->graph_d,std::make_shared<coot::validation_information_t>(vid));
+      coot_validation_graph_set_validation_information(gs->graph_r,std::make_shared<coot::validation_information_t>(vir));
 
       gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_d),10);
       gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_d),10);

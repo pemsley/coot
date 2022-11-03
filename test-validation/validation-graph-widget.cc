@@ -2,6 +2,7 @@
 #include "residue-validation-information.hh"
 #include "validation-information.hh"
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,7 +29,7 @@ static guint residue_clicked_signal;
 struct _CootValidationGraph {
     GtkWidget parent;
 
-    std::unique_ptr<const coot::validation_information_t> _vi;
+    std::shared_ptr<const coot::validation_information_t> _vi;
     std::unique_ptr<coord_cache_t> coordinate_cache;
 };
 
@@ -320,7 +321,7 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
     g_signal_connect(self,"query-tooltip",G_CALLBACK(query_tooltip),NULL);
 
     // I don't know how g_object_new initializes C++ stuff. Better set those up manually
-    self->_vi.reset(nullptr);
+    self->_vi = std::shared_ptr<const coot::validation_information_t>(nullptr);
     self->coordinate_cache = std::make_unique<coord_cache_t>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
@@ -339,7 +340,7 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
 static void coot_validation_graph_dispose(GObject* _self) {
 
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(_self);
-    self->_vi.reset(nullptr);
+    self->_vi.reset();
     self->coordinate_cache.reset(nullptr);
     G_OBJECT_CLASS(coot_validation_graph_parent_class)->dispose(_self);
 }
@@ -373,8 +374,8 @@ coot_validation_graph_new()
 
 G_END_DECLS
 
-void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::unique_ptr<coot::validation_information_t> vi) {
+void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::shared_ptr<coot::validation_information_t> vi) {
     // The stored pointers become invalidated
     self->coordinate_cache->clear();
-    self->_vi = std::move(vi);
+    self->_vi = vi;
 }
