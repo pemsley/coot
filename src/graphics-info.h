@@ -5017,8 +5017,8 @@ string   static std::string sessionid;
    static void refresh_validation_graph_model_list();
    /// List of label strings (col 0) and model indices (int) (col 1)
    static GtkListStore* validation_graph_model_list;
-   /// -1 if none
    private:
+   /// -1 if none
    static int active_validation_graph_model_idx;   
    public:
    static void update_active_validation_graph_model(int new_model_idx);
