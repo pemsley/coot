@@ -19,9 +19,6 @@ LDLIBS=-fuse-ld=mold \
         -Wl,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl
 
-# gtk4-test-validation-graph: gtk4-test-validation-graph.cc
-# 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
-
 HEADERS = \
     residue-validation-information.hh \
     validation-information.hh \
