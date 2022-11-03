@@ -6526,7 +6526,7 @@ Do you want to continue?
                   <object class="GtkButton" id="undo_button">
                     <property name="label" translatable="yes">Undo</property>
                     <property name="can-focus">0</property>
-                    <property name="icon-name">undo</property>
+                    <property name="icon-name">edit-undo</property>
                     <signal name="clicked" handler="on_model_toolbar_undo_button_clicked"/>
                   </object>
                 </child>
@@ -6534,7 +6534,7 @@ Do you want to continue?
                   <object class="GtkButton" id="redo_button">
                     <property name="label" translatable="yes">Redo</property>
                     <property name="can-focus">0</property>
-                    <property name="icon-name">redo</property>
+                    <property name="icon-name">edit-redo</property>
                     <signal name="clicked" handler="on_model_toolbar_redo_button_clicked"/>
                   </object>
                 </child>

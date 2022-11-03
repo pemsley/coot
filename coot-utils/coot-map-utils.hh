@@ -224,7 +224,7 @@ namespace coot {
 				     const clipper::Xmap<float> &xmap_from_sfs,
 				     map_stats_t map_stats_flag);
 
-      // the first of the pair contains the correlation for the given residue spec.
+      // the second of the pair contains the correlation for the given residue spec.
       //
       std::vector<std::pair<residue_spec_t, float> >
       map_to_model_correlation_per_residue(mmdb::Manager *mol,

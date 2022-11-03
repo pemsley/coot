@@ -201,6 +201,16 @@ GtkWidget *new_startup_create_glarea_widget() {
 
 }
 
+
+void on_glarea_scale_changed(GtkGestureZoom* self,
+                             gdouble scale,
+                             gpointer user_data) {
+   graphics_info_t g;
+   double s = pow(scale, 1.02);
+   std::cout << "on_glarea_scale_changed " << scale << " " << s << std::endl;
+   g.mouse_zoom(s, 0.0);
+}
+
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                                   double          x,
                                   double          y,
@@ -377,6 +387,9 @@ void setup_gestures(GtkWidget *glarea) {
 
    // std::cout << "========== start setting up GTK4 style event controlllers" << std::endl;
 
+   GtkGesture *zoom_controller           = gtk_gesture_zoom_new();
+   g_signal_connect(zoom_controller, "scale-changed", G_CALLBACK(on_glarea_scale_changed), glarea);
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(zoom_controller));
    GtkEventController *key_controller = gtk_event_controller_key_new();
 
    g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_glarea_key_controller_key_pressed),  glarea);

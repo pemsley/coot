@@ -109,11 +109,15 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       update_view_quaternion(w, h, delta_x, delta_y);
    };
 
+   double x = drag_begin_x + drag_delta_x;
+   double y = drag_begin_y + drag_delta_y;
+
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
    bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
-   // std::cout << "shift is pressed " << shift_is_pressed << std::endl;
+   std::cout << "on_glarea_drag_update_secondary shift is pressed " << shift_is_pressed
+             << " control_is_pressed " << control_is_pressed << std::endl;
 
    if (shift_is_pressed) {
       do_view_zoom(drag_delta_x, drag_delta_y);
@@ -121,7 +125,11 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       if (control_is_pressed) {
          do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_x);
       } else {
-         do_view_rotation(drag_delta_x, drag_delta_y);
+         if (last_restraints_size() > 0) {
+            move_atom_pull_target_position(x, y);
+         } else {
+            do_view_rotation(drag_delta_x, drag_delta_y);
+         }
       }
    }
 
@@ -137,8 +145,6 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
 
    SetMouseBegin(mouse_current_x, mouse_current_y); // not really "begin", but "previous position"
 
-   double x = drag_begin_x + drag_delta_x;
-   double y = drag_begin_y + drag_delta_y;
    set_mouse_previous_position(x, y);
 
 }
