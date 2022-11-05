@@ -934,6 +934,29 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
    return status;
 }
 
+int test_difference_map_peaks(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_diff_map)) {
+         float n_rmsd = 6.0;// lots of high peaks in totorial data. 6.0 is not a normal limit
+         auto sites = mc.difference_map_peaks(imol_diff_map, imol, n_rmsd);
+         if (sites.size() > 20)
+            status = 1;
+         if (false)
+            for (const auto &site : sites)
+               std::cout << "site " << site.feature_type << " " << site.button_label << " " << site.x << " " << site.y << " " << site.z
+                         << " height " << site.feature_value << std::endl;
+      }
+   }
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -950,7 +973,6 @@ int test_template(molecules_container_t &mc) {
    }
    return status;
 }
-
 
 int n_tests = 0;
 
@@ -1011,11 +1033,12 @@ int main(int argc, char **argv) {
       status += run_test(test_jed_flip,             "JED Flip",               mc);
       status += run_test(test_sequence_generator, "Make a sequence string",   mc);
       status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
+      status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
    }
 
 
-      status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
+      status += run_test(test_difference_map_peaks,         "Didfference Map Peaks",               mc);
 
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.

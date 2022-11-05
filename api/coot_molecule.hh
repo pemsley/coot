@@ -464,6 +464,18 @@ namespace coot {
       // changes the internal map mesh holder (hence not const)
       coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
 
+      class interesting_place_t {
+      public:
+         std::string feature_type;
+         float x, y, z;
+         std::string button_label;
+         float feature_value; // e.g. peak-height (not all "interesting" feature values can be captured by a float of course)
+         interesting_place_t(const std::string &ft, const clipper::Coord_orth &pt, const std::string &bl) : feature_type(ft), button_label(bl) {
+            x = pt.x(); y = pt.y(); z = pt.z();
+            feature_value = -1; // something "unset"
+         }
+      };
+
       class difference_map_peaks_info_t {
       public:
          clipper::Coord_orth pos;
@@ -473,7 +485,7 @@ namespace coot {
       };
 
       // the molecule is passed so that the peaks are placed around the protein
-      std::vector<coot::molecule_t::difference_map_peaks_info_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
+      std::vector<interesting_place_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
 
    };
 }

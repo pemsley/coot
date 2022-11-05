@@ -3,6 +3,11 @@
 #define MOLECULES_CONTAINER_HH
 
 #include <vector>
+
+#ifdef SWIG
+#include "Python.h"
+#endif
+
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
 #include "coot_molecule.hh"
@@ -290,8 +295,6 @@ public:
    coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
                                              float radius, float contour_level);
 
-   std::vector<coot::molecule_t::difference_map_peaks_info_t> difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const;
-
 
    // -------------------------------- coordinates modelling -------------------------------
 
@@ -383,6 +386,10 @@ public:
 
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map);
 
+
+   std::vector<coot::molecule_t::interesting_place_t> get_interesting_places(int imol, const std::string &mode) const;
+
+   std::vector<coot::molecule_t::interesting_place_t> difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const;
 
    // -------------------------------- Gru Points ------------------------------------------
 

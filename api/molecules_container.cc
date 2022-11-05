@@ -883,14 +883,14 @@ molecules_container_t::get_map_rmsd_approx(int imol) const {
 }
 
 
-std::vector<coot::molecule_t::difference_map_peaks_info_t>
+std::vector<coot::molecule_t::interesting_place_t>
 molecules_container_t::difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const {
 
-   std::vector<coot::molecule_t::difference_map_peaks_info_t> v;
+   std::vector<coot::molecule_t::interesting_place_t> v;
    if (is_valid_model_molecule(imol_protein)) {
       if (is_valid_map_molecule(imol_map)) {
          mmdb::Manager *m = get_mol(imol_protein);
-         molecules[imol_map].difference_map_peaks(m, n_rmsd);
+         v = molecules[imol_map].difference_map_peaks(m, n_rmsd);
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
       }

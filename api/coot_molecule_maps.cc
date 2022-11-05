@@ -382,15 +382,37 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 #include "coot-utils/peak-search.hh"
 
 // the molecule is passed so that the peaks are placed around the protein
-std::vector<coot::molecule_t::difference_map_peaks_info_t>
+std::vector<coot::molecule_t::interesting_place_t>
 coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
 
-   std::vector<coot::molecule_t::difference_map_peaks_info_t> v;
+   auto make_button_label = [] (unsigned int i, const std::pair<clipper::Coord_orth, float> &peak) {
+      std::string s = "Index ";
+      s += util::int_to_string(i);
+      s += " Position: (";
+      s += util::float_to_string_using_dec_pl(peak.first.x(), 2);
+      s += std::string(", ");
+      s += util::float_to_string_using_dec_pl(peak.first.y(), 2);
+      s += std::string(", ");
+      s += util::float_to_string_using_dec_pl(peak.first.z(), 2);
+      s += std::string(") Height ");
+      s += util::float_to_string_using_dec_pl(peak.second, 2);
+      return s;
+   };
+
+   std::vector<interesting_place_t> v;
    if (mol) {
       coot::peak_search ps(xmap);
-      std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, mol, n_rmsd, true, true, true);
-      for (const auto &peak : peaks) {
-         difference_map_peaks_info_t dmp(peak.first, peak.second);
+      float rmsd = get_map_rmsd_approx();
+      float level = rmsd * n_rmsd;
+      // this returns sorted peaks
+      bool skip_symmetry_check = false;
+      std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, mol, n_rmsd, true, true, skip_symmetry_check);
+      for (unsigned int i=0; i<peaks.size(); i++) {
+         const auto &peak = peaks[i];
+         // difference_map_peaks_info_t dmp(peak.first, peak.second); // 20221105-PE as was, before generic type
+         std::string button_label = make_button_label(i, peak);
+         interesting_place_t dmp("difference-map-peak", peak.first, button_label);
+         dmp.feature_value = peak.second;
          v.push_back(dmp);
       }
    } else {
