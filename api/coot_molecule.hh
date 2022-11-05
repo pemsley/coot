@@ -340,6 +340,8 @@ namespace coot {
       std::vector<std::string> chains_in_model() const;
       std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(const std::string &chain_id) const;
 
+      residue_spec_t get_residue_closest_to(mmdb::Manager *mol, const clipper::Coord_orth &co) const;
+
       // ----------------------- model bonds
 
       coot::simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom);
@@ -467,13 +469,24 @@ namespace coot {
       class interesting_place_t {
       public:
          std::string feature_type;
+         residue_spec_t residue_spec; // use this for sorting a combination of interesting_place_t types.
          float x, y, z;
          std::string button_label;
          float feature_value; // e.g. peak-height (not all "interesting" feature values can be captured by a float of course)
+         float badness; // a nubmer between 100.0 and 0.0 (inclusive) if it's negative then it's not set.
+         interesting_place_t(const std::string &ft, const residue_spec_t &rs, const clipper::Coord_orth &pt, const std::string &bl) :
+            feature_type(ft), residue_spec(rs), button_label(bl) {
+            x = pt.x(); y = pt.y(); z = pt.z();
+            feature_value = -1; // something "unset"
+            badness = -1.1; // "unset"
+         }
          interesting_place_t(const std::string &ft, const clipper::Coord_orth &pt, const std::string &bl) : feature_type(ft), button_label(bl) {
             x = pt.x(); y = pt.y(); z = pt.z();
             feature_value = -1; // something "unset"
+            badness = -1.1; // "unset"
          }
+         void set_feature_value(const float &f) { feature_value = f; }
+         void set_badness_value(const float &b) { badness = b; }
       };
 
       class difference_map_peaks_info_t {

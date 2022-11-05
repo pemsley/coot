@@ -381,6 +381,8 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
 #include "coot-utils/peak-search.hh"
 
+
+
 // the molecule is passed so that the peaks are placed around the protein
 std::vector<coot::molecule_t::interesting_place_t>
 coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
@@ -403,16 +405,19 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
    if (mol) {
       coot::peak_search ps(xmap);
       float rmsd = get_map_rmsd_approx();
-      float level = rmsd * n_rmsd;
+      // float level = rmsd * n_rmsd; // not needed for skip_symmetry_check is false
       // this returns sorted peaks
       bool skip_symmetry_check = false;
       std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, mol, n_rmsd, true, true, skip_symmetry_check);
       for (unsigned int i=0; i<peaks.size(); i++) {
          const auto &peak = peaks[i];
          // difference_map_peaks_info_t dmp(peak.first, peak.second); // 20221105-PE as was, before generic type
+         float badness = 7.0f * std::abs(peak.second/rmsd);
          std::string button_label = make_button_label(i, peak);
          interesting_place_t dmp("difference-map-peak", peak.first, button_label);
-         dmp.feature_value = peak.second;
+         dmp.residue_spec = get_residue_closest_to(mol, peak.first);
+         dmp.set_feature_value(peak.second);
+         dmp.set_badness_value(badness);
          v.push_back(dmp);
       }
    } else {
@@ -624,3 +629,5 @@ coot::molecule_t::fill_fobs_sigfobs() {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
    }
 }
+
+

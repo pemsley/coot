@@ -2333,3 +2333,55 @@ molecules_container_t::new_positions_for_atoms_in_residues(int imol, const std::
    return status;
 
 }
+
+// put this in a new file molecules_container_validation.cc
+
+#include "coot-utils/pepflip-using-difference-map.hh"
+
+
+std::vector<coot::molecule_t::interesting_place_t>
+molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const {
+
+   auto mmdb_to_clipper = [] (mmdb::Atom *at) {
+      return clipper::Coord_orth(at->x, at->y, at->z);
+   };
+
+   std::vector<coot::molecule_t::interesting_place_t> v;
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         if (molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = get_mol(imol_coords);
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+            for (std::size_t i=0; i<flips.size(); i++) {
+               const auto &res_spec = flips[i];
+               mmdb::Residue *residue_this_p = get_residue(imol_coords, res_spec);
+               if (residue_this_p) {
+                  coot::residue_spec_t res_spec_next =  res_spec.next();
+                  mmdb::Residue *residue_next_p = get_residue(imol_coords, res_spec);
+                  if (residue_next_p) {
+                     std::string feature_type = "Difference Map Suggest Pepflip";
+                     std::string label = "Flip this Bad boy: " + res_spec.format();
+                     mmdb::Atom *at_1 = residue_this_p->GetAtom(" CA ");
+                     mmdb::Atom *at_2 = residue_next_p->GetAtom(" CA ");
+                     if (at_1 && at_2) {
+                        clipper::Coord_orth pt_1 = mmdb_to_clipper(at_1);
+                        clipper::Coord_orth pt_2 = mmdb_to_clipper(at_2);
+                        clipper::Coord_orth pos = 0.5 * (pt_1 + pt_2);
+                        float f = static_cast<float>(i)/static_cast<float>(flips.size());
+                        float badness = 20.0 + 50.0 * (1.0 - f);
+                        coot::molecule_t::interesting_place_t ip(feature_type, res_spec, pos, label);
+                        ip.set_badness_value(badness);
+                        v.push_back(ip);
+                     }
+                  }
+               }
+	    }
+	 }
+      }
+   }
+   return v;
+
+}

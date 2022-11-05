@@ -943,19 +943,41 @@ int test_difference_map_peaks(molecules_container_t &mc) {
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_diff_map)) {
-         float n_rmsd = 6.0;// lots of high peaks in totorial data. 6.0 is not a normal limit
+         float n_rmsd = 6.0; // lots of high peaks in the tutorial data. 6.0 is not a normal limit
          auto sites = mc.difference_map_peaks(imol_diff_map, imol, n_rmsd);
          if (sites.size() > 20)
             status = 1;
          if (false)
             for (const auto &site : sites)
-               std::cout << "site " << site.feature_type << " " << site.button_label << " " << site.x << " " << site.y << " " << site.z
-                         << " height " << site.feature_value << std::endl;
+               std::cout << "site " << site.feature_type << " " << site.button_label << " "
+                         << site.x << " " << site.y << " " << site.z << " residue " << site.residue_spec
+                         << " height " << site.feature_value << " badness " << site.badness << std::endl;
       }
    }
    return status;
 }
 
+int test_pepflips_using_difference_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_diff_map)) {
+         float n_rmsd = 4.0;
+         std::vector<coot::molecule_t::interesting_place_t> flips = mc.pepflips_using_difference_map(imol, imol_diff_map, n_rmsd);
+         if (flips.size() > 2)
+            status = 1;
+         if (true)
+            for (const auto &flip : flips)
+               std::cout << "flip: " << flip.feature_type << " " << flip.button_label << " " << flip.x << " " << flip.y << " " << flip.z
+                         << " badness " << flip.badness << std::endl;
+      }
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -1038,8 +1060,9 @@ int main(int argc, char **argv) {
    }
 
 
-      status += run_test(test_difference_map_peaks,         "Didfference Map Peaks",               mc);
+      status += run_test(test_pepflips_using_difference_map,         "Pepflips from Difference Map",               mc);
 
+      status += run_test(test_difference_map_peaks,         "Difference Map Peaks",               mc);
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

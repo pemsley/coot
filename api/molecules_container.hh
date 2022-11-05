@@ -391,6 +391,9 @@ public:
 
    std::vector<coot::molecule_t::interesting_place_t> difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const;
 
+   std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
+   
+
    // -------------------------------- Gru Points ------------------------------------------
 
    // calling this adds to the gru_points history. Make this pairs when we add model scoring.

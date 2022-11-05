@@ -2476,3 +2476,41 @@ coot::molecule_t::new_positions_for_atoms_in_residues(const std::vector<moved_re
    return status;
 
 }
+
+// we might want to be looking at another molecule's model (e.g. in difference maps)
+coot::residue_spec_t
+coot::molecule_t::get_residue_closest_to(mmdb::Manager *mol, const clipper::Coord_orth &co) const {
+
+   residue_spec_t spec;
+
+   double d_best = 999999999999.0;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     double dx = at->x - co.x();
+                     double dy = at->y - co.y();
+                     double dz = at->z - co.z();
+                     double dd = dx * dx + dy * dy + dz * dz;
+                     if (dd < d_best) {
+                        d_best = dd;
+                        spec = residue_spec_t(residue_p);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return spec;
+}
