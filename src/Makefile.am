@@ -723,6 +723,8 @@ libcootsumo_la_SOURCES = \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	validation-graphs.cc	 \
+	validation-graph-widget.hh	 \
+	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
