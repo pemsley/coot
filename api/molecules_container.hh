@@ -54,6 +54,28 @@ class molecules_container_t {
    };
    std::vector<gru_points_t> gru_point_history; // map and model (model currently not used)
 
+   class updating_maps_info_f {
+   public:
+      bool maps_need_an_update;
+      int imol_model;
+      int imol_2fofc;
+      int imol_fofc;
+      int imol_with_data_info_attached;
+      updating_maps_info_f() {
+         maps_need_an_update = false;
+         imol_model = -1;
+         imol_2fofc = -1;
+         imol_fofc = -1;
+         imol_with_data_info_attached = -1;
+      }
+   };
+   updating_maps_info_f updating_maps_info;
+   void set_updating_maps_need_an_update(int imol); // if model imol was changed, let's update the map when
+                                                    // the next contouring mesh is requested.
+                                                    // Checks the above information before acting, of course.
+                                                    // No action if imol is the the model for updating maps.
+   void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
+
    // --------------------- refinement --------------------------
 
    // 201803004:
@@ -404,7 +426,7 @@ public:
 
    // reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
    // so, update your contour lines meshes after calling this function.
-   int connect_updating_maps(int imol_model, int imol_map_2fofc, int imol_map_fofc);
+   int connect_updating_maps(int imol_model, int imol_with_data_info_attached, int imol_map_2fofc, int imol_map_fofc);
    // call this before calling connect_updating_maps(). Perhaps this should be associated with the model?
    // (currently we use a map because that is what Coot used before).
    void associate_data_mtz_file_with_map(int imol, const std::string &data_mtz_file_name,
@@ -420,8 +442,9 @@ public:
 
    coot::util::sfcalc_genmap_stats_t
    sfcalc_genmaps_using_bulk_solvent(int imol_model,
-                                     int imol_map_with_data_attached,
-                                     int imol_updating_difference_map);
+                                     int imol_2fofc_map,
+                                     int imol_updating_difference_map,
+                                     int imol_map_with_data_attached);
 
    // -------------------------------- Go To Blob ---------------------------------------
 

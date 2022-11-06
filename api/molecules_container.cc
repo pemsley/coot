@@ -67,14 +67,45 @@ molecules_container_t::get_molecule_name(int imol) const {
 
 }
 
-
-
 void
 molecules_container_t::display_molecule_names_table() const {
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
       std::cout << imol << " " << std::setw(40) << molecules[imol].get_name() << std::endl;
    }
+}
+
+void
+molecules_container_t::update_updating_maps(int imol) {
+
+   // should I return the stats?
+
+   if (updating_maps_info.imol_model == imol) {
+      if (updating_maps_info.maps_need_an_update) {
+         if (is_valid_model_molecule(imol)) {
+            if (is_valid_map_molecule(updating_maps_info.imol_2fofc)) {
+               if (is_valid_map_molecule(updating_maps_info.imol_fofc)) {
+                  coot::util::sfcalc_genmap_stats_t stats =
+                     sfcalc_genmaps_using_bulk_solvent(imol,
+                                                       updating_maps_info.imol_2fofc,
+                                                       updating_maps_info.imol_fofc,
+                                                       updating_maps_info.imol_with_data_info_attached);
+                  updating_maps_info.maps_need_an_update = false;
+               }
+            }
+         }
+      } else {
+         // 20221106-PE add debugging for now
+         std::cout << "in updating_maps_info() maps_need_an_update is false" << std::endl;
+      }
+   }
+}
+
+void
+molecules_container_t::set_updating_maps_need_an_update(int imol) {
+
+   if (updating_maps_info.imol_model == imol)
+      updating_maps_info.maps_need_an_update = true;
 
 }
 
@@ -152,6 +183,7 @@ molecules_container_t::flip_peptide(int imol, const coot::atom_spec_t &as, const
    int result = 0;
    if (is_valid_model_molecule(imol)) {
       result = molecules[imol].flip_peptide(as, alt_conf);
+      set_updating_maps_need_an_update(imol);
    }
    return result;
 }
@@ -166,6 +198,7 @@ molecules_container_t::flip_peptide_using_cid(int imol, const std::string &atom_
       if (as.first) {
          const auto &atom_spec = as.second;
          result = molecules[imol].flip_peptide(atom_spec, alt_conf); // N check in here
+         set_updating_maps_need_an_update(imol);
       }
    }
    return result;
@@ -641,6 +674,7 @@ molecules_container_t::move_molecule_to_new_centre(int imol, float x, float y, f
    if (is_valid_model_molecule(imol)) {
       coot::Cartesian new_centre(x,y,z);
       status = molecules[imol].move_molecule_to_new_centre(new_centre);
+      set_updating_maps_need_an_update(imol); // weird thing to do usually
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -702,6 +736,10 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    try {
       if (is_valid_map_molecule(imol)) {
          clipper::Coord_orth position(position_x, position_y, position_z);
+
+         if (updating_maps_info.maps_need_an_update)
+            update_updating_maps(updating_maps_info.imol_model);
+
          mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
       }
    }
@@ -742,6 +780,7 @@ molecules_container_t::auto_fit_rotamer(int imol,
          std::cout << "debug:: mc::auto_fit_rotamer() calling the coot_molecule version with "
                    << chain_id << " " << res_no << std::endl;
          status = molecules[imol].auto_fit_rotamer(chain_id, res_no, ins_code, alt_conf, xmap, geom);
+         set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "debug:: mc::auto_fit_rotamer() not a valid map index " << imol_map << std::endl;
       }
@@ -761,6 +800,7 @@ molecules_container_t::delete_atom(int imol,
    if (is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
       status = molecules[imol].delete_atom(atom_spec);
+      set_updating_maps_need_an_update(imol);
    }
    return status;
 }
@@ -772,6 +812,7 @@ molecules_container_t::delete_atom_using_cid(int imol, const std::string &cid) {
    if (is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
       status = molecules[imol].delete_atom(atom_spec);
+      set_updating_maps_need_an_update(imol);
    }
    return status;
 }
@@ -786,6 +827,7 @@ molecules_container_t::delete_residue(int imol,
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
       status = molecules[imol].delete_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
    }
    return status;
 }
@@ -798,6 +840,7 @@ molecules_container_t::delete_residue_using_cid(int imol, const std::string &res
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, residue_cid);
       status = molecules[imol].delete_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
    }
    return status;
 }
@@ -810,6 +853,7 @@ molecules_container_t::delete_residue_atoms_using_cid(int imol, const std::strin
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t residue_spec(atom_spec);
       status = molecules[imol].delete_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
    }
    return status;
 }
@@ -819,6 +863,13 @@ molecules_container_t::delete_residue_atoms_with_alt_conf(int imol, const std::s
                                                           int res_no, const std::string &ins_code,
                                                           const std::string &alt_conf) {
   int status = 0;
+  if (is_valid_model_molecule(imol)) {
+     std::string atom_cid = std::string("//") + chain_id + std::string("/") + std::to_string(res_no) + ins_code;
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
+      coot::residue_spec_t residue_spec(atom_spec);
+      status = molecules[imol].delete_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
+  }
   return status;
 }
 
@@ -828,8 +879,10 @@ int
 molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) {
 
    int status = 0;
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       status = molecules[imol].delete_chain_using_atom_cid(cid);
+      set_updating_maps_need_an_update(imol);
+   }
    return status;
 }
 
@@ -918,6 +971,7 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
                                                                                        geom, xmap);
          status  = m.first;
          message = m.second;
+         set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
       }
@@ -946,21 +1000,29 @@ molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const s
 // reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
 // so, update your contour lines meshes after calling this function.
 int
-molecules_container_t::connect_updating_maps(int imol_model, int imol_map_2fofc, int imol_map_fofc) {
+molecules_container_t::connect_updating_maps(int imol_model, int imol_with_data_info_attached, int imol_map_2fofc, int imol_map_fofc) {
+
    int status = 0;
+
+   gru_point_history.clear();
+   updating_maps_info.imol_model = imol_model;
+   updating_maps_info.imol_2fofc = imol_map_2fofc;
+   updating_maps_info.imol_fofc  = imol_map_fofc;
+   updating_maps_info.imol_with_data_info_attached = imol_with_data_info_attached;
 
    return status;
 }
 
 void
-molecules_container_t::associate_data_mtz_file_with_map(int imol_map, const std::string &data_mtz_file_name,
+molecules_container_t::associate_data_mtz_file_with_map(int imol, const std::string &data_mtz_file_name,
                                                         const std::string &f_col, const std::string &sigf_col,
                                                         const std::string &free_r_col) {
-   if (is_valid_map_molecule(imol_map)) {
+
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
       // 20221018-PE if free_r_col is not valid then Coot will (currently) crash on the structure factor calculation
-      molecules[imol_map].associate_data_mtz_file_with_map(data_mtz_file_name, f_col, sigf_col, free_r_col);
+      molecules[imol].associate_data_mtz_file_with_map(data_mtz_file_name, f_col, sigf_col, free_r_col);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid molecule " << imol << std::endl;
    }
 }
 
@@ -1025,7 +1087,8 @@ molecules_container_t::sfcalc_genmap(int imol_model,
 coot::util::sfcalc_genmap_stats_t
 molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                          int imol_map_2fofc,  // this map should have the data attached.
-                                                         int imol_map_fofc) {
+                                                         int imol_map_fofc,
+                                                         int imol_with_data_info_attached) {
    coot::util::sfcalc_genmap_stats_t stats;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_2fofc)) {
@@ -1034,7 +1097,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                try {
                   if (! on_going_updating_map_lock) {
                      on_going_updating_map_lock = true;
-                     molecules[imol_map_2fofc].fill_fobs_sigfobs();
+                     molecules[imol_with_data_info_attached].fill_fobs_sigfobs();
 
                      // 20210815-PE used to be const reference (get_original_fobs_sigfobs() function changed too)
                      // const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
@@ -1042,8 +1105,8 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                      // now the full object (40us for RNAse test).
                      // 20210815-PE OK, the const reference was not the problem. But we will leave it as it is now, for now.
                      //
-                     clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_map_2fofc].get_original_fobs_sigfobs();
-                     clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_map_2fofc].get_original_rfree_flags();
+                     clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_with_data_info_attached].get_original_fobs_sigfobs();
+                     clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_with_data_info_attached].get_original_rfree_flags();
 
                      if (fobs_data_p && free_flag_p) {
 
@@ -1237,6 +1300,7 @@ molecules_container_t::refine_residues(int imol, const std::string &chain_id, in
       std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(residue_spec, mode);
       if (! rv.empty()) {
          status = refine_direct(imol, rv, alt_conf, mol);
+         set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
       }
@@ -2136,6 +2200,7 @@ molecules_container_t::mutate(int imol, const std::string &cid, const std::strin
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
       coot::residue_spec_t residue_spec(atom_spec);
       status = molecules[imol].mutate(residue_spec, new_residue_type);
+      set_updating_maps_need_an_update(imol);
       // qstd::cout << "mutate status " << status << std::endl;
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
@@ -2172,6 +2237,7 @@ molecules_container_t::side_chain_180(int imol, const std::string &atom_cid) {
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t residue_spec(atom_spec);
       status = molecules[imol].side_chain_180(residue_spec, atom_spec.alt_conf, &geom);
+      set_updating_maps_need_an_update(imol); // won't change much
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2189,6 +2255,7 @@ molecules_container_t::jed_flip(int imol, const std::string &atom_cid, bool inve
       std::string atom_name = atom_spec.atom_name;
       std::string alt_conf = "";
       message = molecules[imol].jed_flip(res_spec, atom_name, alt_conf, invert_selection, &geom);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2223,7 +2290,8 @@ molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, 
    // 20221025-PE Fill me later
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
-      // molecules[imol].delete_side_chain(res_spec);
+      molecules[imol].delete_side_chain(res_spec);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2239,6 +2307,8 @@ molecules_container_t::fill_side_chain(int imol, const std::string &chain_id, in
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
       // molecules[imol].fill_side_chain(res_spec);
+      std::cout << "------------- fill fill_side_chain() here!" << std::endl;
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2301,6 +2371,7 @@ molecules_container_t::apply_transformation_to_atom_selection(int imol, const st
       clipper::Mat33<double> m(m00, m01, m02, m10, m11, m12, m20, m21, m22);
       clipper::RTop_orth rtop_orth(m, t);
       status = molecules[imol].apply_transformation_to_atom_selection(atoms_selection_cid, n_atoms, rotation_centre, rtop_orth);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2315,6 +2386,7 @@ molecules_container_t::new_positions_for_residue_atoms(int imol, const std::stri
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].new_positions_for_residue_atoms(residue_cid, moved_atoms);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2327,6 +2399,7 @@ molecules_container_t::new_positions_for_atoms_in_residues(int imol, const std::
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].new_positions_for_atoms_in_residues(moved_residues);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

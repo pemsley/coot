@@ -81,6 +81,7 @@ molecules_container_t::eigen_flip_ligand(int imol, const std::string &chain_id, 
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
       coot::minimol::molecule mm = molecules[imol].eigen_flip_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -94,6 +95,7 @@ molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_cid_to_residue_spec(imol, residue_cid);
       coot::minimol::molecule mm = molecules[imol].eigen_flip_residue(residue_spec);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

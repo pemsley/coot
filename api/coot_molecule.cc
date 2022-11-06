@@ -1443,6 +1443,45 @@ coot::molecule_t::auto_fit_rotamer(const std::string &chain_id, int res_no, cons
    return status;
 }
 
+int
+coot::molecule_t::delete_side_chain(const residue_spec_t &residue_spec) {
+
+   int status = 0;
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (residue_p) {
+
+      bool was_deleted = false;
+      // do we include CB? I forget.
+      std::vector<std::string> main_chain_atoms_list = { " C  ", " N  ", " H  ", " O  ", " CA ",  " HA ", " CB " };
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string atom_name(at->GetAtomName());
+         if (std::find(main_chain_atoms_list.begin(), main_chain_atoms_list.end(), atom_name) == main_chain_atoms_list.end()) {
+            delete at;
+            was_deleted = true;
+         }
+      }
+
+      if (was_deleted) {
+         status = true;
+         atom_sel.mol->FinishStructEdit();
+         atom_sel = make_asc(atom_sel.mol);
+         // make_bonds_type_checked(__FUNCTION__);
+         // have_unsaved_changes_flag = 1;
+         save_info.new_modification();
+         // unlikely to be necessary:
+         trim_atom_label_table();
+
+         save_info.new_modification();
+
+      }
+   }
+   return status;
+}
+
 
 int
 coot::molecule_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs) {

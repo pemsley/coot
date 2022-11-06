@@ -380,24 +380,26 @@ namespace coot {
                                             const coot::protein_geometry &pg);
 
       // return the number of deleted atoms
-      int delete_atoms(const std::vector<coot::atom_spec_t> &atoms);
-      int delete_atom(coot::atom_spec_t &atom_spec);
-      int delete_residue(coot::residue_spec_t &residue_spec);
+      int delete_atoms(const std::vector<atom_spec_t> &atoms);
+      int delete_atom(atom_spec_t &atom_spec);
+      int delete_residue(residue_spec_t &residue_spec);
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
       int delete_chain_using_atom_cid(const std::string &cid);
 
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
-                                                                const coot::protein_geometry &geom,
+                                                                const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap);
 
-      int mutate(const coot::residue_spec_t &spec, const std::string &new_res_type);
+      int mutate(const residue_spec_t &spec, const std::string &new_res_type);
 
-      int side_chain_180(const coot::residue_spec_t &residue_spec, const std::string &alt_conf,
+      int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,
                          coot::protein_geometry *geom_p); // sub functions are non-const
 
+      int delete_side_chain(const residue_spec_t &residue_spec);
+
       std::string jed_flip(coot::residue_spec_t &spec, const std::string &atom_name, const std::string &alt_conf,
-                           bool invert_selection, coot::protein_geometry *geom);
+                           bool invert_selection, protein_geometry *geom);
 
       // move this up
       std::string jed_flip_internal(coot::atom_tree_t &tree,
@@ -407,7 +409,7 @@ namespace coot {
 
       // return a non-null string on a problem
       std::string jed_flip_internal(coot::atom_tree_t &tree,
-                                    const coot::dict_torsion_restraint_t &torsion,
+                                    const dict_torsion_restraint_t &torsion,
                                     const std::string &atom_name,
                                     bool invert_selection);
 

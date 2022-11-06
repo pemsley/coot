@@ -132,7 +132,7 @@ int test_updating_maps(molecules_container_t &mc) {
 
    // set to the clipper map, overwriting the refmac map.
    //
-   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map);
+   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
    // After you have changed maps the firs time, add a starting point for the gru score:
    mc.calculate_new_gru_points(imol_diff_map);
 
@@ -149,7 +149,7 @@ int test_updating_maps(molecules_container_t &mc) {
    }
 
    // now update the maps
-   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map);
+   mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
    float new_gru_points = mc.calculate_new_gru_points(imol_diff_map);
    float gpt = mc.gru_points_total();
    std::cout << "###### GruPoints gained: " << new_gru_points << " gru points total " << gpt << std::endl;
@@ -887,12 +887,13 @@ int test_eigen_flip(molecules_container_t &mc) {
       double d5 = std::sqrt(dd_5);
 
       std::cout << "test_eigen_flip ds " << d1 << " " << d2 << " " << d3 << " " << d4 << " " << d5 << std::endl;
-      if (d1 > 4.0)
-         if (d2 > 4.0)
-            if (d3 > 4.0)
-               if (d4 > 4.0)
+      if (d1 > 3.0)
+         if (d2 > 3.0)
+            if (d3 > 3.0)
+               if (d4 > 3.0)
                   if (d5 < 0.01)
                      status = true;
+      mc.close_molecule(imol);
    }
    return status;
 }
@@ -923,6 +924,7 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
       int imol = mc.get_monomer("ATP");
       if (mc.is_valid_model_molecule(imol))
          status = 1;
+      mc.close_molecule(imol);
 
    } else {
 
@@ -974,6 +976,8 @@ int test_pepflips_using_difference_map(molecules_container_t &mc) {
             for (const auto &flip : flips)
                std::cout << "flip: " << flip.feature_type << " " << flip.button_label << " " << flip.x << " " << flip.y << " " << flip.z
                          << " badness " << flip.badness << std::endl;
+         mc.close_molecule(imol);
+         mc.close_molecule(imol_diff_map);
       }
    }
    return status;
@@ -993,6 +997,7 @@ int test_template(molecules_container_t &mc) {
       double d = std::sqrt(dd);
       std::cout << "test_ d " << d << std::endl;
    }
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -1054,15 +1059,15 @@ int main(int argc, char **argv) {
       status += run_test(test_move_molecule_here,    "move_molecule_here",    mc);
       status += run_test(test_jed_flip,             "JED Flip",               mc);
       status += run_test(test_sequence_generator, "Make a sequence string",   mc);
-      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
       status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
+      status += run_test(test_pepflips_using_difference_map,         "Pepflips from Difference Map",               mc);
+      status += run_test(test_difference_map_peaks, "Difference Map Peaks",   mc);
    }
 
 
-      status += run_test(test_pepflips_using_difference_map,         "Pepflips from Difference Map",               mc);
 
-      status += run_test(test_difference_map_peaks,         "Difference Map Peaks",               mc);
+      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
