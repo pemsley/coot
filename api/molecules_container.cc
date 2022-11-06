@@ -1010,6 +1010,9 @@ molecules_container_t::connect_updating_maps(int imol_model, int imol_with_data_
    updating_maps_info.imol_fofc  = imol_map_fofc;
    updating_maps_info.imol_with_data_info_attached = imol_with_data_info_attached;
 
+   // Let's force a sfcalc_genmap here.
+   update_updating_maps(imol_model);
+
    return status;
 }
 
