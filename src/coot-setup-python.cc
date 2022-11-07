@@ -145,10 +145,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string pydirectory = get_pythondir();
 
-   if (false) {
-      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
-      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
-   }
+   g_debug("in setup_python()    pydirectory is %s ",pydirectory.c_str());
+   g_debug("in setup_python() pkgpydirectory is %s ",pkgpydirectory.c_str());
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
