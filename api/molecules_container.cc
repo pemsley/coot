@@ -239,11 +239,12 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
 
 int
 molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
+                                                   int imol_enc,
                                                    bool idealised_flag) {
 
    int istat = -1; // unfound molecule
 
-   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   // int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol_enc, idealised_flag);
    if (mol) {
       int imol = molecules.size();
@@ -266,14 +267,15 @@ molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
 int
 molecules_container_t::get_monomer(const std::string &comp_id) {
 
-   int imol = get_monomer_from_dictionary(comp_id, true); // idealized
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   int imol = get_monomer_from_dictionary(comp_id, imol_enc, true); // idealized
    return imol;
 }
 
 int
-molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, float x, float y, float z) {
+molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, int imol_enc, float x, float y, float z) {
 
-   int imol = get_monomer_from_dictionary(comp_id, true);
+   int imol = get_monomer_from_dictionary(comp_id, imol_enc, true);
    int status = move_molecule_to_new_centre(imol, x, y, z);
    return status;
 }

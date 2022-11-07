@@ -303,10 +303,10 @@ public:
    int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
    //! get monomer
    int get_monomer(const std::string &monomer_name);
-   //! get monomer
-   int get_monomer_from_dictionary(const std::string &comp_id, bool idealised_flag);
-   //! get monomer and place it at the given position
-   int get_monomer_and_position_at(const std::string &comp_id, float x, float y, float z);
+   //! get monomer for a particular molecule - use -999999 if no molecule-specific dictionary is needed
+   int get_monomer_from_dictionary(const std::string &comp_id, int imol, bool idealised_flag);
+   //! get monomer and place it at the given position for a particular molecule - use -999999 if no molecule-specific dictionary is needed
+   int get_monomer_and_position_at(const std::string &comp_id, int imol, float x, float y, float z);
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
