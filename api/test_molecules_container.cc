@@ -836,7 +836,7 @@ int test_sequence_generator(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   std::vector<std::string> chain_ids = mc.chains_in_model(imol);
+   std::vector<std::string> chain_ids = mc.get_chains_in_model(imol);
    for (const auto &chain_id : chain_ids) {
       std::vector<std::pair<coot::residue_spec_t, std::string> > seq = mc.get_single_letter_codes_for_chain(imol, chain_id);
       std::string sp; // accumlate the sequence of the protein chain.

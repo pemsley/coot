@@ -904,16 +904,16 @@ molecules_container_t::delete_using_cid(int imol, const std::string &cid, const 
    return status;
 }
 
+// Old API
+// int
+// molecules_container_t::load_dictionary_file(const std::string &monomer_cif_file_name) {
 
-int
-molecules_container_t::load_dictionary_file(const std::string &monomer_cif_file_name) {
+//    int status = 0;
 
-   int status = 0;
-
-   int read_number = 44;
-   geom.init_refmac_mon_lib(monomer_cif_file_name, read_number);
-   return status;
-}
+//    int read_number = 44;
+//    geom.init_refmac_mon_lib(monomer_cif_file_name, read_number);
+//    return status;
+// }
 
 std::vector<std::string>
 molecules_container_t::non_standard_residue_types_in_model(int imol) const {
@@ -2320,7 +2320,7 @@ molecules_container_t::fill_side_chain(int imol, const std::string &chain_id, in
 
 
 std::vector<std::string>
-molecules_container_t::chains_in_model(int imol) const {
+molecules_container_t::get_chains_in_model(int imol) const {
 
    std::vector<std::string> v;
    if (is_valid_model_molecule(imol)) {
