@@ -165,25 +165,6 @@ void probe_mol_selector_activate (GMenuItem     *menuitem,
     // 20211002-PE goodbye probe stuff
 }
 
-
-// is the probe executable available?
-// 1 for yes, 0 for no.
-//
-int probe_available_p() {
-   int r = graphics_info_t::probe_available;
-   return r;
-}
-
-#ifdef USE_PYTHON
-// is the probe executable available?
-// 1 for yes, 0 for no.
-//
-int probe_available_p_py() {
-   int r = graphics_info_t::probe_available;
-   return r;
-}
-#endif // USE_PYTHON
-
 void gln_and_asn_b_factor_outlier_mol_selector_activate (GMenuItem     *menuitem,
 							 gpointer         user_data) {
 

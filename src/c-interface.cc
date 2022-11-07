@@ -9438,3 +9438,20 @@ void load_tutorial_model_and_data() {
 
 }
 
+// is the probe executable available?
+// 1 for yes, 0 for no.
+//
+int probe_available_p() {
+   int r = graphics_info_t::probe_available;
+   return r;
+}
+
+#ifdef USE_PYTHON
+// is the probe executable available?
+// 1 for yes, 0 for no.
+//
+int probe_available_p_py() {
+   int r = graphics_info_t::probe_available;
+   return r;
+}
+#endif // USE_PYTHON
