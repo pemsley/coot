@@ -217,8 +217,8 @@ def get_eds_pdb_and_mtz(id):
         pdb_file_name = os.path.join(dir_name, "pdb" + down_code + ".ent")
         mtz_file_name = os.path.join(dir_name, down_code + "_map.mtz")
 
-        print "::::::::: pdb_file_name:", pdb_file_name
-        print "::::::::: mtz_file_name:", mtz_file_name
+        print( "::::::::: pdb_file_name:", pdb_file_name)
+        print( "::::::::: mtz_file_name:", mtz_file_name)
         if not os.path.isfile(pdb_file_name):
             return False
         else:
@@ -365,18 +365,15 @@ def get_pdb_redo(text):
             print("DEBUG:: getting", url_pdb)
             status = net_get_url(url_pdb, pdb_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" %(url_pdb, pdb_file_name,
-                                                       status)
+                print("Failed to get %s %s status %s" %(url_pdb, pdb_file_name, status))
             print("DEBUG:: getting", url_mtz)
             status = net_get_url(url_mtz, mtz_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" %(url_mtz, mtz_file_name,
-                                                       status)
+                print("Failed to get %s %s status %s" %(url_mtz, mtz_file_name, status))
             print("DEBUG:: getting", url_py)
             status = net_get_url(url_py, py_file_name)
             if not status == 0:
-                print "Failed to get %s %s status %s" %(url_py, py_file_name,
-                                                       status)
+                print("Failed to get %s %s status %s" %(url_py, py_file_name, status))
 
             status_imol = read_pdb(pdb_file_name)
             if status_imol < 0:
