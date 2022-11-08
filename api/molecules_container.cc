@@ -218,6 +218,9 @@ molecules_container_t::read_pdb(const std::string &file_name) {
       // m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
       molecules.push_back(m);
       status = imol;
+   } else {
+      std::cout << "debug:: in read_pdb() asc.read_success was " << asc.read_success
+                << " for " << file_name << std::endl;
    }
    return status;
 }
