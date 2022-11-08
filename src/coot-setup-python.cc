@@ -102,6 +102,7 @@ void setup_python_basic(int argc, char **argv) {
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
 
    // int err = PyRun_SimpleString("import coot");
 
