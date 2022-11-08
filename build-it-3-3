@@ -985,8 +985,13 @@ fi
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
 
-echo INFO:: redirecting std output to $LOGS/build.log
-exec > $LOGS/build.log
+if [ -n "$TEE_STDOUT" ]; then
+   echo INFO:: std output will be both printed here and written to $LOGS/build.log
+   exec > >(tee $LOGS/build.log)
+else
+   echo INFO:: redirecting std output to $LOGS/build.log
+   exec > $LOGS/build.log
+fi
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
 if [ $HOST = batman ] ; then
@@ -1702,6 +1707,11 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       if [ $(uname) != Darwin ] ; then
          # 20220228-PE also -L$install_top_dir/lib64
          python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
+         python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
+         python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
+         python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
       else
          pv=$(sw_vers -productVersion)
          # e.g. 10.10
@@ -2206,14 +2216,17 @@ else
 fi
 
 if [ -e $install_top_dir/bin/python3 ] ; then
-   if $install_top_dir/bin/python3 -V ; then
+   if ${install_top_dir}/bin/python3 -V ; then
       # test for ctypes - was it installed correctly?
-      if $install_top_dir/bin/python3 -c 'import ctypes' ; then
+      ld_lib_path_backup=$LD_LIBRARY_PATH
+      unset LD_LIBRARY_PATH
+      if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
          echo we have python3 with working ctypes
       else
          echo python3 ctypes failure
          build_python=1
       fi
+      export LD_LIBRARY_PATH=$ld_lib_path_backup
    else
       build_python=1
    fi
