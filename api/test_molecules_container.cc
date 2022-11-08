@@ -922,9 +922,21 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
 
       mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
       int imol = mc.get_monomer("ATP");
-      if (mc.is_valid_model_molecule(imol))
-         status = 1;
-      mc.close_molecule(imol);
+      if (mc.is_valid_model_molecule(imol)) {
+         mc.close_molecule(imol);
+
+         imol = mc.get_monomer_and_position_at("ATP", -999999, 5, 6, 7);
+         std::cout << "debug:: in test_import_cif_dictionary() imol in centre test: " << imol << std::endl;
+         coot::Cartesian ligand_centre = mc.get_molecule_centre(imol);
+         coot::Cartesian expected(5,6,7);
+
+         double dd = coot::Cartesian::lengthsq(ligand_centre, expected);
+         double d = std::sqrt(dd);
+         std::cout << "debug:: in test_import_cif_dictionary() ligand_centre is " << ligand_centre
+                   << " d is " << d << std::endl;
+         if (d < 0.001)
+            status = 1;
+      }
 
    } else {
 
@@ -1060,14 +1072,14 @@ int main(int argc, char **argv) {
       status += run_test(test_jed_flip,             "JED Flip",               mc);
       status += run_test(test_sequence_generator, "Make a sequence string",   mc);
       status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
       status += run_test(test_pepflips_using_difference_map,         "Pepflips from Difference Map",               mc);
       status += run_test(test_difference_map_peaks, "Difference Map Peaks",   mc);
+      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
    }
 
 
 
-      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

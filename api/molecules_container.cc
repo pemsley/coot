@@ -276,8 +276,10 @@ int
 molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, int imol_enc, float x, float y, float z) {
 
    int imol = get_monomer_from_dictionary(comp_id, imol_enc, true);
-   int status = move_molecule_to_new_centre(imol, x, y, z);
-   return status;
+   if (is_valid_model_molecule(imol)) {
+      move_molecule_to_new_centre(imol, x, y, z);
+   }
+   return imol;
 }
 
 
