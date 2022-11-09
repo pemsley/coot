@@ -995,6 +995,58 @@ int test_pepflips_using_difference_map(molecules_container_t &mc) {
    return status;
 }
 
+int test_dictionary_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("pdb2sar.ent"));
+   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_2 = mc.get_monomer("ATP");
+   int imol_3 = mc.read_pdb(reference_data("pdb2sar.ent"));
+
+   std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+
+   glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
+
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode);
+
+   unsigned int n_ligand_vertices = 0;
+   for (const auto &vert : mesh.vertices) {
+      double d = glm::distance(vert.pos, atom_ligand_C4_position);
+      if (d < 1.0)
+         n_ligand_vertices++;
+   }
+   std::cout << "debug:: test_dictionary_bonds n_ligand_vertices: " << n_ligand_vertices << std::endl;
+   if (n_ligand_vertices > 0)
+      status = 1;
+
+   return status;
+}
+
+int test_merge_molecules(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_2 = mc.get_monomer("ATP");
+   int imol_3 = mc.get_monomer("3GP");
+
+   std::vector<std::string> chains_ids_pre = mc.get_chains_in_model(imol_1);
+   std::string ls = std::to_string(imol_2) + std::string(":") + std::to_string(imol_3);
+   mc.merge_molecules(imol_1, ls);
+   std::vector<std::string> chains_ids_post = mc.get_chains_in_model(imol_1);
+   if (chains_ids_post.size() == 3)
+      status = 1;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1080,6 +1132,8 @@ int main(int argc, char **argv) {
 
 
       status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
+      status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
+      status += run_test(test_merge_molecules, "merge molecules", mc);
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

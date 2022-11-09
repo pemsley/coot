@@ -458,6 +458,12 @@ public:
    //! update the positions of the atoms in the residues
    int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::molecule_t::moved_residue_t> &moved_residues);
 
+   //! Merge molecules
+   //!
+   //! list_of_other_molecules is a colon-separated list of molecules, e.g. "2:3:4"
+   //! @return the return value is not useful at the moment.
+   int merge_molecules(int imol_target, const std::string &list_of_other_molecules);
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 
