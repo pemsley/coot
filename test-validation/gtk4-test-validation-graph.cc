@@ -64,7 +64,8 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
          double residue_density_score =
             coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
-         std::string l = res_spec.label();
+         //std::string l = res_spec.label();
+         std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
          std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
          const std::string &chain_id = res_spec.chain_id;
          int this_resno = res_spec.res_no;

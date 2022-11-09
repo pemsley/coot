@@ -6561,22 +6561,26 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
+                  <object class="GtkScrolledWindow">
                     <child>
-                      <object class="GtkLabel">
-                        <property name="label">Model: </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="validation_graph_model_combobox">
-                        <property name="hexpand">True</property>
-                        <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" />
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkCellRendererText"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
+                          <object class="GtkLabel">
+                            <property name="label">Model: </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkComboBox" id="validation_graph_model_combobox">
+                            <property name="hexpand">True</property>
+                            <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" />
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
