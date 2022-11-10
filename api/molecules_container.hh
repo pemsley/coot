@@ -326,6 +326,8 @@ public:
    mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
    //! @returns either the specified residue or null if not found - don't use this in emscript
    mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
+   //! get the atom position - don't use this in emscript
+   std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 
    //! @return vector of chain-id for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;

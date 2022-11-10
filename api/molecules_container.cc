@@ -444,7 +444,7 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
             int this_resno = res_spec.res_no;
             coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
             coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
-            r.add_residue_valiation_informtion(rvi, chain_id);
+            r.add_residue_validation_informtion(rvi, chain_id);
          }
          atom_sel.mol->DeleteSelection(selHnd);
       }
@@ -687,6 +687,21 @@ molecules_container_t::move_molecule_to_new_centre(int imol, float x, float y, f
    }
    return status;
 }
+
+//! get the atom position - don't use this in emscript
+std::pair<bool, coot::Cartesian>
+molecules_container_t::get_atom_position(int imol, coot::atom_spec_t &atom_spec) {
+
+   mmdb::Atom *at = get_atom(imol, atom_spec);
+   if (at) {
+      return std::pair<bool, coot::Cartesian> (true, coot::Cartesian(at->x, at->y, at->z));
+   } else {
+      return std::pair<bool, coot::Cartesian> (false, coot::Cartesian(0,0,0));
+   }
+
+}
+
+
 
 coot::Cartesian
 molecules_container_t::get_molecule_centre(int imol) const {
@@ -2374,18 +2389,18 @@ molecules_container_t::apply_transformation_to_atom_selection(int imol, const st
                                                               float c0, float c1, float c2, // the centre of the rotation
                                                               float t0, float t1, float t2) { // translation
 
-   int status = 0;
+   int n_atoms_moved = 0;
    if (is_valid_model_molecule(imol)) {
       clipper::Coord_orth rotation_centre(c0, c1, c2);
       clipper::Coord_orth t(t0, t1, t2);
       clipper::Mat33<double> m(m00, m01, m02, m10, m11, m12, m20, m21, m22);
       clipper::RTop_orth rtop_orth(m, t);
-      status = molecules[imol].apply_transformation_to_atom_selection(atoms_selection_cid, n_atoms, rotation_centre, rtop_orth);
+      n_atoms_moved = molecules[imol].apply_transformation_to_atom_selection(atoms_selection_cid, n_atoms, rotation_centre, rtop_orth);
       set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   return n_atoms_moved;
 
 }
 

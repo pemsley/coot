@@ -2428,7 +2428,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
       return clipper::Coord_orth(at->x, at->y, at->z);
    };
 
-   int status = 0;
+   int n_atoms_moved = 0;
 
    if (is_valid_model_molecule()) {
 
@@ -2439,6 +2439,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
       atom_sel.mol->GetSelIndex(selHnd, selection_atoms, n_selection_atoms);
       // does the number of atoms that we selected actually match the number of atoms that the caller thinks that
       // we should have selected?
+
       if (selection_atoms) {
          if (n_selection_atoms == n_atoms) {
             for (int iat=0; iat<n_selection_atoms; iat++) {
@@ -2451,6 +2452,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
                   at->x = p3.x();
                   at->y = p3.y();
                   at->z = p3.z();
+                  n_atoms_moved++;
                }
             }
          } else {
@@ -2460,7 +2462,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
       }
       atom_sel.mol->DeleteSelection(selHnd);
    }
-   return status;
+   return n_atoms_moved;
 }
 
 
