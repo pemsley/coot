@@ -444,7 +444,7 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
             int this_resno = res_spec.res_no;
             coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
             coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
-            r.add_residue_validation_informtion(rvi, chain_id);
+            r.add_residue_validation_information(rvi, chain_id);
          }
          atom_sel.mol->DeleteSelection(selHnd);
       }
