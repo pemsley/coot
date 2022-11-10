@@ -32,7 +32,7 @@ namespace coot {
          cviv.push_back(cvi);
          return cviv.size() -1;
       }
-      void add_residue_valiation_informtion(const residue_validation_information_t &rvi, const std::string &chain_id) {
+      void add_residue_validation_information(const residue_validation_information_t &rvi, const std::string &chain_id) {
          unsigned int idx = get_index_for_chain(chain_id);
          cviv[idx].add_residue_valiation_informtion(rvi);
       }
