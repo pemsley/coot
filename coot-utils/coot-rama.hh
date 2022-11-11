@@ -42,7 +42,6 @@ namespace coot {
          double phi_;
          double psi_;
          std::string lab;
-         std::string ins_code;
          //    enum residue_type {ALA,GLY,SER,THR,ASP,GLU,ASN,GLN,
          //                       LEU,ILE,PHE,TYR,HIS,CYS,MET,TRP,
          //                       ARG,LYS,PRO,VAL,CYH};
@@ -58,7 +57,7 @@ namespace coot {
                    int resno,
                    const std::string &ins_code_in,
                    const std::string &chain_id_in) :
-            lab(residue_label), ins_code(ins_code_in), residue_name_(res_name), chain_id(chain_id_in) {
+            lab(residue_label), residue_name_(res_name), chain_id(chain_id_in), ins_code(ins_code_in) {
             phi_ = phi_in;
             psi_ = psi_in;
             residue_number = resno;
@@ -72,7 +71,7 @@ namespace coot {
                    const std::string &ins_code_in,
                    const std::string &chain_id_in,
                    bool is_pre_pro) :
-            lab(residue_label), ins_code(ins_code_in), residue_name_(res_name), chain_id(chain_id_in) {
+            lab(residue_label), residue_name_(res_name), chain_id(chain_id_in), ins_code(ins_code_in) {
             phi_ = a;
             psi_ = b;
             residue_number = resno;
@@ -95,8 +94,10 @@ namespace coot {
          double psi() const {return psi_;}
          std::string label() const {return lab;}
          std::string residue_name() const { return residue_name_; }
+         // why not use a residue spec here?
          std::string chain_id;
          int residue_number;  // rename this res_no
+         std::string ins_code;
          bool is_filled() const {
             return is_filled_;
          }
