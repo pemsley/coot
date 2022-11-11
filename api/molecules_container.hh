@@ -499,7 +499,13 @@ public:
    //! \name Coordinates and Map Validation
 
    //! density fit validation information
-   coot::validation_information_t density_fit_analysis(int imol_model, int imol_map);
+   coot::validation_information_t density_fit_analysis(int imol_model, int imol_map) const;
+
+   //! density correlation validation information
+   coot::validation_information_t density_correlation_analysis(int imol_model, int imol_map) const;
+
+   //! rotamer validation information
+   coot::validation_information_t rotamer_analysis(int imol_model) const;
 
    //! get interesting places (does not work yet)
    std::vector<coot::molecule_t::interesting_place_t> get_interesting_places(int imol, const std::string &mode) const;

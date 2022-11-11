@@ -1158,19 +1158,72 @@ int test_merge_molecules(molecules_container_t &mc) {
    return status;
 }
 
+int test_density_correlation_validation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, true);
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         unsigned int n_res = 0;
+         coot::validation_information_t dca = mc.density_correlation_analysis(imol, imol_map);
+         for (const auto &chain : dca.cviv) {
+            for (const auto &res : chain.rviv) {
+               if (res.function_value > 0.5)
+                  n_res++;
+            }
+         }
+         std::cout << "debug:: in test_density_correlation_validation n_res: " << n_res << std::endl;
+         if (n_res > 400)
+            status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+int test_rotamer_validation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_res = 0;
+      coot::validation_information_t dca = mc.rotamer_analysis(imol);
+      for (const auto &chain : dca.cviv) {
+         for (const auto &res : chain.rviv) {
+            if (res.function_value > 0.5)
+               n_res++;
+         }
+      }
+      std::cout << "debug:: in test_rotamer_validation n_res: " << n_res << std::endl;
+      if (n_res > 150)
+         status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
-   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
-   if (at_1) {
-      coot::Cartesian atom_pos = atom_to_cartesian(at_1);
-      double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
-      double d = std::sqrt(dd);
-      std::cout << "test_ d " << d << std::endl;
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+         double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
+         double d = std::sqrt(dd);
+         std::cout << "test_ d " << d << std::endl;
+      }
    }
    mc.close_molecule(imol);
    return status;
@@ -1242,15 +1295,19 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
       status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
+      status += run_test(test_merge_molecules,     "merge molecules", mc);
    }
 
    // 20221110-PE currently fails
-
+   //
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
 
-      status += run_test(test_merge_molecules, "merge molecules", mc);
+   status += run_test(test_density_correlation_validation, "density correlation validation", mc);
+   status += run_test(test_rotamer_validation, "rotamer validation", mc);
 
-      // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+   // Note to self:
+   //
+   // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

@@ -405,7 +405,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
 
 coot::validation_information_t
-molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
+molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const {
 
    coot::validation_information_t r;
    if (is_valid_model_molecule(imol_model)) {
@@ -451,6 +451,123 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) {
    }
    return r;
 }
+
+//! density correlation validation information
+coot::validation_information_t
+molecules_container_t::density_correlation_analysis(int imol_model, int imol_map) const {
+
+   coot::validation_information_t r;
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = molecules.at(imol_map).xmap;
+
+         unsigned short int atom_mask_mode = 0;
+         float atom_radius = 2.0;
+
+         std::vector<coot::residue_spec_t> residue_specs;
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(mol);
+         for (unsigned int i=0; i<residues.size(); i++)
+            residue_specs.push_back(coot::residue_spec_t(residues[i]));
+
+         std::vector<std::pair<coot::residue_spec_t, float> > correlations =  
+            coot::util::map_to_model_correlation_per_residue(mol,
+                                                             residue_specs,
+                                                             atom_mask_mode,
+                                                             atom_radius, // for masking
+                                                             xmap);
+
+         std::vector<std::pair<coot::residue_spec_t, float> >::const_iterator it;
+         for (it=correlations.begin(); it!=correlations.end(); ++it) {
+            const auto &r_spec(it->first);
+            const auto &correl(it->second);
+
+            std::string atom_name = " CA ";
+            coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
+            std::string label = "Correl: ";
+            coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
+            r.add_residue_validation_information(rvi, r_spec.chain_id);
+         }
+         
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+   return r;
+}
+
+
+//! rotamer validation information
+coot::validation_information_t
+molecules_container_t::rotamer_analysis(int imol_model) const {
+
+   coot::validation_information_t r;
+
+   if (is_valid_model_molecule(imol_model)) {
+
+      mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+
+      // fill these
+      mmdb::PResidue *SelResidues = 0;
+      int nSelResidues = 0;
+
+      int selHnd = mol->NewSelection(); // yes, it's deleted.
+      int imod = 1; // multiple models don't work on validation graphs
+
+      mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
+                           "*", // chain_id
+                           mmdb::ANY_RES, "*",
+                           mmdb::ANY_RES, "*",
+                           "*",  // residue name
+                           "*",  // Residue must contain this atom name?
+                           "*",  // Residue must contain this Element?
+                           "*",  // altLocs
+                           mmdb::SKEY_NEW // selection key
+                           );
+      mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+      for (int ir=0; ir<nSelResidues; ir++) {
+         mmdb::Residue *residue_p = SelResidues[ir];
+         coot::residue_spec_t res_spec(residue_p);
+         mmdb::PAtom *residue_atoms=0;
+         int n_residue_atoms;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+         // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
+
+         if (n_residue_atoms > 5) {
+
+            std::string res_name = residue_p->GetResName();
+            if (true) {
+
+               coot::rotamer rot(residue_p);
+               coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
+               double prob = rpi.probability;
+         
+               std::string l = res_spec.label();
+               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+               const std::string &chain_id = res_spec.chain_id;
+               int this_resno = res_spec.res_no;
+               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+               coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
+               r.add_residue_validation_information(rvi, chain_id);
+            }
+         }
+      }
+      mol->DeleteSelection(selHnd);
+   }
+   return r;
+}
+
+
+
+
+
+
 
 #include "vertex.hh" // neeeded?
 
