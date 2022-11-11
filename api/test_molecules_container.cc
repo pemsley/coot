@@ -1230,6 +1230,25 @@ int test_ramachandran_validation(molecules_container_t &mc) {
    return status;
 }
 
+int test_add_water(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         unsigned int n_waters = mc.add_waters(imol, imol_map);
+         if (n_waters > 10)
+            status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1319,15 +1338,17 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
       status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
       status += run_test(test_merge_molecules,     "merge molecules", mc);
+      status += run_test(test_density_correlation_validation, "density correlation validation", mc);
+      status += run_test(test_rotamer_validation, "rotamer validation", mc);
+      status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
+
    }
 
    // 20221110-PE currently fails
    //
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
 
-   status += run_test(test_density_correlation_validation, "density correlation validation", mc);
-   status += run_test(test_rotamer_validation, "rotamer validation", mc);
-   status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
+   status += run_test(test_add_water, "add waters", mc);
 
    // Note to self:
    //

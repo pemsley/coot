@@ -2576,3 +2576,279 @@ coot::molecule_t::merge_molecules(const std::vector<mmdb::Manager *> &mols) {
 }
 
 
+// return status [1 means "usable"] and a chain id [status = 0 when
+// there are 2*26 chains...]
+//
+std::pair<bool, std::string>
+coot::molecule_t::unused_chain_id() const {
+
+   std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+   std::pair<bool, std::string> s(false,"");
+   mmdb::Chain *chain_p;
+   if (atom_sel.n_selected_atoms > 0) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+      int nchains = model_p->GetNumberOfChains();
+
+      for (int ich=0; ich<nchains; ich++) {
+         chain_p = model_p->GetChain(ich);
+         std::string this_chain_id = chain_p->GetChainID();
+         std::string::size_type idx = r.find(this_chain_id);
+         if (idx != std::string::npos) {
+            r.erase(idx,1);
+         }
+      }
+      if (r.length()) {
+         s.first = true;
+         s.second = r.substr(0,1);
+      }
+   } else {
+      s.first = true;
+      s.second = "A";
+   }
+   return s;
+}
+
+
+void
+coot::molecule_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
+
+   int n_residues = chain_p->GetNumberOfResidues();
+   if (n_residues > 0) {
+      mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
+      if (r)
+	 remove_TER_internal(r);
+   }
+}
+
+// remove TER record from residue
+//
+void
+coot::molecule_t::remove_TER_internal(mmdb::Residue *res_p) {
+
+   int n_residue_atoms;
+   mmdb::PPAtom residue_atoms;
+   bool deleted = 0;
+   if (res_p) {
+      res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 if (residue_atoms[i]->isTer()) {
+	    res_p->DeleteAtom(i);
+	    deleted = 1;
+	 }
+      }
+   }
+   if (deleted) {
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+   }
+}
+
+
+int
+coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
+
+   int istat = 0;  // set to failure initially
+
+   // So run over the the chains of the existing molecule looking for
+   // a solvent chain.  If there isn't one we simply use
+   // append_to_molecule()
+   //
+   int nchains = atom_sel.mol->GetNumberOfChains(1);
+   mmdb::Chain *chain_p = NULL;
+   mmdb::Chain *solvent_chain_p = NULL;
+   short int i_have_solvent_chain_flag = 0;
+   for (int ichain=0; ichain<nchains; ichain++) {
+
+      chain_p = atom_sel.mol->GetChain(1,ichain);
+      if (chain_p->isSolventChain()) {
+         solvent_chain_p = chain_p;
+         std::string mol_chain_id(chain_p->GetChainID());
+         i_have_solvent_chain_flag = 1;
+      }
+   }
+
+
+   // For every atom in water_mol, create a new atom and a new residue
+   // for it. Add the residue to our model's solvent chain and the
+   // atom the the residue (of course).
+   //
+   if (i_have_solvent_chain_flag == 0) {
+
+      // We didn't manage to find a solvent chain.
+      // We need to create a new chain.
+      chain_p = new mmdb::Chain;
+      atom_sel.mol->GetModel(1)->AddChain(chain_p);
+      std::pair<bool, std::string> u = unused_chain_id();
+      if (u.first)
+         chain_p->SetChainID(u.second.c_str());
+      else
+         chain_p->SetChainID("Z");
+   } else {
+      chain_p = solvent_chain_p; // put it back, (kludgey, should use
+                                 // solvent_chain_p from here, not chain_p).
+      // OK, we also need to remove any TER cards that are in that chain_p
+      remove_TER_on_last_residue(solvent_chain_p);
+   }
+
+//    std::cout << "Debug:: choose chain " << chain_p->GetChainID()
+//              << " with have_solvent flag: " << i_have_solvent_chain_flag
+//              << std::endl;
+//    std::cout << "Debug:: isSolvent for each residue of chain: " << std::endl;
+//    for (int tmp_r=0; tmp_r<chain_p->GetNumberOfResidues(); tmp_r++) {
+//       mmdb::Residue *rtmp = chain_p->GetResidue(tmp_r);
+//       short int flag = isSolvent(rtmp->name);
+//          std::cout << rtmp->name << " is solvent? " << flag << std::endl;
+//    }
+
+   std::pair<short int, int> p = coot::util::max_resno_in_chain(chain_p);
+   // float bf = graphics_info_t::default_new_atoms_b_factor; // 20.0 by default
+   float bf = 20.0;
+   int max_resno;
+   if (p.first) {
+      max_resno = p.second;
+   } else {
+      max_resno = 0;
+   }
+   if (p.first || (i_have_solvent_chain_flag == 0)) {
+      make_backup();
+      std::cout << "INFO:: Adding to solvent chain: " << chain_p->GetChainID()
+                << std::endl;
+      int prev_max_resno = max_resno;
+      mmdb::Residue *new_residue_p = NULL;
+      mmdb::Atom    *new_atom_p = NULL;
+      int water_count = 0;
+      float occ = 1.0;
+      if (is_from_shelx_ins_flag)
+         occ = 11.0;
+      for (unsigned int ifrag=0; ifrag<water_mol.fragments.size(); ifrag++) {
+         for (int ires=water_mol[ifrag].min_res_no();
+              ires<=water_mol[ifrag].max_residue_number();
+              ires++) {
+            for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
+               new_residue_p = new mmdb::Residue;
+               new_residue_p->SetResName("HOH");
+               new_residue_p->seqNum = prev_max_resno + 1 + water_count;
+               water_count++;
+               bf = water_mol[ifrag][ires][iatom].temperature_factor;
+               new_atom_p = new mmdb::Atom;
+               new_atom_p->SetCoordinates(water_mol[ifrag][ires][iatom].pos.x(),
+                                          water_mol[ifrag][ires][iatom].pos.y(),
+                                          water_mol[ifrag][ires][iatom].pos.z(), occ, bf);
+               if (false)
+                  std::cout << "debug:: add water " << ires << " " << water_mol[ifrag][ires][iatom].pos.format()
+                            << " with b " << bf << std::endl;
+               new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
+               new_atom_p->Het = 1; // waters are now HETATMs
+               strncpy(new_atom_p->element, water_mol[ifrag][ires][iatom].element.c_str(), 3);
+               strncpy(new_atom_p->altLoc, water_mol[ifrag][ires][iatom].altLoc.c_str(), 2);
+
+               // residue number, atom name, occ, coords, b factor
+
+               // add the atom to the residue and the residue to the chain
+               new_residue_p->AddAtom(new_atom_p);
+               chain_p->AddResidue(new_residue_p);
+            }
+         }
+      }
+      atom_sel.mol->FinishStructEdit();
+      // update_molecule_after_additions(); // sets unsaved changes flag
+      update_symmetry();
+   }
+   return istat;
+}
+
+
+int
+coot::molecule_t::append_to_molecule(const coot::minimol::molecule &water_mol) {
+
+   int istat = 0; // fail status initially.
+   int n_atom = 0;  // 0 new atoms added initially.
+   float default_new_atoms_b_factor = 20.0;
+
+   if (atom_sel.n_selected_atoms > 0) {
+
+      make_backup();
+
+      // run over the chains in water_mol (there is only one for waters)
+      //
+      for (unsigned int ifrag=0; ifrag<water_mol.fragments.size(); ifrag++) {
+
+//          std::cout << "DEBUG:: append_to_molecule: fragment id id for frag " << ifrag
+//                    << " is " << water_mol[ifrag].fragment_id << std::endl;
+
+         short int imatch = 0;
+
+         // Run over chains of the existing mol, to see if there
+         // already exists a chain with the same chain id as the
+         // waters we want to add.  Only if imatch is 0 does this
+         // function do anything.
+         //
+         int nchains = atom_sel.mol->GetNumberOfChains(1);
+         mmdb::Chain *chain;
+         for (int ichain=0; ichain<nchains; ichain++) {
+
+            chain = atom_sel.mol->GetChain(1,ichain);
+            std::string mol_chain_id(chain->GetChainID());
+
+            if (water_mol.fragments[ifrag].fragment_id == mol_chain_id) {
+               //
+               imatch = 1;
+               istat = 1;
+               std::cout << "INFO:: Can't add waters from additional molecule "
+                         << "chain id = " << mol_chain_id << std::endl
+                         << "INFO:: That chain id already exists in this molecule"
+                         << std::endl;
+               break;
+            }
+         }
+
+         mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+         if (imatch == 0) {
+            // There was not already a chain in this molecule of that name.
+
+            mmdb::Chain *new_chain_p;
+            mmdb::Atom *new_atom_p;
+            mmdb::Residue *new_residue_p;
+
+            new_chain_p = new mmdb::Chain;
+            std::cout << "DEBUG INFO:: chain id of new chain :"
+                      << water_mol[ifrag].fragment_id << ":" << std::endl;
+            new_chain_p->SetChainID(water_mol[ifrag].fragment_id.c_str());
+            model_p->AddChain(new_chain_p);
+
+            for (int ires=water_mol[ifrag].min_res_no();
+                 ires<=water_mol[ifrag].max_residue_number();
+                 ires++) {
+
+               if (water_mol[ifrag][ires].atoms.size() > 0) {
+                  new_residue_p = new mmdb::Residue;
+                  new_residue_p->seqNum = ires;
+                  strcpy(new_residue_p->name, water_mol[ifrag][ires].name.c_str());
+                  new_chain_p->AddResidue(new_residue_p);
+                  for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
+
+                     new_atom_p = new mmdb::Atom;
+                     new_atom_p->SetAtomName(water_mol[ifrag][ires][iatom].name.c_str());
+                     new_atom_p->SetElementName(water_mol[ifrag][ires][iatom].element.c_str());
+                     new_atom_p->SetCoordinates(water_mol[ifrag][ires][iatom].pos.x(),
+                                                water_mol[ifrag][ires][iatom].pos.y(),
+                                                water_mol[ifrag][ires][iatom].pos.z(),
+                                                1.0, default_new_atoms_b_factor);
+                     new_residue_p->AddAtom(new_atom_p);
+                     n_atom++;
+                  }
+               }
+            }
+         }
+      }
+
+      std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
+      if (n_atom > 0) {
+         atom_sel.mol->FinishStructEdit();
+         // update_molecule_after_additions(); // sets unsaved changes flag
+         save_info.new_modification();
+      }
+   }
+
+   return istat;
+}

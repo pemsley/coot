@@ -183,7 +183,17 @@ namespace coot {
       std::string save_time_string;
       void restore_from_backup(int mod_index, const std::string &cwd);
 
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
+
+      // remove TER record from residue
+      //
+      void remove_TER_internal(mmdb::Residue *res_p);
+      void remove_TER_on_last_residue(mmdb::Chain *chain_p);
+      std::pair<bool, std::string> unused_chain_id() const;
+      int append_to_molecule(const coot::minimol::molecule &water_mol);
+
       // ====================== SHELX stuff ======================================
+
       std::pair<int, std::string> write_shelx_ins_file(const std::string &filename) const;
       int read_shelx_ins_file(const std::string &filename);
       // return the success status, 0 for fail, 1 for good.
@@ -201,9 +211,9 @@ namespace coot {
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
 
-      std::vector<coot::atom_spec_t> fixed_atom_specs;
+      // ====================== init ======================================
 
-      void init() { // add imol_no here?
+      void init() {
          imol_no = -1; // unset
          ligand_flip_number = 0;
          bonds_box_type = UNSET_TYPE;
@@ -321,6 +331,7 @@ namespace coot {
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const;
+      int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
 
       // ----------------------- model utils
 

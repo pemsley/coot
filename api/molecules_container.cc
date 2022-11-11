@@ -2463,15 +2463,52 @@ molecules_container_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, 
 
 }
 
+#include "ligand/ligand.hh"
+
 int
 molecules_container_t::add_waters(int imol_model, int imol_map) {
 
-   int status = 0;
+   int n_waters_added = 0;
+   int ligand_water_n_cycles = 3;
+   float ligand_water_to_protein_distance_lim_max = 3.2;
+   float ligand_water_to_protein_distance_lim_min = 2.4;
+   float ligand_water_variance_limit = 0.12;
+   float sigma_cut_off = 1.0; // what is this?
 
-   // 20221025-PE Fill me later
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 coot::ligand lig;
+	 int n_cycles = ligand_water_n_cycles; // 3 by default
 
-   return status;
+	 // n_cycles = 1; // for debugging.
 
+	 short int mask_waters_flag; // treat waters like other atoms?
+	 // mask_waters_flag = g.find_ligand_mask_waters_flag;
+	 mask_waters_flag = 1; // when looking for waters we should not
+	 // ignore the waters that already exist.
+	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+
+	 lig.import_map_from(molecules[imol_map].xmap, 
+			     molecules[imol_map].get_map_rmsd_approx());
+	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+	 lig.set_map_atom_mask_radius(1.9); // Angstroms
+	 lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
+						  ligand_water_to_protein_distance_lim_min);
+	 lig.set_variance_limit(ligand_water_variance_limit);
+	 lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
+	 // lig.output_map("masked-for-waters.map");
+	 std::cout << "debug:: add_waters(): using n-sigma cut off " << sigma_cut_off << std::endl;
+
+	 lig.water_fit(sigma_cut_off, n_cycles);
+
+	 coot::minimol::molecule water_mol = lig.water_mol();
+         molecules[imol_model].insert_waters_into_molecule(water_mol);
+         n_waters_added = water_mol.count_atoms();
+
+         std::cout << ".............................. n_waters_added " << n_waters_added << std::endl;
+      }
+   }
+   return n_waters_added;
 }
 
 
