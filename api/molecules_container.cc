@@ -2488,7 +2488,7 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 	 // ignore the waters that already exist.
 	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	 lig.import_map_from(molecules[imol_map].xmap, 
+	 lig.import_map_from(molecules[imol_map].xmap,
 			     molecules[imol_map].get_map_rmsd_approx());
 	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
 	 lig.set_map_atom_mask_radius(1.9); // Angstroms
@@ -2504,8 +2504,6 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 	 coot::minimol::molecule water_mol = lig.water_mol();
          molecules[imol_model].insert_waters_into_molecule(water_mol);
          n_waters_added = water_mol.count_atoms();
-
-         std::cout << ".............................. n_waters_added " << n_waters_added << std::endl;
       }
    }
    return n_waters_added;
