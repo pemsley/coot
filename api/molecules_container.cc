@@ -408,6 +408,8 @@ coot::validation_information_t
 molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const {
 
    coot::validation_information_t r;
+   r.name = "Density fit analysis";
+   r.type = "UNSET"; // "DENSITY"?
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
          // fill these
@@ -449,6 +451,7 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const 
          atom_sel.mol->DeleteSelection(selHnd);
       }
    }
+   r.set_min_max();
    return r;
 }
 
@@ -457,6 +460,8 @@ coot::validation_information_t
 molecules_container_t::density_correlation_analysis(int imol_model, int imol_map) const {
 
    coot::validation_information_t r;
+   r.name = "Density correlation analysis";
+   r.type = "CORRELATION";
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
@@ -497,6 +502,7 @@ molecules_container_t::density_correlation_analysis(int imol_model, int imol_map
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
    }
+   r.set_min_max();
    return r;
 }
 
@@ -506,6 +512,8 @@ coot::validation_information_t
 molecules_container_t::rotamer_analysis(int imol_model) const {
 
    coot::validation_information_t r;
+   r.name = "Rotamer analysis";
+   r.type = "PROBABILITY";
 
    if (is_valid_model_molecule(imol_model)) {
 
@@ -560,13 +568,54 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
       }
       mol->DeleteSelection(selHnd);
    }
+   r.set_min_max();
    return r;
 }
 
+double
+molecules_container_t::phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const {
 
+      const clipper::Ramachandran *rama = &rc.rama;
 
+      if (phi_psi.residue_name() == "PRO") rama = &rc.rama_pro;
+      if (phi_psi.residue_name() == "GLY") rama = &rc.rama_gly;
 
+      // if (phi_psi.residue_name() == "ILE" || phi_psi.residue_name() == "VAL" ) rama = &rc.rama_ileval;
+      // if (phi_psi.is_pre_pro())
+      // if (phi_psi.residue_name() != "GLY")
+      // rama = &rc.rama_pre_pro;
 
+      double rama_prob = rama->probability(clipper::Util::d2rad(phi_psi.phi()),
+                                           clipper::Util::d2rad(phi_psi.psi()));
+      return rama_prob;
+}
+
+//! ramachandran validation information (formatted for a graph, not 3d)
+coot::validation_information_t
+molecules_container_t::ramachandran_analysis(int imol_model) const {
+
+   coot::validation_information_t vi;
+   vi.name = "Ramachandran plot Probability";
+   vi.type = "PROBABILITY";
+   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > rv =  ramachandran_validation(imol_model);
+
+   for (unsigned int i=0; i<rv.size(); i++) {
+      std::string chain_id = rv[i].second.chain_id;
+      coot::residue_spec_t residue_spec(rv[i].second.chain_id, rv[i].second.residue_number, rv[i].second.ins_code);
+      double pr = phi_psi_probability(rv[i].second, ramachandrans_container);
+      std::string label = rv[i].second.chain_id + std::string(" ") + std::to_string(rv[i].second.residue_number);
+      if (! rv[i].second.ins_code.empty())
+         label += std::string(" ") + rv[i].second.ins_code;
+      coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
+      if (false)
+         std::cout << "         " << residue_spec << " " << rv[i].second.phi() << " " << rv[i].second.psi()
+                   << " pr " << pr << " " << std::endl;
+      vi.add_residue_validation_information(rvi, chain_id);
+   }
+   vi.set_min_max();
+   return vi;
+}
 
 
 #include "vertex.hh" // neeeded?
@@ -642,6 +691,8 @@ molecules_container_t::test_origin_cube() const {
 
 std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >
 molecules_container_t::ramachandran_validation(int imol) const {
+
+   // there are no probabilities here it seems.
 
    std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
    if (is_valid_model_molecule(imol))
@@ -722,7 +773,7 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
          const coot::Cartesian &position = ramachandran_goodness_spots[i].first;
          const coot::util::phi_psi_t &phi_psi = ramachandran_goodness_spots[i].second;
-         const float &prob_raw = phi_psi_probability(phi_psi, ramachandrans_container);
+         double prob_raw = phi_psi_probability(phi_psi, ramachandrans_container);
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
          glm::vec3 ball_position = cartesian_to_glm(position);

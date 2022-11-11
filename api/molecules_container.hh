@@ -169,6 +169,7 @@ class molecules_container_t {
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc,
                      mmdb::Manager *mol);
 
+   double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
    // --------------------- init --------------------------
 
@@ -506,6 +507,9 @@ public:
 
    //! rotamer validation information
    coot::validation_information_t rotamer_analysis(int imol_model) const;
+
+   //! ramachandran validation information (formatted for a graph, not 3d)
+   coot::validation_information_t ramachandran_analysis(int imol_model) const;
 
    //! get interesting places (does not work yet)
    std::vector<coot::molecule_t::interesting_place_t> get_interesting_places(int imol, const std::string &mode) const;

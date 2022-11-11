@@ -1207,6 +1207,29 @@ int test_rotamer_validation(molecules_container_t &mc) {
    return status;
 }
 
+int test_ramachandran_validation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_res = 0;
+      coot::validation_information_t ra = mc.ramachandran_analysis(imol);
+      for (const auto &chain : ra.cviv) {
+         for (const auto &res : chain.rviv) {
+            if (res.function_value > 0.5)
+               n_res++;
+         }
+      }
+      std::cout << "debug:: in test_ramachandran_validation n_res: " << n_res << std::endl;
+      if (n_res > 100)
+         status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1304,6 +1327,7 @@ int main(int argc, char **argv) {
 
    status += run_test(test_density_correlation_validation, "density correlation validation", mc);
    status += run_test(test_rotamer_validation, "rotamer validation", mc);
+   status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
 
    // Note to self:
    //
