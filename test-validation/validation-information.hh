@@ -9,8 +9,6 @@ namespace coot {
    class chain_validation_information_t {
    public:
       std::string chain_id;
-      std::string name;
-      std::string type;
       std::vector<residue_validation_information_t> rviv;
       explicit chain_validation_information_t(const std::string &chain_id_in) : chain_id(chain_id_in) {}
       void add_residue_valiation_informtion(const residue_validation_information_t &rvi) {
@@ -18,11 +16,29 @@ namespace coot {
       }
    };
 
+   class validation_information_min_max_t {
+   public:
+      bool is_set;
+      double min;
+      double max;
+      validation_information_min_max_t() : is_set(false), min(0), max(0) {}
+      validation_information_min_max_t(const double &min_in, const double &max_in) : is_set(true), min(min_in), max(max_in) {}
+   };
+
+   enum graph_data_type { UNSET, DISTORTION, ENERGY, PROBABILITY, CORRELATION, LOG_PROBABILITY };
+
    class validation_information_t {
    public:
       std::string name;
-      std::string type;
+      // std::string type;
+      enum graph_data_type type;
+      validation_information_min_max_t min_max;
       std::vector<chain_validation_information_t> cviv;
+
+      validation_information_t() : type(UNSET), min_max(validation_information_min_max_t()) {}
+
+      validation_information_t(graph_data_type gdt, const validation_information_min_max_t &min_max_in) : type(gdt), min_max(min_max_in) {}
+
       unsigned int get_index_for_chain(const std::string &chain_id) {
          for (unsigned int i=0; i<cviv.size(); i++) {
             if (chain_id == cviv[i].chain_id)
