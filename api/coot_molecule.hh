@@ -442,11 +442,18 @@ namespace coot {
          void add_atom(const moved_atom_t &mva) {moved_atoms.push_back(mva); }
       };
 
+      //! set new positions for the atoms in the specified residue
       int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms);
+
+      //! set new positions for the atoms of the specified residues
       int new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues);
 
-      // not for wrapping (should be private)
+      //! not for wrapping (should be private)
       int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms);
+
+      //! merge molecules - copy the atom of mols into this molecule
+      //! @return the number of atoms added.
+      int merge_molecules(const std::vector<mmdb::Manager *> &mols);
 
       // ----------------------- refinement
 

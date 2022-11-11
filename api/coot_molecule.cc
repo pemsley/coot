@@ -2555,3 +2555,24 @@ coot::molecule_t::get_residue_closest_to(mmdb::Manager *mol, const clipper::Coor
    }
    return spec;
 }
+
+
+#include "coot-utils/merge-molecules.hh"
+
+//! merge molecules - copy the atom of mols into this molecule
+int
+coot::molecule_t::merge_molecules(const std::vector<mmdb::Manager *> &mols) {
+
+  int n_new_atoms = 0;
+  int n_pre = atom_sel.n_selected_atoms;
+  mmdb::Manager *mol = atom_sel.mol;
+  atom_sel.delete_atom_selection();
+  coot::merge_molecules(mol, mols);
+  atom_sel = make_asc(mol);
+  int n_post = atom_sel.n_selected_atoms;
+  n_new_atoms = n_post - n_pre;
+  return n_new_atoms;
+
+}
+
+

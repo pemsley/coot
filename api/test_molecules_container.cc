@@ -1147,10 +1147,13 @@ int test_merge_molecules(molecules_container_t &mc) {
 
    std::vector<std::string> chains_ids_pre = mc.get_chains_in_model(imol_1);
    std::string ls = std::to_string(imol_2) + std::string(":") + std::to_string(imol_3);
-   mc.merge_molecules(imol_1, ls);
+   int n_atoms_added = mc.merge_molecules(imol_1, ls);
    std::vector<std::string> chains_ids_post = mc.get_chains_in_model(imol_1);
    if (chains_ids_post.size() == 3)
-      status = 1;
+      if (n_atoms_added > 70 )
+         status = 1;
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_1, mode);
 
    return status;
 }
@@ -1236,16 +1239,16 @@ int main(int argc, char **argv) {
       status += run_test(test_difference_map_peaks, "Difference Map Peaks",   mc);
       status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
       status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
-      status += run_test(test_merge_molecules, "merge molecules", mc);
+      status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
+      status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
+      status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
    }
 
    // 20221110-PE currently fails
 
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
 
-   status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
-   status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
-   status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
+      status += run_test(test_merge_molecules, "merge molecules", mc);
 
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 

@@ -101,9 +101,6 @@ molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &
    }
 }
 
-
-#include "coot-utils/merge-molecules.hh"
-
 //! Merge molecules
 //!
 //! list_of_other_molecules is a colon-separated list of molecules, e.g. "2:3:4"
@@ -111,7 +108,7 @@ molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &
 int
 molecules_container_t::merge_molecules(int imol, const std::string &list_of_other_molecules) {
 
-   int status = 0;
+   int n_atoms_added = 0;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol_target = get_mol(imol);
       std::vector<mmdb::Manager *> mols;
@@ -121,10 +118,12 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
          if (is_valid_model_molecule(idx))
             mols.push_back(molecules[idx].atom_sel.mol);
       }
-      coot::merge_molecules(mol_target, mols);
-      status = 1; // meh.
+      // now we call merge_molecule() function in coot::molecule_t so that the
+      // swap of the atom selection is handled.
+      // coot::merge_molecules(mol_target, mols);
+      n_atoms_added = molecules[imol].merge_molecules(mols);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   return n_atoms_added;
 }
