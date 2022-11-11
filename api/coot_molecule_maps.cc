@@ -420,6 +420,13 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
          dmp.set_badness_value(badness);
          v.push_back(dmp);
       }
+
+      // sort them in numberical order (not absolute) - for the waterfall plot
+      auto sorter = [] (const interesting_place_t &i1, const interesting_place_t &i2) {
+         return i1.feature_value < i2.feature_value;
+      };
+      std::sort(v.begin(), v.end(), sorter);
+
    } else {
       std::cout << "ERROR:: " << __FUNCTION__ << "() null mol" << std::endl;
    }
