@@ -472,7 +472,7 @@ molecules_container_t::density_correlation_analysis(int imol_model, int imol_map
          for (unsigned int i=0; i<residues.size(); i++)
             residue_specs.push_back(coot::residue_spec_t(residues[i]));
 
-         std::vector<std::pair<coot::residue_spec_t, float> > correlations =  
+         std::vector<std::pair<coot::residue_spec_t, float> > correlations =
             coot::util::map_to_model_correlation_per_residue(mol,
                                                              residue_specs,
                                                              atom_mask_mode,
@@ -490,7 +490,7 @@ molecules_container_t::density_correlation_analysis(int imol_model, int imol_map
             coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
             r.add_residue_validation_information(rvi, r_spec.chain_id);
          }
-         
+
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
       }
@@ -547,7 +547,7 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
                coot::rotamer rot(residue_p);
                coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
                double prob = rpi.probability;
-         
+
                std::string l = res_spec.label();
                std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
                const std::string &chain_id = res_spec.chain_id;
@@ -1918,29 +1918,29 @@ molecules_container_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
       const char *inscode = residues[ir]->GetInsCode();
       int resno = residues[ir]->GetSeqNum();
       residues_mol->Select(SelHnd, mmdb::STYPE_ATOM,
-			   0, chain_id,
-			   resno, // starting resno, an int
-			   inscode, // any insertion code
-			   resno, // ending resno
-			   inscode, // ending insertion code
-			   "*", // any residue name
-			   "*", // atom name
-			   "*", // elements
-			   "*",  // alt loc.
-			   mmdb::SKEY_OR);
+                           0, chain_id,
+                           resno, // starting resno, an int
+                           inscode, // any insertion code
+                           resno, // ending resno
+                           inscode, // ending insertion code
+                           "*", // any residue name
+                           "*", // atom name
+                           "*", // elements
+                           "*",  // alt loc.
+                           mmdb::SKEY_OR);
    }
 
    local_moving_atoms_asc.mol = residues_mol;
    local_moving_atoms_asc.SelectionHandle = SelHnd;
    residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
-			     local_moving_atoms_asc.atom_selection,
-			     local_moving_atoms_asc.n_selected_atoms);
+                             local_moving_atoms_asc.atom_selection,
+                             local_moving_atoms_asc.n_selected_atoms);
 
 
    if (true) {
       std::cout << "returning an atom selection for all moving atoms "
-		<< local_moving_atoms_asc.n_selected_atoms << " atoms "
-		<< std::endl;
+                << local_moving_atoms_asc.n_selected_atoms << " atoms "
+                << std::endl;
    }
 
    // This new block added so that we don't draw atoms in the "static" molecule when we have the
@@ -1953,20 +1953,20 @@ molecules_container_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    if (false) { // debug atoms in other molecule
       std::set<int>::const_iterator it;
       for(it=atom_set.begin(); it!=atom_set.end(); it++) {
-	 int idx = *it;
-	 mmdb::Atom *at = imol_asc.atom_selection[idx];
-	 coot::atom_spec_t as(at);
-	 std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
+         int idx = *it;
+         mmdb::Atom *at = imol_asc.atom_selection[idx];
+         coot::atom_spec_t as(at);
+         std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
       }
    }
 
    if (false) { // debug old atom index
       for (int i=0; i<local_moving_atoms_asc.n_selected_atoms; i++) {
-	 mmdb::Atom *at = local_moving_atoms_asc.atom_selection[i];
-	 coot::atom_spec_t as(at);
-	 int idx = -1;
-	 at->GetUDData(local_moving_atoms_asc.UDDOldAtomIndexHandle, idx);
-	 std::cout << "DEBUG:: in make_moving_atoms_asc " << as << " idx " << idx << std::endl;
+         mmdb::Atom *at = local_moving_atoms_asc.atom_selection[i];
+         coot::atom_spec_t as(at);
+         int idx = -1;
+         at->GetUDData(local_moving_atoms_asc.UDDOldAtomIndexHandle, idx);
+         std::cout << "DEBUG:: in make_moving_atoms_asc " << as << " idx " << idx << std::endl;
       }
    }
    // now rebond molecule imol without bonds to atoms in atom_set
@@ -1992,13 +1992,13 @@ molecules_container_t::all_atom_pulls_off() {
 // return the state of having found restraints.
 bool
 molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
-				      const std::vector<mmdb::Link> &links,
-				      const coot::protein_geometry &geom,
-				      mmdb::Manager *mol_for_residue_selection,
-				      const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-				      coot::restraint_usage_Flags flags,
-				      bool use_map_flag,
-				      const clipper::Xmap<float> *xmap_p) {
+                                      const std::vector<mmdb::Link> &links,
+                                      const coot::protein_geometry &geom,
+                                      mmdb::Manager *mol_for_residue_selection,
+                                      const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+                                      coot::restraint_usage_Flags flags,
+                                      bool use_map_flag,
+                                      const clipper::Xmap<float> *xmap_p) {
 
    bool do_torsion_restraints = true; // make this a data member
    double torsion_restraints_weight = 10.0;
@@ -2030,10 +2030,10 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
 
    if (false) { // these are the passed residues, nothing more.
       std::cout << "debug:: on construction of restraints_container_t local_residues: "
-		<< std::endl;
+                << std::endl;
       for (std::size_t jj=0; jj<local_residues.size(); jj++) {
-	 std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
-		   << " is fixed: " << local_residues[jj].first << std::endl;
+         std::cout << "   " << coot::residue_spec_t(local_residues[jj].second)
+                   << " is fixed: " << local_residues[jj].first << std::endl;
       }
    }
 
@@ -2050,10 +2050,10 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
 
    last_restraints = new
       coot::restraints_container_t(local_residues,
-				   links,
-				   geom,
-				   mol_for_residue_selection,
-				   fixed_atom_specs, xmap_p);
+                                   links,
+                                   geom,
+                                   mol_for_residue_selection,
+                                   fixed_atom_specs, xmap_p);
 
    std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
 
@@ -2082,13 +2082,13 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
    // moving_atoms_visited_residues.clear(); // this is used for HUD label colour
 
    int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
-						       geom, flags,
-						       do_residue_internal_torsions,
-						       do_trans_peptide_restraints,
-						       rama_plot_restraints_weight,
-						       do_rama_restraints,
-						       true, true, make_auto_h_bond_restraints_flag,
-						       pseudo_bonds_type);
+                                                       geom, flags,
+                                                       do_residue_internal_torsions,
+                                                       do_trans_peptide_restraints,
+                                                       rama_plot_restraints_weight,
+                                                       do_rama_restraints,
+                                                       true, true, make_auto_h_bond_restraints_flag,
+                                                       pseudo_bonds_type);
                                                        // link and flank args default true
 
    if (use_harmonic_approximation_for_NBCs) {
@@ -2195,13 +2195,13 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
       coot::restraint_usage_Flags flags = set_refinement_flags();
       bool do_residue_internal_torsions = false;
       if (do_torsion_restraints) {
-	 do_residue_internal_torsions = 1;
-	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+         do_residue_internal_torsions = 1;
+         flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
       }
 
       if (do_rama_restraints)
-	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-	 flags = coot::ALL_RESTRAINTS;
+         // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+         flags = coot::ALL_RESTRAINTS;
 
       std::vector<coot::atom_spec_t> fixed_atom_specs = molecules[imol].get_fixed_atoms();
 
@@ -2212,10 +2212,10 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
       std::set<mmdb::Residue *> residues_set;
       std::set<mmdb::Residue *>::const_iterator it;
       for (std::size_t i=0; i<residues_in.size(); i++)
-	 residues_set.insert(residues_in[i]);
+         residues_set.insert(residues_in[i]);
       residues.reserve(residues_set.size());
       for(it=residues_set.begin(); it!=residues_set.end(); ++it)
-	 residues.push_back(*it);
+         residues.push_back(*it);
 
       // OK, so the passed residues are the residues in the graphics_info_t::molecules[imol]
       // molecule.  We need to do 2 things:
@@ -2237,97 +2237,97 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
 
       if (have_restraints) {
 
-	 std::string residues_alt_conf = alt_conf;
-	 imol_moving_atoms = imol;
-	 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
-	    create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
+         std::string residues_alt_conf = alt_conf;
+         imol_moving_atoms = imol;
+         std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
+            create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
 
-	 if (true) { // debug
-	    mmdb::Manager *residues_mol = residues_mol_and_res_vec.first;
-	    int imod = 1;
-	    mmdb::Model *model_p = residues_mol->GetModel(imod);
-	    if (model_p) {
-	       int n_chains = model_p->GetNumberOfChains();
-	       for (int ichain=0; ichain<n_chains; ichain++) {
-		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-		  std::cout << "DEBUG:: in generate_molecule_and_refine() residues_mol_and_res_vec mol: chain: "
+         if (true) { // debug
+            mmdb::Manager *residues_mol = residues_mol_and_res_vec.first;
+            int imod = 1;
+            mmdb::Model *model_p = residues_mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  std::cout << "DEBUG:: in generate_molecule_and_refine() residues_mol_and_res_vec mol: chain: "
                             << chain_p->GetChainID() << std::endl;
-		  int nres = chain_p->GetNumberOfResidues();
-		  for (int ires=0; ires<nres; ires++) {
-		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		     std::cout << "DEBUG:: in generate_molecule_and_refine() residues_mol_and_res_vec mol:   residue "
-			       << coot::residue_spec_t(residue_p) << " residue "
-			       << residue_p << " chain " << residue_p->chain << " index "
-			       << residue_p->index << std::endl;
-		  }
-	       }
-	    }
-	 }
+                  int nres = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     std::cout << "DEBUG:: in generate_molecule_and_refine() residues_mol_and_res_vec mol:   residue "
+                               << coot::residue_spec_t(residue_p) << " residue "
+                               << residue_p << " chain " << residue_p->chain << " index "
+                               << residue_p->index << std::endl;
+                  }
+               }
+            }
+         }
 
-	 // We only want to act on these new residues and molecule, if
-	 // there is something there.
-	 //
-	 if (residues_mol_and_res_vec.first) {
+         // We only want to act on these new residues and molecule, if
+         // there is something there.
+         //
+         if (residues_mol_and_res_vec.first) {
 
-	    // Now we want to do an atom name check.  This stops exploding residues.
-	    //
-	    bool check_hydrogens_too_flag = false;
-	    std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
-	       icheck_atoms = geom.atoms_match_dictionary(imol, residues, check_hydrogens_too_flag, false);
+            // Now we want to do an atom name check.  This stops exploding residues.
+            //
+            bool check_hydrogens_too_flag = false;
+            std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
+               icheck_atoms = geom.atoms_match_dictionary(imol, residues, check_hydrogens_too_flag, false);
 
-	    if (! icheck_atoms.first) {
+            if (! icheck_atoms.first) {
 
                std::cout << "WARNING:: non-matching atoms! " << std::endl;
 
-	    } else {
+            } else {
 
-	       moving_atoms_have_hydrogens_displayed = true;
-	       if (! molecules[imol].hydrogen_atom_should_be_drawn())
-		  moving_atoms_have_hydrogens_displayed = false;
+               moving_atoms_have_hydrogens_displayed = true;
+               if (! molecules[imol].hydrogen_atom_should_be_drawn())
+                  moving_atoms_have_hydrogens_displayed = false;
 
-	       atom_selection_container_t local_moving_atoms_asc =
-		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
+               atom_selection_container_t local_moving_atoms_asc =
+                  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
 
-	       // 20221018-PE make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); not today!
+               // 20221018-PE make_moving_atoms_graphics_object(imol, local_moving_atoms_asc); not today!
 
                int n_cis = coot::util::count_cis_peptides(local_moving_atoms_asc.mol);
                // moving_atoms_n_cis_peptides = n_cis; // 20221018-PE not today
 
-	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
-	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
-		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
+               std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
+               for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
+                  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
 
-	       moving_atoms_asc_type = NEW_COORDS_REPLACE;
+               moving_atoms_asc_type = NEW_COORDS_REPLACE;
 
-	       int imol_for_map = imol_refinement_map;
-	       clipper::Xmap<float> *xmap_p = dummy_xmap;
+               int imol_for_map = imol_refinement_map;
+               clipper::Xmap<float> *xmap_p = dummy_xmap;
 
-	       if (is_valid_map_molecule(imol_for_map))
-		  xmap_p = &molecules[imol_for_map].xmap;
+               if (is_valid_map_molecule(imol_for_map))
+                  xmap_p = &molecules[imol_for_map].xmap;
 
-	       bool found_restraints_flag = make_last_restraints(local_residues,
-								 local_moving_atoms_asc.links,
-								 geom,
-								 residues_mol_and_res_vec.first,
-								 fixed_atom_specs,
-								 flags, use_map_flag, xmap_p);
+               bool found_restraints_flag = make_last_restraints(local_residues,
+                                                                 local_moving_atoms_asc.links,
+                                                                 geom,
+                                                                 residues_mol_and_res_vec.first,
+                                                                 fixed_atom_specs,
+                                                                 flags, use_map_flag, xmap_p);
 
                if (last_restraints) {
                   // 20220423-PE I can't do this here because setup_minimize() has not been called yet
                   // rr = last_restraints->get_refinement_results();
                }
-	       rr.found_restraints_flag = found_restraints_flag;
+               rr.found_restraints_flag = found_restraints_flag;
 
-	    }
-	 }
+            }
+         }
       } else {
-	 // we didn't have restraints for everything.
-	 //
-	 std::pair<int, std::vector<std::string> > icheck =
-	    check_dictionary_for_residue_restraints(imol, residues);
-	 if (icheck.first == 0) {
-	    std::cout << "WARNING:: <some info here about missing residue types> " << std::endl;
-	 }
+         // we didn't have restraints for everything.
+         //
+         std::pair<int, std::vector<std::string> > icheck =
+            check_dictionary_for_residue_restraints(imol, residues);
+         if (icheck.first == 0) {
+            std::cout << "WARNING:: <some info here about missing residue types> " << std::endl;
+         }
       }
    }
    return rr;
@@ -2593,8 +2593,8 @@ molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_d
                      }
                   }
                }
-	    }
-	 }
+            }
+         }
       }
    }
    return v;
