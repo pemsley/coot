@@ -483,7 +483,7 @@ public:
    //! for debugging the refinement
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
-   // -------------------------------- coordinates validation ------------------------------
+   // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation
 
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds.

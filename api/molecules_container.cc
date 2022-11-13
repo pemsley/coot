@@ -32,6 +32,7 @@ molecules_container_t::is_valid_model_molecule(int imol) const {
 
 bool
 molecules_container_t::is_valid_map_molecule(int imol) const {
+
    bool status = false;
    if (imol >= 0) {
       int ms = molecules.size();
@@ -354,12 +355,14 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
          // em = is_em_map_cached_flag;
       }
       catch (const clipper::Message_base &exc) {
-      std::cout << "WARNING:: failed to open " << file_name << std::endl;
-      // bad_read = true;
+         std::cout << "WARNING:: failed to open " << file_name << std::endl;
+         // bad_read = true;
       }
 
-      if (done)
+      if (done) {
          molecules.push_back(m);
+         imol = imol_in_hope;
+      }
    }
 
    if (! done) {
@@ -377,7 +380,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
                clipper::Cell fcell = w_file.cell();
                double vol = fcell.volume();
                if (vol < 1.0) {
-                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                  std::cout << "WARNING:: read_ccp4_map(): non-sane unit cell volume " << vol << " - skip read"
                             << std::endl;
                   // bad_read = true;
                } else {
@@ -386,6 +389,15 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
                      file.open_read(file_name);
                      clipper::Xmap<float> xmap;
                      file.import_xmap(xmap);
+                     if (xmap.is_null()) {
+                        std::cout << "ERROR:: failed to read the map" << file_name << std::endl;
+                     } else {
+                        std::string name = file_name;
+                        coot::molecule_t m(name, imol_in_hope);
+                        m.xmap = xmap;
+                        molecules.push_back(m); // oof.
+                        imol = imol_in_hope;
+                     }
                   }
                   catch (const clipper::Message_generic &exc) {
                      std::cout << "WARNING:: failed to read " << file_name

@@ -1249,6 +1249,23 @@ int test_add_water(molecules_container_t &mc) {
    return status;
 }
 
+int test_read_a_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   bool is_diff_map = false;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_ccp4_map(reference_data("test.map"), is_diff_map);
+   std::cout << "Here in test_read_a_map() with imol_map " << imol_map << std::endl;
+   if (mc.is_valid_map_molecule(imol_map))
+      status = 1;
+
+   return status;
+
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1347,8 +1364,10 @@ int main(int argc, char **argv) {
    // 20221110-PE currently fails
    //
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
+   // status += run_test(test_add_water, "add waters", mc);
 
-   status += run_test(test_add_water, "add waters", mc);
+   status += run_test(test_read_a_map, "read a map", mc);
+   
 
    // Note to self:
    //
