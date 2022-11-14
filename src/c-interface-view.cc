@@ -281,6 +281,27 @@ void set_model_material_ambient(int imol, float r, float g, float b, float a) {
    graphics_draw();
 }
 
+//! \brief
+void set_model_goodselliness(float pastelization_factor) {
+
+   graphics_info_t::goodselliness = pastelization_factor;
+
+   // if the molecule is drawn in goodsell mode, then force a redraw of it
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
+         std::set<int> s; // dummy
+         bool g = false; // goodsell_mode
+         bool force_rebonding = true;
+         // graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g, force_rebonding);
+         set_colour_by_chain_goodsell_mode(imol); // you wanted goodsell mode, right?
+      }
+   }
+   graphics_draw();
+}
+
+
+
 
 
 

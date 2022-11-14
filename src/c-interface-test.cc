@@ -1223,6 +1223,10 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
 
+   std::string d = coot::prefix_dir();
+
+   std::cout << "--------- prefix_dir " << d << std::endl;
+
    graphics_info_t g;
    PyObject *r = Py_False;
 

@@ -1512,6 +1512,10 @@ void set_model_material_ambient(int imol, float r, float g, float b, float alpha
 //! \brief
 void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
 
+//! \brief set the goodselliness (pastelization_factor) 0.3 is about right, but "the right value"
+//!        depends on the renderer, may be some personal choice.
+void set_model_goodselliness(float pastelization_factor);
+
 //! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
 

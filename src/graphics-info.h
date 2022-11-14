@@ -4396,6 +4396,7 @@ string   static std::string sessionid;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
+   static float goodselliness;
    static bool shader_do_ambient_occlusion_flag;
    static bool shader_do_depth_blur_flag;
    static bool shader_do_depth_fog_flag;

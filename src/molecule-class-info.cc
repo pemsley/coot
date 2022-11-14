@@ -1287,6 +1287,8 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int colour_index, bool against_
 void
 molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background) {
 
+   // 20221114-PE this function seems not to be used, in fact!
+
    bool is_C = !(icol %2);
    int n_steps = icol/2;
 
@@ -3673,8 +3675,9 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
    if (bonds_box_type != coot::COLOUR_BY_CHAIN_BONDS)
       force_rebonding = true;
 
+   // maybe I always want to rebond in goodsell mode?
    if (goodsell_mode)
-      if (bonds_box_type != coot::COLOUR_BY_CHAIN_GOODSELL)
+      // if (bonds_box_type != coot::COLOUR_BY_CHAIN_GOODSELL)
          force_rebonding = true;
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
@@ -3835,6 +3838,8 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
+   float goodselliness = graphics_info_t::goodselliness;
+
    bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
 
    float gcwrs = graphics_info_t::goodsell_chain_colour_wheel_rotation_step;
@@ -3872,7 +3877,7 @@ molecule_class_info_t::make_colour_table() const {
                   int chain_index = ic/2;
                   float rotation_amount = gcwrs * static_cast<float>(chain_index);
                   if (is_C)
-                     ch.pastelize(0.19); // 0.28 was too much.
+                     ch.pastelize(goodselliness);
                   ch.rotate_by(rotation_amount);
                   colour_table[icol] = colour_holder_to_glm(ch);
                }
