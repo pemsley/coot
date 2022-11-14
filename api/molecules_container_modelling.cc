@@ -101,6 +101,10 @@ molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &
    }
 }
 
+
+#if 0 // 20221114-PE this was an interface to the wrong merge_molecules() function.
+      // The function that works is a lot more complicated.
+
 //! Merge molecules
 //!
 //! list_of_other_molecules is a colon-separated list of molecules, e.g. "2:3:4"
@@ -126,4 +130,27 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return n_atoms_added;
+}
+#endif
+
+std::pair<int, std::vector<merge_molecule_results_info_t> >
+molecules_container_t::merge_molecules(int imol, const std::string &list_of_other_molecules) {
+
+   int istat = 0;
+   std::vector<merge_molecule_results_info_t> resulting_merge_info;
+   if (is_valid_model_molecule(imol)) {
+      
+      std::vector<atom_selection_container_t> atom_selections;
+      std::vector<std::string> number_strings = coot::util::split_string(list_of_other_molecules, ":");
+      for (const auto &item : number_strings) {
+         int idx = coot::util::string_to_int(item);
+         if (is_valid_model_molecule(idx))
+            atom_selections.push_back(molecules[idx].atom_sel);
+      }
+      auto r = molecules[imol].merge_molecules(atom_selections);
+      istat = r.first;
+      resulting_merge_info = r.second;
+   }
+   return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
+
 }

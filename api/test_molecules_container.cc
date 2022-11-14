@@ -7,7 +7,7 @@
 #include "molecules_container.hh"
 
 void starting_test(const char *func) {
-   std::cout << "Starting test " << func << "()" << std::endl;
+   std::cout << "Starting " << func << "()" << std::endl;
 }
 
 // wrap with the directory for the test data.
@@ -1142,16 +1142,34 @@ int test_merge_molecules(molecules_container_t &mc) {
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   int imol_2 = mc.get_monomer("ATP");
-   int imol_3 = mc.get_monomer("3GP");
+   mc.import_cif_dictionary("NUT.cif", coot::protein_geometry::IMOL_ENC_ANY);
+  
+   int imol_2 = mc.get_monomer_and_position_at("ATP", coot::protein_geometry::IMOL_ENC_ANY, 60, 50, 30);
+   int imol_3 = mc.get_monomer_and_position_at("3GP", coot::protein_geometry::IMOL_ENC_ANY, 80, 55, 20);
+   int imol_4 = mc.get_monomer_and_position_at("NUT", coot::protein_geometry::IMOL_ENC_ANY, 10, 15, 10);
+
+   // imol_2 and imol_3 should be given chain_id "A" because they are close to "A"
+   // and imol_4 should have chain-id "B" because it is far from "A"
 
    std::vector<std::string> chains_ids_pre = mc.get_chains_in_model(imol_1);
-   std::string ls = std::to_string(imol_2) + std::string(":") + std::to_string(imol_3);
-   int n_atoms_added = mc.merge_molecules(imol_1, ls);
-   std::vector<std::string> chains_ids_post = mc.get_chains_in_model(imol_1);
-   if (chains_ids_post.size() == 3)
-      if (n_atoms_added > 70 )
+   std::string ls = std::to_string(imol_2) + std::string(":") + std::to_string(imol_3) + std::string(":") + std::to_string(imol_4);
+
+   std::pair<int, std::vector<merge_molecule_results_info_t> > merge_results =
+      mc.merge_molecules(imol_1, ls);
+   std::vector<std::string> chain_ids_post = mc.get_chains_in_model(imol_1);
+
+   // std::cout << "in test_merge_molecules() chain_ids_post size " << chain_ids_post.size() << std::endl;
+   mc.write_coordinates(imol_1, "post-merge.pdb");
+   std::set<std::string> chain_ids_set;
+   for (const auto &ch : chain_ids_post)
+      chain_ids_set.insert(ch);
+
+   if (chain_ids_post.size() == 2) {
          status = 1;
+   } else {
+      std::cout << "in test_merge_molecules() failed to make unique chain ids " << chain_ids_post.size() << std::endl;
+   }
+
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_1, mode);
 
@@ -1258,9 +1276,18 @@ int test_read_a_map(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_ccp4_map(reference_data("test.map"), is_diff_map);
    std::cout << "Here in test_read_a_map() with imol_map " << imol_map << std::endl;
-   if (mc.is_valid_map_molecule(imol_map))
-      status = 1;
+   if (mc.is_valid_map_molecule(imol_map)) {
 
+      float radius = 20;
+      float contour_level = 0.013;
+      coot::Cartesian p(88.25823211669922, 69.19033813476562, 89.1391372680664);
+      coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
+      std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+                << " triangles" << std::endl;
+
+      if (map_mesh.vertices.size() > 30000)
+         status = 1;
+   }
    return status;
 
 }
@@ -1354,20 +1381,18 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
       status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
-      status += run_test(test_merge_molecules,     "merge molecules", mc);
       status += run_test(test_density_correlation_validation, "density correlation validation", mc);
       status += run_test(test_rotamer_validation, "rotamer validation", mc);
       status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
+      status += run_test(test_add_water, "add waters", mc);
+      status += run_test(test_read_a_map, "read a map", mc);
 
    }
 
    // 20221110-PE currently fails
    //
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
-   // status += run_test(test_add_water, "add waters", mc);
-
-   status += run_test(test_read_a_map, "read a map", mc);
-   
+      status += run_test(test_merge_molecules,     "merge molecules", mc);
 
    // Note to self:
    //

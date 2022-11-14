@@ -2563,17 +2563,34 @@ coot::molecule_t::get_residue_closest_to(mmdb::Manager *mol, const clipper::Coor
 int
 coot::molecule_t::merge_molecules(const std::vector<mmdb::Manager *> &mols) {
 
+  make_backup();
   int n_new_atoms = 0;
   int n_pre = atom_sel.n_selected_atoms;
   mmdb::Manager *mol = atom_sel.mol;
   atom_sel.delete_atom_selection();
   coot::merge_molecules(mol, mols);
+
+  if (true) { // delete this when fixed
+     int imod = 1;
+     mmdb::Model *model_p = mol->GetModel(imod);
+     if (model_p) {
+        int n_chains = model_p->GetNumberOfChains();
+        for (int ichain=0; ichain<n_chains; ichain++) {
+           mmdb::Chain *chain_p = model_p->GetChain(ichain);
+           std::string chain_id(chain_p->GetChainID());
+           std::cout << "found chain with chain-id " << chain_id << std::endl;
+        }
+     }
+  }
+
   atom_sel = make_asc(mol);
   int n_post = atom_sel.n_selected_atoms;
   n_new_atoms = n_post - n_pre;
+  save_info.new_modification();
   return n_new_atoms;
 
 }
+
 
 
 // return status [1 means "usable"] and a chain id [status = 0 when

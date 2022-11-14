@@ -23,6 +23,7 @@
 #include "coot-colour.hh" // put this in utils
 
 #include "coords/mmdb-extras.h"
+#include "merge-molecule-results-info-t.hh"
 
 namespace coot {
 
@@ -465,6 +466,33 @@ namespace coot {
       //! merge molecules - copy the atom of mols into this molecule
       //! @return the number of atoms added.
       int merge_molecules(const std::vector<mmdb::Manager *> &mols);
+
+      // ----------------------- merge molecules
+
+      // merge molecules helper functions
+
+      bool is_het_residue(mmdb::Residue *residue_p) const;
+      // return state, max_resno + 1, or 0, 1 of no residues in chain.
+      //
+      std::pair<short int, int> next_residue_number_in_chain(mmdb::Chain *w,
+                                                             bool new_res_no_by_hundreds=false) const;
+
+      mmdb::Residue *copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
+                                                   mmdb::Residue *add_model_residue,
+                                                   bool new_resno_by_hundreds_flag=true);
+      void copy_and_add_chain_residues_to_chain(mmdb::Chain *new_chain, mmdb::Chain *this_molecule_chain);
+      std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
+                                                        const std::vector<std::string> &this_model_chains) const;
+      // that's too complicated for try_add_by_consolidation(), we just want this:
+      std::string suggest_new_chain_id(const std::string &current_chain_id) const;
+      std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
+      bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
+      bool merge_molecules_just_one_residue_at_given_spec(atom_selection_container_t molecule_to_add,
+                                                          residue_spec_t target_spec);
+      // return success status and spec if new residue if possible.
+      std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol);
+      std::pair<int, std::vector<merge_molecule_results_info_t> >
+      merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
 
       // ----------------------- refinement
 

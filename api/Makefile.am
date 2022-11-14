@@ -25,7 +25,7 @@ lib_LTLIBRARIES=libcoot-api.la
 
 libcoot_api_la_SOURCES = \
 coot_molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
-colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc                                  \
+colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc           coot_molecule_merge_molecules.cc \
 coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                   molecules_container_modelling.cc \
 molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc
 

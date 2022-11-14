@@ -465,7 +465,10 @@ public:
    //!
    //! list_of_other_molecules is a colon-separated list of molecules, e.g. "2:3:4"
    //! @return the return value is not useful at the moment.
-   int merge_molecules(int imol_target, const std::string &list_of_other_molecules);
+   // old: int merge_molecules(int imol_target, const std::string &list_of_other_molecules);
+   // 
+   std::pair<int, std::vector<merge_molecule_results_info_t> >
+   merge_molecules(int imol, const std::string &list_of_other_molecules);
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
