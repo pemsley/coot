@@ -351,6 +351,73 @@ coot::molecule_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
    return res_copied;
 }
 
+// Copy residues of new_chain into this_model_chain
+void
+coot::molecule_t::copy_and_add_chain_residues_to_chain(mmdb::Chain *new_chain, mmdb::Chain *this_molecule_chain) {
+
+   // remove TER record of current last residue (if it has a TER).
+   remove_TER_on_last_residue(this_molecule_chain);
+
+   int nres = new_chain->GetNumberOfResidues();
+   for (int ires=0; ires<nres; ires++) {
+      copy_and_add_residue_to_chain(this_molecule_chain, new_chain->GetResidue(ires));
+   }
+}
+
+
+// Merge molecules helper function.
+//
+// What we want to do is map chains ids in the new (adding) molecules
+// to chain ids that are unused in thid model:
+//
+// e.g. adding:  B,C,D
+//      this:    A,B,C
+//
+//      return:  D,E,F
+//
+std::vector<std::string>
+coot::molecule_t::map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
+                                           const std::vector<std::string> &this_model_chains) const {
+
+   std::vector<std::string> rv;
+   // we dont want ! [] or *, they are mmdb specials.
+   // 20200110-PE no more specials at all
+   // std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#$%^&@?/~|-+=(){}:;.,'");
+   std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+
+   // first remove from r, all the chain that already exist in this molecule.
+   for (unsigned int i=0; i<this_model_chains.size(); i++) {
+      // but only do that if the chain id is of length 1 (single character)
+      if (this_model_chains[i].length() == 1) {
+         std::string::size_type found_this_model_chain = r.find(this_model_chains[i]);
+         if (found_this_model_chain != std::string::npos) {
+            // there was a match
+            r = coot::util::remove_string(r, this_model_chains[i]);
+         } else {
+            // else there was not a match, this chain id does not
+            // exist in r (surprisingly).
+         }
+      }
+   }
+
+   for (unsigned int i=0; i<adding_model_chains.size(); i++) {
+
+      std::string t = "A";
+      std::cout << "finding new chain id for chain id :" << adding_model_chains[i] << ": "
+                << i << "/" << adding_model_chains.size() << std::endl;
+
+      if (r.length() > 0) {
+         t = r[0];
+         r = r.substr(1); // return r starting at position 1;
+      } else {
+         t = "A";
+      }
+      rv.push_back(t);
+   }
+   return rv;
+}
+
+
 // return "" on failure
 std::string
 coot::molecule_t::suggest_new_chain_id(const std::string &current_chain_id) const {
