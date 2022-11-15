@@ -1183,6 +1183,7 @@ int test_density_correlation_validation(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, true);
+   bool bad_correls = false;
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_map)) {
          unsigned int n_res = 0;
@@ -1191,11 +1192,19 @@ int test_density_correlation_validation(molecules_container_t &mc) {
             for (const auto &res : chain.rviv) {
                if (res.function_value > 0.5)
                   n_res++;
+               if (res.function_value < -1.0) bad_correls = true;
+               if (res.function_value >  1.0) bad_correls = true;
+
+               std::cout << "correl " << res.residue_spec.res_no << " " << res.function_value << std::endl;
             }
          }
          std::cout << "debug:: in test_density_correlation_validation n_res: " << n_res << std::endl;
-         if (n_res > 400)
-            status = 1;
+         if (bad_correls == false) {
+            if (n_res > 400)
+               status = 1;
+         } else {
+            std::cout << "debug:: in test_density_correlation_validation() bad correls! " << std::endl;
+         }
       }
    }
    mc.close_molecule(imol);
@@ -1381,18 +1390,21 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
       status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
-      status += run_test(test_density_correlation_validation, "density correlation validation", mc);
       status += run_test(test_rotamer_validation, "rotamer validation", mc);
       status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
       status += run_test(test_add_water, "add waters", mc);
       status += run_test(test_read_a_map, "read a map", mc);
+      status += run_test(test_merge_molecules,     "merge molecules", mc);
 
    }
 
    // 20221110-PE currently fails
    //
    // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
-      status += run_test(test_merge_molecules,     "merge molecules", mc);
+
+
+   status += run_test(test_density_correlation_validation, "density correlation validation", mc);
+
 
    // Note to self:
    //
