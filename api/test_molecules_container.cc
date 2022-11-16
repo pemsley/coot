@@ -1000,11 +1000,11 @@ int test_dictionary_bonds(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol_1 = mc.read_pdb(reference_data("pdb2sar.ent"));
+   int imol_1 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
    mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("3GP.cif", imol_1);
    int imol_2 = mc.get_monomer("ATP");
-   int imol_3 = mc.read_pdb(reference_data("pdb2sar.ent"));
+   int imol_3 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
 
    std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
@@ -1013,6 +1013,8 @@ int test_dictionary_bonds(molecules_container_t &mc) {
 
    coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode);
 
+   // there is no dictionary, but we should see vertices for the atoms
+   //
    unsigned int n_ligand_vertices = 0;
    for (const auto &vert : mesh.vertices) {
       double d = glm::distance(vert.pos, atom_ligand_C4_position);
@@ -1350,61 +1352,58 @@ int main(int argc, char **argv) {
          last_test_only = true;
    }
 
-   molecules_container_t mc;
+   molecules_container_t mc(false); // quiet
 
    mc.fill_rotamer_probability_tables();
 
    if (! last_test_only) {
 
-      status += run_test(test_rama_balls_mesh,    "rama balls mesh",          mc);
-      status += run_test(test_density_mesh,       "density mesh",             mc);
-      status += run_test(test_difference_map_contours, "difference map density mesh", mc);
-      status += run_test(test_pepflips,           "pepflips",                 mc);
-      status += run_test(test_auto_fit_rotamer,   "auto-fit rotamer",         mc);
-      status += run_test(test_updating_maps,      "updating maps",            mc);
-      status += run_test(test_delete_residue,     "delete residue",           mc);
-      status += run_test(test_delete_chain,       "delete chain",             mc);
-      status += run_test(test_rota_dodecs_mesh,   "rotamer dodecahedra mesh", mc);
-      status += run_test(test_rsr,                "rsr",                      mc);
-      status += run_test(test_rsr_using_atom_cid, "rsr using atom cid",       mc);
-      status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
-      status += run_test(test_delete_molecule,    "delete_moelcule",          mc);
-      status += run_test(test_mutate,              "mutate",                  mc);
-      status += run_test(test_delete_atom,        "delete atom",              mc);
-      status += run_test(test_weird_delete,       "delete II",                mc);
-      status += run_test(test_side_chain_180,     "side-chain 180",           mc);
-      status += run_test(test_bonds_mesh,         "bonds mesh",               mc);
-      status += run_test(test_undo_and_redo,      "undo and redo",            mc);
-      status += run_test(test_add_terminal_residue, "add terminal residue",   mc);
-      status += run_test(test_rama_validation,    "rama validation",          mc);
-      status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range", mc);
-      status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_move_molecule_here,    "move_molecule_here",    mc);
-      status += run_test(test_jed_flip,             "JED Flip",               mc);
-      status += run_test(test_sequence_generator, "Make a sequence string",   mc);
-      status += run_test(test_non_standard_types, "non-standard residue types in molecule",   mc);
-      status += run_test(test_pepflips_using_difference_map,         "Pepflips from Difference Map",               mc);
-      status += run_test(test_difference_map_peaks, "Difference Map Peaks",   mc);
-      status += run_test(test_eigen_flip,         "Eigen Flip",               mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary", mc);
-      status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
-      status += run_test(test_transformation_for_atom_selection, "transformation for atoms", mc);
-      status += run_test(test_rotamer_validation, "rotamer validation", mc);
+      status += run_test(test_transformation_for_atom_selection, "transformation for atoms",             mc);
+      status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range",    mc);
+      status += run_test(test_density_correlation_validation, "density correlation validation",          mc);
+      status += run_test(test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
+      status += run_test(test_difference_map_contours, "difference map density mesh", mc);
+      status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
+      status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
+      status += run_test(test_non_standard_types,   "non-standard residue types", mc);
+      status += run_test(test_rama_balls_mesh,      "rama balls mesh",          mc);
+      status += run_test(test_density_mesh,         "density mesh",             mc);
+      status += run_test(test_pepflips,             "pepflips",                 mc);
+      status += run_test(test_auto_fit_rotamer,     "auto-fit rotamer",         mc);
+      status += run_test(test_updating_maps,        "updating maps",            mc);
+      status += run_test(test_delete_residue,       "delete residue",           mc);
+      status += run_test(test_delete_chain,         "delete chain",             mc);
+      status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
+      status += run_test(test_rsr,                  "rsr",                      mc);
+      status += run_test(test_rsr_using_atom_cid,   "rsr using atom cid",       mc);
+      status += run_test(test_delete_molecule,      "delete_moelcule",          mc);
+      status += run_test(test_mutate,               "mutate",                   mc);
+      status += run_test(test_delete_atom,          "delete atom",              mc);
+      status += run_test(test_weird_delete,         "delete II",                mc);
+      status += run_test(test_side_chain_180,       "side-chain 180",           mc);
+      status += run_test(test_bonds_mesh,           "bonds mesh",               mc);
+      status += run_test(test_undo_and_redo,        "undo and redo",            mc);
+      status += run_test(test_add_terminal_residue, "add terminal residue",     mc);
+      status += run_test(test_rama_validation,      "rama validation",          mc);
+      status += run_test(test_move_molecule_here,   "move_molecule_here",       mc);
+      status += run_test(test_jed_flip,             "JED Flip",                 mc);
+      status += run_test(test_sequence_generator,   "Make a sequence string",   mc);
+      status += run_test(test_difference_map_peaks, "Difference Map Peaks",     mc);
+      status += run_test(test_eigen_flip,           "Eigen Flip",               mc);
+      status += run_test(test_rotamer_validation,   "rotamer validation",       mc);
+      status += run_test(test_add_water,            "add waters",               mc);
+      status += run_test(test_read_a_map,           "read a map",               mc);
+      status += run_test(test_merge_molecules,      "merge molecules",          mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
+      status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
-      status += run_test(test_add_water, "add waters", mc);
-      status += run_test(test_read_a_map, "read a map", mc);
-      status += run_test(test_merge_molecules,     "merge molecules", mc);
 
    }
 
    // 20221110-PE currently fails
    //
-   // status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
-
-
-   status += run_test(test_density_correlation_validation, "density correlation validation", mc);
-
+   status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
 
    // Note to self:
    //

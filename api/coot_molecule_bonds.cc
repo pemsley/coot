@@ -123,7 +123,9 @@ coot::molecule_t::make_ca_bonds() {
 
 
 void
-coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p, coot::rotamer_probability_tables *rotamer_probability_tables_p, const char *caller) {
+coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p,
+                                          coot::rotamer_probability_tables *rotamer_probability_tables_p,
+                                          const char *caller) {
 
    bool draw_missing_loops_flag = false; // pass this
    bool rotate_colour_map_on_read_pdb_c_only_flag = true; // pass this or make class data item
@@ -276,9 +278,17 @@ make_graphical_bonds_spherical_atoms(coot::simple_mesh_t &m, // fill this
                at->GetUDData(udd_handle_bonded_type, state);
                if (state == graphical_bonds_container::NO_BOND) {
                   do_it = true;
+                  // std::cout << "setting do_it to true because NO_BOND" << std::endl;
+               } else {
+                  if (false)
+                     std::cout << "in make_graphical_bonds_spherical_atoms() atom " << coot::atom_spec_t(at)
+                               << " state " << state << " vs NO_BOND " << graphical_bonds_container::NO_BOND
+                               << std::endl;
                }
             }
          }
+
+         // std::cout << "make_graphical_bonds_spherical_atoms() for atom " << coot::atom_spec_t(at) << " do-it: " << do_it << std::endl;
 
          if (do_it) {
             unsigned int idx_base = m.vertices.size();
@@ -1136,7 +1146,6 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
    simple_mesh_t m;
 
-   int udd_handle_bonded_type = 0; // FIXME
    float atom_radius = 0.12;
    float bond_radius = 0.12;
    unsigned int num_subdivisions = 1;
@@ -1154,14 +1163,54 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    // we don't make rotamer dodecs in this function
    makebonds(geom, nullptr, no_bonds_to_these_atoms); // this makes the bonds_box.
 
+   // get the udd_handle_bonded_type after making the bonds (because the handle is made by making the bond)
+   int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+   if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
+      std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
+      return m;
+   } else {
+      std::cout << "debug:: OK, udd_handle_bonded_type is " << udd_handle_bonded_type << " not " << mmdb::UDDATA_WrongUDRType
+                << std::endl;
+   }
+
+   if (false) {
+      // test that the udd_handle_bonded_type is useful
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        int state = -1;
+                        int udd_get_handle_success = at->GetUDData(udd_handle_bonded_type, state);
+                        std::string e;
+                        if (udd_get_handle_success == mmdb::UDDATA_WrongHandle)  e = "UDDATA_WrongHandle";
+                        if (udd_get_handle_success == mmdb::UDDATA_WrongUDRType) e = "UDDATA_WrongUDRType";
+                        if (udd_get_handle_success == mmdb::UDDATA_NoData)       e = "UDDATA_NoData";
+                        std::cout << " start get_bonds_mesh() " << coot::atom_spec_t(at) << " handle: " << udd_handle_bonded_type
+                                  << " udd_get_handle_success: " << udd_get_handle_success << " " << e << " state: " << state << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
    std::vector<glm::vec4> colour_table = make_colour_table();
    if (colour_table.empty()) {
       std::cout << "ERROR:: you need to make the bonds before getting the bonds mesh" << std::endl;
    }
 
    const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
-
-   
 
    unsigned int n_bonds = 0;
    for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
@@ -1182,7 +1231,7 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
    m.vertices.reserve(allocation_for_vertices);
    m.triangles.reserve(allocation_for_triangles);
-   
+
    make_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
                                         atom_radius, bond_radius, num_subdivisions, colour_table);
    make_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
