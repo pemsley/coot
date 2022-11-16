@@ -191,7 +191,10 @@ class molecules_container_t {
 
 public:
 
-   molecules_container_t() : ramachandrans_container(ramachandrans_container_t()) {init();}
+   explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
+      if (! verbose) geom.set_verbose(false);
+      init();
+   }
 
    //! the refinement map - direct access. When refinement is performed, this is the map
    //! that will be used.
