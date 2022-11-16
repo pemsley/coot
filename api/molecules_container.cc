@@ -212,6 +212,16 @@ molecules_container_t::read_pdb(const std::string &file_name) {
    int status = -1;
    atom_selection_container_t asc = get_atom_selection(file_name);
    if (asc.read_success) {
+
+      if (false) { // for debugging atom selections in the future
+         int udd_mess_indexing_1 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xx");
+         int udd_mess_indexing_2 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xy");
+         int udd_mess_indexing_3 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xz");
+
+         std::cout << "read_pdb(): udd_mess_indexing: "
+                   << udd_mess_indexing_1 << " " << udd_mess_indexing_2 << " " << udd_mess_indexing_3 << std::endl;
+      }
+
       // 20221011-PE this constructor doesn't (at the moment) call make_bonds(). I
       // don't know if that is a good idea.
       int imol = molecules.size();
