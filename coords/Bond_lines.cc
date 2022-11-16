@@ -2217,7 +2217,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    //             atoms)
 
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
+
    int udd_found_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found bond");
+   // std::cout << "............................ construct_from_asc() "
+   // << "udd_found_bond_handle register " << udd_found_bond_handle << std::endl;
    bool have_udd_atoms = 1;
    if (udd_found_bond_handle<0)  {
       std::cout << " atom bonding registration failed.\n";
@@ -6593,7 +6596,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
    // -------- metals and waters
-   int udd_found_bond_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond"); // pass this.
+
+   int udd_found_bond_handle = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM,"found bond");// Register! Not get.
    int ic = -1;
    for (int iat=0; iat<asc.n_selected_atoms; iat++) {
       mmdb::Atom *at = asc.atom_selection[iat];
@@ -6607,6 +6611,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
             // extract this to own function
             {
+               // std::cout << "making stars for " << at << std::endl;
                float star_size = 0.3;
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -8098,8 +8103,12 @@ void
 graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
                                             const std::vector<int> &colours) {
 
-   // std::cout << "In graphical_bonds_container::add_atom_centres adding "
-   //<< centres.size() << " atoms" << std::endl;
+   if (false) {
+      std::cout << "In graphical_bonds_container::add_atom_centres() adding "
+                << centres.size() << " atoms" << std::endl;
+      for (unsigned int i=0; i<centres.size(); i++)
+         std::cout << "Adding atom centre for atom " << centres[i].atom_p << std::endl;
+   }
 
    if (colours.size() != centres.size()) {
       std::cout << "ERROR:: !! colours.size() != centres.size() in add_atom_centres\n";
@@ -8112,8 +8121,10 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
       atom_centres_colour_[i] = colours[i];
    }
 
-   // now consolidate those to batches of each colour - orders of
-   // magnitude faster without colour changing per atom.
+   // now consolidate those to batches of each colour
+   //
+   // Comment from the ancient times:
+   //   doing so is orders of magnitude faster without colour changing per atom.
    //
    int col_idx_max = 1;
    for (int i=0; i<n_atom_centres_; i++) {
@@ -8145,9 +8156,12 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
    }
 
-   if (false)  {// debug
+   if (false)  { // debug
       for (int i=0; i<n_atom_centres_; i++)
-         std::cout << "---- add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
+         std::cout << "---- graphical_bonds_container::add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
+   }
+
+   if (false) {
       for (int i=0; i<col_idx_max; i++)
          std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
    }
