@@ -76,6 +76,83 @@ molecules_container_t::display_molecule_names_table() const {
    }
 }
 
+//! get the active atom
+std::pair<int, std::string>
+molecules_container_t::get_active_atom(float x, float y, float z, const std::string &displayed_model_molecules_list) const {
+
+   auto atom_to_cid = [] (mmdb::Atom *at) {
+      if (at) {
+         std::string s = "/";
+         s += std::to_string(at->GetModelNum());
+         s += "/";
+         s += std::to_string(at->GetSeqNum());
+         s += std::string(at->GetInsCode());
+         s += "/";
+         s += std::string(at->GetAtomName());
+         s += std::string(at->altLoc);
+         return s;
+      } else {
+         return std::string("");
+      }
+   };
+
+   int imol_closest = -1;
+   std::string cid;
+   std::vector<std::string> number_strings = coot::util::split_string(displayed_model_molecules_list, ":");
+   std::vector<int> mols;
+   for (const auto &item : number_strings) {
+      int idx = coot::util::string_to_int(item);
+      if (is_valid_model_molecule(idx))
+         mols.push_back(idx);
+   }
+
+   float best_distance_sqrd = 99999999999999999.9;
+   int best_imol = -1;
+   mmdb::Atom *best_atom = 0;
+   coot::Cartesian screen_centre(x,y,z);
+   for (unsigned int ii=0; ii<mols.size(); ii++) {
+      int imol = mols[ii];
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (mol) {
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              coot::Cartesian atom_pos(at->x, at->y, at->z);
+                              float dd = coot::Cartesian::lengthsq(screen_centre, atom_pos);
+                              if (dd < best_distance_sqrd) {
+                                 best_distance_sqrd = dd;
+                                 best_imol = imol;
+                                 best_atom = at;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (best_atom) {
+      imol_closest = best_imol;
+      cid = atom_to_cid(best_atom);
+   }
+   return std::make_pair(imol_closest, cid);
+}
+
+
 void
 molecules_container_t::update_updating_maps(int imol) {
 

@@ -314,6 +314,12 @@ public:
    //! read a PDB file (or mmcif coordinates file, despite the name)
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
+
+   //! get the active atom given the screen centre
+   //! @return the molecule index and the atom cid. On failure (no molecules with atoms in them, say) then
+   //! return -1 and a blank string.
+   std::pair<int, std::string> get_active_atom(float x, float y, float z, const std::string &displayed_model_molecules_list) const;
+
    //! import a dictionary cif - imol_enc is used to specify to which molecule this dictionary should apply.
    //! Use IMOL_ENC_ANY to mean "it applies to all molecules."
    //!
