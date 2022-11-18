@@ -1221,6 +1221,7 @@ molecules_container_t::connect_updating_maps(int imol_model, int imol_with_data_
    updating_maps_info.imol_2fofc = imol_map_2fofc;
    updating_maps_info.imol_fofc  = imol_map_fofc;
    updating_maps_info.imol_with_data_info_attached = imol_with_data_info_attached;
+   imol_difference_map = imol_map_fofc;
 
    // Let's force a sfcalc_genmap here.
    update_updating_maps(imol_model);
@@ -1371,9 +1372,9 @@ molecules_container_t::gru_points_total() const { // the sum of all the gru pont
 }
 
 int
-molecules_container_t::calculate_new_gru_points(int imol_diff_map) {
+molecules_container_t::calculate_new_gru_points() {
 
-   float rmsd = get_map_rmsd_approx(imol_diff_map);
+   float rmsd = get_map_rmsd_approx(imol_difference_map);
    if (! gru_point_history.empty()) {
       const gru_points_t &prev = gru_point_history.back();
       gru_points_t new_points(rmsd, prev);

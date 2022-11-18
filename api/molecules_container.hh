@@ -594,7 +594,7 @@ public:
 
    //! calling this adds to the gru_points history. Make this pairs when we add model scoring.
    //! @returns the new gru points (since last modification)
-   int calculate_new_gru_points(int imol_diff_map);
+   int calculate_new_gru_points();
 
    //! the total gru points
    //! @returns the sum of all gru points accumulated since the maps were connected.

@@ -123,7 +123,7 @@ int test_updating_maps(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol =        mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol          = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT",    "PHWT",    "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
@@ -133,8 +133,9 @@ int test_updating_maps(molecules_container_t &mc) {
    // set to the clipper map, overwriting the refmac map.
    //
    mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
+   mc.imol_difference_map = imol_diff_map; // happens for you in connect_updating_maps() (but we are not using that here).
    // After you have changed maps the firs time, add a starting point for the gru score:
-   mc.calculate_new_gru_points(imol_diff_map);
+   mc.calculate_new_gru_points();
 
    // modify the model by flipping a peptide.
    //
@@ -150,7 +151,7 @@ int test_updating_maps(molecules_container_t &mc) {
 
    // now update the maps
    mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
-   float new_gru_points = mc.calculate_new_gru_points(imol_diff_map);
+   float new_gru_points = mc.calculate_new_gru_points();
    float gpt = mc.gru_points_total();
    std::cout << "###### GruPoints gained: " << new_gru_points << " gru points total " << gpt << std::endl;
 
@@ -234,6 +235,39 @@ int test_undo_and_redo(molecules_container_t &mc) {
    }
    return status;
 }
+
+int test_undo_and_redo_2(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   coot::atom_spec_t atom_spec("A", 61, "", " CZ ", "");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+
+   int status_af = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+   if (status_af == 1) {
+      coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
+      double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
+      double d = std::sqrt(dd);
+      if (d > 6.0) {
+         // OK, it moved (fitted)
+         mc.undo(imol);
+         mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
+         coot::Cartesian pt_3(at_3->x, at_3->y, at_3->z);
+         dd = coot::Cartesian::lengthsq(pt_1, pt_3);
+         d = std::sqrt(dd);
+         std::cout << "debug:: in test_undo_and_redo_2() d " << d << std::endl;
+         if (d < 0.001)
+            status = 1;
+      }
+   }
+   return status;
+}
+
 
 int test_rama_validation(molecules_container_t &mc) {
 
@@ -1398,12 +1432,12 @@ int main(int argc, char **argv) {
       status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
       status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
       status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
-
+      status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
    }
 
    // 20221110-PE currently fails
    //
-   status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
+   status += run_test(test_undo_and_redo_2, "undo/redo 2", mc);
 
    // Note to self:
    //
