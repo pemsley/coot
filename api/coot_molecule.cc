@@ -1982,6 +1982,61 @@ coot::molecule_t::get_fixed_atoms() const {
    return fixed_atom_specs;
 }
 
+#include "ideal/simple-restraint.hh"
+
+int
+coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                                float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet) {
+
+   bool make_trans_peptide_restraints = true;
+   bool do_rama_plot_restraints = false;
+
+   int status =  0;
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
+   for (const auto &r : rv)
+      local_residues.push_back(std::make_pair(false, r));
+
+   if (true) {
+
+      make_backup();
+      mmdb::Manager *mol = atom_sel.mol;
+      std::vector<mmdb::Link> links;
+      coot::restraints_container_t restraints(local_residues,
+                                              links,
+                                              geom,
+                                              mol,
+                                              fixed_atom_specs, &xmap);
+      
+      if (refinement_is_quiet)
+         restraints.set_quiet_reporting();
+
+      std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+      restraints.add_map(map_weight);
+      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+      flags = coot::TYPICAL_RESTRAINTS;
+      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+      int n_threads = 4; // coot::get_max_number_of_threads();
+      ctpl::thread_pool thread_pool(n_threads);
+      restraints.thread_pool(&thread_pool, n_threads);
+      
+      int imol = 0; // dummy
+      restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+                                 1.0, do_rama_plot_restraints, true, true, false, pseudos);
+      int nsteps_max = 4000;
+      short int print_chi_sq_flag = 1;
+      restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+      coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+      if (! refinement_is_quiet)
+         gd.print();
+
+      save_info.new_modification("refine_direct");
+      
+   }
+   return status;
+}
+
 
 #include "add-terminal-residue.hh"
 

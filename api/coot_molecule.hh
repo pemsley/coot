@@ -505,6 +505,8 @@ namespace coot {
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
 
+      int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                        float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
       // ----------------------- map functions
 

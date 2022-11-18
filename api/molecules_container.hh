@@ -13,7 +13,7 @@
 #include "coot_molecule.hh"
 #include "coot-utils/coot-rama.hh"
 #include "utils/coot-utils.hh"
-#include "ideal/simple-restraint.hh"
+#include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
 #include "validation-information.hh"
 #include "simple-mesh.hh"
@@ -166,8 +166,7 @@ class molecules_container_t {
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
    // this is like mini-rsr:
-   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc,
-                     mmdb::Manager *mol);
+   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
