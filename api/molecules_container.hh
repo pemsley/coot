@@ -198,8 +198,7 @@ public:
    //! the refinement map - direct access. When refinement is performed, this is the map
    //! that will be used.
    int imol_refinement_map; // direct access
-   //! the difference map - direct access. The implicit difference map is not uses yet in this API
-   //! so maybe I should remove/delete this for now.
+   //! the difference map - direct access
    int imol_difference_map; // direct access
 
    // -------------------------------- Basic Utilities -----------------------------------
