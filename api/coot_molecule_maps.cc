@@ -401,6 +401,8 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
       return s;
    };
 
+   unsigned int n_limit = 100;
+
    std::vector<interesting_place_t> v;
    if (mol) {
       coot::peak_search ps(xmap);
@@ -421,11 +423,24 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
          v.push_back(dmp);
       }
 
-      // sort them in numberical order (not absolute) - for the waterfall plot
-      auto sorter = [] (const interesting_place_t &i1, const interesting_place_t &i2) {
-         return i1.feature_value < i2.feature_value;
-      };
-      std::sort(v.begin(), v.end(), sorter);
+      if (v.size() <= n_limit) {
+         // sort them in numberical order (not absolute) - for the waterfall plot
+         auto sorter_1 = [] (const interesting_place_t &i1, const interesting_place_t &i2) {
+            return i1.feature_value < i2.feature_value;
+         };
+         std::sort(v.begin(), v.end(), sorter_1);
+      } else {
+         // first sort by absolute - then resize, then sort by value
+         auto sorter_1 = [] (const interesting_place_t &i1, const interesting_place_t &i2) {
+            return i1.feature_value < i2.feature_value;
+         };
+         auto sorter_2 = [] (const interesting_place_t &i1, const interesting_place_t &i2) {
+            return fabsf(i2.feature_value) < fabsf(i1.feature_value);
+         };
+         std::sort(v.begin(), v.end(), sorter_2);
+         v.resize(n_limit);
+         std::sort(v.begin(), v.end(), sorter_1);
+      }
 
    } else {
       std::cout << "ERROR:: " << __FUNCTION__ << "() null mol" << std::endl;

@@ -24,6 +24,7 @@
 
 #include "coords/mmdb-extras.h"
 #include "merge-molecule-results-info-t.hh"
+#include "phi-psi-prob.hh"
 
 namespace coot {
 
@@ -374,7 +375,7 @@ namespace coot {
       // ----------------------- model analysis functions
 
       std::vector<std::string> non_standard_residue_types_in_model() const;
-      std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation() const;
+      std::vector<phi_psi_prob_t> ramachandran_validation(const ramachandrans_container_t &rc) const;
       // not const because it recalculates the bonds.
       coot::simple_mesh_t get_rotamer_dodecs(coot::protein_geometry *geom_p,
                                              coot::rotamer_probability_tables *rpt);
@@ -527,6 +528,7 @@ namespace coot {
          std::string button_label;
          float feature_value; // e.g. peak-height (not all "interesting" feature values can be captured by a float of course)
          float badness; // a nubmer between 100.0 and 0.0 (inclusive) if it's negative then it's not set.
+         interesting_place_t() {}
          interesting_place_t(const std::string &ft, const residue_spec_t &rs, const clipper::Coord_orth &pt, const std::string &bl) :
             feature_type(ft), residue_spec(rs), button_label(bl) {
             x = pt.x(); y = pt.y(); z = pt.z();

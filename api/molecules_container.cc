@@ -696,19 +696,19 @@ molecules_container_t::ramachandran_analysis(int imol_model) const {
    coot::validation_information_t vi;
    vi.name = "Ramachandran plot Probability";
    vi.type = "PROBABILITY";
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > rv =  ramachandran_validation(imol_model);
+   std::vector<coot::phi_psi_prob_t> rv = ramachandran_validation(imol_model);
 
    for (unsigned int i=0; i<rv.size(); i++) {
-      std::string chain_id = rv[i].second.chain_id;
-      coot::residue_spec_t residue_spec(rv[i].second.chain_id, rv[i].second.residue_number, rv[i].second.ins_code);
-      double pr = phi_psi_probability(rv[i].second, ramachandrans_container);
-      std::string label = rv[i].second.chain_id + std::string(" ") + std::to_string(rv[i].second.residue_number);
-      if (! rv[i].second.ins_code.empty())
-         label += std::string(" ") + rv[i].second.ins_code;
+      std::string chain_id = rv[i].phi_psi.chain_id;
+      coot::residue_spec_t residue_spec(rv[i].phi_psi.chain_id, rv[i].phi_psi.residue_number, rv[i].phi_psi.ins_code);
+      double pr = rv[i].probability;
+      std::string label = rv[i].phi_psi.chain_id + std::string(" ") + std::to_string(rv[i].phi_psi.residue_number);
+      if (! rv[i].phi_psi.ins_code.empty())
+         label += std::string(" ") + rv[i].phi_psi.ins_code;
       coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
       coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
       if (false)
-         std::cout << "         " << residue_spec << " " << rv[i].second.phi() << " " << rv[i].second.psi()
+         std::cout << "         " << residue_spec << " " << rv[i].phi_psi.phi() << " " << rv[i].phi_psi.psi()
                    << " pr " << pr << " " << std::endl;
       vi.add_residue_validation_information(rvi, chain_id);
    }
@@ -788,15 +788,15 @@ molecules_container_t::test_origin_cube() const {
    return m;
 }
 
-std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >
+std::vector<coot::phi_psi_prob_t>
 molecules_container_t::ramachandran_validation(int imol) const {
 
    // there are no probabilities here it seems.
 
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
-   if (is_valid_model_molecule(imol))
-      v = molecules[imol].ramachandran_validation();
-
+   std::vector<coot::phi_psi_prob_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].ramachandran_validation(ramachandrans_container);
+   }
    return v;
 }
 
@@ -865,14 +865,14 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
 
       std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaball = tessellate_octasphere(num_subdivisions);
 
-      std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_goodness_spots =
+      std::vector<coot::phi_psi_prob_t> ramachandran_goodness_spots =
          ramachandran_validation(imol);
       // now convert positions into meshes of balls
       int n_ramachandran_goodness_spots = ramachandran_goodness_spots.size();
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
-         const coot::Cartesian &position = ramachandran_goodness_spots[i].first;
-         const coot::util::phi_psi_t &phi_psi = ramachandran_goodness_spots[i].second;
-         double prob_raw = phi_psi_probability(phi_psi, ramachandrans_container);
+         const coot::Cartesian &position = ramachandran_goodness_spots[i].position;
+         const coot::phi_psi_prob_t &phi_psi = ramachandran_goodness_spots[i];
+         double prob_raw = phi_psi.probability;
          double q = prob_raw_to_colour_rotation(prob_raw);
          coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
          glm::vec3 ball_position = cartesian_to_glm(position);

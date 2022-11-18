@@ -17,6 +17,7 @@
 #include "atom-pull.hh"
 #include "validation-information.hh"
 #include "simple-mesh.hh"
+#include "phi-psi-prob.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -316,6 +317,8 @@ public:
    int read_pdb(const std::string &file_name);
 
    //! get the active atom given the screen centre
+   //!
+   //! ``displayed_model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return the molecule index and the atom cid. On failure (no molecules with atoms in them, say) then
    //! return -1 and a blank string.
    std::pair<int, std::string> get_active_atom(float x, float y, float z, const std::string &displayed_model_molecules_list) const;
@@ -412,7 +415,8 @@ public:
                         int imol_map);
 
    //! delete item
-   //! where scope in ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE"]
+   //!
+   //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE"]
    //! @return 1 on successful modification, return 0 on failure
    int delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
@@ -452,7 +456,7 @@ public:
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! @return a useful message if the addition did not work
    // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
-   // get rid of the pair as a return, so that I can compile the binding
+   //! This used to return a pair, but I removed it so that I could compile the binding
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    //! add waters, updating imol_model (of course)
@@ -556,7 +560,7 @@ public:
    //! @ return a `simple_mesh_t`
    coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol) const;
    //! ramachandran validation
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > ramachandran_validation(int imol) const;
+   std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
 
    //! all atom contact dots - this does not work yet
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol);
@@ -604,6 +608,9 @@ public:
    //! @returns the sum of all gru points accumulated since the maps were connected.
    int gru_points_total() const;
 
+   // -------------------------------- Updating Maps ---------------------------------------
+   //! \name Updating Maps
+
    //! associate a data mtz file with a molecule
    //!
    //! call this before calling connect_updating_maps().
@@ -616,17 +623,14 @@ public:
    //! @return 1 if the connection was successful.
    int connect_updating_maps(int imol_model, int imol_with_data_info_attached, int imol_map_2fofc, int imol_map_fofc);
 
-
-   // -------------------------------- Updating Maps ---------------------------------------
-   //! \name Updating Maps
-
-   //! sfcalc gemap (raw) - generally use the updating maps method rather than this
+   //! sfcalc and re-generate maps. This is a low-level function - generally one would use the updating maps
+   //! method rather than this
    void sfcalc_genmap(int imol_model,
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
 
-   //! sfcalc gemap (raw) - generally use the updating maps method rather than this.
-   //! uses bulk solvent
+   //! sfcalc and re-generate maps (low-level function) - generally use the updating maps method rather than this.
+   //! This functions uses bulk solvent.
    //! @return a class of interesting statistics
    coot::util::sfcalc_genmap_stats_t
    sfcalc_genmaps_using_bulk_solvent(int imol_model,

@@ -269,7 +269,33 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
 }
 
 
+int test_ramachandran_analysis(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_res = 0;
+      coot::validation_information_t ra = mc.ramachandran_analysis(imol);
+      for (const auto &chain : ra.cviv) {
+         for (const auto &res : chain.rviv) {
+            if (res.function_value > 0.5)
+               n_res++;
+         }
+      }
+      std::cout << "debug:: in test_ramachandran_validation n_res: " << n_res << std::endl;
+      if (n_res > 100)
+         status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+
 int test_rama_validation(molecules_container_t &mc) {
+
+   // test  that 285 is not there
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -277,14 +303,14 @@ int test_rama_validation(molecules_container_t &mc) {
    std::string coords_fn = reference_data("moorhen-tutorial-structure-number-1.pdb");
    int imol = mc.read_pdb(coords_fn);
 
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > rv = mc.ramachandran_validation(imol);
+   std::vector<coot::phi_psi_prob_t> rv = mc.ramachandran_validation(imol);
 
    bool r_285 = false;
    bool r_286 = false;
    for (const auto &r : rv) {
       // std::cout << " " << r.first << " " << r.second << std::endl;
-      if (r.second.residue_number == 285) r_285 = true;
-      if (r.second.residue_number == 286) r_286 = true;
+      if (r.phi_psi.residue_number == 285) r_285 = true;
+      if (r.phi_psi.residue_number == 286) r_286 = true;
    }
 
    if (r_286 && ! r_285)
@@ -991,15 +1017,21 @@ int test_difference_map_peaks(molecules_container_t &mc) {
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_diff_map)) {
-         float n_rmsd = 6.0; // lots of high peaks in the tutorial data. 6.0 is not a normal limit
+         float rmsd = mc.get_map_rmsd_approx(imol_diff_map);
+         float n_rmsd = 4.5; // lots of high peaks in the tutorial data. 6.0 is not a normal limit
          auto sites = mc.difference_map_peaks(imol_diff_map, imol, n_rmsd);
-         if (sites.size() > 20)
+         if (sites.size() > 8)
             status = 1;
-         if (false)
-            for (const auto &site : sites)
+         if (true)
+            for (const auto &site : sites) {
+               float peak_n_rmsd = site.feature_value / rmsd;
                std::cout << "site " << site.feature_type << " " << site.button_label << " "
                          << site.x << " " << site.y << " " << site.z << " residue " << site.residue_spec
-                         << " height " << site.feature_value << " badness " << site.badness << std::endl;
+                         << " height " << site.feature_value
+                         << " n-rmsd " << peak_n_rmsd
+                         << " badness " << site.badness
+                         << std::endl;
+            }
       }
    }
    return status;
@@ -1270,29 +1302,6 @@ int test_rotamer_validation(molecules_container_t &mc) {
    return status;
 }
 
-int test_ramachandran_validation(molecules_container_t &mc) {
-
-   starting_test(__FUNCTION__);
-   int status = 0;
-
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   if (mc.is_valid_model_molecule(imol)) {
-      unsigned int n_res = 0;
-      coot::validation_information_t ra = mc.ramachandran_analysis(imol);
-      for (const auto &chain : ra.cviv) {
-         for (const auto &res : chain.rviv) {
-            if (res.function_value > 0.5)
-               n_res++;
-         }
-      }
-      std::cout << "debug:: in test_ramachandran_validation n_res: " << n_res << std::endl;
-      if (n_res > 100)
-         status = 1;
-   }
-   mc.close_molecule(imol);
-   return status;
-}
-
 int test_add_water(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1419,25 +1428,24 @@ int main(int argc, char **argv) {
       status += run_test(test_bonds_mesh,           "bonds mesh",               mc);
       status += run_test(test_undo_and_redo,        "undo and redo",            mc);
       status += run_test(test_add_terminal_residue, "add terminal residue",     mc);
-      status += run_test(test_rama_validation,      "rama validation",          mc);
       status += run_test(test_move_molecule_here,   "move_molecule_here",       mc);
       status += run_test(test_jed_flip,             "JED Flip",                 mc);
       status += run_test(test_sequence_generator,   "Make a sequence string",   mc);
-      status += run_test(test_difference_map_peaks, "Difference Map Peaks",     mc);
       status += run_test(test_eigen_flip,           "Eigen Flip",               mc);
       status += run_test(test_rotamer_validation,   "rotamer validation",       mc);
       status += run_test(test_add_water,            "add waters",               mc);
       status += run_test(test_read_a_map,           "read a map",               mc);
       status += run_test(test_merge_molecules,      "merge molecules",          mc);
       status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
-      status += run_test(test_new_position_for_atoms, "new positions for atoms", mc);
-      status += run_test(test_ramachandran_validation, "ramachandran validation", mc);
-      status += run_test(test_dictionary_bonds, "dictionary bonds", mc);
+      status += run_test(test_new_position_for_atoms,"new positions for atoms", mc);
+      status += run_test(test_dictionary_bonds,      "dictionary bonds",        mc);
+      status += run_test(test_undo_and_redo_2,       "undo/redo 2",             mc);
+      status += run_test(test_ramachandran_analysis, "ramachandran analysis",   mc); // for the graph, not the plot
+      status += run_test(test_rama_validation,       "rama validation 2",       mc); // for the plot, not the graph
    }
 
-   // 20221110-PE currently fails
-   //
-   status += run_test(test_undo_and_redo_2, "undo/redo 2", mc);
+      status += run_test(test_difference_map_peaks, "Difference Map Peaks",     mc);
+
 
    // Note to self:
    //

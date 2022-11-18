@@ -1078,8 +1078,8 @@ int coot::molecule_t::flip_peptide(const coot::atom_spec_t &as_in, const std::st
 }
 
 
-std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >
-coot::molecule_t::ramachandran_validation() const {
+std::vector<coot::phi_psi_prob_t>
+coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) const {
 
    auto have_close_peptide_bond = [] (mmdb::Residue *residue_1, mmdb::Residue *residue_2) {
 
@@ -1153,7 +1153,7 @@ coot::molecule_t::ramachandran_validation() const {
       return std::make_pair(status, dir);
    };
 
-   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > v;
+   std::vector<coot::phi_psi_prob_t> v;
 
    float rama_ball_pos_offset_scale = 0.6;
 
@@ -1176,14 +1176,13 @@ coot::molecule_t::ramachandran_validation() const {
                   coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
                   if (hav.first) offset = hav.second * rama_ball_pos_offset_scale;
                   coot::util::phi_psi_t cupp(rp, rt, rn);
-                  auto p = std::make_pair(pos + offset, cupp);
-                  v.push_back(p);
+                  coot::phi_psi_prob_t ppp(cupp, rc);
+                  v.push_back(ppp);
                }
             }
          }
       }
    }
-
    return v;
 }
 
