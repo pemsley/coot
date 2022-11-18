@@ -1972,7 +1972,7 @@ coot::molecule_t::sanity_check_atoms(mmdb::Manager *mol) const {
 // coot::molecule_t::refine_residues(const residue_spec_t &residue_spec, refine_residues_mode mode) {
 
 //    int status = 0;
-   
+
 //    return status;
 // }
 
@@ -2007,7 +2007,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
                                               geom,
                                               mol,
                                               fixed_atom_specs, &xmap);
-      
+
       if (refinement_is_quiet)
          restraints.set_quiet_reporting();
 
@@ -2020,7 +2020,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
       int n_threads = 4; // coot::get_max_number_of_threads();
       ctpl::thread_pool thread_pool(n_threads);
       restraints.thread_pool(&thread_pool, n_threads);
-      
+
       int imol = 0; // dummy
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
                                  1.0, do_rama_plot_restraints, true, true, false, pseudos);
@@ -2032,7 +2032,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
          gd.print();
 
       save_info.new_modification("refine_direct");
-      
+
    }
    return status;
 }
