@@ -19,7 +19,8 @@ coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh   
 molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
 cylinder.hh		 rama-plot-phi-psi.hh	    vertex.hh                              \
 add-terminal-residue.hh  simple-mesh.hh		    interfaces.hh                          \
-atom-pull.hh		 prideout-octasphere.hh     g_triangle.hh
+atom-pull.hh		 prideout-octasphere.hh     g_triangle.hh                          \
+phi-psi-prob.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
