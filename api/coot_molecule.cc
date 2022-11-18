@@ -861,6 +861,9 @@ coot::molecule_t::adjust_occupancy_other_residue_atoms(mmdb::Atom *at,
 // with the new coordinates in.  the mol contains all the molecule and
 // the atom_selection contains just the moving parts.
 //
+// This function no longer does a backup or updates the save_info!
+// The calling function should do that.
+//
 void
 coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                                  bool change_altconf_occs_flag,
@@ -1049,8 +1052,9 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
       }
    }
    std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
+
    // have_unsaved_changes_flag = 1;
-   save_info.new_modification();
+   // save_info.new_modification("replace_coords()");
 
    if (show_symmetry) {  // internal
       update_symmetry();
@@ -1068,7 +1072,7 @@ int coot::molecule_t::flip_peptide(const coot::atom_spec_t &as_in, const std::st
    if (as.atom_name == " N  ")
       as.res_no--;
    int result = coot::pepflip(atom_sel.mol, as.chain_id, as.res_no, as.ins_code, alt_conf);
-   save_info.new_modification();
+   save_info.new_modification("flip_peptide");
    return result;
 
 }
@@ -1403,6 +1407,7 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
       if (p.first) {
          try {
 
+            make_backup();
             mmdb::Residue *prev_res = coot::util::previous_residue(res);
             mmdb::Residue *next_res = coot::util::next_residue(res);
             mmdb::Manager *mol = atom_sel.mol;
@@ -1412,7 +1417,6 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
             score = m.second;
             status = true;
-            save_info.new_modification();
             atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
             replace_coords(fragment_asc, 0, refinement_move_atoms_with_zero_occupancy_flag);
             if (baddie_waters.size())
@@ -1424,6 +1428,9 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
       } else {
          std::cout << " No restraints found for " << monomer_type << std::endl;
       }
+   }
+   if (status) {
+      save_info.new_modification("backrub_rotamer()");
    }
    return std::pair<bool,float> (status, score);
 }
@@ -1450,6 +1457,7 @@ coot::molecule_t::delete_side_chain(const residue_spec_t &residue_spec) {
    mmdb::Residue *residue_p = get_residue(residue_spec);
    if (residue_p) {
 
+      make_backup();
       bool was_deleted = false;
       // do we include CB? I forget.
       std::vector<std::string> main_chain_atoms_list = { " C  ", " N  ", " H  ", " O  ", " CA ",  " HA ", " CB " };
@@ -1471,12 +1479,9 @@ coot::molecule_t::delete_side_chain(const residue_spec_t &residue_spec) {
          atom_sel = make_asc(atom_sel.mol);
          // make_bonds_type_checked(__FUNCTION__);
          // have_unsaved_changes_flag = 1;
-         save_info.new_modification();
+         save_info.new_modification("delete_side_chain()");
          // unlikely to be necessary:
          trim_atom_label_table();
-
-         save_info.new_modification();
-
       }
    }
    return status;
@@ -1526,11 +1531,9 @@ coot::molecule_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs)
       atom_sel = make_asc(atom_sel.mol);
       // make_bonds_type_checked(__FUNCTION__);
       // have_unsaved_changes_flag = 1;
-      save_info.new_modification();
+      save_info.new_modification("delete_atoms");
       // unlikely to be necessary:
       trim_atom_label_table();
-
-      save_info.new_modification();
 
       // update_symmetry();
    }
@@ -1668,11 +1671,10 @@ coot::molecule_t::delete_atom(coot::atom_spec_t &atom_spec) {
       atom_sel = make_asc(atom_sel.mol);
       // make_bonds_type_checked(__FUNCTION__);
       // have_unsaved_changes_flag = 1;
-      save_info.new_modification();
+      save_info.new_modification("delete_atom");
       // unlikely to be necessary:
       trim_atom_label_table();
       update_symmetry();
-      save_info.new_modification();
    }
    return was_deleted;
 }
@@ -1812,10 +1814,9 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
       coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
       atom_sel = make_asc(atom_sel.mol);
 
-      save_info.new_modification();
+      save_info.new_modification(__FUNCTION__);
       trim_atom_label_table();
       update_symmetry();
-      save_info.new_modification();
    }
    return was_deleted;
 }
@@ -2211,7 +2212,7 @@ coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
 
       tree.rotate_about(atn_1, atn_2, angle, reverse);
       // have_unsaved_changes_flag = 1;
-      save_info.new_modification();
+      save_info.new_modification(__FUNCTION__);
    } else {
       problem_string = "Selected torsion had a periodicity of ";
       problem_string += clipper::String(period);
@@ -2355,7 +2356,7 @@ coot::molecule_t::eigen_flip_residue(const coot::residue_spec_t &residue_spec) {
       m = lig.flip_ligand(ligand_flip_number);
 
       // have_unsaved_changes_flag = 1;
-      save_info.new_modification();
+      save_info.new_modification(__FUNCTION__);
       std::cout << "DEBUG:: eigen_flip_residue() now save_info modification_index " << save_info.modification_index
                 << std::endl;
 
@@ -2586,7 +2587,7 @@ coot::molecule_t::merge_molecules(const std::vector<mmdb::Manager *> &mols) {
   atom_sel = make_asc(mol);
   int n_post = atom_sel.n_selected_atoms;
   n_new_atoms = n_post - n_pre;
-  save_info.new_modification();
+  save_info.new_modification(__FUNCTION__);
   return n_new_atoms;
 
 }
@@ -2863,7 +2864,7 @@ coot::molecule_t::append_to_molecule(const coot::minimol::molecule &water_mol) {
       if (n_atom > 0) {
          atom_sel.mol->FinishStructEdit();
          // update_molecule_after_additions(); // sets unsaved changes flag
-         save_info.new_modification();
+         save_info.new_modification(__FUNCTION__);
       }
    }
 

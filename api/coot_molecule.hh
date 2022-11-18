@@ -52,8 +52,9 @@ namespace coot {
          int max_modification_index;
          molecule_save_info_t() : last_saved(std::make_pair(0,0)), modification_index(0),
                                   max_modification_index(0) {}
-         void new_modification() {
+         void new_modification(const std::string &mod_string) {
             modification_index++;
+            std::cout << "new_modification! moved on to " << modification_index << " by " << mod_string << std::endl;
             if (modification_index > max_modification_index)
                max_modification_index = modification_index;
          }
@@ -156,6 +157,8 @@ namespace coot {
       std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      // This function no longer does a backup or updates the save_info!
+      // The calling function should do that.
       void replace_coords(const atom_selection_container_t &asc,
                           bool change_altconf_occs_flag,
                           bool replace_coords_with_zero_occ_flag);

@@ -48,6 +48,8 @@ namespace coot {
          std::string residue_name_;
          bool is_filled_;
          bool is_pre_pro_;
+         bool is_allowed_is_set_;
+         bool is_allowed_;
 
       public:
          // torsion angles in degrees
@@ -63,6 +65,8 @@ namespace coot {
             residue_number = resno;
             is_filled_ = 1;
             is_pre_pro_ = false;
+            is_allowed_is_set_ = false;
+            is_allowed_ = false;
          }
          phi_psi_t(double a, double b,
                    const std::string &res_name,
@@ -77,6 +81,8 @@ namespace coot {
             residue_number = resno;
             is_filled_ = 1;
             is_pre_pro_ = is_pre_pro;
+            is_allowed_is_set_ = false;
+            is_allowed_ = false;
          }
 
          phi_psi_t() {
@@ -85,6 +91,8 @@ namespace coot {
             phi_ = 0.0;
             psi_ = 0.0;
             residue_number = -1;
+            is_allowed_is_set_ = false;
+            is_allowed_ = false;
          };
          // this can throw an exception (e.g. bonding atoms too far
          // apart).  Uses get_phi_psi() below
@@ -98,10 +106,14 @@ namespace coot {
          std::string chain_id;
          int residue_number;  // rename this res_no
          std::string ins_code;
-         bool is_filled() const {
-            return is_filled_;
-         }
+         bool is_filled() const { return is_filled_; }
+         bool is_allowed_is_set() const { return is_allowed_is_set_; }
+         bool is_allowed() const { return is_allowed_; }
          bool is_pre_pro() const { return is_pre_pro_; }
+         void set_is_allowed(bool state) {
+            is_allowed_is_set_ = true;
+            is_allowed_ = state;
+         }
          friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
       };
 
