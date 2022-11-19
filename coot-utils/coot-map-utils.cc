@@ -2514,8 +2514,9 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
                                                  float atom_radius, // for masking
                                                  const clipper::Xmap<float> &reference_map) {
 
-   std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
-             << specs.size() << std::endl;
+   if (false)
+      std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
+                << specs.size() << std::endl;
 
    std::vector<std::pair<residue_spec_t, float> > v;
    int SelHnd = mol->NewSelection(); // d

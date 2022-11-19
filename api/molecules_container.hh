@@ -654,6 +654,33 @@ public:
                                                    float contour_level);
 
 
+   // -------------------------------- Ligand Fitting ---------------------------------------
+   //! \name Ligand Fitting
+
+   //! Ligand Fitting
+   //!
+   //! I am not yet clear what extra cut-offs and flags need to be added here.
+   //! You can expect this to take about 20 seconds.
+   //!
+   //! For trivial (i.e non-flexible) ligands you should instead use the jiggle-fit algorithm, which
+   //! takes a fraction of a second. (That is the algorithm used for "Add Other Solvent Molecules" in Coot.)
+   //!
+   //! @return a vector indices of molecules for the best fitting ligands to this blob.
+   std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
+                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! "Jiggle-Fit Ligand"
+   //! if n_trials is 0, then a sensible default value will be used.
+   //! if translation_scale_factor is negative then a sensible default value will be used.
+   //! @return a value less than -99.9 on failure to fit.
+   float fit_to_map_by_random_jiggle(int imol, const coot::residue_spec_t &res_spec, int n_trials, float translation_scale_factor);
+
+   //! "Jiggle-Fit Ligand" with a different interface
+   //! as above, if n_trials is 0, then a sensible default value will be used.
+   //! if translation_scale_factor is negative then a sensible default value will be used.
+   //! @return a value less than -99.9 on failure to fit.
+   float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

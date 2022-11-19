@@ -1022,7 +1022,7 @@ int test_difference_map_peaks(molecules_container_t &mc) {
          auto sites = mc.difference_map_peaks(imol_diff_map, imol, n_rmsd);
          if (sites.size() > 8)
             status = 1;
-         if (true)
+         if (false)
             for (const auto &site : sites) {
                float peak_n_rmsd = site.feature_value / rmsd;
                std::cout << "site " << site.feature_type << " " << site.button_label << " "
@@ -1276,6 +1276,7 @@ int test_density_correlation_validation(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -1318,6 +1319,7 @@ int test_add_water(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -1342,17 +1344,96 @@ int test_read_a_map(molecules_container_t &mc) {
       if (map_mesh.vertices.size() > 30000)
          status = 1;
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 
 }
 
+int test_ligand_fitting_here(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_ligand = mc.get_monomer("TRS");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_model_molecule(imol_ligand)) {
+         float n_rmsd = 1.0;
+         coot::Cartesian pos(62.4, 40.7, 26.6);
+         std::vector<int> fits = mc.fit_ligand_right_here(imol, imol_map, imol_ligand, pos.x(), pos.y(), pos.z(), n_rmsd, true, 10);
+         std::cout << "debug:: in test_ligand_fitting_here() found " << fits.size() << " fits" << std::endl;
+         if (fits.size() == 1) {
+            int imol_fit = fits[0];
+            mc.display_molecule_names_table();
+            std::cout << "debug:: in test_fit_ligand() imol_ligand: " << imol_ligand << " imol_fit: " << imol_fit << std::endl;
+            coot::validation_information_t dca_1 = mc.density_correlation_analysis(imol_ligand, imol_map);
+            coot::validation_information_t dca_2 = mc.density_correlation_analysis(imol_fit,    imol_map);
+            std::cout << "debug:: in test_ligand_fitting_here() dca_2 has " << dca_2.cviv.size() << " chains" << std::endl;
+            if (! dca_2.empty()) {
+               double cc_1 = dca_1.cviv[0].rviv[0].function_value;
+               double cc_2 = dca_2.cviv[0].rviv[0].function_value;
+               std::cout << "debug:: in test_ligand_fitting_here() cc: " << cc_1 << " " << cc_2 << std::endl;
+               // this is not a good test, because this model doesn't have a ligand. Here we basically just test
+               // that the function added some atoms.
+               if (cc_2 > 0.2)
+                  status = 1;
+            }
+         }
+      } else {
+         std::cout << "debug:: test_fit_ligand() failed to get model for ligand " << imol_ligand << std::endl;
+      }
+   }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_ligand);
+   return status;
+}
+
+int test_jiggle_fit(molecules_container_t &mc) {
+
+   // 20221119-PE this needs a better test. I need to construct a problem
+   // where there is a good solution with a real ligand.
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.imol_refinement_map = imol_map;
+      coot::atom_spec_t atom_spec("A", 61, "", " CZ ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+         mc.fit_to_map_by_random_jiggle_using_cid(imol, "//A/61", 9110, -1);
+         // you can test that the density for the CZ has improved when that function is available.
+         // or maybe "density_fit_for_residue()" ?
+         // or maybe "density_correlation_for_residue()" ?
+         // or maybe "density_correlation_for_residues()" with a list of a single residue
+         mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+         coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
+         double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+         double d = std::sqrt(dd);
+         // std::cout << "test_jiggle_fit d " << d << std::endl;
+         if (d > 0.4)
+            status = true;
+      }
+   }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
@@ -1442,9 +1523,12 @@ int main(int argc, char **argv) {
       status += run_test(test_undo_and_redo_2,       "undo/redo 2",             mc);
       status += run_test(test_ramachandran_analysis, "ramachandran analysis",   mc); // for the graph, not the plot
       status += run_test(test_rama_validation,       "rama validation 2",       mc); // for the plot, not the graph
+      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",    mc);
+      status += run_test(test_ligand_fitting_here,   "Ligand fitting here",     mc);
    }
 
-      status += run_test(test_difference_map_peaks, "Difference Map Peaks",     mc);
+
+   status += run_test(test_jiggle_fit,   "Jiggle-fit",     mc);
 
 
    // Note to self:

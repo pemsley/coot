@@ -2924,3 +2924,4 @@ coot::molecule_t::append_to_molecule(const coot::minimol::molecule &water_mol) {
 
    return istat;
 }
+

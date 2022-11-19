@@ -254,6 +254,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_bonds.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/molecules_container_modelling.cc
+            ${coot_src}/api/molecules_container_ligand_fitting.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/simple-mesh.cc

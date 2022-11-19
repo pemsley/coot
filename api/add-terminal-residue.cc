@@ -209,8 +209,9 @@ void insert_coords(mmdb::Manager *mol, int udd_atom_index,
       }
    };
 
-   asc_for_atoms_to_be_added.mol->WritePDBASCII("asc_for_atoms_to_be_added.pdb");
-   debug_asc_for_atoms_to_be_inserted(asc_for_atoms_to_be_added);
+   // asc_for_atoms_to_be_added.mol->WritePDBASCII("asc_for_atoms_to_be_added.pdb");
+   if (false)
+      debug_asc_for_atoms_to_be_inserted(asc_for_atoms_to_be_added);
 
    bool inserted = false; // not inserted yet
    int imod = 1;

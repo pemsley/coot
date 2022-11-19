@@ -28,7 +28,7 @@ libcoot_api_la_SOURCES = \
 coot_molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
 colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc           coot_molecule_merge_molecules.cc \
 coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                   molecules_container_modelling.cc \
-molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc
+molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc   molecules_container_ligand_fitting.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/ligand/libcoot-ligand.la           \

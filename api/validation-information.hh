@@ -48,6 +48,7 @@ namespace coot {
          unsigned int idx = get_index_for_chain(chain_id);
          cviv[idx].add_residue_valiation_informtion(rvi);
       }
+      bool empty() const { return cviv.empty(); }
       void set_min_max() {
          unsigned int n = 0;
          double min =  9999999999999;

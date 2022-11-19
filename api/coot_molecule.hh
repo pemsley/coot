@@ -216,6 +216,21 @@ namespace coot {
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
 
+      // ====================== Jiggle-Fit (internal) ================================
+
+      float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
+                                        int n_atoms,
+                                        const clipper::Xmap<float> &xmap,
+                                        float map_sigma,
+                                        int n_trials,
+                                        float jiggle_scale_factor,
+                                        bool use_biased_density_scoring,
+                                        std::vector<mmdb::Chain *> chains_for_moving);
+
+      coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
+                                             const clipper::Xmap<float> &xmap,
+                                             float map_sigma) const;
+
       // ====================== init ======================================
 
       void init() {
@@ -470,6 +485,11 @@ namespace coot {
       //! merge molecules - copy the atom of mols into this molecule
       //! @return the number of atoms added.
       int merge_molecules(const std::vector<mmdb::Manager *> &mols);
+
+      //! My ligands don't jiggle-jiggle...
+      //! Hey, what do you know, they actually do.
+      float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, clipper::Xmap<float> &xmap, float map_rmsd,
+                                        int n_trials, float translation_scale_factor);
 
       // ----------------------- merge molecules
 
