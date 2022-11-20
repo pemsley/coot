@@ -2099,6 +2099,9 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 		  std::pair<bool, float> d = closest_approach(SelResidue[ii], SelResidue[jj]);
 		  if (d.first) {
 		     if (d.second < dist_crit) {
+                        if (false)
+                           std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
+                                     << std::endl;
 			std::pair<std::string, bool> l =
 			   find_link_type_complicado(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {

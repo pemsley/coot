@@ -1805,12 +1805,12 @@ namespace coot {
       //
       // return "" as first if no close link found.
       //
-      std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<chem_link, bool> > &li,
+      std::pair<std::string, bool> general_link_find_close_link(const std::vector<chem_link> &li,
                                                                 mmdb::Residue *r1, mmdb::Residue *r2,
                                                                 bool order_switch_flag,
                                                                 const protein_geometry &geom) const;
 
-      std::string general_link_find_close_link_inner(const std::vector<std::pair<chem_link, bool> > &li,
+      std::string general_link_find_close_link_inner(const std::vector<chem_link> &li,
                                                      mmdb::Residue *r1, mmdb::Residue *r2,
                                                      bool order_switch_flag,
                                                      const protein_geometry &geom) const;
@@ -1828,7 +1828,7 @@ namespace coot {
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
       void make_h_bond_restraints_from_res_vec_auto(const protein_geometry &geom);
 
-      bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
+      bool link_infos_are_glycosidic_by_name_p(const std::vector<chem_link> &link_infos) const;
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
@@ -2604,6 +2604,12 @@ namespace coot {
       std::pair<std::string, bool> find_link_type_complicado(mmdb::Residue *first,
                                                              mmdb::Residue *second,
                                                              const protein_geometry &geom) const;
+
+      // 20221120-PE find_link_type_complicado is to complicated for me to understand.
+      // Let's try again
+      std::pair<std::string, bool> find_link_type_2022(mmdb::Residue *first,
+                                                       mmdb::Residue *second,
+                                                       const protein_geometry &geom) const;
 
       // which calls
       bool have_intermediate_residue_by_seqnum(mmdb::Residue *first,

@@ -2120,6 +2120,12 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
             mmdb::Residue *res_1 = at_1->residue;
             mmdb::Residue *res_2 = at_2->residue;
 
+            std::string res_name_1(res_1->GetResName());
+            std::string res_name_2(res_2->GetResName());
+
+            if (res_name_1 == "HOH") continue; // waters don't make links that are not
+            if (res_name_2 == "HOH") continue; // handled in make_header_metal_links_ng()
+
             if (res_1 == res_2) {
                // these should not be here - they should be filtered out in contacts_by_bricks.
                // At some state test if this is still needed.
@@ -2179,11 +2185,11 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                << std::endl;
 
                   // not sure that this is what I want now, really
-                  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
+                  std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
                   // Returns first (link_type) as "" if not found, second is order switch flag
 
                   if (false)
-                     std::cout << "-------- find_link_type_complicado() returns \"" << lt.first << "\""
+                     std::cout << "-------- find_link_type_2022() returns \"" << lt.first << "\""
                                << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
                                << std::endl;
 

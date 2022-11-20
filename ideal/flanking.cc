@@ -416,6 +416,8 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
                                << n_fixed_residues << std::endl;
 
                   if (n_fixed_residues != 2) {
+                     // std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
+                     // << std::endl;
                      std::pair<std::string, bool> l = find_link_type_complicado(*it_set, it->first, geom);
                      const std::string &link_type = l.first;
                      if (! link_type.empty()) {
@@ -473,11 +475,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
 
    if (false) { // debug
-      for (it=neighbour_set.begin(); it != neighbour_set.end(); it++) {
+      for (it=neighbour_set.begin(); it != neighbour_set.end(); ++it) {
 	 std::cout << "Residue " << residue_spec_t(it->first) << " has neighbours ";
 	 const std::set<mmdb::Residue *> &neighbours = it->second;
 	 std::set<mmdb::Residue *>::const_iterator it_set;
-	 for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+	 for (it_set=neighbours.begin(); it_set!=neighbours.end(); ++it_set) {
 	    std::cout << " " << residue_spec_t(*it_set);
 	 }
 	 std::cout << std::endl;
@@ -487,11 +489,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    // 20180220 no longer iterate on the residue_vec. Elinor Breiner
    //
    // Use this instead:
-   for (it=neighbour_set.begin(); it != neighbour_set.end(); it++) {
+   for (it=neighbour_set.begin(); it != neighbour_set.end(); ++it) {
 
       const std::set<mmdb::Residue *> &neighbours = it->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
-      for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+      for (it_set=neighbours.begin(); it_set!=neighbours.end(); ++it_set) {
 
 	 // std::cout << "base residue " << it->first << " " << residue_spec_t(it->first) << std::endl;
 	 // std::cout << "checking for set member " << *it_set << " " << residue_spec_t(*it_set) << " in "
@@ -514,6 +516,8 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 
+                  //std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
+                  // << std::endl;
 		  std::pair<std::string, bool> l = find_link_type_complicado(*it_set, it->first, geom);
 		  const std::string &link_type = l.first;
 		  if (! link_type.empty()) {
