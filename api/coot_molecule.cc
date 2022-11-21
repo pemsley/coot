@@ -1432,6 +1432,9 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             replace_coords(fragment_asc, 0, refinement_move_atoms_with_zero_occupancy_flag);
             if (baddie_waters.size())
                delete_atoms(baddie_waters);
+
+            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+            atom_sel.mol->FinishStructEdit();
          }
          catch (const std::runtime_error &rte) {
             std::cout << "WARNING:: thrown " << rte.what() << std::endl;
