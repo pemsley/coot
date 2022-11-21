@@ -105,7 +105,7 @@ class molecules_container_t {
    int cif_dictionary_read_number;
    // return the state of having found restraints.
    std::string adjust_refinement_residue_name(const std::string &resname) const;
-   bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,
+   bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
 			     const std::vector<mmdb::Link> &links,
 			     const coot::protein_geometry &geom,
 			     mmdb::Manager *mol_for_residue_selection,
@@ -467,14 +467,16 @@ public:
    //! what does this do!?
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! flip peptide
+   //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
-   //! flip peptidea using cid
+   //! flip peptide using an atom CID
+   //! @return 1 on a successful flip
    int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
    //! eigen-flip ligand
    void eigen_flip_ligand(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
-   //! eigen-flip ligand using cid
+   //! eigen-flip ligand using CID
    void eigen_flip_ligand_using_cid(int imol, const std::string &residue_cid);
 
    //! mutate residue
@@ -485,7 +487,7 @@ public:
    //! @return 1 on a successful move, 0 on failure.
    int side_chain_180(int imol, const std::string &atom_cid);
 
-   //! JED-Flip the ligand (or residue) at the given atom.
+   //! JED-Flip the ligand (or residue) at the specified atom.
    //! @return a non-blank message if there is a problem
    std::string jed_flip(int imol, const std::string &atom_cid, bool invert_selection);
 

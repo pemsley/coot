@@ -34,6 +34,7 @@ int test_auto_fit_rotamer(molecules_container_t &mc_in) {
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_map)) {
+
          coot::residue_spec_t res_spec("A", 61, "");
          mmdb::Residue *r = coot::util::get_residue(res_spec, mc[imol].atom_sel.mol);
          if (r) {
@@ -44,8 +45,26 @@ int test_auto_fit_rotamer(molecules_container_t &mc_in) {
             double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
             double d = std::sqrt(dd);
             std::cout << "d " << d << std::endl;
-            if (d > 6.0)
-               status = 1; // yay.
+            if (d > 6.0) {
+
+               mc.mutate(imol, "//A/62/CA", "ARG");
+               mc.write_coordinates(imol, "post-mutate.pdb");
+               mc.auto_fit_rotamer(imol, "A", 62, "", "", imol_map);
+               mc.write_coordinates(imol, "post-auto-fit-rotamer.pdb");
+               coot::validation_information_t dca = mc.density_correlation_analysis(imol, imol_map);
+               for (const auto &chain : dca.cviv) {
+                  for (const auto &res : chain.rviv) {
+                     if (res.residue_spec.res_no == 62) {
+                        std::cout << "function value " << res.function_value << std::endl;
+                        if (res.function_value > 0.6) {
+                           status = 1;
+                        }
+                     }
+                  }
+               }
+            } else {
+               std::cout << "bad d " << d << std::endl;
+            }
          } else {
             std::cout << "residue not found" << res_spec << std::endl;
          }
@@ -1528,7 +1547,9 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_jiggle_fit,   "Jiggle-fit",     mc);
+   // status += run_test(test_jiggle_fit,   "Jiggle-fit",     mc);
+
+   status += run_test(test_auto_fit_rotamer,     "auto-fit rotamer",         mc);
 
 
    // Note to self:
