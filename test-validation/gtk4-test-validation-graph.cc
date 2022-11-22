@@ -26,6 +26,7 @@ coot::validation_information_t
 density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_file_name) {
 
    coot::validation_information_t r;
+   r.name = "Density fit analysis";
 
    // fill these
    mmdb::PResidue *SelResidues = 0;
@@ -82,6 +83,7 @@ coot::validation_information_t
 rotamer_analysis(const std::string &pdb_file_name) {
 
    coot::validation_information_t r;
+   r.name = "Rotamer analysis";
 
    // fill these
    mmdb::PResidue *SelResidues = 0;
@@ -128,7 +130,7 @@ rotamer_analysis(const std::string &pdb_file_name) {
                coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
                double prob = rpi.probability;
 
-               std::string l = res_spec.label();
+               std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
                std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
                const std::string &chain_id = res_spec.chain_id;
                int this_resno = res_spec.res_no;
@@ -221,10 +223,10 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
    gtk_widget_set_margin_top(vbox_inner,10);
    gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(vbox_inner));
 
-   gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Density fit"));
+   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Density fit"));
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_d_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_d_stacked, "A");
-   gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Rotamer analysis"));
+   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Rotamer analysis"));
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_r_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_r_stacked, "A");
 

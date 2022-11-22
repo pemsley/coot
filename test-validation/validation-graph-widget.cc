@@ -159,7 +159,14 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
 
             // Label chain
-            std::string chain_markup = "<span size=\"medium\" weight=\"bold\">Chain " + chain.chain_id + "</span>";
+            std::string chain_markup = "<span size=\"medium\" weight=\"bold\">";
+            // if(self->single_chain_id) {
+            //     // we wanna actually show the type of the graph, not the name of the chain
+            //     chain_markup += self->_vi->name;
+            // } else { 
+            chain_markup += "Chain " + chain.chain_id;
+            //}
+            chain_markup += "</span>";
             pango_layout_set_markup(pango_layout,chain_markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             cairo_move_to(cairo_canvas,0,base_height - layout_height / 2.f + CHAIN_LABEL_VERT_OFFSET);

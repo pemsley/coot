@@ -5,7 +5,7 @@
 #include "residue-validation-information.hh"
 
 namespace coot {
-   
+
    enum class graph_data_type {
       /// Just normal auto scale
       Distortion, 
@@ -23,6 +23,7 @@ namespace coot {
    class chain_validation_information_t {
    public:
       std::string chain_id;
+      /// what is this used for?
       std::string name;
       /// if this corresponds to `validation_information_t::type`, then I guess it should be removed
       /// (in order to have a single source of truth)
