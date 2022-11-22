@@ -62,16 +62,16 @@ const coot::chain_validation_information_t* get_chain_with_id(CootValidationGrap
     auto ret = self->_vi->cviv.cend();
     ret = std::find_if(self->_vi->cviv.cbegin(), self->_vi->cviv.cend(), 
         [&](const coot::chain_validation_information_t& chain){
-            g_debug("cmp \"%s\" == \"%s\" gives %s",chain.chain_id.c_str(),chain_id.c_str(),chain.chain_id == chain_id ? "true" : "false");
+            //g_debug("cmp \"%s\" == \"%s\" gives %s",chain.chain_id.c_str(),chain_id.c_str(),chain.chain_id == chain_id ? "true" : "false");
             return chain.chain_id == chain_id;
         }
     );
     if(ret == self->_vi->cviv.cend()) {
-        g_debug("Chain with id \"%s\" not found!",chain_id.c_str());
+        //g_debug("Chain with id \"%s\" not found!",chain_id.c_str());
         return nullptr;
     } else {
         const auto* retaddr = &*ret;
-        g_debug("Returning %p",retaddr);
+        //g_debug("Returning %p",retaddr);
         return retaddr;
     }
 }

@@ -148,6 +148,7 @@ struct graphs_shipment_t {
    CootValidationGraph* graph_r;
    CootValidationGraph* graph_d_stacked;
    CootValidationGraph* graph_r_stacked;
+   GtkComboBoxText*     chain_selector;
 };
 
 GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
@@ -267,6 +268,17 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
       coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
    }), graphs->graph_r_stacked);
 
+   gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(graphs->chain_selector));
+
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_d_stacked);
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_r_stacked);
+
    return vbox;
 }
 
@@ -310,8 +322,15 @@ int main(int argc, char **argv) {
       GError *error = NULL;
       g_application_register(G_APPLICATION(app), NULL, &error);
 
+
+      GtkWidget* chain_selector = gtk_combo_box_text_new();
+      for(const auto& chain: vid.cviv) {
+         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(chain_selector), chain.chain_id.c_str());
+      }
+
       graphs_shipment_t* gs = new graphs_shipment_t();
 
+      gs->chain_selector = GTK_COMBO_BOX_TEXT(chain_selector);
       gs->graph_d = coot_validation_graph_new();
       gs->graph_r = coot_validation_graph_new();
       gs->graph_d_stacked = coot_validation_graph_new();
