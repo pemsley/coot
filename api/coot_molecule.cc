@@ -738,7 +738,7 @@ coot::molecule_t::full_atom_spec_to_atom_index(const std::string &chain,
 
       if (false) { // debugging.
          std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
-         std::cout << "debgu:: full_atom_spec_to_atom_index() resno " << resno
+         std::cout << "debug:: full_atom_spec_to_atom_index() resno " << resno
                    << " (cf MinInt4) " << mmdb::MinInt4 << "\n";
          if (resno == mmdb::MinInt4) {
             std::cout << "      residue with resno MinInt4\n";
@@ -871,6 +871,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                                  bool change_altconf_occs_flag,
                                  bool replace_coords_with_zero_occ_flag) {
 
+   // 20221122-PE convert this to fast indexing one day!
 
    int n_atom = 0;
    int tmp_index;
@@ -916,7 +917,11 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
 
          }
 
+         // std::cout << "------------------ replace_coords() with UDDOldAtomIndexHandle() " << asc.UDDOldAtomIndexHandle << std::endl;
+
          if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+
+            std::cout << "------------ replace_coords() path A" << std::endl;
 
             if (debug)
                std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: "
@@ -957,7 +962,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
             }
          } else {
 
-            if (debug)
+            if (false)
                std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is "
                          << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
                          << std::endl;
@@ -967,6 +972,9 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                                                std::string(atom->GetInsCode()),
                                                std::string(atom->name),
                                                std::string(atom->altLoc));
+
+            // std::cout << "full_atom_spec_to_atom_index() returned " << idx << " for " << coot::atom_spec_t(atom) << std::endl;
+
             if (idx == -1) {
                std::cout << "DEBUG:: idx: " << idx << "\n";
                std::cout << "ERROR:: failed to find atom in molecule: chain-id :"
@@ -977,6 +985,8 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                          << std::string(atom->altLoc) << ":" << std::endl;
             }
          }
+
+         // std::cout << "----- replace_coords() with change_altconf_occs_flag " << change_altconf_occs_flag << std::endl;
 
          if (change_altconf_occs_flag) {
             if (idx >= 0) {
@@ -1003,6 +1013,18 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                      //                          << graphics_info_t::add_alt_conf_new_atoms_occupancy << std::endl;
                      shelxins.set_fvar(fvar_number, add_alt_conf_new_atoms_occupancy);
                   }
+
+                  if (true) {
+                     coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
+                     coot::Cartesian new_pos(atom->x, atom->y, atom->z);
+                     double d = (new_pos - old_pos).amplitude();
+                     if (false) {
+                        std::cout << "    changing coords for atom with idx " << idx << " "
+                                  << coot::atom_spec_t(mol_atom) << std::endl;
+                        std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
+                     }
+                  }
+                  
 
                   if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
                      mol_atom->SetCoordinates(atom->x,
@@ -1035,14 +1057,15 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
             if (idx != -1 ) {
                if (idx <= atom_sel.n_selected_atoms) {
                   mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
-                  if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) {
-                     if (debug) {
+                  bool is_movable_atom = movable_atom(mol_atom, replace_coords_with_zero_occ_flag);
+                  if (is_movable_atom) {
+                     if (debug) { // debug  
                         coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
                         coot::Cartesian new_pos(atom->x, atom->y, atom->z);
                         double d = (new_pos - old_pos).amplitude();
-                        if (false) {
-                           std::cout << "    changing coords for atom with idx " << idx << " "
-                                     << coot::atom_spec_t(mol_atom) << std::endl;
+                        if (false) { // debug
+                           std::cout << "    changing coords for atom with idx " << idx << " " << coot::atom_spec_t(mol_atom)
+                                     << std::endl;
                            std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
                         }
                      }
@@ -1444,6 +1467,7 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
       }
    }
    if (status) {
+      write_coordinates("post_backrub_rotamer.pdb");
       save_info.new_modification("backrub_rotamer()");
    }
    return std::pair<bool,float> (status, score);
@@ -2078,6 +2102,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
 int
 coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &new_res_type) {
 
+   atom_sel.delete_atom_selection();
    mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
    int status = coot::util::mutate(residue_p, new_res_type);
    // std::cout << "mutate status " << status << std::endl;
@@ -2085,7 +2110,7 @@ coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &ne
    // 20221121-PE should thise function calls be in coot::util::mutate()? I think so.
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
-
+   atom_sel = make_asc(atom_sel.mol); // regen the atom indices
    return status;
 
 }
@@ -2644,7 +2669,7 @@ coot::molecule_t::merge_molecules(const std::vector<mmdb::Manager *> &mols) {
   atom_sel.delete_atom_selection();
   coot::merge_molecules(mol, mols);
 
-  if (true) { // delete this when fixed
+  if (false) { // delete this when fixed
      int imod = 1;
      mmdb::Model *model_p = mol->GetModel(imod);
      if (model_p) {
