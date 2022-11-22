@@ -93,28 +93,29 @@ G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
 
 void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
-    // attribute_color is used for drawing labels and axes
-    GdkRGBA residue_color, border_color, attribute_color;
-
-    gdk_rgba_parse (&residue_color, "#008000");
-    gdk_rgba_parse (&border_color, "#002000");
-
-    // gdk_rgba_parse (&attribute_color, "#ffffff");
-    // Gtk 4.10 ?
-    // gtk_widget_get_style_color(widget,&attribute_color);
-    GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
-    gtk_style_context_get_color(style_context,&attribute_color);
-
-
-
-    float w = (float) gtk_widget_get_width (widget);
-    float h = (float) gtk_widget_get_height (widget);
-
-
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
-
     self->coordinate_cache->clear();
     if(self->_vi) {
+        if(self->single_chain_id) {
+            if (! get_chain_with_id(self,*self->single_chain_id)) {
+                return;
+            }
+        }
+        // attribute_color is used for drawing labels and axes
+        GdkRGBA residue_color, border_color, attribute_color;
+
+        gdk_rgba_parse (&residue_color, "#008000");
+        gdk_rgba_parse (&border_color, "#002000");
+
+        // gdk_rgba_parse (&attribute_color, "#ffffff");
+        // Gtk 4.10 ?
+        // gtk_widget_get_style_color(widget,&attribute_color);
+        GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
+        gtk_style_context_get_color(style_context,&attribute_color);
+
+        float w = (float) gtk_widget_get_width (widget);
+        float h = (float) gtk_widget_get_height (widget);
+        
         // 1. Draw title
         graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
@@ -135,8 +136,9 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         // A GtkLabel as a child widget could also be used, but I have no idea how to manage layout inside widgets
 
         float base_height = TITLE_HEIGHT;
-        float width_step = (w - (float) AXIS_MARGIN) / (float) max_chain_residue_count(self);
-        const int chain_count = self->_vi->cviv.size();
+        const float _max_chain_residue_count = self->single_chain_id ? get_chain_with_id(self,*self->single_chain_id)->rviv.size() : max_chain_residue_count(self);
+        float width_step = (w - (float) AXIS_MARGIN) / _max_chain_residue_count;
+        const int chain_count =  self->single_chain_id ? 1 : self->_vi->cviv.size();
         float height_diff = 0;
         if (chain_count != 1) {
             height_diff = (h - (float) TITLE_HEIGHT - (float) chain_count * (CHAIN_HEIGHT + CHAIN_SPACING)) / ((float) chain_count - 1.f);
@@ -145,6 +147,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         cairo_set_line_width(cairo_canvas,AXIS_LINE_WIDTH);
 
         for(const auto& chain: self->_vi->cviv) {
+            if(self->single_chain_id) {
+                if(*self->single_chain_id != chain.chain_id) {
+                    continue;
+                }
+            }
             m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
 
             // Label chain
@@ -189,7 +196,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
-                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH, bar_height);
+                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
                 //self->coordinate_cache->operator[](m_graphene_rect) = &residue;
                 self->coordinate_cache->push_back(std::pair<graphene_rect_t,const coot::residue_validation_information_t*>{m_graphene_rect,&residue});
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
@@ -393,7 +400,11 @@ set_horizontal_zoom_scale(CootValidationGraph* self, float scale)
 void
 set_single_chain_mode(CootValidationGraph* self, const char* chain_id)
 {
-    self->single_chain_id.reset(new std::string(chain_id));
+    if(chain_id) {
+        self->single_chain_id.reset(new std::string(chain_id));
+    } else {
+        self->single_chain_id.reset(nullptr);
+    }
 }
 
 
