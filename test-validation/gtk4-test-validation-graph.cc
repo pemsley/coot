@@ -221,8 +221,10 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
    gtk_widget_set_margin_top(vbox_inner,10);
    gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(vbox_inner));
 
+   gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Density fit"));
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_d_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_d_stacked, "A");
+   gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Rotamer analysis"));
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_r_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_r_stacked, "A");
 
