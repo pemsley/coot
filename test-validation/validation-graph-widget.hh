@@ -22,10 +22,6 @@
     }
 #endif
 
-enum GraphDataType {
-
-};
-
 
 G_BEGIN_DECLS   
 

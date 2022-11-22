@@ -5,11 +5,27 @@
 #include "residue-validation-information.hh"
 
 namespace coot {
-
+   
+   enum class graph_data_type {
+      /// Just normal auto scale
+      Distortion, 
+      /// Just normal auto scale [?]
+      Energy, 
+      /// Values from 0.0 - 1.0
+      /// Hanging down
+      Probability, 
+      /// Just normal auto scale [?]
+      Correlation, 
+      /// Values from 0.0 - 1.0, (negative) log scale
+      /// Hanging down
+      LogProbability
+   };
    class chain_validation_information_t {
    public:
       std::string chain_id;
       std::string name;
+      /// if this corresponds to `validation_information_t::type`, then I guess it should be removed
+      /// (in order to have a single source of truth)
       std::string type;
       std::vector<residue_validation_information_t> rviv;
       explicit chain_validation_information_t(const std::string &chain_id_in);
@@ -19,7 +35,7 @@ namespace coot {
    class validation_information_t {
    public:
       std::string name;
-      std::string type;
+      graph_data_type type;
       std::vector<chain_validation_information_t> cviv;
       unsigned int get_index_for_chain(const std::string &chain_id);
       void add_residue_valiation_informtion(const residue_validation_information_t &rvi, const std::string &chain_id);
