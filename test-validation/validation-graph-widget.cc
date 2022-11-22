@@ -6,22 +6,6 @@
 #include <string>
 #include <vector>
 
-// class GrapheneRectCompare {
-//     public:
-//     bool operator()(const graphene_rect_t& lhs,const graphene_rect_t& rhs) const noexcept {
-//         if (graphene_rect_get_x(&lhs) < graphene_rect_get_x(&rhs)) {
-//             return true;
-//         } else if (graphene_rect_get_y(&lhs) < graphene_rect_get_y(&rhs)) {
-//             return true;
-//         } else if (graphene_rect_get_width(&lhs) < graphene_rect_get_width(&rhs)) {
-//             return true;
-//         } else {
-//             return (graphene_rect_get_height(&lhs) < graphene_rect_get_height(&rhs));
-//         }
-//         //return lhs < rhs;
-//     }
-// };
-
 //typedef std::map<graphene_rect_t,const coot::residue_validation_information_t*, GrapheneRectCompare> coord_cache_t;
 typedef std::vector<std::pair<graphene_rect_t,const coot::residue_validation_information_t*>> coord_cache_t;
 
@@ -65,6 +49,7 @@ const float AXIS_VERT_OFFSET = CHAIN_SPACING * 4.f / 5.f;
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
 const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 
+/// Returns the maximum number of residues in a chain (maximum among all the chains)
 size_t max_chain_residue_count(CootValidationGraph* self) {
     using it_t = coot::chain_validation_information_t;
     return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
@@ -73,7 +58,22 @@ size_t max_chain_residue_count(CootValidationGraph* self) {
     })->rviv.size();
 }
 
-double max_chain_residue_distortion(const std::vector<coot::residue_validation_information_t>& rviv) {
+const coot::chain_validation_information_t* get_chain_with_id(CootValidationGraph* self,const std::string& chain_id) {
+    auto ret = self->_vi->cviv.cend();
+    ret = std::find_if(self->_vi->cviv.cend(), self->_vi->cviv.cbegin(), 
+        [&](const coot::chain_validation_information_t& chain){
+            return chain.chain_id == chain_id;
+        }
+    );
+    if(ret == self->_vi->cviv.cend()) {
+        return nullptr;
+    } else {
+        return &*ret;
+    }
+}
+
+/// Returns maximum distortion value found for the given chain
+double max_residue_distortion_for_chain(const std::vector<coot::residue_validation_information_t>& rviv) {
     using it_t = coot::residue_validation_information_t;
     return std::max_element(rviv.cbegin(),rviv.cend(),
     [](const it_t& lhs, const it_t& rhs){
@@ -163,7 +163,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
-            const double normalization_divisor = max_chain_residue_distortion(chain.rviv);
+            const double normalization_divisor = max_residue_distortion_for_chain(chain.rviv);
             // vertical axis markers
             for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
                 float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
@@ -231,13 +231,21 @@ void coot_validation_graph_measure
         switch (orientation)
         {
         case GTK_ORIENTATION_HORIZONTAL:{
-            auto max_chain_residues = max_chain_residue_count(self);
-            *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + GRAPH_HORIZ_OFFSET;
-            *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) + GRAPH_HORIZ_OFFSET;
+            if (self->single_chain_id) {
+                const auto* chain = get_chain_with_id(self, *self->single_chain_id);
+                if(chain) {
+                    *minimum_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+                    *natural_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+                }
+            } else {
+                auto max_chain_residues = max_chain_residue_count(self);
+                *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+                *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+            }
             break;
         }
         case GTK_ORIENTATION_VERTICAL:{
-            auto num_of_chains = self->_vi->cviv.size();
+            auto num_of_chains = self->single_chain_id ? 1 : self->_vi->cviv.size();
             //g_debug("Num of chains: %u",num_of_chains);
             auto size = num_of_chains * (CHAIN_HEIGHT + CHAIN_SPACING) + TITLE_HEIGHT;
             //g_debug("Vertical size: %u",size);
@@ -327,7 +335,7 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
     self->_vi = std::shared_ptr<const coot::validation_information_t>(nullptr);
     self->coordinate_cache = std::make_unique<coord_cache_t>();
     self->horizontal_scale = 1.f;
-    self->single_chain_id = std::make_unique<std::string>();
+    self->single_chain_id = nullptr;
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     // GtkEventController* hover_controller = gtk_event_controller_motion_new();
