@@ -29,9 +29,11 @@ G_DECLARE_FINAL_TYPE  (CootValidationGraph, coot_validation_graph, COOT, COOT_VA
 
 
 CootValidationGraph *coot_validation_graph_new();
+void set_horizontal_zoom_scale(CootValidationGraph* self, float scale);
 
 G_END_DECLS
 
 void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::shared_ptr<coot::validation_information_t> vi);
+
 
 #endif // VALIDATION_GRAPH_WIDGET_HH

@@ -31,6 +31,7 @@ struct _CootValidationGraph {
 
     std::shared_ptr<const coot::validation_information_t> _vi;
     std::unique_ptr<coord_cache_t> coordinate_cache;
+    float horizontal_scale;
 };
 
 /// Basis for max bar height
@@ -370,6 +371,11 @@ coot_validation_graph_new()
     return COOT_COOT_VALIDATION_GRAPH(g_object_new (COOT_VALIDATION_GRAPH_TYPE, NULL));
 }
 
+void 
+set_horizontal_zoom_scale(CootValidationGraph* self, float scale) 
+{
+
+}
 
 
 G_END_DECLS
