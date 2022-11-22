@@ -187,6 +187,15 @@ GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
       }),
    target_label);
 
+   GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
+   gtk_box_append(GTK_BOX(vbox), scale);
+   gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+   gtk_range_set_value(GTK_RANGE(scale),1.f);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), validation_graph);
+
    return vbox;
 }
 
@@ -243,6 +252,20 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
          g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
       }),
    target_label);
+
+   GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
+   gtk_box_append(GTK_BOX(vbox), scale);
+   gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+   gtk_range_set_value(GTK_RANGE(scale),1.f);
+
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_d_stacked);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_r_stacked);
 
    return vbox;
 }

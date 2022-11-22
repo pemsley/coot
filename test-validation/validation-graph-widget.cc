@@ -399,6 +399,8 @@ void
 coot_validation_graph_set_horizontal_zoom_scale(CootValidationGraph* self, float scale) 
 {
     self->horizontal_scale = scale;
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+    gtk_widget_queue_resize(GTK_WIDGET(self));
 }
 
 void
@@ -409,6 +411,8 @@ coot_validation_graph_set_single_chain_mode(CootValidationGraph* self, const cha
     } else {
         self->single_chain_id.reset(nullptr);
     }
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+    gtk_widget_queue_resize(GTK_WIDGET(self));
 }
 
 
@@ -418,4 +422,6 @@ void coot_validation_graph_set_validation_information(CootValidationGraph* self,
     // The stored pointers become invalidated
     self->coordinate_cache->clear();
     self->_vi = vi;
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+    gtk_widget_queue_resize(GTK_WIDGET(self));
 }
