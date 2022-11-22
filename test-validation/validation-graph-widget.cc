@@ -31,6 +31,8 @@ struct _CootValidationGraph {
 
     std::shared_ptr<const coot::validation_information_t> _vi;
     std::unique_ptr<coord_cache_t> coordinate_cache;
+    /// Single-chain mode if not null
+    std::unique_ptr<std::string> single_chain_id;
     float horizontal_scale;
 };
 
@@ -324,6 +326,8 @@ static void coot_validation_graph_init(CootValidationGraph* self) {
     // I don't know how g_object_new initializes C++ stuff. Better set those up manually
     self->_vi = std::shared_ptr<const coot::validation_information_t>(nullptr);
     self->coordinate_cache = std::make_unique<coord_cache_t>();
+    self->horizontal_scale = 1.f;
+    self->single_chain_id = std::make_unique<std::string>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     // GtkEventController* hover_controller = gtk_event_controller_motion_new();
@@ -343,6 +347,7 @@ static void coot_validation_graph_dispose(GObject* _self) {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(_self);
     self->_vi.reset();
     self->coordinate_cache.reset(nullptr);
+    self->single_chain_id.reset(nullptr);
     G_OBJECT_CLASS(coot_validation_graph_parent_class)->dispose(_self);
 }
 
@@ -374,7 +379,13 @@ coot_validation_graph_new()
 void 
 set_horizontal_zoom_scale(CootValidationGraph* self, float scale) 
 {
+    self->horizontal_scale = scale;
+}
 
+void
+set_single_chain_mode(CootValidationGraph* self, const char* chain_id)
+{
+    self->single_chain_id.reset(new std::string(chain_id));
 }
 
 

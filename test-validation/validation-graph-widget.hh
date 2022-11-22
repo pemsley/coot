@@ -31,6 +31,10 @@ G_DECLARE_FINAL_TYPE  (CootValidationGraph, coot_validation_graph, COOT, COOT_VA
 CootValidationGraph *coot_validation_graph_new();
 void set_horizontal_zoom_scale(CootValidationGraph* self, float scale);
 
+/// Enable single-chain mode for the given chain ID.
+/// Single-chain mode is turned off if the `chain_id` is a null pointer
+void set_single_chain_mode(CootValidationGraph* self, const char* chain_id);
+
 G_END_DECLS
 
 void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::shared_ptr<coot::validation_information_t> vi);
