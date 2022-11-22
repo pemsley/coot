@@ -60,15 +60,19 @@ size_t max_chain_residue_count(CootValidationGraph* self) {
 
 const coot::chain_validation_information_t* get_chain_with_id(CootValidationGraph* self,const std::string& chain_id) {
     auto ret = self->_vi->cviv.cend();
-    ret = std::find_if(self->_vi->cviv.cend(), self->_vi->cviv.cbegin(), 
+    ret = std::find_if(self->_vi->cviv.cbegin(), self->_vi->cviv.cend(), 
         [&](const coot::chain_validation_information_t& chain){
+            g_debug("cmp \"%s\" == \"%s\" gives %s",chain.chain_id.c_str(),chain_id.c_str(),chain.chain_id == chain_id ? "true" : "false");
             return chain.chain_id == chain_id;
         }
     );
     if(ret == self->_vi->cviv.cend()) {
+        g_debug("Chain with id \"%s\" not found!",chain_id.c_str());
         return nullptr;
     } else {
-        return &*ret;
+        const auto* retaddr = &*ret;
+        g_debug("Returning %p",retaddr);
+        return retaddr;
     }
 }
 
@@ -392,13 +396,13 @@ coot_validation_graph_new()
 }
 
 void 
-set_horizontal_zoom_scale(CootValidationGraph* self, float scale) 
+coot_validation_graph_set_horizontal_zoom_scale(CootValidationGraph* self, float scale) 
 {
     self->horizontal_scale = scale;
 }
 
 void
-set_single_chain_mode(CootValidationGraph* self, const char* chain_id)
+coot_validation_graph_set_single_chain_mode(CootValidationGraph* self, const char* chain_id)
 {
     if(chain_id) {
         self->single_chain_id.reset(new std::string(chain_id));
