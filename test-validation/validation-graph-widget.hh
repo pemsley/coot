@@ -7,6 +7,7 @@
     // good times
 
     #include <memory>
+
 #else
     // cope
 
@@ -20,6 +21,10 @@
         }
     }
 #endif
+
+enum GraphDataType {
+
+};
 
 
 G_BEGIN_DECLS   
