@@ -2055,7 +2055,6 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
 
    // replace this function by making a residue directly instead of via a molfile.
    // If there are no atom names, make them from the element and atom number
-   
 
    mmdb::Residue *residue_p = NULL;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);

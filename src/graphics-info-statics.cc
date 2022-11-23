@@ -1462,6 +1462,8 @@ glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
 float graphics_info_t::screen_z_near_perspective =  76.0; // was 83
 float graphics_info_t::screen_z_far_perspective  = 125.0;
 
+float graphics_info_t::goodselliness = 0.3; // the pastelization factor
+
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
 
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;

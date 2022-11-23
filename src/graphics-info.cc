@@ -1953,6 +1953,9 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void
 graphics_info_t::clear_up_moving_atoms() {
 
+   // this function is not just graphics, so it needs to check use_graphics_interface_flag
+   // internally.
+
    // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
    // Where does the moving_atoms_asc->mol go?
 
@@ -2055,13 +2058,18 @@ graphics_info_t::clear_up_moving_atoms() {
    draw_gl_ramachandran_plot_flag = false;
 #endif
 
-   hydrogen_bonds_atom_position_pairs.clear();
-   update_hydrogen_bond_mesh("");
+   if (use_graphics_interface_flag) {
 
-   // now the diegos
-   bad_nbc_atom_pair_marker_positions.clear();
-   update_bad_nbc_atom_pair_marker_positions();
+      draw_gl_ramachandran_plot_flag = false;
 
+      hydrogen_bonds_atom_position_pairs.clear();
+      update_hydrogen_bond_mesh("");
+
+      // now the diegos
+      bad_nbc_atom_pair_marker_positions.clear();
+      update_bad_nbc_atom_pair_marker_positions();
+
+   }
 }
 
 
@@ -2144,6 +2152,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                    unsigned int do_rama_markup_in, // default MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING,
                                                    unsigned int do_rota_markup_in  // default MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING
                                                    ) {
+
+   if (! use_graphics_interface_flag) return;
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;

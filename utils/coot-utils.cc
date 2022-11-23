@@ -899,8 +899,20 @@ coot::prefix_dir() {
       s = env;
    } else {
       std::string dds = package_data_dir();
-      std::string ds = get_directory(dds);
-      s = get_directory(ds);
+      if (! dds.empty())
+         if (dds.back() == '/')
+            dds.erase(dds.size() - 1);    // or pop_back
+      std::string ds = util::file_name_directory(dds);
+      if (! ds.empty())
+         if (ds.back() == '/')
+            ds.erase(ds.size() - 1);
+      s = util::file_name_directory(ds);
+      if (! s.empty())
+         if (s.back() == '/')
+            s.erase(s.size() - 1);
+      std::cout << "dds: " << dds << std::endl;
+      std::cout << "ds:  " <<  ds << std::endl;
+      std::cout << "s:   " <<   s << std::endl;
    }
    return s;
 }

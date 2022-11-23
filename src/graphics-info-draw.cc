@@ -3532,11 +3532,15 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
 
          std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
          for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
-            const auto &bip = rr.sorted_nbc_baddies[i];
-            std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
-            converted_baddies[i] = p;
+            if (i < converted_baddies.size()) {
+               const auto &bip = rr.sorted_nbc_baddies[i];
+               std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
+               converted_baddies[i] = p;
+            } else {
+               std::cout << "ERROR:: bad converted_baddies index " << i << " " << converted_baddies.size() << std::endl;
+            }
          }
-      
+
          status_pair = check_blocks(converted_baddies, 1, x_base_for_hud_geometry_bars,
                                     hud_geometry_distortion_to_bar_size_nbc, act_on_hit);
       }

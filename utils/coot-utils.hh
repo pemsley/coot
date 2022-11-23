@@ -123,6 +123,7 @@ namespace coot {
       std::string single_quote(const std::string &s, const std::string &quote_char="\"");
       // return 0 on success, something else on failure
       int create_directory(const std::string &dir_name);
+      // use dds.erase(dds.size() - 1) to strip trailing "/" - see prefix_dir()
       std::string file_name_directory(const std::string &file_name);
       std::string file_name_extension(const std::string &file_name); // including the "."
       std::string file_name_non_directory(const std::string &file_name);

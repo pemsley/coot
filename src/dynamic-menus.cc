@@ -86,8 +86,8 @@ void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-      graphics_info_t g;
-      g.b_factor_graphs(imol);
+   graphics_info_t g;
+   g.b_factor_graphs(imol);
 
 }
 

@@ -1455,7 +1455,7 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  Mew Screendump                                          */
+/*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
 void screendump_tga(const std::string &file_name);
 void set_framebuffer_scale_factor(unsigned int sf);
@@ -1521,6 +1521,10 @@ void set_model_material_ambient(int imol, float r, float g, float b, float alpha
 
 //! \brief
 void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
+
+//! \brief set the goodselliness (pastelization_factor) 0.3 is about right, but "the right value"
+//!        depends on the renderer, may be some personal choice.
+void set_model_goodselliness(float pastelization_factor);
 
 //! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
@@ -2046,6 +2050,9 @@ std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_i
 
 //! \brief write the sequence for imol as fasta
 void write_sequence(int imol, const std::string &file_name);
+
+//! \brief build the structure from the map
+void res_tracer(const std::string &pir_file_name);
 
 /* \} */
 
