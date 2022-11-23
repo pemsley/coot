@@ -5421,25 +5421,53 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			return col;
 		     }
 		  } else {
-		     if (element == " N") {
-			return BLUE_BOND;
-		     } else {
-			if (element == " O") {
-			   return RED_BOND;
-			} else {
-			   if (element == " S") {
-			      return YELLOW_BOND;
-			   } else {
-			      if (element == " P") {
-				 return ORANGE_BOND;
-			      } else {
-				 if (is_hydrogen(element)) {
-				    return HYDROGEN_GREY_BOND;
-				 }
-			      }
-			   }
-			}
-		     }
+
+                     if (element == " N") {
+                        return BLUE_BOND;
+                     } else {
+                        if (element == " O") {
+                           return RED_BOND;
+                        } else {
+                           if (element == " S") {
+                              return YELLOW_BOND;
+                           } else {
+                              if (is_hydrogen(element)) {
+                                 if (is_deuterium(element))
+                                    return DEUTERIUM_PINK;
+                                 else
+                                    return HYDROGEN_GREY_BOND;
+                              } else {
+                                 if (element == " P") {
+                                    return ORANGE_BOND;
+                                 } else {
+                                    if (element == " F") {
+                                       return GREEN_BOND;
+                                    } else {
+                                       if (element == "CL") {
+                                          return GREEN_BOND;
+                                       } else {
+                                          if (element == "BR") {
+                                             return DARK_BROWN_BOND;
+                                          } else {
+                                             if (element == " I") {
+                                                return MAGENTA_BOND;
+                                             } else {
+                                                if (element == "MG") {
+                                                   return DARK_GREEN_BOND;
+                                                } else {
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
 		  }
 		  return GREY_BOND;
 
