@@ -1211,7 +1211,7 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
                   coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
                   if (hav.first) offset = hav.second * rama_ball_pos_offset_scale;
                   coot::util::phi_psi_t cupp(rp, rt, rn);
-                  coot::phi_psi_prob_t ppp(cupp, pos, rc);
+                  coot::phi_psi_prob_t ppp(cupp, pos + offset, rc);
                   v.push_back(ppp);
                }
             }
