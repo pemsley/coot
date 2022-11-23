@@ -21,57 +21,60 @@
 
 import unittest
 import os
+import coot
+import coot_utils
+import begin
+
 
 class UtilTestFunctions(unittest.TestCase):
 
     def test01_0(self):
         """Test key symbols"""
 
-        add_key_binding("name", "missing","")
+        coot.add_key_binding_gtk3_py("name", "missing","")
 
-        test_list = [[key_sym_code("a-symbol"), -1],
-                     [key_sym_code(["a", "b"]), -1],
-                     [key_sym_code("A"), 65],
-                     [key_sym_code("a"), 97],
-                     [key_sym_code("9"), 57],
-                     [key_sym_code("cent"), 162],
-                     [key_sym_code(">"), 62],
-                     [key_sym_code(";"), 59],
-                     [key_sym_code("|"), 124],                     
+        test_list = [[coot.key_sym_code_py("a-symbol"), -1],
+                     [coot.key_sym_code_py(["a", "b"]), -1],
+                     [coot.key_sym_code_py("A"), 65],
+                     [coot.key_sym_code_py("a"), 97],
+                     [coot.key_sym_code_py("9"), 57],
+                     [coot.key_sym_code_py("cent"), 162],
+                     [coot.key_sym_code_py(">"), 62],
+                     [coot.key_sym_code_py(";"), 59],
+                     [coot.key_sym_code_py("|"), 124],
                      ]
 
         for code, result in test_list:
-            self.failUnlessEqual(code, result,
-                                 " fail on key_sym_code, %s is not equal to %s " %(code, result))
+            self.assertEqual(code, result, " fail on key_sym_code, %s is not equal to %s " %(code, result))
 
 
     def test02_0(self):
         """Test running a scheme function"""
 
-        if self.skip_test(not coot_has_guile(),
+        if self.skip_test(not coot.coot_has_guile(),
                           "Skipping guile test (no guile)"):
             return
 
-        tot = run_scheme_command("(+ 2 4)")
-        self.failUnlessEqual(tot, 6)
+        tot = coot.run_scheme_command("(+ 2 4)")
+        self.assertEqual(tot, 6)
 
         #run_scheme_command("define test-val 4")
         #run_scheme_command("(set! test-val 2)")
-        rv = run_scheme_command("(rotation-centre)")
-        print "BL DEBUG:: return scheme is ", rv
+        rv = coot.run_scheme_command("(rotation-centre)")
+        print("BL DEBUG:: return scheme is ", rv)
         #rv = run_scheme_command("test-val")
         #print "BL DEBUG:: return scheme is ", rv
-        rv = run_scheme_command("2")
-        self.failUnlessEqual(rv, 2)
+        rv = coot.run_scheme_command("2")
+        self.assertEqual(rv, 2)
 
 
     def test03_0(self):
         """Internal/External Molecule Numbers match"""
 
-        m = molecule_number_list()
+        m = coot_utils.molecule_number_list()
         #print "   m: ", m
         #print " own: ", map(own_molecule_number, m)
-        self.failUnless(m == map(own_molecule_number, m))
+        self.assertTrue(m == list(map(coot.own_molecule_number, m)))
 
 
         def test04_0(self):
@@ -182,47 +185,25 @@ class UtilTestFunctions(unittest.TestCase):
 
             from types import ListType
             from types import StringType
-            
-            imol = unittest_pdb("monomer-ACT.pdb")
+
+            imol = begin.unittest_pdb("monomer-ACT.pdb")
 
             for space_group in test_groups:
 
-                set_success = set_space_group(imol, space_group)
-                symops = symmetry_operators(imol)
+                set_success = coot.set_space_group(imol, space_group)
+                symops = coot.symmetry_operators(imol)
 
-                self.failUnless(set_success == 1,
+                self.assertTrue(set_success == 1,
                                 "   bad status on setting space group %s" %space_group)
 
-                self.failUnless(type(symops) is ListType,
+                self.assertTrue(type(symops) is ListType,
                                 "   bad symops for %s: %s" %(space_group, symops))
 
-                derived_HM = symmetry_operators_to_xHM(symops)
-                
-                self.failUnless(type(derived_HM) is StringType,
+                derived_HM = coot.symmetry_operators_to_xHM(symops)
+
+                self.assertTrue(type(derived_HM) is StringType,
                                 "   bad derived HM %s" %derived_HM)
 
-                sefl.failUnless(space_group == derived_HM,
+                self.assertTrue(space_group == derived_HM,
                                 "   No match %s and %s" %(space_group, derived_HM))
-        
 
-    def test05_0(self):
-        """Import gobject"""
-
-	have_pygtk2 = False
-        imported = False
-
-        try:
-            import pygtk
-	    pygtk.require("2.0")
-	    have_pygtk2 = True
-	except:
-            if self.skip_test(not have_pygtk2,
-                              "Dont have pygtk 2.0, skipping import gobject test"):
-                return
-        try:
-            import gobject
-            imported = True
-        except:
-            imported = False
-
-        self.failUnless(imported, "Failed to import gobject")

@@ -21,55 +21,57 @@
 
 import unittest
 import os
+import coot
+import coot_utils
+import begin
 
-ssm_ref_1_file = os.path.join(unittest_data_dir, "2qd9.pdb")
-ssm_ref_2_file = os.path.join(unittest_data_dir, "2gtn.pdb")
+ssm_ref_1_file = os.path.join(begin.unittest_data_dir, "2qd9.pdb")
+ssm_ref_2_file = os.path.join(begin.unittest_data_dir, "2gtn.pdb")
 
 class SsmTestFunctions(unittest.TestCase):
 
     def test01_0(self):
         """SSM - Frank von Delft's Example"""
 
-        imol_a = handle_read_draw_molecule_with_recentre(os.path.join(unittest_data_dir, "1wly.pdb"), 0)
-        imol_b = handle_read_draw_molecule_with_recentre(os.path.join(unittest_data_dir, "1yb5.pdb"), 1)
+        imol_a = coot.handle_read_draw_molecule_with_recentre(os.path.join(begin.unittest_data_dir, "1wly.pdb"), 0)
+        imol_b = coot.handle_read_draw_molecule_with_recentre(os.path.join(begin.unittest_data_dir, "1yb5.pdb"), 1)
 
-        self.failUnless(valid_model_molecule_qm(imol_a) and valid_model_molecule_qm(imol_b))
+        self.assertTrue(coot_utils.valid_model_molecule_qm(imol_a) and coot_utils.valid_model_molecule_qm(imol_b))
 
-        graphics_to_ca_plus_ligands_representation(imol_a)
-        graphics_to_ca_plus_ligands_representation(imol_b)
+        coot.graphics_to_ca_plus_ligands_representation(imol_a)
 
-        superpose_with_atom_selection(imol_a, imol_b, "A/2-111", "A/6-115", 0)
-        set_rotation_centre(65.65, -3, -4)
-        view_number = add_view([49.7269, 7.69693, 3.93221],
-                               [-0.772277, 0.277494, 0.292497, 0.490948],
-                               98.9608, "SSM View")
-        go_to_view_number(view_number, 1)
-        rotate_y_scene(rotate_n_frames(100), 0.1)
-        set_mol_displayed(imol_a, 0)
-        set_mol_displayed(imol_b, 0)
+        coot.superpose_with_atom_selection(imol_a, imol_b, "A/2-111", "A/6-115", 0)
+        coot.set_rotation_centre(65.65, -3, -4)
+        view_number = coot.add_view([49.7269, 7.69693, 3.93221],
+                                    [-0.772277, 0.277494, 0.292497, 0.490948],
+                                    98.9608, "SSM View")
+        coot.go_to_view_number(view_number, 1)
+        coot.rotate_y_scene(coot.rotate_n_frames(100), 0.1)
+        coot.set_mol_displayed(imol_a, 0)
+        coot.set_mol_displayed(imol_b, 0)
         # didnt crash....
 
     def test02_0(self):
         """SSM - Alice Dawson's Example"""
-        imol_s = handle_read_draw_molecule_with_recentre(os.path.join(unittest_data_dir, "1pyd.pdb"), 0)
+        imol_s = coot.handle_read_draw_molecule_with_recentre(os.path.join(begin.unittest_data_dir, "1pyd.pdb"), 0)
 
-        graphics_to_ca_plus_ligands_representation(imol_s)
-        set_graphics_window_size(678, 452)
+        coot.graphics_to_ca_plus_ligands_representation(imol_s)
+        coot.set_graphics_window_size(678, 452)
 
-        print_molecule_names()
+        coot.print_molecule_names()
 
-        superpose_with_atom_selection(imol_s, imol_s, "A/100-400", "B/50-450", 1)
-        imol_copy = graphics_n_molecules() - 1
-        graphics_to_ca_plus_ligands_representation(imol_copy)
-        rotate_y_scene(rotate_n_frames(100), 0.1)
+        coot.superpose_with_atom_selection(imol_s, imol_s, "A/100-400", "B/50-450", 1)
+        imol_copy = coot.graphics_n_molecules() - 1
+        coot.graphics_to_ca_plus_ligands_representation(imol_copy)
+        coot.rotate_y_scene(coot.rotate_n_frames(100), 0.1)
         # didnt crash...
-        
+
     def test03_0(self):
         """SSM by atom selection [JED Example]"""
 
-        imol_1 = read_pdb(ssm_ref_1_file)
-        imol_2 = read_pdb(ssm_ref_2_file)
-        superpose_with_atom_selection(imol_1, imol_2,"//A/140-160", "//A/140-160", 0)
+        imol_1 = coot.read_pdb(ssm_ref_1_file)
+        imol_2 = coot.read_pdb(ssm_ref_2_file)
+        coot.superpose_with_atom_selection(imol_1, imol_2,"//A/140-160", "//A/140-160", 0)
         # didn't crash?
         # testing for something else?!
-        
+

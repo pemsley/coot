@@ -18,6 +18,8 @@
 import unittest, os
 import inspect
 import sys
+import coot
+import coot_utils
 
 def get_this_dir():
     pass
@@ -30,62 +32,62 @@ current_dir = os.path.dirname(fn)
 load_file = os.path.join(current_dir, "begin.py")
 load_file = os.path.normpath(load_file)
 if (os.path.isfile(load_file)):
-    execfile(load_file, globals())
+    exec(compile(open(load_file, "rb").read(), load_file, 'exec'), globals())
 
 log = StreamIO(sys.stderr, sys.stdout)
 
 result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
 
 if (unittest_output):
-    print "\n"
-    print unittest_output.getvalue()
+    print("\n")
+    print(unittest_output.getvalue())
     unittest_output.close()
 else:
-    print "BL ERROR:: no unittest output"
+    print("BL ERROR:: no unittest output")
 
 if (have_test_skip):
-    print "\nUnittest skip exists!"
+    print("\nUnittest skip exists!")
     if (result.skipped):
-        print "...with the following skipping message(s):"
+        print("...with the following skipping message(s):")
         for skipped in result.skipped:
-            print "   ", skipped[1]
-        print "\n"
+            print("   ", skipped[1])
+        print("\n")
     else:
-        print "No tests skipped"
+        print("No tests skipped")
 else:
-    print "\nUnitest skip does not exist!"
+    print("\nUnitest skip does not exist!")
     if (skipped_tests):
-        print "The following tests were skipped and marked as passed:"
+        print("The following tests were skipped and marked as passed:")
         for test in skipped_tests:
-            print "   ", test
-        print "\n"
+            print("   ", test)
+        print("\n")
 
-# finishe off closing all maps (maybe use end.py file?!)
-map(close_molecule, molecule_number_list())
+# finish off closing all maps (maybe use end.py file?!)
+list(map(coot.close_molecule, coot_utils.molecule_number_list()))
 
 # some garbage collection. Not sure if this will really shed light into
 # reference counting e.g.
-print "\nFINALLY collect some GARBAGE\n"
+print("\nFINALLY collect some GARBAGE\n")
 import gc
 import inspect
 gc.enable()
 gc.set_debug(gc.DEBUG_LEAK)
-print "BL INFO:: no of collected carbage items %s\n" %gc.collect()
+print("BL INFO:: no of collected carbage items %s\n" %gc.collect())
 all_garbage = gc.garbage
-print "BL DEBUG:: list of garbage items:\n"
+print("BL DEBUG:: list of garbage items:\n")
 for garb in all_garbage:
-    print "    ", garb
-print "\nDetailed information for functions:\n"
+    print("    ", garb)
+print("\nDetailed information for functions:\n")
 for garb in all_garbage:
     if inspect.isfunction(garb) and not inspect.isbuiltin(garb):
-        print "  BL INFO:: garbage item and location:"
-        print "    %s" %garb
-        print "    %s" %gc.get_referents(garb)[0]
-        print
+        print("  BL INFO:: garbage item and location:")
+        print("    %s" %garb)
+        print("    %s" %gc.get_referents(garb)[0])
+        print()
 
 # cheating?! We only exit Coot if we are not in graphics mode
-if (use_graphics_interface_state() == 0):
+if (coot.use_graphics_interface_state() == 0):
     if (result.wasSuccessful()):
-        coot_real_exit(0)
+        coot.coot_real_exit(0)
     else:
-        coot_real_exit(1)
+        coot.coot_real_exit(1)

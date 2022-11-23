@@ -28,7 +28,7 @@ import string
 import numbers
 import math
 import coot
-import coot_gui # circular dependency
+# import coot_gui # circular dependency
 from redefine_functions import *
 
 # hack this in for now
@@ -3504,7 +3504,7 @@ def coot_split_version_string(stri):
 # convert file to string
 
 
-def file2string(file_name):
+def file_to_string(file_name):
     if not os.path.isfile(file_name):
         return False
     else:
@@ -3529,7 +3529,7 @@ def load_default_sequence():
 
     default_seq = "default.seq"
     if os.path.isfile(default_seq):
-        s = file2string(default_seq)
+        s = file_to_string(default_seq)
         coot.align_to_closest_chain(s, 0.95)
 
 
@@ -4114,7 +4114,7 @@ def find_exe(program_name, *args, **kwargs):
     search_disk = False
     if (use_gui_qm and not no_search):
         try:
-            search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+            search_disk = None; # no coot_gui in coot_utils # coot_gui.search_disk_dialog(program_name, path_ls)
         except NameError as e:
             pass
     if search_disk:
