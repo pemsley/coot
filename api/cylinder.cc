@@ -186,10 +186,20 @@ cylinder::add_flat_cap(int end_type) {
    for (unsigned int i=0; i<n_slices; i++) {
       unsigned int i_next = idx_base + i + 1 + 1;
       if (i == (n_slices-1)) i_next = idx_base + 1;
+
       // hmmm.. .which is the correct winding? Both seem to work OK. // 20211006-PE but then again I am not using backface_culling
       // g_triangle triangle(idx_base, i_next, idx_base + i + 1);
-      g_triangle triangle(idx_base, idx_base + i + 1, i_next);
-      triangles.push_back(triangle);
+
+      // 20221123-PE Now with backface-culling, the winding order depends on the end_type. I would not have guessed that
+      // without seeing it.
+
+      if (end_type == 1) {
+         g_triangle triangle(idx_base, idx_base + i + 1, i_next);
+         triangles.push_back(triangle);
+      } else {
+         g_triangle triangle2(idx_base, i_next, idx_base + i + 1);
+         triangles.push_back(triangle2);
+      }
    }
 
 }
