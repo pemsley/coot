@@ -898,7 +898,7 @@ coot::molecule_t::get_bond_colour_basic(int colour_index, bool against_a_dark_ba
 coot::colour_t
 coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const {
 
-   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << std::endl;
+   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << " " << against_a_dark_background << std::endl;
 
    coot::colour_t rgb;
 
@@ -966,10 +966,10 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.3; rgb[1] =  0.3; rgb[2] =  1.0;
                break;
             case RED_BOND:
-               rgb[0] = 1.0; rgb[1] =  0.2; rgb[2] =  0.2;
+               rgb[0] = 1.0; rgb[1] =  0.1; rgb[2] =  0.1;
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
                break;
             case GREY_BOND:
                rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
@@ -1048,7 +1048,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
                break;
             case DARK_ORANGE_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               rgb[0] = 0.7; rgb[1] =  0.27; rgb[2] = 0.05; // maybe
                break;
             case DARK_BROWN_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
@@ -1152,6 +1152,12 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    unsigned int n_slices = 8;
    unsigned int n_stacks = 2;
    // int representation_type = BALL_AND_STICK;
+
+   int smoothness_factor = 2;
+   if (smoothness_factor == 2) {
+      num_subdivisions = 2;
+      n_slices = 18;
+   }
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
