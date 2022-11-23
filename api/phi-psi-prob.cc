@@ -1,10 +1,11 @@
 
 #include "phi-psi-prob.hh"
 
-coot::phi_psi_prob_t::phi_psi_prob_t(const coot::util::phi_psi_t &pp, const ramachandrans_container_t &rc) {
+coot::phi_psi_prob_t::phi_psi_prob_t(const coot::util::phi_psi_t &pp, const coot::Cartesian &pos, const ramachandrans_container_t &rc) {
 
    is_allowed_flag = true;
    phi_psi = pp;
+   position = pos;
    const clipper::Ramachandran *rama = &rc.rama;
 
    if (phi_psi.residue_name() == "PRO") rama = &rc.rama_pro;

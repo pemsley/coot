@@ -368,6 +368,7 @@ int test_rama_balls_mesh(molecules_container_t &mc) {
    int status = 0;
 
    std::string coords_fn = reference_data("moorhen-tutorial-structure-number-1.pdb");
+   // std::string coords_fn = reference_data("frag.pdb");
    int imol = mc.read_pdb(coords_fn);
 
    coot::simple_mesh_t rvmm = mc.ramachandran_validation_markup_mesh(imol);
@@ -376,8 +377,11 @@ int test_rama_balls_mesh(molecules_container_t &mc) {
 
    // Let's look at the colours of the balls.
    if (false) // let's not.
-      for (unsigned int i=0; i<rvmm.vertices.size(); i+=100)
-         std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
+      for (unsigned int i=0; i<rvmm.vertices.size(); i+=1) {
+         // std::cout << i << " " << glm::to_string(rvmm.vertices[i].color) << std::endl;
+         // const auto &v = rvmm.vertices[i];
+         // std::cout << i << " " << glm::to_string(v.pos) << " " << glm::to_string(v.normal) << " " << glm::to_string(v.color)  << std::endl;
+      }
 
    if (rvmm.vertices.size() > 2000) status = 1;
    return status;
@@ -1572,8 +1576,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_jiggle_fit,   "Jiggle-fit",     mc);
 
-   status += run_test(test_auto_fit_rotamer_2,     "auto-fit rotamer t2",         mc);
+   //    status += run_test(test_auto_fit_rotamer_2,     "auto-fit rotamer t2",         mc);
 
+      status += run_test(test_rama_balls_mesh,      "rama balls mesh",          mc);
 
    // Note to self:
    //

@@ -800,6 +800,8 @@ molecules_container_t::ramachandran_validation(int imol) const {
    return v;
 }
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 
 coot::simple_mesh_t
 molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
@@ -871,6 +873,7 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
       int n_ramachandran_goodness_spots = ramachandran_goodness_spots.size();
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
          const coot::Cartesian &position = ramachandran_goodness_spots[i].position;
+         // std::cout << "goodness spot " << i << " position " << position << std::endl;
          const coot::phi_psi_prob_t &phi_psi = ramachandran_goodness_spots[i];
          double prob_raw = phi_psi.probability;
          double q = prob_raw_to_colour_rotation(prob_raw);

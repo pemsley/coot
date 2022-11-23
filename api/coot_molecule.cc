@@ -1211,7 +1211,7 @@ coot::molecule_t::ramachandran_validation(const ramachandrans_container_t &rc) c
                   coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
                   if (hav.first) offset = hav.second * rama_ball_pos_offset_scale;
                   coot::util::phi_psi_t cupp(rp, rt, rn);
-                  coot::phi_psi_prob_t ppp(cupp, rc);
+                  coot::phi_psi_prob_t ppp(cupp, pos, rc);
                   v.push_back(ppp);
                }
             }
@@ -2088,10 +2088,16 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
    if (residue_p) {
       std::string terminus_type = coot::get_term_type(residue_p, atom_sel.mol);
       float bf_new = default_temperature_factor_for_new_atoms;
+      make_backup();
       r = add_terminal_residue(imol_no, terminus_type, residue_p,
                                atom_sel.mol, atom_sel.UDDAtomIndexHandle,
                                spec.chain_id, new_res_type,
                                bf_new, xmap, geom);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      atom_sel = make_asc(atom_sel.mol);
+      save_info.new_modification("add-terminal-residue");
    } else {
       std::cout << "WARNING:: in add_terminal_residue_directly() null residue_p " << std::endl;
    }
@@ -2257,7 +2263,7 @@ coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
       }
 
       const auto &int_tor = interesting_torsions[selected_idx];
-      problem_string = jed_flip_internal(tree, int_tor, atom_name, invert_selection);
+      problem_string = jed_flip_internal(tree, int_tor, atom_name, invert_selection); // does a backup
    }
    return problem_string;
 }

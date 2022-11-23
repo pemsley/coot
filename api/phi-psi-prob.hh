@@ -9,9 +9,9 @@ namespace coot {
    class phi_psi_prob_t {
       public:
          phi_psi_prob_t() {}
-      phi_psi_prob_t(const util::phi_psi_t &pp, const ramachandrans_container_t &rama_container);
+      phi_psi_prob_t(const util::phi_psi_t &pp, const Cartesian &pos, const ramachandrans_container_t &rama_container);
       util::phi_psi_t phi_psi;
-      coot::Cartesian position;
+      Cartesian position;
       double probability;
       bool is_allowed_flag;
       bool is_allowed() const { return is_allowed_flag; }
