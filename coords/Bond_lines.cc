@@ -964,8 +964,9 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       std::string ele_1(at_1->element);
       std::string ele_2(at_2->element);
       if (ele_1 == ele_2) {
-         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND;
+         bool add_end_cap = true;
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, add_end_cap, add_end_cap);
       } else {
          bool add_end_cap = true;
          add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p, add_end_cap, add_end_cap);
@@ -1069,7 +1070,7 @@ Bond_lines_container::draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms,
       std::string ele_1(at_1->element);
       std::string ele_2(at_2->element);
       if (ele_1 == ele_2) {
-         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND;
          addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, true, true);
       } else {
          add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index,
@@ -1170,7 +1171,7 @@ Bond_lines_container::draw_6_membered_ring(const std::string &residue_name,
       if (ele_1 == ele_2) {
          // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
          int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
-         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND;
          addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, true, true);
       } else {
          // a nucleotide base is using this function
@@ -6073,7 +6074,7 @@ Bond_lines_container::draw_CUT_ring(mmdb::Residue *residue_p, int model_number,
 
 
    std::set<std::string>::const_iterator it;
-   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); it++) {
+   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); ++it) {
       const std::string &alt_loc(*it);
       std::vector<mmdb::Atom *> ring_atoms(6,0);
       unsigned int n_found = 0;

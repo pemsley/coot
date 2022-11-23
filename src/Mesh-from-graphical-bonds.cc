@@ -367,10 +367,12 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
          float bond_radius_this = bond_radius;
          if (thin)
             bond_radius_this *= 0.5;
+         if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+            bond_radius_this *= 0.8;
          float bl = ll.pair_list[j].positions.amplitude();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
-         glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
+         // glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
          if (false)
             std::cout << "making bond between " << glm::to_string(pos_1) << " " << glm::to_string(pos_2) << " width " << bond_radius_this
                       << std::endl;
