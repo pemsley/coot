@@ -1343,10 +1343,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
    all_atom_pulls_off();
    particles_have_been_shown_already_for_this_round_flag = false;
-   if (glareas[0])
-      wait_for_hooray_refinement_tick_id =
-         gtk_widget_add_tick_callback(glareas[0],
-                                      wait_for_hooray_refinement_tick_func, 0, 0);
+   if (use_graphics_interface_flag)
+      if (glareas[0])
+         wait_for_hooray_refinement_tick_id =
+            gtk_widget_add_tick_callback(glareas[0], wait_for_hooray_refinement_tick_func, 0, 0);
+   //
    // elsewhere do this:
    // gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
 
@@ -1544,7 +1545,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    if (! icheck_atoms.first) {
 
 	       // Oops. Just give us a dialog and don't start the refinement
-	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
+	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second); // protected
 
 	    } else {
 
@@ -2052,10 +2053,12 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       if (! alt_conf.empty())
 	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
 
-      std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
-                << "\"" << alt_conf << "\"" << std::endl;
-      std::cout << "----------------- in create_mmdbmanager_from_res_vector() use_alt_conf is "
-                << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
+      if (false) { // debug
+         std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
+                   << "\"" << alt_conf << "\"" << std::endl;
+         std::cout << "----------------- in create_mmdbmanager_from_res_vector() use_alt_conf is "
+                   << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
+      }
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
