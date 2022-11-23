@@ -729,6 +729,8 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
          if (thin) {
             bond_radius_this *= 0.5;
          }
+         if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+            bond_radius_this *= 0.8;
          float bl = ll.pair_list[j].positions.amplitude();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
