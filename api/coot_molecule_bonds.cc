@@ -1177,8 +1177,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
       std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
       return m;
    } else {
-      std::cout << "debug:: OK, udd_handle_bonded_type is " << udd_handle_bonded_type << " not " << mmdb::UDDATA_WrongUDRType
-                << std::endl;
+      // std::cout << "debug:: OK, udd_handle_bonded_type is " << udd_handle_bonded_type
+      // << " not " << mmdb::UDDATA_WrongUDRType << std::endl;
    }
 
    if (false) {

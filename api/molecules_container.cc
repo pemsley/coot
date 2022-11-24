@@ -1265,7 +1265,7 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
          message = m.second;
          if (! message.empty())
             std::cout << "WARNING:: add_terminal_residue_directly(): " << message << std::endl;
-         write_coordinates(imol, "post-add-terminal-residue.pdb");
+         // write_coordinates(imol, "post-add-terminal-residue.pdb");
          set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
