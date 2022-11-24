@@ -37,7 +37,7 @@ const int AXIS_MARGIN = 25;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
-const unsigned int VERTICAL_MARKER_COUNT = 4;
+const unsigned int VERTICAL_MARKER_COUNT = 6;
 
 // COMPUTED VALUES:
 
@@ -123,7 +123,7 @@ inline double compute_floor_value(coot::graph_data_type type) {
             return -0.2f;
         }
         default: {
-            return 0.f;
+            return -0.f;
         }
     }
 }
