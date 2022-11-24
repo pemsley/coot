@@ -41,4 +41,8 @@ G_END_DECLS
 void coot_validation_graph_set_validation_information(CootValidationGraph* self, std::shared_ptr<coot::validation_information_t> vi);
 
 
+namespace coot {
+    bool should_hang_down(graph_data_type type);
+}
+
 #endif // VALIDATION_GRAPH_WIDGET_HH

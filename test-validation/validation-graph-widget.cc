@@ -189,7 +189,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + marker_offset);
                 cairo_stroke(cairo_canvas);
                 
-                double marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                double marker_level;
+                if (coot::should_hang_down(self->_vi->type)) {
+                    marker_level = (m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                } else {
+                    marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                }
                 std::string marker_label = "<span size=\"x-small\" >" + std::to_string(marker_level).erase(4) + "</span>";
                 pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
                 pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
@@ -431,4 +436,17 @@ void coot_validation_graph_set_validation_information(CootValidationGraph* self,
     self->_vi = vi;
     gtk_widget_queue_draw(GTK_WIDGET(self));
     gtk_widget_queue_resize(GTK_WIDGET(self));
+}
+
+
+bool coot::should_hang_down(coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    switch (type) {
+        case ty::Correlation: {
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
 }
