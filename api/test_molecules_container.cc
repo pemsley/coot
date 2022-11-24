@@ -597,6 +597,14 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
 
 int test_add_terminal_residue(molecules_container_t &mc) {
 
+   auto mmdb_to_cartesian = [] (mmdb::Atom *at) {
+      return coot::Cartesian(at->x, at->y, at->z);
+   };
+
+   auto glm_to_cartesian = [] (const glm::vec3 &gp) {
+      return coot::Cartesian(gp[0], gp[1], gp[2]);
+   };
+
    starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
@@ -609,7 +617,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
    if (! at_1) { // it's not there to begin with
       mc.add_terminal_residue_directly(imol, "A", 285, "");
-      mc.write_coordinates(imol, "with-added-terminal-residue.pdb");
+      mc.write_coordinates(imol, "test-add-terminal-residue-with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
          // now test that it is there
@@ -652,8 +660,45 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       std::cout << "ERROR:: atom already exists " << atom_spec_in_new_residue << std::endl;
    }
 
-   if (part_one_done && part_two_done)
+   // part three - is the mesh updated correctly to give a bond between 278 and 279?
+   bool part_three_done = false;
+
+   // what is the mid-point along the new peptide bond?
+   mmdb::Atom *at_3 = mc.get_atom(imol, coot::atom_spec_t("A", 278, "", " C  ", ""));
+   mmdb::Atom *at_4 = mc.get_atom(imol, coot::atom_spec_t("A", 279, "", " N  ", ""));
+   if (at_3 && at_4) {
+
+      std::cout << "got peptide atoms " << std::endl;
+      coot::Cartesian pt_3 = mmdb_to_cartesian(at_3);
+      coot::Cartesian pt_4 = mmdb_to_cartesian(at_4);
+
+      double ddt = coot::Cartesian::lengthsq(pt_3, pt_4);
+      double dt = std::sqrt(ddt);
+      std::cout << " distance between peptide atoms " << dt << std::endl;
+      coot::Cartesian mid_point = pt_3.mid_point(pt_4);
+      std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+      auto mesh = mc.get_bonds_mesh(imol, mode);
+      double d_crit = 0.15;
+      unsigned int n_vertex = 0;
+      for (const auto &vert : mesh.vertices) {
+         const auto &pos = vert.pos;
+         coot::Cartesian pos_cart = glm_to_cartesian(pos);
+         double dd = coot::Cartesian::lengthsq(mid_point, pos_cart);
+         double d = std::sqrt(dd);
+         if (d < d_crit) {
+            n_vertex++;
+         }
+      }
+      std::cout << "here with n_vertex " << n_vertex << std::endl;
+      if (n_vertex > 2)
+         part_three_done = true;
+   }
+
+   if (part_one_done && part_two_done && part_three_done)
       status = 1;
+
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -778,7 +823,6 @@ int test_bonds_mesh(molecules_container_t &mc) {
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol, mode);
-
    if (mesh.vertices.size() > 1000)
       if (mesh.triangles.size() > 1000)
          status = 1;
@@ -1578,7 +1622,8 @@ int main(int argc, char **argv) {
 
    //    status += run_test(test_auto_fit_rotamer_2,     "auto-fit rotamer t2",         mc);
 
-      status += run_test(test_rama_balls_mesh,      "rama balls mesh",          mc);
+   status += run_test(test_add_terminal_residue, "add terminal residue",     mc);
+
 
    // Note to self:
    //
