@@ -206,7 +206,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
         pango_layout_set_markup(pango_layout,title_markup.c_str(),-1);
         int layout_width, layout_height;
         pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-        cairo_move_to(cairo_canvas,(w - layout_width) / 2,(TITLE_HEIGHT + layout_height) / 2);
+        cairo_move_to(cairo_canvas,(w - layout_width) / 2.f,(TITLE_HEIGHT + layout_height) / 2.f);
         pango_cairo_show_layout(cairo_canvas, pango_layout);
 
         // I can't get this to render the text where it needs to be, so I'm using cairo directly
