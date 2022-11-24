@@ -7,14 +7,14 @@
 namespace coot {
 
    enum class graph_data_type {
-      /// Just normal auto scale
+      /// Between 0 and 100
       Distortion, 
-      /// Just normal auto scale [?]
+      /// Just normal auto scale
       Energy, 
       /// Values from 0.0 - 1.0
       /// Hanging down
       Probability, 
-      /// Just normal auto scale [?]
+      /// Between 1.0 and -0.2 (let's say)
       Correlation, 
       /// Values from 0.0 - 1.0, (negative) log scale
       /// Hanging down
