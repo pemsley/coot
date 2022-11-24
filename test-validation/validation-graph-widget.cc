@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cmath>
 
 //typedef std::map<graphene_rect_t,const coot::residue_validation_information_t*, GrapheneRectCompare> coord_cache_t;
 typedef std::vector<std::pair<graphene_rect_t,const coot::residue_validation_information_t*>> coord_cache_t;
@@ -114,6 +115,7 @@ double compute_amplitude(coot::graph_data_type type, const std::vector<coot::res
     }
 }
 
+/// Compute the lowest expected value
 inline double compute_floor_value(coot::graph_data_type type) {
     using ty = coot::graph_data_type;
     switch (type) {
@@ -129,12 +131,13 @@ inline double compute_floor_value(coot::graph_data_type type) {
 double map_value_to_bar_proportion(double distortion, double amplitude, coot::graph_data_type type) {
     using ty = coot::graph_data_type;
     double floor = compute_floor_value(type);
+    double base_proportion = (distortion - floor) / amplitude;
     switch (type) {
-        // case ty::LogProbability: {
-        //     // todo
-        // }
+        case ty::LogProbability: { 
+            return std::log10(base_proportion * 9.f + 1.f);
+        }
         default: {
-            return (distortion - floor) / amplitude;
+            return base_proportion;
         }
     }
 }
@@ -143,9 +146,10 @@ double map_bar_proportion_to_value(double bar_height_ratio, double amplitude, co
     using ty = coot::graph_data_type;
     double floor = compute_floor_value(type);
     switch (type) {
-        // case ty::LogProbability: {
-        //     // todo
-        // }
+        case ty::LogProbability: { 
+            return (std::pow(10,bar_height_ratio) - 1.f) / 9.f;
+            
+        }
         default: {
             return bar_height_ratio * amplitude + floor;
         }
