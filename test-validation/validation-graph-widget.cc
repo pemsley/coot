@@ -24,7 +24,7 @@ struct _CootValidationGraph {
 /// Basis for max bar height
 const int CHAIN_HEIGHT = 150;
 /// Used for allocating space for axes and labels
-const int CHAIN_SPACING = 80;
+const int CHAIN_SPACING = 70;
 const int RESIDUE_WIDTH = 9;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 3;
@@ -45,9 +45,9 @@ const unsigned int HORIZONTAL_MARKER_INTERVAL = 10;
 const int GRAPH_HORIZ_OFFSET = AXIS_MARGIN + GRAPH_Y_AXIS_SEPARATION;
 const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 1.f / 5.f;
 /// Space between the x-axis and the bottom of the widget
-const float BOTTOM_MARGIN = CHAIN_SPACING / 5.f;
+const float BOTTOM_MARGIN = CHAIN_SPACING * 4.f / 15.f;
 /// Space between the x-axis and the bottom of the graph (bars)
-const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING / 5.f;
+const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING * 2.f / 15.f;
 const float AXIS_HEIGHT = GRAPH_X_AXIS_SEPARATION + CHAIN_HEIGHT;
 const float AXIS_VERT_OFFSET = CHAIN_LABEL_VERT_OFFSET + CHAIN_SPACING * 2.f / 5.f;
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
