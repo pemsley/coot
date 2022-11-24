@@ -12,12 +12,11 @@ namespace coot {
       /// Just normal auto scale
       Energy, 
       /// Values from 0.0 - 1.0
-      /// Hanging down
       Probability, 
       /// Between 1.0 and -0.2 (let's say)
+      /// Hanging down
       Correlation, 
       /// Values from 0.0 - 1.0, (negative) log scale
-      /// Hanging down
       LogProbability
    };
    class chain_validation_information_t {
