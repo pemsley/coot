@@ -212,8 +212,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& residue: chain.rviv) {
                 float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
                 float bar_y_offset = base_height;
-                m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
-                //self->coordinate_cache->operator[](m_graphene_rect) = &residue;
+                if(coot::should_hang_down(self->_vi->type)) {
+                    m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - CHAIN_HEIGHT, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
+                } else {
+                    m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - bar_height, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
+                }
                 self->coordinate_cache->push_back(std::pair<graphene_rect_t,const coot::residue_validation_information_t*>{m_graphene_rect,&residue});
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GskRoundedRect outline;
