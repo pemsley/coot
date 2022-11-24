@@ -22,9 +22,9 @@ struct _CootValidationGraph {
 };
 
 /// Basis for max bar height
-const int CHAIN_HEIGHT = 120;
+const int CHAIN_HEIGHT = 150;
 /// Used for allocating space for axes and labels
-const int CHAIN_SPACING = 60;
+const int CHAIN_SPACING = 80;
 const int RESIDUE_WIDTH = 9;
 /// Breathing space for residue rectangle's borders
 const int RESIDUE_SPACING = 3;
@@ -38,15 +38,18 @@ const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
 const unsigned int VERTICAL_MARKER_COUNT = 6;
+const unsigned int HORIZONTAL_MARKER_INTERVAL = 10;
 
 // COMPUTED VALUES:
 
 const int GRAPH_HORIZ_OFFSET = AXIS_MARGIN + GRAPH_Y_AXIS_SEPARATION;
-const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 2.f / 5.f;
-/// Space between the x-axis and the bottom of the graph
+const float CHAIN_LABEL_VERT_OFFSET = CHAIN_SPACING * 1.f / 5.f;
+/// Space between the x-axis and the bottom of the widget
+const float BOTTOM_MARGIN = CHAIN_SPACING / 5.f;
+/// Space between the x-axis and the bottom of the graph (bars)
 const float GRAPH_X_AXIS_SEPARATION = CHAIN_SPACING / 5.f;
 const float AXIS_HEIGHT = GRAPH_X_AXIS_SEPARATION + CHAIN_HEIGHT;
-const float AXIS_VERT_OFFSET = CHAIN_SPACING * 4.f / 5.f;
+const float AXIS_VERT_OFFSET = CHAIN_LABEL_VERT_OFFSET + CHAIN_SPACING * 2.f / 5.f;
 const float GRAPH_VERT_OFFSET = AXIS_VERT_OFFSET - GRAPH_X_AXIS_SEPARATION;
 const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 
@@ -230,7 +233,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             chain_markup += "</span>";
             pango_layout_set_markup(pango_layout,chain_markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            cairo_move_to(cairo_canvas,0,base_height - layout_height / 2.f + CHAIN_LABEL_VERT_OFFSET);
+            cairo_move_to(cairo_canvas,0,base_height + CHAIN_LABEL_VERT_OFFSET);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             // Draw axes
@@ -270,6 +273,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
             base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
             float base_width = GRAPH_HORIZ_OFFSET;
+            unsigned int idx = 0;
             for(const auto& residue: chain.rviv) {
                 /// draw bar
 
@@ -299,9 +303,22 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
+
+                // draw horizontal markers
+                if(++idx % HORIZONTAL_MARKER_INTERVAL == 0) {
+                    cairo_move_to(cairo_canvas,base_width + width_step/2.f, axis_y_offset + AXIS_HEIGHT);
+                    cairo_line_to(cairo_canvas,base_width + width_step/2.f, axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2);
+                    cairo_stroke(cairo_canvas);
+                    std::string marker_label = "<span size=\"x-small\" >" + std::to_string(idx) + "</span>";
+                    pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
+                    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+                    cairo_move_to(cairo_canvas, base_width + width_step/2.f - layout_width/2.f,axis_y_offset + AXIS_HEIGHT + MARKER_LENGTH * 2 );
+                    pango_cairo_show_layout(cairo_canvas, pango_layout);
+                }
+
                 base_width += width_step;
             }
-            base_height += GRAPH_X_AXIS_SEPARATION + height_diff;
+            base_height += GRAPH_X_AXIS_SEPARATION + BOTTOM_MARGIN + height_diff;
         }
         g_object_unref(pango_layout);
         cairo_destroy(cairo_canvas);
