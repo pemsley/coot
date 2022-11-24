@@ -89,14 +89,15 @@ double max_residue_distortion_for_chain(const std::vector<coot::residue_validati
     })->distortion;
 }
 
-G_BEGIN_DECLS
+inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* self, gdouble x, gdouble y) {
 
-G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
-
-// not sure what this is for or whether it is going to be needed at all
-// struct _CootValidationGraphClass {
-//     GObjectClass parent_class;
-// };
+    graphene_point_t point;
+    graphene_point_init(&point,x,y);
+    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const std::pair<graphene_rect_t,const coot::residue_validation_information_t*>& it){
+        return graphene_rect_contains_point(&it.first,&point);
+    });
+    return clicked;
+}
 
 /// Computes the amplitude between the minimum and maximum (distortion) value representable on the graph
 double compute_amplitude(coot::graph_data_type type, const std::vector<coot::residue_validation_information_t>& rviv) {
@@ -158,6 +159,15 @@ double map_bar_proportion_to_value(double bar_height_ratio, double amplitude, co
         }
     }
 }
+
+G_BEGIN_DECLS
+
+G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
+
+// not sure what this is for or whether it is going to be needed at all
+// struct _CootValidationGraphClass {
+//     GObjectClass parent_class;
+// };
 
 void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
@@ -370,17 +380,6 @@ void coot_validation_graph_measure
         // do nothing
     }
 }
-
-inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* self, gdouble x, gdouble y) {
-
-    graphene_point_t point;
-    graphene_point_init(&point,x,y);
-    coord_cache_t::const_iterator clicked = std::find_if(self->coordinate_cache->cbegin(),self->coordinate_cache->cend(),[point](const std::pair<graphene_rect_t,const coot::residue_validation_information_t*>& it){
-        return graphene_rect_contains_point(&it.first,&point);
-    });
-    return clicked;
-}
-
 // static void on_hover (
 //     GtkEventControllerMotion* hover_controller,
 //     gdouble x,
