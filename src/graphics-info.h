@@ -5023,12 +5023,14 @@ string   static std::string sessionid;
    private:
    /// -1 if none
    static int active_validation_graph_model_idx;
+   static std::string active_validation_graph_chain_id;
    typedef std::map<coot::validation_graph_type,GtkWidget*> validation_graph_map_t;
    static validation_graph_map_t validation_graph_widgets;
    typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
    static validation_data_map_t validation_graph_data;
    public:
    static void update_active_validation_graph_model(int new_model_idx);
+   static void change_validation_graph_chain(const std::string& chain_id);
 
    static void create_validation_graph(coot::validation_graph_type type);
    static void destroy_validation_graph(coot::validation_graph_type type);

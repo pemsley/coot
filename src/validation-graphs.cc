@@ -24,7 +24,7 @@ std::string coot::validation_graph_type_to_human_name(coot::validation_graph_typ
             break;
         }
         case validation_graph_type::geometry: {
-            return "Geometry";
+            return "Geometry analysis";
             break;
         }
         case validation_graph_type::ncs: {
@@ -36,11 +36,11 @@ std::string coot::validation_graph_type_to_human_name(coot::validation_graph_typ
             break;
         }
         case validation_graph_type::rama: {
-            return "Rama";
+            return "Ramachandran";
             break;
         }
         case validation_graph_type::rota: {
-            return "Rota";
+            return "Rotamer analysis";
             break;
         }
         case validation_graph_type::temp_factor: {

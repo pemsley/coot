@@ -123,36 +123,40 @@ void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 	}
 }
 
-void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
-	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
-	// we assume that when this function is called, there is no tab for the graph type
-	GtkWidget* sw = gtk_scrolled_window_new();
-	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), the_graph);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sw, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+void graphics_info_t::change_validation_graph_chain(const std::string& chain_id) {
+	g_debug("Todo: change_validation_graph_chain");
 }
 
-void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
-	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
-	auto find_tab_idx = [notebook](coot::validation_graph_type graph_type) -> int {
-		std::string target_label = coot::validation_graph_type_to_human_name(graph_type);
-		for(int i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));i++) {
-			const char* page_label = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),i));
-			if (!page_label) {
-				g_error("NULL page label");
-			}
-			if (page_label == target_label) {
-				return i;
-			}
-		}
-		return -1;
-	};
-	auto idx = find_tab_idx(type);
-	if (idx == -1) {
-		g_warning("Failed to find tab for graph type: %s",coot::validation_graph_type_to_human_name(type).c_str());
-	} else {
-		gtk_notebook_remove_page(GTK_NOTEBOOK(notebook),idx);
-	}
-}
+// void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
+// 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+// 	// we assume that when this function is called, there is no tab for the graph type
+// 	GtkWidget* sw = gtk_scrolled_window_new();
+// 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), the_graph);
+// 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sw, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+// }
+
+// void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
+// 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+// 	auto find_tab_idx = [notebook](coot::validation_graph_type graph_type) -> int {
+// 		std::string target_label = coot::validation_graph_type_to_human_name(graph_type);
+// 		for(int i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));i++) {
+// 			const char* page_label = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),i));
+// 			if (!page_label) {
+// 				g_error("NULL page label");
+// 			}
+// 			if (page_label == target_label) {
+// 				return i;
+// 			}
+// 		}
+// 		return -1;
+// 	};
+// 	auto idx = find_tab_idx(type);
+// 	if (idx == -1) {
+// 		g_warning("Failed to find tab for graph type: %s",coot::validation_graph_type_to_human_name(type).c_str());
+// 	} else {
+// 		gtk_notebook_remove_page(GTK_NOTEBOOK(notebook),idx);
+// 	}
+// }
 
 void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
 	// 1. instantiate the validation graph
@@ -171,14 +175,16 @@ void graphics_info_t::create_validation_graph(coot::validation_graph_type type) 
 		g_warning("graphics_info_t::create_validation_graph(): There is no active validation graph model. An empty graph was created.");
 	}
 	// 6. Show the graph
-	create_tab_for_validation_graph(type,this_will_be_the_graph);
+	g_debug("todo: Add/remove validation graph widget from the validation graph stack");
+	//create_tab_for_validation_graph(type,this_will_be_the_graph);
 }
 void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
 	// 1. Remove the graph and its' data from std::maps
 	validation_graph_widgets.erase(type);
 	validation_graph_data.erase(type);
 	// 2. Destroy the graph widget
-	destroy_tab_for_validation_graph(type);
+	g_debug("todo: Add/remove validation graph widget from the validation graph stack");
+	//destroy_tab_for_validation_graph(type);
 }
 
 // Validation stuff	    //

@@ -1741,3 +1741,4 @@ GtkListStore* graphics_info_t::validation_graph_model_list = nullptr;
 int graphics_info_t::active_validation_graph_model_idx = -1;
 graphics_info_t::validation_graph_map_t graphics_info_t::validation_graph_widgets = graphics_info_t::validation_graph_map_t();
 graphics_info_t::validation_data_map_t graphics_info_t::validation_graph_data = graphics_info_t::validation_data_map_t();
+std::string graphics_info_t::active_validation_graph_chain_id = std::string();
