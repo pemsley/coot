@@ -341,7 +341,8 @@ int main(int argc, char **argv) {
       gs->graph_r_stacked = coot_validation_graph_new();
 
       // for the sake of testing
-      vid.type = coot::graph_data_type::Correlation;
+      vid.type = coot::graph_data_type::Energy;
+      vir.type = coot::graph_data_type::Energy;
       auto vid_data = std::make_shared<coot::validation_information_t>(vid);
       auto vir_data = std::make_shared<coot::validation_information_t>(vir);
 

@@ -94,6 +94,63 @@ G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
 //     GObjectClass parent_class;
 // };
 
+/// Computes the amplitude between the minimum and maximum (distortion) value representable on the graph
+double compute_amplitude(coot::graph_data_type type, const std::vector<coot::residue_validation_information_t>& rviv) {
+    using ty = coot::graph_data_type;
+    switch (type) {
+        case ty::Distortion: {
+            return 100.f;
+        }
+        case ty::Probability:
+        case ty::LogProbability: {
+            return 1.f;
+        }
+        case ty::Correlation: {
+            return 1.2f;
+        }
+        default: {
+            return max_residue_distortion_for_chain(rviv);
+        }
+    }
+}
+
+inline double compute_floor_value(coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    switch (type) {
+        case ty::Correlation: {
+            return -0.2f;
+        }
+        default: {
+            return 0.f;
+        }
+    }
+}
+
+double map_value_to_bar_proportion(double distortion, double amplitude, coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    double floor = compute_floor_value(type);
+    switch (type) {
+        // case ty::LogProbability: {
+        //     // todo
+        // }
+        default: {
+            return (distortion - floor) / amplitude;
+        }
+    }
+}
+
+double map_bar_proportion_to_value(double bar_height_ratio, double amplitude, coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    double floor = compute_floor_value(type);
+    switch (type) {
+        // case ty::LogProbability: {
+        //     // todo
+        // }
+        default: {
+            return bar_height_ratio * amplitude + floor;
+        }
+    }
+}
 
 void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
@@ -181,7 +238,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             cairo_line_to(cairo_canvas, AXIS_MARGIN, axis_y_offset + AXIS_HEIGHT);
             cairo_stroke(cairo_canvas);
 
-            const double normalization_divisor = max_residue_distortion_for_chain(chain.rviv);
+            const double amplitude = compute_amplitude(self->_vi->type,chain.rviv);
             // vertical axis markers
             for(unsigned int m = 0; m <= VERTICAL_MARKER_COUNT; m++) {
                 float marker_offset = m * CHAIN_HEIGHT / (float) VERTICAL_MARKER_COUNT;
@@ -191,9 +248,9 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 
                 double marker_level;
                 if (coot::should_hang_down(self->_vi->type)) {
-                    marker_level = (m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                    marker_level = map_bar_proportion_to_value(m / (float) VERTICAL_MARKER_COUNT, amplitude, self->_vi->type);
                 } else {
-                    marker_level = (1 - m / (float) VERTICAL_MARKER_COUNT) * normalization_divisor;
+                    marker_level = map_bar_proportion_to_value(1 - m / (float) VERTICAL_MARKER_COUNT, amplitude, self->_vi->type);
                 }
                 std::string marker_label = "<span size=\"x-small\" >" + std::to_string(marker_level).erase(4) + "</span>";
                 pango_layout_set_markup(pango_layout,marker_label.c_str(),-1);
@@ -210,7 +267,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
             float base_width = GRAPH_HORIZ_OFFSET;
             for(const auto& residue: chain.rviv) {
-                float bar_height = CHAIN_HEIGHT * residue.distortion / normalization_divisor;
+                float bar_height = CHAIN_HEIGHT * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
                 float bar_y_offset = base_height;
                 if(coot::should_hang_down(self->_vi->type)) {
                     m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - CHAIN_HEIGHT, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
@@ -227,8 +284,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
-                border_color_computed.red = 0.4 * residue.distortion / normalization_divisor;
-                residue_color_computed.red = residue.distortion / normalization_divisor;
+                border_color_computed.red = 0.4 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
+                residue_color_computed.red = map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
