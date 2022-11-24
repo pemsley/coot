@@ -147,7 +147,7 @@ double map_bar_proportion_to_value(double bar_height_ratio, double amplitude, co
     double floor = compute_floor_value(type);
     switch (type) {
         case ty::LogProbability: { 
-            return (std::pow(10,bar_height_ratio) - 1.f) / 9.f;
+            return (std::pow(10,bar_height_ratio) - 1.f) / 9.f * amplitude + floor;
             
         }
         default: {
