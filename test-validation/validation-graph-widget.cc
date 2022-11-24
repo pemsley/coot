@@ -27,7 +27,7 @@ const int CHAIN_HEIGHT = 120;
 const int CHAIN_SPACING = 60;
 const int RESIDUE_WIDTH = 9;
 /// Breathing space for residue rectangle's borders
-const int RESIDUE_SPACING = 1;
+const int RESIDUE_SPACING = 3;
 /// For drawing the main title
 const int TITLE_HEIGHT = 30;
 /// Space between the y-axis and the left-most bar in the graph
@@ -271,6 +271,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             base_height += AXIS_HEIGHT + GRAPH_VERT_OFFSET;
             float base_width = GRAPH_HORIZ_OFFSET;
             for(const auto& residue: chain.rviv) {
+                /// draw bar
+
                 float bar_height = CHAIN_HEIGHT * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
                 float bar_y_offset = base_height;
                 if(coot::should_hang_down(self->_vi->type)) {
@@ -288,8 +290,12 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
-                border_color_computed.red = 0.4 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
+                border_color_computed.red = 0.6 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
+                border_color_computed.green = (1.f - map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type)) * residue_color.green;
+                //border_color_computed.blue = std::pow(0.9 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
                 residue_color_computed.red = map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
+                residue_color_computed.green = (1.f - std::pow(map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),3)) * residue_color.green;
+                //residue_color_computed.blue = std::pow(map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
