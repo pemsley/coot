@@ -1461,7 +1461,10 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
-
+void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G_GNUC_UNUSED GVariant *parameter, G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget* di = widget_from_builder("validation_graph_dialog");
+   gtk_widget_show(di);
+}
 
 void alignment_vs_pir_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
@@ -2114,7 +2117,7 @@ create_actions(GtkApplication *application) {
    add_action(                  "unmodelled_blobs_action",                   unmodelled_blobs_action);
    add_action(               "check_delete_waters_action",                check_delete_waters_action);
 
-
+   add_action(          "show_validation_graphs_dialog",           show_validation_graphs_dialog);
    add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
    add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
    add_action(             "validation_outliers_action",              validation_outliers_action);

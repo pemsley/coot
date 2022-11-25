@@ -676,6 +676,10 @@
       <attribute name="label">Validate</attribute>
       <section>
         <item>
+          <attribute name="label">Validation graphs</attribute>
+          <attribute name="action">app.show_validation_graphs_dialog</attribute>
+        </item>
+        <item>
           <attribute name="label">Alignment vs Reference PIR</attribute>
           <attribute name="action">app.alignment_vs_pir_action</attribute>
         </item>
@@ -6544,134 +6548,140 @@ Do you want to continue?
       </object>
     </child>
   </object>
-  <object class="GtkBox" id="validation_graph_dialog">
-    <property name="orientation">vertical</property>
-    <property name="margin-top">5</property>
-    <property name="margin-bottom">5</property>
-    <property name="margin-start">5</property>
-    <property name="margin-end">5</property>
+  <object class="GtkDialog" id="validation_graph_dialog">
+    <property name="title">Validation graphs</property>
+    <property name="hide-on-close">True</property>
     <child>
-      <object class="GtkLabel">
-        <property name="label">Validation Graphs</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkSeparator">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
         <property name="margin-top">5</property>
         <property name="margin-bottom">5</property>
-        <property name="margin-start">2</property>
-        <property name="margin-end">2</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkScrolledWindow">
+        <property name="margin-start">5</property>
+        <property name="margin-end">5</property>
         <child>
-          <object class="GtkBox">
-            <property name="orientation">horizontal</property>
+          <object class="GtkLabel">
+            <property name="label">Validation Graphs</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
             <child>
-              <object class="GtkLabel">
-                <property name="label">Model: </property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="validation_graph_model_combobox">
-                <property name="hexpand">True</property>
-                <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" />
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
                 <child>
-                  <object class="GtkCellRendererText"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
+                  <object class="GtkLabel">
+                    <property name="label">Model: </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="validation_graph_model_combobox">
+                    <property name="hexpand">True</property>
+                    <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" />
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
                 </child>
               </object>
             </child>
           </object>
         </child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkSeparator">
-        <property name="margin-top">5</property>
-        <property name="margin-bottom">5</property>
-        <property name="margin-start">2</property>
-        <property name="margin-end">2</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkLabel">
-        <property name="label">Graph types</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkGrid">
         <child>
-          <object class="GtkCheckButton">
-            <property name="label">Density fit</property>
-            <signal name="toggled" handler="on_density_fit_graph_toggled"></signal>
-            <layout>
-              <property name="row">0</property>
-              <property name="column">0</property>
-            </layout>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
           </object>
         </child>
         <child>
-          <object class="GtkCheckButton">
-            <property name="label">Temp Factor</property>
-            <signal name="toggled" handler="on_temp_factor_graph_toggled"></signal>
-            <layout>
-              <property name="row">1</property>
-              <property name="column">0</property>
-            </layout>
+          <object class="GtkLabel">
+            <property name="label">Graph types</property>
           </object>
         </child>
         <child>
-          <object class="GtkCheckButton">
-            <property name="label">Rama</property>
-            <signal name="toggled" handler="on_rama_graph_toggled"></signal>
-            <layout>
-              <property name="row">2</property>
-              <property name="column">0</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkCheckButton">
-            <property name="label">Rota</property>
-            <signal name="toggled" handler="on_rota_graph_toggled"></signal>
-            <layout>
-              <property name="row">3</property>
-              <property name="column">0</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkCheckButton">
-            <property name="label">Omega</property>
-            <signal name="toggled" handler="on_omega_graph_toggled"></signal>
-            <layout>
-              <property name="row">0</property>
-              <property name="column">1</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkCheckButton">
-            <property name="label">Geometry</property>
-            <signal name="toggled" handler="on_geometry_graph_toggled"></signal>
-            <layout>
-              <property name="row">1</property>
-              <property name="column">1</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="GtkCheckButton">
-            <property name="label">NCS</property>
-            <signal name="toggled" handler="on_ncs_graph_toggled"></signal>
-            <layout>
-              <property name="row">2</property>
-              <property name="column">1</property>
-            </layout>
+          <object class="GtkGrid">
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Density fit</property>
+                <signal name="toggled" handler="on_density_fit_graph_toggled"></signal>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Temp Factor</property>
+                <signal name="toggled" handler="on_temp_factor_graph_toggled"></signal>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Rama</property>
+                <signal name="toggled" handler="on_rama_graph_toggled"></signal>
+                <layout>
+                  <property name="row">2</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Rota</property>
+                <signal name="toggled" handler="on_rota_graph_toggled"></signal>
+                <layout>
+                  <property name="row">3</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Omega</property>
+                <signal name="toggled" handler="on_omega_graph_toggled"></signal>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Geometry</property>
+                <signal name="toggled" handler="on_geometry_graph_toggled"></signal>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">NCS</property>
+                <signal name="toggled" handler="on_ncs_graph_toggled"></signal>
+                <layout>
+                  <property name="row">2</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
           </object>
         </child>
       </object>
