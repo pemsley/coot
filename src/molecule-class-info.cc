@@ -136,6 +136,8 @@ molecule_class_info_t::setup_internal() { // init
    this_molecule_has_crystallographic_symmetry = false;
    draw_hydrogens_flag = 1;
    bond_width = 3.0;
+   // By default atoms have the same radius as bonds. For ball and stick
+   // we want the radius to be bigger. So allow the user to control that.
    atom_radius_scale_factor = 1.0; // used in making balls for atoms
 
    ghost_bond_width = 2.0;
@@ -1079,25 +1081,31 @@ molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_da
 coot::colour_t
 molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const {
 
-   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << std::endl;
+   // No OpenGL here now.
 
-   GLenum err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() --start-- " << err << std::endl;
+   //std::cout << "get_bond_colour_by_mol_no() " << colour_index << " " << against_a_dark_background << std::endl;
+   // GLenum err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() --start-- " << err << std::endl;
+
    coot::colour_t rgb;
 
    if (bonds_rotate_colour_map_flag == 0) {
       rgb = get_bond_colour_basic(colour_index, against_a_dark_background);
-      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1 a1 " << err << std::endl;
    } else {
 
       float rotation_size = bonds_colour_map_rotation/360.0;
 
       // rotation_size typically then: 2*32/360 = 0.178
-      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1a " << colour_index << std::endl;
+
+      // This is for colour-by-chain-carbons-only carbon colour
 
       if (colour_index >= 50) {
          float ii_f = colour_index - 50;
          ii_f += 1.2 * static_cast<float>(imol_no);
-         rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
+         if (against_a_dark_background) {
+            rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45; // pale/cream
+         } else {
+            rgb[0] = 0.4; rgb[1] = 0.3; rgb[2] = 0.2;
+         }
          float ra = ii_f*79.0/360.0;
          ra += rotation_size;
          while (ra > 1.0) ra -= 1.0;
@@ -1106,7 +1114,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
-         err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
+         // err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
       } else {
 
          while (rotation_size > 1.0) { // no more black bonds?
@@ -1116,7 +1124,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          if (against_a_dark_background) {
 
             if (false)
-               std::cout << "get_bond_colour_by_mol_no() idx: " << colour_index << " vs "
+               std::cout << "get_bond_colour_by_mol_no() against_a_dark_background==true, idx: " << colour_index << " vs "
                          << " green "   << GREEN_BOND << " "
                          << " blue "    << BLUE_BOND << " "
                          << " red "     << RED_BOND << " "
@@ -1126,7 +1134,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                          << " magenta " << MAGENTA_BOND << " "
                          << std::endl;
 
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1c " << err << std::endl;
+            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1c " << err << std::endl;
 
             switch (colour_index) {
             case CARBON_BOND:
@@ -1134,25 +1142,26 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                   rgb = bespoke_carbon_atoms_colour;
                } else {
                   rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+                  rgb[0] = 0.007; rgb[1] =  0.7; rgb[2] =  0.0;
                }
                break;
             case YELLOW_BOND:
                rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.3; rgb[1] =  0.3; rgb[2] =  1.0;
+               rgb[0] = 0.25; rgb[1] =  0.25; rgb[2] =  1.0;
                break;
             case RED_BOND:
-               rgb[0] = 1.0; rgb[1] =  0.2; rgb[2] =  0.2;
+               rgb[0] = 0.9; rgb[1] =  0.0; rgb[2] =  0.0;
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+               rgb[0] = 0.1; rgb[1] =  0.8; rgb[2] =  0.1;
                break;
             case GREY_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
                break;
             case HYDROGEN_GREY_BOND:
-               rgb[0] = 0.486; rgb[1] =  0.486; rgb[2] =  0.486;
+               rgb[0] = 0.75; rgb[1] =  0.75; rgb[2] =  0.75;
                break;
             case DEUTERIUM_PINK:
                rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
@@ -1184,24 +1193,31 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb.rotate(colour_index*26.0/360.0);
             }
 
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1d " << err << std::endl;
-
          } else {
 
             // against a white background.  Less pale (more saturated) and darker.
 
+            // std::cout << "against a white background with colour_index " << colour_index << std::endl;
+
             switch (colour_index) {
+            case CARBON_BOND:
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb[0] = 0.2; rgb[1] =  0.2; rgb[2] =  0.0;
+               }
+               break;
             case YELLOW_BOND:
-               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.6;
                break;
             case RED_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+               rgb[0] = 0.6; rgb[1] =  0.1; rgb[2] =  0.075; // more tomatoey.
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               rgb[0] = 0.05; rgb[1] =  0.6; rgb[2] =  0.05;
                break;
             case GREY_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
@@ -1213,7 +1229,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
                break;
             case MAGENTA_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+               rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] = 0.5;
                break;
             case ORANGE_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
@@ -1238,7 +1254,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
             }
          }
 
-         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1e " << err << std::endl;
+         // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1e " << err << std::endl;
 
          // "correct" for the +1 added in the calculation of the rotation
          // size.
@@ -1246,11 +1262,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
 
          rgb.rotate(float(1.0 - 21.0/360.0));
 
-         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1f " << err << std::endl;
+         // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1f " << err << std::endl;
 
          if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1g " << err << std::endl;
 
             if (colour_index == CARBON_BOND) {
                if (use_bespoke_grey_colour_for_carbon_atoms) {
@@ -1259,15 +1273,15 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                   rgb.rotate(rotation_size);
                }
             }
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1h " << err << std::endl;
+            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1h " << err << std::endl;
          } else {
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1k " << err << std::endl;
+            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1k " << err << std::endl;
             rgb.rotate(rotation_size);
-            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1l " << err << std::endl;
+            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1l " << err << std::endl;
          }
       }
    }
-   err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() --end-- " << err << std::endl;
+   // err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() --end-- " << err << std::endl;
    return rgb;
 }
 
@@ -3840,7 +3854,9 @@ molecule_class_info_t::make_colour_table() const {
 
    float goodselliness = graphics_info_t::goodselliness;
 
-   bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
+   // 20220214-PE does this matter (is it useful?) now with modern graphics?
+   // 20221125-PE it sure does (yes it is).
+   bool dark_bg_flag = graphics_info_t::background_is_black_p();
 
    float gcwrs = graphics_info_t::goodsell_chain_colour_wheel_rotation_step;
 
@@ -3900,6 +3916,13 @@ molecule_class_info_t::make_colour_table() const {
       colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
    }
 
+   for (unsigned int icol=0; icol<colour_table.size(); icol++) {
+      float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
+      // if (icol == 50)
+      // colour_table[icol] = glm::vec4(0.0, 0.1, 0.0, 1.0);
+      std::cout << "colour-table index " << icol << " " << glm::to_string(colour_table[icol]) << " " << s << std::endl;
+   }
+
    auto pastelize = [] (glm::vec4 &col, float degree) {
                        for (unsigned int i=0; i<3; i++) {
                           const float &cc = col[i];
@@ -3931,10 +3954,11 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
    // num_subdivisions = 2 corresponds to n_slices = 16 ie.. num_slices = 4 * 2^(n_subdivision)
 
    unsigned int n_stacks = 2; // top and bottom stacks.
-   float atom_radius = 0.02 * bond_width * atom_radius_scale_factor;
-   if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
-   float bond_radius = atom_radius;
+   float bond_radius = 0.02 * bond_width;
+   float atom_radius = bond_radius * atom_radius_scale_factor;
+
+   if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
    //           << " bond_radius " << bond_radius << "  atom_radius " << atom_radius << std::endl;

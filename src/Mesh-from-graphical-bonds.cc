@@ -116,7 +116,13 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
             unsigned int idx_base = vertices.size();
             unsigned int idx_tri_base = triangles.size();
             float scale = 1.0;
-            if (at_info.is_hydrogen_atom) scale *= 0.5;
+            if (at_info.is_hydrogen_atom) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  scale *= 0.66;
+               } else {
+                  scale *= 0.5; // bonds go to half-width, so should atoms.
+               }
+            }
             glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
             float sar = scale * atom_radius * at_info.radius_scale;
             if (at_info.is_water) sar *= 1.33;
