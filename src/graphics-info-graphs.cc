@@ -113,7 +113,9 @@ void graphics_info_t::refresh_validation_graph_model_list() {
 void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 	// 1. Update the model active model variable
 	active_validation_graph_model_idx = new_model_idx;
-	// 2. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
+	// 2. Handle chains
+	g_warning("todo: update_active_validation_graph_model(): handle chains");
+	// 3. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
 	for(const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
 		g_warning(
 			"Todo: Display/rebuild validation graph data for: %s [model index changed to %i]",
@@ -158,15 +160,38 @@ void graphics_info_t::change_validation_graph_chain(const std::string& chain_id)
 // 	}
 // }
 
+void insert_validation_graph(GtkWidget* graph) {
+	GtkWidget* target_box = widget_from_builder("validation_graph_box");
+	if(! gtk_widget_get_first_child(target_box)) {
+		// Empty validation_graph_box means that we need to make the validation_graph_frame visible first
+		GtkWidget* frame = widget_from_builder("validation_graph_frame");
+		gtk_widget_set_visible(frame, TRUE);
+	}
+	//g_debug("Inserting %p to the validation graph box.",graph);
+	gtk_box_append(GTK_BOX(target_box), graph);
+}
+
+void remove_validation_graph(GtkWidget* graph) {
+	bool removed = false;
+	GtkWidget* target_box = widget_from_builder("validation_graph_box");
+	//g_debug("Removing %p from the validation graph box.",graph);
+	gtk_box_remove(GTK_BOX(target_box), graph);
+	if(! gtk_widget_get_first_child(target_box)) {
+		// If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
+		GtkWidget* frame = widget_from_builder("validation_graph_frame");
+		gtk_widget_set_visible(frame, FALSE);
+	}
+}
+
 void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
 	// 1. instantiate the validation graph
 	GtkWidget* this_will_be_the_graph = gtk_label_new((coot::validation_graph_type_to_human_name(type)+" TODO: Graph Widget").c_str());
 	// 2. store the graph in std::map
+	validation_graph_widgets[type] = this_will_be_the_graph;
 	if(active_validation_graph_model_idx != -1) {
 		// 3. Compute data
 		g_debug("todo: compute data for %s",coot::validation_graph_type_to_human_name(type).c_str());
 		// 4. Store the data in std::maps
-		validation_graph_widgets[type] = this_will_be_the_graph;
 		// the number is a dummy for now
 		validation_graph_data[type] = std::make_shared<int>(7);
 		// 5. Set the data for the graph
@@ -175,16 +200,16 @@ void graphics_info_t::create_validation_graph(coot::validation_graph_type type) 
 		g_warning("graphics_info_t::create_validation_graph(): There is no active validation graph model. An empty graph was created.");
 	}
 	// 6. Show the graph
-	g_debug("todo: Add/remove validation graph widget from the validation graph stack");
-	//create_tab_for_validation_graph(type,this_will_be_the_graph);
+	insert_validation_graph(this_will_be_the_graph);
 }
+
 void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
 	// 1. Remove the graph and its' data from std::maps
+	auto* widget = validation_graph_widgets[type];
 	validation_graph_widgets.erase(type);
 	validation_graph_data.erase(type);
 	// 2. Destroy the graph widget
-	g_debug("todo: Add/remove validation graph widget from the validation graph stack");
-	//destroy_tab_for_validation_graph(type);
+	remove_validation_graph(widget);
 }
 
 // Validation stuff	    //

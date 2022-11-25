@@ -6387,10 +6387,19 @@ Do you want to continue?
                 <property name="halign">fill</property>
                 <property name="valign">end</property>
                 <property name="hexpand">True</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can-focus">True</property>
                 <!-- <property name="scrollable">True</property> -->
-              </object>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <child>
+                      <object class="GtkBox" id="validation_graph_box">
+                        <property name="orientation">vertical</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+>              </object>
             </child>
           </object>
         </child>
@@ -6572,8 +6581,8 @@ Do you want to continue?
           </object>
         </child>
         <child>
-          <object class="GtkScrolledWindow">
-            <child>
+          <!-- <object class="GtkScrolledWindow"> -->
+            <!-- <child> -->
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
                 <child>
@@ -6594,8 +6603,8 @@ Do you want to continue?
                   </object>
                 </child>
               </object>
-            </child>
-          </object>
+            <!-- </child> -->
+          <!-- </object> -->
         </child>
         <child>
           <object class="GtkSeparator">
@@ -6680,6 +6689,30 @@ Do you want to continue?
                   <property name="row">2</property>
                   <property name="column">1</property>
                 </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Chain: </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="validation_graph_chain_id_selector">
+                <property name="hexpand">True</property>
+                <!-- <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" /> -->
               </object>
             </child>
           </object>
