@@ -3893,7 +3893,7 @@ molecule_class_info_t::make_colour_table() const {
                   int chain_index = ic/2;
                   float rotation_amount = gcwrs * static_cast<float>(chain_index);
                   if (is_C)
-                     ch.pastelize(goodselliness);
+                     ch.make_pale(goodselliness);
                   ch.rotate_by(rotation_amount);
                   colour_table[icol] = colour_holder_to_glm(ch);
                }
