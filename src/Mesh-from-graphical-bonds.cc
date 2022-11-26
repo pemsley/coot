@@ -556,10 +556,7 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
          for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
             triangles[jj].rebase(idx_base);
       }
-
-
    }
-
 }
 
 #include "molecular-mesh-generator.hh"

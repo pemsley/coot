@@ -928,10 +928,9 @@ namespace coot {
       int resno;
       double distortion;
       std::string info_string;
-      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) {
+      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) : info_string(s) {
          resno = resno_in;
          distortion = distortion_in;
-         info_string = s;
       }
    };
 
@@ -941,8 +940,7 @@ namespace coot {
       std::vector<omega_distortion_info_t> omega_distortions; // in degrees away from 180
       int min_resno;
       int max_resno;
-      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) {
-         chain_id = chain_id_in;
+      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) : chain_id(chain_id_in) {
          min_resno = min_resno_in;
          max_resno = max_resno_in;
       }

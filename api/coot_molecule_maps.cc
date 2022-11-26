@@ -11,10 +11,15 @@
 #include "density-contour/transfer-occlusions.hh"
 #include "coot_molecule.hh"
 
+// 20221126-PE set this for now. When it is restored, jiggle_fit_multi_thread_func_1 and jiggle_fit_multi_thread_func_2
+// will need to be transfered.
+// It is set (not configured) in ideal/simple-restraint.hh
+#undef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
 std::atomic<bool> coot::molecule_t::draw_vector_sets_lock(false);
 
 int
-coot::molecule_t::writeMap(const std::string &file_name) const {
+coot::molecule_t::write_map(const std::string &file_name) const {
 
    int status = 0;
 
@@ -809,7 +814,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    if (do_multi_thread) {
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-
+      ctpl::thread_pool thread_pool(n_threads);
       try {
          unsigned int n_threads = coot::get_max_number_of_threads();
 
@@ -820,10 +825,10 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
             // throw into the mix a model that has been only small rotated/translate
             // or maybe nothing at all.
 
-            graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
-						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
-						     &xmap_masked, // pointer arg, no std::ref()
-						     density_scoring_function, &trial_results[itrial]);
+            thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
+                             initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
+                             &xmap_masked, // pointer arg, no std::ref()
+                             density_scoring_function, &trial_results[itrial]);
 
             auto tp_2 = std::chrono::high_resolution_clock::now();
             auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
@@ -842,7 +847,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	 bool wait_continue = true;
 	 while (wait_continue) {
 	    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	    if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	    if (thread_pool.n_idle() == thread_pool.size())
 	       wait_continue = false;
 	 }
       }
@@ -910,14 +915,15 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    // fit and score best random jiggled results
 
    try {
+      ctpl::thread_pool thread_pool(n_threads);
       for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
          // does the fitting
-         graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol,
-                                                  std::cref(xmap_masked), map_sigma,
-                                                  centre_pt, atom_numbers,
-                                                  trial_results[i_trial].second,
-                                                  density_scoring_function,
-                                                  &post_fit_trial_results[i_trial]);
+         thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol,
+                          std::cref(xmap_masked), map_sigma,
+                          centre_pt, atom_numbers,
+                          trial_results[i_trial].second,
+                          density_scoring_function,
+                          &post_fit_trial_results[i_trial]);
       }
 
       // wait
@@ -925,7 +931,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       bool wait_continue = true;
       while (wait_continue) {
          std::this_thread::sleep_for(std::chrono::milliseconds(200));
-         if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+         if (thread_pool.n_idle() == thread_pool.size())
             wait_continue = false;
       }
    }

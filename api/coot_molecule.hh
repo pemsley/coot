@@ -12,6 +12,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
+#include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "simple-mesh.hh"
 #include "ghost-molecule-display.hh"
@@ -394,6 +395,10 @@ namespace coot {
       // not const because it recalculates the bonds.
       simple_mesh_t get_rotamer_dodecs(protein_geometry *geom_p, rotamer_probability_tables *rpt);
 
+      omega_distortion_info_container_t peptide_omega_analysis(const protein_geometry &geom,
+                                                               const std::string &chain_id,
+                                                               bool mark_cis_peptides_as_bad_flag) const;
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);
@@ -532,7 +537,7 @@ namespace coot {
 
       // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;
-      int writeMap(const std::string &file_name) const;
+      int write_map(const std::string &file_name) const;
       void set_map_is_difference_map(bool flag);
       bool is_difference_map_p() const;
 

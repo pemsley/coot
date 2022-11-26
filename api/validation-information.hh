@@ -12,7 +12,7 @@ namespace coot {
       std::string name;
       std::vector<residue_validation_information_t> rviv;
       explicit chain_validation_information_t(const std::string &chain_id_in) : chain_id(chain_id_in) {}
-      void add_residue_valiation_informtion(const residue_validation_information_t &rvi) {
+      void add_residue_validation_information(const residue_validation_information_t &rvi) {
          rviv.push_back(rvi);
       }
    };
@@ -46,7 +46,7 @@ namespace coot {
       }
       void add_residue_validation_information(const residue_validation_information_t &rvi, const std::string &chain_id) {
          unsigned int idx = get_index_for_chain(chain_id);
-         cviv[idx].add_residue_valiation_informtion(rvi);
+         cviv[idx].add_residue_validation_information(rvi);
       }
       bool empty() const { return cviv.empty(); }
       void set_min_max() {

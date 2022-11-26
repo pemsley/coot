@@ -403,8 +403,8 @@ public:
                 bool use_weight, bool is_a_difference_map);
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
-   //! write a map. This function will be renamed "write_map"
-   int writeMap(int imol, const std::string &file_name) const;
+   //! write a map. This function was be renamed fromm ``writeMap``
+   int write_map(int imol, const std::string &file_name) const;
    //! @return the map rmsd - epsilon testing is not used. -1 is returned if `imol_map` is not a map molecule index
    float get_map_rmsd_approx(int imol_map) const;
 
@@ -568,8 +568,9 @@ public:
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
    //! get the ramachandran validation markup mesh
+   //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh(int imol)``.
    //! @return a `simple_mesh_t`
-   coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol) const;
+   coot::simple_mesh_t get_ramachandran_validation_markup_mesh(int imol) const;
    //! ramachandran validation
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
 
@@ -594,6 +595,10 @@ public:
    //! ramachandran validation information (formatted for a graph, not 3d)
    //! @returns a `validation_information_t`
    coot::validation_information_t ramachandran_analysis(int imol_model) const;
+
+   //! peptide omega validation information
+   //! @returns a `validation_information_t`
+   coot::validation_information_t peptide_omega_analysis(int imol_model) const;
 
    //! get interesting places (does not work yet)
    //! @return a vector of `validation_information_t`

@@ -716,8 +716,41 @@ molecules_container_t::ramachandran_analysis(int imol_model) const {
    return vi;
 }
 
+//! peptide omega validation information
+//! @returns a `validation_information_t`
+coot::validation_information_t
+molecules_container_t::peptide_omega_analysis(int imol) const {
 
-#include "vertex.hh" // neeeded?
+   coot::validation_information_t vi;
+   vi.name = "Peptide Omega Deviation";
+   vi.type = "DISTORTION";
+
+   if (is_valid_model_molecule(imol)) {
+
+      bool mark_cis_peptides_as_bad_flag = false;
+      bool m = mark_cis_peptides_as_bad_flag;
+      std::vector<std::string> chain_ids = molecules[imol].chains_in_model();
+      for (const auto &chain_id : chain_ids) {
+         coot::chain_validation_information_t cvi(chain_id);
+         coot::omega_distortion_info_container_t odi = molecules.at(imol).peptide_omega_analysis(geom, chain_id, m);
+         for (const auto &od : odi.omega_distortions) {
+            // oops - we have forgotten about the insertion code.
+            coot::residue_spec_t res_spec(chain_id, od.resno, "");
+            coot::atom_spec_t atom_spec(chain_id, od.resno, "", " CA ", "");
+            std::string label = od.info_string;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, od.distortion, label);
+            cvi.add_residue_validation_information(rvi);
+         }
+         vi.cviv.push_back(cvi);
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return vi;
+}
+
+
+// #include "vertex.hh" // neeeded?
 
 coot::simple_mesh_t
 molecules_container_t::test_origin_cube() const {
@@ -804,7 +837,7 @@ molecules_container_t::ramachandran_validation(int imol) const {
 #include <glm/gtx/string_cast.hpp>
 
 coot::simple_mesh_t
-molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
+molecules_container_t::get_ramachandran_validation_markup_mesh(int imol) const {
 
    // this function should be pushed into the coot::molecule_t class
    // (which means that the mesh will be copied)
@@ -990,11 +1023,11 @@ molecules_container_t::get_molecule_centre(int imol) const {
 
 
 int
-molecules_container_t::writeMap(int imol, const std::string &file_name) const {
+molecules_container_t::write_map(int imol, const std::string &file_name) const {
 
    int status= 0;
    if (is_valid_map_molecule(imol)) {
-      status = molecules[imol].writeMap(file_name);
+      status = molecules[imol].write_map(file_name);
    }
    return status;
 
