@@ -375,8 +375,8 @@ namespace coot {
 
       // ----------------------- model bonds
 
-      coot::simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
-                                         bool against_a_dark_background, int smoothness_factor);
+      simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
+                                   bool against_a_dark_background, int smoothness_factor);
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;
@@ -386,22 +386,20 @@ namespace coot {
          bespoke_carbon_atoms_colour = col;
          // make_bonds_type_checked("set_bespoke_carbon_atom_colour");
       }
-      
 
       // ----------------------- model analysis functions
 
       std::vector<std::string> non_standard_residue_types_in_model() const;
       std::vector<phi_psi_prob_t> ramachandran_validation(const ramachandrans_container_t &rc) const;
       // not const because it recalculates the bonds.
-      coot::simple_mesh_t get_rotamer_dodecs(coot::protein_geometry *geom_p,
-                                             coot::rotamer_probability_tables *rpt);
+      simple_mesh_t get_rotamer_dodecs(protein_geometry *geom_p, rotamer_probability_tables *rpt);
 
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);
       coot::Cartesian get_molecule_centre() const;
 
-      int flip_peptide(const coot::atom_spec_t &rs, const std::string &alt_conf);
+      int flip_peptide(const atom_spec_t &rs, const std::string &alt_conf);
       int auto_fit_rotamer(const std::string &chain_id, int res_no, const std::string &ins_code,
                            const std::string &alt_conf,
                            const clipper::Xmap<float> &xmap, const coot::protein_geometry &pg);

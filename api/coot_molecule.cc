@@ -1377,7 +1377,10 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
          }
 
          glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
-         auto this_dodec_colour = colour_holder_to_glm(rm.col);
+         // 20221126-PE Calm down the ultra-bright rota dodec:
+         auto rm_col = rm.col;
+         rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
+         auto this_dodec_colour = colour_holder_to_glm(rm_col);
 
          std::vector<coot::api::vnc_vertex> this_dodec_vertices = dodec_vertices; // at the origin to start
 

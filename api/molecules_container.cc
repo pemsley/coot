@@ -863,12 +863,15 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
    // test_ramachandran_probabilities(ramachandrans_container); // don't use rama_pre_pro without CLIPPER_HAS_TOP8000
 
    coot::simple_mesh_t mesh;
+
+   // 20221126-PE Calm down the ultra-bright rama balls:
+   float sober_factor = 0.75;
+
    if (is_valid_model_molecule(imol)) {
 
       std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaball = tessellate_octasphere(num_subdivisions);
 
-      std::vector<coot::phi_psi_prob_t> ramachandran_goodness_spots =
-         ramachandran_validation(imol);
+      std::vector<coot::phi_psi_prob_t> ramachandran_goodness_spots = ramachandran_validation(imol);
       // now convert positions into meshes of balls
       int n_ramachandran_goodness_spots = ramachandran_goodness_spots.size();
       for (int i=0; i<n_ramachandran_goodness_spots; i++) {
@@ -882,7 +885,7 @@ molecules_container_t::ramachandran_validation_markup_mesh(int imol) const {
          unsigned int idx_base = mesh.vertices.size();
          unsigned int idx_tri_base = mesh.triangles.size();
          for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-            glm::vec4 col_v4(col.red, col.green, col.blue, 1.0f);
+            glm::vec4 col_v4(sober_factor * col.red, sober_factor * col.green, sober_factor * col.blue, 1.0f);
             const glm::vec3 &vertex_position = octaball.first[ibv];
             coot::api::vnc_vertex vertex(ball_position + rama_ball_radius * vertex_position, vertex_position, col_v4);
             mesh.vertices.push_back(vertex);
