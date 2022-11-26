@@ -124,7 +124,7 @@ namespace coot {
       void make_ca_bonds();
       // just a copy of the version in src
       float bonds_colour_map_rotation;
-      std::vector<glm::vec4> make_colour_table() const;
+      std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
       glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, int bonds_box_type) const;
       coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
       coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
@@ -375,7 +375,8 @@ namespace coot {
 
       // ----------------------- model bonds
 
-      coot::simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom);
+      coot::simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
+                                         bool against_a_dark_background, int smoothness_factor);
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;

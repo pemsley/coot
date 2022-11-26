@@ -65,8 +65,8 @@ molecules_container_t::get_molecule_name(int imol) const {
       if (imol >= 0)
          return molecules[imol].get_name();
    return std::string("");
-
 }
+
 
 void
 molecules_container_t::display_molecule_names_table() const {
@@ -999,13 +999,15 @@ molecules_container_t::writeMap(int imol, const std::string &file_name) const {
 
 // Mode is "COLOUR-BY-CHAIN-AND-DICTIONARY" or "CA+LIGANDS"
 coot::simple_mesh_t
-molecules_container_t::get_bonds_mesh(int imol, const std::string &mode) {
+molecules_container_t::get_bonds_mesh(int imol, const std::string &mode,
+                                      bool against_a_dark_background,
+                                      int smoothness_factor) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::simple_mesh_t sm;
    if (is_valid_model_molecule(imol)) {
-      sm = molecules[imol].get_bonds_mesh(mode, &geom);
+      sm = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, smoothness_factor);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

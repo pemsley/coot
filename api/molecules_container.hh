@@ -348,8 +348,16 @@ public:
 
    //! get the bonds mesh.
    //!
-   //! Mode is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more to follow
-   coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode);
+   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more to follow
+   //! ``against_a_dark_background`` allows the bond colours to be relevant for the backgroud.
+   //! When the background is dark, the colours should be bright and pastely (as a rule)
+   //! When the background is light/white, the colour darker and more saturated.
+   //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
+   //! and spheres for the atoms - it rises in powers of 2. 1 is the smallest ``smoothness_factor``,
+   // ! 2 looks nice (but maybe is slower to transfer) and 3 is best.
+   //!
+   coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode,
+                                      bool against_a_dark_background, int smoothness_factor);
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -386,6 +394,7 @@ public:
 
    //! @return the map sampling rate (default is 1.8)
    float map_sampling_rate;
+
    //! set the map sampling rate (default is 1.8). Higher numbers mean smoother maps, but they take
    //! longer to generate, longer to transfer, longer to parse and longer to draw
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
@@ -462,7 +471,7 @@ public:
    //! add waters, updating imol_model (of course)
    //! @return 1 on a successful move, 0 on failure.
    int add_waters(int imol_model, int imol_map);
-   //! return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
+   //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
    //! what does this do!?
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
@@ -556,10 +565,10 @@ public:
    //! \name Coordinates Validation
 
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
-   //! @ return a `simple_mesh_t`
+   //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
    //! get the ramachandran validation markup mesh
-   //! @ return a `simple_mesh_t`
+   //! @return a `simple_mesh_t`
    coot::simple_mesh_t ramachandran_validation_markup_mesh(int imol) const;
    //! ramachandran validation
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;

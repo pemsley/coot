@@ -78,8 +78,6 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
 
    Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   std::cout << "debug:: in make_colour_by_chain_bonds() adding tables_p " << tables_p << std::endl;
-
    bonds.add_rotamer_tables(tables_p);
    bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogens_flag,
                                   draw_missing_loops_flag,
@@ -915,13 +913,18 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
       float rotation_size = bonds_colour_map_rotation/360.0;
 
       // rotation_size typically then: 2*32/360 = 0.178
-      // err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1a " << colour_index << std::endl;
+
+      // This is for colour-by-chain-carbons-only carbon colour
 
       if (colour_index >= 50) {
 
          float ii_f = colour_index - 50;
          ii_f += 1.2 * static_cast<float>(imol_no);
-         rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
+         if (against_a_dark_background) {
+            rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45; // pale/cream
+         } else {
+            rgb[0] = 0.5; rgb[1] = 0.3; rgb[2] = 0.1;
+         }
          float ra = ii_f*79.0/360.0;
          ra += rotation_size;
          while (ra > 1.0) ra -= 1.0;
@@ -941,7 +944,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
          if (against_a_dark_background) {
 
             if (false)
-               std::cout << "get_bond_colour_by_mol_no() idx: " << colour_index << " vs "
+               std::cout << "get_bond_colour_by_mol_no() against_a_dark_background==true, idx: " << colour_index << " vs "
                          << " green "   << GREEN_BOND << " "
                          << " blue "    << BLUE_BOND << " "
                          << " red "     << RED_BOND << " "
@@ -965,19 +968,19 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.3; rgb[1] =  0.3; rgb[2] =  1.0;
+               rgb[0] = 0.25; rgb[1] =  0.25; rgb[2] =  1.0;
                break;
             case RED_BOND:
-               rgb[0] = 1.0; rgb[1] =  0.1; rgb[2] =  0.1;
+               rgb[0] = 0.9; rgb[1] =  0.0; rgb[2] =  0.0;
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               rgb[0] = 0.1; rgb[1] =  0.8; rgb[2] =  0.1;
                break;
             case GREY_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
                break;
             case HYDROGEN_GREY_BOND:
-               rgb[0] = 0.486; rgb[1] =  0.486; rgb[2] =  0.486;
+               rgb[0] = 0.75; rgb[1] =  0.75; rgb[2] =  0.75;
                break;
             case DEUTERIUM_PINK:
                rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
@@ -1009,24 +1012,29 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb.rotate(colour_index*26.0/360.0);
             }
 
-            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1d " << err << std::endl;
-
          } else {
 
             // against a white background.  Less pale (more saturated) and darker.
 
             switch (colour_index) {
+            case CARBON_BOND:
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb[0] = 0.2; rgb[1] =  0.2; rgb[2] =  0.0;
+               }
+               break;
             case YELLOW_BOND:
-               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.6;
                break;
             case RED_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+               rgb[0] = 0.6; rgb[1] =  0.1; rgb[2] =  0.075; // more tomatoey.
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               rgb[0] = 0.05; rgb[1] =  0.6; rgb[2] =  0.05;
                break;
             case GREY_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
@@ -1038,7 +1046,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
                break;
             case MAGENTA_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+               rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] = 0.5;
                break;
             case ORANGE_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
@@ -1050,7 +1058,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
                break;
             case DARK_ORANGE_BOND:
-               rgb[0] = 0.7; rgb[1] =  0.27; rgb[2] = 0.05; // maybe
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
                break;
             case DARK_BROWN_BOND:
                rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
@@ -1075,8 +1083,6 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
 
          if (rotate_colour_map_on_read_pdb_c_only_flag) {
 
-            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1g " << err << std::endl;
-
             if (colour_index == CARBON_BOND) {
                if (use_bespoke_grey_colour_for_carbon_atoms) {
                   rgb = bespoke_carbon_atoms_colour;
@@ -1097,9 +1103,8 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
 }
 
 std::vector<glm::vec4>
-coot::molecule_t::make_colour_table() const {
+coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
-   bool dark_bg_flag = true; // 20220214-PE does this matter (is it useful?) now with modern graphics?
    bool is_intermediate_atoms_molecule = false; // make a class member
 
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -1144,18 +1149,55 @@ coot::molecule_t::make_colour_table() const {
 }
 
 coot::simple_mesh_t
-coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom) {
+coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
+                                 bool against_a_dark_background, int smoothness_factor) {
+
+   auto test_udd_handle = [] (mmdb::Manager *mol, int udd_handle_bonded_type) {
+
+      // test that the udd_handle_bonded_type is useful
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        int state = -1;
+                        int udd_get_handle_success = at->GetUDData(udd_handle_bonded_type, state);
+                        std::string e;
+                        if (udd_get_handle_success == mmdb::UDDATA_WrongHandle)  e = "UDDATA_WrongHandle";
+                        if (udd_get_handle_success == mmdb::UDDATA_WrongUDRType) e = "UDDATA_WrongUDRType";
+                        if (udd_get_handle_success == mmdb::UDDATA_NoData)       e = "UDDATA_NoData";
+                        std::cout << " start get_bonds_mesh() " << coot::atom_spec_t(at)
+                                  << " handle: " << udd_handle_bonded_type
+                                  << " udd_get_handle_success: " << udd_get_handle_success << " " << e
+                                  << " state: " << state << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
 
    simple_mesh_t m;
 
    float atom_radius = 0.12;
    float bond_radius = 0.12;
+
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
    unsigned int n_stacks = 2;
    // int representation_type = BALL_AND_STICK;
 
-   int smoothness_factor = 2;
    if (smoothness_factor == 2) {
       num_subdivisions = 2;
       n_slices = 18;
@@ -1181,39 +1223,10 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
       // << " not " << mmdb::UDDATA_WrongUDRType << std::endl;
    }
 
-   if (false) {
-      // test that the udd_handle_bonded_type is useful
-      int imod = 1;
-      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int n_res = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<n_res; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               if (residue_p) {
-                  int n_atoms = residue_p->GetNumberOfAtoms();
-                  for (int iat=0; iat<n_atoms; iat++) {
-                     mmdb::Atom *at = residue_p->GetAtom(iat);
-                     if (! at->isTer()) {
-                        int state = -1;
-                        int udd_get_handle_success = at->GetUDData(udd_handle_bonded_type, state);
-                        std::string e;
-                        if (udd_get_handle_success == mmdb::UDDATA_WrongHandle)  e = "UDDATA_WrongHandle";
-                        if (udd_get_handle_success == mmdb::UDDATA_WrongUDRType) e = "UDDATA_WrongUDRType";
-                        if (udd_get_handle_success == mmdb::UDDATA_NoData)       e = "UDDATA_NoData";
-                        std::cout << " start get_bonds_mesh() " << coot::atom_spec_t(at) << " handle: " << udd_handle_bonded_type
-                                  << " udd_get_handle_success: " << udd_get_handle_success << " " << e << " state: " << state << std::endl;
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
+   if (false)
+      test_udd_handle(atom_sel.mol, udd_handle_bonded_type);
 
-   std::vector<glm::vec4> colour_table = make_colour_table();
+   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
    if (colour_table.empty()) {
       std::cout << "ERROR:: you need to make the bonds before getting the bonds mesh" << std::endl;
    }
