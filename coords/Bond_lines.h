@@ -380,7 +380,8 @@ class Bond_lines_container {
                                                    int draw_hydrogens_flag,
                                                    bool draw_missing_loops_flag,
                                                    short int change_c_only_flag,
-                                                   bool do_goodsell_colour_mode);
+                                                   bool do_goodsell_colour_mode,
+                                                   bool do_rota_markup);
 
    void add_residue_monomer_bonds(const std::map<std::string, std::vector<mmdb::Residue *> > &residue_monomer_map,
                                   int imol, int model_number,
@@ -395,7 +396,8 @@ class Bond_lines_container {
                                                                 int imol,
                                                                 int draw_hydrogens_flag,
                                                                 bool draw_missing_loops_flag,
-                                                                bool do_goodsell_colour_mode);
+                                                                bool do_goodsell_colour_mode,
+                                                                bool do_rota_markup);
    // and the bonds between the above monomers
    void add_polymer_bonds(const atom_selection_container_t &asc,
                           int atom_colour_type,
@@ -840,7 +842,8 @@ public:
                                  int draw_hydrogens_flag,
                                  bool draw_missing_loops_flag,
                                  short int change_c_only_flag,
-                                 bool do_goodsell_colour_mode);
+                                 bool do_goodsell_colour_mode,
+                                 bool do_ramachandran_markup); // 20221011-PE we want bond by dict *and* rota dodecs!
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
                                     int draw_hydrogens_flag);
    void do_normal_bonds_no_water(const atom_selection_container_t &asc,

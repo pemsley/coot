@@ -1104,7 +1104,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          if (against_a_dark_background) {
             rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45; // pale/cream
          } else {
-            rgb[0] = 0.4; rgb[1] = 0.3; rgb[2] = 0.2;
+            rgb[0] = 0.5; rgb[1] = 0.3; rgb[2] = 0.1;
          }
          float ra = ii_f*79.0/360.0;
          ra += rotation_size;
@@ -3676,9 +3676,10 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
+   bool do_rama_markup = false; // should we be more clever?
    bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogens_flag,
                                   graphics_info_t::draw_missing_loops_flag,
-                                  change_c_only_flag, goodsell_mode);
+                                  change_c_only_flag, goodsell_mode, do_rama_markup);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
@@ -3916,11 +3917,13 @@ molecule_class_info_t::make_colour_table() const {
       colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
    }
 
-   for (unsigned int icol=0; icol<colour_table.size(); icol++) {
-      float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
-      // if (icol == 50)
-      // colour_table[icol] = glm::vec4(0.0, 0.1, 0.0, 1.0);
-      std::cout << "colour-table index " << icol << " " << glm::to_string(colour_table[icol]) << " " << s << std::endl;
+   if (false) {
+      for (unsigned int icol=0; icol<colour_table.size(); icol++) {
+         float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
+         // if (icol == 50)
+         // colour_table[icol] = glm::vec4(0.0, 0.1, 0.0, 1.0);
+         std::cout << "colour-table index " << icol << " " << glm::to_string(colour_table[icol]) << " " << s << std::endl;
+      }
    }
 
    auto pastelize = [] (glm::vec4 &col, float degree) {

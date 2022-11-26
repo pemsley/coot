@@ -723,6 +723,8 @@ graphics_info_t::render_scene() {
       // std::cout << "Timings for window allocation " << d10 << " microseconds" << std::endl;  // 0
       int sf = 1;
 
+      sf = framebuffer_scale;
+
 #ifdef __APPLE__
       sf = 2;
 #endif

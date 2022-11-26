@@ -2218,7 +2218,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    //             atoms)
 
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
+
    int udd_found_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found bond");
+   // std::cout << "............................ construct_from_asc() "
+   // << "udd_found_bond_handle register " << udd_found_bond_handle << std::endl;
    bool have_udd_atoms = 1;
    if (udd_found_bond_handle<0)  {
       std::cout << " atom bonding registration failed.\n";
@@ -5417,25 +5420,53 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			return col;
 		     }
 		  } else {
-		     if (element == " N") {
-			return BLUE_BOND;
-		     } else {
-			if (element == " O") {
-			   return RED_BOND;
-			} else {
-			   if (element == " S") {
-			      return YELLOW_BOND;
-			   } else {
-			      if (element == " P") {
-				 return ORANGE_BOND;
-			      } else {
-				 if (is_hydrogen(element)) {
-				    return HYDROGEN_GREY_BOND;
-				 }
-			      }
-			   }
-			}
-		     }
+
+                     if (element == " N") {
+                        return BLUE_BOND;
+                     } else {
+                        if (element == " O") {
+                           return RED_BOND;
+                        } else {
+                           if (element == " S") {
+                              return YELLOW_BOND;
+                           } else {
+                              if (is_hydrogen(element)) {
+                                 if (is_deuterium(element))
+                                    return DEUTERIUM_PINK;
+                                 else
+                                    return HYDROGEN_GREY_BOND;
+                              } else {
+                                 if (element == " P") {
+                                    return ORANGE_BOND;
+                                 } else {
+                                    if (element == " F") {
+                                       return GREEN_BOND;
+                                    } else {
+                                       if (element == "CL") {
+                                          return GREEN_BOND;
+                                       } else {
+                                          if (element == "BR") {
+                                             return DARK_BROWN_BOND;
+                                          } else {
+                                             if (element == " I") {
+                                                return MAGENTA_BOND;
+                                             } else {
+                                                if (element == "MG") {
+                                                   return DARK_GREEN_BOND;
+                                                } else {
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
 		  }
 		  return GREY_BOND;
 
@@ -5767,7 +5798,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 
    short int symm_flag = 0;
    // for these side chain atoms
-   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false);
+   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -6530,7 +6561,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
          }
 
       } else {
-         std::cout << "Bond this type by distance " << monomer_name << std::endl;
+         std::cout << "DEBUG:: add_residue_monomer_bonds(): Bond this type by distance " << monomer_name << std::endl;
       }
    }
 }
@@ -6540,7 +6571,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
                                                                               int imol,
                                                                               int draw_hydrogens_flag,
                                                                               bool draw_missing_loops_flag,
-                                                                              bool do_goodsell_colour_mode) {
+                                                                              bool do_goodsell_colour_mode,
+                                                                              bool do_rotamer_markup) {
    //  timer here.
 
    // 1) waters and metals
@@ -6591,7 +6623,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
    // -------- metals and waters
-   int udd_found_bond_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond"); // pass this.
+
+   int udd_found_bond_handle = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM,"found bond");// Register! Not get.
    int ic = -1;
    for (int iat=0; iat<asc.n_selected_atoms; iat++) {
       mmdb::Atom *at = asc.atom_selection[iat];
@@ -6605,6 +6638,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
             // extract this to own function
             {
+               // std::cout << "making stars for " << at << std::endl;
                float star_size = 0.3;
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -6633,6 +6667,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
+
+   if (do_rotamer_markup)
+      add_rotamer_goodness_markup(asc);
 
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
@@ -6801,16 +6838,17 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_sele
                                                                  int draw_hydrogens_flag,
                                                                  bool draw_missing_loops_flag,
                                                                  short int change_c_only_flag,
-                                                                 bool do_goodsell_colour_mode) {
+                                                                 bool do_goodsell_colour_mode,
+                                                                 bool do_rotamer_markup) {
 
    if (change_c_only_flag) {
       do_colour_by_dictionary_and_by_chain_bonds_carbons_only(asc, imol,
                                                               draw_hydrogens_flag, draw_missing_loops_flag,
-                                                              do_goodsell_colour_mode);
+                                                              do_goodsell_colour_mode, do_rotamer_markup);
    } else {
       bool use_asc_atom_selection_flag = true; // 20220226-PE I don't know
       do_colour_by_chain_bonds(asc, use_asc_atom_selection_flag, imol, draw_hydrogens_flag, draw_missing_loops_flag,
-                               false, false);
+                               false, false, do_rotamer_markup);
    }
 }
 
@@ -6831,7 +6869,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 					       int draw_hydrogens_flag,
                                                bool draw_missing_loops_flag,
 					       short int change_c_only_flag,
-					       bool do_goodsell_colour_mode) {
+					       bool do_goodsell_colour_mode,
+                                               bool do_ramachandran_markup) {
 
    // std::cout << "............. in do_colour_by_chain_bonds() " << do_goodsell_colour_mode << " "
    //           << change_c_only_flag << std::endl;
@@ -6844,7 +6883,9 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                                                  draw_hydrogens_flag,
                                                  draw_missing_loops_flag,
                                                  change_c_only_flag,
-                                                 do_goodsell_colour_mode);
+                                                 do_goodsell_colour_mode,
+                                                 do_ramachandran_markup);
+
       return;
    }
 
@@ -8089,8 +8130,12 @@ void
 graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_atom_info_t> &centres,
                                             const std::vector<int> &colours) {
 
-   // std::cout << "In graphical_bonds_container::add_atom_centres adding "
-   //<< centres.size() << " atoms" << std::endl;
+   if (false) {
+      std::cout << "In graphical_bonds_container::add_atom_centres() adding "
+                << centres.size() << " atoms" << std::endl;
+      for (unsigned int i=0; i<centres.size(); i++)
+         std::cout << "Adding atom centre for atom " << centres[i].atom_p << std::endl;
+   }
 
    if (colours.size() != centres.size()) {
       std::cout << "ERROR:: !! colours.size() != centres.size() in add_atom_centres\n";
@@ -8103,8 +8148,10 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
       atom_centres_colour_[i] = colours[i];
    }
 
-   // now consolidate those to batches of each colour - orders of
-   // magnitude faster without colour changing per atom.
+   // now consolidate those to batches of each colour
+   //
+   // Comment from the ancient times:
+   //   doing so is orders of magnitude faster without colour changing per atom.
    //
    int col_idx_max = 1;
    for (int i=0; i<n_atom_centres_; i++) {
@@ -8136,9 +8183,12 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
    }
 
-   if (false)  {// debug
+   if (false)  { // debug
       for (int i=0; i<n_atom_centres_; i++)
-         std::cout << "---- add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
+         std::cout << "---- graphical_bonds_container::add_atom_centres() " << i << " " << atom_centres_[i].position << "\n";
+   }
+
+   if (false) {
       for (int i=0; i<col_idx_max; i++)
          std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points << std::endl;
    }
