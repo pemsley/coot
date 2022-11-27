@@ -1037,13 +1037,15 @@ molecules_container_t::write_map(int imol, const std::string &file_name) const {
 coot::simple_mesh_t
 molecules_container_t::get_bonds_mesh(int imol, const std::string &mode,
                                       bool against_a_dark_background,
+                                      float bonds_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::simple_mesh_t sm;
    if (is_valid_model_molecule(imol)) {
-      sm = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, smoothness_factor);
+      sm = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bonds_width, atom_radius_to_bond_width_ratio,
+                                          smoothness_factor);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

@@ -1150,7 +1150,9 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
 coot::simple_mesh_t
 coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
-                                 bool against_a_dark_background, int smoothness_factor) {
+                                 bool against_a_dark_background,
+                                 float bonds_width, float atom_radius_to_bond_width_ratio,
+                                 int smoothness_factor) {
 
    auto test_udd_handle = [] (mmdb::Manager *mol, int udd_handle_bonded_type) {
 
@@ -1190,8 +1192,10 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
    simple_mesh_t m;
 
-   float atom_radius = 0.12;
-   float bond_radius = 0.12;
+   float bond_radius = bonds_width;
+   float atom_radius = bond_radius;
+   if (atom_radius_to_bond_width_ratio > 1.0)
+      atom_radius = bond_radius * atom_radius_to_bond_width_ratio;
 
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;

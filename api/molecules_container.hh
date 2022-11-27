@@ -204,7 +204,7 @@ public:
 
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
-   
+
    //! set the map used for refinement and fitting
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
    //! set the map weight
@@ -309,6 +309,9 @@ public:
    //! read the stardard list of residues
    void geometry_init_standard();
 
+   //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
+   std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
+
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils
 
@@ -348,16 +351,25 @@ public:
 
    //! get the bonds mesh.
    //!
-   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more to follow
-   //! ``against_a_dark_background`` allows the bond colours to be relevant for the backgroud.
-   //! When the background is dark, the colours should be bright and pastely (as a rule)
+   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
+   //!
+   //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
+   //! When the background is dark, the colours should (as a rule) be bright and pastely.
    //! When the background is light/white, the colour darker and more saturated.
+   //!
    //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
    //! and spheres for the atoms - it rises in powers of 2. 1 is the smallest ``smoothness_factor``,
-   // ! 2 looks nice (but maybe is slower to transfer) and 3 is best.
+   //! 2 looks nice (but maybe is slower to transfer) and 3 is best.
    //!
+   //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
+   //!
+   //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
+   //! between (say) 1.5 and 3.0. The ratio for "licorice" representation is 1.0 (of course).
+   //!
+   //! @return a ``simple_mesh_t``
    coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode,
-                                      bool against_a_dark_background, int smoothness_factor);
+                                      bool against_a_dark_background, float bond_width, float atom_radius_to_bond_width_ratio,
+                                      int smoothness_factor);
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -373,7 +385,7 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
-   //! @return vector of chain-id for the given molecule
+   //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
    //! @return vector of single letter codes - in a pair with the given residue spec
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
@@ -403,12 +415,14 @@ public:
                 bool use_weight, bool is_a_difference_map);
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
-   //! write a map. This function was be renamed fromm ``writeMap``
+   //! write a map. This function was be renamed from ``writeMap``
+   //! @return 1 on a successful write, return 0 on failure.
    int write_map(int imol, const std::string &file_name) const;
-   //! @return the map rmsd - epsilon testing is not used. -1 is returned if `imol_map` is not a map molecule index
+   //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
-   //! get the mesh for the map contours
+   //! get the mesh for the map contours.
+   //!
    //! This function is not **const** because the internal state of a `coot_molecule_t` is changed.
    //! @return a `simple_mesh_t` for the map contours of the specified map
    coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
@@ -471,8 +485,6 @@ public:
    //! add waters, updating imol_model (of course)
    //! @return 1 on a successful move, 0 on failure.
    int add_waters(int imol_model, int imol_map);
-   //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
-   std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
    //! what does this do!?
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! flip peptide

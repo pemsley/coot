@@ -377,7 +377,8 @@ namespace coot {
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
-                                   bool against_a_dark_background, int smoothness_factor);
+                                   bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                   int smoothness_factor);
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;

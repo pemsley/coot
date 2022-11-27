@@ -677,7 +677,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       std::cout << " distance between peptide atoms " << dt << std::endl;
       coot::Cartesian mid_point = pt_3.mid_point(pt_4);
       std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-      auto mesh = mc.get_bonds_mesh(imol, mode, true, 1);
+      auto mesh = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
       double d_crit = 0.15;
       unsigned int n_vertex = 0;
       for (const auto &vert : mesh.vertices) {
@@ -822,7 +822,7 @@ int test_bonds_mesh(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol, mode, true, 1);
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
    if (mesh.vertices.size() > 1000)
       if (mesh.triangles.size() > 1000)
          status = 1;
@@ -1167,7 +1167,7 @@ int test_dictionary_bonds(molecules_container_t &mc) {
 
    glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
 
-   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 1);
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 0.1, 1.0, 1);
 
    // there is no dictionary, but we should see vertices for the atoms
    //
@@ -1329,7 +1329,7 @@ int test_merge_molecules(molecules_container_t &mc) {
    }
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_1, mode, true, 1);
+   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_1, mode, true, 0.1, 1.0, 1);
 
    return status;
 }
