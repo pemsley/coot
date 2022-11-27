@@ -62,7 +62,11 @@ molecules_container_t::get_pythonic_bonds_mesh(int imol) {
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
       std::string mode("bonds");
-      mesh = molecules[imol].get_bonds_mesh(mode, &geom);
+      bool against_a_dark_background = true;
+      float bw = 0.1;
+      float ratio = 1.5;
+      int sf = 2;
+      mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bw, ratio, sf);
    }
    return simple_mesh_to_pythonic_mesh(mesh);
 }
