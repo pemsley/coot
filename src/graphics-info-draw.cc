@@ -2438,11 +2438,19 @@ graphics_info_t::setup_lights() {
    light.position = glm::vec4(-2.0f, 2.0f, 5.0f, 1.0f);
    light.direction = glm::normalize(glm::vec3(0.5, 0.0, 1.0));
    // light.direction = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+   light.diffuse *= 1.4;
+   light.ambient *= 1.4;
    graphics_info_t::lights[0] = light;
 
+   // dim(0.99) hardly changes anything (the argument is a multiplier)
+   light.dim(0.25);
    light.position = glm::vec4(3.0f, -2.0f, 4.0f, 1.0f);
    light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
    // light.is_on = false;
+
+   std::cout << "light 1 light: "
+             << "ambient " << glm::to_string(light.ambient) << " "
+             << "diffuse " << glm::to_string(light.diffuse) << std::endl;
    graphics_info_t::lights[1] = light;
 }
 
