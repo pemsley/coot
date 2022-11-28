@@ -11979,6 +11979,12 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_validation_graph_chain_id_combobox_changed(GtkComboBoxText* self, gpointer user_data) {
+   auto chain_id = std::string(gtk_combo_box_text_get_active_text(self));
+   graphics_info_t::change_validation_graph_chain(chain_id);
+}
 
 void
 on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
