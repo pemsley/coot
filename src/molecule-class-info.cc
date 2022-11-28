@@ -1142,14 +1142,13 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                   rgb = bespoke_carbon_atoms_colour;
                } else {
                   rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-                  rgb[0] = 0.007; rgb[1] =  0.7; rgb[2] =  0.0;
                }
                break;
             case YELLOW_BOND:
                rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.25; rgb[1] =  0.25; rgb[2] =  1.0;
+               rgb[0] = 0.25; rgb[1] =  0.25; rgb[2] = 1.0;
                break;
             case RED_BOND:
                rgb[0] = 0.9; rgb[1] =  0.0; rgb[2] =  0.0;
@@ -1161,7 +1160,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
                break;
             case HYDROGEN_GREY_BOND:
-               rgb[0] = 0.75; rgb[1] =  0.75; rgb[2] =  0.75;
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
                break;
             case DEUTERIUM_PINK:
                rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
@@ -1196,8 +1195,6 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          } else {
 
             // against a white background.  Less pale (more saturated) and darker.
-
-            // std::cout << "against a white background with colour_index " << colour_index << std::endl;
 
             switch (colour_index) {
             case CARBON_BOND:
