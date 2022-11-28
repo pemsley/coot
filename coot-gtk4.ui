@@ -6389,12 +6389,14 @@ Do you want to continue?
                 <property name="hexpand">True</property>
                 <property name="visible">False</property>
                 <property name="can-focus">True</property>
+                <property name="height-request">200</property>
                 <!-- <property name="scrollable">True</property> -->
                 <child>
                   <object class="GtkScrolledWindow">
                     <child>
                       <object class="GtkBox" id="validation_graph_box">
                         <property name="orientation">vertical</property>
+                        
                       </object>
                     </child>
                   </object>
