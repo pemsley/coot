@@ -125,7 +125,12 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
             }
             glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
             float sar = scale * atom_radius * at_info.radius_scale;
-            if (at_info.is_water) sar *= 1.33;
+            if (at_info.is_water) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  float f = 1.33; // with a radius_scale of 2.0 waters are too chonky
+                  sar = scale * atom_radius * f;
+               }
+            }
             glm::vec3 sc(sar, sar, sar);
             glm::mat4 mm = glm::scale(unit, sc);
             mm = glm::translate(mm, t);
