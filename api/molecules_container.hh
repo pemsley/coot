@@ -709,6 +709,15 @@ public:
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);
 
+   //! This is a ligand function, not really a ligand-fitting function.
+   //!
+   //! It won't work unless the dictionary for that ligand has been imported.
+   //! But more importantly than that, it doesn't work yet.
+   //! Except for unusual cases, ``imol`` will be IMOL_ENC_ANY (-666666)
+   //! @return the string for the SVG representation.
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id) const;
+
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

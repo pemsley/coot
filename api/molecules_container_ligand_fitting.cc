@@ -159,3 +159,19 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 
 }
 
+
+//! This is a ligand function, not really a ligand-fitting function.
+//!
+//! But more importantly than that, it doesn't work yet.
+std::string
+molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id) const {
+
+   std::string s;
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
+   if (mr.first) {
+      s = "Need some RDKit";
+   }
+
+   return s;
+}
