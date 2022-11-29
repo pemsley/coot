@@ -24,7 +24,8 @@ pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
 	coot-close.hh phenix-geo.hh ramachandran-container.hh \
 	loop-path.hh rotamer-container.hh graphical-bonds-container.hh \
-	graphics-line.hh torus-description.hh
+	graphics-line.hh torus-description.hh rama-plot-phi-psi.hh \
+	phi-psi-prob.hh ramachandran-validation.hh
 
 pkgincludedir = $(includedir)/coot/coords
 
@@ -48,7 +49,8 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc \
 		 rotamer-markup.cc \
-		 loop-path.cc
+		 loop-path.cc rama-plot-phi-psi.cc phi-psi-prob.cc ramachandran-validation.cc
+
 
 #   $(top_builddir)/ideal/libcoot-ideal.la not needed here I think
 

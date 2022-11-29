@@ -4,7 +4,13 @@
 
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "residue-validation-information.hh"
 #include "validation-information.hh"
+#include "validation-graph-widget.hh"
+#include "ligand/rotamer.hh"
+#include <gtk/gtk.h>
+
+#include "coords/ramachandran-validation.hh"
 
 bool
 read_mtz(const std::string &file_name,
@@ -22,6 +28,7 @@ coot::validation_information_t
 density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_file_name) {
 
    coot::validation_information_t r;
+   r.name = "Density fit analysis";
 
    // fill these
    mmdb::PResidue *SelResidues = 0;
@@ -60,20 +67,19 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
          double residue_density_score =
             coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
-         std::string l = res_spec.label();
+         //std::string l = res_spec.label();
+         std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
          std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
          const std::string &chain_id = res_spec.chain_id;
          int this_resno = res_spec.res_no;
          coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
          coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
-         r.add_residue_valiation_informtion(rvi, chain_id);
+         r.add_residue_validation_information(rvi, chain_id);
       }
       atom_sel.mol->DeleteSelection(selHnd);
    }
    return r;
 }
-
-#include "coot-utils/coot-map-utils.hh"
 
 coot::validation_information_t
 density_correlation(const std::string &pdb_file_name, const std::string &mtz_file_name) {
@@ -126,7 +132,7 @@ density_correlation(const std::string &pdb_file_name, const std::string &mtz_fil
             coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
             std::string label = "Correl: ";
             coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
-            r.add_residue_valiation_informtion(rvi, r_spec.chain_id);
+            r.add_residue_validation_information(rvi, r_spec.chain_id);
             
          }
       } else {
@@ -146,6 +152,7 @@ coot::validation_information_t
 rotamer_analysis(const std::string &pdb_file_name) {
 
    coot::validation_information_t r;
+   r.name = "Rotamer analysis";
 
    // fill these
    mmdb::PResidue *SelResidues = 0;
@@ -191,14 +198,14 @@ rotamer_analysis(const std::string &pdb_file_name) {
                coot::rotamer rot(residue_p);
                coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
                double prob = rpi.probability;
-         
-               std::string l = res_spec.label();
+
+               std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
                std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
                const std::string &chain_id = res_spec.chain_id;
                int this_resno = res_spec.res_no;
                coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
                coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
-               r.add_residue_valiation_informtion(rvi, chain_id);
+               r.add_residue_validation_information(rvi, chain_id);
             }
          }
       }
@@ -207,7 +214,228 @@ rotamer_analysis(const std::string &pdb_file_name) {
    return r;
 }
 
+struct graphs_shipment_t {
+   CootValidationGraph* graph_d;
+   CootValidationGraph* graph_r;
+   CootValidationGraph* graph_d_stacked;
+   CootValidationGraph* graph_r_stacked;
+   GtkComboBoxText*     chain_selector;
+};
 
+GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
+   GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+   gtk_widget_set_margin_bottom(vbox,10);
+   gtk_widget_set_margin_top(vbox,10);
+   gtk_widget_set_margin_start(vbox,10);
+   gtk_widget_set_margin_end(vbox,10);
+
+   GtkWidget* host_frame = gtk_frame_new(NULL);
+
+   gtk_widget_set_margin_bottom(host_frame,10);
+   gtk_widget_set_margin_start(host_frame,10);
+   gtk_widget_set_margin_end(host_frame,10);
+   gtk_widget_set_margin_top(host_frame,10);
+
+   gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(validation_graph));
+
+   GtkWidget* host_scrolled_window = gtk_scrolled_window_new();
+   gtk_widget_set_hexpand(host_scrolled_window,TRUE);
+   gtk_widget_set_vexpand(host_scrolled_window,TRUE);
+   gtk_widget_set_size_request(host_scrolled_window,720,400);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(host_scrolled_window),GTK_WIDGET(host_frame));
+
+   GtkWidget* outer_frame = gtk_frame_new("Container for the experimental Validation Graph Widget");
+   gtk_frame_set_child(GTK_FRAME(outer_frame),host_scrolled_window);
+
+   gtk_box_append(GTK_BOX(vbox),outer_frame);
+   GtkWidget* target_label = gtk_label_new("");
+   gtk_box_append(GTK_BOX(vbox),target_label);
+
+   g_signal_connect(validation_graph,"residue-clicked",
+      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
+         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+      }),
+   target_label);
+
+   GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
+   gtk_box_append(GTK_BOX(vbox), scale);
+   gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+   gtk_range_set_value(GTK_RANGE(scale),1.f);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), validation_graph);
+
+   return vbox;
+}
+
+GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
+   GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+   gtk_widget_set_margin_bottom(vbox,10);
+   gtk_widget_set_margin_top(vbox,10);
+   gtk_widget_set_margin_start(vbox,10);
+   gtk_widget_set_margin_end(vbox,10);
+
+   GtkWidget* host_frame = gtk_frame_new(NULL);
+
+   gtk_widget_set_margin_bottom(host_frame,10);
+   gtk_widget_set_margin_start(host_frame,10);
+   gtk_widget_set_margin_end(host_frame,10);
+   gtk_widget_set_margin_top(host_frame,10);
+
+   GtkWidget* vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+   gtk_widget_set_margin_bottom(vbox_inner,10);
+   gtk_widget_set_margin_start(vbox_inner,10);
+   gtk_widget_set_margin_end(vbox_inner,10);
+   gtk_widget_set_margin_top(vbox_inner,10);
+   gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(vbox_inner));
+
+   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Density fit"));
+   gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_d_stacked));
+   coot_validation_graph_set_single_chain_mode(graphs->graph_d_stacked, "A");
+   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Rotamer analysis"));
+   gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_r_stacked));
+   coot_validation_graph_set_single_chain_mode(graphs->graph_r_stacked, "A");
+
+   GtkWidget* host_scrolled_window = gtk_scrolled_window_new();
+   gtk_widget_set_hexpand(host_scrolled_window,TRUE);
+   gtk_widget_set_vexpand(host_scrolled_window,TRUE);
+   gtk_widget_set_size_request(host_scrolled_window,720,400);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(host_scrolled_window),GTK_WIDGET(host_frame));
+
+   GtkWidget* outer_frame = gtk_frame_new("Container for the experimental Validation Graph Widget [stacked display]");
+   gtk_frame_set_child(GTK_FRAME(outer_frame),host_scrolled_window);
+
+   gtk_box_append(GTK_BOX(vbox),outer_frame);
+   GtkWidget* target_label = gtk_label_new("");
+   gtk_box_append(GTK_BOX(vbox),target_label);
+
+   g_signal_connect(graphs->graph_d_stacked,"residue-clicked",
+      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
+         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+      }),
+   target_label);
+   g_signal_connect(graphs->graph_r_stacked,"residue-clicked",
+      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
+         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+      }),
+   target_label);
+
+   GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
+   gtk_box_append(GTK_BOX(vbox), scale);
+   gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+   gtk_range_set_value(GTK_RANGE(scale),1.f);
+
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_d_stacked);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_r_stacked);
+
+   gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(graphs->chain_selector));
+
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_d_stacked);
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_r_stacked);
+
+   return vbox;
+}
+
+void build_main_window(GtkWindow* main_window, graphs_shipment_t* graphs) {
+   
+   GtkWidget* graph_notebook = gtk_notebook_new();
+   gtk_window_set_child(main_window,graph_notebook);
+
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_d), gtk_label_new("Density fit"));
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_r), gtk_label_new("Rotamer analysis"));
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_stack(graphs), gtk_label_new("Stacked view"));
+
+}
+
+coot::validation_information_t
+ramachandran_analysis(const std::string &pdb_file_name) {
+
+   // internals copied from the function of the same name in molecules_container.cc
+
+   coot::validation_information_t vi;
+
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   mmdb::Manager *mol = atom_sel.mol;
+
+   const ramachandrans_container_t rc;
+   std::vector<coot::phi_psi_prob_t> rv = coot::ramachandran_validation(mol, rc);
+   for (unsigned int i=0; i<rv.size(); i++) {
+      std::string chain_id = rv[i].phi_psi.chain_id;
+      coot::residue_spec_t residue_spec(rv[i].phi_psi.chain_id, rv[i].phi_psi.residue_number, rv[i].phi_psi.ins_code);
+      double pr = rv[i].probability;
+      std::string label = rv[i].phi_psi.chain_id + std::string(" ") + std::to_string(rv[i].phi_psi.residue_number);
+      if (! rv[i].phi_psi.ins_code.empty())
+         label += std::string(" ") + rv[i].phi_psi.ins_code;
+      coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
+      if (false)
+         std::cout << "         " << residue_spec << " " << rv[i].phi_psi.phi() << " " << rv[i].phi_psi.psi()
+                   << " pr " << pr << " " << std::endl;
+      vi.add_residue_validation_information(rvi, chain_id);
+   }
+   vi.set_min_max();
+
+   return vi;
+}
+
+#include "ideal/simple-restraint.hh"
+
+coot::validation_information_t
+peptide_omega_analysis(const std::string &pdb_file_name) {
+
+   coot::validation_information_t vi;
+   coot::protein_geometry geom;
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   if (! atom_sel.read_success) return vi;
+   mmdb::Manager *mol = atom_sel.mol;
+   int imodel = 1;
+   mmdb::Model *model_p = mol->GetModel(imodel);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         std::cout << "ichain: " << ichain << std::endl;
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::cout << "ichain: " << ichain << " " << chain_p << std::endl;
+         std::string chain_id(chain_p->GetChainID());
+         coot::restraints_container_t rc(atom_sel, chain_id, nullptr);
+         coot::omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, true);
+         std::cout << "odi: chain_id "  << odi.chain_id << std::endl;
+         std::cout << "odi: min_resno " << odi.min_resno << std::endl;
+         std::cout << "odi: max_resno " << odi.max_resno << std::endl;
+         std::cout << "odi: n omega_distortions " << odi.omega_distortions.size() << std::endl;
+
+         coot::chain_validation_information_t cvi(chain_id);
+         for (const auto &od : odi.omega_distortions) {
+            coot::residue_spec_t res_spec(chain_id, od.resno, "");
+            coot::atom_spec_t atom_spec(chain_id, od.resno, "", " CA ", "");
+            std::string label = od.info_string;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, od.distortion, label);
+            cvi.add_residue_validation_information(rvi);
+         }
+         vi.cviv.push_back(cvi);
+      }
+   }
+   return vi;
+}
 
 int main(int argc, char **argv) {
 
@@ -216,29 +444,97 @@ int main(int argc, char **argv) {
       std::string mtz_file_name = argv[2];
       coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
       coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
-      coot::validation_information_t vic = density_correlation(pdb_file_name, mtz_file_name);
+      coot::validation_information_t vit = ramachandran_analysis(pdb_file_name);
+      coot::validation_information_t vio; // = peptide_omega_analysis(pdb_file_name); smashes the stack.
 
-      // now do something (i.e. make a pretty interactive graph) with vi.
+      // now do something (i.e. make a pretty interactive graph) with vid and vir.
 
       for (const auto &cvi : vid.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Density Fit Validation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << "[Density validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
          }
       }
-      for (const auto &cvi : vic.cviv) {
-         std::cout << "Chain " << cvi.chain_id << std::endl;
-         for (const auto &ri : cvi.rviv) {
-            std::cout << " Density Correlation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
-         }
-      }
+
       for (const auto &cvi : vir.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << " Rotamer Valdiation: Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << "[Rotamer validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
          }
       }
-   }
 
-   return 0;
+      for (const auto &cvi : vit.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " [Ramachandran Validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
+         }
+      }
+
+      for (const auto &cvi : vio.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " [Peptide Omega Validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
+         }
+      }
+
+
+      gtk_init();
+      
+      GtkApplication* app = gtk_application_new("org.pemsley.Test-validation-graphs",G_APPLICATION_FLAGS_NONE);
+      GError *error = NULL;
+      g_application_register(G_APPLICATION(app), NULL, &error);
+
+
+      GtkWidget* chain_selector = gtk_combo_box_text_new();
+      for(const auto& chain: vid.cviv) {
+         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(chain_selector), chain.chain_id.c_str());
+      }
+
+      graphs_shipment_t* gs = new graphs_shipment_t();
+
+      gs->chain_selector = GTK_COMBO_BOX_TEXT(chain_selector);
+      gs->graph_d = coot_validation_graph_new();
+      gs->graph_r = coot_validation_graph_new();
+      gs->graph_d_stacked = coot_validation_graph_new();
+      gs->graph_r_stacked = coot_validation_graph_new();
+
+      // for the sake of testing
+      vid.type = coot::graph_data_type::Energy;
+      vir.type = coot::graph_data_type::Energy;
+      auto vid_data = std::make_shared<coot::validation_information_t>(vid);
+      auto vir_data = std::make_shared<coot::validation_information_t>(vir);
+
+      coot_validation_graph_set_validation_information(gs->graph_d,vid_data);
+      coot_validation_graph_set_validation_information(gs->graph_r,vir_data);
+      coot_validation_graph_set_validation_information(gs->graph_d_stacked,vid_data);
+      coot_validation_graph_set_validation_information(gs->graph_r_stacked,vir_data);
+
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_d),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_d),10);
+
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_r),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_r),10);
+
+      g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
+         //GtkWindow* win = GTK_WINDOW(user_data);
+         GtkWidget* win = gtk_application_window_new(app);
+         gtk_application_add_window(app,GTK_WINDOW(win));
+         gtk_window_set_application(GTK_WINDOW(win),app);
+         graphs_shipment_t* gs = (graphs_shipment_t*)user_data;
+         build_main_window(GTK_WINDOW(win),gs);
+         gtk_widget_show(win);
+
+         delete gs;
+      }),gs);
+
+
+      return g_application_run(G_APPLICATION(app),0,0);
+   } else {
+     std::cout << "Two commandline args needed.\n";
+     return 2;
+   }
 }

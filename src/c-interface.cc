@@ -7533,17 +7533,6 @@ import_python_module(const char *module_name, int use_namespace) {
    return err;
 }
 
-
-#include "dynamic-menus.hh"
-
-void add_on_rama_choices() {  // the the menu
-
-   GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
-   add_on_validation_graph_mol_options(menu_item, "ramachandran");
-
-}
-
-
 void destroy_edit_backbone_rama_plot() {
 
    graphics_info_t g;
@@ -9449,3 +9438,20 @@ void load_tutorial_model_and_data() {
 
 }
 
+// is the probe executable available?
+// 1 for yes, 0 for no.
+//
+int probe_available_p() {
+   int r = graphics_info_t::probe_available;
+   return r;
+}
+
+#ifdef USE_PYTHON
+// is the probe executable available?
+// 1 for yes, 0 for no.
+//
+int probe_available_p_py() {
+   int r = graphics_info_t::probe_available;
+   return r;
+}
+#endif // USE_PYTHON

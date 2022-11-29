@@ -514,8 +514,6 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
-	dynamic-menus.hh         \
-	dynamic-menus.cc         \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
@@ -724,6 +722,9 @@ libcootsumo_la_SOURCES = \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
+	validation-graphs.cc	 \
+	validation-graph-widget.hh	 \
+	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
