@@ -10,6 +10,8 @@
 #include "ligand/rotamer.hh"
 #include <gtk/gtk.h>
 
+#include "coords/ramachandran-validation.hh"
+
 bool
 read_mtz(const std::string &file_name,
          const std::string &f, const std::string &phi, const std::string &weight,
@@ -72,12 +74,79 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
          int this_resno = res_spec.res_no;
          coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
          coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
-         r.add_residue_valiation_informtion(rvi, chain_id);
+         r.add_residue_validation_information(rvi, chain_id);
       }
       atom_sel.mol->DeleteSelection(selHnd);
    }
    return r;
 }
+
+coot::validation_information_t
+density_correlation(const std::string &pdb_file_name, const std::string &mtz_file_name) {
+
+   coot::validation_information_t r;
+
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   if (atom_sel.read_success) {
+      clipper::Xmap<float> xmap;
+      bool status = read_mtz(mtz_file_name, "FWT", "PHWT", "W", 0, 0, &xmap);
+      if (status) {
+
+         // signature:
+         //
+         // std::vector<std::pair<coot::residue_spec_t, float> >
+         //    coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
+         //                                                     const std::vector<coot::residue_spec_t> &specs,
+         //                                                     unsigned short int atom_mask_mode,
+         //                                                     float atom_radius, // for masking
+         //                                                     const clipper::Xmap<float> &reference_map)
+
+         // atom_mask_mode:
+         //
+         // 0: all-atoms
+         // 1: main-chain atoms if is standard amino-acid, else all atoms
+         // 2: side-chain atoms if is standard amino-acid, else all atoms
+         // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+
+         unsigned short int atom_mask_mode = 0;
+         float atom_radius = 2.0;
+
+         std::vector<coot::residue_spec_t> residue_specs;
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(atom_sel.mol);
+         for (unsigned int i=0; i<residues.size(); i++)
+            residue_specs.push_back(coot::residue_spec_t(residues[i]));
+
+         std::vector<std::pair<coot::residue_spec_t, float> > correlations =  
+            coot::util::map_to_model_correlation_per_residue(atom_sel.mol,
+                                                             residue_specs,
+                                                             atom_mask_mode,
+                                                             atom_radius, // for masking
+                                                             xmap);
+
+         std::vector<std::pair<coot::residue_spec_t, float> >::const_iterator it;
+         for (it=correlations.begin(); it!=correlations.end(); ++it) {
+            const auto &r_spec(it->first);
+            const auto &correl(it->second);
+
+            std::string atom_name = " CA ";
+            coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
+            std::string label = "Correl: ";
+            coot::residue_validation_information_t rvi(r_spec, atom_spec, correl, label);
+            r.add_residue_validation_information(rvi, r_spec.chain_id);
+            
+         }
+      } else {
+         std::cout << "Bad mtz file read " << mtz_file_name << std::endl;
+      }
+   } else {
+      std::cout << "Bad read for pdb file " << pdb_file_name << std::endl;
+   }
+   return r;
+}
+
+
+
+#include "ligand/rotamer.hh"
 
 coot::validation_information_t
 rotamer_analysis(const std::string &pdb_file_name) {
@@ -136,7 +205,7 @@ rotamer_analysis(const std::string &pdb_file_name) {
                int this_resno = res_spec.res_no;
                coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
                coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
-               r.add_residue_valiation_informtion(rvi, chain_id);
+               r.add_residue_validation_information(rvi, chain_id);
             }
          }
       }
@@ -294,6 +363,78 @@ void build_main_window(GtkWindow* main_window, graphs_shipment_t* graphs) {
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_d), gtk_label_new("Density fit"));
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_r), gtk_label_new("Rotamer analysis"));
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_stack(graphs), gtk_label_new("Stacked view"));
+
+}
+
+coot::validation_information_t
+ramachandran_analysis(const std::string &pdb_file_name) {
+
+   // internals copied from the function of the same name in molecules_container.cc
+
+   coot::validation_information_t vi;
+
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   mmdb::Manager *mol = atom_sel.mol;
+
+   const ramachandrans_container_t rc;
+   std::vector<coot::phi_psi_prob_t> rv = coot::ramachandran_validation(mol, rc);
+   for (unsigned int i=0; i<rv.size(); i++) {
+      std::string chain_id = rv[i].phi_psi.chain_id;
+      coot::residue_spec_t residue_spec(rv[i].phi_psi.chain_id, rv[i].phi_psi.residue_number, rv[i].phi_psi.ins_code);
+      double pr = rv[i].probability;
+      std::string label = rv[i].phi_psi.chain_id + std::string(" ") + std::to_string(rv[i].phi_psi.residue_number);
+      if (! rv[i].phi_psi.ins_code.empty())
+         label += std::string(" ") + rv[i].phi_psi.ins_code;
+      coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
+      if (false)
+         std::cout << "         " << residue_spec << " " << rv[i].phi_psi.phi() << " " << rv[i].phi_psi.psi()
+                   << " pr " << pr << " " << std::endl;
+      vi.add_residue_validation_information(rvi, chain_id);
+   }
+   vi.set_min_max();
+
+   return vi;
+}
+
+#include "ideal/simple-restraint.hh"
+
+coot::validation_information_t
+peptide_omega_analysis(const std::string &pdb_file_name) {
+
+   coot::validation_information_t vi;
+   coot::protein_geometry geom;
+   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   if (! atom_sel.read_success) return vi;
+   mmdb::Manager *mol = atom_sel.mol;
+   int imodel = 1;
+   mmdb::Model *model_p = mol->GetModel(imodel);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         std::cout << "ichain: " << ichain << std::endl;
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::cout << "ichain: " << ichain << " " << chain_p << std::endl;
+         std::string chain_id(chain_p->GetChainID());
+         coot::restraints_container_t rc(atom_sel, chain_id, nullptr);
+         coot::omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, true);
+         std::cout << "odi: chain_id "  << odi.chain_id << std::endl;
+         std::cout << "odi: min_resno " << odi.min_resno << std::endl;
+         std::cout << "odi: max_resno " << odi.max_resno << std::endl;
+         std::cout << "odi: n omega_distortions " << odi.omega_distortions.size() << std::endl;
+
+         coot::chain_validation_information_t cvi(chain_id);
+         for (const auto &od : odi.omega_distortions) {
+            coot::residue_spec_t res_spec(chain_id, od.resno, "");
+            coot::atom_spec_t atom_spec(chain_id, od.resno, "", " CA ", "");
+            std::string label = od.info_string;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, od.distortion, label);
+            cvi.add_residue_validation_information(rvi);
+         }
+         vi.cviv.push_back(cvi);
+      }
+   }
+   return vi;
 }
 
 int main(int argc, char **argv) {
@@ -303,22 +444,39 @@ int main(int argc, char **argv) {
       std::string mtz_file_name = argv[2];
       coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
       coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
+      coot::validation_information_t vit = ramachandran_analysis(pdb_file_name);
+      coot::validation_information_t vio; // = peptide_omega_analysis(pdb_file_name); smashes the stack.
 
       // now do something (i.e. make a pretty interactive graph) with vid and vir.
 
       for (const auto &cvi : vid.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << "[Density validation] Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << "[Density validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
          }
       }
 
       for (const auto &cvi : vir.cviv) {
          std::cout << "Chain " << cvi.chain_id << std::endl;
          for (const auto &ri : cvi.rviv) {
-            std::cout << "[Rotamer validation] Residue " << ri.residue_spec << " " << ri.distortion << std::endl;
+            std::cout << "[Rotamer validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
          }
       }
+
+      for (const auto &cvi : vit.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " [Ramachandran Validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
+         }
+      }
+
+      for (const auto &cvi : vio.cviv) {
+         std::cout << "Chain " << cvi.chain_id << std::endl;
+         for (const auto &ri : cvi.rviv) {
+            std::cout << " [Peptide Omega Validation] Residue " << ri.residue_spec << " " << ri.function_value << std::endl;
+         }
+      }
+
 
       gtk_init();
       
@@ -376,8 +534,7 @@ int main(int argc, char **argv) {
 
       return g_application_run(G_APPLICATION(app),0,0);
    } else {
-      std::cout << "Two commandline args needed.\n";
-      return 2;
+     std::cout << "Two commandline args needed.\n";
+     return 2;
    }
-
 }

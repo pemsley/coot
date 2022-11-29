@@ -577,6 +577,8 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 	 }
       }
    }
+
+   std::cout << "returning from omega_trans_distortions " << std::endl;
    return dc;
 }
 

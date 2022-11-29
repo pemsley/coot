@@ -11,7 +11,7 @@ CXXFLAGS= \
    -g -O0 -march=native -std=gnu++11
 
 LDLIBS=-fuse-ld=gold \
-       -L$(COOT_DIR)/lib -lcoot-ligand -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
+       -L$(COOT_DIR)/lib -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
        `pkg-config --libs gtk4`  \
        `pkg-config --libs epoxy` \
        `pkg-config --libs clipper` \
@@ -25,7 +25,6 @@ HEADERS = \
     validation-graph-widget.hh
 
 SOURCES = \
-    residue-validation-information.cc \
     validation-information.cc \
     validation-graph-widget.cc \
     gtk4-test-validation-graph.cc 

@@ -85,8 +85,8 @@ double max_residue_distortion_for_chain(const std::vector<coot::residue_validati
     using it_t = coot::residue_validation_information_t;
     return std::max_element(rviv.cbegin(),rviv.cend(),
     [](const it_t& lhs, const it_t& rhs){
-        return lhs.distortion < rhs.distortion;
-    })->distortion;
+        return lhs.function_value < rhs.function_value;
+    })->function_value;
 }
 
 inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* self, gdouble x, gdouble y) {
@@ -287,7 +287,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& residue: chain.rviv) {
                 /// draw bar
 
-                float bar_height = CHAIN_HEIGHT * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
+                float bar_height = CHAIN_HEIGHT * map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
                 float bar_y_offset = base_height;
                 if(coot::should_hang_down(self->_vi->type)) {
                     m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - CHAIN_HEIGHT, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
@@ -304,11 +304,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
-                border_color_computed.red = 0.6 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
-                border_color_computed.green = (1.f - map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type)) * residue_color.green;
+                border_color_computed.red = 0.6 * map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                border_color_computed.green = (1.f - map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type)) * residue_color.green;
                 //border_color_computed.blue = std::pow(0.9 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
-                residue_color_computed.red = map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type);
-                residue_color_computed.green = (1.f - std::pow(map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),3)) * residue_color.green;
+                residue_color_computed.red = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                residue_color_computed.green = (1.f - std::pow(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type),3)) * residue_color.green;
                 //residue_color_computed.blue = std::pow(map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
