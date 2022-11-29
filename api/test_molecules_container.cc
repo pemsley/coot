@@ -177,7 +177,7 @@ int test_updating_maps(molecules_container_t &mc) {
    mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
    mc.imol_difference_map = imol_diff_map; // happens for you in connect_updating_maps() (but we are not using that here).
    // After you have changed maps the firs time, add a starting point for the gru score:
-   mc.calculate_new_gru_points();
+   mc.calculate_new_rail_points();
 
    // modify the model by flipping a peptide.
    //
@@ -193,11 +193,11 @@ int test_updating_maps(molecules_container_t &mc) {
 
    // now update the maps
    mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
-   float new_gru_points = mc.calculate_new_gru_points();
-   float gpt = mc.gru_points_total();
-   std::cout << "###### GruPoints gained: " << new_gru_points << " gru points total " << gpt << std::endl;
+   float new_rail_points = mc.calculate_new_rail_points();
+   float gpt = mc.rail_points_total();
+   std::cout << "###### RailPoints gained: " << new_rail_points << " rail points total " << gpt << std::endl;
 
-   if (new_gru_points > 4.0)
+   if (new_rail_points > 4.0)
       status = 1;
 
    return status;

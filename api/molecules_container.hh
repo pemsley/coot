@@ -28,33 +28,33 @@ class molecules_container_t {
    ramachandrans_container_t ramachandrans_container;
    static std::atomic<bool> on_going_updating_map_lock;
 
-   class gru_points_t {
+   class rail_points_t {
    public:
-      int model_gru_points_delta; // for the latest change, I mean
-      int   map_gru_points_delta;
+      int model_rail_points_delta; // for the latest change, I mean
+      int   map_rail_points_delta;
       float rmsd_of_difference_map;
-      explicit gru_points_t(float rmsd) {
-         model_gru_points_delta = 0;
-         map_gru_points_delta = 0;
+      explicit rail_points_t(float rmsd) {
+         model_rail_points_delta = 0;
+         map_rail_points_delta = 0;
          rmsd_of_difference_map = rmsd;
       }
-      gru_points_t(float rmsd_diff_map_current, const gru_points_t &gru_points_prev) {
-         model_gru_points_delta = 0;
+      rail_points_t(float rmsd_diff_map_current, const rail_points_t &rail_points_prev) {
+         model_rail_points_delta = 0;
          rmsd_of_difference_map = rmsd_diff_map_current;
-         map_gru_points_delta = gru_points_delta(gru_points_prev);
+         map_rail_points_delta = rail_points_delta(rail_points_prev);
       }
-      int gru_points_delta(const gru_points_t &prev) {
+      int rail_points_delta(const rail_points_t &prev) {
          return int(10000.0 * (prev.rmsd_of_difference_map - rmsd_of_difference_map));
       }
-      static int total(const std::vector<gru_points_t> &gru_point_history) {
+      static int total(const std::vector<rail_points_t> &rail_point_history) {
          int sum = 0;
-         for (const auto &item : gru_point_history) {
-            sum += item.map_gru_points_delta;
+         for (const auto &item : rail_point_history) {
+            sum += item.map_rail_points_delta;
          }
          return sum;
       }
    };
-   std::vector<gru_points_t> gru_point_history; // map and model (model currently not used)
+   std::vector<rail_points_t> rail_point_history; // map and model (model currently not used)
 
    class updating_maps_info_f {
    public:
@@ -625,16 +625,16 @@ public:
    std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
    
 
-   // -------------------------------- Gru Points ------------------------------------------
-   //! \name Gru Points!
+   // -------------------------------- Rail Points ------------------------------------------
+   //! \name Rail Points!
 
-   //! calling this adds to the gru_points history. Make this pairs when we add model scoring.
-   //! @returns the new gru points (since last modification)
-   int calculate_new_gru_points();
+   //! calling this adds to the rail_points history. Make this pairs when we add model scoring.
+   //! @returns the new rail points (since last modification)
+   int calculate_new_rail_points();
 
-   //! the total gru points
-   //! @returns the sum of all gru points accumulated since the maps were connected.
-   int gru_points_total() const;
+   //! the total rail points
+   //! @returns the sum of all rail points accumulated since the maps were connected.
+   int rail_points_total() const;
 
    // -------------------------------- Updating Maps ---------------------------------------
    //! \name Updating Maps
@@ -646,7 +646,7 @@ public:
                                          const std::string &f_col, const std::string &sigf_col,
                                          const std::string &free_r_col);
 
-   //! reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
+   //! reset the rail_points (calls reset_the_rail_points()), updates the maps (using internal/clipper SFC)
    //! so, update your contour lines meshes after calling this function.
    //! @return 1 if the connection was successful.
    int connect_updating_maps(int imol_model, int imol_with_data_info_attached, int imol_map_2fofc, int imol_map_fofc);

@@ -1332,14 +1332,14 @@ molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const s
 }
 
 
-// reset the gru_points (calls reset_the_gru_points()), updates the maps (using internal/clipper SFC)
+// reset the rail_points (calls reset_the_rail_points()), updates the maps (using internal/clipper SFC)
 // so, update your contour lines meshes after calling this function.
 int
 molecules_container_t::connect_updating_maps(int imol_model, int imol_with_data_info_attached, int imol_map_2fofc, int imol_map_fofc) {
 
    int status = 0;
 
-   gru_point_history.clear();
+   rail_point_history.clear();
    updating_maps_info.imol_model = imol_model;
    updating_maps_info.imol_2fofc = imol_map_2fofc;
    updating_maps_info.imol_fofc  = imol_map_fofc;
@@ -1490,24 +1490,24 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 }
 
 int
-molecules_container_t::gru_points_total() const { // the sum of all the gru ponts accumulated
-   return gru_points_t::total(gru_point_history);
+molecules_container_t::rail_points_total() const { // the sum of all the rail ponts accumulated
+   return rail_points_t::total(rail_point_history);
 }
 
 int
-molecules_container_t::calculate_new_gru_points() {
+molecules_container_t::calculate_new_rail_points() {
 
    float rmsd = get_map_rmsd_approx(imol_difference_map);
-   if (! gru_point_history.empty()) {
-      const gru_points_t &prev = gru_point_history.back();
-      gru_points_t new_points(rmsd, prev);
-      gru_point_history.push_back(new_points);
-      return new_points.map_gru_points_delta;
+   if (! rail_point_history.empty()) {
+      const rail_points_t &prev = rail_point_history.back();
+      rail_points_t new_points(rmsd, prev);
+      rail_point_history.push_back(new_points);
+      return new_points.map_rail_points_delta;
    } else {
-      gru_points_t prev = gru_points_t(rmsd);
-      gru_points_t new_points(rmsd, prev);
-      gru_point_history.push_back(new_points);
-      return new_points.map_gru_points_delta;
+      rail_points_t prev = rail_points_t(rmsd);
+      rail_points_t new_points(rmsd, prev);
+      rail_point_history.push_back(new_points);
+      return new_points.map_rail_points_delta;
    }
 }
 
