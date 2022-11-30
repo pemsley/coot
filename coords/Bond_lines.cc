@@ -6640,20 +6640,22 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
             {
                // std::cout << "making stars for " << at << std::endl;
                float star_size = 0.3;
+               // 20221130-PE the cylinder generator doesn't work for a vector straight up 
+               // the z axis - I guess that the orientation function fails. Fix that later. FIXME
+               // For now, I will just offset it a bit.
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
-               coot::Cartesian small_vec_z(0.0, 0.0, star_size);
+               coot::Cartesian small_vec_z(0.0, 0.01, star_size);
                int col = atom_colour(at, atom_colour_type, &atom_colour_map);
                coot::Cartesian atom_pos(at->x, at->y, at->z);
 
-               // 20171224-PE FIXME by lookup
                int iat_1 = -1;
                int udd_status_1 = at->GetUDData(udd_atom_index_handle, iat_1);
 
                graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-               addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1);
-               addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1);
-               addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1);
+               addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
+               addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
+               addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
             }
          }
       }
