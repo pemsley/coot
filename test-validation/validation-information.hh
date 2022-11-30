@@ -50,6 +50,7 @@ namespace coot {
       std::string name;
       std::vector<chain_validation_information_t> cviv;
       unsigned int get_index_for_chain(const std::string &chain_id);
+      /// This is only used with EMSCRIPTEN. The validation graph widget doesn't use it.
       validation_information_min_max_t min_max;
 
 #ifdef EMSCRIPTEN
