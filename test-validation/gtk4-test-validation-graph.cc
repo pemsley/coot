@@ -509,6 +509,7 @@ int main(int argc, char **argv) {
       vid.type = coot::graph_data_type::Energy;
       vir.type = coot::graph_data_type::Energy;
       vit.type = coot::graph_data_type::Probability;
+      // vit.type = coot::graph_data_type::LogProbability;
 
       gs->push_graph(std::move(vid));
       gs->push_graph(std::move(vir));
