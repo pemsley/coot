@@ -56,10 +56,15 @@ const int MARKER_VERT_PLACEMENT = AXIS_MARGIN - MARKER_LENGTH;
 /// Returns the maximum number of residues in a chain (maximum among all the chains)
 size_t max_chain_residue_count(CootValidationGraph* self) {
     using it_t = coot::chain_validation_information_t;
-    return std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
+    auto biggest_chain = std::max_element(self->_vi->cviv.cbegin(),self->_vi->cviv.cend(),
         [](const it_t& lhs, const it_t& rhs){
             return lhs.rviv.size() < rhs.rviv.size();
-    })->rviv.size();
+    });
+    if (biggest_chain != self->_vi->cviv.cend()) {
+        return biggest_chain->rviv.size();
+    } else {
+        return 0;
+    }
 }
 
 const coot::chain_validation_information_t* get_chain_with_id(CootValidationGraph* self,const std::string& chain_id) {

@@ -217,9 +217,25 @@ rotamer_analysis(const std::string &pdb_file_name) {
 struct graphs_shipment_t {
    CootValidationGraph* graph_d;
    CootValidationGraph* graph_r;
+   CootValidationGraph* graph_t;
+   CootValidationGraph* graph_o;
    CootValidationGraph* graph_d_stacked;
    CootValidationGraph* graph_r_stacked;
+   CootValidationGraph* graph_t_stacked;
+   CootValidationGraph* graph_o_stacked;
    GtkComboBoxText*     chain_selector;
+
+   graphs_shipment_t(GtkComboBoxText* chain_selector) {
+      this->chain_selector = chain_selector;
+      this->graph_d = coot_validation_graph_new();
+      this->graph_r = coot_validation_graph_new();
+      this->graph_t = coot_validation_graph_new();
+      this->graph_o = coot_validation_graph_new();
+      this->graph_d_stacked = coot_validation_graph_new();
+      this->graph_r_stacked = coot_validation_graph_new();
+      this->graph_t_stacked = coot_validation_graph_new();
+      this->graph_o_stacked = coot_validation_graph_new();
+   }
 };
 
 GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
@@ -292,12 +308,18 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
    gtk_widget_set_margin_top(vbox_inner,10);
    gtk_frame_set_child(GTK_FRAME(host_frame),GTK_WIDGET(vbox_inner));
 
-   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Density fit"));
+   
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_d_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_d_stacked, "A");
-   //gtk_box_append(GTK_BOX(vbox_inner),gtk_label_new("Rotamer analysis"));
+   
    gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_r_stacked));
    coot_validation_graph_set_single_chain_mode(graphs->graph_r_stacked, "A");
+
+   gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_t_stacked));
+   coot_validation_graph_set_single_chain_mode(graphs->graph_t_stacked, "A");
+
+   gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(graphs->graph_o_stacked));
+   coot_validation_graph_set_single_chain_mode(graphs->graph_o_stacked, "A");
 
    GtkWidget* host_scrolled_window = gtk_scrolled_window_new();
    gtk_widget_set_hexpand(host_scrolled_window,TRUE);
@@ -326,6 +348,20 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
          g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
       }),
    target_label);
+   g_signal_connect(graphs->graph_t_stacked,"residue-clicked",
+      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
+         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+      }),
+   target_label);
+   g_signal_connect(graphs->graph_o_stacked,"residue-clicked",
+      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+         GtkLabel* label = GTK_LABEL(userdata);
+         gtk_label_set_text(label,residue->label.c_str());
+         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+      }),
+   target_label);
 
    GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
    gtk_box_append(GTK_BOX(vbox), scale);
@@ -340,6 +376,14 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
       CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
       coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
    }), graphs->graph_r_stacked);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_t_stacked);
+   g_signal_connect(scale, "value-changed", G_CALLBACK(+[](GtkScale* scale, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_horizontal_zoom_scale(graph, gtk_range_get_value(GTK_RANGE(scale)));
+   }), graphs->graph_o_stacked);
 
    gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(graphs->chain_selector));
 
@@ -351,6 +395,14 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
       CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
       coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
    }), graphs->graph_r_stacked);
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_t_stacked);
+   g_signal_connect(graphs->chain_selector, "changed",G_CALLBACK(+[](GtkComboBoxText* selector, gpointer user_data){
+      CootValidationGraph* graph = COOT_COOT_VALIDATION_GRAPH(user_data);
+      coot_validation_graph_set_single_chain_mode(graph, gtk_combo_box_text_get_active_text(selector));
+   }), graphs->graph_o_stacked);
 
    return vbox;
 }
@@ -362,6 +414,8 @@ void build_main_window(GtkWindow* main_window, graphs_shipment_t* graphs) {
 
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_d), gtk_label_new("Density fit"));
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_r), gtk_label_new("Rotamer analysis"));
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_t), gtk_label_new("Ramachandran analysis"));
+   gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_vbox(graphs->graph_o), gtk_label_new("Omega"));
    gtk_notebook_append_page(GTK_NOTEBOOK(graph_notebook), build_graph_stack(graphs), gtk_label_new("Stacked view"));
 
 }
@@ -372,6 +426,7 @@ ramachandran_analysis(const std::string &pdb_file_name) {
    // internals copied from the function of the same name in molecules_container.cc
 
    coot::validation_information_t vi;
+   vi.name = "Ramachandran analysis";
 
    auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
    mmdb::Manager *mol = atom_sel.mol;
@@ -403,6 +458,7 @@ coot::validation_information_t
 peptide_omega_analysis(const std::string &pdb_file_name) {
 
    coot::validation_information_t vi;
+   vi.name = "Peptide Omega Analysis";
    coot::protein_geometry geom;
    auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
    if (! atom_sel.read_success) return vi;
@@ -490,24 +546,24 @@ int main(int argc, char **argv) {
          gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(chain_selector), chain.chain_id.c_str());
       }
 
-      graphs_shipment_t* gs = new graphs_shipment_t();
-
-      gs->chain_selector = GTK_COMBO_BOX_TEXT(chain_selector);
-      gs->graph_d = coot_validation_graph_new();
-      gs->graph_r = coot_validation_graph_new();
-      gs->graph_d_stacked = coot_validation_graph_new();
-      gs->graph_r_stacked = coot_validation_graph_new();
+      graphs_shipment_t* gs = new graphs_shipment_t(GTK_COMBO_BOX_TEXT(chain_selector));
 
       // for the sake of testing
       vid.type = coot::graph_data_type::Energy;
       vir.type = coot::graph_data_type::Energy;
       auto vid_data = std::make_shared<coot::validation_information_t>(vid);
       auto vir_data = std::make_shared<coot::validation_information_t>(vir);
+      auto vit_data = std::make_shared<coot::validation_information_t>(vit);
+      auto vio_data = std::make_shared<coot::validation_information_t>(vio);
 
       coot_validation_graph_set_validation_information(gs->graph_d,vid_data);
       coot_validation_graph_set_validation_information(gs->graph_r,vir_data);
+      coot_validation_graph_set_validation_information(gs->graph_t,vit_data);
+      coot_validation_graph_set_validation_information(gs->graph_o,vio_data);
       coot_validation_graph_set_validation_information(gs->graph_d_stacked,vid_data);
       coot_validation_graph_set_validation_information(gs->graph_r_stacked,vir_data);
+      coot_validation_graph_set_validation_information(gs->graph_t_stacked,vit_data);
+      coot_validation_graph_set_validation_information(gs->graph_o_stacked,vio_data);
 
       gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_d),10);
       gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_d),10);
@@ -518,6 +574,16 @@ int main(int argc, char **argv) {
       gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_r),10);
       gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_r),10);
       gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_r),10);
+      
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_t),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_t),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_t),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_t),10);
+
+      gtk_widget_set_margin_bottom(GTK_WIDGET(gs->graph_o),10);
+      gtk_widget_set_margin_start(GTK_WIDGET(gs->graph_o),10);
+      gtk_widget_set_margin_end(GTK_WIDGET(gs->graph_o),10);
+      gtk_widget_set_margin_top(GTK_WIDGET(gs->graph_o),10);
 
       g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
          //GtkWindow* win = GTK_WINDOW(user_data);
