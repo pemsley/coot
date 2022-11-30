@@ -85,8 +85,8 @@ const coot::chain_validation_information_t* get_chain_with_id(CootValidationGrap
     }
 }
 
-/// Returns maximum distortion value found for the given chain
-double max_residue_distortion_for_chain(const std::vector<coot::residue_validation_information_t>& rviv) {
+/// Returns maximum function value found for the given chain
+double max_residue_function_value_for_chain(const std::vector<coot::residue_validation_information_t>& rviv) {
     using it_t = coot::residue_validation_information_t;
     return std::max_element(rviv.cbegin(),rviv.cend(),
     [](const it_t& lhs, const it_t& rhs){
@@ -119,7 +119,7 @@ double compute_amplitude(coot::graph_data_type type, const std::vector<coot::res
             return 1.2f;
         }
         default: {
-            return max_residue_distortion_for_chain(rviv);
+            return max_residue_function_value_for_chain(rviv);
         }
     }
 }
