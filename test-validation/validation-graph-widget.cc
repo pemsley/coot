@@ -178,41 +178,43 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     self->coordinate_cache->clear();
+    
+    // attribute_color is used for drawing labels and axes
+    GdkRGBA residue_color, border_color, attribute_color;
+
+    gdk_rgba_parse (&residue_color, "#008000");
+    gdk_rgba_parse (&border_color, "#002000");
+
+    // gdk_rgba_parse (&attribute_color, "#ffffff");
+    // Gtk 4.10 ?
+    // gtk_widget_get_style_color(widget,&attribute_color);
+    GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
+    gtk_style_context_get_color(style_context,&attribute_color);
+
+    float w = (float) gtk_widget_get_width (widget);
+    float h = (float) gtk_widget_get_height (widget);
+    
+    // 1. Draw title
+    graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
+    cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
+    cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
+    
+    // This does not respect GTK theming
+    // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
+    PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+    std::string title_markup = "<span size=\"large\" weight=\"bold\">" + self->_vi->name + "</span>";
+    pango_layout_set_markup(pango_layout,title_markup.c_str(),-1);
+    int layout_width, layout_height;
+    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+    cairo_move_to(cairo_canvas,(w - layout_width) / 2.f,(TITLE_HEIGHT + layout_height) / 2.f);
+    pango_cairo_show_layout(cairo_canvas, pango_layout);
+
     if(self->_vi) {
         if(self->single_chain_id) {
             if (! get_chain_with_id(self,*self->single_chain_id)) {
                 return;
             }
         }
-        // attribute_color is used for drawing labels and axes
-        GdkRGBA residue_color, border_color, attribute_color;
-
-        gdk_rgba_parse (&residue_color, "#008000");
-        gdk_rgba_parse (&border_color, "#002000");
-
-        // gdk_rgba_parse (&attribute_color, "#ffffff");
-        // Gtk 4.10 ?
-        // gtk_widget_get_style_color(widget,&attribute_color);
-        GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
-        gtk_style_context_get_color(style_context,&attribute_color);
-
-        float w = (float) gtk_widget_get_width (widget);
-        float h = (float) gtk_widget_get_height (widget);
-        
-        // 1. Draw title
-        graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
-        cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
-        cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
-        
-        // This does not respect GTK theming
-        // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
-        PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-        std::string title_markup = "<span size=\"large\" weight=\"bold\">" + self->_vi->name + "</span>";
-        pango_layout_set_markup(pango_layout,title_markup.c_str(),-1);
-        int layout_width, layout_height;
-        pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-        cairo_move_to(cairo_canvas,(w - layout_width) / 2.f,(TITLE_HEIGHT + layout_height) / 2.f);
-        pango_cairo_show_layout(cairo_canvas, pango_layout);
 
         // I can't get this to render the text where it needs to be, so I'm using cairo directly
         // gtk_snapshot_append_layout(snapshot,pango_layout,&attribute_color);
@@ -335,11 +337,9 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             }
             base_height += GRAPH_X_AXIS_SEPARATION + BOTTOM_MARGIN + height_diff;
         }
-        g_object_unref(pango_layout);
-        cairo_destroy(cairo_canvas);
-    } else {
-        // do nothing
     }
+    g_object_unref(pango_layout);
+    cairo_destroy(cairo_canvas);
 }
 
 void coot_validation_graph_measure
