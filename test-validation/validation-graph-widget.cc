@@ -34,6 +34,7 @@ const int TITLE_HEIGHT = 30;
 const int GRAPH_Y_AXIS_SEPARATION = 10;
 /// Space reserved for the y-axis and its' labels. Axis is drawn at this X offset.
 const int AXIS_MARGIN = 25;
+const int RIGHT_SIDE_MARGIN = 10;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
@@ -222,7 +223,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 
         float base_height = TITLE_HEIGHT;
         const float _max_chain_residue_count = self->single_chain_id ? get_chain_with_id(self,*self->single_chain_id)->rviv.size() : max_chain_residue_count(self);
-        float width_step = (w - (float) AXIS_MARGIN) / _max_chain_residue_count;
+        float width_step = (w - (float) (GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN)) / _max_chain_residue_count;
         const int chain_count =  self->single_chain_id ? 1 : self->_vi->cviv.size();
         float height_diff = 0;
         if (chain_count != 1) {
@@ -359,13 +360,13 @@ void coot_validation_graph_measure
             if (self->single_chain_id) {
                 const auto* chain = get_chain_with_id(self, *self->single_chain_id);
                 if(chain) {
-                    *minimum_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
-                    *natural_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+                    *minimum_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
+                    *natural_size = chain->rviv.size() * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
                 }
             } else {
                 auto max_chain_residues = max_chain_residue_count(self);
-                *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
-                *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET;
+                *minimum_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
+                *natural_size = max_chain_residues * (RESIDUE_WIDTH + RESIDUE_SPACING) * self->horizontal_scale + GRAPH_HORIZ_OFFSET + RIGHT_SIDE_MARGIN;
             }
             break;
         }
