@@ -60,9 +60,18 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
    glm::vec3 b = finish - start;
    float bond_length = glm::distance(start, finish);
    glm::vec3 normalized = glm::normalize(b);
-   ori = glm::orientation(normalized, glm::vec3(0.0, 0.0, 1.0));
-   // glm::mat4 tori = glm::transpose(ori);
+   // glm::orientation fails for normalized = glm::vec3(0.0, 0.0, -1.0);
+   bool is_pathological = false;
+   if (fabsf(normalized[0]) < 0.00001)
+      if (fabsf(normalized[1]) < 0.00001)
+         if (fabsf(normalized[2]) > 0.98)
+            is_pathological = true;
+   if (is_pathological)
+      ori = glm::mat4(1,0,0,0, 0,-1,0,0, 0,0,-1,0, 0,0,0,1);
+   else
+      ori = glm::orientation(normalized, glm::vec3(0.0, 0.0, 1.0));
 
+   // glm::mat4 tori = glm::transpose(ori);
    // std::cout << "ori " << glm::to_string(ori) << "\n";
 
    triangles.resize(n_stacks * n_slices * 2);
