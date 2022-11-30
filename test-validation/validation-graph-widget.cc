@@ -531,14 +531,4 @@ void coot_validation_graph_set_validation_information(CootValidationGraph* self,
 }
 
 
-bool coot::should_hang_down(coot::graph_data_type type) {
-    using ty = coot::graph_data_type;
-    switch (type) {
-        case ty::Correlation: {
-            return true;
-        }
-        default: {
-            return false;
-        }
-    }
-}
+

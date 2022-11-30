@@ -21,6 +21,10 @@ namespace coot {
       /// Values from 0.0 - 1.0, (negative) log scale
       LogProbability
    };
+   
+   bool should_hang_down(graph_data_type type);
+   bool is_probability_plot(graph_data_type type);
+
    class chain_validation_information_t {
    public:
       std::string chain_id;

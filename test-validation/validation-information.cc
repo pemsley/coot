@@ -11,6 +11,31 @@ unsigned int coot::validation_information_t::get_index_for_chain(const std::stri
     return cviv.size() -1;
 }
 
+bool coot::should_hang_down(coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    switch (type) {
+        case ty::Correlation: {
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool is_probability_plot(coot::graph_data_type type) {
+    using ty = coot::graph_data_type;
+    switch (type) {
+        case ty::LogProbability:
+        case ty::Probability: {
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
 // void coot::validation_information_t::add_residue_valiation_informtion(
 //     const residue_validation_information_t &rvi, 
 //     const std::string &chain_id) {
