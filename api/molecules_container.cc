@@ -824,12 +824,9 @@ molecules_container_t::test_origin_cube() const {
 std::vector<coot::phi_psi_prob_t>
 molecules_container_t::ramachandran_validation(int imol) const {
 
-   // there are no probabilities here it seems.
-
    std::vector<coot::phi_psi_prob_t> v;
-   if (is_valid_model_molecule(imol)) {
+   if (is_valid_model_molecule(imol))
       v = molecules[imol].ramachandran_validation(ramachandrans_container);
-   }
    return v;
 }
 

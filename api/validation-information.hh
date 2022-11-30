@@ -9,7 +9,6 @@ namespace coot {
    class chain_validation_information_t {
    public:
       std::string chain_id;
-      std::string name;
       std::vector<residue_validation_information_t> rviv;
       explicit chain_validation_information_t(const std::string &chain_id_in) : chain_id(chain_id_in) {}
       void add_residue_validation_information(const residue_validation_information_t &rvi) {
@@ -32,9 +31,19 @@ namespace coot {
    class validation_information_t {
    public:
       std::string name;
-      std::string type;
       validation_information_min_max_t min_max;
       std::vector<chain_validation_information_t> cviv;
+
+#ifdef EMSCRIPTEN
+      std::string type;
+      validation_information_t() : min_max(validation_information_min_max_t()), type("UNSET") {}
+      validation_information_t(const std::string  &gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
+#else
+      enum graph_data_type type;
+      validation_information_t() : min_max(validation_information_min_max_t(), type(UNSET)) {}
+      validation_information_t(graph_data_type gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
+#endif
+
       unsigned int get_index_for_chain(const std::string &chain_id) {
          for (unsigned int i=0; i<cviv.size(); i++) {
             if (chain_id == cviv[i].chain_id)
