@@ -295,7 +295,7 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
             for(const auto& residue: chain.rviv) {
                 /// draw bar
 
-                float bar_height = CHAIN_HEIGHT * map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                float bar_height = CHAIN_HEIGHT * std::max(std::min(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type),1.0),0.0);
                 float bar_y_offset = base_height;
                 if(coot::should_hang_down(self->_vi->type)) {
                     m_graphene_rect = GRAPHENE_RECT_INIT(base_width, bar_y_offset - CHAIN_HEIGHT, RESIDUE_WIDTH * self->horizontal_scale, bar_height);
