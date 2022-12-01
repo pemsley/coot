@@ -1210,7 +1210,12 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
    if (smoothness_factor == 2) {
       num_subdivisions = 2;
-      n_slices = 18;
+      n_slices = 16; // was 18
+   }
+
+   if (smoothness_factor == 3) {
+      num_subdivisions = 3;
+      n_slices = 32;
    }
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
