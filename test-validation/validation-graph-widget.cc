@@ -89,10 +89,16 @@ const coot::chain_validation_information_t* get_chain_with_id(CootValidationGrap
 /// Returns maximum function value found for the given chain
 double max_residue_function_value_for_chain(const std::vector<coot::residue_validation_information_t>& rviv) {
     using it_t = coot::residue_validation_information_t;
-    return std::max_element(rviv.cbegin(),rviv.cend(),
+    auto iter = std::max_element(rviv.cbegin(),rviv.cend(),
     [](const it_t& lhs, const it_t& rhs){
         return lhs.function_value < rhs.function_value;
-    })->function_value;
+    });
+    if(iter != rviv.end()) {
+        return iter->function_value;
+    } else {
+        g_warning("Returning 0 as max value for an empty chain");
+        return 0.0;
+    }
 }
 
 inline coord_cache_t::const_iterator residue_from_coords(CootValidationGraph* self, gdouble x, gdouble y) {
