@@ -2793,6 +2793,7 @@ molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_d
          }
       }
    }
+   std::cout << "DEBUG:: pepflips_using_difference_map() returns " << v.size() << " flips" << std::endl;
    return v;
 
 }
