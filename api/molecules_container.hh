@@ -352,7 +352,8 @@ public:
    int write_coordinates(int imol, const std::string &file_name) const;
 
    //! By default missing loops are drawn. This allows missing loops to not be drawn.
-   //! Sometimes that can clarify the representation.
+   //! Sometimes that can clarify the representation. This is a lightweight function
+   //! that sets a flag that is used by subsequent calls to ``get_bonds_mesh()``.
    void set_draw_missing_residue_loops(bool state);
 
    //! get the bonds mesh.
