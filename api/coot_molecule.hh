@@ -94,19 +94,20 @@ namespace coot {
       ShelxIns shelxins;
 
       // private
-      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms);
+      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms,
+                     bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
 
 #if defined __has_builtin
 #if __has_builtin (__builtin_FUNCTION)
-      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, const char *s = __builtin_FUNCTION());
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, const char *s = __builtin_FUNCTION());
+      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
+      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
 #else
       void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s =0);
 #endif
 #else // repeat above
       void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s =0);
 #endif
 
       int bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()
@@ -119,6 +120,8 @@ namespace coot {
                                       const std::set<int> &no_bonds_to_these_atoms,
                                       bool change_c_only_flag,
                                       bool goodsell_mode,
+                                      bool draw_hydrogen_atoms_flag,
+                                      bool draw_missing_loops_flag,
                                       bool do_rota_markup=false,
                                       coot::rotamer_probability_tables *rotamer_tables_p = nullptr,
                                       bool force_rebonding=true);
@@ -357,9 +360,10 @@ namespace coot {
       // ----------------------- model utils
 
       // public
-      void make_bonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p);
+      void make_bonds(protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p,
+                      bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
       // returns either the specified atom or null if not found
-      mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
+      mmdb::Atom *get_atom(const atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found
       mmdb::Residue *get_residue(const coot::residue_spec_t &residue_spec) const;
 
@@ -378,7 +382,10 @@ namespace coot {
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
                                    bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
-                                   int smoothness_factor);
+                                   int smoothness_factor,
+                                   bool draw_hydrogen_atoms_flag,
+                                   bool draw_missing_residue_loops);
+
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;

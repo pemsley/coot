@@ -76,6 +76,11 @@ molecules_container_t::display_molecule_names_table() const {
    }
 }
 
+void
+molecules_container_t::set_draw_missing_residue_loops(bool state) {
+   draw_missing_residue_loops_flag = state;
+}
+
 //! get the active atom
 std::pair<int, std::string>
 molecules_container_t::get_active_atom(float x, float y, float z, const std::string &displayed_model_molecules_list) const {
@@ -1037,12 +1042,14 @@ molecules_container_t::get_bonds_mesh(int imol, const std::string &mode,
                                       float bonds_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor) {
 
+   bool draw_hydrogen_atoms_flag = true; // pass this
+
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::simple_mesh_t sm;
    if (is_valid_model_molecule(imol)) {
       sm = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bonds_width, atom_radius_to_bond_width_ratio,
-                                          smoothness_factor);
+                                          smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

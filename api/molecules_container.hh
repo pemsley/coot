@@ -27,6 +27,7 @@ class molecules_container_t {
    coot::rotamer_probability_tables rot_prob_tables;
    ramachandrans_container_t ramachandrans_container;
    static std::atomic<bool> on_going_updating_map_lock;
+   bool draw_missing_residue_loops_flag;
 
    class rail_points_t {
    public:
@@ -187,6 +188,7 @@ class molecules_container_t {
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
       map_sampling_rate = 1.8;
+      draw_missing_residue_loops_flag = true;
    }
 
 public:
@@ -348,6 +350,10 @@ public:
    //! write the coordinate to the give file name
    //! @return 1 on success and 0 on failure
    int write_coordinates(int imol, const std::string &file_name) const;
+
+   //! By default missing loops are drawn. This allows missing loops to not be drawn.
+   //! Sometimes that can clarify the representation.
+   void set_draw_missing_residue_loops(bool state);
 
    //! get the bonds mesh.
    //!

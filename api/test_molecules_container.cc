@@ -1655,7 +1655,8 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms,"new positions for atoms", mc);
    }
 
-   status += run_test(test_peptide_omega,   "peptide omega",     mc);
+   // status += run_test(test_peptide_omega,   "peptide omega",     mc);
+      status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
    // Note to self:
    //
