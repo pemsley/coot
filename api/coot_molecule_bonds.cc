@@ -296,10 +296,22 @@ make_graphical_bonds_spherical_atoms(coot::simple_mesh_t &m, // fill this
             unsigned int idx_base = m.vertices.size();
             unsigned int idx_tri_base = m.triangles.size();
             float scale = 1.0;
-            if (at_info.is_hydrogen_atom) scale *= 0.5;
+
+            if (at_info.is_hydrogen_atom) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  scale *= 0.66;
+               } else {
+                  scale *= 0.5; // bonds go to half-width, so should atoms.
+               }
+            }
             glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
             float sar = scale * atom_radius * at_info.radius_scale;
-            if (at_info.is_water) sar *= 1.33;
+            if (at_info.is_water) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  float f = 1.33; // with a radius_scale of 2.0 waters are too chonky
+                  sar = scale * atom_radius * f;
+               }
+            }
             glm::vec3 sc(sar, sar, sar);
             glm::mat4 mm = glm::scale(unit, sc);
             mm = glm::translate(mm, t);
