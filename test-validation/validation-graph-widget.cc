@@ -312,12 +312,29 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
-                border_color_computed.red = 0.6 * map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                border_color_computed.green = (1.f - map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type)) * residue_color.green;
-                //border_color_computed.blue = std::pow(0.9 * map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
-                residue_color_computed.red = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
-                residue_color_computed.green = (1.f - std::pow(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type),3)) * residue_color.green;
-                //residue_color_computed.blue = std::pow(map_value_to_bar_proportion(residue.distortion, amplitude, self->_vi->type),5);
+                auto green_to_red = [&](double bar_proportion){
+                    border_color_computed.red = 0.6 * bar_proportion;
+                    border_color_computed.green = (1.f - bar_proportion) * residue_color.green;
+                    //border_color_computed.blue = std::pow(0.9 * bar_proportion,5);
+                    residue_color_computed.red = bar_proportion;
+                    residue_color_computed.green = (1.f - std::pow(bar_proportion,3)) * residue_color.green;
+                    //residue_color_computed.blue = std::pow(bar_proportion,5);
+
+                };
+                auto red_to_green = [&](double bar_proportion){
+                    // dirty trick
+                    green_to_red(1-bar_proportion);
+                };
+                switch (self->_vi->type) {
+                    case coot::graph_data_type::LogProbability:
+                    case coot::graph_data_type::Probability: {
+                        red_to_green(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type));
+                        break;
+                    }
+                    default: {
+                        green_to_red(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type));
+                    }
+                }
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};
                 gtk_snapshot_append_color(snapshot, &residue_color_computed, &m_graphene_rect);
                 gtk_snapshot_append_border(snapshot, &outline , border_thickness, border_colors);
