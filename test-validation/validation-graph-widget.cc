@@ -22,8 +22,10 @@ struct _CootValidationGraph {
 };
 
 /// Basis for max bar height
-const int CHAIN_HEIGHT = 150;
-/// Used for allocating space for axes and labels
+const int CHAIN_HEIGHT = 250;
+/// Used for allocating space for axes and labels.
+/// Fractions of this value can be used as a basis for computing other constants
+/// in order to achieve desired layout proportions.
 const int CHAIN_SPACING = 70;
 const int RESIDUE_WIDTH = 9;
 /// Breathing space for residue rectangle's borders
@@ -34,11 +36,12 @@ const int TITLE_HEIGHT = 30;
 const int GRAPH_Y_AXIS_SEPARATION = 10;
 /// Space reserved for the y-axis and its' labels. Axis is drawn at this X offset.
 const int AXIS_MARGIN = 25;
+/// Space left between the last residue bar and the right edge of the graph
 const int RIGHT_SIDE_MARGIN = 10;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
-const unsigned int VERTICAL_MARKER_COUNT = 6;
+const unsigned int VERTICAL_MARKER_COUNT = 10;
 const unsigned int HORIZONTAL_MARKER_INTERVAL = 10;
 
 // COMPUTED VALUES:
@@ -145,10 +148,10 @@ inline double compute_floor_value(coot::graph_data_type type) {
     }
 }
 
-double map_value_to_bar_proportion(double distortion, double amplitude, coot::graph_data_type type) {
+double map_value_to_bar_proportion(double residue_value, double amplitude, coot::graph_data_type type) {
     using ty = coot::graph_data_type;
     double floor = compute_floor_value(type);
-    double base_proportion = (distortion - floor) / amplitude;
+    double base_proportion = (residue_value - floor) / amplitude;
     switch (type) {
         case ty::LogProbability: { 
             return std::log10(base_proportion * 9.f + 1.f);
