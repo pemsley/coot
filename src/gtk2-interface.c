@@ -11517,6 +11517,7 @@ create_pointer_atom_type_dialog (void)
   GtkWidget *pointer_atom_type_radiobutton_ca;
   GtkWidget *pointer_atom_type_radiobutton_mg;
   GtkWidget *pointer_atom_type_radiobutton_na;
+  GtkWidget *pointer_atom_type_radiobutton_k;
   GtkWidget *pointer_atom_type_radiobutton_cl;
   GtkWidget *pointer_atom_type_radiobutton_br;
   GtkWidget *pointer_atom_type_radiobutton_so4;
@@ -11584,6 +11585,12 @@ create_pointer_atom_type_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_na, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_na), pointer_atom_type_radiobutton_water_group);
   pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_na));
+
+  pointer_atom_type_radiobutton_k = gtk_radio_button_new_with_mnemonic (NULL, "K");
+  gtk_widget_show (pointer_atom_type_radiobutton_k);
+  gtk_box_pack_start (GTK_BOX (vbox78), pointer_atom_type_radiobutton_k, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_k), pointer_atom_type_radiobutton_water_group);
+  pointer_atom_type_radiobutton_water_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (pointer_atom_type_radiobutton_k));
 
   pointer_atom_type_radiobutton_cl = gtk_radio_button_new_with_mnemonic (NULL, "Cl");
   gtk_widget_show (pointer_atom_type_radiobutton_cl);
@@ -11685,6 +11692,7 @@ create_pointer_atom_type_dialog (void)
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_ca, "pointer_atom_type_radiobutton_ca");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_mg, "pointer_atom_type_radiobutton_mg");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_na, "pointer_atom_type_radiobutton_na");
+  GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_k, "pointer_atom_type_radiobutton_k");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_cl, "pointer_atom_type_radiobutton_cl");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_br, "pointer_atom_type_radiobutton_br");
   GLADE_HOOKUP_OBJECT (pointer_atom_type_dialog, pointer_atom_type_radiobutton_so4, "pointer_atom_type_radiobutton_so4");

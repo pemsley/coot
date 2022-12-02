@@ -3806,6 +3806,8 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
     if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Mg");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_na"));
     if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Na");
+    tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_k"));
+    if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("K");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_cl"));
     if (gtk_toggle_button_get_active(tbut)) place_typed_atom_at_pointer("Cl");
     tbut = GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), "pointer_atom_type_radiobutton_br"));
