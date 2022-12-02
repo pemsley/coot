@@ -172,6 +172,9 @@ class molecules_container_t {
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
+   void read_standard_residues();
+   atom_selection_container_t standard_residues_asc;
+
    // --------------------- init --------------------------
 
    void init() {
@@ -189,6 +192,7 @@ class molecules_container_t {
       map_weight = 50.0;
       map_sampling_rate = 1.8;
       draw_missing_residue_loops_flag = true;
+      read_standard_residues();
    }
 
 public:
@@ -564,6 +568,10 @@ public:
 
    // old: int merge_molecules(int imol_target, const std::string &list_of_other_molecules);
    //
+
+   //! Convert a cis peptide to a trans or vice versa.
+   //! @return 1 on a successful conversion.
+   int cis_trans_convert(int imol, const std::string &atom_cid);
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement

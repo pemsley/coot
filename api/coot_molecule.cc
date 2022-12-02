@@ -49,6 +49,25 @@ coot::molecule_t::is_valid_map_molecule() const {
    return status;
 }
 
+
+mmdb::Atom *
+coot::molecule_t::cid_to_atom(const std::string &cid) const {
+
+   mmdb::Atom *atom_p = 0;
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         atom_p = SelAtoms[0];
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return atom_p;
+}
+
 mmdb::Residue *
 coot::molecule_t::cid_to_residue(const std::string &cid) const {
 
@@ -66,7 +85,6 @@ coot::molecule_t::cid_to_residue(const std::string &cid) const {
    }
    return residue_p;
 }
-
 
 std::pair<bool, coot::residue_spec_t>
 coot::molecule_t::cid_to_residue_spec(const std::string &cid) const {
@@ -3030,4 +3048,21 @@ coot::molecule_t::peptide_omega_analysis(const protein_geometry &geom, const std
    omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, mark_cis_peptides_as_bad_flag);
 
    return odi;
+}
+
+
+int
+coot::molecule_t::cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol) {
+
+   if (! is_valid_model_molecule()) return 0;
+
+   int status = 0;
+   bool is_N_flag = false;
+   mmdb::Atom *at = cid_to_atom(atom_cid);
+   std::string atom_name(at->GetAtomName());
+   if (atom_name == " N  ") is_N_flag = true;
+   if (at) {
+      status = coot::util::cis_trans_conversion(at, is_N_flag, atom_sel.mol, standard_residues_mol);
+   }
+   return status;
 }

@@ -1573,6 +1573,35 @@ int test_delete_literal(molecules_container_t &mc) {
    return status;
 }
 
+int test_cis_trans(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 263, "", " N  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+         int status_l = mc.cis_trans_convert(imol, "//A/262/O");
+         if (status_l) {
+            mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+            coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
+            double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+            double d = std::sqrt(dd);
+            std::cout << "test_cis_trans d " << d << std::endl;
+            if (d > 1.0)
+               status = true;
+            // mc.write_coordinates(imol, "cis-trans-converted.pdb");
+         }
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1648,51 +1677,52 @@ int main(int argc, char **argv) {
       status += run_test(test_difference_map_contours, "difference map density mesh", mc);
       status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_non_standard_types,   "non-standard residue types", mc);
-      status += run_test(test_rsr_using_atom_cid,   "rsr using atom cid",       mc);
-      status += run_test(test_auto_fit_rotamer_1,   "auto-fit rotamer",         mc);
-      status += run_test(test_auto_fit_rotamer_2,   "auto-fit rotamer t2",      mc);
-      status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
-      status += run_test(test_delete_molecule,      "delete_moelcule",          mc);
-      status += run_test(test_rama_balls_mesh,      "rama balls mesh",          mc);
-      status += run_test(test_density_mesh,         "density mesh",             mc);
-      status += run_test(test_updating_maps,        "updating maps",            mc);
-      status += run_test(test_delete_residue,       "delete residue",           mc);
-      status += run_test(test_delete_chain,         "delete chain",             mc);
-      status += run_test(test_delete_atom,          "delete atom",              mc);
-      status += run_test(test_jiggle_fit,           "Jiggle-fit",               mc);
-      status += run_test(test_pepflips,             "pepflips",                 mc);
-      status += run_test(test_mutate,               "mutate",                   mc);
-      status += run_test(test_rsr,                  "rsr",                      mc);
-      status += run_test(test_jed_flip,             "JED Flip",                 mc);
-      status += run_test(test_add_water,            "add waters",               mc);
-      status += run_test(test_bonds_mesh,           "bonds mesh",               mc);
-      status += run_test(test_eigen_flip,           "Eigen Flip",               mc);
-      status += run_test(test_read_a_map,           "read a map",               mc);
-      status += run_test(test_weird_delete,         "delete II",                mc);
-      status += run_test(test_side_chain_180,       "side-chain 180",           mc);
-      status += run_test(test_undo_and_redo,        "undo and redo",            mc);
-      status += run_test(test_merge_molecules,      "merge molecules",          mc);
-      status += run_test(test_dictionary_bonds,      "dictionary bonds",        mc);
-      status += run_test(test_undo_and_redo_2,       "undo/redo 2",             mc);
-      status += run_test(test_move_molecule_here,   "move_molecule_here",       mc);
-      status += run_test(test_sequence_generator,   "Make a sequence string",   mc);
-      status += run_test(test_rotamer_validation,   "rotamer validation",       mc);
-      status += run_test(test_ligand_fitting_here,   "Ligand fitting here",     mc);
-      status += run_test(test_rama_validation,       "rama validation 2",       mc); // for the plot, not the graph
-      status += run_test(test_ramachandran_analysis, "ramachandran analysis",   mc); // for the graph, not the plot
-      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",    mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary",   mc);
-      status += run_test(test_add_terminal_residue, "add terminal residue",     mc);
-      status += run_test(test_new_position_for_atoms,"new positions for atoms", mc);
+      status += run_test(test_non_standard_types,    "non-standard residue types", mc);
+      status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+      status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
+      status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
+      status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
+      status += run_test(test_delete_molecule,       "delete_moelcule",          mc);
+      status += run_test(test_rama_balls_mesh,       "rama balls mesh",          mc);
+      status += run_test(test_density_mesh,          "density mesh",             mc);
+      status += run_test(test_updating_maps,         "updating maps",            mc);
+      status += run_test(test_delete_residue,        "delete residue",           mc);
+      status += run_test(test_delete_chain,          "delete chain",             mc);
+      status += run_test(test_delete_atom,           "delete atom",              mc);
+      status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+      status += run_test(test_pepflips,              "pepflips",                 mc);
+      status += run_test(test_mutate,                "mutate",                   mc);
+      status += run_test(test_rsr,                   "rsr",                      mc);
+      status += run_test(test_jed_flip,              "JED Flip",                 mc);
+      status += run_test(test_add_water,             "add waters",               mc);
+      status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
+      status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
+      status += run_test(test_read_a_map,            "read a map",               mc);
+      status += run_test(test_weird_delete,          "delete II",                mc);
+      status += run_test(test_delete_literal,        "delete literal",           mc);
+      status += run_test(test_side_chain_180,        "side-chain 180",           mc);
+      status += run_test(test_peptide_omega,         "peptide omega",            mc);
+      status += run_test(test_undo_and_redo,         "undo and redo",            mc);
+      status += run_test(test_merge_molecules,       "merge molecules",          mc);
+      status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
+      status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
+      status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
+      status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
+      status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
+      status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
+      status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
+      status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
+      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
+      status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+      status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
+      status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
    }
 
    // check these
-   // status += run_test(test_peptide_omega,   "peptide omega",     mc);
    // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
-   status += run_test(test_delete_literal,"delete literal", mc);
-      
+   status += run_test(test_cis_trans, "cis_trans conversion",    mc);
+
    // Note to self:
    //
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.

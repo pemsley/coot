@@ -154,3 +154,18 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 
 }
+
+
+int
+molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) {
+
+   int status = 0;
+   mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}

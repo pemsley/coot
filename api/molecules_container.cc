@@ -1,6 +1,9 @@
 
 #include <iomanip>
 
+#include <sys/types.h> // for stating
+#include <sys/stat.h>
+
 #include "molecules_container.hh"
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -80,6 +83,42 @@ void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
    draw_missing_residue_loops_flag = state;
 }
+
+void
+molecules_container_t::read_standard_residues() {
+
+   std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
+
+   const char *filename = getenv(standard_env_dir.c_str());
+   if (! filename) {
+
+      std::string dir = coot::package_data_dir();
+      std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
+
+      struct stat buf;
+      int status = stat(standard_file_name.c_str(), &buf);
+      if (status != 0) { // standard-residues file was not found in
+	                 // default location either...
+	 std::cout << "WARNING: Can't find standard residues file in the "
+		   << "default location \n";
+	 std::cout << "         and environment variable for standard residues ";
+	 std::cout << standard_env_dir << "\n";
+	 std::cout << "         is not set.";
+	 std::cout << " Mutations will not be possible\n";
+	 // mark as not read then:
+	 standard_residues_asc.read_success = 0;
+	 standard_residues_asc.n_selected_atoms = 0;
+	 // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
+      } else {
+	 // stat success:
+	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
+      }
+   } else { 
+      standard_residues_asc = get_atom_selection(filename, true, false, false);
+   }
+}
+
+
 
 //! get the active atom
 std::pair<int, std::string>

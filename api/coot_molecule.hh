@@ -352,6 +352,7 @@ namespace coot {
       bool is_valid_model_molecule() const;
       bool is_valid_map_molecule() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
+      mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const;
@@ -503,6 +504,8 @@ namespace coot {
       //! Hey, what do you know, they actually do.
       float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
+
+      int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
 
       // ----------------------- merge molecules
 
