@@ -459,7 +459,8 @@ gboolean query_tooltip (
     if(self->coordinate_cache->cend() != hovered) {
         const auto* residue_ptr = hovered->second;
         // g_debug("Hover over residue: %s, at x: %f, y: %f",residue_ptr->label.c_str(),x,y);
-        gtk_tooltip_set_text(tooltip,residue_ptr->label.c_str());
+        std::string tooltip_text = residue_ptr->label + ", value=" + std::to_string(residue_ptr->function_value).erase(5);
+        gtk_tooltip_set_text(tooltip,tooltip_text.c_str());
         // todo: remove magic numbers
         GdkRectangle rect = {x,y - 20,100,100};
         gtk_tooltip_set_tip_area(tooltip,&rect);
