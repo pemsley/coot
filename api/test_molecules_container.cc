@@ -1541,6 +1541,38 @@ int test_peptide_omega(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_literal(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+
+      int status_1 = mc.delete_using_cid(imol, "//A/10-20", "LITERAL");
+
+      if (status_1) {
+
+         unsigned int n_found = 0;
+         for (unsigned int ires=9; ires<=21; ires++) {
+            coot::atom_spec_t atom_spec("A", ires, "", " O  ","");
+            mmdb::Atom *at = mc.get_atom(imol, atom_spec);
+            if (at)
+               n_found++;
+         }
+
+         if (n_found == 2)
+            status = 1;
+      }
+   }
+
+   // add another test here that it doesn't delete anything if the atom selection doesn't match
+   
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1655,9 +1687,12 @@ int main(int argc, char **argv) {
       status += run_test(test_new_position_for_atoms,"new positions for atoms", mc);
    }
 
+   // check these
    // status += run_test(test_peptide_omega,   "peptide omega",     mc);
-      status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
+   // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
+   status += run_test(test_delete_literal,"delete literal", mc);
+      
    // Note to self:
    //
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.

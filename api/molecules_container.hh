@@ -446,7 +446,7 @@ public:
 
    //! delete item
    //!
-   //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE"]
+   //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
    //! @return 1 on successful modification, return 0 on failure
    int delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
@@ -480,6 +480,10 @@ public:
    //! delete chain.
    //! @return 1 on successful deletion, return 0 on failure to delete.
    int delete_chain_using_cid(int imol, const std::string &cid);
+
+   //! delete the atoms specified in the CID selection
+   //! @return 1 on successful deletion, return 0 on failure to delete.
+   int delete_literal_using_cid(int imol, const std::string &cid);
 
    //! add a residue onto the end of the chain by fitting to density
    //! @return a first of 1 on success. Return a useful message in second if the addition did not work

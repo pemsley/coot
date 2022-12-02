@@ -1223,6 +1223,21 @@ molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) 
 }
 
 
+//! delete the atoms specified in the CID selection
+//! @return 1 on successful deletion, return 0 on failure to delete.
+int
+molecules_container_t::delete_literal_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].delete_literal_using_cid(cid);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
 
 //where scope in ["ATOM","WATER", "RESIDUE","CHAIN","MOLECULE"]
 int
@@ -1235,6 +1250,8 @@ molecules_container_t::delete_using_cid(int imol, const std::string &cid, const 
       status = delete_residue_atoms_using_cid(imol, cid);
    if (scope == "CHAIN")
       status = delete_chain_using_cid(imol, cid);
+   if (scope == "LITERAL")
+      status = delete_literal_using_cid(imol, cid);
    if (scope == "MOLECULE")
       status = close_molecule(imol);
    return status;

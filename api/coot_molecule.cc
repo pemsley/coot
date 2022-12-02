@@ -1898,6 +1898,48 @@ coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
    return done;
 }
 
+int
+coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid) {
+
+   // cid is an atom selection, e.g. containing a residue range
+
+   int status = 0;
+   std::vector<mmdb::Atom *> atoms_to_be_deleted;
+
+   mmdb::Atom **selection_atoms = 0;
+   int n_selection_atoms = 0;
+   int selHnd = atom_sel.mol->NewSelection(); // d
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   atom_sel.mol->GetSelIndex(selHnd, selection_atoms, n_selection_atoms);
+
+   if (selection_atoms) {
+      for (int iat=0; iat<n_selection_atoms; iat++) {
+         mmdb::Atom *at = selection_atoms[iat];
+         if (at)
+            atoms_to_be_deleted.push_back(at);
+      }
+   }
+
+   if (! atoms_to_be_deleted.empty()) {
+      make_backup();
+
+      for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
+         delete atoms_to_be_deleted[iat];
+         atoms_to_be_deleted[iat] = NULL;
+      }
+      status = 1;
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+
+      std::string s = std::string("delete-literal-using-cid ") + atom_selection_cid;
+      save_info.new_modification(s);
+   }
+   return status;
+}
+
+
 
 std::vector<std::string>
 coot::molecule_t::non_standard_residue_types_in_model() const {
