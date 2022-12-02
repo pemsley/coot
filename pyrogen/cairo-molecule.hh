@@ -19,10 +19,8 @@ namespace coot {
    class cairo_atom_t : public lig_build::atom_t {
    
    public:
-      cairo_atom_t(lig_build::pos_t pos_in, std::string ele_in, int formal_charge_in) :
-	 lig_build::atom_t(pos_in, ele_in, formal_charge_in) {
-	 font_colour = "";
-      }
+      cairo_atom_t(lig_build::pos_t pos_in, const std::string &ele_in, int formal_charge_in) :
+	 lig_build::atom_t(pos_in, ele_in, formal_charge_in), font_colour("") {}
       std::string font_colour;
 
       // needs to pass a colour attribute too
@@ -123,7 +121,7 @@ namespace coot {
 
    void cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
 				    const std::string &comp_id,
-				    const std::string png_file_name,
+				    const std::string &png_file_name,
 				    unsigned int npx=300,
 				    PyObject *background_colour=0);
 
