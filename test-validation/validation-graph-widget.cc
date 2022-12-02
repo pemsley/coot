@@ -126,6 +126,7 @@ double compute_amplitude(coot::graph_data_type type, const std::vector<coot::res
             return 1.2f;
         }
         default: {
+            // This assumes that by default, the lowest value is 0
             return max_residue_function_value_for_chain(rviv);
         }
     }
