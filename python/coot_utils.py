@@ -28,7 +28,7 @@ import string
 import numbers
 import math
 import coot
-import coot_gui # circular dependency
+# import coot_gui # circular dependency
 from redefine_functions import *
 
 # hack this in for now
@@ -4113,10 +4113,11 @@ def find_exe(program_name, *args, **kwargs):
         no_search = False
     search_disk = False
     if (use_gui_qm and not no_search):
-        try:
-            search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
-        except NameError as e:
-            pass
+        # try:
+        #     search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+        # except NameError as e:
+        #     pass
+        pass # no coot_gui stuff here
     if search_disk:
         # search everywhere
         for drive in drives_ls:
