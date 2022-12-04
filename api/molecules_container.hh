@@ -355,8 +355,8 @@ public:
    //! @return 1 on success and 0 on failure
    int write_coordinates(int imol, const std::string &file_name) const;
 
-   //! By default missing loops are drawn. This allows missing loops to not be drawn.
-   //! Sometimes that can clarify the representation. This is a lightweight function
+   //! By default missing loops are drawn. This function allows missing loops to not be
+   //! drawn. Sometimes that can clarify the representation. This is a lightweight function
    //! that sets a flag that is used by subsequent calls to ``get_bonds_mesh()``.
    void set_draw_missing_residue_loops(bool state);
 
@@ -365,11 +365,11 @@ public:
    //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
    //!
    //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
-   //! When the background is dark, the colours should (as a rule) be bright and pastely.
+   //! When the background is dark, the colours should (as a rule) be bright and pastelly.
    //! When the background is light/white, the colour darker and more saturated.
    //!
    //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
-   //! and spheres for the atoms - it rises in powers of 2. 1 is the smallest ``smoothness_factor``,
+   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest ``smoothness_factor``,
    //! 2 looks nice (but maybe is slower to transfer) and 3 is best.
    //!
    //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
@@ -379,7 +379,8 @@ public:
    //!
    //! @return a ``simple_mesh_t``
    coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode,
-                                      bool against_a_dark_background, float bond_width, float atom_radius_to_bond_width_ratio,
+                                      bool against_a_dark_background,
+                                      float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
@@ -576,9 +577,9 @@ public:
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 
-   // mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
-   //
    //! refine the residues
+   //
+   //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
    //! refine the residues
