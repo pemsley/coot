@@ -187,8 +187,11 @@ identify_protein_bin_LDADD = ./libcoot-ligand.la          \
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
-ligand_percentiles_LDADD = ./libcoot-ligand.la     \
-	$(top_builddir)/utils/libcoot-utils.la     \
+ligand_percentiles_LDADD = ./libcoot-ligand.la       \
+	$(top_builddir)/ideal/libcoot-ideal.la       \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
 	$(top_builddir)/compat/libcoot-compat.la
 
 # wrong build order - coords depends on this directory (because it uses rotamer info)

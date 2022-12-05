@@ -47,7 +47,9 @@ coot_bfactan_SOURCES = bfactan.cc
 
 test_mogul_SOURCES = test-mogul.cc
 
-test_mogul_LDADD = libcoot-analysis.la
+test_mogul_LDADD = libcoot-analysis.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
+	$(top_builddir)/geometry/libcoot-geometry.la
 
 # test_cablam_SOURCES = test-cablam.cc
 
@@ -56,7 +58,9 @@ test_stats_SOURCES = test-stats.cc
 test_align_SOURCES = test-align.cc
 
 test_stats_LDADD = libcoot-analysis.la \
-	$(top_builddir)/coot-utils/libcoot-map-utils.la
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la
 
 
 # wrong build order
