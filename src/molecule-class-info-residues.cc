@@ -1422,8 +1422,12 @@ coot::dict_link_info_t::check_for_order_switch(mmdb::Residue *residue_ref,
       // std::cout << "got group_ref: " << group_ref << std::endl;
       std::string group_new = geom.get_group(residue_new);
       // std::cout << "got group_new:o " << group_new << std::endl;
-      std::vector<std::pair<coot::chem_link, bool> > link_infos =
-	 geom.matching_chem_link(comp_id_ref, group_ref, comp_id_new, group_new);
+      std::vector<std::pair<coot::chem_link, bool> > link_infos;
+      std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_ref, group_ref, comp_id_new, group_new);
+      std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_new, group_new, comp_id_ref, group_ref);
+      for (const auto &link : link_infos_f) link_infos.push_back(std::make_pair(link, false));
+      for (const auto &link : link_infos_b) link_infos.push_back(std::make_pair(link,  true));
+
       if (0)
 	 std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
 		   << " link infos " << std::endl;

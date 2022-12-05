@@ -83,20 +83,21 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc, int imol
       if (std::find(residues.begin(), residues.end(), res_1) != residues.end()) { 
          if (std::find(residues.begin(), residues.end(), res_2) != residues.end()) {
             // OK, both residues were in the atom selection (as it should be)
+            bool order_switch = false;
             std::string comp_id_1 = res_1->GetResName();
             std::string comp_id_2 = res_2->GetResName();
             std::string group_1 = geom_p->get_group(res_1);
             std::string group_2 = geom_p->get_group(res_2);
-            std::vector<std::pair<coot::chem_link, bool> > mcl = 
-               geom_p->matching_chem_link(comp_id_1, group_1,
-                                          comp_id_2, group_2);
-            std::cout << "debug:: found " << mcl.size() << " matching chem links"
-                      << std::endl;
+            std::vector<coot::chem_link> mcl = geom_p->matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
+            if (mcl.empty()) {
+               mcl = geom_p->matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
+               order_switch = true;
+            }
+            std::cout << "debug:: contact_info() found " << mcl.size() << " matching chem links" << std::endl;
+
             // there should be just one mcl of course, but ... by the book...
             for (unsigned int ilink=0; ilink<mcl.size(); ilink++) {
-               bool order_switch = mcl[ilink].second;
-               dictionary_residue_link_restraints_t lr = 
-                  geom_p->link(mcl[ilink].first.Id()); // or is it chem_link_name?
+               dictionary_residue_link_restraints_t lr = geom_p->link(mcl[ilink].Id());
                if (lr.link_id != "") {
                   // non-empty link, i.e. it was looked up OK.
                   for (unsigned int ilr=0; ilr<lr.link_bond_restraint.size(); ilr++) { 

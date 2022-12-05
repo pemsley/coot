@@ -81,10 +81,11 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
-    $(top_builddir)/geometry/libcoot-geometry.la \
     $(top_builddir)/protein_db/libcoot-protein-db.la \
-    $(top_builddir)/utils/libcoot-utils.la \
-    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+    $(top_builddir)/geometry/libcoot-geometry.la     \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
+    $(top_builddir)/utils/libcoot-utils.la           \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(CLIPPER_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lpthread
 
@@ -201,7 +202,8 @@ test_coot_probe_LDADD =          \
 	$(MMDB_LIBS)
 
 testshelxreader_SOURCES = test-shelx-reader.cc
-testshelxreader_LDADD =  ./libcoot-coord-utils.la
+testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
+	$(top_builddir)/geometry/libcoot-geometry.la
 
 # if OOPS_WRONG_BUILD_ORDER # - No - I can't use coords libraries - they have not been built yet - fix later.
 # test_emma_SOURCES = test-emma.cc
@@ -255,17 +257,21 @@ test_tt_morph_LDADD = ./libcoot-map-heavy.la \
 	./libcoot-map-utils.la \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS) $(MMDB_LIBS)
+test_elastic_LDADD   = ./libcoot-coord-utils.la      \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(GLOB_LIBS) $(MMDB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
-glyco_torsions_LDADD   = ./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+glyco_torsions_LDADD   = ./libcoot-coord-utils.la    \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(MMDB_LIBS)
 
 
@@ -303,6 +309,7 @@ test_5_residue_fragments_SOURCES = test-5-residue-fragments.cc
 
 test_5_residue_fragments_LDADD = \
 	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) \
 	$(RDKIT_LIBS)

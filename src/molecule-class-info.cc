@@ -7071,6 +7071,8 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                              graphics_info_t::default_new_atoms_b_factor);
       atom_p->Het = 1; // it's a HETATM.
 
+      std::cout << "HHHHHHHHHHHHHHHHHHHere A with atom name \"" << atom_p->GetAtomName() << "\"" << std::endl;
+
       if (type == "Water") {
 
          // special rule for water: we add a water to a water chain if
@@ -7134,15 +7136,20 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          }
       } else {
 
+         std::cout << "---------------------------- yes this block " << std::endl;
          // Not water
          std::string element = "";
+
+         std::cout << "HHHHHHHHHHHHHHHHHHHere B with atom name \"" << atom_p->GetAtomName() << "\"" << std::endl;
 
          if (mol_chain_id.first || pre_existing_chain_flag) {
 
             if (bits.filled) {
 
+               std::cout << "HHHHHHHHHHHHHHHHHHHere C with atom name \"" << atom_p->GetAtomName() << "\"" << std::endl;
                bits.SetAtom(atom_p, res_p);
-               if (false)
+               std::cout << "HHHHHHHHHHHHHHHHHHHere D with atom name \"" << atom_p->GetAtomName() << "\"" << std::endl;
+               if (true)
                   std::cout << "debug:: bits.SetAtom() called with atom " << coot::atom_spec_t(atom_p)
                             << " and residue " << coot::residue_spec_t(res_p)
                             << " with residue name \"" << res_p->GetResName() << "\"" << std::endl;
