@@ -1,4 +1,6 @@
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include "svg-molecule.hh"
 #include "rdkit-interface.hh"
 
@@ -848,3 +850,4 @@ svg_molecule_t::get_scale() const {
 }
 
 
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
