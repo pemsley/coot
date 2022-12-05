@@ -718,6 +718,7 @@ libcootsumo_la_SOURCES = \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \
+	text-icon-button.cc text-icon-button.hh \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
 	trackball.c trackball.h  \
