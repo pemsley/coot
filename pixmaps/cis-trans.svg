@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   inkscape:export-ydpi="31.677475"
+   inkscape:export-xdpi="31.677475"
+   inkscape:export-filename="/home/paule/Projects/coot/git/coot-gtk3/coot/pixmaps/add-peptide-1.png"
+   width="57.554295"
+   height="58.643597"
+   id="svg2280"
+   sodipodi:version="0.32"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="cis-trans.svg"
+   version="1.1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs3">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 18.643596 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="16 : 18.643596 : 1"
+       inkscape:persp3d-origin="8 : 15.97693 : 1"
+       id="perspective5527" />
+    <linearGradient
+       id="linearGradient2352">
+      <stop
+         style="stop-color:#ccfac1;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2354" />
+      <stop
+         style="stop-color:#5fa248;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2356" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2342">
+      <stop
+         style="stop-color:#e0cec1;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2344" />
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2346" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2330">
+      <stop
+         style="stop-color:#d4c1e3;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2332" />
+      <stop
+         style="stop-color:#003bff;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2334" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient2322">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop2324" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop2326" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2330"
+       id="radialGradient2336"
+       gradientTransform="matrix(3.0661126,5.9016063e-8,0,3.0277272,-113.60898,-12.912271)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2352"
+       id="radialGradient2350-7-9"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727844,0,0,3.0278091,-134.2863,5.2073934)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2342"
+       id="radialGradient2340-9-6"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727844,0,0,3.0278091,-140.17263,18.3076)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2342"
+       id="radialGradient2340-9-6-4"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727853,0,0,3.0278098,-153.48609,-11.844426)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2352"
+       id="radialGradient2350-7-9-8"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727853,0,0,3.0278098,-147.59975,-24.944634)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send"
+       style="overflow:visible">
+      <path
+         id="path5537"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(-0.2)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-4"
+       style="overflow:visible">
+      <path
+         id="path5537-7"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="scale(-0.2)" />
+    </marker>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2352"
+       id="radialGradient2350-7-9-2"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727844,0,0,3.0278091,-120.20194,-1.0400272)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2352"
+       id="radialGradient2350-7-9-8-2"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.0727853,0,0,3.0278098,-133.50505,-31.168211)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2330"
+       id="radialGradient2336-9"
+       gradientTransform="matrix(3.0661137,2.9457946e-8,0,3.0277281,-119.09053,-62.079646)"
+       cx="19.057627"
+       cy="8.7307262"
+       fx="19.057634"
+       fy="8.7307281"
+       r="2.0087929"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="17.038467"
+     inkscape:cx="27.819405"
+     inkscape:cy="31.927756"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="2560"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata4">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(105.95464,45.241089)">
+    <path
+       style="fill:none;stroke:#008a00;stroke-width:2.91806px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -68.970311,-1.3994436 10.33876,10.2021535 v 0"
+       id="path2298-7"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2336);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02803"
+       id="path2306"
+       cx="-56.871174"
+       cy="15.195864"
+       rx="4.5534749"
+       ry="4.4964709"
+       transform="matrix(0.99379036,0.1112687,-0.11078603,0.99384428,0,0)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       sodipodi:nodetypes="ccc"
+       style="fill:none;stroke:#008a00;stroke-width:2.91806px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -81.671902,-1.0197486 12.896104,0.0771254 -0.367773,0.94931207"
+       id="path2300-5"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       style="fill:none;stroke:#008a00;stroke-width:2.91806px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M -84.19265,-1.373387 -94.531406,8.8287663 v 0"
+       id="path2298-7-2"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2340-9-6);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02916"
+       id="path2338-4-9"
+       cx="-83.31147"
+       cy="46.416489"
+       rx="4.563385"
+       ry="4.4965911"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2350-7-9);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02916"
+       id="path2348-6-8"
+       cx="-77.425095"
+       cy="33.31628"
+       rx="4.563385"
+       ry="4.4965911"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       style="fill:none;stroke:#008a00;stroke-width:2.91804px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M -68.970365,-30.525297 -58.6316,-40.727452 v 0"
+       id="path2298-7-9"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       sodipodi:nodetypes="ccc"
+       style="fill:none;stroke:#008a00;stroke-width:2.91804px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -81.671957,-33.980207 12.896098,0.07714 -0.367763,0.949314"
+       id="path2300-5-1"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       style="fill:none;stroke:#008a00;stroke-width:2.91804px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -84.192712,-34.333846 -10.33876,10.202149 v 0"
+       id="path2298-7-2-7"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2340-9-6-4);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02914"
+       id="path2338-4-9-0"
+       cx="-96.624878"
+       cy="16.264469"
+       rx="4.5633869"
+       ry="4.4965916"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2350-7-9-8);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02914"
+       id="path2348-6-8-8"
+       cx="-90.738541"
+       cy="3.1642549"
+       rx="4.5633869"
+       ry="4.4965916"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2350-7-9-8-2);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02914"
+       id="path2348-6-8-8-6"
+       cx="-76.643822"
+       cy="-3.0593216"
+       rx="4.5633869"
+       ry="4.4965916"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.3855px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-mid:none;marker-end:url(#Arrow1Send)"
+       d="m -74.570219,-26.301595 0.09297,15.094574"
+       id="path5377"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.3855px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-mid:none;marker-end:url(#Arrow1Send-4)"
+       d="m -78.227654,-7.074556 0.09297,-15.094574"
+       id="path5377-5"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2350-7-9-2);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02916"
+       id="path2348-6-8-0"
+       cx="-63.340755"
+       cy="27.068867"
+       rx="4.563385"
+       ry="4.4965911"
+       transform="rotate(23.823485)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <ellipse
+       style="fill:url(#radialGradient2336-9);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.02802"
+       id="path2306-6"
+       cx="-62.352798"
+       cy="-33.971523"
+       rx="4.5534754"
+       ry="4.4964728"
+       transform="matrix(0.99379036,0.1112687,-0.11078603,0.99384428,0,0)"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+    <rect
+       style="fill:none;stroke:none;stroke-width:0.742719;stroke-opacity:1"
+       id="rect2720"
+       width="57.554295"
+       height="58.643597"
+       x="-105.95464"
+       y="-45.241089"
+       inkscape:export-filename="/home/filo/VSCodeProjects/ccp4_wasm/baby-gru/public/baby-gru/pixmaps/cis-trans.png"
+       inkscape:export-xdpi="31.677475"
+       inkscape:export-ydpi="31.677475" />
+  </g>
+</svg>
