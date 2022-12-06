@@ -755,6 +755,10 @@ public:
    //! @return the success status, 1 or good, 0 for not good.
    int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
 
+   //! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
+   //! in the `string_user_data` data item of the residue specifier
+   std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

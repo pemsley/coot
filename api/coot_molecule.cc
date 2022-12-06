@@ -3133,3 +3133,38 @@ coot::molecule_t::add_compound(const coot::dictionary_residue_restraints_t &rest
 
    return 0;
 }
+
+
+std::vector<coot::residue_spec_t>
+coot::molecule_t::get_non_standard_residues_in_molecule() const {
+
+   std::vector<coot::residue_spec_t> rv;
+   std::vector<std::string> v = util::non_standard_residue_types_in_molecule(atom_sel.mol);
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               std::string rn(residue_p->GetResName());
+               const std::vector<std::string>::const_iterator it = std::find(v.begin(), v.end(), rn);
+               if (it != v.end()) {
+                  if (rn == "HOH") {
+                     // bypass
+                  } else {
+                     coot::residue_spec_t spec(residue_p);
+                     spec.string_user_data = rn;
+                     rv.push_back(spec);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return rv;
+}

@@ -1048,7 +1048,7 @@ int test_eigen_flip(molecules_container_t &mc) {
    return status;
 }
 
-int test_non_standard_types(molecules_container_t &mc) {
+int test_no_dictionary_residues(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -1639,6 +1639,37 @@ int test_add_compound(molecules_container_t &mc) {
    return status;
 }
 
+int test_non_standard_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string fn = "moorhen-tutorial-structure-number-1.pdb";
+   int imol     = mc.read_pdb(reference_data(fn));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::Cartesian lig_pos_1(1,23,3);
+      coot::Cartesian lig_pos_2(63,40,27);
+      mc.add_compound(imol, "GOL", coot::protein_geometry::IMOL_ENC_ANY, imol_map, lig_pos_1.x(), lig_pos_1.y(), lig_pos_1.z());
+      // should the MPD be added to the A chain?
+      int status_l = mc.add_compound(imol, "MPD", coot::protein_geometry::IMOL_ENC_ANY, imol_map, lig_pos_2.x(), lig_pos_2.y(), lig_pos_2.z());
+      std::cout << "status_l " << status_l << std::endl;
+      if (status_l) {
+         //mc.write_coordinates(imol, "test_non_standard_residues.pdb");
+         auto specs = mc.get_non_standard_residues_in_molecule(imol);
+         std::cout << "DEBUG:: there were " << specs.size() << " non-standard residues in " << fn << std::endl;
+         for (const auto &spec : specs) {
+            std::cout << "    " << spec << " " << spec.string_user_data << std::endl;
+         }
+         if (specs.size() == 2)
+            status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1714,7 +1745,7 @@ int main(int argc, char **argv) {
       status += run_test(test_difference_map_contours, "difference map density mesh", mc);
       status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_non_standard_types,    "non-standard residue types", mc);
+      status += run_test(test_no_dictionary_residues,    "no-dictionary residues", mc);
       status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
       status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
@@ -1736,6 +1767,7 @@ int main(int argc, char **argv) {
       status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
       status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
       status += run_test(test_read_a_map,            "read a map",               mc);
+      status += run_test(test_add_compound,          "add compound",             mc);
       status += run_test(test_weird_delete,          "delete II",                mc);
       status += run_test(test_delete_literal,        "delete literal",           mc);
       status += run_test(test_side_chain_180,        "side-chain 180",           mc);
@@ -1759,7 +1791,9 @@ int main(int argc, char **argv) {
    // check these
    // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
-   status += run_test(test_add_compound,     "add compound", mc);
+
+   status += run_test(test_non_standard_residues,     "non-standard residues", mc);
+   
 
    // Note to self:
    //

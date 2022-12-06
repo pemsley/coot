@@ -408,6 +408,8 @@ namespace coot {
                                                                const std::string &chain_id,
                                                                bool mark_cis_peptides_as_bad_flag) const;
 
+      std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule() const;
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);

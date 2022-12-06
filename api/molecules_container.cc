@@ -2853,3 +2853,17 @@ molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_d
    return v;
 
 }
+
+//! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
+//! in the `string_user_data` data item of the residue specifier
+std::vector<coot::residue_spec_t>
+molecules_container_t::get_non_standard_residues_in_molecule(int imol) const {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_non_standard_residues_in_molecule();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}

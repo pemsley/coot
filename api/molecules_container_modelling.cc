@@ -219,7 +219,9 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
          coot::Cartesian position(x,y,z);
+         get_monomer(tlc); // just load the dictionary
          auto mr = geom.get_monomer_restraints(tlc, imol_dict);
+         std::cout << "in add_compound() mr.first is " << mr.first << std::endl;
          if (mr.first) {
             const auto &monomer_restraints = mr.second;
             bool idealised_flag = true;
@@ -236,6 +238,10 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
                   std::vector<mmdb::Manager *> mols = { mol };
                   auto merge_results = merge_molecules(imol, mols);
 
+                  std::cout << "llllllllllllllllllllllllll in add_compound() with merge_results size "
+                            << merge_results.first << " "
+                            << merge_results.second.size() << std::endl;
+
                   if (merge_results.first == 1) {
                      if (merge_results.second.size() == 1) {
                         coot::residue_spec_t res_spec = merge_results.second[0].spec;
@@ -247,16 +253,20 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
                         if (merge_results.second[0].is_chain) {
                            // set the res-spec to be the first residue of the chain
                            res_spec = make_residue_spec_from_first_residue(get_mol(imol), merge_results.second[0].chain_id);
+                           std::cout << "in add_compound() updated res_spec is " << res_spec << std::endl;
                         }
 
                         int n_trials = 100;
                         float translation_scale_factor = 1.0;
                         float d = molecules[imol].fit_to_map_by_random_jiggle(res_spec, xmap, map_rmsd, n_trials, translation_scale_factor);
                         std::cout << "score from fit_to_map_by_random_jiggle() " << d << std::endl;
+                        status = 1;
                      }
                   }
                }
             }
+         } else {
+            std::cout << "WARNING:: Not compound " << tlc << " found in dictionary store" << std::endl;
          }
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
