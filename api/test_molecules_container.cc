@@ -1602,6 +1602,43 @@ int test_cis_trans(molecules_container_t &mc) {
    return status;
 }
 
+int test_add_compound(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+         double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
+         double d = std::sqrt(dd);
+
+         coot::Cartesian lig_pos(1,23,3);
+         mc.add_compound(imol, "GOL", coot::protein_geometry::IMOL_ENC_ANY, imol_map, lig_pos.x(), lig_pos.y(), lig_pos.z());
+
+         coot::validation_information_t dca = mc.density_correlation_analysis(imol, imol_map);
+         for (const auto &chain : dca.cviv) {
+            for (const auto &res : chain.rviv) {
+               if (res.residue_spec.res_no == 62) {
+                  std::cout << "function value " << res.function_value << std::endl;
+                  if (res.function_value > 0.6) {
+                     status = 1;
+                     mc.write_coordinates(imol, "post-add-compound.pdb");
+                  }
+               }
+            }
+         }
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1695,6 +1732,7 @@ int main(int argc, char **argv) {
       status += run_test(test_rsr,                   "rsr",                      mc);
       status += run_test(test_jed_flip,              "JED Flip",                 mc);
       status += run_test(test_add_water,             "add waters",               mc);
+      status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
       status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
       status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
       status += run_test(test_read_a_map,            "read a map",               mc);
@@ -1721,7 +1759,7 @@ int main(int argc, char **argv) {
    // check these
    // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
-   status += run_test(test_cis_trans, "cis_trans conversion",    mc);
+   status += run_test(test_add_compound,     "add compound", mc);
 
    // Note to self:
    //

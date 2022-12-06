@@ -102,37 +102,6 @@ molecules_container_t::eigen_flip_ligand_using_cid(int imol, const std::string &
 }
 
 
-#if 0 // 20221114-PE this was an interface to the wrong merge_molecules() function.
-      // The function that works is a lot more complicated.
-
-//! Merge molecules
-//!
-//! list_of_other_molecules is a colon-separated list of molecules, e.g. "2:3:4"
-//! @return 1 on successful merge of molecules.
-int
-molecules_container_t::merge_molecules(int imol, const std::string &list_of_other_molecules) {
-
-   int n_atoms_added = 0;
-   if (is_valid_model_molecule(imol)) {
-      mmdb::Manager *mol_target = get_mol(imol);
-      std::vector<mmdb::Manager *> mols;
-      std::vector<std::string> number_strings = coot::util::split_string(list_of_other_molecules, ":");
-      for (const auto &item : number_strings) {
-         int idx = coot::util::string_to_int(item);
-         if (is_valid_model_molecule(idx))
-            mols.push_back(molecules[idx].atom_sel.mol);
-      }
-      // now we call merge_molecule() function in coot::molecule_t so that the
-      // swap of the atom selection is handled.
-      // coot::merge_molecules(mol_target, mols);
-      n_atoms_added = molecules[imol].merge_molecules(mols);
-   } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
-   }
-   return n_atoms_added;
-}
-#endif
-
 std::pair<int, std::vector<merge_molecule_results_info_t> >
 molecules_container_t::merge_molecules(int imol, const std::string &list_of_other_molecules) {
 
@@ -155,6 +124,26 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
 
 }
 
+std::pair<int, std::vector<merge_molecule_results_info_t> >
+molecules_container_t::merge_molecules(int imol, std::vector<mmdb::Manager *> mols) {
+
+   int istat = 0;
+   std::vector<merge_molecule_results_info_t> resulting_merge_info;
+   if (is_valid_model_molecule(imol)) {
+      
+      std::vector<atom_selection_container_t> atom_selections;
+      for (const auto &mol : mols) {
+         atom_selection_container_t atom_sel = make_asc(mol);
+         atom_selections.push_back(atom_sel);
+      }
+      auto r = molecules[imol].merge_molecules(atom_selections);
+      istat = r.first;
+      resulting_merge_info = r.second;
+   }
+   return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
+
+}
+
 
 int
 molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) {
@@ -168,4 +157,112 @@ molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) 
    }
    return status;
 
+}
+
+
+//! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
+//! i.e. those ligands that can be positioned without need for internal torsion angle manipulation.
+//! @return the success status, 1 or good, 0 for not goo.
+int
+molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z) {
+
+   auto move_residue = [] (mmdb::Residue *residue_p, const coot::Cartesian &position) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      coot::Cartesian position_sum;
+      unsigned int n_atoms = 0;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            n_atoms++;
+            position_sum + coot::Cartesian(at->x, at->y, at->z);
+         }
+      }
+      if (n_atoms > 0) {
+         float inv = 1.0 / static_cast<float>(n_atoms);
+         coot::Cartesian current_position(position_sum * inv);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               at->x += position.x() - current_position.x();
+               at->y += position.y() - current_position.y();
+               at->z += position.z() - current_position.z();
+            }
+         }
+      }
+   };
+
+   auto make_residue_spec_from_first_residue = [] (mmdb::Manager *mol, const std::string &chain_id) {
+      coot::residue_spec_t spec;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (std::string(chain_p->GetChainID()) == chain_id) { 
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     spec = coot::residue_spec_t(residue_p);
+                  }
+               }
+            }
+         }
+      }
+      return spec;
+   };
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         coot::Cartesian position(x,y,z);
+         auto mr = geom.get_monomer_restraints(tlc, imol_dict);
+         if (mr.first) {
+            const auto &monomer_restraints = mr.second;
+            bool idealised_flag = true;
+            float b_factor = coot::util::median_temperature_factor(molecules[imol].atom_sel.atom_selection,
+                                                                   molecules[imol].atom_sel.n_selected_atoms,
+                                                                   0, 100, false, false);
+            mmdb::Residue *residue_p = monomer_restraints.GetResidue(idealised_flag, b_factor);
+            if (residue_p) {
+               mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+               if (mol) {
+                  move_residue(residue_p, position);
+                  const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+                  float map_rmsd = molecules[imol_map].get_map_rmsd_approx();
+                  std::vector<mmdb::Manager *> mols = { mol };
+                  auto merge_results = merge_molecules(imol, mols);
+
+                  if (merge_results.first == 1) {
+                     if (merge_results.second.size() == 1) {
+                        coot::residue_spec_t res_spec = merge_results.second[0].spec;
+
+                        std::cout << "in add_compound() is_chain is " << merge_results.second[0].is_chain << std::endl;
+                        std::cout << "in add_compound() chain_id is " << merge_results.second[0].chain_id << std::endl;
+                        std::cout << "in add_compound() res_spec is " << res_spec << std::endl;
+
+                        if (merge_results.second[0].is_chain) {
+                           // set the res-spec to be the first residue of the chain
+                           res_spec = make_residue_spec_from_first_residue(get_mol(imol), merge_results.second[0].chain_id);
+                        }
+
+                        int n_trials = 100;
+                        float translation_scale_factor = 1.0;
+                        float d = molecules[imol].fit_to_map_by_random_jiggle(res_spec, xmap, map_rmsd, n_trials, translation_scale_factor);
+                        std::cout << "score from fit_to_map_by_random_jiggle() " << d << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 }

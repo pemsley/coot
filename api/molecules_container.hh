@@ -203,9 +203,12 @@ public:
    }
 
    //! the refinement map - direct access. When refinement is performed, this is the map
-   //! that will be used.
+   //! that will be used. Many (indeed most) of thesee functions explicity take a map. If the map
+   //! is not known by the calling function then this map can be used as the map molecule index
    int imol_refinement_map; // direct access
    //! the difference map - direct access
+   //!
+   //! I am not sure that this is needed - or will ever be.
    int imol_difference_map; // direct access
 
    // -------------------------------- Basic Utilities -----------------------------------
@@ -567,8 +570,9 @@ public:
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, const std::string &list_of_other_molecules);
 
-   // old: int merge_molecules(int imol_target, const std::string &list_of_other_molecules);
-   //
+   // this is called by the above function and is useful for other non-api functions (such as add_compound()).
+   std::pair<int, std::vector<merge_molecule_results_info_t> >
+   merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
 
    //! Convert a cis peptide to a trans or vice versa.
    //! @return 1 on a successful conversion.
@@ -600,10 +604,12 @@ public:
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
    //! get the ramachandran validation markup mesh
-   //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh(int imol)``.
+   //!
+   //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh()``.
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_ramachandran_validation_markup_mesh(int imol) const;
-   //! ramachandran validation
+   //! get the data for Ramachandran validation, which importantly contains probability information
+   //! @return a vector of `phi_psi_prob_t`
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
 
    //! all atom contact dots - this does not work yet
@@ -702,8 +708,8 @@ public:
                                                    float contour_level);
 
 
-   // -------------------------------- Ligand Fitting ---------------------------------------
-   //! \name Ligand Fitting
+   // -------------------------------- Ligand Functions ---------------------------------------
+   //! \name Ligand Functions
 
    //! Ligand Fitting
    //!
@@ -737,6 +743,17 @@ public:
    //! @return the string for the SVG representation.
    std::string get_svg_for_residue_type(int imol, const std::string &comp_id) const;
 
+   //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
+   //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
+   //!
+   //! ``tlc`` is the three-letter-code/compound-id
+   //!
+   //! ``imol_dict`` is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-666666).
+   //!
+   //! ``imol_map`` is the molecule number of the map that will be used for fitting.
+   //!
+   //! @return the success status, 1 or good, 0 for not good.
+   int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
 
    // -------------------------------- Other ---------------------------------------
 

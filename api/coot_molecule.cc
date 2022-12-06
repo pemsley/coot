@@ -3066,3 +3066,70 @@ coot::molecule_t::cis_trans_conversion(const std::string &atom_cid, mmdb::Manage
    }
    return status;
 }
+
+
+int
+coot::molecule_t::add_compound(const coot::dictionary_residue_restraints_t &restraints,
+                               const coot::Cartesian &position, const clipper::Xmap<float> &xmap,
+                               float map_rmsd) {
+
+#if 0 // this is in molecules_container_modelling because of merge_molecules().
+
+   int status = 0;
+
+   auto move_residue = [] (mmdb::Residue *residue_p, const coot::Cartesian &position) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      coot::Cartesian position_sum;
+      unsigned int n_atoms = 0;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            n_atoms++;
+            position_sum + coot::Cartesian(at->x, at->y, at->z);
+         }
+      }
+      if (n_atoms > 0) {
+         float inv = 1.0 / static_cast<float>(n_atoms);
+         coot::Cartesian current_position(position_sum * inv);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               at->x += position.x() - current_position.x();
+               at->y += position.y() - current_position.y();
+               at->z += position.z() - current_position.z();
+            }
+         }
+      }
+   };
+
+   bool idealised_flag = true;
+   float b_factor = coot::util::median_temperature_factor(atom_sel.atom_selection,
+                                                          atom_sel.n_selected_atoms,
+                                                          0, 100, false, false);
+
+   mmdb::Residue *residue_p = restraints.GetResidue(idealised_flag, b_factor);
+   if (residue_p) {
+      move_residue(residue_p, position);
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (mol) {
+         atom_selection_container_t asc = make_asc(mol);
+         std::vector<atom_selection_container_t> ascs = { asc };
+         auto merge_results = merge_molecules(ascs);
+         if (merge_results.first == 1) {
+            if (merge_results.second.size() == 1) {
+               coot::residue_spec_t res_spec = merge_results.second[0].spec;
+               int n_trials = 100;
+               float translation_scale_factor = 1.0;
+               float d = fit_to_map_by_random_jiggle(res_spec, xmap, map_rmsd, n_trials, translation_scale_factor);
+               std::cout << "d: " << d << std::endl;
+            }
+         }
+      }
+   }
+   return status;
+#endif
+
+   return 0;
+}

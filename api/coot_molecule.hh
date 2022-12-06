@@ -436,6 +436,10 @@ namespace coot {
                                                                 const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap);
 
+      int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
+                       const clipper::Xmap<float> &xmap, float map_rmsd);
+
+
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
 
       int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,
@@ -501,8 +505,9 @@ namespace coot {
       int merge_molecules(const std::vector<mmdb::Manager *> &mols);
 
       //! My ligands don't jiggle-jiggle...
+      //!
       //! Hey, what do you know, they actually do.
-      float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, clipper::Xmap<float> &xmap, float map_rmsd,
+      float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
       int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
@@ -529,8 +534,11 @@ namespace coot {
       bool merge_molecules_just_one_residue_homogeneous(atom_selection_container_t molecule_to_add);
       bool merge_molecules_just_one_residue_at_given_spec(atom_selection_container_t molecule_to_add,
                                                           residue_spec_t target_spec);
+
       // return success status and spec if new residue if possible.
       std::pair<bool, coot::residue_spec_t> merge_ligand_to_near_chain(mmdb::Manager *mol);
+
+      // return success status and spec if new residue if possible.
       std::pair<int, std::vector<merge_molecule_results_info_t> >
       merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
 

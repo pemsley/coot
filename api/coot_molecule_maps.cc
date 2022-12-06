@@ -665,7 +665,7 @@ coot::molecule_t::fill_fobs_sigfobs() {
 //! My ligands don't jiggle-jiggle...
 //! Hey, what do you know, they actually do.
 float
-coot::molecule_t::fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, clipper::Xmap<float> &xmap, float map_rmsd,
+coot::molecule_t::fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, const clipper::Xmap<float> &xmap, float map_rmsd,
                                               int n_trials, float jiggle_scale_factor) {
 
    float v = -1001.0;
