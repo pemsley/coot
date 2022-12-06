@@ -453,6 +453,8 @@ coot::omega_distortion_info_container_t
 coot::restraints_container_t::omega_trans_distortions(const coot::protein_geometry &geom,
 						      bool mark_cis_peptides_as_bad_flag) {
 
+   // 20221120-PE Does this still work?
+
    // restraints_usage_flag = flags;  // not used?
    setup_gsl_vector_variables();  //initial positions in x array
    std::string chain_id("");
@@ -493,6 +495,8 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 
 	 if (! chain_p->isSolventChain()) {
 
+            // std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
+            // << std::endl;
 	    std::pair<std::string, bool> lt = find_link_type_complicado(first, second, geom);
 
 	    if (lt.first == "TRANS" || lt.first == "PTRANS" ||

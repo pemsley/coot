@@ -61,12 +61,16 @@ CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
 GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
+# MOLECULESTOTRIANGLES=$(install_top_dir)
+# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
+# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
+
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
 #
 
 COOT_EXTRA_LIBS = \
-	$(top_builddir)/lbg/libcoot-lidia.la      		\
+        $(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
@@ -92,6 +96,8 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
 	$(top_builddir)/cootilus/libcootilus.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
+	$(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la     		\
+	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la     		\
 	$(top_builddir)/compat/libcoot-compat.la
 
 
@@ -175,7 +181,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/coot.i             \
                          $(top_srcdir)/src/cc-interface-ncs.hh  \
                          $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
-	                 $(top_srcdir)/src/cc-interface-scripting.hh \
+	                      $(top_srcdir)/src/cc-interface-scripting.hh \
                          $(top_srcdir)/src/lbg-interface.hh   \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
@@ -218,6 +224,8 @@ PYGOBJECT_CFLAGS=-I$(HOME)/python-3.8/lib/python3.8/site-packages/PyGObject-3.36
 
 
 AM_CXXFLAGS = \
+        -DUSE_MOLECULES_TO_TRIANGLES \
+        $(MOLECULESTOTRIANGLES_CXXFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DPKGPYTHONDIR='"$(pkgpythondir)"' \
@@ -248,10 +256,10 @@ AM_CPPFLAGS = \
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-        $(GLM_CXXFLAGS)                 \
+	$(GLM_CXXFLAGS)                 \
 	$(SWIG_FLAGS)			\
 	$(GTKGL_CONTEXT_CFLAGS)		\
-        $(GOOCANVAS_CFLAGS)             \
+	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -794,32 +802,32 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # the -lblas here is a bandaid - the GSL usage of BLAS needs to be
 # fixed in configure.
 #
-libcootsumo_la_LIBADD = $(OPENMP_CFLAGS)       \
-                $(COOT_EXTRA_LIBS)      \
-		$(VORBISFILE_LIBS)      \
+libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
+      $(COOT_EXTRA_LIBS) \
+		$(VORBISFILE_LIBS)           \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
-		$(GUILE_GTK_LIBS)       \
+		$(GUILE_GTK_LIBS) \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
-		$(GTKGL_CONTEXT_LIBS) 	\
-                $(EPOXY_LIBS)           \
+		$(GTKGL_CONTEXT_LIBS) \
+		$(EPOXY_LIBS)        \
 		$(CANVAS_LIBS) 		\
-		$(GSL_LIBS) -lblas      \
-		$(MYSQL_LIBS)		\
-		$(CURL_LIBS)		\
-	  	$(RDKIT_LIBS)	        \
-		$(BOOST_LDFLAGS)        \
-		$(L_BOOST_PYTHON)	\
-		$(GOOCANVAS_LIBS)       \
-		-lfreetype \
-		$(SQLITE3_LIBS)         \
-		@GTK_LIBS@ \
-		$(SHARED_LDFLAGS)       \
+		$(GSL_LIBS) -lblas   \
+		$(MYSQL_LIBS)		   \
+		$(CURL_LIBS)		   \
+	  	$(RDKIT_LIBS)	      \
+		$(BOOST_LDFLAGS)     \
+		$(L_BOOST_PYTHON)	   \
+		$(GOOCANVAS_LIBS)    \
+		-lfreetype           \
+		$(SQLITE3_LIBS)      \
+		@GTK_LIBS@           \
+		$(SHARED_LDFLAGS)    \
 		-lpthread
 
 # make freetype a configure variable FREETYPE_LIBS

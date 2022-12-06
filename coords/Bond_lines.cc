@@ -2410,14 +2410,13 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 					   non_Hydrogen_atoms[i]->y,
 					   non_Hydrogen_atoms[i]->z);
 
-		  // 20171224-PE FIXME by lookup
 		  int iat_1 = -1;
 		  int udd_status_1 = non_Hydrogen_atoms[i]->GetUDData(udd_atom_index_handle, iat_1);
 
 		  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-		  addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1);
-		  addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1);
-		  addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1);
+		  addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
+		  addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
+		  addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
 	       }
 	    }
 	 }
@@ -2674,9 +2673,9 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
       int iat_1 = -1;
       // 20190921-PE Done.
       int udd_status = atom->GetUDData(udd_handle_atom_index, iat_1);
-      addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1);
-      addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1);
-      addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1);
+      addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
+      addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
+      addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
    }
 }
 
@@ -5144,10 +5143,11 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			      col = atom_colour(at, bond_colour_type);
 
 			   int iat_1 = -1; // 20171224-PE FIXME
+                           int udd_status_1 = at->GetUDData(udd_atom_index_handle, iat_1);
 			   coot::Cartesian pos(at->x, at->y, at->z);
-			   addBond(col, pos+small_vec_x, pos-small_vec_x, cc, imod, iat_1, iat_1);
-			   addBond(col, pos+small_vec_y, pos-small_vec_y, cc, imod, iat_1, iat_1);
-			   addBond(col, pos+small_vec_z, pos-small_vec_z, cc, imod, iat_1, iat_1);
+			   addBond(col, pos+small_vec_x, pos-small_vec_x, cc, imod, iat_1, iat_1, true, true);
+			   addBond(col, pos+small_vec_y, pos-small_vec_y, cc, imod, iat_1, iat_1, true, true);
+			   addBond(col, pos+small_vec_z, pos-small_vec_z, cc, imod, iat_1, iat_1, true, true);
 			}
 		     }
 		  }
@@ -6644,18 +6644,17 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
                float star_size = 0.3;
                coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
                coot::Cartesian small_vec_y(0.0, star_size, 0.0);
-               coot::Cartesian small_vec_z(0.0, 0.0, star_size);
+               coot::Cartesian small_vec_z(0.0, 0.0, -star_size);
                int col = atom_colour(at, atom_colour_type, &atom_colour_map);
                coot::Cartesian atom_pos(at->x, at->y, at->z);
 
-               // 20171224-PE FIXME by lookup
                int iat_1 = -1;
                int udd_status_1 = at->GetUDData(udd_atom_index_handle, iat_1);
 
                graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-               addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1);
-               addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1);
-               addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1);
+               addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1, true, true);
+               addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1, true, true);
+               addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1, true, true);
             }
          }
       }
@@ -7132,9 +7131,9 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 					  atom_selection[i]->z);
 
 		     int iat_1 = 1; // 20171224-PE FIXME real
-		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, iat_1, iat_1);
-		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, iat_1, iat_1);
-		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, iat_1, iat_1);
+		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, iat_1, iat_1, true, true);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, iat_1, iat_1, true, true);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, iat_1, iat_1, true, true);
 		  }
 	       }
 	    }
@@ -7396,9 +7395,9 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 					  atom_selection[i]->y,
 					  atom_selection[i]->z);
 
-		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i);
-		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i);
-		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i);
+		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i, true, true);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i, true, true);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i, true, true);
 		  }
 	       }
 	    }
@@ -7821,9 +7820,9 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 					  atom_selection[i]->y,
 					  atom_selection[i]->z);
 
-		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i);
-		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i);
-		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i);
+		     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i, true, true);
+		     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i, true, true);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i, true, true);
 		  }
 	       }
 	    }

@@ -50,7 +50,7 @@
 #include <utils/ctpl.h>
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#include <CXXClasses/RendererGLSL.hpp>
+#include <MoleculesToTriangles/CXXClasses/RendererGLSL.hpp>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 #ifndef EMSCRIPTEN

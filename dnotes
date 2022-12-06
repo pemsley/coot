@@ -10674,3 +10674,27 @@ Sun 25 Sep 14:06:27 BST 2022
 
    6pkh is a candidate for glyco tutorial.  Needs blurring.
 
+
+---
+Tue 16 Aug 2022 11:47:59 BST
+
+  PyGObject and GTK4 info:
+
+  https://discourse.gnome.org/t/gtk4-pygobject-testing/4197
+  It is not clear to me at the moment what to try next from the above page.
+
+  Ah. Here:
+
+  https://github.com/Taiko2k/GTK4PythonTutorial/blob/main/README.md
+
+
+---
+Tue 16 Aug 2022 18:21:12 BST
+
+   Maybe this will fix the linking problems on introducing MoleculesToTriangles:
+
+https://stackoverflow.com/questions/35006614/what-does-symbol-not-found-expected-in-flat-namespace-actually-mean
+
+
+
+

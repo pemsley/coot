@@ -130,6 +130,24 @@ coot::colour_holder::pastelize(float degree) {
 
 }
 
+void
+coot::colour_holder::make_pale(float degree) {
+
+   float col[3] = {red, green, blue};
+   for (unsigned int i=0; i<3; i++) {
+      const float &cc = col[i];
+      float delta_to_max = 1.0 - cc;
+      float f = degree * delta_to_max;
+      col[i] += f;
+      if (col[i] < 0.0) col[i] = 0.0;
+      if (col[i] > 1.0) col[i] = 1.0;
+   }
+   red   = col[0];
+   green = col[1];
+   blue  = col[2];
+}
+
+
 // 
 coot::colour_holder::colour_holder(const std::string &hex_colour_string) { 
 

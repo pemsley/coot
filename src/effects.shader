@@ -100,7 +100,7 @@ void main() {
       vec4 t4 = vec4(t, 1.0);
 #if 0
       float aafa = ao_mapped * get_fog_amount(gl_FragCoord.z);
-      vec4 fogged_ssao = vec4(vec3(aafa, aafa, aafa), 1.0);
+      vec4 fogged_ssao = vec4(vec3(aafa), 1.0);
       out_color = 2.4 * t4 * fogged_ssao;
 #endif
 #if 1
@@ -112,6 +112,11 @@ void main() {
       // compensating_scale = 1.0;
 
       out_color = compensating_scale * ao_mapped * t4;
+      // 20221126-PE when SSAO strength is high and background is white,
+      // we don't want the colour to fade out (become transparent), we want
+      // it to get darker.
+      out_color.a = 1.0;
+
       // Yikes! gl_FragCoord.z == 0.5 for all pixels.
       // if (gl_FragCoord.z == 0.5)
       // out_color = vec4(1,0,0,1);
@@ -153,7 +158,6 @@ void main() {
    // out_color = texture(screenTexture, TexCoords);
 
    // out_color = texture(screenDepth, TexCoords);
-
 
 }
 

@@ -40,6 +40,13 @@ public:
    void rotate_light_direction(float angle_rad, const glm::vec3 &axis) {
       direction = glm::rotate(direction, angle_rad, axis);
    }
+   void dim(float factor) {
+      for (unsigned int i=0; i<3; i++) {
+         ambient[i]  *= factor;
+         diffuse[i]  *= factor;
+         specular[i] *= factor;
+      }
+   }
 
 };
 

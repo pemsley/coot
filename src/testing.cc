@@ -1084,9 +1084,16 @@ int test_peptide_link() {
       // 		geom);
 
       std::cout << "   link_type: " << link_type << ":" << std::endl;
+      
+      // was: std::vector<std::pair<coot::chem_link, bool> > link_infos =
+      // geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
-      std::vector<std::pair<coot::chem_link, bool> > link_infos =
-	 geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
+      std::vector<std::pair<coot::chem_link, bool> > link_infos;
+      std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
+      std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
+      for (const auto &link : link_infos_f) link_infos.push_back(std::make_pair(link, false));
+      for (const auto &link : link_infos_b) link_infos.push_back(std::make_pair(link,  true));
+
       unsigned int ilink = 0;
       std::cout << "Found link :" << link_infos[ilink].first.Id() << ":" << std::endl;
       if (link_infos[ilink].first.Id() != "BETA1-3") {

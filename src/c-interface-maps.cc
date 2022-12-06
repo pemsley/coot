@@ -733,13 +733,15 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
 
-   // built-ins
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",     "PHWT",      false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",  "PHDELWT",   true ));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT", "PH2FOFCWT", false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",  "PHFOFCWT",  true ));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",     "PHIDM",     false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",     "PHAN",      true));
+   // Built-ins
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT",      "PH2FOFCWT", false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",       "PHDELWT",   true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",       "PHFOFCWT",  true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",          "PHWT",      false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-Flate","PHI_early-late", true));
 
    for (unsigned int i=0; i<g.user_defined_auto_mtz_pairs.size(); i++)
       auto_mtz_pairs.push_back(g.user_defined_auto_mtz_pairs[i]);

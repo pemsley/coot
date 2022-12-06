@@ -35,6 +35,7 @@ namespace coot {
                     bool use_deuteranomaly_mode,
 		    const std::string &dum); // somewhere between green and red
       void pastelize(float degree);
+      void make_pale(float degree);
       std::string hex() const;
       void rotate_by(float angle); // fractions of a circle
       void scale_intensity(float scale);

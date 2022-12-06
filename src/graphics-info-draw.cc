@@ -2438,11 +2438,19 @@ graphics_info_t::setup_lights() {
    light.position = glm::vec4(-2.0f, 2.0f, 5.0f, 1.0f);
    light.direction = glm::normalize(glm::vec3(0.5, 0.0, 1.0));
    // light.direction = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+   light.diffuse *= 1.4;
+   light.ambient *= 1.4;
    graphics_info_t::lights[0] = light;
 
+   // dim(0.99) hardly changes anything (the argument is a multiplier)
+   light.dim(0.25);
    light.position = glm::vec4(3.0f, -2.0f, 4.0f, 1.0f);
    light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
    // light.is_on = false;
+
+   std::cout << "light 1 light: "
+             << "ambient " << glm::to_string(light.ambient) << " "
+             << "diffuse " << glm::to_string(light.diffuse) << std::endl;
    graphics_info_t::lights[1] = light;
 }
 
@@ -4082,31 +4090,31 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 
 
 void
-graphics_info_t::reset_frame_buffers(int width, int height) {
+graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
    if (use_framebuffers) {
 
 
       // 20220108-PE note to self. Try using the framebuffer::reset() function instead
 
-      unsigned int sf = framebuffer_scale;
+      unsigned int sf = framebuffer_scale; // this is set by set_framebuffer_scale_factor()
       unsigned int index_offset = 0;
 
       // width  = width;
       // height = height;
       if (false)
          std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
-                   << width << " x " << height << std::endl;
-      screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
+                   << window_width << " x " << window_height << std::endl;
+      screen_framebuffer.init(sf * window_width, sf * window_height, index_offset, "screen");
       GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
-      blur_x_framebuffer.init(sf * width, sf * height, index_offset, "blur-x");
+      blur_x_framebuffer.init(sf * window_width, sf * window_height, index_offset, "blur-x");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
-      blur_y_framebuffer.init(sf * width, sf * height, index_offset, "blur-y");
+      blur_y_framebuffer.init(sf * window_width, sf * window_height, index_offset, "blur-y");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
-      combine_textures_using_depth_framebuffer.init(sf * width, sf * height, index_offset, "combine");
+      combine_textures_using_depth_framebuffer.init(sf * window_width, sf * window_height, index_offset, "combine");
       err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
       // std::cout << "debug:: reset_frame_buffers() sf " << sf << " width " << width << " height " << height << std::endl;
@@ -4120,10 +4128,10 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
       // the shadow texture doesn't need to change - it's under user control, not
       // dependent on the window size
 
-      framebuffer_for_ssao_gbuffer.reset_test(width, height);
+      framebuffer_for_ssao_gbuffer.reset_test(window_width, window_height);
 
-      gint w = width;
-      gint h = height;
+      gint w = window_width;
+      gint h = window_height;
 
       // cut and paste from init_joey_ssao_stuff() for now - do better later.
 
@@ -4145,9 +4153,6 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
          glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
          glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
       }
-
-
-      
    }
 
 }
