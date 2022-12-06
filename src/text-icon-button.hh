@@ -9,7 +9,7 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE  (CootTextIconButton, coot_text_icon_button, COOT, COOT_TEXT_ICON_BUTTON, GtkButton)
 
 
-CootTextIconButton *coot_validation_graph_new();
+CootTextIconButton *coot_text_icon_button_new();
 
 // C methods go here
 
