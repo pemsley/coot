@@ -6441,14 +6441,14 @@ Do you want to continue?
             <!--   <class name="toolbar"/> -->
             <!-- </style> -->
             <child>
-              <object class="GtkButton" id="vertical_toolbar_refine_regularize_button">
+              <object class="CootTextIconButton" id="vertical_toolbar_refine_regularize_button">
                 <property name="label" translatable="yes">R/RC</property>
                 <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_map_button">
+              <object class="CootTextIconButton" id="vertical_toolbar_map_button">
                 <property name="label" translatable="yes">Map...</property>
                 <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
@@ -6492,7 +6492,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_4">
+              <object class="CootTextIconButton" id="vertical_toolbar_testbutton_4">
                 <property name="label" translatable="yes">AutoFit Rotamer</property>
                 <property name="icon-name">auto-fit-rotamer</property>
                 <property name="can-focus">0</property>
@@ -6500,7 +6500,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_testbutton_5">
+              <object class="CootTextIconButton" id="vertical_toolbar_testbutton_5">
                 <property name="label" translatable="yes">Rotamers</property>
                 <property name="icon-name">rotamers</property>
                 <property name="can-focus">0</property>
@@ -6516,7 +6516,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="flip_peptide_button">
+              <object class="CootTextIconButton" id="flip_peptide_button">
                 <property name="label" translatable="yes">Flip Peptide</property>
                 <property name="icon-name">flip-peptide</property>
                 <property name="can-focus">0</property>
@@ -6524,7 +6524,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="side_chain_180_flip_button">
+              <object class="CootTextIconButton" id="side_chain_180_flip_button">
                 <property name="label" translatable="yes">Sidechain 180° Flip</property>
                 <property name="can-focus">0</property>
                 <property name="icon-name">side-chain-180</property>
@@ -6547,7 +6547,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
+              <object class="CootTextIconButton" id="vertical_toolbar_add_terminal_residue_button">
                 <property name="label" translatable="yes">Add Terminal Residue</property>
                 <property name="can-focus">0</property>
                 <property name="icon-name">add-peptide-1</property>
@@ -6562,7 +6562,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="undo_button">
+              <object class="CootTextIconButton" id="undo_button">
                 <property name="label" translatable="yes">Undo</property>
                 <property name="can-focus">0</property>
                 <property name="icon-name">edit-undo</property>
@@ -6570,7 +6570,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="redo_button">
+              <object class="CootTextIconButton" id="redo_button">
                 <property name="label" translatable="yes">Redo</property>
                 <property name="can-focus">0</property>
                 <property name="icon-name">edit-redo</property>

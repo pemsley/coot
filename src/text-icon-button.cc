@@ -18,6 +18,7 @@ const char* widget_template = " \
   <template class=\"CootTextIconButton\" parent=\"GtkButton\"> \
     <child> \
       <object class=\"GtkBox\" id=\"container_box\"> \
+        <property name=\"orientation\">horizontal</property> \
         <child> \
           <object class=\"GtkLabel\" id=\"label\"> \
           </object> \
