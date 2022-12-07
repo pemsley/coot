@@ -3210,6 +3210,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &cid,
       std::cout << "::::::::::::::::::::::::: HERE E " << std::endl;
 
       std::shared_ptr<Representation> r = molrepinst->getRepresentation();
+      r->redraw(); // 20221207-PE this was missing!
       std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
 
       std::cout << "::::::::::::::::::::::::: HERE F vdp size " << vdp.size() << std::endl;
