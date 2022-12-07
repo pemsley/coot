@@ -8,8 +8,7 @@
 
 #include <iostream>
 
-#include <epoxy/gl.h>
-
+// #include <epoxy/gl.h> - no OpenGL here.
 
 
 #include "BoxSectionPrimitive.h"

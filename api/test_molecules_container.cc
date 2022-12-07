@@ -1670,6 +1670,30 @@ int test_non_standard_residues(molecules_container_t &mc) {
    return status;
 }
 
+int test_molecular_representation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string selection = "//";
+      std::string colour = "colorRampChainsScheme";
+      std::string style = "Ribbon";
+
+      colour = "Chain";
+      style  = "MolecularSurface";
+
+      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+      if (mesh.vertices.size() > 10)
+         status = true;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1783,6 +1807,7 @@ int main(int argc, char **argv) {
       status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
       status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
       status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
+      status += run_test(test_non_standard_residues, "non-standard residues",    mc);
       status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
       status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
@@ -1792,8 +1817,8 @@ int main(int argc, char **argv) {
    // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
 
-   status += run_test(test_non_standard_residues,     "non-standard residues", mc);
-   
+   status += run_test(test_molecular_representation,     "molecular representation mesh", mc);
+
 
    // Note to self:
    //

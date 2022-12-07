@@ -387,6 +387,10 @@ namespace coot {
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
 
+      simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
+                                                      const std::string &colour_scheme,
+                                                      const std::string &style) const;
+
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;

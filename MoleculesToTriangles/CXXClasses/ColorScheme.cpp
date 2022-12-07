@@ -38,6 +38,8 @@ std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 
 std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
+   std::cout << "#######  colorRampChainsScheme() !!" << std::endl;
+
    std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     
@@ -45,9 +47,11 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
+        std::cout << "colorRampChainsScheme() selectionString " << selectionString << std::endl;
         auto colorRule = std::shared_ptr<AtomPropertyRampColorRule>(new AtomPropertyRampColorRule());
         colorRule->setRampType(AtomPropertyRampColorRule::ResidueNumber);
         colorRule->setCompoundSelection(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)));
+        std::cout << "colorRampChainsScheme() selectionString " << colorRule << std::endl;
         result->addRule(colorRule);
     }
     return result;
@@ -55,7 +59,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
 std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
-   // std::cout << "#######  colorChainsScheme() !" << std::endl;
+   std::cout << "#######  colorChainsScheme() !" << std::endl;
 
    std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
@@ -69,14 +73,22 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
     int nColorNames = sizeof(colorNames)/sizeof(std::string);
     
     for (unsigned int i=0; i<chainIds.length(); i++){
-        std::string selectionString("/*/");
-        selectionString.append(1, chainIds[i]);
-        selectionString.append("/*.*/*:*");
-        // std::cout << "### " << selectionString << " " << colorNames[i%nColorNames] << std::endl;
+        // std::string selectionString("/*/");
+        // selectionString.append(1, chainIds[i]);
+        // selectionString.append("/*.*/*:*");
+        std::string selectionString = std::string("//A"); // + std::string(chainIds[i]);
+        std::cout << "### " << i << " : calling colorRuleForSelectionAndName "
+                  << selectionString << std::endl;
+                  //#<< selectionString << " " << colorNames[i%nColorNames] << std::endl;
         auto colorRule =
            SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)),
                                                         colorNames[i%nColorNames]);
+        if (! colorRule)
+           std::cout << "For chain ID " << chainIds[i] << " colour rule is null " << std::endl;
+        else
+           std::cout << "For chain ID " << chainIds[i] << " colour rule is " << colorRule << std::endl;
         result->addRule(colorRule);
+        break;
     }
     return result;
 }

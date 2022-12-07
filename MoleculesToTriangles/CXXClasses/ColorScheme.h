@@ -18,7 +18,7 @@
 #include "CompoundSelection.h"
 
 #if defined _OPENMP
-#include <omp.h>
+// #include <omp.h> 20221206-PE why is omp needed in the colour scheme header?
 #else
 #if __APPLE__
 #include <dispatch/dispatch.h>
@@ -60,7 +60,7 @@ public:
                 rules.sort(ColorRule::compareRank);
             }
         } else {
-            std::cout << "Error:: null rule" << std::endl;
+            std::cout << "Error:: ColorScheme::addRule(): null rule" << std::endl;
         }
     };
     void removeRule(std::shared_ptr<ColorRule> _rule){
@@ -129,8 +129,8 @@ public:
     static std::shared_ptr<ColorScheme> colorByElementScheme();
     static std::shared_ptr<ColorScheme> colorBySecondaryScheme();
     static std::shared_ptr<ColorScheme> colorBFactorScheme();
-	static std::shared_ptr<ColorScheme> colorRampChainsScheme();
-	static std::shared_ptr<ColorScheme> colorChainsScheme();
+    static std::shared_ptr<ColorScheme> colorRampChainsScheme();
+    static std::shared_ptr<ColorScheme> colorChainsScheme();
     static std::shared_ptr<ColorScheme> colorSchemeForColorName(const std::string name);
     
 };

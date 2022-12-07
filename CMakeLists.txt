@@ -168,7 +168,6 @@ add_library(cootapi SHARED
             ${coot_src}/geometry/hydrophobic.cc
             ${coot_src}/geometry/energy-lib.cc
             ${coot_src}/geometry/srs-interface.cc
-            ${coot_src}/geometry/available-comp-id.cc
             ${coot_src}/geometry/residue-and-atom-specs.cc
             ${coot_src}/geometry/protein-geometry-mmdb.cc
             ${coot_src}/geometry/mol-utils.cc
@@ -243,6 +242,74 @@ add_library(cootapi SHARED
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircleNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCoord.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCreator.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXException.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFFTSolventMap.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFortranFile.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXNewHood.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurfaceStaticData.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSpace.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereElement.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangleEdge.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceMaker.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceVertex.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusElement.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTriangle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXUtils.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXVCN.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/ElectroSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/AtomPropertyRampColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BallsPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BondsPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BoxSectionPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CXXMatrix.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CylinderPoint.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CylindersPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DirectedPositionedEntity.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DiscreteSegment.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DishyBase.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DisplayPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ElectrostaticColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/FlatFanPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Light.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/LinesPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentation.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MyMolecule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/NRStuff.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/oglPolyhedron.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Polyhedron.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/PositionedEntity.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Quaternion.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Renderer.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGL.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGLSL.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Representation.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/RepresentationInstance.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/RotatedTranslatedScaledEntity.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/SceneSetup.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SecondaryColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SpherePrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SticksPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SurfacePrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector2.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
             ${coot_src}/api/prideout-octasphere.cc
             ${coot_src}/api/oct.cc
             ${coot_src}/api/interfaces.cc
@@ -266,12 +333,13 @@ add_library(cootapi SHARED
 
 # target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
 
-target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
+# the first directory is to pick up omp.h, used in ColorScheme.h
+target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
-target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
+target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas "-fopenmp")
 
 # add in -DCLIPPER_HAS_TOP8000=1
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-fopenmp -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)

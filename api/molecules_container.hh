@@ -386,6 +386,9 @@ public:
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
+   coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
+                                                         const std::string &style) const;
+
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
    //! @returns either the specified atom or null if not found - don't use this in emscript

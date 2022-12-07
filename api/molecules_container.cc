@@ -2867,3 +2867,18 @@ molecules_container_t::get_non_standard_residues_in_molecule(int imol) const {
    }
    return v;
 }
+
+
+coot::simple_mesh_t
+molecules_container_t::get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
+                                                         const std::string &style) const {
+
+   coot::simple_mesh_t mesh;
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return mesh;
+}
