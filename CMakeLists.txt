@@ -333,13 +333,12 @@ add_library(cootapi SHARED
 
 # target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
 
-# the first directory is to pick up omp.h, used in ColorScheme.h
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
-target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas "-fopenmp")
+target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
 # add in -DCLIPPER_HAS_TOP8000=1
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-fopenmp -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
