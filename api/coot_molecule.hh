@@ -259,7 +259,7 @@ namespace coot {
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
          while (bonds_colour_map_rotation > 360.0)
             bonds_colour_map_rotation -= 360.0;
-         
+
       }
 
    public:

@@ -21,6 +21,9 @@ namespace coot {
       // Maybe a std::vector would be a better/faster container.
       std::map<int, glm::vec4> colour_index_to_colour_map;
       void add_submesh(const simple_mesh_t &submesh);
+
+      void export_to_gltf(const std::string &file_name, bool use_binary_format) const;
+
    };
 }
 
