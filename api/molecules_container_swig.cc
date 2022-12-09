@@ -66,7 +66,7 @@ molecules_container_t::get_pythonic_bonds_mesh(int imol) {
       float bw = 0.1;
       float ratio = 1.5;
       int sf = 2;
-      mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bw, ratio, sf);
+      mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bw, ratio, sf, true, true);
    }
    return simple_mesh_to_pythonic_mesh(mesh);
 }
@@ -88,6 +88,17 @@ molecules_container_t::get_pythonic_map_mesh(int imol, float x, float y, float z
    clipper::Coord_orth pt(x,y,z); 
    if (is_valid_map_molecule(imol)) {
       mesh = molecules[imol].get_map_contours_mesh(pt, radius, contour_level);
+   }
+   return simple_mesh_to_pythonic_mesh(mesh);
+}
+
+PyObject *
+molecules_container_t::get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
+                                                        const std::string &colour_scheme,
+                                                        const std::string &style) {
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_molecular_representation_mesh(atom_selection, colour_scheme, style);
    }
    return simple_mesh_to_pythonic_mesh(mesh);
 }

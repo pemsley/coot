@@ -552,7 +552,11 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const 
 
    coot::validation_information_t r;
    r.name = "Density fit analysis";
-   r.type = "UNSET"; // "DENSITY"?
+#ifdef EMSCRIPTEN
+   r.type = "DENSITY";
+#else
+   r.type = coot::DENSITY;
+#endif
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
          // fill these
@@ -604,8 +608,11 @@ molecules_container_t::density_correlation_analysis(int imol_model, int imol_map
 
    coot::validation_information_t r;
    r.name = "Density correlation analysis";
+#ifdef EMSCRIPTEN
    r.type = "CORRELATION";
-
+#else
+   r.type = coot::CORRELATION;
+#endif
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
 
@@ -656,7 +663,11 @@ molecules_container_t::rotamer_analysis(int imol_model) const {
 
    coot::validation_information_t r;
    r.name = "Rotamer analysis";
+#ifdef EMSCRIPTEN
    r.type = "PROBABILITY";
+#else
+   r.type = coot::PROBABILITY;
+#endif
 
    if (is_valid_model_molecule(imol_model)) {
 
@@ -739,7 +750,11 @@ molecules_container_t::ramachandran_analysis(int imol_model) const {
 
    coot::validation_information_t vi;
    vi.name = "Ramachandran plot Probability";
+#ifdef EMSCRIPTEN
    vi.type = "PROBABILITY";
+#else
+   vi.type = coot::PROBABILITY;
+#endif
    std::vector<coot::phi_psi_prob_t> rv = ramachandran_validation(imol_model);
 
    for (unsigned int i=0; i<rv.size(); i++) {
@@ -767,7 +782,11 @@ molecules_container_t::peptide_omega_analysis(int imol) const {
 
    coot::validation_information_t vi;
    vi.name = "Peptide Omega Deviation";
-   vi.type = "DISTORTION";
+#ifdef EMSCRIPTEN
+   vi.type = "TORSION_ANGLE";
+#else
+   vi.type = coot::TORSION_ANGLE;
+#endif
 
    if (is_valid_model_molecule(imol)) {
 

@@ -771,6 +771,9 @@ public:
    PyObject *get_pythonic_bonds_mesh(int imol);
    PyObject *get_pythonic_model_mesh(int imol, unsigned int mesh_index);
    PyObject *get_pythonic_map_mesh(int imol, float x, float y, float z, float radius, float contour_level);
+   PyObject *get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
+                                                        const std::string &colour_sheme,
+                                                        const std::string &style);
 #endif
 
 };
