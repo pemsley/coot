@@ -141,6 +141,8 @@ int CXXBall::triangulateBalls(vector<const CXXBall*  > &ballPntrs,
 #elif defined _OPENMP
 #warning Compiling for OMP
 #pragma omp parallel for default(none) shared(trimmedBalls, contactMap, insideOrOutside, reformattedEdges, delta, aSurface, probeBallSurfacesArray, unitCellAtOriginForDelta) schedule(dynamic, 10)
+// #else
+    for (int i=0; i<trimmedBalls.size(); i++){
 #else
     for (int i=0; i<trimmedBalls.size(); i++){
 #endif

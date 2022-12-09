@@ -245,6 +245,8 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager* allAtomsManager_in, const
           // compilation failure 9.2.1
           // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
 #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
+// #else
+    for (int atomNr=0; atomNr < nSelAtoms; atomNr++){
 #else
     for (int atomNr=0; atomNr < nSelAtoms; atomNr++){
 #endif
