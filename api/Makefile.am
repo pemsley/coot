@@ -31,6 +31,8 @@ coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                   molecules_
 molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc   molecules_container_ligand_fitting.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
+   $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
+   $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
    $(top_builddir)/ligand/libcoot-ligand.la           \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
