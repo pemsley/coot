@@ -6,7 +6,7 @@
 G_BEGIN_DECLS   
 
 #define COOT_TEXT_ICON_BUTTON_TYPE (coot_text_icon_button_get_type ())
-G_DECLARE_FINAL_TYPE  (CootTextIconButton, coot_text_icon_button, COOT, COOT_TEXT_ICON_BUTTON, GtkButton)
+G_DECLARE_FINAL_TYPE  (CootTextIconButton, coot_text_icon_button, COOT, TEXT_ICON_BUTTON, GtkWidget)
 
 
 CootTextIconButton *coot_text_icon_button_new();
