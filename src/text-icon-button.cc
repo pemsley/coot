@@ -42,12 +42,13 @@ const char* widget_template = " \
         <child> \
           <object class=\"GtkBox\" id=\"container_box\"> \
             <property name=\"orientation\">horizontal</property> \
+            <property name=\"spacing\">5</property> \
             <child> \
-              <object class=\"GtkLabel\" id=\"label\"> \
+              <object class=\"GtkImage\" id=\"icon\"> \
               </object> \
             </child> \
             <child> \
-              <object class=\"GtkImage\" id=\"icon\"> \
+              <object class=\"GtkLabel\" id=\"label\"> \
               </object> \
             </child> \
           </object> \
@@ -148,6 +149,42 @@ static void coot_text_icon_button_get_property(GObject        *object,
     }
 }
 
+static void coot_text_icon_button_measure(
+                                        GtkWidget* _self, 
+                                        GtkOrientation orientation, 
+                                        int for_size,
+                                        int *minimum_size,
+                                        int *natural_size,
+                                        int *minimum_baseline,
+                                        int *natural_baseline) {
+    CootTextIconButton *self = COOT_TEXT_ICON_BUTTON (_self);
+    gtk_widget_measure(self->container_box,orientation,for_size,minimum_size,natural_size,minimum_baseline,natural_baseline);
+    // switch (orientation) {
+    //     case GTK_ORIENTATION_HORIZONTAL:{
+            
+    //         break;
+    //     }
+    //     case GTK_ORIENTATION_VERTICAL:{
+            
+    //         break;
+    //     }
+    //     default:{
+    //         break;
+    //     }
+    // }
+}
+
+// static void
+// coot_text_icon_button_size_allocate (
+//   GtkWidget* widget,
+//   int a,
+//   int b,
+//   int baseline
+// ) {
+//      CootTextIconButton *self = COOT_TEXT_ICON_BUTTON (widget);
+//      gtk_widget_size_allocate(self->internal_button, *allocation, baseline);
+// }
+
 static void coot_text_icon_button_class_init(CootTextIconButtonClass* klass) {
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
     GBytes* template_bytes = g_bytes_new_static(widget_template, strlen(widget_template));
@@ -158,6 +195,8 @@ static void coot_text_icon_button_class_init(CootTextIconButtonClass* klass) {
     gtk_widget_class_bind_template_child (widget_class, CootTextIconButton, label);
     gtk_widget_class_bind_template_child (widget_class, CootTextIconButton, icon);
 
+    widget_class->measure = coot_text_icon_button_measure;
+    // widget_class->size_allocate = coot_text_icon_button_size_allocate;
     GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
     gobject_class->set_property = coot_text_icon_button_set_property;
     gobject_class->get_property = coot_text_icon_button_get_property;
