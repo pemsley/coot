@@ -6492,10 +6492,24 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="CootTextIconButton" id="vertical_toolbar_testbutton_4">
-                <property name="label" translatable="yes">AutoFit Rotamer</property>
-                <property name="icon-name">auto-fit-rotamer</property>
+              <object class="GtkButton" id="vertical_toolbar_testbutton_4">
                 <property name="can-focus">0</property>
+                <child>
+                  <object class="GtkBox"> 
+                    <property name="orientation">horizontal</property> 
+                    <property name="spacing">5</property> 
+                    <child> 
+                      <object class="GtkImage"> 
+                        <property name="icon-name">auto-fit-rotamer</property>
+                      </object> 
+                    </child> 
+                    <child> 
+                      <object class="GtkLabel"> 
+                        <property name="label" translatable="yes">AutoFit Rotamer</property>
+                      </object> 
+                    </child> 
+                  </object> 
+                </child>
                 <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
               </object>
             </child>
