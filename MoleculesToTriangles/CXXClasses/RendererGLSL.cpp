@@ -37,8 +37,7 @@ std::string RendererGLSL::PointLightVertexShaderText;
 #endif
 #endif // 0 -------------------------------------
 
-#include <epoxy/gl.h>
-
+//#include <epoxy/gl.h> Hmm.
 
 #include <stdio.h>
 #include <iostream>

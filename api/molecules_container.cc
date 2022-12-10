@@ -2901,3 +2901,17 @@ molecules_container_t::get_molecular_representation_mesh(int imol, const std::st
    }
    return mesh;
 }
+
+
+//! get interesting places (does not work yet)
+//! @return a vector of `validation_information_t`
+std::vector<coot::molecule_t::interesting_place_t>
+molecules_container_t::get_interesting_places(int imol, const std::string &mode) const {
+
+   std::vector<coot::molecule_t::interesting_place_t> v;
+   std::cout << "Nothing here yet" << std::endl;
+
+   return v;
+}
+
+
