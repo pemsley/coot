@@ -15,7 +15,7 @@
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
-  o CHANGE:  Load files from ~/.coot if it is a directory.
+  o CHANGE:  Don't load files from ~/.coot if it is a directory.
 
   o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
 
