@@ -6494,15 +6494,44 @@ Do you want to continue?
 
             <child>
               <object class="GtkMenuButton" id="refine_menubutton">
-                <property name="label" translatable="yes">Refine</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Refine</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="fixed_atoms_menubutton">
-                <property name="label" translatable="yes">Fixed Atoms</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">anchor</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Fixed Atoms</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
-                <property name="icon-name">anchor</property>
                 <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
               </object>
             </child>
@@ -6516,8 +6545,22 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkMenuButton" id="rotate_translate_menubutton">
-                <property name="label" translatable="yes">Rotate/Translate</property>
-                <property name="icon-name">rtz</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">rtz</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Rotate/Translate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
               </object>
             </child>
@@ -6619,16 +6662,44 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkMenuButton" id="mutate_and_autofit_menubutton">
-                <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
+                <child>
+                  <object class="GtkBox" >
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">mutate</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Mutate &amp; Auto-Fit</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
-                <property name="icon-name">mutate</property>
                 <signal name="activate" handler="on_model_toolbar_mutate_and_autofit_menubutton_activate"/>
               </object>
             </child>
             <child>
               <object class="GtkMenuButton" id="simple_mutate_menubutton">
-                <property name="label" translatable="yes">Simple Mutate</property>
-                <property name="icon-name">mutate-auto-fit</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">mutate-auto-fit</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Simple Mutate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
               </object>
             </child>
@@ -6656,9 +6727,23 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkMenuButton" id="delete_menubutton">
-                <property name="label" translatable="yes">Delete...</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">gtk-delete</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Delete...</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
-                <property name="icon-name">gtk-delete</property>
               </object>
             </child>
             <child>
