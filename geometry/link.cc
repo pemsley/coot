@@ -550,7 +550,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " ND2")
 	       if (close[i].distance < smallest_link_dist) {
 		  smallest_link_dist = close[i].distance;
-		  link_type = "NAG-ASN";
+		  // link_type = "NAG-ASN";
+		  link_type = "pyr-ASN"; // 20221211-PE new dictionary
 	       }
       
 	 if (name_1 == " O4 " )
