@@ -687,6 +687,33 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "ALPHA1-6";
 		  }
 	       }
+
+	 // pyr-SER
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG ") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "SER")
+                     link_type = "pyr-SER"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
+	 // pyr-THR
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG1") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "THR")
+                     link_type = "pyr-THR"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
       }
    }
    catch (const std::runtime_error &rte) {
