@@ -38,7 +38,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 
 std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
-   std::cout << "#######  colorRampChainsScheme() !!" << std::endl;
+   // std::cout << "#######  colorRampChainsScheme() !!" << std::endl;
 
    std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     std::shared_ptr<ColorScheme> result(new ColorScheme());
@@ -47,11 +47,11 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
-        std::cout << "colorRampChainsScheme() selectionString " << selectionString << std::endl;
+        // std::cout << "colorRampChainsScheme() selectionString " << selectionString << std::endl;
         auto colorRule = std::shared_ptr<AtomPropertyRampColorRule>(new AtomPropertyRampColorRule());
         colorRule->setRampType(AtomPropertyRampColorRule::ResidueNumber);
         colorRule->setCompoundSelection(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)));
-        std::cout << "colorRampChainsScheme() selectionString " << colorRule << std::endl;
+        // std::cout << "colorRampChainsScheme() selectionString " << colorRule << std::endl;
         result->addRule(colorRule);
     }
     return result;
@@ -59,7 +59,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
 std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
-   std::cout << "#######  colorChainsScheme() !" << std::endl;
+   // std::cout << "#######  colorChainsScheme() !" << std::endl;
 
    std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {

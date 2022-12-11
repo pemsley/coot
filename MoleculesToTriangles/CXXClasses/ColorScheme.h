@@ -93,23 +93,23 @@ public:
     };
     
     std::map<std::shared_ptr<ColorRule>,int> prepareForMMDB(mmdb::Manager *_mmdb) {
-       std::cout << "...prepareForMMDB() start" << std::endl;
+       // std::cout << "...prepareForMMDB() start" << std::endl;
        std::map<std::shared_ptr<ColorRule>,int> handles;
-       std::cout << "...prepareForMMDB() done handles" << std::endl;
+       // std::cout << "...prepareForMMDB() done handles" << std::endl;
        rules.sort(ColorRule::compareRank);
-       std::cout << "...prepareForMMDB() done sort" << std::endl;
+       // std::cout << "...prepareForMMDB() done sort" << std::endl;
        auto rule = rules.begin();
-       std::cout << "...prepareForMMDB() found first rule of " << rules.size() << std::endl;
+       // std::cout << "...prepareForMMDB() found first rule of " << rules.size() << std::endl;
        while (rule != rules.end()){
-          std::cout << "...prepareForMMDB() iterating rules " << std::endl;
+          // std::cout << "...prepareForMMDB() iterating rules " << std::endl;
           auto compoundSelection = (*rule)->getCompoundSelection();
-          std::cout << "...prepareForMMDB() got compound selection " << std::endl;
+          // std::cout << "...prepareForMMDB() got compound selection " << std::endl;
           int handleOfRule = compoundSelection->handleInMMDB(_mmdb);
-          std::cout << "...prepareForMMDB() got mmdb rule handle " << std::endl;
+          // std::cout << "...prepareForMMDB() got mmdb rule handle " << std::endl;
           handles[*rule] = handleOfRule;
-          std::cout << "...prepareForMMDB() added rule to map " << std::endl;
+          // std::cout << "...prepareForMMDB() added rule to map " << std::endl;
           rule++;
-          std::cout << "...prepareForMMDB() next rule... " << std::endl;
+          // std::cout << "...prepareForMMDB() next rule... " << std::endl;
        }
        return handles;
     };

@@ -226,7 +226,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                         FCXXCoord difference = calphaPosition - lastCoord;
                                         float distance = difference.get3DLength();
                                         if (distance > 4.1){
-                                            std::cout << "New chain start "<< calpha->GetResName() << calpha->GetSeqNum () << calpha->segID << "\n";
+                                            // std::cout << "New chain start "<< calpha->GetResName() << calpha->GetSeqNum () << calpha->segID << "\n";
                                             DiscreteSegment *segment = new DiscreteSegment();
                                             segment->addCalpha(calpha);
                                             segments.push_back(segment);
@@ -267,8 +267,8 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                             float distance = difference.get3DLength();
                                             // std::cout << "distance " << distance << std::endl; almost all less than 7.5A
                                             if (distance > 8.0){ // heuristic
-                                                std::cout << "New chain nucleotide start "<< atom_p->GetResName() << " "
-                                                << atom_p->GetSeqNum () << atom_p->GetChainID() << "\n";
+                                                // std::cout << "New chain nucleotide start "<< atom_p->GetResName() << " "
+                                                // << atom_p->GetSeqNum () << atom_p->GetChainID() << "\n";
                                                 DiscreteSegment *segment = new DiscreteSegment();
                                                 segment->addCalpha(atom_p);
                                                 segments.push_back(segment);

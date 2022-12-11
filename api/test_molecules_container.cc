@@ -1683,7 +1683,8 @@ int test_molecular_representation(molecules_container_t &mc) {
       std::string style = "Ribbon";
 
       colour = "Chain";
-      style  = "MolecularSurface";
+      colour = "RampChains";
+      // style  = "MolecularSurface";
 
       coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
       if (mesh.vertices.size() > 10)
