@@ -2160,6 +2160,9 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                      std::cout << "failed to find these residues in the polyer-linked set: "
                                << residue_spec_t(res_1) << " "
                                << residue_spec_t(res_2) << std::endl;
+                  }
+
+                  if (false) {
                      std::cout << "Here are the pairs in the linked set " << std::endl;
                      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it_inner;
                      for (it_inner=residue_pair_link_set.begin(); it_inner!=residue_pair_link_set.end(); ++it_inner)
@@ -2167,8 +2170,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                   << std::endl;
                   }
 
-                  if (nlrs.already_added_p(res_1, res_2))
+                  if (nlrs.already_added_p(res_1, res_2)) {
+                     // std::cout << "      already added " << std::endl;
                      continue;
+                  }
 
                   // add a check here for res_1 and res_2 already considered, but not added.
                   // continue, in that case.
@@ -2176,8 +2181,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test(res_1, res_2);
                   if (std::find(tested_but_nothing.begin(),
                                 tested_but_nothing.end(),
-                                pair_for_nothing_test) != tested_but_nothing.end())
+                                pair_for_nothing_test) != tested_but_nothing.end()) {
+                     // std::cout << "     tested but nothing" << std::endl;
                      continue;
+                  }
 
                   if (false)
                      std::cout << "---- for atom pair " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
@@ -2186,6 +2193,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
                   // not sure that this is what I want now, really
                   std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
+
                   // Returns first (link_type) as "" if not found, second is order switch flag
 
                   if (false)
