@@ -6537,9 +6537,25 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
-                <property name="label" translatable="yes">Rigid Body Fit</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+
+                        <property name="icon-name">rigid-body</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+
+                        <property name="label" translatable="yes">Rigid Body Fit</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
-                <property name="icon-name">rigid-body</property>
                 <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
@@ -6610,9 +6626,25 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
-                <property name="label" translatable="yes">Edit Chi Angles</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+
+                        <property name="icon-name">edit-chi</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+
+                        <property name="label" translatable="yes">Edit Chi Angles</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <property name="can-focus">0</property>
-                <property name="icon-name">edit-chi</property>
                 <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
               </object>
             </child>
