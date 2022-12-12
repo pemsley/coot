@@ -115,8 +115,11 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      int res_no = residue_p->GetSeqNum();
-                     if (res_no > resno_max) resno_max = res_no;
-                     if (res_no < resno_min) resno_min = res_no;
+                     std::string res_name(residue_p->GetResName());
+                     if (res_name != "HOH") {
+                        if (res_no > resno_max) resno_max = res_no;
+                        if (res_no < resno_min) resno_min = res_no;
+                     }
                   }
                }
             }
@@ -172,7 +175,16 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       std::shared_ptr<MolecularRepresentationInstance> molrepinst =
          MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
       mesh = molecular_representation_instance_to_mesh(molrepinst);
+
+      if (false) {
+         for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+            const auto &vertex = mesh.vertices[i];
+            std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+         }
+      }
    }
+
+   mesh.fill_colour_map(); // for blendering
 
    return mesh;
 }
