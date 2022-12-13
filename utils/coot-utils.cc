@@ -882,8 +882,8 @@ coot::prefix_dir() {
       s = env;
    } else {
       std::string dds = package_data_dir();
-      std::string ds = get_directory(dds);
-      s = get_directory(ds);
+      std::string ds = util::append_dir_dir(dds,"..");
+      s = util::append_dir_dir(ds,"..");
    }
    return s;
 }

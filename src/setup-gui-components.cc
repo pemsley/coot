@@ -110,7 +110,7 @@ void attach_css_style_class_to_overlays() {
       GtkStyleContext *context = gtk_widget_get_style_context(widget);
       gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
       gtk_style_context_add_class (context, "mainWindowOverlayChild");
-      g_debug("'mainWindowOverlayChild' CSS class set for: %p",widget);
+      g_debug("'mainWindowOverlayChild' CSS class set for: %p %s",widget,G_OBJECT_CLASS_NAME(widget));
    };
 
    GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
@@ -194,6 +194,52 @@ void setup_python_scripting_entry() {
    gtk_widget_add_controller(entry, key_controller_entry);
 }
 
+void set_vertical_toolbar_internal_alignment() {
+   GtkWidget *toolbar = widget_from_builder("main_window_vbox_inner");
+   for(GtkWidget* child = gtk_widget_get_first_child(toolbar); 
+       child != nullptr; 
+       child = gtk_widget_get_next_sibling(child)) {
+         // No need to do this for plain buttons.
+         if(!(GTK_IS_MENU_BUTTON(child)||GTK_IS_TOGGLE_BUTTON(child))) {
+            g_debug("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
+            continue;
+         }
+         GtkWidget* target;
+         if(GTK_IS_MENU_BUTTON(child)) {
+            target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+         } else {
+            target = gtk_button_get_child(GTK_BUTTON(child));
+         }
+         if(!target) {
+            g_debug("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s because its' \"child\" property is not set.",
+            child,G_OBJECT_TYPE_NAME(child));
+            continue;
+         }
+         // This is a hack. The parent that we get isn't our button but an internal GtkBox 
+         // which is designated for storing GtkButton's 'child' widget.
+         //
+         // Unfortunately, currently there seems to be no other way to set this.
+         // Gtk4 removed the necessary APIs.
+         GtkWidget* parent_widget = gtk_widget_get_parent(target);
+         if(!GTK_IS_BOX(parent_widget)) {
+            if(GTK_IS_BOX(target)) {
+               g_warning("set_vertical_toolbar_internal_alignment: Toolbar item %p of type %s: "
+               "The parent widget that wraps %s::child is not a GtkBox but a %s. "
+               "%s::child however is a GtkBox. Attempt will be made to align it. It might not work.",
+               child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget),G_OBJECT_TYPE_NAME(child));
+               parent_widget = target;
+            } else {
+               g_warning("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s: "
+               "The parent widget that wraps %s::child is not a GtkBox but a %s",
+               child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget));
+               continue;
+            }
+         }
+         g_info("set_vertical_toolbar_internal_alignment: Aligning toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
+         gtk_widget_set_halign(parent_widget, GTK_ALIGN_START);
+   }
+}
+
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
@@ -201,5 +247,6 @@ void setup_gui_components() {
    setup_accession_code_frame();
    setup_python_scripting_entry();
    attach_css_style_class_to_overlays();
+   set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");
 }
