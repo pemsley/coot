@@ -6442,7 +6442,7 @@ Do you want to continue?
             <!-- </style> -->
             <child>
               <object class="GtkButton" id="vertical_toolbar_refine_regularize_button">
-                <child>
+                <!-- <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property> 
                     <property name="spacing">5</property> 
@@ -6452,19 +6452,19 @@ Do you want to continue?
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">R/RC</property>
-                      </object>
+                      <object class="GtkLabel"> -->
+                <property name="label" translatable="yes">R/RC</property>
+                      <!-- </object>
                     </child>
                   </object>
-                </child>
+                </child> -->
                 <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_refine_control_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="vertical_toolbar_map_button">
-                <child>
+                <!-- <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property> 
                     <property name="spacing">5</property> 
@@ -6474,12 +6474,12 @@ Do you want to continue?
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Map...</property>
-                      </object>
+                      <object class="GtkLabel"> -->
+                <property name="label" translatable="yes">Map...</property>
+                      <!-- </object>
                     </child>
                   </object>
-                </child>
+                </child> -->
                 <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_select_map_button_clicked" swapped="no"/>
               </object>
@@ -6494,7 +6494,7 @@ Do you want to continue?
 
             <child>
               <object class="GtkMenuButton" id="refine_menubutton">
-                <child>
+                <!-- <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
                     <property name="spacing">5</property>
@@ -6504,12 +6504,12 @@ Do you want to continue?
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Refine</property>
-                      </object>
+                      <object class="GtkLabel"> -->
+                <property name="label" translatable="yes">Refine</property>
+                      <!-- </object>
                     </child>
                   </object>
-                </child>
+                </child> -->
                 <property name="can-focus">0</property>
               </object>
             </child>
