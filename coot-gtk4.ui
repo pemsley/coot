@@ -5838,9 +5838,24 @@ Do you want to continue?
               </style>
               <child>
                 <object class="GtkButton" id="toolbar_reset_view_button">
-                  <property name="label" translatable="yes">Reset View</property>
                   <property name="can-focus">0</property>
-                  <property name="icon-name">reset-view</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">5</property>
+                      <property name="halign">start</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">reset-view</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="yes">Reset View</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
                   <signal name="clicked" handler="reset_view" swapped="no"/>
                   <!-- <child> -->
                   <!--   <object class="GtkImage"> -->
@@ -5851,27 +5866,72 @@ Do you want to continue?
               </child>
               <child>
                 <object class="GtkButton" id="toolbar_display_manager_button">
-                  <property name="label" translatable="yes">Display Manager</property>
                   <property name="can-focus">0</property>
-                  <property name="icon-name">display-manager</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">5</property>
+                      <property name="halign">start</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">display-manager</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="yes">Display Manager</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
                   <signal name="clicked" handler="on_map_and_mol_control1_activate" swapped="no"/>
                 </object>
               </child>
 
               <child>
                 <object class="GtkButton" id="go_to_atom_button">
-                  <property name="label" translatable="yes">Go to Atom...</property>
                   <property name="can-focus">0</property>
-                  <property name="icon-name">go-to-atom</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">5</property>
+                      <property name="halign">start</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">go-to-atom</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="yes">Go to Atom...</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
                   <signal name="clicked" handler="on_go_to_atom_button_clicked" swapped="no"/>
                 </object>
               </child>
 
               <child>
                 <object class="GtkButton" id="go_to_ligand_button">
-                  <property name="label" translatable="yes">Go to (Next) Ligand</property>
                   <property name="can-focus">0</property>
-                  <property name="icon-name">go-to-ligand</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">5</property>
+                      <property name="halign">start</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">go-to-ligand</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="yes">Go to (Next) Ligand</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
                   <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
                 </object>
               </child>
