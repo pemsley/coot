@@ -276,3 +276,36 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
    }
    return status;
 }
+
+
+//! replace a fragment
+//! 
+//! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
+//! (``imol_base`` is the molecule that is modified).
+//! 
+//! @return the success status
+int
+molecules_container_t::replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_base)) {
+      if (is_valid_model_molecule(imol_reference)) {
+
+         mmdb::Manager *mol_ref = molecules[imol_reference].atom_sel.mol;
+         int SelHnd = mol_ref->NewSelection(); // d
+         mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+         mmdb::Manager *mol_select = coot::util::create_mmdbmanager_from_atom_selection(mol_ref, SelHnd);
+         atom_selection_container_t asc_moving = make_asc(mol_select);
+         status = molecules[imol_base].replace_fragment(asc_moving);
+         mol_ref->DeleteSelection(SelHnd);
+         asc_moving.clear_up(); // deletes mol_select
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_reference << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_base << std::endl;
+   }
+   return status;
+
+
+}

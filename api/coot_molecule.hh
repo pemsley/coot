@@ -194,6 +194,11 @@ namespace coot {
 
       std::vector<coot::atom_spec_t> fixed_atom_specs;
 
+      std::pair<int, mmdb::Residue *>
+      find_serial_number_for_insert(int seqnum_for_new,
+                                    const std::string &ins_code_for_new,
+                                    const std::string &chain_id) const;
+
       // remove TER record from residue
       //
       void remove_TER_internal(mmdb::Residue *res_p);
@@ -517,6 +522,9 @@ namespace coot {
                                         int n_trials, float translation_scale_factor);
 
       int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
+
+      //! @return the success status
+      int replace_fragment(atom_selection_container_t asc);
 
       // ----------------------- merge molecules
 

@@ -1695,6 +1695,54 @@ int test_molecular_representation(molecules_container_t &mc) {
 }
 
 
+int test_replace_fragment(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 15, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+
+         coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+         int imol_frag = mc.copy_fragment_using_cid(imol, "//A/10-20");
+         int n_atoms = 77;
+         int n_atoms_moved = mc.apply_transformation_to_atom_selection(imol_frag, "//", n_atoms,
+                                                                       1, 0, 0,
+                                                                       0, 1, 0,
+                                                                       0, 0, 1,
+                                                                       0, 0, 0,
+                                                                       1, 2, 3);
+         if (n_atoms_moved > 20) {
+            mmdb::Atom *at_2 = mc.get_atom(imol_frag, atom_spec);
+            coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
+            double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+            double d = std::sqrt(dd);
+            std::cout << "test_replace_fragment d " << d << std::endl;
+            int status_2 = mc.replace_fragment(imol, imol_frag, "//A/12-17");
+            if (status_2 == 1) {
+               mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
+               coot::Cartesian atom_pos_3 = atom_to_cartesian(at_2);
+               dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_3);
+               d = std::sqrt(dd);
+               if (d > 3.0)
+                  status = 1;
+            } else {
+               std::cout << "test_replace_fragment() bad status_2 " << std::endl;
+            }
+         } else {
+            std::cout << "test_replace_fragment() n_atoms_moved " << n_atoms_moved << std::endl;
+         }
+         
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1812,13 +1860,14 @@ int main(int argc, char **argv) {
       status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
       status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
+      status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
    // check these
    // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
 
 
-   status += run_test(test_molecular_representation,     "molecular representation mesh", mc);
+   status += run_test(test_replace_fragment,"replace fragment",  mc);
 
 
    // Note to self:

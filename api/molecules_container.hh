@@ -549,8 +549,8 @@ public:
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
 
-   //! apply transformation to atom selection
-   
+   //! apply transformation to atom selection in the given molecule.
+   //! @return the number of atoms moved.
    int apply_transformation_to_atom_selection(int imol, const std::string &atoms_selection_cid,
                                               int n_atoms, // for validation of the atom selection, (int because mmdb atom type)
                                               float m00, float m01, float m02,
@@ -580,6 +580,14 @@ public:
    //! Convert a cis peptide to a trans or vice versa.
    //! @return 1 on a successful conversion.
    int cis_trans_convert(int imol, const std::string &atom_cid);
+
+   //! replace a fragment
+   //! 
+   //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
+   //! (``imol_base`` is the molecule that is modified).
+   //! 
+   //! @return the success status
+   int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
