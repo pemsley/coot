@@ -526,6 +526,8 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
                         std::string name = file_name;
                         coot::molecule_t m(name, imol_in_hope);
                         m.xmap = xmap;
+                        if (is_a_difference_map)
+                           m.set_map_is_difference_map(true);
                         molecules.push_back(m); // oof.
                         imol = imol_in_hope;
                      }
