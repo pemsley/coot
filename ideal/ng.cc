@@ -2155,7 +2155,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   // it was a new pair.
 
                   if (false) {
-                     std::cout << "                 Here A with at_1 at_2 "
+                     std::cout << "                 Here in make_other_types_of_link() A with at_1 at_2 "
                                << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
                      std::cout << "failed to find these residues in the polyer-linked set: "
                                << residue_spec_t(res_1) << " "
@@ -2205,7 +2205,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                      // this is not the place to make peptide links, event though find_link_type_complicado()
                      // will return a peptide link (for links that were not made before (perhaps because
                      // missing atoms)).
-                     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
+                     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS") && (lt.first != "p")) {
                         if (false)
                            std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
                                      << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
@@ -2254,6 +2254,8 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
    bool for_beasty = false;
+
+   // for_beasty = true; // skip other links
 
    if (! for_beasty) {
 
