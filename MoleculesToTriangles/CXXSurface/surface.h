@@ -16,7 +16,6 @@
 #include <GL/glu.h>
 #include <GL/glext.h>
 #endif
-
 #include <string>
 #include "mmdb2/mmdb_manager.h"
 #include "cdisplayobject.h"
