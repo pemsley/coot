@@ -5976,3 +5976,127 @@ void set_auto_h_bond_restraints(int state) {
 void set_refine_hydrogen_bonds(int state) {
    set_auto_h_bond_restraints(state);
 }
+
+
+void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
+   bool unlocked = false;
+   while (! mol_edit_lock.compare_exchange_weak(unlocked, true)) {
+      // std::cout << "test_function_scm() failed to get the mol_edit_lock" << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      unlocked = false;
+   }
+   // std::cout << "debug:: test_function_scm() got the lock" << std::endl;
+}
+
+void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   mol_edit_lock = false;
+   // std::cout << "debug:: test_function_scm() released the lock" << std::endl;
+};
+
+#include "ligand/libres-tracer.hh"
+
+void res_tracer(int imol_map, const std::string &pir_file_name) {
+
+   if (! is_valid_map_molecule(imol_map)) {
+      std::cout << "not a valid map: " << imol_map << std::endl;
+      return;
+   }
+
+   // std::string hklin_file_name = "coot-download/1gwd_map.mtz";
+   // std::string f_col_label   = "FWT";
+   // std::string phi_col_label = "PHWT";
+   // std::cout << "Read mtz file " << hklin_file_name << " " << f_col_label << " " << phi_col_label << std::endl;
+   // bool use_weights = false;
+   // bool is_diff_map = false;
+
+   // std::string pir_file_name = "1gwd.pir";
+
+   coot::fasta_multi fam;
+   fam.read(pir_file_name);
+   double variation = 0.4; // speed
+   unsigned int n_top_spin_pairs = 1000; // Use for tracing at most this many spin score pairs (which have been sorted).
+   // This and variation affect the run-time (and results?)
+   // n_top_spin_pairs = 1000; // was 1000
+
+   unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+   float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
+   unsigned int n_phi_psi_trials = 100000; // was 5000
+   float weight = 20.0f; // calculate this (using rmsd)
+   bool with_ncs = false;
+   float rmsd_cuffoff = 2.3;
+
+   mmdb::Manager *working_mol = new mmdb::Manager;
+
+   int imol_new = graphics_info_t::create_molecule();
+   atom_selection_container_t asc = make_asc(working_mol);
+   std::string label = "Building Molecule";
+   const std::vector<coot::ghost_molecule_display_t> ghosts;
+   bool shelx_flag = false;
+   graphics_info_t g;
+   g.molecules[imol_new].install_model_with_ghosts(imol_new, asc, g.Geom_p(), label, 1, ghosts,
+                                                   shelx_flag, false, false);
+   update_go_to_atom_window_on_new_mol();
+
+   const clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
+   // coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
+
+   if (true) { // 20221216-PE what's going wrong with xmap?
+      clipper::Cell c = xmap.cell();
+      std::cout << "debug:: in res_tracer() xmap cell " << c.format() << std::endl;
+   }
+
+   int imol_new_map = g.create_molecule();
+   label = "Map";
+   bool is_em_map_flag = false;
+   g.molecules[imol_new_map].install_new_map(xmap, label, is_em_map_flag);
+   g.graphics_draw();
+
+   watch_res_tracer_data_t *watch_data_p = new watch_res_tracer_data_t(working_mol, imol_new);
+   std::cout << "post-constructor with mol_edit_lock: " << watch_data_p->mol_edit_lock << std::endl;
+
+   // pass geom to this too.
+   std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+                 weight, n_phi_psi_trials, with_ncs, watch_data_p);
+
+   auto watching_timeout_func = [] (gpointer data) {
+      watch_res_tracer_data_t *watch_data_p = static_cast<watch_res_tracer_data_t *>(data);
+      if (false)
+         std::cout << "debug:: watching_timeout_func runs... finished: " << watch_data_p->finished
+                   << " lock: " << watch_data_p->mol_edit_lock
+                   << " update_flag: " << watch_data_p->update_flag << std::endl;
+      if (watch_data_p->update_flag) {
+         watch_data_p->update_flag = false;
+         graphics_info_t g;
+         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+         atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
+         g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
+         g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
+         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+         if (watch_data_p->update_count == 1) {
+            auto rc = g.molecules[watch_data_p->imol_new].centre_of_molecule();
+            g.setRotationCentreSimple(rc);
+            update_maps();
+         }
+         g.graphics_draw();
+      }
+      if (watch_data_p->finished) {
+         std::cout << "Final update of working_mol..." << std::endl;
+         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+         atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
+         graphics_info_t g;
+         g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
+         g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
+         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+         g.graphics_draw();
+      }
+      int return_status = TRUE;
+      if (watch_data_p->finished)
+         return_status = FALSE; // don't continue
+      return return_status;
+   };
+
+   g_timeout_add(500, watching_timeout_func, watch_data_p);
+
+   t.detach();
+}
