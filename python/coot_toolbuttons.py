@@ -22,12 +22,16 @@
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 
-import coot_gui_api
-import coot
 import time
 import os
+
+import coot
+import coot_utils
+import coot_gui
+import coot_gui_api
+import generic_objects
 
 # put all coot svgs in the default icon set
 
@@ -93,8 +97,12 @@ if True:  # test for python
 
         def activate_menuitem(widget, item):
             try:
-                apply(item[1])
-            except:
+                # apply(item[1])
+                print("in activate_menuitem(): widget", widget, "item", item)
+                label = item[0]
+                func  = item[1]
+                func()
+            except KeyError as e:
                 print("BL INFO:: unable to execute function", item[1])
 
         # takes list with [["item_name", func],...]
@@ -107,7 +115,7 @@ if True:  # test for python
                 menu.append(menuitem)
                 menuitem.connect("activate", activate_menuitem, item)
             menu.show_all()
-            menu.popup(None, None, None, event.button, event.time)
+            menu.popup(None, None, None, None, event.button, event.time)
 
         def make_icons_model():
             import os
@@ -116,24 +124,25 @@ if True:  # test for python
             # coot icons
             pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
             if (not pixbuf_dir):
-                pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
+                pixbuf_dir = os.path.join(coot.get_pkgdatadir_py(), "pixmaps")
             patt = os.path.normpath(pixbuf_dir + '/*.svg')
             coot_icon_filename_ls = glob.glob(patt)
 
-            model = Gtk.ListStore(Gtk.gdk.Pixbuf, str, str)
+            # model = Gtk.ListStore(Gtk.gdk.Pixbuf, str, str)
+            model = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str)
             for icon_filename in coot_icon_filename_ls:
                 if os.path.isfile(icon_filename):
                     icon = os.path.basename(icon_filename)
-                    pixbuf = Gtk.gdk.pixbuf_new_from_file_at_size(
-                        icon_filename, 16, 16)
+                    # pixbuf = Gtk.gdk.pixbuf_new_from_file_at_size(
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(icon_filename, 16, 16)
                     model.append([pixbuf, icon, icon_filename])
 
             # build in default gtk icons
-            icon_theme = Gtk.icon_theme_get_default()
+            # icon_theme = Gtk.icon_theme_get_default()
+            icon_theme = Gtk.IconTheme.get_default()
             for icon in stock_icon_ls:
                 try:
-                    pixbuf = icon_theme.load_icon(
-                        icon, 16, Gtk.ICON_LOOKUP_USE_BUILTIN)
+                    pixbuf = icon_theme.load_icon(icon, 16, Gtk.ICON_LOOKUP_USE_BUILTIN)
                     model.append([pixbuf, icon, None])
                 except:
                     pass
@@ -230,9 +239,9 @@ if True:  # test for python
 
             window = Gtk.Window()
             window.set_title("Toolbar Selection")
-            window.set_default_size(700, 450)
+            window.set_default_size(800, 450)
             scrolled_win = Gtk.ScrolledWindow()
-            scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
+            # scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
             vbox = Gtk.VBox(False, 2)
             frame_vbox = Gtk.VBox(False, 2)
             h_sep = Gtk.HSeparator()
@@ -250,7 +259,8 @@ if True:  # test for python
                 group_items = group[1:len(group)]
 
                 inner_vbox = Gtk.VBox(False, 2)
-                frame = Gtk.Frame(group_name)
+                # frame = Gtk.Frame(group_name)
+                frame = Gtk.Frame()
                 frame.add(inner_vbox)
 
                 for item in group_items:
@@ -552,14 +562,12 @@ if True:  # test for python
             hbox.show_all()
 
         def show_pop_up_menu(widget, event):
-            if (event.button == 3):
-                create_show_pop_menu([["Manage Buttons (add, delete Buttons)", make_toolbar_button_gui],
-                                      ["Add a user-defined Button",
-                                          add_toolbar_button_gui],
-                                      ["Remove a Button", remove_toolbar_button_gui],
-                                      ["Hide Text (only icons)",
-                                       toolbar_hide_text],
-                                      ["Show Text", toolbar_show_text]],
+            if event.button == 3:
+                create_show_pop_menu([["Manage Buttons",            make_toolbar_button_gui],
+                                      ["Add a user-defined Button", add_toolbar_button_gui],
+                                      ["Remove a Button",           remove_toolbar_button_gui],
+                                      ["Hide Text (only icons)",    toolbar_hide_text],
+                                      ["Show Text",                 toolbar_show_text]],
                                      event)
 
         coot_main_toolbar = coot_gui_api.main_toolbar()
@@ -678,7 +686,7 @@ def list_of_toolbar_functions():
                "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
            ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
           ["Validation",
-           ["Update Atom Overlaps", atom_overlaps_for_this_model, "Update the Atom Overlap representation", "auto-fit-rotamer.svg"],
+           ["Update Atom Overlaps", coot_gui.atom_overlaps_for_this_model, "Update the Atom Overlap representation", "auto-fit-rotamer.svg"],
            ["Interactive dots", generic_objects.toggle_interactive_probe_dots,
             "Show dots after refinement and for chi/rotamer changes",
             "probe-clash.svg", True, True],
