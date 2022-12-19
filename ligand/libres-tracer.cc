@@ -645,10 +645,10 @@ filter_similar_chains(mmdb::Manager *mol,
       unsigned int count = 0; // for output formatting
       while (! delete_these_chains.empty()) {
          const std::string &current_chain_id = *delete_these_chains.begin();
-         delete_these_chains.erase(delete_these_chains.begin());
          if (count == 0)
             std::cout << "filter_similar_chains(): DeleteChain";
          std::cout << " " << current_chain_id;
+         delete_these_chains.erase(delete_these_chains.begin());
          model_p->DeleteChain(current_chain_id.c_str());
          count++;
          if (count == 30) {
