@@ -111,7 +111,7 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
-    coot_download_dir = get_directory("coot-download")
+    coot_download_dir = coot_utils.get_directory("coot-download")
     if data_type == "pdb":
        pdb_file_name = coot_download_dir + "/" + id + ".pdb." + \
            pdbe_file_name_tail
