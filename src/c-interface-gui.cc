@@ -2705,6 +2705,10 @@ void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
 /*! \brief hide the vertical modelling toolbar in the GTK2 version */
 void hide_modelling_toolbar() {
 
+   std::cout << "WARNING:: hide_modelling_toolbar() don't call this function as model_fit_refine dialog no longer exists"
+             << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
       // GtkWidget *handle_box = lookup_widget(graphics_info_t::get_main_window(),
@@ -2719,17 +2723,23 @@ void hide_modelling_toolbar() {
 	w = gtk_widget_get_parent(handle_box);
       }
       if (!w) {
-	 std::cout << "failed to lookup toolbar" << std::endl;
+	 std::cout << "ERROR:: in hide_modelling_toolbar() failed to lookup toolbar" << std::endl;
       } else {
 	 graphics_info_t::model_toolbar_show_hide_state = 0;
 	 gtk_widget_hide(w);
       }
    }
+#endif
 }
 
 /*! \brief show the vertical modelling toolbar in the GTK2 version
   (the toolbar is shown by default) */
 void show_modelling_toolbar() {
+
+   std::cout << "WARNING:: show_modelling_toolbar() don't call this function as model_fit_refine dialog no longer exists"
+             << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
       GtkWidget *handle_box = widget_from_builder("model_fit_refine_toolbar_handlebox");
@@ -2742,12 +2752,13 @@ void show_modelling_toolbar() {
       }
 
       if (!w) {
-	 std::cout << "failed to lookup toolbar" << std::endl;
+	 std::cout << "ERROR:: in show_modelling_toolbar() failed to lookup toolbar" << std::endl;
       } else {
 	 graphics_info_t::model_toolbar_show_hide_state = 1;
 	 gtk_widget_show(w);
       }
    }
+#endif
 }
 
 

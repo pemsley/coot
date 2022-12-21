@@ -460,6 +460,21 @@ int test_function(int i, int j) {
 void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
 void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
 
+void testing_get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
+   bool unlocked = false;
+   while (! mol_edit_lock.compare_exchange_weak(unlocked, true)) {
+      // std::cout << "test_function_scm() failed to get the mol_edit_lock" << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      unlocked = false;
+   }
+   // std::cout << "debug:: test_function_scm() got the lock" << std::endl;
+}
+
+void testing_release_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   mol_edit_lock = false;
+   // std::cout << "debug:: test_function_scm() released the lock" << std::endl;
+};
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
@@ -576,11 +591,11 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
                                       if (watch_data_p->update_flag) {
                                          watch_data_p->update_flag = false;
                                          graphics_info_t g;
-                                         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_get_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
                                          g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
                                          g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
-                                         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_release_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          if (watch_data_p->update_count == 1) {
                                             auto rc = g.molecules[watch_data_p->imol_new].centre_of_molecule();
                                             g.setRotationCentreSimple(rc);
@@ -590,12 +605,12 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
                                       }
                                       if (watch_data_p->finished) {
                                          std::cout << "Final update of working_mol..." << std::endl;
-                                         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_get_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
                                          graphics_info_t g;
                                          g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
                                          g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
-                                         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_release_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          g.graphics_draw();
                                       }
                                       int return_status = TRUE;

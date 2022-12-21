@@ -321,6 +321,7 @@ void go_to_map_molecule_centre(int imol_map);
 //!
 float b_factor_from_map(int imol_map);
 
+
 //! \brief return the colour triple of the imolth map
 //!
 //! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.
@@ -2038,8 +2039,10 @@ std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_i
 //! \brief write the sequence for imol as fasta
 void write_sequence(int imol, const std::string &file_name);
 
-//! \brief build the structure from the map
-void res_tracer(const std::string &pir_file_name);
+//! \brief trace the given map and try to apply the sequence in
+//! the given pir file
+void res_tracer(int imol_map, const std::string &pir_file_name);
+
 
 /* \} */
 

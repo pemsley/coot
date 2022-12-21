@@ -150,19 +150,17 @@ namespace coot {
       mmdb::Atom *atom_3;
       mmdb::Atom *atom_4;
       std::string name;
-      atom_quad(mmdb::Atom *atom_1_in, mmdb::Atom *atom_2_in, mmdb::Atom *atom_3_in, mmdb::Atom *atom_4_in) {
+      atom_quad(mmdb::Atom *atom_1_in, mmdb::Atom *atom_2_in, mmdb::Atom *atom_3_in, mmdb::Atom *atom_4_in) : name("") {
 	 atom_1 = atom_1_in;
 	 atom_2 = atom_2_in;
 	 atom_3 = atom_3_in;
 	 atom_4 = atom_4_in;
-	 name = "";
       }
-      atom_quad() {
+      atom_quad() : name("") {
 	 atom_1 = NULL;
 	 atom_2 = NULL;
 	 atom_3 = NULL;
 	 atom_4 = NULL;
-	 name = "";
       }
       atom_quad(mmdb::Residue *first, mmdb::Residue *second, const std::string &link);
       bool filled_p() const; // ! were there any nulls?

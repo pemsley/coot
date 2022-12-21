@@ -1710,6 +1710,8 @@ graphics_info_t::draw_molecules_with_shadows() {
             } else {
 
                float opacity = 1.0;
+               shader_for_meshes_with_shadows.Use();
+               shader_for_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
                m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                     eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
