@@ -129,8 +129,8 @@ public:
     static std::shared_ptr<ColorScheme> colorByElementScheme();
     static std::shared_ptr<ColorScheme> colorBySecondaryScheme();
     static std::shared_ptr<ColorScheme> colorBFactorScheme();
-	static std::shared_ptr<ColorScheme> colorRampChainsScheme();
-	static std::shared_ptr<ColorScheme> colorChainsScheme();
+    static std::shared_ptr<ColorScheme> colorRampChainsScheme();
+    static std::shared_ptr<ColorScheme> colorChainsScheme();
     static std::shared_ptr<ColorScheme> colorSchemeForColorName(const std::string name);
     
 };
