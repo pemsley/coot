@@ -160,7 +160,7 @@ def get_ebi_pdb(id):
     import urllib.request, urllib.parse, urllib.error, string
 
     # print "======= id:", id
-    down_id = string.lower(id)
+    down_id = id.lower()
     pdb_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".ent"
     cif_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".cif"
     url_status = get_url_str(id, pdb_url_str, "pdb", None)
