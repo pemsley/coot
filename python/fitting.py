@@ -19,7 +19,7 @@
 import coot
 import coot_utils
 import coot_gui
-import coot_toolbuttons
+# import coot_toolbuttons
 
 # For each residue in the protein (molecule number @var{imol}), do a
 # rotamer fit and real-space refinement.  Update the graphics and
@@ -219,11 +219,11 @@ def interruptible_fit_protein(imol, func):
     if specs:
         # lets make a backup before we start
         coot.make_backup(imol)
-        
-        multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator()
-        multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop",
-                                                       "stop_interruptible_fit_protein()"
-                                                       , "gtk-stop")
+
+        if False:
+           multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator()
+           multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
+
         multi_refine_spec_list = specs
         def idle_func():
             global multi_refine_spec_list
