@@ -8,6 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtx/rotate_vector.hpp>
 
 #include <iostream>
 #include <iomanip>
@@ -3860,6 +3861,8 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    draw_pointer_distances_objects();
 
+   draw_extra_distance_restraints(); // GM_restraints
+
    draw_texture_meshes();
 
 }
@@ -5084,6 +5087,97 @@ graphics_info_t::draw_pointer_distances_objects() {
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
          }
+      }
+   }
+}
+
+void
+graphics_info_t::make_extra_distance_restraints_objects() {
+
+   // c.f. update_hydrogen_bond_mesh().
+
+   double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
+                             // Make this user-setable.
+
+   // the model has been updated, we need to update the positions and orientations using in the instancing
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
+   attach_buffers();
+   Material material;
+   mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
+   mesh_for_extra_distance_restraints.setup_instancing_buffer_data_for_extra_distance_restraints(maerrb_size);
+   // now fill extra_distance_restraints_markup_data
+
+   extra_distance_restraints_markup_data.clear();
+   extra_distance_restraints_markup_data.reserve(moving_atoms_extra_restraints_representation.bonds.size());
+   for (unsigned int i=0; i<moving_atoms_extra_restraints_representation.bonds.size(); i++) {
+      const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &ebrr =
+         moving_atoms_extra_restraints_representation.bonds[i];
+      double dd = clipper::Coord_orth(ebrr.first - ebrr.second).lengthsq();
+      double d = std::sqrt(dd);
+      extra_distance_restraint_markup_instancing_data_t edrmid;
+      // the width should represent the pulling power (i.e. the size of the penalty/distortion)
+      // make a function extra_bond_restraints_respresentation_t::get_penalty(alpha, sigma);
+      double sigma = 0.1; // what is this actually?
+      double penalty = ebrr.distortion_score_GM(sigma, geman_mcclure_alpha);
+      if (penalty < penalty_min) continue;
+      double width = 1.5 * penalty;
+      if (width < 0.01) width = 0.01;
+      if (width > 0.10) width = 0.10;
+      edrmid.width = width;
+      edrmid.length = static_cast<float>(d);
+      edrmid.position = clipper_to_glm(ebrr.second);
+
+      clipper::Coord_orth delta = ebrr.second - ebrr.first;
+      clipper::Coord_orth delta_uv = clipper::Coord_orth(delta.unit());
+      glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
+
+      glm::mat4 ori44 = glm::orientation(delta_uv_glm, glm::vec3(0.0, 0.0, 1.0));
+      glm::mat3 ori33 = glm::mat3(ori44);
+      edrmid.orientation = ori33;
+
+      // std::cout << "edrmid " << i << " position " << glm::to_string(edrmid.position) << " length " << d
+      // << "ori " << glm::to_string(edrmid.orientation) << std::endl;
+
+      double delta_length = ebrr.length_delta();
+      glm::vec4 colour_base = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+      // std::cout << "delta length " << delta_length << std::endl;
+
+      // for colouring, limit the delta_length)
+      if (delta_length >  1.0) delta_length =  1.0;
+      if (delta_length < -1.0) delta_length = -1.0;
+      glm::vec4 colour = colour_base + delta_length * glm::vec4(-1.1f, 1.1f, -1.1, 0.0f);
+      edrmid.colour = 0.8f * colour;
+      extra_distance_restraints_markup_data.push_back(edrmid);
+   }
+
+   std::cout << "in make_extra_distance_restraints_objects() bond size "
+             << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
+   std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
+             << extra_distance_restraints_markup_data.size() << std::endl;
+   mesh_for_extra_distance_restraints.update_instancing_buffer_data_for_extra_distance_restraints(extra_distance_restraints_markup_data);
+
+}
+
+// static
+void
+graphics_info_t::draw_extra_distance_restraints() {
+
+   // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
+   //
+   if (show_extra_distance_restraints_flag) {
+      if (! extra_distance_restraints_markup_data.empty()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation_matrix = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0f);
+         glDisable(GL_BLEND);
+         Shader &shader = shader_for_extra_distance_restraints;
+         mesh_for_extra_distance_restraints.draw_extra_distance_restraint_instances(&shader, mvp, model_rotation_matrix, lights,
+                                                                                    eye_position, bg_col, shader_do_depth_fog_flag);
       }
    }
 

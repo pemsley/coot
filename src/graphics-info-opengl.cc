@@ -36,6 +36,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_rama_balls,
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
+                                                           shader_for_extra_distance_restraints,
                                                            shader_for_happy_face_residue_markers,
                                                            shader_for_happy_face_residue_markers_for_ssao,
                                                            shader_for_rama_plot_phi_phis_markers,
@@ -106,6 +107,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
    shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_extra_distance_restraints.init("extra-distance-restraints.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);

@@ -542,6 +542,13 @@ float graphics_info_t::pointer_min_dist = 0.1;
 float graphics_info_t::pointer_max_dist = 3.6;
 bool graphics_info_t::show_pointer_distances_flag = false;
 
+// restraints that have less penalty/energy than
+// this are not worth drawing.
+float graphics_info_t::extra_distance_restraint_penalty_cutoff = 0.01; // draw them all to start with
+bool graphics_info_t::show_extra_distance_restraints_flag = true;
+std::vector<extra_distance_restraint_markup_instancing_data_t> graphics_info_t::extra_distance_restraints_markup_data;
+Mesh graphics_info_t::mesh_for_extra_distance_restraints; // draw this with instancing
+
 
 // Go to Atom widget:
 //
@@ -1438,6 +1445,7 @@ Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_ligand_view;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
+Shader graphics_info_t::shader_for_extra_distance_restraints;
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;
 Shader graphics_info_t::shader_for_happy_face_residue_markers_for_ssao;

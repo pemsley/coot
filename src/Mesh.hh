@@ -17,6 +17,7 @@
 #include "Particle.hh"
 #include "molecular-triangles-mesh.hh"
 #include "simple-distance-object.hh"
+#include "extra-distance-restraint-markup.hh"
 
 #ifdef USE_ASSIMP
 #include <assimp/scene.h>
@@ -199,6 +200,25 @@ public:
                        float pulsing_phase_distribution = 0.0f,
                        float z_rotation_angle = 0.0f);
 
+   // // keep these because they are s_generic_vertex, made in setup_buffers()
+   // layout(location = 0) in vec3 position;
+   // layout(location = 1) in vec3 normal;
+   // layout(location = 2) in vec4 colour;
+
+   // // c.f. extra-distance-restraints-markup.hh
+   // layout(location = 3) in float width;  // these are all instanced.
+   // layout(location = 4) in float length;
+   // layout(location = 5) in vec3 position; 
+   // layout(location = 6) in mat3 orientation;
+   // layout(location = 7) in vec4 colour_instanced;
+   void draw_extra_distance_restraint_instances(Shader *shader,
+                                                const glm::mat4 &mvp,
+                                                const glm::mat4 &view_rotation_matrix,
+                                                const std::map<unsigned int, lights_info_t> &lights,
+                                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                const glm::vec4 &background_colour,
+                                                bool do_depth_fog);
+
    // testing/example functions
    void setup_rama_balls(Shader *shader_p, const Material &material_in); // call fill_rama_balls() and setup_buffers()
    void setup_simple_triangles(Shader *shader_p, const Material &material_in);
@@ -224,6 +244,7 @@ public:
    void setup_camera_facing_hex();
    void setup_camera_facing_polygon(unsigned int n_sides = 8, float scale=1.0);
    void setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in);
+   void setup_extra_distance_restraint_cylinder(const Material &material_in); // make a cylinder for instancing
 
    void setup_rtsc_instancing(Shader *shader_p,
                               const std::vector<glm::mat4> &mats,
@@ -315,12 +336,21 @@ public:
    void pastelize(float degree);
    void brighten(float degree); // multiply colours by this amound
 
-   // when the position, orientation and colour change:
-   // transfer to the graphics_card with glBufferSubData
+   //! when the position, orientation and colour change:
+   //! transfer to the graphics_card with glBufferSubData
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);
-   // when the positions change: 20210826-PE Hmm. Thisis not clear
+   //! when the positions change: 20210826-PE Hmm. This is not clear
    void update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats);
+
+   //! allocate the instancing buffer
+   void setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_matrices);
+
+   //! assign the instancing buffer data
+   //!
+   //! GM restraints are not just orienation an colour there is a size and length too
+   //! (hmm)
+   void update_instancing_buffer_data_for_extra_distance_restraints(const std::vector<extra_distance_restraint_markup_instancing_data_t> &edrmid);
 
    // make the ball fall in world z - maybe bounce a bit? Search "bouncing ball physics" - either I need to know the
    // ball velocity or it's original position (I think I like storing the velocity)
