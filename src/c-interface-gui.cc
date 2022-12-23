@@ -6218,11 +6218,12 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
    if (!file_name.empty()) {
 
 #ifndef WINDOWS_MINGW
-      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      // std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/curlew-extensions/Coot-1/";
 #else
        std::string url_prefix = "https://bernhardcl.github.io/coot/";
 #endif
-      url_prefix += "extensions";
+      url_prefix += "scripts";
       url_prefix += "/";
       url_prefix += file_name;
 

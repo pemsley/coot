@@ -122,7 +122,7 @@ void curlew() {
    GtkWidget *w = widget_from_builder("curlew_dialog");
    graphics_info_t g;
 
-   //  GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
+   // GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
    // GtkWidget *install_selected_button = lookup_widget(w, "curlew_install_button");
    GtkWidget *vbox = widget_from_builder("curlew_vbox_for_extensions");
    GtkWidget *install_selected_button = widget_from_builder("curlew_install_button");
@@ -133,7 +133,7 @@ void curlew() {
    if (vbox) {
       std::string download_dir = "coot-download";
       download_dir = coot::get_directory(download_dir.c_str());
-      std::string dl_fn = download_dir + "/info.json";
+      std::string dl_fn = coot::util::append_dir_file(download_dir, "info.json");
 
       // not https, that transfers nothing
       // (probably a curl configuration thing)
@@ -145,15 +145,16 @@ void curlew() {
 #else
       std::string url_prefix = "https://bernhardcl.github.io/coot/";
 #endif
-      url_prefix += "extensions";
+      std::string coot_version_dir_prefix = url_prefix + "curlew-extensions/Coot-1";
+      std::string scripts_dir_prefix = coot_version_dir_prefix + "/scripts";
+      url_prefix += "curlew-extensions/Coot-1/info";
 
-      std::string url_curlew_prefix = url_prefix + "/curlew";
-      std::string json_url = url_curlew_prefix + "/info.json";
+      std::string json_url = coot::util::append_dir_file(url_prefix, "curlew-info.json");
 
       int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
 
-      // hack in a pre-downloaded file
-      // dl_fn = "info.json";
+      std::cout << "here in curlew() with r " << r << std::endl;
+      std::cout << "here in curlew() with dl_fn " << dl_fn << std::endl;
 
       bool is_empty = true; // now check that it isn't
       struct stat buf;
@@ -189,7 +190,6 @@ void curlew() {
                   json j = json::parse(s);
                   json ls = j["extensions"];
                   // std::cout << "found " << ls.size() << " extensions" << std::endl;
-                  int n_extensions = ls.size();
 
                   unsigned int n_already_installed = 0;
                   unsigned int n_available = 0;
@@ -303,11 +303,11 @@ void curlew() {
                               do_it = true;
 
                         if (do_it)
-                              GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
-                                    name, description, date,
-                                    version, checksum, file_name,
-                                    download_dir, url_curlew_prefix,
-                                    have_this_or_more_recent);
+                           GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
+                                                                                  name, description, date,
+                                                                                  version, checksum, file_name,
+                                                                                  download_dir, coot_version_dir_prefix,
+                                                                                  have_this_or_more_recent);
                      } // items
                   } // rounds
                } // try
@@ -416,10 +416,13 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    GtkWidget *icon_widget = 0;
    if (icon.size() > 0) {
       std::string icon_url = url_curlew_prefix + "/" + icon;
-      std::string icon_fn  = coot::util::append_dir_file(download_dir,
-                             coot::util::file_name_non_directory(icon));
+
+      // std::cout << "------------ debug:: url_curlew_prefix " << url_curlew_prefix << std::endl;
+      // std::cout << "------------ debug:: icon_url " << icon_url << std::endl;
+      std::string icon_fn  = coot::util::append_dir_file(download_dir, coot::util::file_name_non_directory(icon));
       if (!coot::file_exists(icon_fn))
-        coot_get_url(icon_url.c_str(), icon_fn.c_str());
+         coot_get_url(icon_url.c_str(), icon_fn.c_str());
+      std::cout << "does this exist? " << icon_fn << std::endl;
       if (coot::file_exists(icon_fn)) {
          GError *error = NULL;
          GtkWidget *w = gtk_image_new_from_file(icon_fn.c_str());
@@ -430,7 +433,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
          }
       } else {
          icon_widget = gtk_label_new("  Icon");
-         std::cout << "set the alignment (deprecated)" << std::endl;
+         std::cout << "in make_and_add_curlew_extension_widget(): set the alignment (deprecated)" << std::endl;
          // gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
       }
    } else {
