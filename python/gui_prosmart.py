@@ -67,17 +67,18 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
         coot.info_dialog("No prosmart")
 
 
-
+# this should not be in gui_prosmart. Put it in restraints_gui.py
+#
 def add_module_restraints():
-    
+
     if True:
         if coot_gui_api.main_menubar():
             menu = coot_gui.coot_menubar_menu("Restraints")
 
             def generate_all_molecule_self_restraints(val):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    generate_self_restraints(aa_imol, val)
+                    coot.generate_self_restraints(aa_imol, val)
 
             def generate_self_restraint_func(sig):
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -193,9 +194,9 @@ def add_module_prosmart():
                 window.show_all()
 
             def generate_self_restraint_func(sig):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    generate_local_self_restraints(aa_imol, aa_chain_id, sig)
+                    coot.generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
             def prosmart_cut_to_func(sig_low, sig_high):
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
