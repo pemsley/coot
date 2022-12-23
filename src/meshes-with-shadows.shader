@@ -259,7 +259,7 @@ void main() {
 	    // vec4 add_col = ambient + diffuse * shadow_diffuse;
 
             // is this right? It looks a bit weird - but maybe it's the effects shader...
-            
+
             add_col = mix(add_col, background_colour, 0.0000001 * fog_amount);
             add_col.a = opacity;
 
