@@ -128,7 +128,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
                      instanced-objects.shader particles.shader lines.shader \
                      draw-map-cap.shader lines-pulse.shader rama-balls.shader \
 		     hud-geometry-tooltip-text.shader \
-		     residue-markers.shader \
+		     residue-markers.shader extra-distance-restraints.shader \
 		     residue-markers-for-ssao.shader \
 		     model-as-mesh.shader ligand-view.shader symmetry-atoms-lines.shader \
 		     rama-plot-phi-psi-markers.shader rama-plot-axes-and-ticks.shader \
