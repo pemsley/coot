@@ -659,7 +659,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 	       // int id = gtk_timeout_add(15, cb, NULL);
 
                int timeout_ms = 15;
-               timeout_ms = 30; // 20220503-PE try this value
+               timeout_ms =  30; // 20220503-PE try this value
+               timeout_ms = 120; // 20221227-PE try this value - Lucrezia crash
 	       int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
