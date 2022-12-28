@@ -27,7 +27,7 @@
 #endif
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 #ifdef THIS_IS_HMT
 #else
 #include "coot-utils/cis-peptide-info.hh"

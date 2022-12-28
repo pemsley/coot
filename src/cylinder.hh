@@ -4,7 +4,7 @@
 
 #include <vector>
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 class cylinder {
    void add_flat_cap(float z);

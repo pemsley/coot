@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 // should be in its own file?
 class ortep_t {

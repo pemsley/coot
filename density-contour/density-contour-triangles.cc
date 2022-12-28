@@ -3,9 +3,9 @@
 
 #include "CIsoSurface.h"
 
-void 
+void
 coot::density_contour_triangles_container_t::depth_sort(const clipper::Coord_orth &back_plane_point,
-							const clipper::Coord_orth &front_plane_point) { 
+							const clipper::Coord_orth &front_plane_point) {
 
    clipper::Coord_orth back_front = front_plane_point - back_plane_point;
    double bf_squared = back_front.lengthsq();
@@ -17,7 +17,7 @@ coot::density_contour_triangles_container_t::depth_sort(const clipper::Coord_ort
       point_indices[i].back_front_projection_distance = dot * dot / bf_squared;
    }
    std::sort(point_indices.begin(), point_indices.end());
-	     
+
 }
 
 void

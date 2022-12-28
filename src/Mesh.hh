@@ -7,7 +7,8 @@
 #include <chrono>
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
+#include "coot-utils/simple-mesh.hh"
 #include "map_triangle.hh"
 
 #include "lights-info.hh"
@@ -80,6 +81,7 @@ public:
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
 
    Mesh() { init(); }
+   Mesh(const coot::simple_mesh_t& mesh);
    // import from somewhere else
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }

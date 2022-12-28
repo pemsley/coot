@@ -151,7 +151,7 @@ namespace molecule_map_type {
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
 
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 #include "fresnel-settings.hh"
 

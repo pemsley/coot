@@ -4,7 +4,7 @@
 
 #include <vector>
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 // this is not the right way, I think. Perhaps use inheritance?
 // But then we have to worry about the layout of the memory...

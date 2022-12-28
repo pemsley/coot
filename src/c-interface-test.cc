@@ -1233,19 +1233,49 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 
+#include "density-contour/gaussian-surface.hh"
+
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
-
    std::string d = coot::prefix_dir();
-
    std::cout << "--------- prefix_dir " << d << std::endl;
 
    graphics_info_t g;
    PyObject *r = Py_False;
 
    if (true) {
+      int i = PyLong_AsLong(i_py);
+      int j = PyLong_AsLong(j_py);
+
+      mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+      coot::gaussian_surface_t gauss_surf(mol);
+      coot::simple_mesh_t smesh = gauss_surf.get_surface();
+      std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+      for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+         vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                        smesh.vertices[i].normal,
+                                        smesh.vertices[i].color);
+         // std::cout << i << " " << glm::to_string(vertices[i].pos) << "\n";
+      }
+      std::cout << "test_function_py(): gaussian-surface got "
+               << smesh.vertices.size() << " vertices and "
+               << smesh.triangles.size() << " triangles" << std::endl;
+
+      g.attach_buffers();
+
+      std::string object_name("Test Gaussian Surface Object");
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.mesh.name = object_name;
+      obj.mesh.set_draw_mesh_state(true);
+      obj.mesh.import(vertices, smesh.triangles);
+      obj.mesh.setup_buffers();
+      g.graphics_draw();
+   }
+
+   if (false) {
      int i = PyLong_AsLong(i_py);
      int j = PyLong_AsLong(j_py);
 

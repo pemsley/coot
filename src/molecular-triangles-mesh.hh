@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 class molecular_triangles_mesh_t {
 public:

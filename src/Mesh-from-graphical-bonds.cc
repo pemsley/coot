@@ -333,6 +333,11 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
          }
       }
    }
+
+   // std::cout << " End of hemispheres" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
 }
 
 void
@@ -413,6 +418,10 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
       }
    }
 
+   // std::cout << " End of bonds" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
 }
 
 

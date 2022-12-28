@@ -5,7 +5,6 @@
 const double pi = M_PI;
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "g_triangle.hh"
 #include "cylinder-with-rotation-translation.hh"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()

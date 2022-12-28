@@ -77,6 +77,19 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
    name = mtm.name;
 }
 
+
+Mesh::Mesh(const coot::simple_mesh_t &mesh) {
+
+   vertices.resize(mesh.vertices.size());
+   for (unsigned int i = 0; i < mesh.vertices.size(); i++) {
+      const auto &vv = mesh.vertices[i];
+      s_generic_vertex v(vv.pos, vv.normal, vv.color);
+      vertices[i] = v;
+   }
+   triangles = mesh.triangles;
+}
+
+
 void
 Mesh::set_is_headless() {
    is_headless = true;
@@ -708,7 +721,7 @@ Mesh::setup_buffers() {
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
    unsigned int n_triangles = triangles.size();
-   unsigned int n_bytes_for_triangles = n_triangles * 3 * sizeof(unsigned int);
+   unsigned int n_bytes_for_triangles = n_triangles * sizeof(g_triangle);
    unsigned int n_bytes_for_lines = lines_vertex_indices.size() * sizeof(unsigned int);
 
    if (first_time) {
@@ -2645,7 +2658,7 @@ Mesh::setup_camera_facing_hex() {
 void
 Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
 
-   bool stellation = true; // pass this 
+   bool stellation = true; // pass this
 
    float turn_per_step = 2.0f * M_PI / static_cast<float>(n_sides);
    glm::vec3 n(0,0,1);
@@ -2677,7 +2690,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
          triangles.push_back(g_triangle(0, idx_this, idx_for_in_vertex));
          triangles.push_back(g_triangle(0, idx_for_in_vertex, idx_for_next_out_vertex));
       }
-      
+
    } else {
       for (unsigned int i=0; i<n_sides; i++) {
          float a = static_cast<float>(i) * turn_per_step;

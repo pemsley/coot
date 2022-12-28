@@ -3,7 +3,7 @@
 #define INSTANCED_MARKUP_MESH_HH
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 #include "lights-info.hh"
 #include "Shader.hh"

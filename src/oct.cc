@@ -7,9 +7,6 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "g_triangle.hh"
-#include "generic-vertex.hh"
-
 #include "prideout-octasphere.hh"
 #include "oct.hh"
 
