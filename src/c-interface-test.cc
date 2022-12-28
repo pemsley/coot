@@ -1249,30 +1249,52 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       int i = PyLong_AsLong(i_py);
       int j = PyLong_AsLong(j_py);
 
-      mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
-      coot::gaussian_surface_t gauss_surf(mol);
-      coot::simple_mesh_t smesh = gauss_surf.get_surface();
-      std::vector<s_generic_vertex> vertices(smesh.vertices.size());
-      for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
-         vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
-                                        smesh.vertices[i].normal,
-                                        smesh.vertices[i].color);
-         // std::cout << i << " " << glm::to_string(vertices[i].pos) << "\n";
+      auto make_a_surface = [] (mmdb::Manager *mol,
+                                unsigned int i_ch, const std::string &chain_id) {
+
+         graphics_info_t g;
+         coot::colour_holder ch(0.8, 0.4, 0.4);
+         ch.rotate_by(0.22 * i_ch);
+         glm::vec4 col = colour_holder_to_glm(ch);
+
+         std::cout << "------- col " << glm::to_string(col) << std::endl;
+
+         coot::gaussian_surface_t gauss_surf(mol, chain_id);
+         coot::simple_mesh_t smesh = gauss_surf.get_surface();
+         std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+         for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+            vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                          smesh.vertices[i].normal,
+                                          smesh.vertices[i].color);
+            vertices[i].color = col;
+            // std::cout << i << " " << glm::to_string(vertices[i].pos) << "\n";
+         }
+         std::cout << "test_function_py(): gaussian-surface got "
+                  << smesh.vertices.size() << " vertices and "
+                  << smesh.triangles.size() << " triangles" << std::endl;
+
+         g.attach_buffers();
+
+         std::string object_name("Gaussian Surface Chain ");
+         object_name += chain_id;
+         int obj_mesh = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+         obj.mesh.name = object_name;
+         obj.mesh.set_draw_mesh_state(true);
+         obj.mesh.import(vertices, smesh.triangles);
+         obj.mesh.setup_buffers();
+         g.graphics_draw();
+      };
+
+      if (is_valid_model_molecule(i)) {
+         mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+         std::vector<std::string> chain_ids = g.molecules[i].get_chain_ids();
+         for (unsigned int i_ch=0; i_ch<chain_ids.size(); i_ch++) {
+            auto chain_id = chain_ids[i_ch];
+            make_a_surface(mol, i_ch, chain_id);
+         }
       }
-      std::cout << "test_function_py(): gaussian-surface got "
-               << smesh.vertices.size() << " vertices and "
-               << smesh.triangles.size() << " triangles" << std::endl;
 
-      g.attach_buffers();
-
-      std::string object_name("Test Gaussian Surface Object");
-      int obj_mesh = new_generic_object_number(object_name);
-      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
-      obj.mesh.name = object_name;
-      obj.mesh.set_draw_mesh_state(true);
-      obj.mesh.import(vertices, smesh.triangles);
-      obj.mesh.setup_buffers();
-      g.graphics_draw();
    }
 
    if (false) {
@@ -1305,7 +1327,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       // ------------------------------------ solid -----------------------------------------
 
-      { 
+      {
          std::string object_name("Ortep Testing Solid");
          int obj_index = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_index];

@@ -20,7 +20,7 @@ coot::gaussian_surface_t::get_surface() const {
 }
 
 void
-coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol) {
+coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id) {
 
    // these affact the smoothness/resolution of the surface
    //
@@ -129,18 +129,21 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         int n_res = chain_p->GetNumberOfResidues();
-         for (int ires=0; ires<n_res; ires++) {
-            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            if (residue_p) {
-               int n_atoms = residue_p->GetNumberOfAtoms();
-               for (int iat=0; iat<n_atoms; iat++) {
-                  // std::cout << "atom " << iat << std::endl;
-                  mmdb::Atom *at = residue_p->GetAtom(iat);
-                  if (! at->isTer()) {
-                     clipper::Coord_orth pt = mmdb_to_clipper(at);
-                     clipper::Coord_orth position_in_grid = pt - coords_base;
-                     place_atom_in_grid(position_in_grid, xmap, expo); // change xmap
+         std::string chain_id_this = chain_p->GetChainID();
+         if (chain_id_this == chain_id) {
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     // std::cout << "atom " << iat << std::endl;
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        clipper::Coord_orth pt = mmdb_to_clipper(at);
+                        clipper::Coord_orth position_in_grid = pt - coords_base;
+                        place_atom_in_grid(position_in_grid, xmap, expo); // change xmap
+                     }
                   }
                }
             }
@@ -265,9 +268,9 @@ coot::gaussian_surface_t::using_calc_density(mmdb::Manager *mol) {
 
 }
 
-coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol) {
+coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id) {
 
    // using_calc_density(mol);
-   using_an_xmap(mol);
+   using_an_xmap(mol, chain_id);
 
 }
