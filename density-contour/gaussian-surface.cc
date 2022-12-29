@@ -24,9 +24,13 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
 
    // these affect the smoothness/resolution of the surface
    //
-   const float sigma = 1.9; // neeeds testing
+   // small sigmas mean higher resolution - 0.6 is very high resolution.
+   float sigma = 1.9; // neeeds testing
+   // 1.9 seems to be too "high resolution"
+   sigma = 3.6; // 3.6 contoured at 4.0 is a nice smooth low resolution surface
    float gs = 1.0; // bigger number means more finely sampled grid
-   float contour_level = 0.8;
+   float contour_level = 4.0;
+   double box_radius = 5.0; // try smaller values - or larger ones for bigger sigma
 
    auto expo_index_to_float = [] (int i) {
       return static_cast<float>(i) * 0.01;
@@ -45,12 +49,11 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       return coot::Cartesian(co.x(), co.y(), co.z());
    };
 
-   auto place_atom_in_grid = [float_to_expo_index, sigma] (const clipper::Coord_orth &pt,
+   auto place_atom_in_grid = [float_to_expo_index, sigma, box_radius] (const clipper::Coord_orth &pt,
                               clipper::Xmap<float> &xmap,
                               const std::vector<float> &expo) {
       // std::cout << "place_atom_in_grid " << pt.format() << std::endl;
       clipper::Coord_frac centre_f = pt.coord_frac(xmap.cell());
-      double box_radius = 3.0; // try smaller values
 
       clipper::Coord_frac box0(
                                centre_f.u() - box_radius/xmap.cell().descr().a(),

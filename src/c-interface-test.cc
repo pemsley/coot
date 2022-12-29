@@ -1284,6 +1284,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          obj.mesh.name = object_name;
          obj.mesh.set_draw_mesh_state(true);
          obj.mesh.import(vertices, smesh.triangles);
+         obj.mesh.set_material_specularity(0.01, 128);
          obj.mesh.setup_buffers();
          g.graphics_draw();
       };

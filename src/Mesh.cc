@@ -1748,6 +1748,7 @@ Mesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
 
+   // std::cout << "Here with use_blending " << use_blending << std::endl;
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
