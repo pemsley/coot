@@ -178,9 +178,11 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    }
 
    coot::Cartesian centre(10, 10, 10);
-   std::pair<bool, clipper::Coord_orth> cc = coot::centre_of_molecule(mol);
-   if (cc.first)
-      centre = coot::Cartesian(cc.second.x(), cc.second.y(), cc.second.z());
+   // std::pair<bool, clipper::Coord_orth> cc = coot::centre_of_molecule(mol);
+   // if (cc.first)
+      // centre = coot::Cartesian(cc.second.x(), cc.second.y(), cc.second.z());
+   clipper::Coord_orth e_midpoint = 0.5 * (e.first + e.second);
+   centre = clipper_to_cart(e_midpoint);
    centre -= coords_base_cart;
    std::cout << "--------- Centre of molecule " << centre << " ----------" << std::endl;
    int isample_step = 1;
