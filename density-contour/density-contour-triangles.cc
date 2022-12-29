@@ -99,7 +99,7 @@ coot::density_contour_triangles_container_t::calculate_normals() {
       for (unsigned int i=0; i<sum_normals.size(); i++)
          sum_normals[i] = zero;
 
-      for (unsigned int i=0; i<point_indices.size(); i++) { 
+      for (unsigned int i=0; i<point_indices.size(); i++) {
          for (int j=0; j<3; j++) {
             sum_normals[point_indices[i].pointID[j]] += point_indices[i].normal_for_flat_shading;
             n_contribs[point_indices[i].pointID[j]]++;

@@ -1269,9 +1269,11 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             vertices[i].color = col;
             // std::cout << i << " " << glm::to_string(vertices[i].pos) << "\n";
          }
-         std::cout << "test_function_py(): gaussian-surface got "
-                  << smesh.vertices.size() << " vertices and "
-                  << smesh.triangles.size() << " triangles" << std::endl;
+
+         if (false)
+            std::cout << "test_function_py(): gaussian-surface got "
+                      << smesh.vertices.size() << " vertices and "
+                      << smesh.triangles.size() << " triangles" << std::endl;
 
          g.attach_buffers();
 

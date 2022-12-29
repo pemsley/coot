@@ -22,11 +22,11 @@ coot::gaussian_surface_t::get_surface() const {
 void
 coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id) {
 
-   // these affact the smoothness/resolution of the surface
+   // these affect the smoothness/resolution of the surface
    //
-   const float sigma = 1.7; // neeeds testing
+   const float sigma = 1.9; // neeeds testing
    float gs = 1.0; // bigger number means more finely sampled grid
-   float contour_level = 1.0;
+   float contour_level = 0.8;
 
    auto expo_index_to_float = [] (int i) {
       return static_cast<float>(i) * 0.01;
@@ -50,7 +50,7 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
                               const std::vector<float> &expo) {
       // std::cout << "place_atom_in_grid " << pt.format() << std::endl;
       clipper::Coord_frac centre_f = pt.coord_frac(xmap.cell());
-      double box_radius = 5.0; // try smaller values
+      double box_radius = 3.0; // try smaller values
 
       clipper::Coord_frac box0(
                                centre_f.u() - box_radius/xmap.cell().descr().a(),
@@ -90,8 +90,29 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       }
    };
 
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = util::extents(mol);
+   int sel_hnd = mol->NewSelection(); // d
+   mol->SelectAtoms (sel_hnd, 0, chain_id.c_str(),
+                     mmdb::ANY_RES, // starting resno, an int
+                     "*", // any insertion code
+                     mmdb::ANY_RES, // ending resno
+                     "*", // ending insertion code
+                     "!HOH", // any residue name
+                     "*",
+                     "*", // elements
+                     "*"  // alt loc.
+                     );
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = util::extents(mol, sel_hnd);
+   mmdb::PAtom *atom_selection = NULL;
+   int n_selected_atoms;
+   mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
 
+   if (n_selected_atoms == 0)  return;
+
+   std::cout << "debug: chain-id " << chain_id << " extents: "
+             << e.first.format() << " "
+             << e.second.format() << std::endl;
+
+   mol->DeleteSelection(sel_hnd);
    // extend the extents
    clipper::Coord_orth delta(5,5,5);
    e.first  -= delta;
@@ -111,6 +132,9 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    float ninety = clipper::Util::d2rad(90.0);
    clipper::Cell_descr cell_desc(dimensions.x(), dimensions.y(), dimensions.z(), ninety, ninety, ninety);
    clipper::Cell cell(cell_desc);
+
+   std::cout << "debug:: cell and grid sampling: " << cell.format() << " "
+             << grid_sampling.format() << "\n";
 
    clipper::RTop_orth rtop_orth(clipper::RTop_orth::identity());
    clipper::Spacegroup spacegroup(clipper::Spacegroup::P1);
@@ -135,6 +159,8 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
             for (int ires=0; ires<n_res; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
+                  std::string res_name_this = residue_p->GetResName();
+                  if (res_name_this == "HOH") continue;
                   int n_atoms = residue_p->GetNumberOfAtoms();
                   for (int iat=0; iat<n_atoms; iat++) {
                      // std::cout << "atom " << iat << std::endl;
@@ -186,18 +212,12 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       mesh.vertices.push_back(vertex);
    }
 
-   std::cout << "debug:: in using_an_xmap() point_indicies " << tri_con.point_indices.size() << std::endl;
-   std::cout << "debug:: in using_an_xmap() start triangles size " << mesh.triangles.size() << std::endl;
-
    mesh.triangles.reserve(tri_con.point_indices.size());
    for (size_t i = 0; i < tri_con.point_indices.size(); i++) {
       const auto &t = tri_con.point_indices[i];
       g_triangle tri(t.pointID[0], t.pointID[1], t.pointID[2]);
       mesh.triangles.push_back(tri);
    }
-
-   std::cout << "debug:: in using_an_xmap() post-transfer triangles size "
-             << mesh.triangles.size() << std::endl;
 
 }
 
