@@ -513,7 +513,6 @@ libcootsumo_la_SOURCES = \
 	ft-character.hh \
 	old-generic-display-object.hh\
 	old-generic-display-object.cc\
-        g_triangle.hh            \
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
 	generic-vertex.hh	 \
