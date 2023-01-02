@@ -5125,7 +5125,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       double sigma = 0.1; // what is this actually?
       double penalty = ebrr.distortion_score_GM(sigma, geman_mcclure_alpha);
       if (penalty < penalty_min) continue;
-      double width = 1.5 * penalty;
+      double width = 0.3 * penalty;
       if (width < 0.01) width = 0.01;
       if (width > 0.10) width = 0.10;
       edrmid.width = width;
@@ -5150,7 +5150,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       // for colouring, limit the delta_length)
       if (delta_length >  1.0) delta_length =  1.0;
       if (delta_length < -1.0) delta_length = -1.0;
-      glm::vec4 colour = colour_base + delta_length * glm::vec4(-1.1f, 1.1f, -1.1, 0.0f);
+      glm::vec4 colour = colour_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
       edrmid.colour = 0.8f * colour;
       extra_distance_restraints_markup_data.push_back(edrmid);
    }

@@ -1516,7 +1516,7 @@ Mesh::draw_instanced(Shader *shader_p,
 // // c.f. extra-distance-restraints-markup.hh
 // layout(location = 3) in float width;  // these are all instanced.
 // layout(location = 4) in float length;
-// layout(location = 5) in vec3 position; 
+// layout(location = 5) in vec3 position;
 // layout(location = 6) in mat3 orientation;
 // layout(location = 7) in vec4 colour_instanced;
 void
@@ -3005,9 +3005,9 @@ Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // 
    is_instanced = true;
    is_instanced_with_rts_matrix = false;
 
-   unsigned int n_slices = 32; // too many                         
+   unsigned int n_slices = 8; // 32; is too many
    unsigned int n_stacks = 2;
-   
+
    glm::vec3 start_pos(0, 0, 0);
    glm::vec3 end_pos(0, 0, 1);
    std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
