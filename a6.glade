@@ -30608,7 +30608,6 @@ Move a copy?</property>
   </object>
 
 <object class="GtkDialog" id="curlew_dialog">
-  <property name="visible">True</property>
   <property name="title" translatable="yes">Coot Curlew</property>
   <property name="type_hint">dialog</property>
   <property name="deletable">False</property>
