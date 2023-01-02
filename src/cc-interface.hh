@@ -321,6 +321,11 @@ void go_to_map_molecule_centre(int imol_map);
 //!
 float b_factor_from_map(int imol_map);
 
+//! \brief trace the given map and try to apply the sequence in
+//! the given pir file
+void res_tracer(int imol_map, const std::string &pir_file_name);
+
+
 //! \brief return the colour triple of the imolth map
 //!
 //! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.

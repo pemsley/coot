@@ -201,6 +201,7 @@ def get_pdbe_cif_for_comp_id(comp_id):
 
    try:
       url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+      url = 'https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/'        + comp_id + '.cif'
       CCD_dir = 'CCD'
       # file_name = "PDBe-" + comp_id + ".cif"
       first_char = comp_id[0]
@@ -215,6 +216,7 @@ def get_pdbe_cif_for_comp_id(comp_id):
             return file_name
          else:
             url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+            url = 'https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/'        + comp_id + '.cif'
             status = urllib.urlretrieve(url, file_name)
             print('urllib.urllib returned with status', status)
             return file_name
