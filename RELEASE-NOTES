@@ -11,6 +11,8 @@
 
   o BUG-FIX: RNA linking fixed [Keitaro Yamashita and Andrey Lebadev]
 
+  o NOTE: Coot is now tested against the new monomer library.
+
 ----
 
   Release 0.9.8.6
