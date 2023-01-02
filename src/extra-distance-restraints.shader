@@ -65,6 +65,7 @@ struct LightSource {
     bool directional;
     vec4 position;
     vec3 direction_in_molecule_coordinates_space;
+    vec3 direction;
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
@@ -121,7 +122,8 @@ void main() {
          vec4 ambient = ct * light_sources[i].ambient * 0.2; // we are not using material here
 
          // diffuse
-         vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space.xyz;
+         // vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space.xyz;
+         vec3 light_dir = -light_sources[i].direction;
          vec3 norm_2 = normalize(normal_transfer); // not needed?
 
          // do I need to send over light_space_mvp? (c.f. meshes-with-shadows.shader)
@@ -149,7 +151,7 @@ void main() {
          // spec = 0;
          vec4 specular = spec * light_sources[i].specular;
 
-         // final
+         // final - let's get the diffuse right...
          outputColor += ambient + diffuse + specular;
 
          // if (dp_view_reflect > 0.98) outputColor = vec4(1,0,0,1);
