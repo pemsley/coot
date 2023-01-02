@@ -1610,6 +1610,9 @@ if test "$build_coot_prerelease" = 1 ; then
       awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html
 
       coot_version=$(awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+      coot_version=coot-0.9.8.5
+      coot_version=coot-0.9.8.6
+      coot_version=coot-0.9.8.7
       echo NNX:: coot_version $coot_version
 
    else
@@ -1646,6 +1649,7 @@ else
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+    coot_version=coot-0.9.8.3 # the other one is used
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
