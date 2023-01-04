@@ -1724,11 +1724,11 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /* ------------------------------------------------------------------------- */
 /*! \name Coot's Hole implementation */
 
-/*! \brief starting piont and end point, colour map multiplier and
+/*! \brief starting point and end point, colour map multiplier and
   shall the probe radius graph be shown (dummy value currently).
 
-if export_dots_file_name string length is zero, then don't try to
-export the surface dots.
+ if export_dots_file_name string length is zero, then don't try to
+ export the surface dots.
 
 */
 void hole(int imol,
@@ -1746,6 +1746,16 @@ void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_ort
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 
+/* ------------------------------------------------------------------------- */
+/*                      Gaussian Surface                                     */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Gaussian Surface */
+
+//! \brief The surface is separated into chains to make Generid Display Objects
+//!        There is no colour, contour, grid or sigma or material control yet for Gaussian surfaces.
+//!
+//!        there should be one day...
+int gaussian_surface(int imol);
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */

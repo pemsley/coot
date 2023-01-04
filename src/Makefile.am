@@ -511,8 +511,10 @@ libcootsumo_la_SOURCES = \
         framebuffer.hh           \
         fresnel-settings.hh      \
 	ft-character.hh \
-	old-generic-display-object.hh\
-	old-generic-display-object.cc\
+	old-generic-display-object.hh \
+	old-generic-display-object.cc \
+	gaussian-surface.hh      \
+	gaussian-surface.cc      \
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
 	generic-vertex.hh	 \
@@ -538,11 +540,11 @@ libcootsumo_la_SOURCES = \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
-	graphics-info-intermediate.cc	 \
-	graphics-info-modelling.cc \
-	graphics-info-navigation.cc	\
-	graphics-info-navigation-gtk2.cc\
-	graphics-info-preferences.cc	\
+	graphics-info-intermediate.cc    \
+	graphics-info-modelling.cc       \
+	graphics-info-navigation.cc	 \
+	graphics-info-navigation-gtk2.cc \
+	graphics-info-preferences.cc	 \
 	graphics-info-network.cc \
 	graphics-info-mutate.cc	 \
 	graphics-info-lsq.cc	 \
