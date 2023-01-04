@@ -125,7 +125,9 @@ public:
    // void setup(Shader *shader_p, const Material &material_in);  I don't need the shader, do I?
    void setup(const Material &material_in);
    void set_material(const Material &material_in) { material = material_in; }
+   //! by using set_material_specularity(), specularity is turned on for this mesh material
    void set_material_specularity(float ss, float shininess) {
+      material.do_specularity = true;
       material.specular_strength = ss;
       material.shininess = shininess;
    }
@@ -367,6 +369,12 @@ public:
                       const glm::mat4 &model,
                       const glm::mat4 &view,
                       const glm::mat4 &projection);  // draw into the gbuffer framebuffer.
+
+
+   void draw_instances_for_ssao(Shader *shader_p,
+                                const glm::mat4 &model,
+                                const glm::mat4 &view,
+                                const glm::mat4 &projection);
 
    // make space
    void setup_instancing_buffer_data(Shader *shader_p,

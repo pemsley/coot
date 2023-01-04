@@ -1707,7 +1707,7 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool draw_as_lines_flag, // or surface mesh
            bool do_depth_fog,
-	   bool show_just_shadows) {
+           bool show_just_shadows) {
 
    if (false)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
@@ -2249,14 +2249,14 @@ Mesh::draw_for_ssao(Shader *shader_p,
 
    if (vao == VAO_NOT_SET)
       std::cout << "Mesh::draw_for_ssao() You forgot to setup this mesh "
-		<< "(or setup with empty vertices or triangles) "
+                << "(or setup with empty vertices or triangles) "
                 << "\"" << name << "\" \"" << shader_p->name << "\"" << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
    if (err)
      std::cout << "   error draw_for_ssao() \"" << shader_name << "\" \"" << name << "\""
-	       << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
+               << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
 
    glEnableVertexAttribArray(0); // position
    glEnableVertexAttribArray(1); // normal
@@ -2282,6 +2282,54 @@ Mesh::draw_for_ssao(Shader *shader_p,
    glUseProgram(0);
 
 }
+
+
+
+void
+Mesh::draw_instances_for_ssao(Shader *shader_p,
+                              const glm::mat4 &model,
+                              const glm::mat4 &view,
+                              const glm::mat4 &projection) {
+
+   if (! draw_this_mesh) return;
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
+   glEnableVertexAttribArray(3); // bitangent // not used
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
+   glEnableVertexAttribArray(6); // instanced position
+
+
+   shader_p->set_mat4_for_uniform("model",      model);
+   shader_p->set_mat4_for_uniform("view",       view);
+   shader_p->set_mat4_for_uniform("projection", projection);
+
+   unsigned int n_verts = 6;
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
+
+}
+
+
 
 // draw symmetry with lines
 void

@@ -2836,7 +2836,7 @@ public:
 
    // --- Extra Distance Restraints ---
 
-   static void draw_extra_distance_restraints();
+   static void draw_extra_distance_restraints(int pass_type);
    void make_extra_distance_restraints_objects(); // (re)generate them
    static float extra_distance_restraint_penalty_cutoff; // restraints that have less penalty/energy than
                                                          // this are not worth drawing.
@@ -3222,7 +3222,7 @@ public:
    static bool display_generic_objects_as_solid_flag;
    static void draw_geometry_objects();
    static void draw_dynamic_distances();
-   static void draw_generic_objects();
+   static void draw_generic_objects(unsigned int pass_type);
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();

@@ -1658,7 +1658,7 @@ graphics_info_t::draw_molecules() {
 
    draw_environment_graphics_object();
 
-   draw_generic_objects();
+   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -1814,7 +1814,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_environment_graphics_object();
 
-   draw_generic_objects();
+   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -2035,6 +2035,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
          }
       }
 
+      // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
+
       if (have_meshes_to_draw) {
          // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
          glDisable(GL_BLEND);
@@ -2044,7 +2046,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
                Mesh &mesh = m.meshes[jj];
 
-               if (false)
+               if (true)
                   std::cout << "mesh jj " << jj << " of " << m.meshes.size()
                             << " instanced: " << m.meshes[jj].is_instanced << std::endl;
 
@@ -3861,7 +3863,7 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    draw_pointer_distances_objects();
 
-   draw_extra_distance_restraints(); // GM_restraints
+   draw_extra_distance_restraints(PASS_TYPE_FOR_SHADOWS); // GM_restraints
 
    draw_texture_meshes();
 
@@ -5165,20 +5167,37 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
 // static
 void
-graphics_info_t::draw_extra_distance_restraints() {
+graphics_info_t::draw_extra_distance_restraints(int pass_type) {
 
    // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
    //
-   if (show_extra_distance_restraints_flag) {
-      if (! extra_distance_restraints_markup_data.empty()) {
-         glm::mat4 mvp = get_molecule_mvp();
-         glm::mat4 model_rotation_matrix = get_model_rotation();
-         glm::vec4 bg_col(background_colour, 1.0f);
-         glDisable(GL_BLEND);
-         Shader &shader = shader_for_extra_distance_restraints;
-         mesh_for_extra_distance_restraints.draw_extra_distance_restraint_instances(&shader, mvp, model_rotation_matrix, lights,
-                                                                                    eye_position, bg_col, shader_do_depth_fog_flag);
+   if (pass_type == PASS_TYPE_STANDARD) {
+      if (show_extra_distance_restraints_flag) {
+         if (! extra_distance_restraints_markup_data.empty()) {
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 model_rotation_matrix = get_model_rotation();
+            glm::vec4 bg_col(background_colour, 1.0f);
+            glDisable(GL_BLEND);
+            Shader &shader = shader_for_extra_distance_restraints;
+            mesh_for_extra_distance_restraints.draw_extra_distance_restraint_instances(&shader, mvp, model_rotation_matrix, lights,
+                                                                                       eye_position, bg_col, shader_do_depth_fog_flag);
+         }
       }
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+
+      Shader &shader = shader_for_extra_distance_restraints; // wrong shader - needs a new one.
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      bool do_orthographic_projection = ! perspective_projection_flag;
+      auto model_matrix = get_model_matrix();
+      auto view_matrix = get_view_matrix();
+      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+      mesh_for_extra_distance_restraints.draw_instances_for_ssao(&shader,
+                                                                 model_matrix, view_matrix, projection_matrix);
    }
 
 }

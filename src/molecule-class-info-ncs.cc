@@ -295,7 +295,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
       allow_offset_flag = 1;
    
    // start from a blank slate:
-   ncs_ghosts.resize(0); // potential memory leak.
+   ncs_ghosts.clear();
+
    // OK, so after we have run through this function, there will be
    // rtops if we asked for them.
    if (do_rtops_flag)

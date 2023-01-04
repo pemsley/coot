@@ -28,7 +28,8 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    float sigma = 1.9; // neeeds testing
    // 1.9 seems to be too "high resolution"
    sigma = 3.6; // 3.6 contoured at 4.0 is a nice smooth low resolution surface
-   float gs = 1.0; // bigger number means more finely sampled grid
+   sigma = 4.4; // also good.
+   float gs = 0.7; // bigger number means more finely sampled grid (bigger numbers are cubic slower)
    float contour_level = 4.0;
    double box_radius = 5.0; // try smaller values - or larger ones for bigger sigma
 
@@ -111,9 +112,10 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
 
    if (n_selected_atoms == 0)  return;
 
-   std::cout << "debug: chain-id " << chain_id << " extents: "
-             << e.first.format() << " "
-             << e.second.format() << std::endl;
+   if (false)
+      std::cout << "debug: chain-id " << chain_id << " extents: "
+                << e.first.format() << " "
+                << e.second.format() << std::endl;
 
    mol->DeleteSelection(sel_hnd);
    // extend the extents
@@ -136,10 +138,10 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    clipper::Cell_descr cell_desc(dimensions.x(), dimensions.y(), dimensions.z(), ninety, ninety, ninety);
    clipper::Cell cell(cell_desc);
 
-   std::cout << "debug:: cell and grid sampling: " << cell.format() << " "
-             << grid_sampling.format() << "\n";
+   if (false)
+      std::cout << "debug:: cell and grid sampling: " << cell.format() << " "
+                << grid_sampling.format() << "\n";
 
-   clipper::RTop_orth rtop_orth(clipper::RTop_orth::identity());
    clipper::Spacegroup spacegroup(clipper::Spacegroup::P1);
    clipper::Xmap<float> xmap(spacegroup, cell, grid_sampling);
 
@@ -187,7 +189,7 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    clipper::Coord_orth e_midpoint = 0.5 * (e.first + e.second);
    centre = clipper_to_cart(e_midpoint);
    centre -= coords_base_cart;
-   std::cout << "--------- Centre of molecule " << centre << " ----------" << std::endl;
+   // std::cout << "--------- Centre of molecule " << centre << " ----------" << std::endl;
    int isample_step = 1;
    int iream_start = 0;
    int n_reams = 1;
@@ -201,9 +203,10 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
                                                   contour_level, dy_radius, centre, isample_step,
                                                   iream_start, n_reams, is_em_map);
 
-   std::cout << "tri_con points: " << tri_con.points.size()
-             << " n-triangles " << tri_con.point_indices.size() << " "
-             << std::endl;
+   if (false)
+      std::cout << "tri_con points: " << tri_con.points.size()
+                << " n-triangles " << tri_con.point_indices.size() << " "
+                << std::endl;
 
    // transfer tri_con to simple_mesh_t
    mesh.vertices.reserve(tri_con.points.size());
