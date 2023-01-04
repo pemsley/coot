@@ -1946,18 +1946,18 @@ Mesh::draw(Shader *shader_p,
 
 void
 Mesh::draw_with_shadows(Shader *shader_p,
-			const glm::mat4 &mvp,
-			const glm::mat4 &view_rotation_matrix,
-			const std::map<unsigned int, lights_info_t> &lights,
-			const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                        const glm::mat4 &mvp,
+                        const glm::mat4 &view_rotation_matrix,
+                        const std::map<unsigned int, lights_info_t> &lights,
+                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                         float opacity,
-			const glm::vec4 &background_colour,
-			bool do_depth_fog,
-			const glm::mat4 &light_view_mvp,
-			unsigned int shadow_depthMap,
-			float shadow_strength,
+                        const glm::vec4 &background_colour,
+                        bool do_depth_fog,
+                        const glm::mat4 &light_view_mvp,
+                        unsigned int shadow_depthMap,
+                        float shadow_strength,
                         unsigned int shadow_softness,
-			bool show_just_shadows) {
+                        bool show_just_shadows) {
 
    // this is largely a copy of draw() - then shadow params added.
 
