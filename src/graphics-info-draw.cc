@@ -2046,7 +2046,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
                Mesh &mesh = m.meshes[jj];
 
-               if (true)
+               if (false)
                   std::cout << "mesh jj " << jj << " of " << m.meshes.size()
                             << " instanced: " << m.meshes[jj].is_instanced << std::endl;
 
