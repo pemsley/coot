@@ -1710,6 +1710,7 @@ graphics_info_t::run_post_read_model_hook(int imol) {
 void
 graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
 
+
 #ifdef USE_GUILE
    run_post_manipulation_hook_scm(imol, mode);
 #endif // GUILE
@@ -1749,7 +1750,10 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
-   std::string pms = "coot_utils.post_manipulation_script";
+   // std::cout << "----------------------------------- run_post_manipulation_hook_py()! " << std::endl;
+
+   // std::string pms = "coot_utils.post_manipulation_script";
+   std::string pms = "post_manipulation_script";
    // pms = "print";
    std::string check_pms = "callable(" + pms + ")";
 
@@ -1773,21 +1777,25 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    }
 
    if (result) {
-      if (ret == 1) { // ingnore the above test for callable function
+      if (ret == 1) {
          std::string ss = pms;
          ss += "(";
          ss += int_to_string(imol);
          ss += ", ";
          ss += int_to_string(mode);
          ss += ")";
+         // std::cout << "running safe command: " << ss << std::endl;
          PyObject *res = safe_python_command_with_return(ss);
-         PyObject *fmt =  myPyString_FromString("result: \%s");
-         PyObject *tuple = PyTuple_New(1);
-         PyTuple_SetItem(tuple, 0, res);
-         //PyString_Format(p, tuple);
-         PyObject *msg = PyUnicode_Format(fmt, tuple);
-         // std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
-         Py_DECREF(msg);
+         // std::cout << "safe_python_command_with_return() returned res " << res << std::endl;
+         if (res) {
+            PyObject *fmt =  myPyString_FromString("result: \%s");
+            PyObject *tuple = PyTuple_New(1);
+            PyTuple_SetItem(tuple, 0, res);
+            //PyString_Format(p, tuple);
+            PyObject *msg = PyUnicode_Format(fmt, tuple);
+            // std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
+            Py_DECREF(msg);
+         }
       }
    }
 
