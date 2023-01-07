@@ -2008,7 +2008,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
-   bool do_depth_fog = true;
+   bool do_depth_fog = shader_do_depth_fog_flag;
 
    unsigned int light_index = 0;
    std::map<unsigned int, lights_info_t>::const_iterator it = lights.find(light_index);
@@ -2358,7 +2358,8 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 }
 
 
-
+// create and pack, but don't show it (in this function).
+//
 GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
    // the use_gtk_builder flag really means "was invoked from the path that..."
