@@ -1750,6 +1750,8 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
+   // modes are in manipulation-modes - make it an enum class one day.
+
    // std::cout << "----------------------------------- run_post_manipulation_hook_py()! " << std::endl;
 
    // std::string pms = "coot_utils.post_manipulation_script";
