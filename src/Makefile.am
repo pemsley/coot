@@ -57,10 +57,6 @@ EPOXY_LIBS = -lepoxy
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
 
-# and similarly for the GL context:
-GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
-GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
-
 # MOLECULESTOTRIANGLES=$(install_top_dir)
 # MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
 # MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
@@ -258,7 +254,6 @@ AM_CPPFLAGS = \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(GLM_CXXFLAGS)                 \
 	$(SWIG_FLAGS)			\
-	$(GTKGL_CONTEXT_CFLAGS)		\
 	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
@@ -758,7 +753,7 @@ endif
 
 # testcartesian_LDADD = $(COOT_EXTRA_LIBS)
 
-# graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
+# graphics_crash_test_LDADD = @GTK_LIBS@ $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
 # merge problems I think. fix another time.
 #
@@ -804,30 +799,29 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 #
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
       $(COOT_EXTRA_LIBS) \
-		$(VORBISFILE_LIBS)           \
+		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
-		$(GUILE_GTK_LIBS) \
+		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
-		$(GTKGL_CONTEXT_LIBS) \
-		$(EPOXY_LIBS)        \
-		$(CANVAS_LIBS) 		\
-		$(GSL_LIBS) -lblas   \
-		$(MYSQL_LIBS)		   \
-		$(CURL_LIBS)		   \
+		$(CANVAS_LIBS) 	      \
+		$(GSL_LIBS) -lblas    \
+		$(MYSQL_LIBS)	      \
+		$(CURL_LIBS)	      \
 	  	$(RDKIT_LIBS)	      \
-		$(BOOST_LDFLAGS)     \
-		$(L_BOOST_PYTHON)	   \
-		$(GOOCANVAS_LIBS)    \
-		-lfreetype           \
-		$(SQLITE3_LIBS)      \
-		@GTK_LIBS@           \
-		$(SHARED_LDFLAGS)    \
+		$(BOOST_LDFLAGS)      \
+		$(L_BOOST_PYTHON)     \
+		-lfreetype            \
+		$(SQLITE3_LIBS)       \
+		@GTK_LIBS@            \
+		$(GOOCANVAS_LIBS)     \
+		$(EPOXY_LIBS)         \
+		$(SHARED_LDFLAGS)     \
 		-lpthread
 
 # make freetype a configure variable FREETYPE_LIBS
