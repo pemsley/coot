@@ -18,6 +18,10 @@
  * 02110-1301, USA
  */
 
+#include <string>
+#include <mmdb2/mmdb_manager.h>
+#include "geometry/protein-geometry.hh"
+
 /*! \file
   \brief Coot Scripting Interface - SDF/Molfile interface
 */
@@ -28,13 +32,14 @@
 // #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // 
 // was it OK or not?  (i.e. did we not catch an exception)
-bool residue_to_sdf_file(int imol, const char *chain_id, int resno, const char *ins_code, 
-			 const char *sdf_file_name, bool kekulize = true);
-bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
-				   int resno, const char *ins_code, 
-				   const char *mdl_file_name);
+bool residue_to_sdf_file(int imol, mmdb::Residue *residue_p,  const char *sdf_file_name,
+                         const coot::protein_geometry &geom, bool kekulize = true);
+bool residue_to_mdl_file_for_mogul(int imol, mmdb::Residue *residue_p, const std::string &mdl_file_name,
+                                   const coot::protein_geometry &geom);
+
 // rdkit chemical features.
-bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
+// bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code); (make generic objects)
+bool show_feats(int imol, mmdb::Residue *residue_p, const coot::protein_geometry &geom);
 
 // This is not an sdf function, perhaps it should be somewhere else - but
 // if in rdkit-interface.hh, it would be a singleton.

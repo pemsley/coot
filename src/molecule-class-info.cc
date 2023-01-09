@@ -101,12 +101,11 @@ const double pi = M_PI;
 #include "ligand/residue_by_phi_psi.hh"
 #include "mini-mol/mini-mol-utils.hh"
 
-#include "cylinder-with-rotation-translation.hh" // for bonds
+// #include "cylinder-with-rotation-translation.hh" // for bonds
 
 // for debugging
 #include "c-interface.h"
 
-#include "oct.hh"
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
  
@@ -4171,7 +4170,7 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
 
  
 void
-molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+molecule_class_info_t::export_these_as_3d_object(const std::vector<coot::api::vertex_with_rotation_translation> &vertices,
                                                  const std::vector<g_triangle> &triangles) {
 
    export_vertices_and_triangles_func(vertices, triangles);
@@ -4179,7 +4178,7 @@ molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_r
 
 
 void
-molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<coot::api::vertex_with_rotation_translation> &vertices,
                                                 const std::vector<g_triangle> &triangles) {
 
     if (false)
@@ -4236,30 +4235,30 @@ molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_ro
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
-   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
+   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
    // "from origin" translate position, 3, size 3 floats
    glEnableVertexAttribArray(3);
-   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
+   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
 
    // positions, 4, size 3 floats
    glEnableVertexAttribArray(4);
    err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 6\n";
-   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
+   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
    err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
    //  normals, 5, size 3 floats
    glEnableVertexAttribArray(5);
    err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 11\n";
-   glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
+   glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
    err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 12\n";
 
    //  colours, 6, size 4 floats
    glEnableVertexAttribArray(6);
    err = glGetError(); if (err) std::cout << "GL error setup_glsl_bonds_buffers()  16\n";
-   glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
+   glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
    err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
    // Indices

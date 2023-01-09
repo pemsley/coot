@@ -152,7 +152,6 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/c-interface-refine.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/c-interface-generic-objects.h \
-                             $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/curlew.h \
                              $(top_srcdir)/src/curlew.hh \
@@ -177,11 +176,10 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/coot.i             \
                          $(top_srcdir)/src/cc-interface-ncs.hh  \
                          $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
-	                      $(top_srcdir)/src/cc-interface-scripting.hh \
+                         $(top_srcdir)/src/cc-interface-scripting.hh \
                          $(top_srcdir)/src/lbg-interface.hh   \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
-                         $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
                          $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
@@ -481,10 +479,6 @@ libcootsumo_la_SOURCES = \
 	coot_wrap_guile.cc       \
         curlew.h                 \
         curlew.hh                \
-	cylinder.hh		 \
-	cylinder.cc		 \
-	cylinder-with-rotation-translation.hh	 \
-	cylinder-with-rotation-translation.cc	 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \
@@ -635,14 +629,11 @@ libcootsumo_la_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
-	oct.cc oct.hh            \
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
         pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
-	prideout-octasphere.hh   \
-	prideout-octasphere.cc   \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
@@ -673,9 +664,6 @@ libcootsumo_la_SOURCES = \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc \
-	sdf-interface.hh         \
-	sdf-internal.hh          \
-	sdf-interface.cc         \
 	select-atom-info.hh      \
 	sequence-view.hh         \
 	sequence-view.cc         \

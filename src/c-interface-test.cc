@@ -1229,7 +1229,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "oct.hh"
+#include "coot-utils/oct.hh" // ortep
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 

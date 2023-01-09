@@ -105,7 +105,7 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
          // glm::vec4 p_1(x*top_radius, y*top_radius, z_this, 1.0f);
          glm::vec4 p_n(x, y, 0.0f, 1.0f);
 
-         s_generic_vertex &v = vertices[idx];
+         coot::api::vnc_vertex &v = vertices[idx];
          v.color = basic_colour;
          v.pos = glm::vec3(ori * p_1);
          v.pos += start;
@@ -166,7 +166,7 @@ cylinder::add_flat_cap(int end_type) {
 
    unsigned int idx_base = vertices.size();
 
-   s_generic_vertex vert;
+   coot::api::vnc_vertex vert;
    vert.pos    = glm::vec3(ori * glm::vec4(0,0,z,1.0f)) + start;
    vert.normal = glm::vec3(ori * n4);
    vert.color  = basic_colour;
@@ -180,7 +180,7 @@ cylinder::add_flat_cap(int end_type) {
       float x = cosf(theta_this);
       float y = sinf(theta_this);
       glm::vec4 p_1(x * radius, y *radius, z, 1.0);
-      s_generic_vertex v;
+      coot::api::vnc_vertex v;
       v.pos    = glm::vec3(ori * p_1);
       v.pos+= start;
       v.normal = glm::vec3(ori * n4);
@@ -210,7 +210,7 @@ cylinder::add_octahemisphere_end_cap() {
 
    std::vector<glm::vec3> &vv = hemi.first;
 
-   std::vector<s_generic_vertex> nv(vv.size());
+   std::vector<coot::api::vnc_vertex> nv(vv.size());
    for (unsigned int i=0; i<vv.size(); i++) {
       nv[i].normal = glm::vec3(ori * glm::vec4(vv[i], 1.0f));
       vv[i] *= radius;
@@ -242,7 +242,7 @@ cylinder::add_octahemisphere_start_cap() {
 
    std::vector<glm::vec3> &vv = hemi.first;
 
-   std::vector<s_generic_vertex> nv(vv.size());
+   std::vector<coot::api::vnc_vertex> nv(vv.size());
    for (unsigned int i=0; i<vv.size(); i++) {
       vv[i].z = -vv[i].z;  // 20210911-PE dangerous? (changes the winding)
       vv[i].z *= unstubby_rounded_cap_factor;
@@ -264,7 +264,7 @@ cylinder::add_octahemisphere_start_cap() {
 }
 
 void
-cylinder::add_vertices_and_triangles(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &vt) {
+cylinder::add_vertices_and_triangles(const std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > &vt) {
 
    unsigned int idx_base = vertices.size();
    unsigned int idx_base_tri = triangles.size();
@@ -285,13 +285,13 @@ cylinder::add_sad_face()  {
    auto make_curved_circular_mesh = [] (const glm::vec4 &light_colour, const glm::vec4 &dark_colour,
                                         float x_base) {
 
-                              std::vector<s_generic_vertex> points;
+                              std::vector<coot::api::vnc_vertex> points;
                               std::vector<g_triangle> triangles;
 
                               float eye_middle_z = 0.9;
                               glm::vec3 circle_middle(x_base, 0.0, eye_middle_z);
                               glm::vec3 n_middle(1,0,0);
-                              s_generic_vertex cp(circle_middle, n_middle, light_colour);
+                              coot::api::vnc_vertex cp(circle_middle, n_middle, light_colour);
                               points.push_back(cp);
                               unsigned int n_slices = 24;
                               float scale = 0.03;
@@ -305,8 +305,8 @@ cylinder::add_sad_face()  {
                                  glm::vec3 delta = pt_outer_ring - circle_middle;
                                  glm::vec3 pt_inner_ring = circle_middle + glm::vec3(0.6, 0.6, 0.6) * delta;
                                  glm::vec3 n = glm::normalize(pt_outer_ring - circle_middle * glm::vec3(0.9, 1.0, 1.0)); // not googly-eyed
-                                 s_generic_vertex v_o(pt_outer_ring, n, light_colour);
-                                 s_generic_vertex v_i(pt_inner_ring, n, light_colour); // they cant be the same normal
+                                 coot::api::vnc_vertex v_o(pt_outer_ring, n, light_colour);
+                                 coot::api::vnc_vertex v_i(pt_inner_ring, n, light_colour); // they cant be the same normal
                                  points.push_back(v_o);
                                  points.push_back(v_i);
                               }
@@ -332,7 +332,7 @@ cylinder::add_sad_face()  {
                               unsigned int idx_dark_mid_point = points.size();
                               glm::vec3 circle_dark_middle(x_base * 1.06, 0.0, eye_middle_z);
                               glm::vec3 n_dark_middle(1,0,0);
-                              s_generic_vertex cdm(circle_dark_middle, n_middle, dark_colour);
+                              coot::api::vnc_vertex cdm(circle_dark_middle, n_middle, dark_colour);
                               points.push_back(cdm);
 
                               for (unsigned int i=0; i<n_slices; i++) {
@@ -344,7 +344,7 @@ cylinder::add_sad_face()  {
                                  glm::vec3 delta = pt_outer_ring - circle_middle;
                                  glm::vec3 pt_inner_ring = circle_middle + glm::vec3(0.6, 0.6, 0.6) * delta;
                                  glm::vec3 n = glm::normalize(pt_outer_ring - circle_middle * glm::vec3(0.9, 1.0, 1.0));
-                                 s_generic_vertex v_i(pt_inner_ring, n, dark_colour);
+                                 coot::api::vnc_vertex v_i(pt_inner_ring, n, dark_colour);
                                  points.push_back(v_i);
                               }
 
@@ -363,7 +363,7 @@ cylinder::add_sad_face()  {
                               return std::make_pair(points, triangles);
                            };
 
-   auto rotate_points_about_z_axis = [] (std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &vertices_and_triangles,
+   auto rotate_points_about_z_axis = [] (std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > &vertices_and_triangles,
                                          float angle) {  // in radians
 
                                         glm::vec3 z(0,0,1);
@@ -375,7 +375,7 @@ cylinder::add_sad_face()  {
                                      };
 
    auto make_mouth = [] () {
-                        std::vector<s_generic_vertex> points;
+                        std::vector<coot::api::vnc_vertex> points;
                         std::vector<g_triangle> triangles;
 
                         float x_base = 0.065;
@@ -398,8 +398,8 @@ cylinder::add_sad_face()  {
                            glm::vec3 delta_o = v_o - mno;
                            glm::vec3 n_i = glm::normalize(delta_i);
                            glm::vec3 n_o = glm::normalize(delta_o);
-                           points.push_back(s_generic_vertex(v_i, n_i, col));
-                           points.push_back(s_generic_vertex(v_o, n_o, col));
+                           points.push_back(coot::api::vnc_vertex(v_i, n_i, col));
+                           points.push_back(coot::api::vnc_vertex(v_o, n_o, col));
                         }
                         for (int i = 0; i<2*n_per_side; i++) {
                            g_triangle t1(i*2,   i*2+1, i*2+2);
@@ -423,7 +423,7 @@ cylinder::add_sad_face()  {
    float inv_fac = 1.0/255.0;
    glm::vec4 no(232 * inv_fac, 190 * inv_fac , 172 * inv_fac, 1.0f);
    no = glm::vec4(0.9, 0.4, 0.6, 1.0);
-   std::vector<s_generic_vertex> no_vertices;
+   std::vector<coot::api::vnc_vertex> no_vertices;
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > hemi = tessellate_hemisphere_patch(2);
    glm::vec3 y(0,1,0);
    for (auto &vert : hemi.first) {
@@ -431,7 +431,7 @@ cylinder::add_sad_face()  {
       glm::vec3 rpos = glm::rotate(spos, static_cast<float>(0.5 * M_PI), y);
       glm::vec3 tpos = rpos + glm::vec3(0.06, 0, 0.8);
       glm::vec3 norm = glm::rotate(glm::normalize(vert), static_cast<float>(0.5 * M_PI), y);
-      s_generic_vertex g(tpos, norm, no);
+      coot::api::vnc_vertex g(tpos, norm, no);
       no_vertices.push_back(g);
    }
    add_vertices_and_triangles(std::make_pair(no_vertices, hemi.second));
@@ -460,7 +460,7 @@ cylinder::crenulations() {
    // (one is tangential the other is from connecting points with different radii), the third is to
    // fill the gaps on the z = (0,1) planes
    //
-   std::vector<s_generic_vertex> vertices_local(n_slices * n_stacks * 3);
+   std::vector<coot::api::vnc_vertex> vertices_local(n_slices * n_stacks * 3);
 
    for (unsigned int i_stack=0; i_stack<n_stacks; i_stack++) {
       glm::vec3 n(0,0,-1);
@@ -541,7 +541,7 @@ cylinder::crenulations() {
       // std::cout << " scale-down " << i << " " << glm::to_string(v.pos) << std::endl;
    }
 
-   s_generic_vertex offset_origin(glm::vec3(0.0f, 0.0f, -z_height), glm::vec3(0,0,-1), col);
+   coot::api::vnc_vertex offset_origin(glm::vec3(0.0f, 0.0f, -z_height), glm::vec3(0,0,-1), col);
    vertices_local.push_back(offset_origin);
 
    vertices.insert(vertices.end(), vertices_local.begin(), vertices_local.end());

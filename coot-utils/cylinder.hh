@@ -3,7 +3,7 @@
 #define COOT_CYLINDER_HH
 
 #include <vector>
-#include "generic-vertex.hh"
+#include "vertex.hh"
 #include "coot-utils/g_triangle.hh"
 
 class cylinder {
@@ -17,14 +17,14 @@ class cylinder {
    glm::vec4 basic_colour;
    float unstubby_rounded_cap_factor;
    // add these new triangles to the mesh
-   void add_vertices_and_triangles(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &vt);
+   void add_vertices_and_triangles(const std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > &vt);
    void init(const std::pair<glm::vec3, glm::vec3> &cart_pair,
              float base_radius, float top_radius, float height,
              const glm::vec4 &base_colour,
              unsigned int n_slices=8, unsigned int n_stacks=2);
    void add_flat_cap(int end_type); // 0 for base, 1 for top
 public:
-   std::vector<s_generic_vertex> vertices;
+   std::vector<coot::api::vnc_vertex> vertices;
    std::vector<g_triangle> triangles;
    cylinder() { unstubby_rounded_cap_factor = 1.0; } // needs to be filled
    cylinder(const std::pair<glm::vec3, glm::vec3> &cart_pair,

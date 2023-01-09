@@ -1167,8 +1167,8 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
 
 
 #include "coords/Bond_lines.h"
-#include "oct.hh"
-#include "cylinder.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 // Maybe this should just be part of Mesh (20211004-PE but that doesn't as yet use mmdb)
 //
@@ -1204,15 +1204,27 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                               return glm::vec3(c.x(), c.y(), c.z());
                    };
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    float radius = 1;
    glm::vec4 col(0.5, 0.5, 0.5, 1.0);
    glm::vec3 origin(0,0,0);
    unsigned int num_subdivisions = 2; // 2 should be the default?
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
       make_octasphere(num_subdivisions, origin, radius, col);
 
-   auto make_generic_vertices_for_atoms = [atom_radius_scale_factor, cartesian_to_glm] (const graphical_bonds_container &bonds_box,
-                                                                                        const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &octaball) {
+   auto make_generic_vertices_for_atoms = [atom_radius_scale_factor, cartesian_to_glm, vnc_vertex_to_generic_vertex]
+      (const graphical_bonds_container &bonds_box,
+       const std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > &octaball) {
                                              // change the vertex type later
                                              std::vector<s_generic_vertex> vertices;
                                              std::vector<g_triangle> triangles;
@@ -1234,7 +1246,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                                    unsigned int idx_base = vertices.size();
 
                                                    for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-                                                      s_generic_vertex vertex(octaball.first[ibv]);
+                                                      s_generic_vertex vertex(vnc_vertex_to_generic_vertex(octaball.first[ibv]));
                                                       vertex.pos = sphere_scaling * vertex.pos + atom_position;
                                                       vertices.push_back(vertex);
                                                    }
@@ -1249,8 +1261,10 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                           };
 
 
-   auto make_generic_vertices_for_bonds = [atom_radius_scale_factor, cartesian_to_glm] (const graphical_bonds_container &bonds_box,
-                                                                                        float bond_width) {
+   auto make_generic_vertices_for_bonds = [atom_radius_scale_factor, cartesian_to_glm,
+                                           vnc_vertex_vector_to_generic_vertex_vector]
+      (const graphical_bonds_container &bonds_box,
+       float bond_width) {
                                              std::vector<s_generic_vertex> vertices;
                                              std::vector<g_triangle> triangles;
 
@@ -1279,8 +1293,9 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
 
                                                    unsigned int idx_base = vertices.size();
                                                    unsigned int idx_tri_base = triangles.size();
+                                                   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
 
-                                                   vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
+                                                   vertices.insert(vertices.end(), converted_vertices.begin(), converted_vertices.end());
                                                    triangles.insert(triangles.end(), c.triangles.begin(), c.triangles.end());
                                                    for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
                                                       triangles[k].rebase(idx_base);

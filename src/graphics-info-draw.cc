@@ -27,7 +27,8 @@
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
-#include "cylinder-with-rotation-translation.hh"
+#include "coot-utils/cylinder-with-rotation-translation.hh"
+#include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
 
@@ -1072,10 +1073,13 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       unsigned int *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
       unsigned int *flat_indices_start = flat_indices;
       unsigned int ifi = 0; // index into flat indices - running
-      vertex_with_rotation_translation *vertices =
-         new vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
-      vertex_with_rotation_translation *vertices_start = vertices;
+      coot::api::vertex_with_rotation_translation *vertices = new coot::api::vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
+      coot::api::vertex_with_rotation_translation *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
+
+      // auto vertex_with_rotation_translation_to_generic_vertex = [] (const coot::api::vertex_with_rotation_translation &v) {
+      // return vertex_with_rotation_translation(v.pos, v.normal, v.colour);
+      // };
 
       for (std::size_t i=0; i<atom_pulls.size(); i++) {
          const atom_pull_info_t &atom_pull = atom_pulls[i];
@@ -1166,7 +1170,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       err = glGetError();
       if (err) std::cout << "   error setup_atom_pull_restraints_glsl() D"
                           << " with GL err " << err << std::endl;
-      GLuint n_bytes = sizeof(vertex_with_rotation_translation) * n_vertices_for_atom_pull_restraints;
+      GLuint n_bytes = sizeof(coot::api::vertex_with_rotation_translation) * n_vertices_for_atom_pull_restraints;
       // maybe STATIC_DRAW, maybe not
       glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_DYNAMIC_DRAW);
       err = glGetError();
@@ -1178,13 +1182,13 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17c\n";
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17d\n";
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17e\n";
-      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17f\n";
 
@@ -1192,28 +1196,28 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(3);
 
       // surely this (annd below) has been set-up already? -- CheckMe.
-      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
 
       // positions, 4, size 3 floats
       glEnableVertexAttribArray(4);
       err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
       //  normals, 5, size 3 floats
       glEnableVertexAttribArray(5);
       err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
-      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
 
       //  colours, 6, size 4 floats
       glEnableVertexAttribArray(6);
       err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
-      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 

@@ -27,7 +27,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-#include "cylinder.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 #ifdef THIS_IS_HMT
 
@@ -516,6 +517,17 @@ Mesh::add_one_origin_dodec() { // i.e. a smooth-shaded pentakis dodec
 void
 Mesh::add_one_origin_cylinder(unsigned int n_slices, unsigned int n_stacks) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    // short fat, radius 1, height 1.
 
    cylinder c(std::pair<glm::vec3, glm::vec3>(glm::vec3(0,0,0), glm::vec3(0,0,1)),
@@ -526,14 +538,13 @@ Mesh::add_one_origin_cylinder(unsigned int n_slices, unsigned int n_stacks) {
 
    unsigned int idx_base = vertices.size();
    unsigned int idx_tri_base = triangles.size();
-   vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   vertices.insert(vertices.end(), converted_vertices.begin(), converted_vertices.end());
    triangles.insert(triangles.end(), c.triangles.begin(), c.triangles.end());
    for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
 
 }
-
-#include "oct.hh"
 
 void
 Mesh::add_one_origin_octahemisphere(unsigned int num_subdivisions) {
@@ -2991,7 +3002,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
 }
 
 
-#include "cylinder-with-rotation-translation.hh"
+#include "coot-utils/cylinder-with-rotation-translation.hh"
 
 void
 Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in) {
@@ -3023,7 +3034,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    // now convert the vertices
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
    for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
-      const vertex_with_rotation_translation &v = c.vertices[ii];
+      const coot::api::vertex_with_rotation_translation &v = c.vertices[ii];
       s_generic_vertex gv(v.pos, v.normal, v.colour);
       // gv.color = glm::vec4(0,1,0,1);
       new_vertices[ii] = gv;
@@ -3048,6 +3059,17 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
 void
 Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // make a cylinder for instancing
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    material = material_in;
 
    is_instanced = true;
@@ -3065,8 +3087,8 @@ Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // 
 
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
    for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
-      const s_generic_vertex &v = c.vertices[ii];
-      new_vertices[ii] = v;
+      const coot::api::vnc_vertex &v = c.vertices[ii];
+      new_vertices[ii] = vnc_vertex_to_generic_vertex(v);
    }
    unsigned int idx_base = vertices.size();
    unsigned int idx_tri_base = triangles.size();
@@ -3108,7 +3130,7 @@ Mesh::test_cyclinders(Shader *shader_p, const Material &material_in) {
    // now convert the vertices
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
    for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
-      const vertex_with_rotation_translation &v = c.vertices[ii];
+      const coot::api::vertex_with_rotation_translation &v = c.vertices[ii];
       s_generic_vertex gv(v.pos, v.normal, v.colour);
       // gv.color = glm::vec4(0,1,0,1);
       new_vertices[ii] = gv;
@@ -3183,6 +3205,17 @@ Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material 
                                return glm::vec3(co.x(), co.y(), co.z());
                             };
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    double l = sdo.length();
    unsigned int n_seg = static_cast<unsigned int>(l) * 3;
    if (n_seg < 3) n_seg = 3;
@@ -3200,7 +3233,7 @@ Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material 
       cylinder c(pp, 0.04, 0.04, segment_length, colour);
       c.add_flat_start_cap();
       c.add_flat_end_cap();
-      import(c.vertices, c.triangles);
+      import(vnc_vertex_vector_to_generic_vertex_vector(c.vertices), c.triangles);
    }
    setup(material);
 

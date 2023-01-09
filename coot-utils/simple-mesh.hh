@@ -12,7 +12,9 @@ namespace coot {
    public:
       std::vector<api::vnc_vertex> vertices;
       std::vector<g_triangle> triangles;
+      std::string name;
       simple_mesh_t() {}
+      simple_mesh_t(const std::string &name_in) : name(name_in) {}
       simple_mesh_t(const std::vector<api::vnc_vertex> &vertices_in,
                     const std::vector<g_triangle> &triangles_in) : vertices(vertices_in), triangles(triangles_in) {}
       void translate(const glm::vec3 &t);
@@ -23,6 +25,17 @@ namespace coot {
       void add_submesh(const simple_mesh_t &submesh);
 
       void export_to_gltf(const std::string &file_name, bool use_binary_format) const;
+
+      void set_name(const std::string &n) { name = n; }
+
+      static simple_mesh_t make_sphere();
+      void scale(float scale_factor);
+      void change_colour(const glm::vec4 &c);
+
+      //! if the colour map is empty then go through the vector of vertices finding colours and putting them
+      //! into a colour table. This is for Blender - where the colour are assigned to a Material, and a Material
+      //! is assigned to a face.
+      void fill_colour_map();
 
    };
 }

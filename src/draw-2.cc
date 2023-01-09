@@ -23,7 +23,7 @@
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
-#include "cylinder-with-rotation-translation.hh"
+// #include "cylinder-with-rotation-translation.hh" 20230108-PE
 
 gint idle_contour_function(gpointer data);
 
