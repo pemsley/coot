@@ -27,14 +27,16 @@ coot::is_dir_or_link(const std::string & file_name) {
 
    bool r = false;
    struct stat buf;
-   stat(file_name.c_str(), &buf);
-   if (S_ISDIR(buf.st_mode))
-       r = true;
+   int status = stat(file_name.c_str(), &buf);
+   if (status == 0) { // success
+      if (S_ISDIR(buf.st_mode))
+         r = true;
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
 #else
-   if (S_ISLNK(buf.st_mode))
-      r = true;
-#endif   
+      if (S_ISLNK(buf.st_mode))
+         r = true;
+#endif
+   }
    return r;
 }
 
