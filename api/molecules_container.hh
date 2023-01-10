@@ -18,6 +18,7 @@
 #include "validation-information.hh"
 #include "simple-mesh.hh"
 #include "phi-psi-prob.hh"
+#include "instancing.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -614,6 +615,11 @@ public:
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
+
+   //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   //! @return an `instanced_mesh_t`
+   coot::instanced_mesh_t get_rotamer_dodecs_instanced(int imol);
+
    //! get the ramachandran validation markup mesh
    //!
    //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh()``.

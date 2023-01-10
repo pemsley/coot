@@ -4,8 +4,10 @@
 
 #include <ostream>
 
+//! g_triangle is the container for the vertices of a triangles (indexing into the vertices vector).
 class g_triangle {
 public:
+   //! constructor
    g_triangle(const unsigned int &a0,
               const unsigned int &a1,
               const unsigned int &a2) {
@@ -19,6 +21,7 @@ public:
    int colour_index;
    unsigned int &operator[] (const unsigned int &i) { return point_id[i]; }
    const unsigned int &operator[] (const unsigned int &i) const { return point_id[i]; }
+   //! use ``rebase()`` when adding more vertices and triangles into a mesh.
    void rebase(const unsigned int &idx_base) {
       for (unsigned int i=0; i<3; i++) {
          point_id[i] += idx_base;

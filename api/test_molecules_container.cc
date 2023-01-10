@@ -1743,6 +1743,39 @@ int test_replace_fragment(molecules_container_t &mc) {
    return status;
 }
 
+int test_instanced_rota_markup(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::simple_mesh_t mz = mc.get_rotamer_dodecs(imol);
+      coot::instanced_mesh_t m = mc.get_rotamer_dodecs_instanced(imol);
+      if (! m.geom.empty()) {
+         const coot::instanced_geometry_t ig = m.geom[0];
+         if (ig.vertices.size() > 30) {
+            if (ig.triangles.size() > 30) {
+               if (ig.instancing_data_A.size() > 30) {
+                  status = 1;
+               } else {
+                  std::cout << "error:: in test_instanced_rota_markup() instancing_data_A size " << ig.instancing_data_A.size() << std::endl;
+               }
+            } else {
+               std::cout << "error:: in test_instanced_rota_markup() triangles size " << ig.triangles.size() << std::endl;
+            }
+         } else {
+            std::cout << "error:: in test_instanced_rota_markup() vertices size " << ig.vertices.size() << std::endl;
+         }
+      } else {
+         std::cout << "error:: in test_instanced_rota_markup() geom is empty " << std::endl;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1818,7 +1851,7 @@ int main(int argc, char **argv) {
       status += run_test(test_difference_map_contours, "difference map density mesh", mc);
       status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_no_dictionary_residues,    "no-dictionary residues", mc);
+      status += run_test(test_no_dictionary_residues,  "no-dictionary residues", mc);
       status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
       status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
@@ -1847,8 +1880,9 @@ int main(int argc, char **argv) {
       status += run_test(test_peptide_omega,         "peptide omega",            mc);
       status += run_test(test_undo_and_redo,         "undo and redo",            mc);
       status += run_test(test_merge_molecules,       "merge molecules",          mc);
-      status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
       status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
+      status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
+      status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
@@ -1863,12 +1897,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   // check these
-   // status += run_test(test_rota_dodecs_mesh,     "rotamer dodecahedra mesh", mc);
-
-
-   status += run_test(test_replace_fragment,"replace fragment",  mc);
-
+   status += run_test(test_rota_dodecs_mesh,     "simple rotamer mesh", mc);
+   status += run_test(test_instanced_rota_markup,     "instanced rotamer mesh", mc);
 
    // Note to self:
    //

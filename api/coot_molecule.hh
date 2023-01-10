@@ -27,6 +27,8 @@
 #include "merge-molecule-results-info-t.hh"
 #include "phi-psi-prob.hh"
 
+#include "instancing.hh"
+
 namespace coot {
 
    // give this a type
@@ -205,6 +207,10 @@ namespace coot {
       void remove_TER_on_last_residue(mmdb::Chain *chain_p);
       std::pair<bool, std::string> unused_chain_id() const;
       int append_to_molecule(const coot::minimol::molecule &water_mol);
+
+      glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch) const;
+
+      std::pair<bool, coot::Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
 
       // ====================== SHELX stuff ======================================
 
@@ -412,6 +418,8 @@ namespace coot {
       std::vector<phi_psi_prob_t> ramachandran_validation(const ramachandrans_container_t &rc) const;
       // not const because it recalculates the bonds.
       simple_mesh_t get_rotamer_dodecs(protein_geometry *geom_p, rotamer_probability_tables *rpt);
+
+      instanced_mesh_t get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer_probability_tables *rpt);
 
       omega_distortion_info_container_t peptide_omega_analysis(const protein_geometry &geom,
                                                                const std::string &chain_id,

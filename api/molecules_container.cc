@@ -1163,6 +1163,21 @@ molecules_container_t::get_rotamer_dodecs(int imol) {
    return m;
 }
 
+//! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+//! @return an `instanced_mesh_t`
+coot::instanced_mesh_t
+molecules_container_t::get_rotamer_dodecs_instanced(int imol) {
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].get_rotamer_dodecs_instanced(&geom, &rot_prob_tables);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
+
+
 
 int
 molecules_container_t::auto_fit_rotamer(int imol,

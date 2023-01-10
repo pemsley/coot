@@ -1248,6 +1248,10 @@ coot::molecule_t::get_atom(const coot::atom_spec_t &atom_spec) const {
    return at;
 }
 
+glm::vec4
+coot::molecule_t::colour_holder_to_glm(const coot::colour_holder &ch) const {
+   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+}
 
 #include "utils/dodec.hh"
 
@@ -1260,6 +1264,42 @@ coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
 
 }
 
+std::pair<bool, coot::Cartesian>
+coot::molecule_t::get_HA_unit_vector(mmdb::Residue *r) const {
+
+   bool status = false;
+   coot::Cartesian dir;
+   mmdb::Atom *CA = r->GetAtom(" CA ");
+   mmdb::Atom *C  = r->GetAtom(" C  ");
+   mmdb::Atom *N  = r->GetAtom(" N  ");
+   mmdb::Atom *CB = r->GetAtom(" CB ");
+
+   if (CA && C && N && CB) {
+      coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+      coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+      coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+      coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
+      coot::Cartesian dir_1 = ca_pos - c_pos;
+      coot::Cartesian dir_2 = ca_pos - n_pos;
+      coot::Cartesian dir_3 = ca_pos - cb_pos;
+      coot::Cartesian r = dir_1 + dir_2 + dir_3;
+      dir = r.unit();
+      status = true;
+   } else {
+      if (CA && C && N) {
+         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+         coot::Cartesian dir_1 = ca_pos - c_pos;
+         coot::Cartesian dir_2 = ca_pos - n_pos;
+         coot::Cartesian r = dir_1 + dir_2;
+         dir = r.unit();
+         status = true;
+      }
+   }
+   return std::make_pair(status, dir);
+};
+
 coot::simple_mesh_t
 coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
                                      coot::rotamer_probability_tables *rpt) {
@@ -1270,10 +1310,6 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
    // Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
    // const glm::vec3 &screen_up_dir)
 
-   simple_mesh_t m;
-
-   // use bonds_box
-
    auto cartesian_to_glm = [] (const coot::Cartesian &c) {
       return glm::vec3(c.x(), c.y(), c.z()); };
 
@@ -1283,47 +1319,18 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
    auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
       return Cartesian(c.x(), c.y(), c.z()); };
 
-   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
-                                  return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
-                               };
+   simple_mesh_t m;
 
-   auto get_HA_unit_vector = [] (mmdb::Residue *r) {
-      bool status = false;
-      coot::Cartesian dir;
-      mmdb::Atom *CA = r->GetAtom(" CA ");
-      mmdb::Atom *C  = r->GetAtom(" C  ");
-      mmdb::Atom *N  = r->GetAtom(" N  ");
-      mmdb::Atom *CB = r->GetAtom(" CB ");
-
-      if (CA && C && N && CB) {
-         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
-         coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
-         coot::Cartesian dir_1 = ca_pos - c_pos;
-         coot::Cartesian dir_2 = ca_pos - n_pos;
-         coot::Cartesian dir_3 = ca_pos - cb_pos;
-         coot::Cartesian r = dir_1 + dir_2 + dir_3;
-         dir = r.unit();
-         status = true;
-      } else {
-         if (CA && C && N) {
-            coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
-            coot::Cartesian  c_pos( C->x,  C->y,  C->z);
-            coot::Cartesian  n_pos( N->x,  N->y,  N->z);
-            coot::Cartesian dir_1 = ca_pos - c_pos;
-            coot::Cartesian dir_2 = ca_pos - n_pos;
-            coot::Cartesian r = dir_1 + dir_2;
-            dir = r.unit();
-            status = true;
-         }
-      }
-      return std::make_pair(status, dir);
-   };
+   // use bonds_box
 
    std::set<int> dummy;
    bool do_rota_markup = true;
-   make_colour_by_chain_bonds(geom_p, dummy, true, false, do_rota_markup, rpt, true);
+   bool change_c_only_flag = true;
+   bool goodsell_mode = false;
+   bool draw_hydrogen_atoms_flag = true;
+   bool draw_missing_loops_flag = true;
+   bool force_rebonding = true;
+   make_colour_by_chain_bonds(geom_p, dummy, change_c_only_flag, goodsell_mode, draw_hydrogen_atoms_flag, draw_missing_loops_flag, do_rota_markup, rpt, force_rebonding);
 
    if (true)
       std::cout << "DEBUG:: in get_rotamer_dodecs() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
@@ -1432,6 +1439,100 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
              << m.triangles.size() << " triangle." << std::endl;
    return m;
 }
+
+coot::instanced_mesh_t
+coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer_probability_tables *rpt) {
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &c) {
+      return glm::vec3(c.x(), c.y(), c.z()); };
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+      return glm::vec3(c.x(), c.y(), c.z()); };
+
+   instanced_mesh_t m;
+
+   std::set<int> dummy;
+   bool do_rota_markup = true;
+   bool change_c_only_flag = true;
+   bool goodsell_mode = false;
+   bool draw_hydrogen_atoms_flag = true;
+   bool draw_missing_loops_flag = true;
+   bool force_rebonding = true;
+   make_colour_by_chain_bonds(geom_p, dummy, change_c_only_flag, goodsell_mode, draw_hydrogen_atoms_flag, draw_missing_loops_flag, do_rota_markup, rpt, force_rebonding);
+
+   if (true)
+      std::cout << "DEBUG:: in get_rotamer_dodecs_instanced() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
+                << std::endl;
+
+   dodec d;
+   std::vector<clipper::Coord_orth> coords = d.coords();
+   std::vector<glm::vec3> dodec_postions(coords.size());
+   for (unsigned int i=0; i<coords.size(); i++)
+      dodec_postions[i] = clipper_to_glm(coords[i]);
+
+   std::vector<coot::api::vn_vertex> dodec_vertices;
+   std::vector<g_triangle> dodec_triangles;
+   dodec_triangles.reserve(36);
+
+   for (unsigned int iface=0; iface<12; iface++) {
+
+      std::vector<coot::api::vn_vertex> face_verts;
+      std::vector<g_triangle> face_triangles;
+      face_triangles.reserve(3);
+
+      std::vector<unsigned int> indices_for_face = d.face(iface);
+      glm::vec3 ns(0,0,0);
+      for (unsigned int j=0; j<5; j++)
+         ns += dodec_postions[indices_for_face[j]];
+      glm::vec3 normal = glm::normalize(ns);
+
+      for (unsigned int j=0; j<5; j++) {
+         glm::vec3 &pos = dodec_postions[indices_for_face[j]];
+         coot::api::vn_vertex v(0.5f * pos, normal);
+         face_verts.push_back(v);
+      }
+
+      face_triangles.push_back(g_triangle(0,1,2));
+      face_triangles.push_back(g_triangle(0,2,3));
+      face_triangles.push_back(g_triangle(0,3,4));
+
+      unsigned int idx_base = dodec_vertices.size();
+      unsigned int idx_tri_base = dodec_triangles.size();
+      dodec_vertices.insert(dodec_vertices.end(), face_verts.begin(), face_verts.end());
+      dodec_triangles.insert(dodec_triangles.end(), face_triangles.begin(), face_triangles.end());
+      for (unsigned int jj=idx_tri_base; jj<dodec_triangles.size(); jj++)
+         dodec_triangles[jj].rebase(idx_base);
+   }
+
+   instanced_geometry_t ig(dodec_vertices, dodec_triangles);
+   double rama_ball_pos_offset_scale = 1.5;
+   float size = 1.0;
+   glm::vec3 size_3(size, size, size);
+
+   std::cout << "DEBUG:: in coot::molecule_t::get_rotamer_dodecs_instanced(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
+
+   for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
+      const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
+      const residue_spec_t &residue_spec = rm.spec;
+      mmdb::Residue *residue_p = get_residue(residue_spec);
+      Cartesian offset(0,0,rama_ball_pos_offset_scale);
+      if (residue_p) {
+         std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
+         if (hav.first) offset = hav.second * 1.6;
+      }
+      glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
+      auto rm_col = rm.col;
+      rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
+      auto this_dodec_colour = colour_holder_to_glm(rm_col);
+      instancing_data_type_A_t id(atom_pos, this_dodec_colour, size_3);
+      // std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!! adding to data A!" << std::endl;
+      ig.instancing_data_A.push_back(id);
+   }
+
+   m.add(ig);
+   return m;
+}
+
 
 #include "ligand/backrub-rotamer.hh"
 
