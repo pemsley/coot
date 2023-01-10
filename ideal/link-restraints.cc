@@ -352,6 +352,9 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 			std::string alt_conf_2 = second_sel[isat]->altLoc;
 			if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) {
 
+                           // 20230110-PE are you here again? Check that udd_atom_index_handle
+                           // is set (by calling init_shared_post()).
+
 			   first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
 			   second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
 
