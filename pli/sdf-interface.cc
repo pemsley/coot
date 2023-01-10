@@ -41,9 +41,15 @@
 
 // #include "c-interface-generic-objects.h" // no longer in src
 
-#include "sdf-interface.hh"
-
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+// rename these ideally.
+#include "sdf-interface.hh" // internal
+#include "sdf-interface-for-export.hh"
+
+#include "coot-utils/shape-types.hh"
+#include "coot-utils/shapes.hh"
+
 #include "sdf-internal.hh" // has use-rdkit (because an RDKit::ROMol is in the interface)
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -143,9 +149,10 @@ bool residue_to_mdl_file_for_mogul(int imol, mmdb::Residue *residue_p,
 std::vector<coot::simple_mesh_t>
 chemical_features::generate_meshes(int imol, mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    std::vector<coot::simple_mesh_t> meshes;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    // graphics_info_t g;
    // if (g.is_valid_model_molecule(imol)) {
@@ -224,7 +231,22 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
       if (normal.first) {
          clipper::Coord_orth p1(centre + 1.3 * normal.second);
          clipper::Coord_orth p2(centre - 1.3 * normal.second);
+         float r_1 =   1.0f;
+         if (sp.get()->getNumAtoms() == 5) r_1 = 0.8f;
+         shapes::torus_t t1(p1, normal.second, r_1, 0.2f);
+         shapes::torus_t t2(p2, normal.second, r_1, 0.2f);
+         t1.height_scale = 0.66;
+         t2.height_scale = 0.66;
+         coot::simple_mesh_t m1 = coot::torus_mesh(t1);
+         coot::simple_mesh_t m2 = coot::torus_mesh(t2);
+         m.add_submesh(m1);
+         m.add_submesh(m2);
+      } else {
+         std::cout << "make_aromatic_rings(): no normal " << std::endl;
       }
+
+      glm::vec4 col(0.7, 0.7, 0.3, 1.0);
+      m.change_colour(col);
       return m;
    };
 

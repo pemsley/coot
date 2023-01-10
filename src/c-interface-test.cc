@@ -1229,11 +1229,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "coot-utils/oct.hh" // ortep
+#include "coot-utils/oct.hh" // ortep 20230108-PE
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 
 #include "density-contour/gaussian-surface.hh"
+
+#include "pli/sdf-interface-for-export.hh"
 
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
@@ -1245,7 +1247,49 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    graphics_info_t g;
    PyObject *r = Py_False;
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
+
    if (true) {
+      int i = PyLong_AsLong(i_py);
+      int j = PyLong_AsLong(j_py);
+
+      int imol = i;
+      coot::residue_spec_t res_spec("A", 1, "");
+      mmdb::Residue *residue_p = g.get_residue(imol, res_spec);
+      std::vector<coot::simple_mesh_t> meshes = chemical_features::generate_meshes(imol, residue_p, *g.Geom_p());
+
+      std::cout << "generate_meshes() made " << meshes.size() << " meshes" << std::endl;
+
+      for (unsigned int i=0; i<meshes.size(); i++) {
+         const auto &mesh = meshes[i];
+         std::cout << "mesh verts: " << mesh.vertices.size() << " tris " << mesh.triangles.size() << std::endl;
+         g.attach_buffers();
+
+         std::string object_name("Thing ");
+         object_name += std::to_string(imol);
+         int obj_mesh = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+         obj.mesh.name = object_name;
+         obj.mesh.set_draw_mesh_state(true);
+         std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(mesh.vertices);
+         obj.mesh.import(converted_vertices, mesh.triangles);
+         obj.mesh.set_material_specularity(0.7, 128);
+         obj.mesh.setup_buffers();
+      }
+      graphics_draw();
+   }
+
+   if (false) {
       int i = PyLong_AsLong(i_py);
       int j = PyLong_AsLong(j_py);
 

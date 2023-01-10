@@ -20,6 +20,7 @@
 
 #include <string>
 #include <mmdb2/mmdb_manager.h>
+
 #include "geometry/protein-geometry.hh"
 
 /*! \file

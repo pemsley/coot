@@ -10,11 +10,6 @@ namespace chemical_features {
    // not for public access 
    // void show(int imol, const RDKit::ROMol &rdkm, std::string name);
 
-   // choose iconf = 0 if unsure.
-   std::vector<coot::simple_mesh_t> generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf, const std::string &name);
-
-   std::vector<coot::simple_mesh_t> generate_meshes(int imol, mmdb::Residue *residue_p, const coot::protein_geometry &geom);
-
    std::pair<bool, clipper::Coord_orth> get_normal_info(RDKit::MolChemicalFeature *feat,
 							const RDKit::ROMol &mol,
 							const RDKit::Conformer &conf);

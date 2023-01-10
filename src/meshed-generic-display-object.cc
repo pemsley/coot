@@ -467,7 +467,7 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
       }
    }
 
-   // carefullly, carefully :-)
+   // carefully, carefully :-)
    for (unsigned int ip=0; ip<n_phi_steps; ip++) {
       unsigned int ip_this = ip;
       unsigned int ip_next = ip + 1;
