@@ -1777,6 +1777,25 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
    return status;
 }
 
+int test_gaussian_surface(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol);
+      std::cout << "in test_gaussian_surface() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
+      if (mesh.vertices.size() > 0)
+         if (mesh.triangles.size() > 0)
+            status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1900,7 +1919,7 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_peptide_omega,         "peptide omega",            mc);
+   status += run_test(test_gaussian_surface,            "Gaussian surface",               mc);
 
    // Note to self:
    //

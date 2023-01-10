@@ -3272,3 +3272,56 @@ coot::molecule_t::get_non_standard_residues_in_molecule() const {
    }
    return rv;
 }
+
+std::vector<std::string>
+coot::molecule_t::get_chain_ids() const {
+
+   std::vector<std::string> chain_ids;
+   mmdb::Manager *mol = atom_sel.mol;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         if (n_res > 0) {
+            chain_ids.push_back(std::string(chain_p->GetChainID()));
+         }
+      }
+   }
+   return chain_ids;
+}
+
+
+#include "density-contour/gaussian-surface.hh"
+
+coot::simple_mesh_t
+coot::molecule_t::get_gaussian_surface() const {
+
+   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
+      return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+   };
+
+   coot::simple_mesh_t mesh;
+
+   if (is_valid_model_molecule()) {
+
+      std::vector<std::string> chain_ids = get_chain_ids();
+      mmdb::Manager *mol = atom_sel.mol;
+
+      for (unsigned int i_ch=0; i_ch<chain_ids.size(); i_ch++) {
+         auto chain_id = chain_ids[i_ch];
+         coot::simple_mesh_t gs_mesh;
+         coot::colour_holder ch(0.66, 0.44, 0.44);
+         ch.rotate_by(0.22 * i_ch);
+         glm::vec4 col = colour_holder_to_glm(ch);
+         coot::gaussian_surface_t gauss_surf(mol, chain_id);
+         gs_mesh = gauss_surf.get_surface();
+         gs_mesh.change_colour(col);
+         mesh.add_submesh(gs_mesh);
+      }
+   }
+
+   return mesh;
+}

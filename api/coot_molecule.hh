@@ -390,6 +390,8 @@ namespace coot {
 
       residue_spec_t get_residue_closest_to(mmdb::Manager *mol, const clipper::Coord_orth &co) const;
 
+      std::vector<std::string> get_chain_ids() const;
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
@@ -401,6 +403,8 @@ namespace coot {
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;
+
+      simple_mesh_t get_gaussian_surface() const;
 
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {

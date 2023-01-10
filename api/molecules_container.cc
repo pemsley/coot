@@ -2933,3 +2933,16 @@ molecules_container_t::get_interesting_places(int imol, const std::string &mode)
 }
 
 
+//! get Gaussian surface representation
+coot::simple_mesh_t
+molecules_container_t::get_gaussian_surface(int imol) const {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_gaussian_surface();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return mesh;
+
+}

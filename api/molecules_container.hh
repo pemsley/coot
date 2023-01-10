@@ -387,8 +387,12 @@ public:
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
+   //! get ribbon and surface representation
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
                                                          const std::string &style) const;
+
+   //! get Gaussian surface representation
+   coot::simple_mesh_t get_gaussian_surface(int imol) const;
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
