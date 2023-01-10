@@ -28,6 +28,7 @@ libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
 
 libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh sdf-interface.hh sdf-internal.hh
+pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh \
+	sdf-interface.hh sdf-internal.hh sdf-interface-for-export.hh
 
 pkgincludedir = $(includedir)/coot/pli

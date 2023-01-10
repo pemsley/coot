@@ -712,6 +712,7 @@ libcootsumo_la_SOURCES = \
 	updating-map-params.hh   \
 	updating-coordinates-molecule-parameters.hh \
 	ud-colour-rule.hh        \
+	vnc-vertex-to-generic-vertex.hh \
 	view.hh 		 \
 	view.cc 		 \
 	new-centre.hh            \
