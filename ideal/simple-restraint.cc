@@ -480,9 +480,6 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
 
-   std::cout << "##################################### calling init_shared_post() A  "
-             << fixed_atom_specs.size() << std::endl;
-
    init_shared_post(fixed_atom_specs); // clears fixed_atom_indices
 
    add_fixed_atoms_from_flanking_residues(have_flanking_residue_at_start,

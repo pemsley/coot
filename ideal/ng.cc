@@ -1453,7 +1453,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                 << " type: " << link_type << " "
                 << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
                 << is_fixed_first_residue << " " << is_fixed_second_residue << " "
-                << restraints_usage_flag << std::endl;
+                << "restraints_usage_flag: " << restraints_usage_flag << std::endl;
 
    if (restraints_usage_flag & BONDS_MASK)
       lrc.n_link_bond_restr += add_link_bond(link_type,
@@ -1464,10 +1464,10 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 
    if (restraints_usage_flag & ANGLES_MASK)
       lrc.n_link_angle_restr += add_link_angle(link_type,
-                                           res_1, res_2,
-                                           is_fixed_first_residue,
-                                           is_fixed_second_residue,
-                                           geom);
+                                               res_1, res_2,
+                                               is_fixed_first_residue,
+                                               is_fixed_second_residue,
+                                               geom);
 
    if (restraints_usage_flag & TORSIONS_MASK)
       lrc.n_link_torsion_restr += add_link_torsion(link_type, res_1, res_2,
@@ -1480,7 +1480,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                                                             is_fixed_first_residue,
                                                             is_fixed_second_residue, false); // don't add if cis
       } else {
-         if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
+         if (true) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
             std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "
                       << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
                       << restraints_usage_flag << std::endl;

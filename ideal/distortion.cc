@@ -455,7 +455,10 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 
    // 20221120-PE Does this still work?
 
-   // restraints_usage_flag = flags;  // not used?
+   restraints_usage_flag = 1; // no angles or torsion or planes restraints to be made.
+   std::vector<coot::atom_spec_t> fixed_atom_specs; // dummy
+   init_shared_post(fixed_atom_specs); // sets udd_atom_index_handle, needed to make restraints
+
    setup_gsl_vector_variables();  //initial positions in x array
    std::string chain_id("");
 
@@ -476,7 +479,7 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
       max_resno = maxr.second;
    }
    double scale = 1.2; // how much to scale the omega difference by so that
-		       // it looks good on the graph.
+                       // it looks good on the graph.
 
    if (!mark_cis_peptides_as_bad_flag)
       scale = 2.5;
@@ -493,91 +496,124 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 
       if (first && second) {
 
-	 if (! chain_p->isSolventChain()) {
+         if (! chain_p->isSolventChain()) {
 
             // std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
             // << std::endl;
-	    std::pair<std::string, bool> lt = find_link_type_complicado(first, second, geom);
 
-	    if (lt.first == "TRANS" || lt.first == "PTRANS" ||
-		lt.first == "CIS"   || lt.first == "PCIS") {
+            // std::pair<std::string, bool> lt = find_link_type_complicado(first, second, geom);
 
-	       // So we have atoms selected in both residues, lets look for those atoms:
+            // 20230110-PE copy some of this from make_polymer_links_ng()
 
-	       mmdb::Atom *at;
-	       clipper::Coord_orth ca_first, c_first, n_next, ca_next;
-	       short int got_ca_first = 0, got_c_first = 0, got_n_next = 0, got_ca_next = 0;
-	       mmdb::PPAtom res_selection = NULL;
-	       int i_no_res_atoms;
+            mmdb::Residue *res_1 = first;
+            mmdb::Residue *res_2 = second;
 
-	       first->GetAtomTable(res_selection, i_no_res_atoms);
-	       if (i_no_res_atoms > 0) {
-		  for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
-		     at = res_selection[iresatom];
-		     std::string atom_name(at->name);
-		     if (atom_name == " CA ") {
-			ca_first = clipper::Coord_orth(at->x, at->y, at->z);
-			got_ca_first = 1;
-		     }
-		     if (atom_name == " C  ") {
-			c_first = clipper::Coord_orth(at->x, at->y, at->z);
-			got_c_first = 1;
-		     }
-		  }
-	       }
-	       second->GetAtomTable(res_selection, i_no_res_atoms);
-	       if (i_no_res_atoms > 0) {
-		  for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
-		     at = res_selection[iresatom];
-		     std::string atom_name(at->name);
-		     if (atom_name == " CA ") {
-			ca_next = clipper::Coord_orth(at->x, at->y, at->z);
-			got_ca_next = 1;
-		     }
-		     if (atom_name == " N  ") {
-			n_next = clipper::Coord_orth(at->x, at->y, at->z);
-			got_n_next = 1;
-		     }
-		  }
-	       }
+            std::string res_name_1(res_1->GetResName());
+            std::string res_name_2(res_2->GetResName());
+            if (res_name_1 == "HOH") continue; // break?
+            if (res_name_2 == "HOH") continue;
 
-	       if (got_ca_first && got_c_first && got_n_next && got_ca_next) {
-		  // the omega angle belongs to the second residue
-		  double tors = clipper::Coord_orth::torsion(ca_first, c_first, n_next, ca_next);
-		  double torsion = clipper::Util::rad2d(tors);
-		  torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
-		  std::string info = chain_id;
-		  info += " ";
-		  info += coot::util::int_to_string(second->GetSeqNum());
-		  info += " ";
-		  info += second->name;
-		  info += " Omega: ";
-		  info += coot::util::float_to_string(torsion);
-		  double distortion = fabs(180.0 - torsion);
+            if (res_1->chain == res_2->chain) {
 
-		  // Add comment on Cis peptide, if it is:
-		  if (torsion < 90.0 || torsion > 270.0)
-		     info += "  (Cis)";
+               // *this* is the serial_delta we should be checking
+               // 20230110-PE - or is it? c.f. make_polymer_links_ng()
+               int ref_index_1 = res_1->GetSeqNum();
+               int ref_index_2 = res_2->GetSeqNum();
+               int serial_delta = ref_index_2 - ref_index_1;
 
-		  if (!mark_cis_peptides_as_bad_flag)
-		     // consider the cases: torsion=1 and torsion=359
-		     if (distortion > 90.0) {
-			distortion = torsion;
-			if (distortion > 180.0) {
-			   distortion -= 360;
-			   distortion = fabs(distortion);
-			}
-		     }
-		  distortion *= scale;
-		  omega_distortion_info_t odi(second->GetSeqNum(), distortion, info);
-		  dc.omega_distortions.push_back(odi);
-	       } else {
-		  std::cout << "INFO:: failed to get all atoms for omega torsion "
-			    << "chain " << chain_id << " residues "
-			    << first->GetSeqNum() << " to " << second->GetSeqNum()
-			    << std::endl;
-	       }
-	    }
+               // but I don't think that this correctly deals with
+               // antibodies that have missing residue numbers - but
+               // are linked with a peptide: 19-20-22-23
+
+               if (serial_delta == 1) {
+
+                  bool do_trans_peptide_restraints = false;
+                  std::pair<bool, mmdb::Residue *> rp_1(false, res_1);
+                  std::pair<bool, mmdb::Residue *> rp_2(false, res_2);
+                  std::pair<bool, link_restraints_counts> results =
+                     try_make_peptide_link_ng(geom, rp_1, rp_2, do_trans_peptide_restraints);
+
+                  if (results.first) {
+
+                     // So we have atoms selected in both residues, lets look for those atoms:
+
+                     mmdb::Atom *at;
+                     clipper::Coord_orth ca_first, c_first, n_next, ca_next;
+                     short int got_ca_first = 0, got_c_first = 0, got_n_next = 0, got_ca_next = 0;
+                     mmdb::PPAtom res_selection = NULL;
+                     int i_no_res_atoms;
+
+                     first->GetAtomTable(res_selection, i_no_res_atoms);
+                     if (i_no_res_atoms > 0) {
+                        for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
+                           at = res_selection[iresatom];
+                           std::string atom_name(at->name);
+                           if (atom_name == " CA ") {
+                              ca_first = clipper::Coord_orth(at->x, at->y, at->z);
+                              got_ca_first = 1;
+                           }
+                           if (atom_name == " C  ") {
+                              c_first = clipper::Coord_orth(at->x, at->y, at->z);
+                              got_c_first = 1;
+                           }
+                        }
+                     }
+                     second->GetAtomTable(res_selection, i_no_res_atoms);
+                     if (i_no_res_atoms > 0) {
+                        for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
+                           at = res_selection[iresatom];
+                           std::string atom_name(at->name);
+                           if (atom_name == " CA ") {
+                              ca_next = clipper::Coord_orth(at->x, at->y, at->z);
+                              got_ca_next = 1;
+                           }
+                           if (atom_name == " N  ") {
+                              n_next = clipper::Coord_orth(at->x, at->y, at->z);
+                              got_n_next = 1;
+                           }
+                        }
+                     }
+
+                     if (got_ca_first && got_c_first && got_n_next && got_ca_next) {
+
+                        // the omega angle belongs to the second residue
+                        double tors = clipper::Coord_orth::torsion(ca_first, c_first, n_next, ca_next);
+                        double torsion = clipper::Util::rad2d(tors);
+                        torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+                        std::string info = chain_id;
+                        info += " ";
+                        info += coot::util::int_to_string(second->GetSeqNum());
+                        info += " ";
+                        info += second->name;
+                        info += " Omega: ";
+                        info += coot::util::float_to_string(torsion);
+                        double distortion = fabs(180.0 - torsion);
+
+                        // Add comment on Cis peptide, if it is:
+                        if (torsion < 90.0 || torsion > 270.0)
+                           info += "  (Cis)";
+
+                        if (!mark_cis_peptides_as_bad_flag)
+                           // consider the cases: torsion=1 and torsion=359
+                           if (distortion > 90.0) {
+                              distortion = torsion;
+                              if (distortion > 180.0) {
+                                 distortion -= 360;
+                                 distortion = fabs(distortion);
+                              }
+                           }
+                        distortion *= scale;
+                        omega_distortion_info_t odi(second->GetSeqNum(), distortion, info);
+                        dc.omega_distortions.push_back(odi);
+                     } else {
+                        std::cout << "INFO:: failed to get all atoms for omega torsion "
+                                  << "chain " << chain_id << " residues "
+                                  << first->GetSeqNum() << " to " << second->GetSeqNum()
+                                  << std::endl;
+                     }
+                  }
+               }
+            }
 	 }
       }
    }
