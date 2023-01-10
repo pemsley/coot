@@ -1424,9 +1424,13 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
          // fill the colour map with the colour for this dodec
          m.colour_index_to_colour_map[i] = this_dodec_colour;
 
+         // 20230110-PE  Hmmm colour_index is no longer a member of g_triangle (there is another class:
+         // g_triangle_with_colour_index).
+         //
          // change the colour index of dodec_triangles
-         for (auto &tri : dodec_triangles)
-            tri.colour_index = i;
+         // for (auto &tri : dodec_triangles)
+         // tri.colour_index = i;
+
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
          vertices.insert(vertices.end(), this_dodec_vertices.begin(), this_dodec_vertices.end());

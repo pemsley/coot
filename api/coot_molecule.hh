@@ -14,7 +14,7 @@
 #include "coords/Bond_lines.h"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
-#include "simple-mesh.hh"
+#include "coot-utils/simple-mesh.hh"
 #include "ghost-molecule-display.hh"
 
 #include "density-contour/CIsoSurface.h"

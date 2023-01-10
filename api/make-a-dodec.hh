@@ -2,8 +2,8 @@
 #define MAKE_A_DODEC_HH
 
 #include <vector>
-#include "vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/vertex.hh"
+#include "coot-utils/g_triangle.hh"
 
 // spikey mode is 0 for smooth shaded and
 // 1 for spikey/flat shaded

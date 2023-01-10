@@ -17,9 +17,9 @@ coot_molecule.hh	 make-a-dodec.hh	    oct.hh                                 \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
-cylinder.hh		 rama-plot-phi-psi.hh	    vertex.hh                              \
+	 		 rama-plot-phi-psi.hh	                                           \
 add-terminal-residue.hh  simple-mesh.hh		    interfaces.hh                          \
-atom-pull.hh		 prideout-octasphere.hh     g_triangle.hh                          \
+atom-pull.hh		                           \
 phi-psi-prob.hh
 
 lib_LTLIBRARIES=libcoot-api.la
@@ -27,8 +27,8 @@ lib_LTLIBRARIES=libcoot-api.la
 libcoot_api_la_SOURCES = \
 coot_molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
 colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc           coot_molecule_merge_molecules.cc \
-coot_molecule_bonds.cc	     cylinder.cc	     oct.cc                   molecules_container_modelling.cc \
-molecules_container.cc       make-a-dodec.cc	     prideout-octasphere.cc   molecules_container_ligand_fitting.cc \
+coot_molecule_bonds.cc	                                                      molecules_container_modelling.cc \
+molecules_container.cc       make-a-dodec.cc	                              molecules_container_ligand_fitting.cc \
 phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \

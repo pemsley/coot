@@ -2,8 +2,8 @@
 #define INSTANCING_HH
 
 #include <vector>
-#include "vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/vertex.hh"
+#include "coot-utils/g_triangle.hh"
 
 namespace coot {
 

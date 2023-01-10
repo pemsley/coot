@@ -144,6 +144,12 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/hole.cc
             ${coot_src}/coot-utils/slurp-map.cc
             ${coot_src}/coot-utils/read-sm-cif.cc
+            ${coot_src}/coot-utils/cylinder.cc
+            ${coot_src}/coot-utils/cylinder-with-rotation-translation.cc
+            ${coot_src}/coot-utils/prideout-octasphere.cc
+            ${coot_src}/coot-utils/oct.cc
+            ${coot_src}/coot-utils/shapes.cc
+            ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coords/phenix-geo-bonds.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/mmdb-crystal.cc
@@ -310,8 +316,6 @@ add_library(cootapi SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            ${coot_src}/api/prideout-octasphere.cc
-            ${coot_src}/api/oct.cc
             ${coot_src}/api/interfaces.cc
             ${coot_src}/api/colour-functions.cc
             ${coot_src}/api/coot-colour.cc
@@ -326,9 +330,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules_container_ligand_fitting.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/phi-psi-prob.cc
-            ${coot_src}/api/simple-mesh.cc
             ${coot_src}/api/make-a-dodec.cc
-            ${coot_src}/api/cylinder.cc
             ${coot_src}/api/add-terminal-residue.cc
 
 )

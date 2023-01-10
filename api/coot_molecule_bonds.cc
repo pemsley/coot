@@ -31,10 +31,11 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "coot-utils/prideout-octasphere.hh"  // needed?
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 #include "coot_molecule.hh"
-#include "prideout-octasphere.hh"  // needed?
-#include "oct.hh"
-#include "cylinder.hh"
+
 // #include "molecular-mesh-generator.hh"
 
 // public - because currently making bonds is not done on molecule construction
@@ -323,8 +324,10 @@ make_graphical_bonds_spherical_atoms(coot::simple_mesh_t &m, // fill this
                glm::vec3 p = octasphere_geom.first[ii] * sc + t;
                vert = coot::api::vnc_vertex(p, octasphere_geom.first[ii], col);
             }
-            for (auto &tri : octasphere_geom.second)
-               tri.colour_index = icol;
+            // 20230110-PE class no longer has a colour index
+            // for (auto &tri : octasphere_geom.second)
+            // tri.colour_index = icol;
+
             m.vertices.insert(m.vertices.end(), local_vertices.begin(), local_vertices.end());
             m.triangles.insert(m.triangles.end(), octasphere_geom.second.begin(), octasphere_geom.second.end());
             for (unsigned int k=idx_tri_base; k<m.triangles.size(); k++)
@@ -496,8 +499,9 @@ make_graphical_bonds_hemispherical_atoms(coot::simple_mesh_t &m, // fill m
                                   << " vertex position " << glm::to_string(p5) << std::endl;
                   }
 
-                  for (auto &tri : octasphere_geom.second) // for export to blender
-                     tri.colour_index = icol;
+                  // 20230110-PE class no longer has a colour index
+                  // for (auto &tri : octasphere_geom.second) // for export to blender
+                  // tri.colour_index = icol;
 
                   m.vertices.insert(m.vertices.end(), local_vertices.begin(), local_vertices.end());
                   m.triangles.insert(m.triangles.end(), octasphere_geom.second.begin(), octasphere_geom.second.end());
@@ -769,8 +773,11 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
          } else {
             // cc.add_octahemisphere_end_cap();
          }
-         for (auto &tri : cc.triangles) // for export to blender
-            tri.colour_index = icol;
+
+         // 20230110-PE class no longer has a colour index
+         // for (auto &tri : cc.triangles) // for export to blender
+         // tri.colour_index = icol;
+
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
          vertices.insert(vertices.end(), cc.vertices.begin(), cc.vertices.end());

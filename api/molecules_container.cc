@@ -10,7 +10,8 @@
 #include "coot-utils/coot-map-utils.hh"
 
 #include "coords/Bond_lines.h"
-#include "oct.hh"
+
+#include "coot-utils/oct.hh"
 
 // statics
 std::atomic<bool> molecules_container_t::restraints_lock(false);

@@ -16,7 +16,7 @@
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
 #include "validation-information.hh"
-#include "simple-mesh.hh"
+#include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 
