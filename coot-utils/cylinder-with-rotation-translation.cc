@@ -5,7 +5,6 @@
 const double pi = M_PI;
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "g_triangle.hh"
 #include "cylinder-with-rotation-translation.hh"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -75,7 +74,7 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
          glm::vec3 sp(x*interpolated_radius, y*interpolated_radius, z_this);
          glm::vec3 t = start;
 
-         vertex_with_rotation_translation &v = vertices[idx];
+         coot::api::vertex_with_rotation_translation &v = vertices[idx];
 
          v.pos = sp;
          v.normal = glm::vec3(x,y,0.0f);
@@ -133,7 +132,7 @@ cylinder_with_rotation_translation::add_flat_cap(int end_type) {
 
    unsigned int idx_base = vertices.size();
 
-   vertex_with_rotation_translation vertex;
+   coot::api::vertex_with_rotation_translation vertex;
    vertex.pos    = glm::vec3(0, 0, z);
    vertex.normal = n;
    vertex.model_rotation_matrix = model_rotation_matrix;
@@ -148,7 +147,7 @@ cylinder_with_rotation_translation::add_flat_cap(int end_type) {
       float x = cosf(theta_this);
       float y = sinf(theta_this);
       glm::vec3 sp(x*radius, y*radius, z);
-      vertex_with_rotation_translation v;
+      coot::api::vertex_with_rotation_translation v;
       v.pos    = sp;
       v.normal = n;
       v.model_rotation_matrix = model_rotation_matrix;

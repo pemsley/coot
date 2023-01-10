@@ -7,8 +7,8 @@
 
 #include "Mesh.hh"
 #include "bond-colour-mode.hh"
-#include "oct.hh"
-#include "cylinder.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 // a wrapper for the following functions
 void
@@ -333,6 +333,11 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
          }
       }
    }
+
+   // std::cout << " End of hemispheres" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
 }
 
 void
@@ -360,6 +365,17 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
                              glm::mat4 m = t * ori * sc;
                              return m;
                           };
+
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
 
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
    is_instanced = false;
@@ -406,13 +422,18 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
          }
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
-         vertices.insert(vertices.end(), cc.vertices.begin(), cc.vertices.end());
+         std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(cc.vertices);
+         vertices.insert(vertices.end(), converted_vertices.begin(), converted_vertices.end());
          triangles.insert(triangles.end(), cc.triangles.begin(), cc.triangles.end());
          for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
             triangles[k].rebase(idx_base);
       }
    }
 
+   // std::cout << " End of bonds" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
 }
 
 

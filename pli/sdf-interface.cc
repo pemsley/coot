@@ -27,7 +27,8 @@
 // errors when we read libintl from rdkit-interface.hh
 #define ENABLE_NLS // 20220126-PE Charles says this is needed to fix dcgettext() problems
                    // when including libintl.h - hmm!
-#include "graphics-info.h"
+
+// #include "graphics-info.h"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <libintl.h>
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -35,34 +36,41 @@
 #include "compat/coot-sysdep.h"
 
 #include <cstring>
-
 #include <iostream> // for istream?
-#include <istream> // for istream?
+#include <istream>  // for istream?
 
-#include "c-interface-generic-objects.h"
-#include "sdf-interface.hh"
+// #include "c-interface-generic-objects.h" // no longer in src
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+// rename these ideally.
+#include "sdf-interface.hh" // internal
+#include "sdf-interface-for-export.hh"
+
+#include "coot-utils/shape-types.hh"
+#include "coot-utils/shapes.hh"
+
 #include "sdf-internal.hh" // has use-rdkit (because an RDKit::ROMol is in the interface)
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
-bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char *ins_code, 
-			 const char *sdf_file_name, bool kekulize) {
+// kekulize is an optional argument, default true.
+//
+bool residue_to_sdf_file(int imol, mmdb::Residue *residue_p, const char *sdf_file_name,
+                         const coot::protein_geometry &geom, bool kekulize) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    bool success = true; 
-   graphics_info_t g;
-   if (g.is_valid_model_molecule(imol)) {
-      mmdb::Residue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+   // graphics_info_t g;
+   if (true) {
+      // mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
 	    bool includeStereo = true;
 	    int confId = 0;
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	    // maybe this can throw an exception too.
 	    RDKit::MolToMolFile(rdkm, sdf_file_name, includeStereo, confId, kekulize);
 	    // success = true we presume
@@ -91,23 +99,23 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
-bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
-				   int res_no, const char *ins_code, 
-				   const char *mdl_file_name) {
+bool residue_to_mdl_file_for_mogul(int imol, mmdb::Residue *residue_p,
+				   const std::string &mdl_file_name,
+                                   const coot::protein_geometry &geom) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    bool success = false;
-   graphics_info_t g;
-   if (g.is_valid_model_molecule(imol)) {
-      mmdb::Residue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+   // graphics_info_t g;
+   if (true) {
+      // mmdb::Residue *residue_p =
+      // graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
 	    bool includeStereo = true;
 	    int confId = 0;
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 
 	    coot::mogulify_mol(rdkm); // convert difficult functional groups to mogul query
 	                              // format (changes reference).
@@ -135,231 +143,165 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
+#include "utils/coot-utils.hh"
 
 // rdkit chemical features.
-bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code) {
+std::vector<coot::simple_mesh_t>
+chemical_features::generate_meshes(int imol, mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
+
+
+   std::vector<coot::simple_mesh_t> meshes;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   bool success = false; 
-   graphics_info_t g;
-   if (g.is_valid_model_molecule(imol)) {
-      mmdb::Residue *residue_p =
-	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+   // graphics_info_t g;
+   // if (g.is_valid_model_molecule(imol)) {
+   if (true) {
+      // mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << std::endl;
       } else { 
 	 try {
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
+            int iconf = 0;
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	    // create a name (used to name the  generic objects object)
 	    std::string name = "Chemical Features: ";
 	    name += residue_p->GetChainID();
 	    name += " ";
-	    name += g.int_to_string(residue_p->GetSeqNum());
+	    name += coot::util::int_to_string(residue_p->GetSeqNum());
 	    name += " ";
 	    name += residue_p->GetResName();
-	    chemical_features::show(imol, rdkm, name);
-	    g.graphics_draw();
-	    success = true;
+            meshes = generate_meshes(imol, rdkm, iconf, name);
 	 }
 	 catch (const std::runtime_error &coot_error) {
-	    success = false;
 	    std::cout << coot_error.what() << std::endl;
 	    std::string m = "Residue type ";
 	    m += residue_p->GetResName();
 	    m += " not found in dictionary.";
 	 }
 	 catch (const std::exception &rdkit_error) {
-	    success = false;
-	    std::cout << "RDKit molecule generation problem: "
-		      << rdkit_error.what() << std::endl;
+	    std::cout << "RDKit molecule generation problem: " << rdkit_error.what() << std::endl;
 	 }
       }
    }
-   return success;
+   return meshes;
 #else
    std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
-   return false;
+   return meshes;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
-
-
-#include "c-interface.h" // for set_display_generic_object()
-#include "c-interface-widgets.hh" // for add_generic_display_object
-#include "c-interface-gtk-widgets.h" // for move_molecule_to_screen_centre_internal()
-
-//! \brief
-//! import a molecule from a smiles string
-//!
-//! RDKit is used to interpret the SMILES string
-//!
-//! no dictionary is generated
-//!
-//! @return a molecule number or -1 on failure
-int import_rdkit_mol_from_smiles(const std::string &smiles_str, const std::string &comp_id) {
-
-   int imol = -1;
+// std::vector<coot::simple_mesh_t>
+// chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, const std::string &name) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   try {
-      RDKit::RWMol *m = RDKit::SmilesToMol(smiles_str);
-      if (m) {
-	 bool explicit_only = false;
-	 bool add_coords = true;
-	 RDKit::MolOps::addHs(*m, explicit_only, add_coords);
-	 int iconf = RDKit::DGeomHelpers::EmbedMolecule(*m);
-	 if(iconf < 0) {
-	    std::cout << "WARNING:: RDKit::embedding failed." << std::endl;
-	 } else {
-	    double vdwThresh=10.0;
-	    int confId = -1;
-	    bool ignoreInterfragInteractions=true; // sensible?
-	    ForceFields::ForceField *ff =
-	       RDKit::UFF::constructForceField(*m,
-					       vdwThresh, confId,
-					       ignoreInterfragInteractions);
-	    ff->initialize();
-	    int maxIters = 500;
-	    int res=ff->minimize(maxIters);
-	    delete ff;
 
-	    mmdb::Residue *residue_p = coot::make_residue(*m, iconf, comp_id);
-	    if (residue_p) {
-	       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
-	       if (mol) {
-		  graphics_info_t g;
-		  imol = g.create_molecule();
-		  std::string label = "Imported ";
-		  label += comp_id;
-		  g.molecules[imol].install_model(imol, mol, g.Geom_p(), label, 1, false, false);
-		  move_molecule_to_screen_centre_internal(imol);
-	       }
-	       delete residue_p;
-	    }
-	 }
-      } else {
-	 std::cout << "WARNING:: BAD SMILES " << smiles_str << std::endl;
-	 std::string s = "WARNING:: Bad SMILES: " + smiles_str;
-	 info_dialog(s.c_str());
-      }
-   }
-   catch (const std::exception &e) {
-      std::cout << "WARNING:: exception caught " << e.what() << std::endl;
-   }
-   
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
+std::vector<coot::simple_mesh_t>
+chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf, const std::string &name) {
 
-   return imol;
-}
-
-
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-
-// ---------------------------------- internal - no public access -----------------
-// 
-void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string name) {
-
-   graphics_info_t g;
+   std::vector<coot::simple_mesh_t> meshes;
 
    RDKit::MolChemicalFeatureFactory *factory = get_feature_factory();
    if (! factory) {
       std::cout << "WARNING:: no factory" << std::endl;
-      return;
+      return meshes;
    }
 
    RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
    //coot::generic_display_object_t features_obj(name);
 
-   int obj_features = new_generic_object_number(name);
-   meshed_generic_display_object &features_obj = g.generic_display_objects[obj_features];
-   features_obj.mesh.name = name;
-   RDKit::Conformer conf = rdkm.getConformer(0); // iconf?
+   RDKit::Conformer conf = rdkm.getConformer(iconf); // typically 0
+
+   auto make_h_bond_arrow = [] (boost::shared_ptr<RDKit::MolChemicalFeature> &sp,
+                                const RDKit::ROMol &rdkm, const RDKit::Conformer &conf,
+                                const clipper::Coord_orth &centre) {
+      coot::simple_mesh_t m;
+      std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
+      clipper::Coord_orth p1(centre + 1.3 * normal.second);
+      // meshed_generic_display_object::arrow_t arrow(centre, p1); // 20230109-PE code in src need moving to coot-utils
+      return m;
+   };
+
+   auto make_aromatic_rings = [] (boost::shared_ptr<RDKit::MolChemicalFeature> &sp,
+                                const RDKit::ROMol &rdkm, const RDKit::Conformer &conf,
+                                const clipper::Coord_orth &centre) {
+      coot::simple_mesh_t m;
+      std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
+      if (normal.first) {
+         clipper::Coord_orth p1(centre + 1.3 * normal.second);
+         clipper::Coord_orth p2(centre - 1.3 * normal.second);
+         float r_1 =   1.0f;
+         if (sp.get()->getNumAtoms() == 5) r_1 = 0.8f;
+         shapes::torus_t t1(p1, normal.second, r_1, 0.2f);
+         shapes::torus_t t2(p2, normal.second, r_1, 0.2f);
+         t1.height_scale = 0.66;
+         t2.height_scale = 0.66;
+         coot::simple_mesh_t m1 = coot::torus_mesh(t1);
+         coot::simple_mesh_t m2 = coot::torus_mesh(t2);
+         m.add_submesh(m1);
+         m.add_submesh(m2);
+      } else {
+         std::cout << "make_aromatic_rings(): no normal " << std::endl;
+      }
+
+      glm::vec4 col(0.7, 0.7, 0.3, 1.0);
+      m.change_colour(col);
+      return m;
+   };
 
    std::list<RDKit::FeatSPtr>::const_iterator it;
-   for (it=features.begin(); it!=features.end(); it++) {
+   for (it=features.begin(); it!=features.end(); ++it) {
       RDKit::FeatSPtr feat_ptr = *it;
       boost::shared_ptr<RDKit::MolChemicalFeature> sp = *it;
       RDGeom::Point3D pos = sp.get()->getPos();
       clipper::Coord_orth centre(pos.x, pos.y, pos.z);
-      // coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
-      meshed_generic_display_object::sphere_t sphere(centre, 0.5);
+      glm::vec3 centre_glm(pos.x, pos.y, pos.z);
+      coot::simple_mesh_t mesh(name);
+
+      // make a sphere for everything (but don't add it if family is "Aromatic"
+
+      coot::simple_mesh_t sphere = coot::simple_mesh_t::make_sphere();
+      glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+
       std::string family = sp.get()->getFamily();
-      coot::colour_t col;
-      if (family == "Hydrophobe")
-	 col = coot::colour_t(0.4, 0.6, 0.4);
-      if (family == "LumpedHydrophobe")
-	 col = coot::colour_t(0.4, 0.4, 0.5);
-      if (family == "Aromatic")
-	 col = coot::colour_t(0.6, 0.6, 0.3);
-      if (family == "Donor")
-	 col = coot::colour_t(0.2, 0.6, 0.7);
-      if (family == "Acceptor")
-	 col = coot::colour_t(0.7, 0.2, 0.7);
-      if (family == "PosIonizable")
-	 col = coot::colour_t(0.2, 0.2, 0.7);
-      if (family == "NegIonizable")
-	 col = coot::colour_t(0.7, 0.2, 0.2);
 
-      sphere.col = col.to_glm();
+      if (family == "Hydrophobe")       col = glm::vec4(0.4, 0.6, 0.4, 1.0);
+      if (family == "LumpedHydrophobe") col = glm::vec4(0.4, 0.4, 0.5, 1.0);
+      if (family == "Aromatic")         col = glm::vec4(0.6, 0.6, 0.3, 1.0);
+      if (family == "Donor")            col = glm::vec4(0.2, 0.6, 0.7, 1.0);
+      if (family == "Acceptor")         col = glm::vec4(0.7, 0.2, 0.7, 1.0);
+      if (family == "PosIonizable")     col = glm::vec4(0.2, 0.2, 0.7, 1.0);
+      if (family == "NegIonizable")     col = glm::vec4(0.7, 0.2, 0.2, 1.0);
+      // add more, like halogens
+      sphere.change_colour(col);
 
-      // make the lumped sphere be smaller for aesthetic reasons (more
-      // easily distinguished)
-      // 
-      if (family == "LumpedHydrophobe")
-	 sphere.radius = 0.38;
+      if (family == "LumpedHydrophobe") 
+         sphere.scale(0.38f);
+      else
+         sphere.scale(0.5f);
 
-      // don't show a sphere for an aromatic - but do for everything else.
-      // 
-      // if (family != "Aromatic")
-      // features_obj.spheres.push_back(sphere);
-      //
+      sphere.translate(centre_glm);
+
       if (family != "Aromatic")
-         features_obj.add(sphere);
+         meshes.push_back(sphere);
 
       if (family == "Donor" || family == "Acceptor") {
-	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
-	 if (normal.first) {
-	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
- 	    meshed_generic_display_object::arrow_t arrow(centre, p1);
-	    arrow.col = col.to_colour_holder(); // because reasons.
- 	    features_obj.add_arrow(arrow);
-	 }
+         coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
+         meshes.push_back(arrow);
       }
-      
+
       if (family == "Aromatic") {
-	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
-	 if (normal.first) {
-	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
-	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
-	    
- 	    meshed_generic_display_object::torus_t torus_1(centre, p1, 0.18, 1.1);
- 	    meshed_generic_display_object::torus_t torus_2(centre, p2, 0.18, 1.1);
- 	    torus_1.col = col.to_colour_holder();
- 	    torus_2.col = col.to_colour_holder();
-	    if (sp.get()->getNumAtoms() == 5) {
-	       torus_1.n_ring_atoms = 5;
-	       torus_2.n_ring_atoms = 5;
-	    }
-	    features_obj.add_torus(torus_1);
- 	    features_obj.add_torus(torus_2);
-	 }
+         coot::simple_mesh_t rings = make_aromatic_rings(sp, rdkm, conf, centre);
+         meshes.push_back(rings);
       }
    }
 
-   Material material;
-   features_obj.mesh.setup(material); // fast return if already done
-
-   attach_generic_object_to_molecule(obj_features, imol);
-   set_display_generic_object(obj_features, 1);
+   return meshes;
 }
+
+#endif
+
 
 
 
@@ -449,13 +391,4 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
 }
-
-
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------
 

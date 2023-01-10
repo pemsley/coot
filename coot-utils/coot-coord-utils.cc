@@ -5121,6 +5121,8 @@ coot::util::three_letter_to_one_letter_with_specials(const std::string &resname)
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::util::extents(mmdb::Manager *mol) {
 
+   if (! mol) return std::pair<clipper::Coord_orth, clipper::Coord_orth>
+                       (clipper::Coord_orth(0,0,0), clipper::Coord_orth(0,0,0));
 
    int selHnd = mol->NewSelection();
    mol->SelectAtoms(selHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",

@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 
 // for standard objects at the origin - typically used in instancing
+// 20230109-PE is this used? Having this here may be confusing.
+//
 class vn_vertex {
 public:
    glm::vec3 pos;
@@ -64,19 +66,22 @@ public:
    position_normal_vertex() {}
 };
 
-class vertex_with_rotation_translation {
-public:
-   glm::mat3 model_rotation_matrix; // orientation
-   glm::vec3 model_translation; // the coordinates of the first atom of the bond
-   glm::vec3 pos;
-   glm::vec3 normal; // normalized when set
-   glm::vec4 colour;
-   vertex_with_rotation_translation(const glm::vec3 &p, const glm::vec3 &n, const glm::vec4 &c) : pos(p), normal(n), colour(c) {}
-   vertex_with_rotation_translation(const s_generic_vertex &v, const glm::vec3 &atom_position, float scale) :
-      model_rotation_matrix(glm::mat3(1.0f)), model_translation(atom_position),
-      pos(v.pos * scale), normal(v.normal), colour(v.color) {}
-   vertex_with_rotation_translation() {}
-};
+
+// moved into coot utils.
+
+// class vertex_with_rotation_translation {
+// public:
+//    glm::mat3 model_rotation_matrix; // orientation
+//    glm::vec3 model_translation; // the coordinates of the first atom of the bond
+//    glm::vec3 pos;
+//    glm::vec3 normal; // normalized when set
+//    glm::vec4 colour;
+//    vertex_with_rotation_translation(const glm::vec3 &p, const glm::vec3 &n, const glm::vec4 &c) : pos(p), normal(n), colour(c) {}
+//    vertex_with_rotation_translation(const s_generic_vertex &v, const glm::vec3 &atom_position, float scale) :
+//       model_rotation_matrix(glm::mat3(1.0f)), model_translation(atom_position),
+//       pos(v.pos * scale), normal(v.normal), colour(v.color) {}
+//    vertex_with_rotation_translation() {}
+// };
 
 
 

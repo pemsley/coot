@@ -8,6 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtx/rotate_vector.hpp>
 
 #include <iostream>
 #include <iomanip>
@@ -26,7 +27,8 @@
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
-#include "cylinder-with-rotation-translation.hh"
+#include "coot-utils/cylinder-with-rotation-translation.hh"
+#include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
 
@@ -1071,10 +1073,13 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       unsigned int *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
       unsigned int *flat_indices_start = flat_indices;
       unsigned int ifi = 0; // index into flat indices - running
-      vertex_with_rotation_translation *vertices =
-         new vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
-      vertex_with_rotation_translation *vertices_start = vertices;
+      coot::api::vertex_with_rotation_translation *vertices = new coot::api::vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
+      coot::api::vertex_with_rotation_translation *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
+
+      // auto vertex_with_rotation_translation_to_generic_vertex = [] (const coot::api::vertex_with_rotation_translation &v) {
+      // return vertex_with_rotation_translation(v.pos, v.normal, v.colour);
+      // };
 
       for (std::size_t i=0; i<atom_pulls.size(); i++) {
          const atom_pull_info_t &atom_pull = atom_pulls[i];
@@ -1165,7 +1170,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       err = glGetError();
       if (err) std::cout << "   error setup_atom_pull_restraints_glsl() D"
                           << " with GL err " << err << std::endl;
-      GLuint n_bytes = sizeof(vertex_with_rotation_translation) * n_vertices_for_atom_pull_restraints;
+      GLuint n_bytes = sizeof(coot::api::vertex_with_rotation_translation) * n_vertices_for_atom_pull_restraints;
       // maybe STATIC_DRAW, maybe not
       glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_DYNAMIC_DRAW);
       err = glGetError();
@@ -1177,13 +1182,13 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17c\n";
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17d\n";
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17e\n";
-      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17f\n";
 
@@ -1191,28 +1196,28 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(3);
 
       // surely this (annd below) has been set-up already? -- CheckMe.
-      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
 
       // positions, 4, size 3 floats
       glEnableVertexAttribArray(4);
       err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
       //  normals, 5, size 3 floats
       glEnableVertexAttribArray(5);
       err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
-      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
 
       //  colours, 6, size 4 floats
       glEnableVertexAttribArray(6);
       err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
-      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(coot::api::vertex_with_rotation_translation),
                             reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
@@ -1657,7 +1662,7 @@ graphics_info_t::draw_molecules() {
 
    draw_environment_graphics_object();
 
-   draw_generic_objects();
+   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -1710,6 +1715,8 @@ graphics_info_t::draw_molecules_with_shadows() {
             } else {
 
                float opacity = 1.0;
+               shader_for_meshes_with_shadows.Use();
+               shader_for_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
                m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                     eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
@@ -1811,7 +1818,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_environment_graphics_object();
 
-   draw_generic_objects();
+   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -2005,7 +2012,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
-   bool do_depth_fog = true;
+   bool do_depth_fog = shader_do_depth_fog_flag;
 
    unsigned int light_index = 0;
    std::map<unsigned int, lights_info_t>::const_iterator it = lights.find(light_index);
@@ -2031,6 +2038,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             break;
          }
       }
+
+      // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
 
       if (have_meshes_to_draw) {
          // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
@@ -2353,7 +2362,8 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 }
 
 
-
+// create and pack, but don't show it (in this function).
+//
 GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
 
    // the use_gtk_builder flag really means "was invoked from the path that..."
@@ -3858,6 +3868,8 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    draw_pointer_distances_objects();
 
+   draw_extra_distance_restraints(PASS_TYPE_FOR_SHADOWS); // GM_restraints
+
    draw_texture_meshes();
 
 }
@@ -5088,6 +5100,114 @@ graphics_info_t::draw_pointer_distances_objects() {
             }
          }
       }
+   }
+}
+
+void
+graphics_info_t::make_extra_distance_restraints_objects() {
+
+   // c.f. update_hydrogen_bond_mesh().
+
+   double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
+                             // Make this user-setable.
+
+   // the model has been updated, we need to update the positions and orientations using in the instancing
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
+   attach_buffers();
+   Material material;
+   mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
+   mesh_for_extra_distance_restraints.setup_instancing_buffer_data_for_extra_distance_restraints(maerrb_size);
+   // now fill extra_distance_restraints_markup_data
+
+   extra_distance_restraints_markup_data.clear();
+   extra_distance_restraints_markup_data.reserve(moving_atoms_extra_restraints_representation.bonds.size());
+   for (unsigned int i=0; i<moving_atoms_extra_restraints_representation.bonds.size(); i++) {
+      const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &ebrr =
+         moving_atoms_extra_restraints_representation.bonds[i];
+      double dd = clipper::Coord_orth(ebrr.first - ebrr.second).lengthsq();
+      double d = std::sqrt(dd);
+      extra_distance_restraint_markup_instancing_data_t edrmid;
+      // the width should represent the pulling power (i.e. the size of the penalty/distortion)
+      // make a function extra_bond_restraints_respresentation_t::get_penalty(alpha, sigma);
+      double sigma = 0.1; // what is this actually?
+      double penalty = ebrr.distortion_score_GM(sigma, geman_mcclure_alpha);
+      if (penalty < penalty_min) continue;
+      double width = 0.3 * penalty;
+      if (width < 0.01) width = 0.01;
+      if (width > 0.10) width = 0.10;
+      edrmid.width = width;
+      edrmid.length = static_cast<float>(d);
+      edrmid.position = clipper_to_glm(ebrr.second);
+
+      clipper::Coord_orth delta = ebrr.second - ebrr.first;
+      clipper::Coord_orth delta_uv = clipper::Coord_orth(delta.unit());
+      glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
+
+      glm::mat4 ori44 = glm::orientation(delta_uv_glm, glm::vec3(0.0, 0.0, 1.0));
+      glm::mat3 ori33 = glm::mat3(ori44);
+      edrmid.orientation = ori33;
+
+      // std::cout << "edrmid " << i << " position " << glm::to_string(edrmid.position) << " length " << d
+      // << "ori " << glm::to_string(edrmid.orientation) << std::endl;
+
+      double delta_length = ebrr.length_delta();
+      glm::vec4 colour_base = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+      // std::cout << "delta length " << delta_length << std::endl;
+
+      // for colouring, limit the delta_length)
+      if (delta_length >  1.0) delta_length =  1.0;
+      if (delta_length < -1.0) delta_length = -1.0;
+      glm::vec4 colour = colour_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
+      edrmid.colour = 0.8f * colour;
+      extra_distance_restraints_markup_data.push_back(edrmid);
+   }
+
+   std::cout << "in make_extra_distance_restraints_objects() bond size "
+             << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
+   std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
+             << extra_distance_restraints_markup_data.size() << std::endl;
+   mesh_for_extra_distance_restraints.update_instancing_buffer_data_for_extra_distance_restraints(extra_distance_restraints_markup_data);
+
+}
+
+// static
+void
+graphics_info_t::draw_extra_distance_restraints(int pass_type) {
+
+   // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
+   //
+   if (pass_type == PASS_TYPE_STANDARD) {
+      if (show_extra_distance_restraints_flag) {
+         if (! extra_distance_restraints_markup_data.empty()) {
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 model_rotation_matrix = get_model_rotation();
+            glm::vec4 bg_col(background_colour, 1.0f);
+            glDisable(GL_BLEND);
+            Shader &shader = shader_for_extra_distance_restraints;
+            mesh_for_extra_distance_restraints.draw_extra_distance_restraint_instances(&shader, mvp, model_rotation_matrix, lights,
+                                                                                       eye_position, bg_col, shader_do_depth_fog_flag);
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+
+      Shader &shader = shader_for_extra_distance_restraints; // wrong shader - needs a new one.
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      bool do_orthographic_projection = ! perspective_projection_flag;
+      auto model_matrix = get_model_matrix();
+      auto view_matrix = get_view_matrix();
+      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+      mesh_for_extra_distance_restraints.draw_instances_for_ssao(&shader,
+                                                                 model_matrix, view_matrix, projection_matrix);
    }
 
 }

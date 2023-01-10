@@ -3,11 +3,13 @@
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeature.h>
 // #include "generic-display-object.hh"
 
+#include "coot-utils/simple-mesh.hh"
+
 namespace chemical_features { 
 
    // not for public access 
-   void show(int imol, const RDKit::ROMol &rdkm, std::string name);
-   
+   // void show(int imol, const RDKit::ROMol &rdkm, std::string name);
+
    std::pair<bool, clipper::Coord_orth> get_normal_info(RDKit::MolChemicalFeature *feat,
 							const RDKit::ROMol &mol,
 							const RDKit::Conformer &conf);

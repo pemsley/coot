@@ -19,7 +19,7 @@
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
 #include "molecular-mesh-generator.hh"
-#include "oct.hh"
+#include "coot-utils/oct.hh"
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> molrepinst_1) {

@@ -7,9 +7,6 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "g_triangle.hh"
-#include "generic-vertex.hh"
-
 #include "prideout-octasphere.hh"
 #include "oct.hh"
 
@@ -244,11 +241,11 @@ find_same_vertices(const std::vector<glm::vec3> &verts) {
    return m;
 }
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &centre,
                 float radius, const glm::vec4 &colour_in, bool remove_redundant_vertices) {
 
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > r;
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > r;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > vp =
       tessellate_octasphere(num_subdivisions, remove_redundant_vertices);
@@ -266,13 +263,13 @@ make_octasphere(unsigned int num_subdivisions, const glm::vec3 &centre,
    return r;
 }
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> >
 make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &centre,
                      float radius, float radiusAlongNormal,
                      const glm::vec3 &dish_normal,
                      const glm::vec4 &colour_in) {
 
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > r;
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > r;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > vp =
       tessellate_octasphere(num_subdivisions);

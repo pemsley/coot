@@ -27,7 +27,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-#include "cylinder.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 #ifdef THIS_IS_HMT
 
@@ -76,6 +77,19 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
    triangles = mtm.triangles;
    name = mtm.name;
 }
+
+
+Mesh::Mesh(const coot::simple_mesh_t &mesh) {
+
+   vertices.resize(mesh.vertices.size());
+   for (unsigned int i = 0; i < mesh.vertices.size(); i++) {
+      const auto &vv = mesh.vertices[i];
+      s_generic_vertex v(vv.pos, vv.normal, vv.color);
+      vertices[i] = v;
+   }
+   triangles = mesh.triangles;
+}
+
 
 void
 Mesh::set_is_headless() {
@@ -503,6 +517,17 @@ Mesh::add_one_origin_dodec() { // i.e. a smooth-shaded pentakis dodec
 void
 Mesh::add_one_origin_cylinder(unsigned int n_slices, unsigned int n_stacks) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    // short fat, radius 1, height 1.
 
    cylinder c(std::pair<glm::vec3, glm::vec3>(glm::vec3(0,0,0), glm::vec3(0,0,1)),
@@ -513,14 +538,13 @@ Mesh::add_one_origin_cylinder(unsigned int n_slices, unsigned int n_stacks) {
 
    unsigned int idx_base = vertices.size();
    unsigned int idx_tri_base = triangles.size();
-   vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   vertices.insert(vertices.end(), converted_vertices.begin(), converted_vertices.end());
    triangles.insert(triangles.end(), c.triangles.begin(), c.triangles.end());
    for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
 
 }
-
-#include "oct.hh"
 
 void
 Mesh::add_one_origin_octahemisphere(unsigned int num_subdivisions) {
@@ -708,7 +732,7 @@ Mesh::setup_buffers() {
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
    unsigned int n_triangles = triangles.size();
-   unsigned int n_bytes_for_triangles = n_triangles * 3 * sizeof(unsigned int);
+   unsigned int n_bytes_for_triangles = n_triangles * sizeof(g_triangle);
    unsigned int n_bytes_for_lines = lines_vertex_indices.size() * sizeof(unsigned int);
 
    if (first_time) {
@@ -1200,7 +1224,8 @@ void
 Mesh::fill_with_direction_triangles() {
 
    std::vector<s_generic_vertex> v;
-   v.resize(3 * 3);
+   unsigned int v_size = 3 * 3; // bypass weird flycheck bug
+   v.resize(v_size);
    float scale = 0.25;
 
    v[0].pos = scale * glm::vec3( -0.2f, 0.0f, 0.0f);
@@ -1494,6 +1519,120 @@ Mesh::draw_instanced(Shader *shader_p,
 
 }
 
+// // keep these because they are s_generic_vertex, made in setup_buffers()
+// layout(location = 0) in vec3 position;
+// layout(location = 1) in vec3 normal;
+// layout(location = 2) in vec4 colour;
+
+// // c.f. extra-distance-restraints-markup.hh
+// layout(location = 3) in float width;  // these are all instanced.
+// layout(location = 4) in float length;
+// layout(location = 5) in vec3 position;
+// layout(location = 6) in mat3 orientation;
+// layout(location = 7) in vec4 colour_instanced;
+void
+Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
+                                              const glm::mat4 &mvp,
+                                              const glm::mat4 &view_rotation_matrix,
+                                              const std::map<unsigned int, lights_info_t> &lights,
+                                              const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                              const glm::vec4 &background_colour,
+                                              bool do_depth_fog) {
+
+   if (! draw_this_mesh) return;
+   unsigned int n_triangles = triangles.size();
+   GLuint n_verts = 3 * n_triangles;
+
+   if (n_triangles == 0) return;
+
+   GLenum err = glGetError();
+   if (err) std::cout << "error Mesh::draw_instanced() " << name << " " << shader_p->name
+                      << " -- start -- " << err << std::endl;
+   shader_p->Use();
+   const std::string &shader_name = shader_p->name;
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: " << shader_p->name << " draw_instanced() post mvp uniform "
+                      << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: Mesh::draw_instanced() " << name << " " << shader_p->name
+                      << " draw_instanced() post view rotation uniform " << err << std::endl;
+
+   std::map<unsigned int, lights_info_t>::const_iterator it;
+   unsigned int light_idx = 0;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   light_idx = 1;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+
+   shader_p->set_vec4_for_uniform("background_colour", background_colour);
+   shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: draw_instanced() pre-setting material " << err << std::endl;
+   shader_p->set_vec4_for_uniform( "material.ambient",   material.ambient);
+   shader_p->set_vec4_for_uniform( "material.diffuse",   material.diffuse);
+   shader_p->set_vec4_for_uniform( "material.specular",  material.specular);
+   shader_p->set_float_for_uniform("material.shininess", material.shininess);
+   shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR draw_instanced(): " << shader_name << " post-material "
+                      << " with GL err " << err << std::endl;
+   shader_p->set_vec3_for_uniform("eye_position", eye_position);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() \"" << name << "\" \"" << shader_name << "\" post-set eye position "
+                      << " with GL err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << shader_name << " pre-glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << " " << shader_p->name << std::endl;
+
+   // std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << shader_name << " " << name
+                      << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0);  // vec3 position
+   glEnableVertexAttribArray(1);  // vec3 normal
+   glEnableVertexAttribArray(2);  // vec4 colour // not used in the shader - but assigned in setup_buffers().
+   glEnableVertexAttribArray(3);  // width
+   glEnableVertexAttribArray(4);  // length
+   glEnableVertexAttribArray(5);  // position
+   glEnableVertexAttribArray(6);  // mat3 orientation 0
+   glEnableVertexAttribArray(7);  // mat3 orientation 1
+   glEnableVertexAttribArray(8);  // mat3 orientation 2
+   glEnableVertexAttribArray(9);  // colour_instanced
+
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+   err = glGetError();
+   if (err) std::cout << "error draw_instanced() glDrawElementsInstanced()"
+                      << " shader: " << shader_p->name << " vao: " << vao
+                      << " n_triangle_verts: " << n_verts << " n_instances: " << n_instances
+                      << " with GL err " << err << std::endl;
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
+   glDisableVertexAttribArray(7);
+   glDisableVertexAttribArray(8);
+   glDisableVertexAttribArray(9);
+   glUseProgram(0);
+
+}
+
+
 
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
@@ -1579,7 +1718,7 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool draw_as_lines_flag, // or surface mesh
            bool do_depth_fog,
-	   bool show_just_shadows) {
+           bool show_just_shadows) {
 
    if (false)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
@@ -1735,6 +1874,7 @@ Mesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
 
+   // std::cout << "Here with use_blending " << use_blending << std::endl;
    if (use_blending) {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1817,18 +1957,18 @@ Mesh::draw(Shader *shader_p,
 
 void
 Mesh::draw_with_shadows(Shader *shader_p,
-			const glm::mat4 &mvp,
-			const glm::mat4 &view_rotation_matrix,
-			const std::map<unsigned int, lights_info_t> &lights,
-			const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                        const glm::mat4 &mvp,
+                        const glm::mat4 &view_rotation_matrix,
+                        const std::map<unsigned int, lights_info_t> &lights,
+                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                         float opacity,
-			const glm::vec4 &background_colour,
-			bool do_depth_fog,
-			const glm::mat4 &light_view_mvp,
-			unsigned int shadow_depthMap,
-			float shadow_strength,
+                        const glm::vec4 &background_colour,
+                        bool do_depth_fog,
+                        const glm::mat4 &light_view_mvp,
+                        unsigned int shadow_depthMap,
+                        float shadow_strength,
                         unsigned int shadow_softness,
-			bool show_just_shadows) {
+                        bool show_just_shadows) {
 
    // this is largely a copy of draw() - then shadow params added.
 
@@ -2120,14 +2260,14 @@ Mesh::draw_for_ssao(Shader *shader_p,
 
    if (vao == VAO_NOT_SET)
       std::cout << "Mesh::draw_for_ssao() You forgot to setup this mesh "
-		<< "(or setup with empty vertices or triangles) "
+                << "(or setup with empty vertices or triangles) "
                 << "\"" << name << "\" \"" << shader_p->name << "\"" << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
    if (err)
      std::cout << "   error draw_for_ssao() \"" << shader_name << "\" \"" << name << "\""
-	       << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
+               << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
 
    glEnableVertexAttribArray(0); // position
    glEnableVertexAttribArray(1); // normal
@@ -2153,6 +2293,54 @@ Mesh::draw_for_ssao(Shader *shader_p,
    glUseProgram(0);
 
 }
+
+
+
+void
+Mesh::draw_instances_for_ssao(Shader *shader_p,
+                              const glm::mat4 &model,
+                              const glm::mat4 &view,
+                              const glm::mat4 &projection) {
+
+   if (! draw_this_mesh) return;
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
+   glEnableVertexAttribArray(3); // bitangent // not used
+   glEnableVertexAttribArray(4); // colour
+   glEnableVertexAttribArray(5); // texCoord
+   glEnableVertexAttribArray(6); // instanced position
+
+
+   shader_p->set_mat4_for_uniform("model",      model);
+   shader_p->set_mat4_for_uniform("view",       view);
+   shader_p->set_mat4_for_uniform("projection", projection);
+
+   unsigned int n_verts = 6;
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   glDisableVertexAttribArray(5);
+   glDisableVertexAttribArray(6);
+
+}
+
+
 
 // draw symmetry with lines
 void
@@ -2359,7 +2547,7 @@ Mesh::update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats)
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
 
-   glBindVertexArray(vao); // needed?
+   glBindVertexArray(vao);
    err = glGetError();
    if (err)
       std::cout << "GL error Mesh::update_instancing_buffer_data_standard() A1 "
@@ -2384,6 +2572,120 @@ Mesh::update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats)
       glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
    }
 }
+
+void
+Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_matrices) {
+
+
+   GLenum err = glGetError();
+   if (err) std::cout << "Error setup_matrix_and_colour_instancing_buffers_standard() -- start -- "
+                      << err << std::endl;
+
+   n_instances = n_matrices;
+   n_instances_allocated = n_instances;
+
+   // these vectors should be the same size. Add a check.
+
+   err = glGetError();
+   if (err) std::cout << "error setup_instancing_buffer_data_for_extra_distance_restraints() A "
+                      << err << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: in setup_instancing_buffer_data_for_extra_distance_restraints() You didn't correctly setup this Mesh "
+                << name << " " << std::endl;
+
+   glBindVertexArray(vao);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Mesh::setup_instancing_buffer_data_for_extra_distance_restraints() B binding-vao "
+                      << err << " with vao " << vao << std::endl;
+
+   if (! first_time) {
+      glDeleteBuffers(1, &inst_rts_buffer_id); // setup_buffers() sets first_time to false but doesn't set inst_rts_buffer_id.
+   }
+   glGenBuffers(1, &inst_rts_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+   unsigned int size_of_edrmidt = sizeof(extra_distance_restraint_markup_instancing_data_t);
+   if (true)
+      std::cout << "Mesh::setup_instancing_buffer_data_for_extra_distance_restraints() allocating matrix buffer data "
+                << n_instances * size_of_edrmidt << std::endl;
+   glBufferData(GL_ARRAY_BUFFER, n_instances * size_of_edrmidt, nullptr, GL_DYNAMIC_DRAW); // dynamic
+
+   // 3 float width
+   // 4 float length
+   // 5 vec3 position
+   // 6 mat3 ori 0 
+   // 7 mat3 ori 1
+   // 8 mat3 ori 2
+   // 9 vec4 colour inst
+   err = glGetError(); if (err) std::cout << "   ERROR setup_instancing_buffer_data_for_extra_distance_restraints() C0 " << err << std::endl;
+   glEnableVertexAttribArray(3);
+   glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, size_of_edrmidt, 0);
+   glVertexAttribDivisor(3, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C3 " << err << std::endl;
+   glEnableVertexAttribArray(4);
+   glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(sizeof(float)));
+   glVertexAttribDivisor(4, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C4 " << err << std::endl;
+
+   
+   glEnableVertexAttribArray(5);
+   glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float)));
+   glVertexAttribDivisor(5, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C5 " << err << std::endl;
+
+   // orientation 3 x vec3
+   glEnableVertexAttribArray(6);
+   glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float) + sizeof(glm::vec3)));
+   glVertexAttribDivisor(6, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C6 " << err << std::endl;
+   glEnableVertexAttribArray(7);
+   glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float) + 2 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(7, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C7 " << err << std::endl;
+   glEnableVertexAttribArray(8);
+   glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float) + 3 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(8, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C8 " << err << std::endl;
+
+   // this is the colour
+   glEnableVertexAttribArray(9);
+   glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float) + 4 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(9, 1);
+   err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C9 " << err << std::endl;
+
+}
+
+//! GM restraints are not just orienation an colour there is a width and length too
+//! (hmm - I mean, maybe that can be captured in the mat4).
+void
+Mesh::update_instancing_buffer_data_for_extra_distance_restraints(const std::vector<extra_distance_restraint_markup_instancing_data_t> &edrmid) {
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL Error Mesh::update_instancing_buffer_data_standard() --start-- error: " << err << std::endl;
+
+   if (vao == VAO_NOT_SET)
+      std::cout << "You forgot to setup this Mesh " << name << std::endl;
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err)
+      std::cout << "GL error Mesh::update_instancing_buffer_data_standard() A1 "
+                << "binding vao " << vao << " error " << err << std::endl;
+   if (err == GL_INVALID_OPERATION)
+      std::cout << "Because vao was not the name of a vertex array object previously returned from a call to glGenVertexArrays (or zero)"
+                << std::endl;
+
+   unsigned int size_of_edrmidt = sizeof(extra_distance_restraint_markup_instancing_data_t);
+   unsigned int n_mats = edrmid.size();
+
+   if (n_mats > 0) {
+      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * size_of_edrmidt, &(edrmid[0]));
+   }
+
+}
+
 
 void
 Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
@@ -2645,7 +2947,7 @@ Mesh::setup_camera_facing_hex() {
 void
 Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
 
-   bool stellation = true; // pass this 
+   bool stellation = true; // pass this
 
    float turn_per_step = 2.0f * M_PI / static_cast<float>(n_sides);
    glm::vec3 n(0,0,1);
@@ -2677,7 +2979,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
          triangles.push_back(g_triangle(0, idx_this, idx_for_in_vertex));
          triangles.push_back(g_triangle(0, idx_for_in_vertex, idx_for_next_out_vertex));
       }
-      
+
    } else {
       for (unsigned int i=0; i<n_sides; i++) {
          float a = static_cast<float>(i) * turn_per_step;
@@ -2700,7 +3002,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
 }
 
 
-#include "cylinder-with-rotation-translation.hh"
+#include "coot-utils/cylinder-with-rotation-translation.hh"
 
 void
 Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in) {
@@ -2722,7 +3024,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    unsigned int n_slices = 20;
    unsigned int n_stacks = 80;
    glm::vec3 start_pos(0, 0, 0);
-   glm::vec3 end_pos(1, 0, 0);
+   glm::vec3 end_pos(1, 0, 0); // along the x axis - hmm!
    std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
    float height = glm::distance(start_pos, end_pos);
    float radius = 0.03;
@@ -2732,7 +3034,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    // now convert the vertices
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
    for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
-      const vertex_with_rotation_translation &v = c.vertices[ii];
+      const coot::api::vertex_with_rotation_translation &v = c.vertices[ii];
       s_generic_vertex gv(v.pos, v.normal, v.colour);
       // gv.color = glm::vec4(0,1,0,1);
       new_vertices[ii] = gv;
@@ -2753,6 +3055,51 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    n_instances = mats.size();
    setup_matrix_and_colour_instancing_buffers_standard(mats, colours);
 }
+
+void
+Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // make a cylinder for instancing
+
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
+   material = material_in;
+
+   is_instanced = true;
+   is_instanced_with_rts_matrix = false;
+
+   unsigned int n_slices = 8; // 32; is too many
+   unsigned int n_stacks = 2;
+
+   glm::vec3 start_pos(0, 0, 0);
+   glm::vec3 end_pos(0, 0, 1);
+   std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
+   float height = 1.0;
+   float radius = 1.0;
+   cylinder c(pp, radius, radius, height, n_slices, n_stacks);
+
+   std::vector<s_generic_vertex> new_vertices(c.vertices.size());
+   for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
+      const coot::api::vnc_vertex &v = c.vertices[ii];
+      new_vertices[ii] = vnc_vertex_to_generic_vertex(v);
+   }
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+   vertices.insert(vertices.end(), new_vertices.begin(), new_vertices.end());
+   triangles.insert(triangles.end(), c.triangles.begin(), c.triangles.end());
+   for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
+      triangles[ii].rebase(idx_base);
+
+   setup_buffers();
+}
+
 
 
 void
@@ -2783,7 +3130,7 @@ Mesh::test_cyclinders(Shader *shader_p, const Material &material_in) {
    // now convert the vertices
    std::vector<s_generic_vertex> new_vertices(c.vertices.size());
    for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
-      const vertex_with_rotation_translation &v = c.vertices[ii];
+      const coot::api::vertex_with_rotation_translation &v = c.vertices[ii];
       s_generic_vertex gv(v.pos, v.normal, v.colour);
       // gv.color = glm::vec4(0,1,0,1);
       new_vertices[ii] = gv;
@@ -2858,6 +3205,17 @@ Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material 
                                return glm::vec3(co.x(), co.y(), co.z());
                             };
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    double l = sdo.length();
    unsigned int n_seg = static_cast<unsigned int>(l) * 3;
    if (n_seg < 3) n_seg = 3;
@@ -2875,7 +3233,7 @@ Mesh::add_dashed_line(const coot::simple_distance_object_t &sdo, const Material 
       cylinder c(pp, 0.04, 0.04, segment_length, colour);
       c.add_flat_start_cap();
       c.add_flat_end_cap();
-      import(c.vertices, c.triangles);
+      import(vnc_vertex_vector_to_generic_vertex_vector(c.vertices), c.triangles);
    }
    setup(material);
 

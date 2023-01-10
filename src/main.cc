@@ -374,11 +374,7 @@ bool init_from_gtkbuilder() {
          if (false) {
             GtkWidget *w = gtk_label_new("Some Test Label");
             gtk_widget_show(w);
-#if (GTK_MAJOR_VERSION >=4) || (GTK_MINOR_VERSION == 94)
-            gtk_box_pack_start(GTK_BOX(graphics_hbox), w);
-#else
             gtk_box_pack_start(GTK_BOX(graphics_hbox), w, FALSE, FALSE, 2);
-#endif
          }
 
       } else {
@@ -481,10 +477,6 @@ main(int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      bool old_way_flag = true;
-      if (cld.use_gtkbuilder)
-         old_way_flag = false;
-
       setup_pixmap_directory();
 
       if (cld.use_gtkbuilder) {
@@ -494,19 +486,17 @@ main(int argc, char *argv[]) {
 
             do_window_resizing_widgets();
 
-            GtkWidget *glarea = graphics_info_t::glareas[0];
-            gtk_widget_show(glarea);
-            my_glarea_add_signals_and_events(glarea);
-            on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
-                                                    // without this.
-
-            // We need to connect the submenu to the menus (which are
-            // accessible via window1)
-            // GtkWidget *main_window = widget_from_builder("main_window");
-
-            // create_initial_map_color_submenu(main_window);
-            // create_initial_ramachandran_mol_submenu(main_window);
-            // create_initial_sequence_view_mol_submenu(main_window);
+            if (! graphics_info_t::glareas.empty()) {
+               GtkWidget *glarea = graphics_info_t::glareas[0];
+               my_glarea_add_signals_and_events(glarea);
+               gtk_widget_show(glarea);
+               // on_glarea_realize(GTK_GL_AREA(glarea)); // hacketty hack. I don't know why realize is not called
+                                                          // without this.
+                                                          // 20230105-PE Jakub noticed some problem with GTK4
+                                                          // start-up that might be related.
+            } else {
+               std::cout << "WARNING:: glarea was not initialized! " << std::endl;
+            }
 
             setup_python(argc, argv);
          } else {

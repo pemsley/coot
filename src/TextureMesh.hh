@@ -6,7 +6,7 @@
 #include <string>
 #include <epoxy/gl.h>
 #include <glm/glm.hpp>
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 #include "obj_loader.h"
 

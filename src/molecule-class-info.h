@@ -171,7 +171,7 @@ namespace molecule_map_type {
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
 
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 #include "fresnel-settings.hh"
 
@@ -300,7 +300,7 @@ namespace coot {
 
 #include "generic-vertex.hh"
 
-#include "cylinder.hh"
+#include "coot-utils/cylinder.hh"
 
 #ifndef EMSCRIPTEN
 #include "Mesh.hh"
@@ -3148,16 +3148,16 @@ public:        //                      public
    // new
    void post_process_map_triangles();
    void setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius);
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour, float atom_radius_scale_factor=1.0) const;
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_rama_balls(float ball_scale_factor, const glm::vec3 &screen_up_dir) const;
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_bad_CA_CA_distances() const;
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > fun(float radius_scale) const;
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > fun(float radius_scale) const;
 
-   void setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+   void setup_glsl_bonds_buffers(const std::vector<coot::api::vertex_with_rotation_translation> &vertices,
                                  const std::vector<g_triangle> &triangles);
 
    GLuint m_VertexArrayID_for_map;
@@ -3718,11 +3718,11 @@ void draw_map_molecule(bool draw_transparent_maps,
    bool export_map_molecule_as_gltf(const std::string &file_name) const;
    bool export_model_molecule_as_gltf(const std::string &file_name) const;
 
-   void export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+   void export_these_as_3d_object(const std::vector<coot::api::vertex_with_rotation_translation> &vertices,
                                   const std::vector<g_triangle> &triangles);
 
    bool write_model_vertices_and_triangles_to_file_mode;
-   bool export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices,
+   bool export_vertices_and_triangles_func(const std::vector<coot::api::vertex_with_rotation_translation> &vertices,
                                            const std::vector<g_triangle> &triangles);
    std::string export_vertices_and_triangles_file_name_for_func;
 

@@ -460,6 +460,21 @@ int test_function(int i, int j) {
 void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
 void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock);
 
+void testing_get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
+   bool unlocked = false;
+   while (! mol_edit_lock.compare_exchange_weak(unlocked, true)) {
+      // std::cout << "test_function_scm() failed to get the mol_edit_lock" << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      unlocked = false;
+   }
+   // std::cout << "debug:: test_function_scm() got the lock" << std::endl;
+}
+
+void testing_release_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   mol_edit_lock = false;
+   // std::cout << "debug:: test_function_scm() released the lock" << std::endl;
+};
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
@@ -576,11 +591,11 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
                                       if (watch_data_p->update_flag) {
                                          watch_data_p->update_flag = false;
                                          graphics_info_t g;
-                                         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_get_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
                                          g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
                                          g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
-                                         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_release_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          if (watch_data_p->update_count == 1) {
                                             auto rc = g.molecules[watch_data_p->imol_new].centre_of_molecule();
                                             g.setRotationCentreSimple(rc);
@@ -590,12 +605,12 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
                                       }
                                       if (watch_data_p->finished) {
                                          std::cout << "Final update of working_mol..." << std::endl;
-                                         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_get_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
                                          graphics_info_t g;
                                          g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
                                          g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
-                                         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+                                         testing_release_mol_edit_lock(watch_data_p->mol_edit_lock);
                                          g.graphics_draw();
                                       }
                                       int return_status = TRUE;
@@ -1214,23 +1229,155 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "oct.hh"
+#include "coot-utils/oct.hh" // ortep 20230108-PE
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
+
+#include "density-contour/gaussian-surface.hh"
+
+#include "pli/sdf-interface-for-export.hh"
 
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
-
    std::string d = coot::prefix_dir();
-
    std::cout << "--------- prefix_dir " << d << std::endl;
 
    graphics_info_t g;
    PyObject *r = Py_False;
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
+
    if (true) {
+      int i = PyLong_AsLong(i_py);
+      int j = PyLong_AsLong(j_py);
+
+      int imol = i;
+      coot::residue_spec_t res_spec("A", 1, "");
+      mmdb::Residue *residue_p = g.get_residue(imol, res_spec);
+      std::vector<coot::simple_mesh_t> meshes = chemical_features::generate_meshes(imol, residue_p, *g.Geom_p());
+
+      std::cout << "generate_meshes() made " << meshes.size() << " meshes" << std::endl;
+
+      for (unsigned int i=0; i<meshes.size(); i++) {
+         const auto &mesh = meshes[i];
+         std::cout << "mesh verts: " << mesh.vertices.size() << " tris " << mesh.triangles.size() << std::endl;
+         g.attach_buffers();
+
+         std::string object_name("Thing ");
+         object_name += std::to_string(imol);
+         int obj_mesh = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+         obj.mesh.name = object_name;
+         obj.mesh.set_draw_mesh_state(true);
+         std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(mesh.vertices);
+         obj.mesh.import(converted_vertices, mesh.triangles);
+         obj.mesh.set_material_specularity(0.7, 128);
+         obj.mesh.setup_buffers();
+      }
+      graphics_draw();
+   }
+
+   if (false) {
+      int i = PyLong_AsLong(i_py);
+      int j = PyLong_AsLong(j_py);
+
+      auto make_a_surface = [] (int imol, mmdb::Manager *mol,
+                                unsigned int i_ch, const std::string &chain_id,
+                                const std::vector<coot::ghost_molecule_display_t> &gi,
+                                bool colour_by_ncs_ghost,
+                                const std::map<std::string, int> &chain_id_map) {
+
+         graphics_info_t g;
+         coot::colour_holder ch(0.8, 0.4, 0.4);
+
+         if (colour_by_ncs_ghost) {
+            for (const auto &ghost : gi) {
+               if (ghost.chain_id == chain_id) {
+                  const std::string &target_chain_id = ghost.target_chain_id;
+                  std::map<std::string, int>::const_iterator it = chain_id_map.find(target_chain_id);
+                  if (it != chain_id_map.end()) {
+                     int i_ch_for_target = it->second;
+                     ch.rotate_by(0.22 * i_ch_for_target);
+                  }
+               }
+            }
+         } else {
+            ch.rotate_by(0.22 * i_ch);
+         }
+         glm::vec4 col = colour_holder_to_glm(ch);
+
+         coot::gaussian_surface_t gauss_surf(mol, chain_id);
+         coot::simple_mesh_t smesh = gauss_surf.get_surface();
+         std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+         for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+            vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                          smesh.vertices[i].normal,
+                                          smesh.vertices[i].color);
+            vertices[i].color = col;
+            // std::cout << i << " " << glm::to_string(vertices[i].pos) << "\n";
+         }
+
+         g.attach_buffers();
+
+         std::string object_name("Gaussian Surface #");
+         object_name += std::to_string(imol);
+         object_name += " Chain ";
+         object_name += chain_id;
+         int obj_mesh = new_generic_object_number(object_name);
+         meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+         obj.mesh.name = object_name;
+         obj.mesh.set_draw_mesh_state(true);
+         obj.mesh.import(vertices, smesh.triangles);
+         obj.mesh.set_material_specularity(0.7, 128);
+         obj.mesh.setup_buffers();
+         g.graphics_draw();
+      };
+
+
+      if (is_valid_model_molecule(i)) {
+
+         std::vector<coot::ghost_molecule_display_t> gi = g.molecules[i].NCS_ghosts();
+
+         mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+         std::vector<std::string> chain_ids = g.molecules[i].get_chain_ids();
+         std::map<std::string, int> chain_id_map;
+         for (unsigned int i_ch=0; i_ch<chain_ids.size(); i_ch++) {
+            auto chain_id = chain_ids[i_ch];
+            chain_id_map[chain_id] = i_ch;
+         }
+
+         if (false) {
+            std::cout << ":::::::::::::::::::::::: ghosts " << gi.size() << std::endl;
+            for (unsigned int ighost=0; ighost<gi.size(); ighost++) {
+               const auto &ghost = gi[ighost];
+               std::cout << "   " << ighost << " " << ghost.name << " " << ghost.chain_id << " " << ghost.target_chain_id
+                         << "\n" << ghost.rtop.format() << std::endl;
+            }
+         }
+
+         for (unsigned int i_ch=0; i_ch<chain_ids.size(); i_ch++) {
+            auto chain_id = chain_ids[i_ch];
+            // gi is used if colour_by_ncs_ghost is true
+            bool colour_by_ncs_ghost = false;
+            make_a_surface(i, mol, i_ch, chain_id, gi, colour_by_ncs_ghost, chain_id_map);
+         }
+
+      }
+   }
+
+   if (false) {
      int i = PyLong_AsLong(i_py);
      int j = PyLong_AsLong(j_py);
 
@@ -1260,7 +1407,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       // ------------------------------------ solid -----------------------------------------
 
-      { 
+      {
          std::string object_name("Ortep Testing Solid");
          int obj_index = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_index];

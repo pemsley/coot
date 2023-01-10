@@ -659,7 +659,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 	       // int id = gtk_timeout_add(15, cb, NULL);
 
                int timeout_ms = 15;
-               timeout_ms = 30; // 20220503-PE try this value
+               timeout_ms =  30; // 20220503-PE try this value
+               timeout_ms = 120; // 20221227-PE try this value - Lucrezia crash
 	       int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
@@ -1751,13 +1752,14 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 
+   draw_it_for_moving_atoms_restraints_graphics_object = true; // hack          
+
    if (moving_atoms_asc) {
       if (last_restraints) {
-
          if (draw_it_for_moving_atoms_restraints_graphics_object) {
-
             moving_atoms_extra_restraints_representation.clear();
             for (int i=0; i<last_restraints->size(); i++) {
+               // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
                const coot::simple_restraint &rest = last_restraints->at(i);
                if (rest.restraint_type == coot::BOND_RESTRAINT ||
                    rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
@@ -1793,6 +1795,9 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
          }
       }
    }
+
+   // now call the new graphics function:
+   make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
 }
 
 // static
@@ -1800,6 +1805,8 @@ void
 graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
 
    std::cout << "FIXME in draw_moving_atoms_restraints_graphics_object() " << std::endl;
+
+   // 20221221-PE now I have draw_extra_distance_restraints();
 
 #if 0
 

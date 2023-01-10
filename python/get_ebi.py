@@ -111,18 +111,18 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
-    coot_download_dir = get_directory("coot-download")
+    coot_download_dir = coot_utils.get_directory("coot-download")
     if data_type == "pdb":
        pdb_file_name = coot_download_dir + "/" + id + ".pdb." + \
            pdbe_file_name_tail
        check_dir_and_get_url(coot_download_dir, pdb_file_name, url_string)
-       imol_coords = handle_read_draw_molecule(pdb_file_name)
+       imol_coords = coot.handle_read_draw_molecule(pdb_file_name)
        return imol_coords
 
     if data_type == "cif":
        pdb_file_name = coot_download_dir + "/" + id + ".cif"
        check_dir_and_get_url(coot_download_dir, pdb_file_name, url_string)
-       imol_coords = handle_read_draw_molecule(pdb_file_name)
+       imol_coords = coot.handle_read_draw_molecule(pdb_file_name)
        return imol_coords
 
     if data_type == "sfs":
@@ -160,21 +160,21 @@ def get_ebi_pdb(id):
     import urllib.request, urllib.parse, urllib.error, string
 
     # print "======= id:", id
-    down_id = string.lower(id)
+    down_id = id.lower()
     pdb_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".ent"
     cif_url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + ".cif"
     url_status = get_url_str(id, pdb_url_str, "pdb", None)
     # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb +
     #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
     # print "BL DEBUG:: get-ebi-pdb ======= url-status", url_status
-    if valid_model_molecule_qm(url_status):
-        pdb_validate(down_id, url_status)
+    if coot_utils.valid_model_molecule_qm(url_status):
+        pdbe_validation_data.pdb_validate(down_id, url_status)
         return url_status
     else:
         cif_url_status = get_url_str(id, cif_url_str, "cif", None)
-        if valid_model_molecule_qm(cif_url_status):
+        if coot_utils.valid_model_molecule_qm(cif_url_status):
             # print "BL DEBUG:: get-ebi-pdb ======= cif_url_status", cif_url_status
-            pdb_validate(down_id, cif_url_status)
+            pdbe_validation_data.pdb_validate(down_id, cif_url_status)
             return cif_url_status
 
     return False

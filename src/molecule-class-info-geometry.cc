@@ -2,18 +2,18 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "molecule-class-info.h"
-#include "oct.hh"
+#include "coot-utils/oct.hh"
 #include "eyes.hh"
 
 // We can think about a more efficient interface when this one works
 //
-std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour,
                                                        float atom_radius_scale_factor) const {
 
 
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
-   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<coot::api::vertex_with_rotation_translation> &v1 = v.first;
    std::vector<g_triangle> &v2 = v.second;
 
    // this is not consistent with the bonds - the hydrogen atoms are too small
@@ -29,8 +29,11 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       num_subdivisions = 1;
    float radius = 1;
    glm::vec4 col(0.5, 0.5, 0.5, 1.0);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
       make_octasphere(num_subdivisions, origin, radius, col);
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball_c;
 
    // first count the number of atoms so that we can resize the vertices v1:
    unsigned int n_atoms = 0;
@@ -60,7 +63,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 
          for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
             //     vertex_with_rotation_translation vertex(octaball.first[ibv], sphere_radius * sphere_scale);
-            vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, sphere_radius * sphere_scale);
+            coot::api::vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, sphere_radius * sphere_scale);
             vertex.colour = atom_col;
             vertex.model_rotation_matrix = unit_matrix; // for now
             vertex.model_translation = atom_position;
@@ -79,7 +82,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       if (is_intermediate_atoms_molecule) {
          unsigned int idx_base = v1.size();
          unsigned int idx_base_tri = v2.size();
-         std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v_fun =
+         std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > v_fun =
             fun(4.0 * radius_scale);
          std::cout << "fun triangles " << v1.size() << " " << v2.size() << std::endl;
          v1.insert(v1.end(), v_fun.first.begin(), v_fun.first.end());
@@ -93,15 +96,15 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 }
 
 
-std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::fun(float radius_scale) const {
 
    // about 200,000 vertices for tutorial modern with subdivision 2
    // std::cout << "returning from make_generic_vertices_for_atoms() with sizes "
    // << v1.size() << " " << v2.size() << std::endl;
 
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
-   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<coot::api::vertex_with_rotation_translation> &v1 = v.first;
    std::vector<g_triangle> &v2 = v.second;
 
    for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
@@ -144,7 +147,7 @@ molecule_class_info_t::fun(float radius_scale) const {
             const position_normal_vertex &v = mouth_patch.first[i];
             glm::vec4 c(0.2, 0.2, 0.2, 1.0);
 
-            vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+            coot::api::vertex_with_rotation_translation vrt(v.pos, v.normal, c);
             glm::mat4 rm(1.0f);
             glm::mat3 mm = glm::mat3(rm);
             vrt.model_rotation_matrix = mm;
@@ -164,7 +167,7 @@ molecule_class_info_t::fun(float radius_scale) const {
                const position_normal_vertex &v = spherical_surface_circular_patch_mesh.first[i];
                float whiteness = 0.82;
                glm::vec4 c(whiteness, whiteness, whiteness, 1.0);
-               vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+               coot::api::vertex_with_rotation_translation vrt(v.pos, v.normal, c);
                glm::mat4 rm(1.0f);
                float angle = 0.5 * static_cast<float>(2 * ii - 1);
                rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
@@ -184,7 +187,7 @@ molecule_class_info_t::fun(float radius_scale) const {
             for (unsigned int i=0; i<spherical_surface_circular_patch_mesh_pupil.first.size(); i++) {
                const position_normal_vertex &v = spherical_surface_circular_patch_mesh_pupil.first[i];
                glm::vec4 c(0.1, 0.1, 0.1, 1.0);
-               vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+               coot::api::vertex_with_rotation_translation vrt(v.pos, v.normal, c);
                glm::mat4 rm(1.0f);
                float angle = 0.5 * static_cast<float>(2 * ii - 1) + 0.1;
                rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
@@ -205,12 +208,12 @@ molecule_class_info_t::fun(float radius_scale) const {
 }
 
 
-std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
 
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > vp;
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > vp;
 
-   std::vector<vertex_with_rotation_translation> &v1 = vp.first;
+   std::vector<coot::api::vertex_with_rotation_translation> &v1 = vp.first;
    std::vector<g_triangle> &v2 = vp.second;
    glm::vec3 origin(0,0,0);
    unsigned int num_subdivisions = 2;
@@ -221,7 +224,7 @@ molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
    float sphere_radius = 0.13;
    float sphere_scale = 1.0;
    glm::vec4 col(0.99, 0.55, 0.1, 1.0);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
       make_octasphere(num_subdivisions, origin, radius, col);
    glm::mat4 unit_matrix(1.0f);
 
@@ -231,7 +234,7 @@ molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
                           bonds_box.bad_CA_CA_dist_spots_ptr[i].y(),
                           bonds_box.bad_CA_CA_dist_spots_ptr[i].z());
       for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-         vertex_with_rotation_translation vertex(octaball.first[ibv], position, sphere_radius * sphere_scale);
+         coot::api::vertex_with_rotation_translation vertex(octaball.first[ibv], position, sphere_radius * sphere_scale);
          vertex.colour = col;
          vertex.model_rotation_matrix = unit_matrix; // for now
          vertex.model_translation = position;
@@ -243,19 +246,19 @@ molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
       v2.insert(v2.end(), octaball_triangles.begin(), octaball_triangles.end());
    }
 
-   return std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
+   return std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
 }
 
 
 // rama balls.
-std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_factor,
                                                             const glm::vec3 &screen_up_dir) const {
 
    // treat them like atoms for now.
 
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
-   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::pair<std::vector<coot::api::vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<coot::api::vertex_with_rotation_translation> &v1 = v.first;
    std::vector<g_triangle> &v2 = v.second;
    float rama_ball_pos_offset_scale = 0.6;
 
@@ -264,7 +267,7 @@ molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_fac
    glm::mat4 unit_matrix(1.0f);
    float radius = 0.62f * ball_scale_factor;
    glm::vec4 col(0.5, 0.5, 0.5, 1.0);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
       make_octasphere(num_subdivisions, origin, radius, col);
 
    for (int i=0; i<bonds_box.n_ramachandran_goodness_spots; i++) {
@@ -278,7 +281,7 @@ molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_fac
       glm::vec3 atom_position = cartesian_to_glm(position) + rama_ball_pos_offset_scale * screen_up_dir;
       unsigned int idx_base = v1.size();
       for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-         vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, radius);
+         coot::api::vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, radius);
          vertex.colour = glm::vec4(col.red, col.green, col.blue, 1.0f);
          vertex.model_rotation_matrix = unit_matrix;
          vertex.model_translation = atom_position;

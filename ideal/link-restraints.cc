@@ -1297,7 +1297,7 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
       } 
    }
 
-   return link_type; 
+   return link_type;
 }
 
 // Return "" on failure to find link.  
@@ -1313,7 +1313,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first,
    std::string r;
    if (use_links_in_molecule)
       r = geom.find_glycosidic_linkage_type(first, second); // 20150714 FIXME
-   else 
+   else
       r = geom.find_glycosidic_linkage_type(first, second, mol);
    return r;
 }

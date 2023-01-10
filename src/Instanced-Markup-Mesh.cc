@@ -7,7 +7,7 @@
 
 #include "Instanced-Markup-Mesh.hh"
 
-#include "oct.hh"
+#include "coot-utils/oct.hh"
 
 void
 Instanced_Markup_Mesh::init() {
@@ -229,10 +229,10 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
 
    bool remove_redundant_vertices_flag = false; // seems not to fully work.
 
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> >
       oct = make_octasphere(num_subdivisions, position, radius, colour, remove_redundant_vertices_flag);
 
-   const std::vector<s_generic_vertex> &v1 = oct.first;
+   const std::vector<coot::api::vnc_vertex> &v1 = oct.first;
    const std::vector<g_triangle> &v2 = oct.second;
 
    vertices.resize(v1.size());

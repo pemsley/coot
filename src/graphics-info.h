@@ -175,6 +175,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "glarea_tick_function.hh"
 #endif
 
+#include "extra-distance-restraint-markup.hh"
+
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
 	 NEW_COORDS_ADD = 1,                 // not used?
@@ -2910,7 +2912,7 @@ public:
    // save molecule [option menu usage]
    static int save_imol;
 
-   // Pointer Distances
+   // --- Pointer Distances ---
    static float pointer_min_dist;
    static float pointer_max_dist;
    static bool show_pointer_distances_flag;
@@ -2921,8 +2923,23 @@ public:
    void make_pointer_distance_objects(); // (re)generate them
    static std::vector<atom_label_info_t> labels_for_pointer_distances;
 
+   // --- Extra Distance Restraints ---
 
-   // Dynamic distances to intermediate atoms:
+   static void draw_extra_distance_restraints(int pass_type);
+   void make_extra_distance_restraints_objects(); // (re)generate them
+   static float extra_distance_restraint_penalty_cutoff; // restraints that have less penalty/energy than
+                                                         // this are not worth drawing.
+   void set_extra_distance_restraint_penalty_cutoff(float c) {
+      extra_distance_restraint_penalty_cutoff = c;
+      make_extra_distance_restraints_objects();
+   }
+   static bool show_extra_distance_restraints_flag;
+   void set_show_extra_distance_restriants(bool s) { show_extra_distance_restraints_flag = s; }
+   static std::vector<extra_distance_restraint_markup_instancing_data_t> extra_distance_restraints_markup_data;
+   static Mesh mesh_for_extra_distance_restraints; // draw this with instancing
+
+   // --- Dynamic distances to intermediate atoms: ---
+
    static short int in_dynamic_distance_define;
    static coot::intermediate_atom_distance_t running_dynamic_distance;
    static std::vector<coot::intermediate_atom_distance_t> dynamic_distances;
@@ -3312,7 +3329,7 @@ public:
    static bool display_generic_objects_as_solid_flag;
    static void draw_geometry_objects();
    static void draw_dynamic_distances();
-   static void draw_generic_objects();
+   static void draw_generic_objects(unsigned int pass_type);
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();
@@ -4570,6 +4587,7 @@ string   static std::string sessionid;
    static Shader shader_for_rama_balls;
    static Shader shader_for_particles;
    static Shader shader_for_instanced_objects;
+   static Shader shader_for_extra_distance_restraints;
    static Shader shader_for_hud_geometry_bars;
    static Shader shader_for_hud_geometry_labels; // for labels image
    static Shader shader_for_lines_pulse; // "you are here" pulse
