@@ -1529,8 +1529,9 @@ int test_peptide_omega(molecules_container_t &mc) {
       auto vi = mc.peptide_omega_analysis(imol);
       for (const auto &chain : vi.cviv) {
          for (const auto &res : chain.rviv) {
+            // std::cout << "in test_peptide_omega() " << res.residue_spec << " " << res.function_value << std::endl;
             if (res.residue_spec.res_no == 32) {
-               if (res.function_value > 32) { // not planned
+               if (res.function_value > 32.0) { // not planned
                   status = 1;
                }
             }
@@ -1893,12 +1894,13 @@ int main(int argc, char **argv) {
       status += run_test(test_non_standard_residues, "non-standard residues",    mc);
       status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
+      status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
       status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_rota_dodecs_mesh,     "simple rotamer mesh", mc);
-   status += run_test(test_instanced_rota_markup,     "instanced rotamer mesh", mc);
+
+   status += run_test(test_peptide_omega,         "peptide omega",            mc);
 
    // Note to self:
    //

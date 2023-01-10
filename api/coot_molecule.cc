@@ -3147,7 +3147,6 @@ coot::molecule_t::peptide_omega_analysis(const protein_geometry &geom, const std
 
    restraints_container_t rc(atom_sel, chain_id, nullptr);
    omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, mark_cis_peptides_as_bad_flag);
-
    return odi;
 }
 
