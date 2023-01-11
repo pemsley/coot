@@ -8057,6 +8057,16 @@ void on_generic_objects_dialog_response_gtkbuilder_callback(GtkDialog       *dia
     }
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_generic_objects_dialog_delete_event(GtkWidget       *widget,
+                                       GdkEvent        *event,
+                                       gpointer         user_data) {
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
 
 // what a terrible function name!
 extern "C" G_MODULE_EXPORT
