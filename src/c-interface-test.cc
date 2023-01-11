@@ -1270,13 +1270,15 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       std::cout << "generate_meshes() made " << meshes.size() << " meshes" << std::endl;
 
-      for (unsigned int i=0; i<meshes.size(); i++) {
-         const auto &mesh = meshes[i];
-         std::cout << "mesh verts: " << mesh.vertices.size() << " tris " << mesh.triangles.size() << std::endl;
+      for (unsigned int ii=0; ii<meshes.size(); ii++) {
+         const auto &mesh = meshes[ii];
+         std::cout << "mesh " << mesh.name << " " << mesh.vandt() << std::endl;
          g.attach_buffers();
 
-         std::string object_name("Thing ");
+         std::string object_name("Chemical Feature for #");
          object_name += std::to_string(imol);
+         object_name += " ";
+         object_name += mesh.name;
          int obj_mesh = new_generic_object_number(object_name);
          meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
          obj.mesh.name = object_name;

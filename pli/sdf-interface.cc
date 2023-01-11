@@ -217,10 +217,31 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
                                 const RDKit::ROMol &rdkm, const RDKit::Conformer &conf,
                                 const clipper::Coord_orth &centre) {
       coot::simple_mesh_t m;
+      std::string family = sp.get()->getFamily();
+      std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
+      clipper::Coord_orth p1(centre + 0.9 * normal.second);
+      shapes::arrow_t arrow(centre, p1);
+      if (family == "Acceptor") arrow.cone_radius = 1.0f;
+      coot::simple_mesh_t mesh = coot::arrow_mesh(arrow);
+      glm::vec4 col(0.7, 0.7, 0.7, 1.0);
+      if (family == "Donor")            col = glm::vec4(0.2, 0.6, 0.7, 1.0);
+      if (family == "Acceptor")         col = glm::vec4(0.7, 0.2, 0.7, 1.0);
+      mesh.change_colour(col);
+      return mesh;
+   };
+
+   auto make_acceptor_cone = [] (boost::shared_ptr<RDKit::MolChemicalFeature> &sp,
+                                 const RDKit::ROMol &rdkm, const RDKit::Conformer &conf,
+                                 const clipper::Coord_orth &centre) {
+      coot::simple_mesh_t m;
       std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
       clipper::Coord_orth p1(centre + 1.3 * normal.second);
-      // meshed_generic_display_object::arrow_t arrow(centre, p1); // 20230109-PE code in src need moving to coot-utils
-      return m;
+      shapes::cone_t cone(centre, p1);
+      cone.radius = 1.0f;
+      coot::simple_mesh_t mesh = coot::cone_mesh(cone);
+      glm::vec4 col = glm::vec4(0.7, 0.2, 0.5, 1.0);
+      mesh.change_colour(col);
+      return mesh;
    };
 
    auto make_aromatic_rings = [] (boost::shared_ptr<RDKit::MolChemicalFeature> &sp,
@@ -250,6 +271,9 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
       return m;
    };
 
+   bool one_by_one = false; // i.e. group the meshes for those in the same family
+   std::map<std::string, coot::simple_mesh_t> mesh_map;
+
    std::list<RDKit::FeatSPtr>::const_iterator it;
    for (it=features.begin(); it!=features.end(); ++it) {
       RDKit::FeatSPtr feat_ptr = *it;
@@ -270,31 +294,101 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
       if (family == "LumpedHydrophobe") col = glm::vec4(0.4, 0.4, 0.5, 1.0);
       if (family == "Aromatic")         col = glm::vec4(0.6, 0.6, 0.3, 1.0);
       if (family == "Donor")            col = glm::vec4(0.2, 0.6, 0.7, 1.0);
-      if (family == "Acceptor")         col = glm::vec4(0.7, 0.2, 0.7, 1.0);
+      if (family == "Acceptor")         col = glm::vec4(0.7, 0.2, 0.5, 1.0);
       if (family == "PosIonizable")     col = glm::vec4(0.2, 0.2, 0.7, 1.0);
       if (family == "NegIonizable")     col = glm::vec4(0.7, 0.2, 0.2, 1.0);
       // add more, like halogens
       sphere.change_colour(col);
+      sphere.name = family;
 
-      if (family == "LumpedHydrophobe") 
+      if (family == "LumpedHydrophobe") {
          sphere.scale(0.38f);
-      else
-         sphere.scale(0.5f);
+      } else {
+         if (family == "PosIonizable") {
+            sphere.scale(0.52f);
+         } else {
+            if (family == "NegIonizable") {
+               sphere.scale(0.52f);
+            } else {
+               sphere.scale(0.5f);
+            }
+         }
+      }
 
       sphere.translate(centre_glm);
 
-      if (family != "Aromatic")
-         meshes.push_back(sphere);
+      if (one_by_one) {
+         if (family != "Aromatic")
+            meshes.push_back(sphere);
 
-      if (family == "Donor" || family == "Acceptor") {
-         coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
-         meshes.push_back(arrow);
-      }
+         if (family == "Donor") {
+            coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
+            arrow.name = family;
+            std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
+            meshes.push_back(arrow);
+         }
 
-      if (family == "Aromatic") {
-         coot::simple_mesh_t rings = make_aromatic_rings(sp, rdkm, conf, centre);
-         meshes.push_back(rings);
+         if (family == "Acceptor") {
+            coot::simple_mesh_t cone = make_acceptor_cone(sp, rdkm, conf, centre);
+            cone.name = family;
+            std::cout << "debug:: acceptor-cone " << family << " has " << cone.vandt() << std::endl;
+            meshes.push_back(cone);
+         }
+
+         if (family == "Aromatic") {
+            coot::simple_mesh_t rings = make_aromatic_rings(sp, rdkm, conf, centre);
+            rings.name = "Aromatic";
+            meshes.push_back(rings);
+         }
+      } else {
+         // group the meshes for each family
+         if (family != "Aromatic") {
+            std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
+            if (iter == mesh_map.end()) {
+               mesh_map[family] = sphere;
+            } else {
+               mesh_map[family].add_submesh(sphere);
+            }
+         }
+         if (family == "Donor") {
+            coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
+            std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
+            arrow.name = family;
+            std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
+            if (iter == mesh_map.end()) {
+               mesh_map[family] = arrow;
+            } else {
+               mesh_map[family].add_submesh(arrow);
+            }
+         }
+         if (family == "Acceptor") {
+            coot::simple_mesh_t cone = make_acceptor_cone(sp, rdkm, conf, centre);
+            std::cout << "debug:: cone " << family << " has " << cone.vandt() << std::endl;
+            cone.name = family;
+            std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
+            if (iter == mesh_map.end()) {
+               mesh_map[family] = cone;
+            } else {
+               mesh_map[family].add_submesh(cone);
+            }
+         }
+         if (family == "Aromatic") {
+            coot::simple_mesh_t rings = make_aromatic_rings(sp, rdkm, conf, centre);
+            rings.name = "Aromatic";
+            std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
+            if (iter == mesh_map.end()) {
+               mesh_map[family] = rings;
+            } else {
+               mesh_map[family].add_submesh(rings);
+            }
+         }
       }
+   }
+
+   if (! one_by_one) {
+      std::map<std::string, coot::simple_mesh_t>::const_iterator iter;
+      for (iter=mesh_map.begin(); iter!=mesh_map.end(); ++iter)
+         meshes.push_back(iter->second);
    }
 
    return meshes;

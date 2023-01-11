@@ -13,16 +13,16 @@ coot::cone_mesh(shapes::cone_t cone) {
                                return glm::vec3(co.x(), co.y(), co.z());
                             };
 
-   coot::simple_mesh_t m;
    std::pair<glm::vec3, glm::vec3 > start_end(coord_orth_to_glm(cone.start_point),
                                               coord_orth_to_glm(cone.end_point));
    float h = glm::distance(start_end.first, start_end.second);
    // the cone radii may need switching 50/50.
    glm::vec4 base_colour(cone.col.red, cone.col.green, cone.col.blue, 1.0f);
-   unsigned int n_slices = 8;
+   unsigned int n_slices = 32; // nice and smooth, with 16 we can just see the ngon.
    cylinder c(start_end, cone.radius, 0.0f, h, base_colour, n_slices, 2);
-   c.add_flat_start_cap();
-   return m;
+   c.add_flat_end_cap();
+   simple_mesh_t mesh(c.vertices, c.triangles);
+   return mesh;
 
 }
    
@@ -42,9 +42,10 @@ coot::arrow_mesh(shapes::arrow_t arrow) {
    cylinder c(start_end, arrow.radius, arrow.radius, h, base_colour, n_slices, 2);
    c.add_flat_start_cap();
 
-   clipper::Coord_orth cone_start = arrow.start_point;
+   clipper::Coord_orth delta_uv = arrow.end_point - arrow.start_point;
+   clipper::Coord_orth cone_start = arrow.end_point + 1.3 * delta_uv;
    clipper::Coord_orth cone_end   = arrow.end_point;
-   shapes::cone_t cone(cone_start, cone_end, 0.3f);
+   shapes::cone_t cone(cone_start, cone_end, arrow.cone_radius);
    simple_mesh_t cm = cone_mesh(cone);
 
    simple_mesh_t mesh(c.vertices, c.triangles);

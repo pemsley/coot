@@ -10,17 +10,19 @@ namespace shapes {
 
    class arrow_t {
    public:
-      arrow_t() { fract_head_size = 0.3; radius = 0.15; }
+      arrow_t() { fract_head_size = 0.3; radius = 0.15; cone_radius = 0.3f; }
       arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) :
          start_point(pt1), end_point(pt2) {
          fract_head_size = 0.3;
          radius = 0.15;
+         cone_radius = 0.3;
       }
       clipper::Coord_orth start_point;
       clipper::Coord_orth end_point;
       float fract_head_size;
       coot::colour_holder col; // use this type of colour because we use cylinder
       float radius;
+      float cone_radius;
    };
    class cone_t {
    public:
