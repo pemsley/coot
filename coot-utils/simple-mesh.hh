@@ -39,6 +39,8 @@ namespace coot {
       static simple_mesh_t make_sphere();
       void scale(float scale_factor);
       void change_colour(const glm::vec4 &c);
+      // for debugging - the string for the number of vertices and triangles
+      std::string vandt() const;
 
    };
 }

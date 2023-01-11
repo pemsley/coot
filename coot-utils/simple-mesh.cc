@@ -4,6 +4,17 @@
 #include "simple-mesh.hh"
 #include "oct.hh"
 
+std::string
+coot::simple_mesh_t::vandt() const {
+
+   std::string s;
+   s += " n-vertices: ";
+   s += std::to_string(vertices.size());
+   s += " n-triangles: ";
+   s += std::to_string(triangles.size());
+   return s;
+}
+
 void
 coot::simple_mesh_t::translate(const glm::vec3 &t) {
 
