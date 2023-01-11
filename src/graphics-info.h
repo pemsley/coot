@@ -1999,13 +1999,6 @@ public:
 						   short int is_water_flag);
    coot::refinement_results_t get_refinement_results() const;
 
-   // used by above:
-   void flash_selection(int imol, int resno_1,
-			std::string ins_code_1,
-			int resno_2,
-			std::string ins_code_2,
-			std::string altconf, // use this altconf or "" atoms.
-			std::string chain_id_1);
    static void flash_position(const clipper::Coord_orth &pos);
 
    void repeat_refine_zone(); // no interesting return value because it uses refine()

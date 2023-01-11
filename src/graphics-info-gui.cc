@@ -1384,19 +1384,20 @@ graphics_info_t::output_residue_info_as_text(int atom_index, int imol) {
 
    // It would be cool to flash the residue here.
    // (heh - it is).
+   // 20230111-PE gone now.
    //
    graphics_info_t g;
    mmdb::Atom *picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
 
    if (picked_atom) {
 
-      g.flash_selection(imol,
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->altLoc,
-                        picked_atom->residue->GetChainID());
+      // g.flash_selection(imol,
+      //                   picked_atom->residue->seqNum,
+      //                   picked_atom->GetInsCode(),
+      //                   picked_atom->residue->seqNum,
+      //                   picked_atom->GetInsCode(),
+      //                   picked_atom->altLoc,
+      //                   picked_atom->residue->GetChainID());
 
       mmdb::PAtom *atoms = NULL;
       int n_atoms = 0;

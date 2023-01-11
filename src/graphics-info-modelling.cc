@@ -2343,6 +2343,8 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
 coot::refinement_results_t
 graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1, int i_atom_no_2) {
 
+   // 20230111-PE is this function used?
+
    // What are we going to do here:
    //
    // How do we get the atom selection (the set of atoms that will be
@@ -2410,7 +2412,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
    } else {
-      flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+      // flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) {
@@ -2531,74 +2533,6 @@ graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) 
 #endif
 
 
-
-void
-graphics_info_t::flash_selection(int imol,
-				 int resno_1,
-				 std::string ins_code_1,
-				 int resno_2,
-				 std::string ins_code_2,
-				 std::string altconf,
-				 std::string chain_id_1) {
-
-   // std::cout << "----------------- flash_selection() " << std::endl;
-
-   // First make an atom selection of the residues selected to regularize.
-   //
-   int selHnd = molecules[imol].atom_sel.mol->NewSelection();
-   int nSelAtoms;
-   mmdb::PPAtom SelAtom;
-   const char *chn  = chain_id_1.c_str();
-   const char *ins1 = ins_code_1.c_str();
-   const char *ins2 = ins_code_2.c_str();
-
-   molecules[imol].atom_sel.mol->SelectAtoms(selHnd, 0,
-					     chn,
-					     resno_1, ins1,
-					     resno_2, ins2,
-					     "*",      // RNames
-					     "*","*",  // ANames, Elements
-					     "*" );    // Alternate locations.
-
-   molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-
-   return;
-
-   if (glareas[0]) {
-      if (nSelAtoms) {
-	 // now we can make an atom_selection_container_t with our new
-	 // atom selection that we will use to find bonds.
-
-	 atom_selection_container_t asc;
-	 asc.mol = molecules[imol].atom_sel.mol;
-	 asc.atom_selection = SelAtom;
-	 asc.n_selected_atoms = nSelAtoms;
-
-	 int fld = 0;
-	 Bond_lines_container bonds(asc, fld); // don't flash disulfides
-
-	 graphical_bonds_container empty_box;
-	 graphical_bonds_container regular_box = bonds.make_graphical_bonds();
-
-	 int flash_length = residue_selection_flash_frames_number;
-
-	 // std::cout << "--------------- flash_length " << flash_length << std::endl;
-
-	 for (int iflash=0; iflash<flash_length; iflash++) {
-	    regularize_object_bonds_box = regular_box;
-	    for (int i=0; i<flash_length; i++)
-	       graphics_draw();
-	    regularize_object_bonds_box = empty_box;
-	    for (int i=0; i<flash_length; i++)
-	       graphics_draw();
-	 }
-
-	 regularize_object_bonds_box = empty_box;
-	 molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
-	 graphics_draw();
-      }
-   }
-}
 
 // static
 void
@@ -2784,6 +2718,8 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_like_flag) {
 
+   // 20230111-PE is this function used? Try deleting it one rainy day.
+
    if (false)
       std::cout << "DEBUG:: ================ refine_residue_range: "
 		<< imol << " " << chain_id_1
@@ -2844,7 +2780,7 @@ graphics_info_t::refine_residue_range(int imol,
 	       }
 	    }
 	    if (!simple_water) {
-	       flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
+	       // flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
 	       long t0 = 0; // glutGet(GLUT_ELAPSED_TIME);
 	       rr = copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
 					altconf, chain_id_1);
