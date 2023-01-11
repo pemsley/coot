@@ -3325,3 +3325,24 @@ coot::molecule_t::get_gaussian_surface() const {
 
    return mesh;
 }
+
+
+#include "pli/sdf-interface-for-export.hh"
+
+coot::simple_mesh_t
+coot::molecule_t::get_chemical_features_mesh(const std::string &cid,
+                                             const coot::protein_geometry &geom) const {
+
+   coot::simple_mesh_t mesh;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      std::vector<simple_mesh_t> meshes = chemical_features::generate_meshes(imol_no, residue_p, geom);
+      for (const auto &mesh : meshes)
+         mesh.add_submesh(mes);
+   }
+#endif
+
+   return mesh;
+}

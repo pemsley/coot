@@ -394,6 +394,9 @@ public:
    //! get Gaussian surface representation
    coot::simple_mesh_t get_gaussian_surface(int imol) const;
 
+   //! get chemical feaatures for the given residue
+   coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
+
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
    //! @returns either the specified atom or null if not found - don't use this in emscript

@@ -2946,3 +2946,17 @@ molecules_container_t::get_gaussian_surface(int imol) const {
    return mesh;
 
 }
+
+
+//! get chemical feaatures for the given residue
+coot::simple_mesh_t
+molecules_container_t::get_chemical_features_mesh(int imol, const std::string &cid) const {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_chemical_features_mesh(cid, geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return mesh;
+}

@@ -406,6 +406,8 @@ namespace coot {
 
       simple_mesh_t get_gaussian_surface() const;
 
+      simple_mesh_t get_chemical_features_mesh(const std::string &cid, const coot::protein_geometry &geom) const;
+
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;
