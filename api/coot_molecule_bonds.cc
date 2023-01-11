@@ -565,11 +565,11 @@ make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad_in,
 
    glm::vec3 d = 3.0f * 0.02f * normal_1;
 
-   glm::vec4 col(0.9f, 0.3f, 0.3f, 1.0f);
+   glm::vec4 col(0.7f, 0.3f, 0.3f, 1.0f);
    if (type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
-      col = glm::vec4(0.2f, 0.8f, 0.3f, 1.0f);
+      col = glm::vec4(0.1f, 0.6f, 0.1f, 1.0f);
    if (type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
-      col = glm::vec4(0.7f, 0.7f, 0.3f, 1.0f);
+      col = glm::vec4(0.6f, 0.6f, 0.2f, 1.0f);
 
    glm::vec3 normal_1A = glm::normalize(glm::cross(cis_pep_quad[0]-cis_pep_quad[1], cis_pep_quad[0]-CA_midpoint));
    glm::vec3 normal_1B = glm::normalize(glm::cross(cis_pep_quad[3]-cis_pep_quad[2], cis_pep_quad[3]-CA_midpoint));
