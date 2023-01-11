@@ -3957,6 +3957,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
    float bond_radius = 0.02 * bond_width;
    float atom_radius = bond_radius * atom_radius_scale_factor;
 
+   if (is_intermediate_atoms_molecule) bond_radius *= 1.5;
    if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
