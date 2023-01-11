@@ -1760,6 +1760,19 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
             if (ig.triangles.size() > 30) {
                if (ig.instancing_data_A.size() > 30) {
                   status = 1;
+
+                  for (unsigned int i=0; i<ig.vertices.size(); i++) {
+                     const auto &vert = ig.vertices[i];
+                     std::cout << "   " << i << " " << glm::to_string(vert.pos) << std::endl;
+                  }
+
+                  for (unsigned int i=0; i<ig.instancing_data_A.size(); i++) {
+                     const auto &item = ig.instancing_data_A[i];
+                     std::cout << i << " "
+                               << glm::to_string(item.position) << " "
+                               << glm::to_string(item.colour)   << " "
+                               << glm::to_string(item.size)     << std::endl;
+                  }
                } else {
                   std::cout << "error:: in test_instanced_rota_markup() instancing_data_A size " << ig.instancing_data_A.size() << std::endl;
                }
@@ -1903,6 +1916,7 @@ int main(int argc, char **argv) {
       status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
       status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
+      status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
       status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
@@ -1919,7 +1933,7 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_gaussian_surface,            "Gaussian surface",               mc);
+   status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
 
    // Note to self:
    //
