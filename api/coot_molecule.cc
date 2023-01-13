@@ -1513,24 +1513,28 @@ coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer
    float size = 1.0;
    glm::vec3 size_3(size, size, size);
 
-   std::cout << "DEBUG:: in coot::molecule_t::get_rotamer_dodecs_instanced(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
+   // std::cout << "DEBUG:: in coot::molecule_t::get_rotamer_dodecs_instanced(): n_rotamer_markups: "
+   //           << bonds_box.n_rotamer_markups << std::endl;
 
    for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
+      // because of the way they are sized, the rotamer markups can contain non-valid rotamers.
       const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
-      const residue_spec_t &residue_spec = rm.spec;
-      mmdb::Residue *residue_p = get_residue(residue_spec);
-      Cartesian offset(0,0,rama_ball_pos_offset_scale);
-      if (residue_p) {
-         std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
-         if (hav.first) offset = hav.second * 1.6;
+      if (rm.rpi.state == coot::rotamer_probability_info_t::OK) { // should be coot::rotamer_probability_info_t::OK
+         const residue_spec_t &residue_spec = rm.spec;
+         mmdb::Residue *residue_p = get_residue(residue_spec);
+         Cartesian offset(0,0,rama_ball_pos_offset_scale);
+         if (residue_p) {
+            std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
+            if (hav.first) offset = hav.second * 1.6;
+         }
+         glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
+         auto rm_col = rm.col;
+         rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
+         auto this_dodec_colour = colour_holder_to_glm(rm_col);
+         instancing_data_type_A_t id(atom_pos, this_dodec_colour, size_3);
+         std::cout << "iterating bonds box: " << i << " " << rm.pos.format() << " " << rm.spec << std::endl;
+         ig.instancing_data_A.push_back(id);
       }
-      glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
-      auto rm_col = rm.col;
-      rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
-      auto this_dodec_colour = colour_holder_to_glm(rm_col);
-      instancing_data_type_A_t id(atom_pos, this_dodec_colour, size_3);
-      // std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!! adding to data A!" << std::endl;
-      ig.instancing_data_A.push_back(id);
    }
 
    m.add(ig);
