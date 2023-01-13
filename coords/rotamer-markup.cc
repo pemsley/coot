@@ -9,6 +9,9 @@
 
 #include "ligand/rotamer.hh" // do we have the directory hierachy correct?
 
+// 20230113-PE because of threading, we can have invalid/unset rotamers in the returned vector.
+//             so the caller needs to check that each dodec is value by checking the
+//             rpi.state == coot::rotamer_probability_info_t::OK.
 std::vector<rotamer_markup_container_t>
 Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) const {
 
@@ -79,7 +82,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
    return dodecs;
 }
 
-// partially fill dodecs
+// partially fill dodecs.
 // static
 void
 Bond_lines_container::add_rotamer_markups(const std::vector<unsigned int> &indices,
@@ -119,7 +122,8 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 	 if (pr_v.size() > 0) {
 	    const coot::rotamer_probability_info_t &pr = pr_v[0]; // hack
 
-	    if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
+	    // if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
+	    if (pr.state == coot::rotamer_probability_info_t::OK) {
 	       // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
 	       clipper::Coord_orth pos = coot::co(ra.second);
 	       double z = 0;
