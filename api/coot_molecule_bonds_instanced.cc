@@ -10,7 +10,7 @@
 #include "coot-utils/cylinder.hh"
 
 void
-make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // fill this
+make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
                                      const graphical_bonds_container &gbc,
                                      int bonds_box_type,
                                      int udd_handle_bonded_type,
@@ -75,13 +75,13 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // fil
       }
    }
 
-   m.geom.push_back(ig);
+   m.add(ig);
 
 }
 
 
 void
-make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // fill this
+make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // add to this
                                      const graphical_bonds_container &gbc,
                                      int bonds_box_type,
                                      int udd_handle_bonded_type,
@@ -152,7 +152,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
       }
    }
 
-   m.geom.push_back(ig);
+   m.add(ig);
 }
 
 void
@@ -252,10 +252,10 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
       std::cout << "debug:: bonds: 11 " << ig_11.instancing_data_B.size() << std::endl;
    }
 
-   if (! ig_00.instancing_data_B.empty()) m.geom.push_back(ig_00);
-   if (! ig_01.instancing_data_B.empty()) m.geom.push_back(ig_01);
-   if (! ig_10.instancing_data_B.empty()) m.geom.push_back(ig_10);
-   if (! ig_11.instancing_data_B.empty()) m.geom.push_back(ig_11);
+   if (! ig_00.instancing_data_B.empty()) m.add(ig_00);
+   if (! ig_01.instancing_data_B.empty()) m.add(ig_01);
+   if (! ig_10.instancing_data_B.empty()) m.add(ig_10);
+   if (! ig_11.instancing_data_B.empty()) m.add(ig_11);
 
 }
 
