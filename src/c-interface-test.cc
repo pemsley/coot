@@ -1263,6 +1263,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       int i = PyLong_AsLong(i_py);
       int j = PyLong_AsLong(j_py);
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
       int imol = i;
       coot::residue_spec_t res_spec("A", 1, "");
       mmdb::Residue *residue_p = g.get_residue(imol, res_spec);
@@ -1289,6 +1291,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          obj.mesh.setup_buffers();
       }
       graphics_draw();
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
    }
 
    if (false) {
