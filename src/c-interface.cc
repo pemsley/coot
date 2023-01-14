@@ -6635,6 +6635,8 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    // Does it only find things in dynamic_atom_overlaps_and_other_outliers module?
    // this function was empty before today, returning NULL.
 
+   // std::cout << "in safe_python_command_with_return() A " << python_cmd << std::endl;
+
    const char *modulename = "__main__";
    PyObject *pName = myPyString_FromString(modulename);
    PyObject *pModule = PyImport_Import(pName);
@@ -6644,6 +6646,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
    PyObject *globals = PyModule_GetDict(pModule);
    PyObject *result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
+   // std::cout << "in safe_python_command_with_return() J " << result << std::endl;
 
    return result;
 }

@@ -39,8 +39,9 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
-	pepflip-using-difference-map.hh \
-	polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh
+	pepflip-using-difference-map.hh polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
+        atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh \
+	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -71,7 +72,9 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
-	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc
+	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc \
+	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
+	shapes.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -81,10 +84,11 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
-    $(top_builddir)/geometry/libcoot-geometry.la \
     $(top_builddir)/protein_db/libcoot-protein-db.la \
-    $(top_builddir)/utils/libcoot-utils.la \
-    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+    $(top_builddir)/geometry/libcoot-geometry.la     \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
+    $(top_builddir)/utils/libcoot-utils.la           \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(CLIPPER_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lpthread
 
@@ -201,7 +205,8 @@ test_coot_probe_LDADD =          \
 	$(MMDB_LIBS)
 
 testshelxreader_SOURCES = test-shelx-reader.cc
-testshelxreader_LDADD =  ./libcoot-coord-utils.la
+testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
+	$(top_builddir)/geometry/libcoot-geometry.la
 
 # if OOPS_WRONG_BUILD_ORDER # - No - I can't use coords libraries - they have not been built yet - fix later.
 # test_emma_SOURCES = test-emma.cc
@@ -255,17 +260,21 @@ test_tt_morph_LDADD = ./libcoot-map-heavy.la \
 	./libcoot-map-utils.la \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS) $(MMDB_LIBS)
+test_elastic_LDADD   = ./libcoot-coord-utils.la      \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(GLOB_LIBS) $(MMDB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
-glyco_torsions_LDADD   = ./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+glyco_torsions_LDADD   = ./libcoot-coord-utils.la    \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la       \
 	$(MMDB_LIBS)
 
 
@@ -303,6 +312,7 @@ test_5_residue_fragments_SOURCES = test-5-residue-fragments.cc
 
 test_5_residue_fragments_LDADD = \
 	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) \
 	$(RDKIT_LIBS)

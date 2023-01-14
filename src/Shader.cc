@@ -180,6 +180,8 @@ Shader::Use() {
       std::cout << "GL ERROR:: --------------------------------- ooops Use() called for unset Shader " << std::endl;
    }
 
+   // std::cout << "using Shader " << name << std::endl;
+
    GLuint err = glGetError();
    if (err) std::cout << "GL ERROR:: Shader::Use() \"" << name << "\" pre glUseProgram() "
                       << "err " << err << std::endl;

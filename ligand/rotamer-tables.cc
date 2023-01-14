@@ -509,10 +509,10 @@ coot::rotamer_probability_tables::operator[](unsigned int idx) const {
 
 // float, a state and a name:
 coot::rotamer_probability_info_t
-coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table, 
+coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 							   const std::vector<std::pair<int,float> > &chi_angles) const {
 
-   if (0)
+   if (false)
       std::cout << "rotamer_probability_tables::probability_this_rotamer()" << std::endl;
    
    std::vector<int> bins = chi_angles_to_bins(i_table, chi_angles);
@@ -531,7 +531,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       throw std::runtime_error(mess);
    }
 
-   if (0) { // debugging 
+   if (false) { // debugging
       if (n == 1) std::cout << "  bin: " << bins[0] << std::endl;
       if (n == 2) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second
 			    << "  bins: " << bins[0] << " " << bins[1] << std::endl;
@@ -559,8 +559,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       throw std::runtime_error(mess);
    }
    
-   return coot::rotamer_probability_info_t(coot::rotamer_probability_info_t::OK,
-					   pr*100.0, tables[i_table].residue_name);
+   return rotamer_probability_info_t(rotamer_probability_info_t::OK, pr*100.0, tables[i_table].residue_name);
 
 }
 

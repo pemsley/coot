@@ -475,6 +475,15 @@ int main(int argc, char **argv) {
       }
    }
 
+   if (argc == 2) {
+
+      std::string a1(argv[1]);
+      if (a1 == "check-vs-flat-density") {
+         coot::side_chain_densities scd;
+         scd.check_vs_flat_density();
+      }
+   }
+
    if (! done) {
       // The engine of this program.
       //

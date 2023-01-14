@@ -66,6 +66,7 @@ graphics_info_t::draw_molecules_for_ssao() {
 #endif
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_generic_objects(PASS_TYPE_SSAO);
    glDisable(GL_BLEND);
 
 }

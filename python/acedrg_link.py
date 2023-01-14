@@ -1,7 +1,7 @@
 # 18/3/2018 version 2.3 (acedrg?)
 
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import coot
 import coot_utils

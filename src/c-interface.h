@@ -1487,6 +1487,14 @@ int make_and_draw_map(const char *mtz_file_name,
 		      const char *weight,
 		      int use_weights, int is_diff_map);
 
+/*! \brief the function is a synonym of the above function - which now has an archaic-style
+            name
+*/
+int read_mtz(const char *mtz_file_name,
+             const char *f_col, const char *phi_col,
+             const char *weight,
+             int use_weights, int is_diff_map);
+
 /*! \brief as the above function, execpt set refmac parameters too
 
  pass along the refmac column labels for storage (not used in the

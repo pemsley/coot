@@ -993,7 +993,7 @@ coot::cairo_molecule_t::draw_atom_highlights(cairo_t *cr,
 void
 coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
 				  const std::string &comp_id,
-				  const std::string png_file_name,
+				  const std::string &png_file_name,
 				  unsigned int npx,
 				  PyObject *background_colour_py) {
 

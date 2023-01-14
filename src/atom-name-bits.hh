@@ -59,6 +59,12 @@ namespace coot {
             res_name = "NA";
             filled = true;
          }
+         if (type == "K") {
+            atom_name = " K  ";
+            element_name = "K";
+            res_name = "K";
+            filled = true;
+         }
          if (type == "Cl") {
             atom_name = "CL  ";
             element_name = "CL";
@@ -90,8 +96,10 @@ namespace coot {
             res_name = at_name;
             if (atom_name.length() == 2)
                atom_name = atom_name + "  ";
+            // if (atom_name.length() == 1)
+            // atom_name = atom_name + "   ";
             if (atom_name.length() == 1)
-               atom_name = atom_name + "   ";
+               atom_name = std::string(" ") + atom_name + std::string("  ");
             element_name = at_name;
             if (type.length() > 4)
                atom_name = at_name.substr(0,4);

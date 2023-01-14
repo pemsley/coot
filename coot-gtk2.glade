@@ -22764,6 +22764,26 @@ programs to which you may be more accustomed.
 		  </child>
 
 		  <child>
+		    <widget class="GtkRadioButton" id="pointer_atom_type_radiobutton_k">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">K</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		      <property name="group">pointer_atom_type_radiobutton_water</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
 		    <widget class="GtkRadioButton" id="pointer_atom_type_radiobutton_cl">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
@@ -26677,7 +26697,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.9.8.5.png</property>
+      <property name="pixbuf">coot-0.9.8.6.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>

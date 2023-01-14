@@ -142,7 +142,8 @@ namespace coot {
       bool get_test_map_is_above_model_mean(const unsigned int &grid_idx,
                                             const density_box_t &block,
                                             const double &mean) const;
-      std::map<std::string, double>
+      // key is residue type and value is rotamer name and score pair
+      std::map<std::string, std::pair<std::string, double> >
       compare_block_vs_all_rotamers(density_box_t block,
                                     mmdb::Residue *residue_p, // for debugging
                                     const std::string &data_dir,
@@ -182,7 +183,7 @@ namespace coot {
       density_box_t get_block(mmdb::Residue *residue_p) const;
       // and the cache of likelihoods for the best rotamer of each residue type at each position:
       // this gets added to using the results lock
-      std::map<mmdb::Residue *, std::map<std::string, double> > best_score_for_res_type_cache;
+      std::map<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > best_score_for_res_type_cache;
 
       std::map<int, std::string> make_sequence_for_chain(mmdb::Chain *chain_p) const;
 
@@ -292,7 +293,7 @@ namespace coot {
       // the data_dir should be an argument to the constructor.
       void set_data_dir(const std::string &dir) { data_dir = dir; }
 
-      std::map<std::string, double>
+      std::map<std::string, std::pair<std::string, double> >
       likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
                                                  const clipper::Xmap<float> &xmap,
                                                  bool limit_to_correct_rotamers_only=false,
@@ -320,7 +321,7 @@ namespace coot {
                                     double mn_unreliable_minimum_variance,
                                     double mn_use_this_variance_for_unreliable);
 
-      std::map<std::string, double>
+      std::map<std::string, std::pair<std::string, double> >
       get_rotamer_likelihoods(mmdb::Residue *residue_p,
                               const clipper::Xmap<float> &xmap,
                               bool limit_to_correct_rotamers_only = false,
@@ -372,12 +373,15 @@ namespace coot {
                              const clipper::Xmap<float> &xmap) const;
 
       bool test_grid_point_to_coords_interconversion() const;
+
+      void check_vs_flat_density() const; // do TRPs score higher than a VAL? Is that bad?
    };
 
    std::vector<std::pair<fragment_container_t::fragment_range_t, std::vector<side_chain_densities::results_t> > >
    get_fragment_sequence_scores(mmdb::Manager *mol,
                                 const fasta_multi &fam,
                                 const clipper::Xmap<float> &xmap);
+
 
 }
 

@@ -1453,7 +1453,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                 << " type: " << link_type << " "
                 << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
                 << is_fixed_first_residue << " " << is_fixed_second_residue << " "
-                << restraints_usage_flag << std::endl;
+                << "restraints_usage_flag: " << restraints_usage_flag << std::endl;
 
    if (restraints_usage_flag & BONDS_MASK)
       lrc.n_link_bond_restr += add_link_bond(link_type,
@@ -1464,10 +1464,10 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 
    if (restraints_usage_flag & ANGLES_MASK)
       lrc.n_link_angle_restr += add_link_angle(link_type,
-                                           res_1, res_2,
-                                           is_fixed_first_residue,
-                                           is_fixed_second_residue,
-                                           geom);
+                                               res_1, res_2,
+                                               is_fixed_first_residue,
+                                               is_fixed_second_residue,
+                                               geom);
 
    if (restraints_usage_flag & TORSIONS_MASK)
       lrc.n_link_torsion_restr += add_link_torsion(link_type, res_1, res_2,
@@ -1480,7 +1480,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                                                             is_fixed_first_residue,
                                                             is_fixed_second_residue, false); // don't add if cis
       } else {
-         if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
+         if (true) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
             std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "
                       << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
                       << restraints_usage_flag << std::endl;
@@ -2120,6 +2120,12 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
             mmdb::Residue *res_1 = at_1->residue;
             mmdb::Residue *res_2 = at_2->residue;
 
+            std::string res_name_1(res_1->GetResName());
+            std::string res_name_2(res_2->GetResName());
+
+            if (res_name_1 == "HOH") continue; // waters don't make links that are not
+            if (res_name_2 == "HOH") continue; // handled in make_header_metal_links_ng()
+
             if (res_1 == res_2) {
                // these should not be here - they should be filtered out in contacts_by_bricks.
                // At some state test if this is still needed.
@@ -2149,11 +2155,14 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   // it was a new pair.
 
                   if (false) {
-                     std::cout << "                 Here A with at_1 at_2 "
+                     std::cout << "                 Here in make_other_types_of_link() A with at_1 at_2 "
                                << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
                      std::cout << "failed to find these residues in the polyer-linked set: "
                                << residue_spec_t(res_1) << " "
                                << residue_spec_t(res_2) << std::endl;
+                  }
+
+                  if (false) {
                      std::cout << "Here are the pairs in the linked set " << std::endl;
                      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it_inner;
                      for (it_inner=residue_pair_link_set.begin(); it_inner!=residue_pair_link_set.end(); ++it_inner)
@@ -2161,8 +2170,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                   << std::endl;
                   }
 
-                  if (nlrs.already_added_p(res_1, res_2))
+                  if (nlrs.already_added_p(res_1, res_2)) {
+                     // std::cout << "      already added " << std::endl;
                      continue;
+                  }
 
                   // add a check here for res_1 and res_2 already considered, but not added.
                   // continue, in that case.
@@ -2170,8 +2181,10 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test(res_1, res_2);
                   if (std::find(tested_but_nothing.begin(),
                                 tested_but_nothing.end(),
-                                pair_for_nothing_test) != tested_but_nothing.end())
+                                pair_for_nothing_test) != tested_but_nothing.end()) {
+                     // std::cout << "     tested but nothing" << std::endl;
                      continue;
+                  }
 
                   if (false)
                      std::cout << "---- for atom pair " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
@@ -2179,11 +2192,12 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                << std::endl;
 
                   // not sure that this is what I want now, really
-                  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
+                  std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
+
                   // Returns first (link_type) as "" if not found, second is order switch flag
 
                   if (false)
-                     std::cout << "-------- find_link_type_complicado() returns \"" << lt.first << "\""
+                     std::cout << "-------- find_link_type_2022() returns \"" << lt.first << "\""
                                << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
                                << std::endl;
 
@@ -2191,7 +2205,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                      // this is not the place to make peptide links, event though find_link_type_complicado()
                      // will return a peptide link (for links that were not made before (perhaps because
                      // missing atoms)).
-                     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
+                     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS") && (lt.first != "p")) {
                         if (false)
                            std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
                                      << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
@@ -2240,6 +2254,8 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
    // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
    bool for_beasty = false;
+
+   // for_beasty = true; // skip other links
 
    if (! for_beasty) {
 

@@ -1,7 +1,7 @@
 #
 import coot
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 import coot_gui
 import coot_gui_api
@@ -341,8 +341,6 @@ def quick_test_validation_outliers_dialog(imol):
     def missing_sidechains_checkbutton_toggled(widget):
         state = widget.get_active()
         if not state:
-            # i.e. no buttons with "Missing Sidechain"
-            # Mmmh, really?!?
             destroy_buttons_with_label("Missing Sidechain", dialog_vbox)
         else:
             # update the dialog

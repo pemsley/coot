@@ -4779,7 +4779,7 @@ molecule_class_info_t::export_molecule_as_gltf(const std::string &file_name) con
 }
 
 bool
-molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices_in,
+molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<coot::api::vertex_with_rotation_translation> &vertices_in,
                                                           const std::vector<g_triangle> &triangles) {
 
    // write to export_vertices_and_triangles_file_name_for_func, which is set below

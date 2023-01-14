@@ -1,3 +1,15 @@
+  Release 0.9.8.6
+
+  o CHANGE:  More auto-read column pairs added [Clemens Vonrhein]
+
+  o BUG-FIX: Adding a K to a molecule put the atom name in the correct column
+             [John Smith, Steven Sheriff]
+
+  o BUG-FIX: Carbohydrate Linking fixed [Keitaro Yamashita and others]
+
+  o BUG-FIX: delete_hydrogen_atoms() deletes deuterium atoms also [Lucrezia Catapano]
+
+----
 
    Release 1.0.06
 
@@ -14,7 +26,7 @@
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
-  o CHANGE:  Load files from ~/.coot if it is a directory.
+  o CHANGE:  Don't load files from ~/.coot if it is a directory.
 
   o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
 

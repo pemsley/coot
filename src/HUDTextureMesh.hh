@@ -6,7 +6,7 @@
 #include <vector>
 #include <epoxy/gl.h>
 #include <glm/glm.hpp>
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 #include "Shader.hh"
 
 #include "ft-character.hh"

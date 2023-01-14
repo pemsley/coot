@@ -19,6 +19,13 @@
  * 02110-1301, USA
  */
 
+#ifndef EXTRA_RESTRAINTS_REPRESENTATION_HH
+#define EXTRA_RESTRAINTS_REPRESENTATION_HH
+
+#include <vector>
+#include <clipper/core/coords.h>
+#include "coot-utils/coot-coord-utils.hh" // for lsq
+
 namespace coot {
    // ------------ extra restraints (e.g. user-defined) ------------
    //
@@ -34,12 +41,21 @@ namespace coot {
 	 extra_bond_restraints_respresentation_t(const clipper::Coord_orth &f,
 						 const clipper::Coord_orth &s,
 						 double d,
-						 double e) {
-	    first = f;
-	    second = s;
+						 double e) : first(f), second(s) {
 	    target_dist = d;
 	    esd = e;
 	 }
+         double length_delta() const {
+            double dd = clipper::Coord_orth(first - second).lengthsq();
+            return std::sqrt(dd) - target_dist;
+         }
+         double distortion_score_GM(const double &sigma, const double &alpha) const {
+            double bl = clipper::Coord_orth::length(first, second);
+            double bit = bl - target_dist;
+            double z = bit/sigma;
+            double distortion = z*z/(1+alpha*z*z);
+            return distortion;
+         }
       };
 
       class extra_parallel_planes_restraints_representation_t {
@@ -52,10 +68,7 @@ namespace coot {
 	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &rc,
 							   const clipper::Coord_orth &ppp,
 							   const clipper::Coord_orth &norm,
-							   double r1, double r2) {
-	    ring_centre = rc;
-	    plane_projection_point = ppp;
-	    normal = norm;
+							   double r1, double r2) : ring_centre(rc), plane_projection_point(ppp), normal(norm) {
 	    ring_radius = r1;
 	    pp_radius = r2;
 	 }
@@ -90,7 +103,7 @@ namespace coot {
       void add_parallel_plane(const lsq_plane_info_t &pi_1,
 			      const lsq_plane_info_t &pi_2);
    };
-
-
-
 }
+
+
+#endif // EXTRA_RESTRAINTS_REPRESENTATION_HH

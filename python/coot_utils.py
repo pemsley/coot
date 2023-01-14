@@ -4113,10 +4113,11 @@ def find_exe(program_name, *args, **kwargs):
         no_search = False
     search_disk = False
     if (use_gui_qm and not no_search):
-        try:
-            search_disk = None; # no coot_gui in coot_utils # coot_gui.search_disk_dialog(program_name, path_ls)
-        except NameError as e:
-            pass
+        # try:
+        #     search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
+        # except NameError as e:
+        #     pass
+        pass # no coot_gui stuff here
     if search_disk:
         # search everywhere
         for drive in drives_ls:

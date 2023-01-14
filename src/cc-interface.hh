@@ -321,6 +321,7 @@ void go_to_map_molecule_centre(int imol_map);
 //!
 float b_factor_from_map(int imol_map);
 
+
 //! \brief return the colour triple of the imolth map
 //!
 //! (e.g.: (list 0.4 0.6 0.8). If invalid imol return scheme false.
@@ -1723,11 +1724,11 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /* ------------------------------------------------------------------------- */
 /*! \name Coot's Hole implementation */
 
-/*! \brief starting piont and end point, colour map multiplier and
+/*! \brief starting point and end point, colour map multiplier and
   shall the probe radius graph be shown (dummy value currently).
 
-if export_dots_file_name string length is zero, then don't try to
-export the surface dots.
+ if export_dots_file_name string length is zero, then don't try to
+ export the surface dots.
 
 */
 void hole(int imol,
@@ -1745,6 +1746,16 @@ void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_ort
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 
+/* ------------------------------------------------------------------------- */
+/*                      Gaussian Surface                                     */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Gaussian Surface */
+
+//! \brief The surface is separated into chains to make Generid Display Objects
+//!        There is no colour, contour, grid or sigma or material control yet for Gaussian surfaces.
+//!
+//!        there should be one day...
+int gaussian_surface(int imol);
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
@@ -2038,8 +2049,10 @@ std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_i
 //! \brief write the sequence for imol as fasta
 void write_sequence(int imol, const std::string &file_name);
 
-//! \brief build the structure from the map
-void res_tracer(const std::string &pir_file_name);
+//! \brief trace the given map and try to apply the sequence in
+//! the given pir file
+void res_tracer(int imol_map, const std::string &pir_file_name);
+
 
 /* \} */
 

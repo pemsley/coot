@@ -58,7 +58,7 @@
 #include <utils/ctpl.h>
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#include <CXXClasses/RendererGLSL.hpp>
+#include <MoleculesToTriangles/CXXClasses/RendererGLSL.hpp>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 #include "ft-character.hh"
@@ -171,6 +171,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "gl-rama-plot.hh"
 
 #include "glarea_tick_function.hh"
+
+#include "extra-distance-restraint-markup.hh"
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -1997,13 +1999,6 @@ public:
 						   short int is_water_flag);
    coot::refinement_results_t get_refinement_results() const;
 
-   // used by above:
-   void flash_selection(int imol, int resno_1,
-			std::string ins_code_1,
-			int resno_2,
-			std::string ins_code_2,
-			std::string altconf, // use this altconf or "" atoms.
-			std::string chain_id_1);
    static void flash_position(const clipper::Coord_orth &pos);
 
    void repeat_refine_zone(); // no interesting return value because it uses refine()
@@ -2821,7 +2816,7 @@ public:
    // save molecule [option menu usage]
    static int save_imol;
 
-   // Pointer Distances
+   // --- Pointer Distances ---
    static float pointer_min_dist;
    static float pointer_max_dist;
    static bool show_pointer_distances_flag;
@@ -2832,8 +2827,23 @@ public:
    void make_pointer_distance_objects(); // (re)generate them
    static std::vector<atom_label_info_t> labels_for_pointer_distances;
 
+   // --- Extra Distance Restraints ---
 
-   // Dynamic distances to intermediate atoms:
+   static void draw_extra_distance_restraints(int pass_type);
+   void make_extra_distance_restraints_objects(); // (re)generate them
+   static float extra_distance_restraint_penalty_cutoff; // restraints that have less penalty/energy than
+                                                         // this are not worth drawing.
+   void set_extra_distance_restraint_penalty_cutoff(float c) {
+      extra_distance_restraint_penalty_cutoff = c;
+      make_extra_distance_restraints_objects();
+   }
+   static bool show_extra_distance_restraints_flag;
+   void set_show_extra_distance_restriants(bool s) { show_extra_distance_restraints_flag = s; }
+   static std::vector<extra_distance_restraint_markup_instancing_data_t> extra_distance_restraints_markup_data;
+   static Mesh mesh_for_extra_distance_restraints; // draw this with instancing
+
+   // --- Dynamic distances to intermediate atoms: ---
+
    static short int in_dynamic_distance_define;
    static coot::intermediate_atom_distance_t running_dynamic_distance;
    static std::vector<coot::intermediate_atom_distance_t> dynamic_distances;
@@ -3205,7 +3215,7 @@ public:
    static bool display_generic_objects_as_solid_flag;
    static void draw_geometry_objects();
    static void draw_dynamic_distances();
-   static void draw_generic_objects();
+   static void draw_generic_objects(unsigned int pass_type);
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();
@@ -4378,6 +4388,7 @@ string   static std::string sessionid;
    static Shader shader_for_rama_balls;
    static Shader shader_for_particles;
    static Shader shader_for_instanced_objects;
+   static Shader shader_for_extra_distance_restraints;
    static Shader shader_for_hud_geometry_bars;
    static Shader shader_for_hud_geometry_labels; // for labels image
    static Shader shader_for_lines_pulse; // "you are here" pulse

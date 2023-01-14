@@ -417,9 +417,10 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
             if (offset.superscript) sc *= 0.8;
             glm::vec2 scales(sc, sc);
             hud_texture_tmesh.set_position_and_scales(pos, scales);
-            std::cout << "debug;: graphics_ligand_mesh_molecule_t::draw() calling draw_label(): iat " << iat << " ioff " << i
-                      << " " << " \"" << offset.text << "\" "
-                      << offset.text.length() << " colour " << atom.colour << std::endl;
+            if (false)
+               std::cout << "debug;: graphics_ligand_mesh_molecule_t::draw() calling draw_label(): iat " << iat << " ioff " << i
+                         << " " << " \"" << offset.text << "\" "
+                         << offset.text.length() << " colour " << atom.colour << std::endl;
             glm::vec4 colour = atom.colour.to_glm();
             hud_texture_tmesh.draw_label(label, colour, hud_text_shader_p, ft_characters);
          }

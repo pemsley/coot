@@ -86,6 +86,7 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
    return r;
 }
 
+//! arguments are modified, so they are not const.
 int
 molecule_class_info_t::add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
                                                          coot::atom_spec_t atom_2,
@@ -93,15 +94,15 @@ molecule_class_info_t::add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_
    int r = -1; // unset
    mmdb::Atom *at_1 = get_atom(atom_1);
    mmdb::Atom *at_2 = get_atom(atom_2);
+   int atom_index_1 = -1;
+   int atom_index_2 = -1;
    if (at_1) {
-      int atom_index = -1;
-      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
-      atom_1.int_user_data = atom_index;
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_1); // set atom_index
+      atom_1.int_user_data = atom_index_1;
    }
    if (at_2) {
-      int atom_index = -1;
-      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
-      atom_2.int_user_data = atom_index;
+      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_2); // set atom_index
+      atom_2.int_user_data = atom_index_2;
    }
    if (at_1 && at_2) {
       coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond(atom_1, atom_2, bond_dist, esd);
@@ -155,15 +156,15 @@ molecule_class_info_t::add_extra_geman_mcclure_restraints(const std::vector<coot
       coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond_spec = bond_specs[i]; // gets modified by addition of atom indices
       mmdb::Atom *at_1 = get_atom(bond_spec.atom_1);
       mmdb::Atom *at_2 = get_atom(bond_spec.atom_2);
+      int atom_index_1 = -1;
+      int atom_index_2 = -1;
       if (at_1) {
-	 int atom_index = -1;
-	 at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
-	 bond_spec.atom_1.int_user_data = atom_index;
+	 at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_1); // set atom_index
+	 bond_spec.atom_1.int_user_data = atom_index_1;
       }
       if (at_2) {
-	 int atom_index = -1;
-	 at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
-	 bond_spec.atom_2.int_user_data = atom_index;
+	 at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_2); // set atom_index
+	 bond_spec.atom_2.int_user_data = atom_index_2;
       }
       if (at_1 && at_2) {
 	 extra_restraints.geman_mcclure_restraints.push_back(bond_spec);
@@ -614,6 +615,10 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
    if (n_contacts > 0) {
       if (pscontact) {
 	 for (int i=0; i<n_contacts; i++) {
+
+            // 20221223-PE don't go both ways:
+            if (pscontact[i].id1 > pscontact[i].id2) continue;
+
 	    mmdb::Atom *at_1 = SelAtom[pscontact[i].id1];
 	    mmdb::Atom *at_2 = SelAtom[pscontact[i].id2];
 	    std::string ele_1 = at_1->element;

@@ -8057,6 +8057,16 @@ void on_generic_objects_dialog_response_gtkbuilder_callback(GtkDialog       *dia
     }
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_generic_objects_dialog_delete_event(GtkWidget       *widget,
+                                       GdkEvent        *event,
+                                       gpointer         user_data) {
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
 
 // what a terrible function name!
 extern "C" G_MODULE_EXPORT
@@ -11615,33 +11625,31 @@ on_display_control_align_labels_checkbutton_toggled_gtkbuilder_callback
 
 extern "C" G_MODULE_EXPORT
 void
-on_curlew_install_button_clicked_gtkbuilder_callback(GtkButton *button,
-                                                     gpointer   user_data) {
+on_curlew_install_button_clicked(GtkButton *button,
+                                 gpointer   user_data) {
 
-  GtkWidget *dialog = widget_from_builder("curlew_dialog");
-  if (dialog) {
-     int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
-    curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
-  }
+   GtkWidget *dialog = widget_from_builder("curlew_dialog");
+   if (dialog) {
+      int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+      curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
+   }
 }
 
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_curlew_dialog_close_gtkbuilder_callback                 (GtkDialog       *dialog,
-                                        gpointer         user_data)
-{
+on_curlew_dialog_close(GtkDialog       *dialog,
+                       gpointer         user_data) {
   gtk_widget_hide(GTK_WIDGET(dialog)); /* or maybe hide */
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_curlew_dialog_response_gtkbuilder_callback              (GtkDialog       *dialog,
-                                        gint             response_id,
-                                        gpointer         user_data)
-{
+on_curlew_dialog_response(GtkDialog       *dialog,
+                          gint             response_id,
+                          gpointer         user_data) {
 
   /*
   printf("in on_curlew_dialog_response with response_id %d\n", response_id);
@@ -11994,7 +12002,8 @@ extern "C" G_MODULE_EXPORT
 void
 on_curlew1_activate_gtkbuilder_callback              (GtkMenuItem     *menuitem,
                                                       gpointer         user_data) {
-  curlew();
+
+   curlew();
 }
 
 extern "C" G_MODULE_EXPORT

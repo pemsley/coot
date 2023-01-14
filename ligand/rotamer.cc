@@ -332,7 +332,7 @@ coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_
 	    break;
       }
    }
-   if (0)
+   if (false)
       std::cout << "   returning from probability_of_this_rotamer() with "
 		<< state << " " << d << " :" << name << ":" << std::endl;
    return coot::rotamer_probability_info_t(state, d, name);
