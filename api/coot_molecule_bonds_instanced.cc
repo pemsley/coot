@@ -196,7 +196,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
    cylinder c_00(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
    cylinder c_01(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
-   cylinder c_10(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+   cylinder c_10(pp, 1.0, 1.0, 1.0, n_slices, n_stacks); // possibly none of these actually
    cylinder c_11(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
    c_01.add_flat_end_cap();   // this and below might be the wrong way around
    c_10.add_flat_start_cap();
@@ -243,6 +243,15 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
 
       }
    }
+
+   if (false) {
+      // there  are no "_10" bonds cylinders
+      std::cout << "debug:: bonds: 00 " << ig_00.instancing_data_B.size() << std::endl;
+      std::cout << "debug:: bonds: 01 " << ig_01.instancing_data_B.size() << std::endl;
+      std::cout << "debug:: bonds: 10 " << ig_10.instancing_data_B.size() << std::endl;
+      std::cout << "debug:: bonds: 11 " << ig_11.instancing_data_B.size() << std::endl;
+   }
+
    if (! ig_00.instancing_data_B.empty()) m.geom.push_back(ig_00);
    if (! ig_01.instancing_data_B.empty()) m.geom.push_back(ig_01);
    if (! ig_10.instancing_data_B.empty()) m.geom.push_back(ig_10);

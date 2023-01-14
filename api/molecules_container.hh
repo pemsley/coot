@@ -395,6 +395,31 @@ public:
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
+   //! get the instanced bonds mesh.
+   //!
+   //! The arguments are as above:
+   //!
+   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
+   //!
+   //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
+   //! When the background is dark, the colours should (as a rule) be bright and pastelly.
+   //! When the background is light/white, the colour darker and more saturated.
+   //!
+   //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
+   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest ``smoothness_factor``,
+   //! 2 looks nice (but maybe is slower to transfer) and 3 is best.
+   //!
+   //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
+   //!
+   //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
+   //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course).
+   //!
+   //! @return an ``instanced_mesh_t``
+   coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
+                                                   bool against_a_dark_background,
+                                                   float bond_width, float atom_radius_to_bond_width_ratio,
+                                                   int smoothness_factor);
+
    //! get ribbon and surface representation
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
                                                          const std::string &style) const;

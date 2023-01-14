@@ -1811,6 +1811,30 @@ int test_gaussian_surface(molecules_container_t &mc) {
    return status;
 }
 
+int test_instanced_bonds_mesh(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
+      if (im.geom.size() > 3) {
+         if (false) {
+            for (unsigned int i=0; i<im.geom[0].instancing_data_A.size(); i++) {
+               std::cout << "   " << i << " " << glm::to_string(im.geom[0].instancing_data_A[i].position) << std::endl;
+            }
+         }
+         if (im.geom[0].instancing_data_A.size() > 1000)
+            status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -1936,7 +1960,7 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
+   status += run_test(test_instanced_bonds_mesh, "instanced bonds mesh",   mc);
 
    // Note to self:
    //

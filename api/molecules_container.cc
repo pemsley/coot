@@ -1124,6 +1124,34 @@ molecules_container_t::get_bonds_mesh(int imol, const std::string &mode,
    return sm;
 }
 
+//! @return an ``instanced_mesh_t``
+coot::instanced_mesh_t
+molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mode,
+                                                bool against_a_dark_background,
+                                                float bond_width, float atom_radius_to_bond_width_ratio,
+                                                int smoothness_factor) {
+
+   bool draw_hydrogen_atoms_flag = true; // pass this
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
+                                                    smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   if (show_timings) {
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      std::cout << "---------- timings: for get_bonds_mesh(): : " << d10 << " milliseconds " << std::endl;
+   }
+
+   return im;
+}
+
+
 
 coot::simple_mesh_t
 molecules_container_t::get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
