@@ -400,6 +400,12 @@ namespace coot {
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
 
+      instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, coot::protein_geometry *geom,
+                                                bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                int smoothness_factor,
+                                                bool draw_hydrogen_atoms_flag,
+                                                bool draw_missing_residue_loops);
+
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;

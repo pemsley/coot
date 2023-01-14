@@ -4,6 +4,7 @@
 #include <vector>
 #include "coot-utils/vertex.hh"
 #include "coot-utils/g_triangle.hh"
+#include "coot-utils/simple-mesh.hh"
 
 namespace coot {
 
@@ -50,6 +51,9 @@ namespace coot {
    public:
       std::vector<instanced_geometry_t> geom;
       void add(const instanced_geometry_t &ig) { geom.push_back(ig); }
+
+      //! cis-peptide markup can't be drawn instanced
+      simple_mesh_t markup;
    };
 
 }

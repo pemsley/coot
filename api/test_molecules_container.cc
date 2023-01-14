@@ -1749,7 +1749,7 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
       coot::simple_mesh_t mz = mc.get_rotamer_dodecs(imol);
@@ -1761,12 +1761,15 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
                if (ig.instancing_data_A.size() > 30) {
                   status = 1;
 
-                  for (unsigned int i=0; i<ig.vertices.size(); i++) {
-                     const auto &vert = ig.vertices[i];
-                     std::cout << "   " << i << " " << glm::to_string(vert.pos) << std::endl;
+                  if (false) {
+                     for (unsigned int i=0; i<ig.vertices.size(); i++) {
+                        const auto &vert = ig.vertices[i];
+                        std::cout << "   " << i << " " << glm::to_string(vert.pos) << std::endl;
+                     }
                   }
 
                   for (unsigned int i=0; i<ig.instancing_data_A.size(); i++) {
+                     if (i > 50) continue;
                      const auto &item = ig.instancing_data_A[i];
                      std::cout << i << " "
                                << glm::to_string(item.position) << " "

@@ -234,7 +234,7 @@ coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p,
    }
 }
 
-// You might consider makeing this part of simple_mesh_t - that would mirror how the Mesh class works
+// You might consider making this part of simple_mesh_t - that would mirror how the Mesh class works
 void
 make_graphical_bonds_spherical_atoms(coot::simple_mesh_t &m, // fill this
                                      const graphical_bonds_container &gbc,
