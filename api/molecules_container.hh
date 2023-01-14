@@ -407,12 +407,14 @@ public:
    //!
    //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
    //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest ``smoothness_factor``,
-   //! 2 looks nice (but maybe is slower to transfer) and 3 is best.
+   //! 2 looks nice and 3 is best. Instancing may mean that smoothness factor 3 should
+   //! be used by default.
    //!
    //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
    //!
    //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
-   //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course).
+   //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course). 1.7 or 1.8
+   //! looks nice.
    //!
    //! @return an ``instanced_mesh_t``
    coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
