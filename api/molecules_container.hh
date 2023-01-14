@@ -199,6 +199,7 @@ class molecules_container_t {
 
 public:
 
+   //! the one and only constructor
    explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
       if (! verbose) geom.set_verbose(false);
       init();
@@ -389,7 +390,7 @@ public:
    //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
    //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course).
    //!
-   //! @return a ``simple_mesh_t``
+   //! @return a ``coot::simple_mesh_t``
    coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode,
                                       bool against_a_dark_background,
                                       float bond_width, float atom_radius_to_bond_width_ratio,
@@ -416,7 +417,7 @@ public:
    //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course). 1.7 or 1.8
    //! looks nice.
    //!
-   //! @return an ``instanced_mesh_t``
+   //! @return a ``coot::instanced_mesh_t``
    coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
                                                    bool against_a_dark_background,
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
@@ -429,7 +430,7 @@ public:
    //! get Gaussian surface representation
    coot::simple_mesh_t get_gaussian_surface(int imol) const;
 
-   //! get chemical feaatures for the given residue
+   //! get chemical feaatures for the specified residue
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
@@ -616,7 +617,7 @@ public:
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, const std::string &list_of_other_molecules);
 
-   // this is called by the above function and is useful for other non-api functions (such as add_compound()).
+   //! this is called by the above function and is useful for other non-api functions (such as add_compound()).
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
 
@@ -655,7 +656,7 @@ public:
    //! \name Coordinates Validation
 
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
-   //! @return a `simple_mesh_t`
+   //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
 
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
@@ -665,7 +666,7 @@ public:
    //! get the ramachandran validation markup mesh
    //!
    //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh()``.
-   //! @return a `simple_mesh_t`
+   //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_ramachandran_validation_markup_mesh(int imol) const;
    //! get the data for Ramachandran validation, which importantly contains probability information
    //! @return a vector of `phi_psi_prob_t`
@@ -678,35 +679,35 @@ public:
    //! \name Coordinates and Map Validation
 
    //! density fit validation information
-   //! @returns a `validation_information_t`
+   //! @returns a `coot::validation_information_t`
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map) const;
 
    //! density correlation validation information
-   //! @returns a `validation_information_t`
+   //! @returns a `coot::validation_information_t`
    coot::validation_information_t density_correlation_analysis(int imol_model, int imol_map) const;
 
    //! rotamer validation information
-   //! @returns a `validation_information_t`
+   //! @returns a `coot::validation_information_t`
    coot::validation_information_t rotamer_analysis(int imol_model) const;
 
    //! ramachandran validation information (formatted for a graph, not 3d)
-   //! @returns a `validation_information_t`
+   //! @returns a `coot::validation_information_t`
    coot::validation_information_t ramachandran_analysis(int imol_model) const;
 
    //! peptide omega validation information
-   //! @returns a `validation_information_t`
+   //! @returns a `coot::validation_information_t`
    coot::validation_information_t peptide_omega_analysis(int imol_model) const;
 
    //! get interesting places (does not work yet)
-   //! @return a vector of `validation_information_t`
+   //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> get_interesting_places(int imol, const std::string &mode) const;
 
    //! get difference map peaks
-   //! @return a vector of `validation_information_t`
+   //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> difference_map_peaks(int imol_map, int imol_protein, float n_rmsd) const;
 
    //! get pepflips based on the difference map
-   //! @return a vector of `validation_information_t`
+   //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
    
 
