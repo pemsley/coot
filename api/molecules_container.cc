@@ -21,6 +21,7 @@ std::string molecules_container_t::restraints_locking_function_name; // I don't 
 std::vector<atom_pull_info_t> molecules_container_t::atom_pulls;
 // 20221018-PE not sure that this needs to be static.
 clipper::Xmap<float> *molecules_container_t::dummy_xmap = new clipper::Xmap<float>;
+bool molecules_container_t::make_backups_flag = true;
 
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {

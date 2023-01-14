@@ -194,6 +194,7 @@ class molecules_container_t {
       map_sampling_rate = 1.8;
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
+      make_backups_flag = true;
    }
 
 public:
@@ -214,6 +215,13 @@ public:
 
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
+
+   //! Allow the user to disable/enable backups (`state` is `true` for "enable")
+   void set_make_backups(bool state) { make_backups_flag = state; }
+   //! return the backup-enable state
+   bool get_make_backups() const { return make_backups_flag; }
+   //! the backup-enable state (raw public if needed/prefered)
+   static bool make_backups_flag; // does this need to be static?
 
    //! set the map used for refinement and fitting
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }

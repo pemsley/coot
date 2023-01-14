@@ -322,9 +322,10 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-colour.cc
             ${coot_src}/api/coot_molecule.cc
             ${coot_src}/api/coot_molecule_maps.cc
+            ${coot_src}/api/coot_molecule_backup.cc
             ${coot_src}/api/coot_molecule_merge_molecules.cc
-            ${coot_src}/api/coot_molecule_moltris.cc
             ${coot_src}/api/coot_molecule_bonds.cc
+            ${coot_src}/api/coot_molecule_moltris.cc
             ${coot_src}/api/coot_molecule_replace_fragment.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/molecules_container_modelling.cc

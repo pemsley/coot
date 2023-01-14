@@ -30,6 +30,7 @@ colour-functions.cc          coot_molecule_maps.cc   simple-mesh.cc           co
 coot_molecule_bonds.cc	                                                      molecules_container_modelling.cc \
 molecules_container.cc       make-a-dodec.cc	                              molecules_container_ligand_fitting.cc \
 phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc
+coot_molecule_backup.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

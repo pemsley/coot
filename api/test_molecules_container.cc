@@ -1769,7 +1769,7 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
                   }
 
                   for (unsigned int i=0; i<ig.instancing_data_A.size(); i++) {
-                     if (i > 50) continue;
+                     if (i > 20) continue;
                      const auto &item = ig.instancing_data_A[i];
                      std::cout << i << " "
                                << glm::to_string(item.position) << " "
