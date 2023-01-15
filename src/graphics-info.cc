@@ -1750,6 +1750,7 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
+
    // modes are in manipulation-modes - make it an enum class one day.
 
    // std::cout << "----------------------------------- run_post_manipulation_hook_py()! " << std::endl;
@@ -1769,16 +1770,19 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    PyObject *globals = PyModule_GetDict(pModule);
 
    PyObject *result = PyRun_String(check_pms.c_str(), Py_eval_input, globals, globals);
-
-   long ret = PyLong_AsLong(result);
+   // the above function can set an error  - that's bad news for the python wrapping
+   // of accept_moving_atoms(). So instead of properly handling the error, or investigating
+   // why it is happening, let's just clear it.
+   PyErr_Clear();
 
    if (false) {
-      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with check_pms \"" << check_pms << "\"" << std::endl;
-      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with result " << result << std::endl;
-      std::cout << "::::::::::::::::::::::::::::: in run_post_manipulation_hook_py() with ret " << ret << std::endl;
+      std::cout << "::::::: in run_post_manipulation_hook_py() with check_pms \"" << check_pms << "\"" << std::endl;
+      std::cout << "::::::: in run_post_manipulation_hook_py() with result " << result << std::endl;
    }
 
    if (result) {
+      long ret = PyLong_AsLong(result);
+      // std::cout << "::::::: in run_post_manipulation_hook_py() with ret " << ret << std::endl;
       if (ret == 1) {
          std::string ss = pms;
          ss += "(";
