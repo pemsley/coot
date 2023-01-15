@@ -1480,7 +1480,7 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
                                                             is_fixed_first_residue,
                                                             is_fixed_second_residue, false); // don't add if cis
       } else {
-         if (true) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
+         if (false) // debug (we don't want to try to add trans-pep restraints for SS bonds (for example))
             std::cout << "make_link_restraints_for_link_ng(): trans-pep flag off "
                       << residue_spec_t(res_1) << " " << residue_spec_t(res_2) << " "
                       << restraints_usage_flag << std::endl;
