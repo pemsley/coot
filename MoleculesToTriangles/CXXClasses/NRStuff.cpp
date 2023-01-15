@@ -65,6 +65,15 @@ float NRSpline::yForXEquals(const float xVal)  {
     if (h == 0.0) {
         //std::cout << "Bad x value";
     }
+
+    //MN Dealing with spline discontinuities by returning y element if x close to control point
+    if (fabs(xVal-x[khi]) < 0.001) {
+        return y[khi];
+    }
+    else if (fabs(xVal-x[klo]) < 0.001) {
+        return y[klo];
+    }
+
     a=(x[khi]-xVal)/h;
     b=(xVal-x[klo])/h;
     float c = y[khi];

@@ -3574,6 +3574,9 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
                 << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
+   // Don't try to use OpenGL if we don't have graphics
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
    // come back to this
 
    GLenum err = glGetError();
@@ -3989,6 +3992,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
    float bond_radius = 0.02 * bond_width;
    float atom_radius = bond_radius * atom_radius_scale_factor;
 
+   if (is_intermediate_atoms_molecule) bond_radius *= 1.5;
    if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
 
    // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
