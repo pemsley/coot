@@ -263,7 +263,8 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
 
 coot::instanced_mesh_t
 coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protein_geometry *geom,
-                                           bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                           bool against_a_dark_background, float bonds_width,
+                                           float atom_radius_to_bond_width_ratio,
                                            int smoothness_factor,
                                            bool draw_hydrogen_atoms_flag,
                                            bool draw_missing_residue_loops_flag) {
