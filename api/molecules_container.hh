@@ -551,6 +551,10 @@ public:
    //! add waters, updating imol_model (of course)
    //! @return 1 on a successful move, 0 on failure.
    int add_waters(int imol_model, int imol_map);
+
+   //! add an alternative conformation for the specified residue
+   int add_alternative_conformation(int imol_model, const std::string &cid);
+
    //! what does this do!?
    int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! flip peptide

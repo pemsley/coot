@@ -471,6 +471,9 @@ namespace coot {
                        const clipper::Xmap<float> &xmap, float map_rmsd);
 
 
+      //! add an alternative conformation for the specified residue
+      int add_alternative_conformation(const std::string &cid);
+
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
 
       int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,

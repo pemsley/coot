@@ -2989,3 +2989,17 @@ molecules_container_t::get_chemical_features_mesh(int imol, const std::string &c
    }
    return mesh;
 }
+
+
+//! add an alternative conformation for the specified residue
+int
+molecules_container_t::add_alternative_conformation(int imol_model, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_model)) {
+      status = molecules[imol_model].add_alternative_conformation(cid);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+   return status;
+}

@@ -3211,3 +3211,86 @@ coot::molecule_t::get_chemical_features_mesh(const std::string &cid,
 
    return mesh;
 }
+
+
+//! add an alternative conformation for the specified residue
+int
+coot::molecule_t::add_alternative_conformation(const std::string &cid) {
+
+   int status = 0;
+
+   auto move = [] (mmdb::Atom *at, const clipper::Coord_orth &o) {
+      at->x += o.x();
+      at->y += o.y();
+      at->z += o.z();
+   };
+
+   auto set_offset = [] (clipper::Coord_orth &offset, mmdb::Residue *residue_p) {
+      
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<mmdb::Atom *> new_atoms;
+      mmdb::Atom *c_at = 0;
+      mmdb::Atom *n_at = 0;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " N  ") n_at = at;
+         if (atom_name == " C  ") c_at = at;
+      }
+      if (c_at && n_at) {
+         clipper::Coord_orth c_pos(c_at->x, c_at->y, c_at->z);
+         clipper::Coord_orth n_pos(n_at->x, n_at->y, n_at->z);
+         clipper::Coord_orth cn_unit((c_pos-n_pos).unit());
+         clipper::Coord_orth arb(1,2,3);
+         clipper::Coord_orth arb_uv(arb.unit());
+         clipper::Coord_orth cp = clipper::Coord_orth(clipper::Coord_orth::cross(cn_unit, arb_uv));
+         offset = 0.2 * cp;
+      }
+   };
+
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      clipper::Coord_orth offset(0.0, 0.0, 0.2);
+      set_offset(offset, residue_p); // modify reference
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<mmdb::Atom *> new_atoms;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+
+            // 20230116-PE this is the trivial/basic/common alt conf split method.
+            //             If the residue already has an alt-conf then things will
+            //             be more complex. Let's just use this for now - it will
+            //             handle the vast majority of cases.
+            //
+            std::string current_alt_conf(at->altLoc);
+            if (current_alt_conf.empty()) {
+               mmdb::Atom *at_new = new mmdb::Atom;
+               at_new->Copy(at);
+               move(at_new, -offset);
+               strcpy(at_new->altLoc, "B");
+               at_new->occupancy = 0.5;
+               new_atoms.push_back(at_new);
+
+               move(at, offset);
+               at->occupancy = 0.5;
+               strcpy(at->altLoc, "A");
+            }
+         }
+      }
+
+      for (unsigned int j=0; j<new_atoms.size(); j++) {
+         residue_p->AddAtom(new_atoms[j]);
+      }
+
+   } else {
+      std::cout << "Residue " << cid << " not found in molecule" << std::endl;
+   }
+
+   return status;
+
+}

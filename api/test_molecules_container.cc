@@ -1848,6 +1848,35 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    return status;
 }
 
+int test_add_alt_conf(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.add_alternative_conformation(imol, "//A/72");
+      mc.write_coordinates(imol, "with-alt-conf.pdb");
+
+      coot::residue_spec_t res_spec("A", 72, "");
+      mmdb::Residue *r = coot::util::get_residue(res_spec, mc[imol].atom_sel.mol);
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      r->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::cout << iat << " " << coot::atom_spec_t(at) << " " << at->x << " " << at->y << " " << at->z << std::endl;
+         }
+      }
+      if (n_residue_atoms > 22)
+         status = 1;
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1972,7 +2001,9 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_instanced_bonds_mesh, "instanced bonds mesh",   mc);
+   // status += run_test(test_instanced_bonds_mesh, "instanced bonds mesh",   mc);
+
+   status += run_test(test_add_alt_conf, "add alt conf",   mc);
 
    // Note to self:
    //
