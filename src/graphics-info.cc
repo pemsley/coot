@@ -5112,7 +5112,7 @@ void graphics_info_t::draw_pull_restraint_neighbour_displacement_max_radius_circ
 void
 graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
 
-   std::cout << "debug:: in clear_all_atom_pull_restraints() " << refine_again_flag << std::endl;
+   //std::cout << "debug:: in clear_all_atom_pull_restraints() " << refine_again_flag << std::endl;
 
    all_atom_pulls_off();
    if (last_restraints) {
