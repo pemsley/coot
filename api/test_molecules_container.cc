@@ -1831,6 +1831,11 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
          if (im.geom[0].instancing_data_A.size() > 1000)
             status = 1;
       }
+
+      for (unsigned int i=0; i<im.geom.size(); i++) {
+         const auto &geom = im.geom[i];
+         std::cout << "geom i has " << geom.vertices.size() << " vertices" << std::endl;
+      }
    }
    mc.close_molecule(imol);
    return status;

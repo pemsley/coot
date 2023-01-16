@@ -178,7 +178,11 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
                           };
 
    auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
-      std::vector<coot::api::vn_vertex> v_out;
+      std::vector<coot::api::vn_vertex> v_out(v_in.size());
+      for (unsigned int i=0; i<v_in.size(); i++) {
+         const auto &v = v_in[i];
+         v_out[i] = coot::api::vn_vertex(v.pos, v.normal);
+      }
       return v_out;
    };
 
