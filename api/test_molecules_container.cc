@@ -1834,7 +1834,14 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
 
       for (unsigned int i=0; i<im.geom.size(); i++) {
          const auto &geom = im.geom[i];
-         std::cout << "geom i has " << geom.vertices.size() << " vertices" << std::endl;
+         std::cout << "geom i = " << i << " has " << geom.vertices.size() << " vertices" << std::endl;
+
+         if (i == 2) {
+            for (unsigned int j=0; j<geom.instancing_data_B.size(); j++) {
+               if (j >= 10) continue;
+               std::cout << j << " " << glm::to_string(geom.instancing_data_B[j].orientation) << std::endl;
+            }
+         }
       }
    }
    mc.close_molecule(imol);

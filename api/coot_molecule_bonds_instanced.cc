@@ -172,8 +172,10 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
                              glm::vec3 normalized_bond_orientation(glm::normalize(delta));
                              glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0)); // nice
                              // translate
-                             glm::mat4 t = glm::translate(u, pos_1);
-                             glm::mat4 m = t * ori * sc;
+                             // 20230116-PE no scaling and translation of the orientation matrix.
+                             // we need a rotation matrix because that is used for the normals.
+                             // glm::mat4 t = glm::translate(u, pos_1);
+                             // glm::mat4 m = t * ori * sc;
                              return m;
                           };
 
@@ -230,7 +232,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
          float bl = ll.pair_list[j].positions.amplitude();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
-         glm::mat4 ori = get_bond_matrix(pos_1, pos_2, bond_radius);
+         glm::mat4 ori = get_bond_matrix(pos_2, pos_1, bond_radius);
          float scale = 1.0;
          if (ll.thin_lines_flag) scale *= 0.5;
          float sar = scale * bond_radius;
