@@ -176,7 +176,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
                              // we need a rotation matrix because that is used for the normals.
                              // glm::mat4 t = glm::translate(u, pos_1);
                              // glm::mat4 m = t * ori * sc;
-                             return m;
+                             return ori;
                           };
 
    auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
