@@ -47,7 +47,8 @@ class molecules_container_t {
          map_rail_points_delta = rail_points_delta(rail_points_prev);
       }
       int rail_points_delta(const rail_points_t &prev) {
-         return int(10000.0 * (prev.rmsd_of_difference_map - rmsd_of_difference_map));
+         float fudge = 2.4; // 20230117-PE makes 1000 rail points equal ~1% in R-factor for the tutorial data
+         return int(100000.0 * fudge * (prev.rmsd_of_difference_map - rmsd_of_difference_map));
       }
       static int total(const std::vector<rail_points_t> &rail_point_history) {
          int sum = 0;
@@ -80,6 +81,9 @@ class molecules_container_t {
                                                     // Checks the above information before acting, of course.
                                                     // No action if imol is the the model for updating maps.
    void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
+
+   coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
+
 
    // --------------------- refinement --------------------------
 
@@ -502,6 +506,7 @@ public:
    coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
                                              float radius, float contour_level);
 
+   coot::util::sfcalc_genmap_stats_t get_latest_sfcalc_stats() const { return latest_sfcalc_stats; }
 
    // -------------------------------- coordinates modelling -------------------------------
    //! \name Coordinates Modelling
@@ -736,7 +741,7 @@ public:
    //! get pepflips based on the difference map
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
-   
+
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!

@@ -119,6 +119,7 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
       auto r = molecules[imol].merge_molecules(atom_selections);
       istat = r.first;
       resulting_merge_info = r.second;
+      set_updating_maps_need_an_update(imol);
    }
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 
@@ -152,6 +153,7 @@ molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) 
    mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -260,6 +262,7 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
                         float translation_scale_factor = 1.0;
                         float d = molecules[imol].fit_to_map_by_random_jiggle(res_spec, xmap, map_rmsd, n_trials, translation_scale_factor);
                         std::cout << "score from fit_to_map_by_random_jiggle() " << d << std::endl;
+                        set_updating_maps_need_an_update(imol);
                         status = 1;
                      }
                   }
@@ -299,6 +302,7 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
          status = molecules[imol_base].replace_fragment(asc_moving);
          mol_ref->DeleteSelection(SelHnd);
          asc_moving.clear_up(); // deletes mol_select
+         set_updating_maps_need_an_update(imol_base);
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_reference << std::endl;
       }

@@ -214,6 +214,7 @@ molecules_container_t::update_updating_maps(int imol) {
                                                        updating_maps_info.imol_2fofc,
                                                        updating_maps_info.imol_fofc,
                                                        updating_maps_info.imol_with_data_info_attached);
+                  // sfcalc_genmaps_using_bulk_solvent() setts latest_sfcalc_stats
                   updating_maps_info.maps_need_an_update = false;
                }
             }
@@ -1160,13 +1161,20 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    auto tp_0 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
+      std::cout << "debug:: in get_map_contours_mesh() A " << std::endl;
       if (is_valid_map_molecule(imol)) {
+         std::cout << "debug:: in get_map_contours_mesh() B " << std::endl;
          clipper::Coord_orth position(position_x, position_y, position_z);
 
-         if (updating_maps_info.maps_need_an_update)
+         if (updating_maps_info.maps_need_an_update) {
+            std::cout << "debug:: in get_map_contours_mesh() C " << std::endl;
             update_updating_maps(updating_maps_info.imol_model);
+         }
 
+         std::cout << "debug:: in get_map_contours_mesh() D " << std::endl;
          mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
+      } else {
+         std::cout << "WARNING:: get_map_contours_mesh() Not a valid map molecule " << imol << std::endl;
       }
    }
    catch (...) {
@@ -1612,6 +1620,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
          }
       }
    }
+   latest_sfcalc_stats = stats;
    return stats;
 }
 
@@ -1666,11 +1675,11 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
             // if there's not a refinement redraw function already running start up a new one.
             if (threaded_refinement_redraw_timeout_fn_id == -1) {
                GSourceFunc cb = GSourceFunc(regenerate_intermediate_atoms_bonds_timeout_function_and_draw);
-	       // int id = gtk_timeout_add(15, cb, NULL);
+               // int id = gtk_timeout_add(15, cb, NULL);
 
                int timeout_ms = 15;
                timeout_ms = 30; // 20220503-PE try this value
-	       int id = g_timeout_add(timeout_ms, cb, NULL);
+               int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
          }
@@ -1720,6 +1729,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
 int
 molecules_container_t::refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                                        const std::string &alt_conf, const std::string &mode) {
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
@@ -1763,8 +1773,7 @@ molecules_container_t::refine_residues_vec(int imol,
                                            mmdb::Manager *mol) {
    bool use_map_flag = true;
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \""
-		<< alt_conf << "\"" << std::endl;
+      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
    return rr;
@@ -1782,7 +1791,7 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
       int current_diff = 999999;
       int nres = chain_p->GetNumberOfResidues();
       for (int ires=0; ires<nres; ires++) { // ires is a serial number
-	 mmdb::Residue *residue = chain_p->GetResidue(ires);
+         mmdb::Residue *residue = chain_p->GetResidue(ires);
 
 	 // we are looking for the smallest negative diff:
 	 //
@@ -2736,6 +2745,7 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 	 coot::minimol::molecule water_mol = lig.water_mol();
          molecules[imol_model].insert_waters_into_molecule(water_mol);
          n_waters_added = water_mol.count_atoms();
+         set_updating_maps_need_an_update(imol_model);
       }
    }
    return n_waters_added;
@@ -2818,6 +2828,7 @@ molecules_container_t::fill_partial_residues(int imol) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          const clipper::Xmap<float> &xmap = molecules.at(imol_refinement_map).xmap;
          status = molecules[imol].fill_partial_residues(xmap, &geom);
+         set_updating_maps_need_an_update(imol);
       }
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
@@ -3049,6 +3060,7 @@ molecules_container_t::add_alternative_conformation(int imol_model, const std::s
    int status = 0;
    if (is_valid_model_molecule(imol_model)) {
       status = molecules[imol_model].add_alternative_conformation(cid);
+      set_updating_maps_need_an_update(imol_model);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
    }

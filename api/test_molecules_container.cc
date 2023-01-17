@@ -170,6 +170,7 @@ int test_updating_maps(molecules_container_t &mc) {
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
 
+   // debugging
    mc.display_molecule_names_table();
 
    // set to the clipper map, overwriting the refmac map.
@@ -1961,6 +1962,95 @@ int test_missing_atoms_info(molecules_container_t &mc) {
    return status;
 }
 
+int test_editing_session(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol          = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.set_imol_refinement_map(imol_map);
+      mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
+      mc.connect_updating_maps(imol, imol_map, imol_map, imol_diff_map);
+
+      // debugging
+      mc.display_molecule_names_table();
+
+      coot::simple_mesh_t map_mesh; // just throw it away for testing
+
+      mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
+      int rpn_1 = mc.calculate_new_rail_points();
+      int rpt_1 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points A latest_move: " << rpn_1 << " total: " << rpt_1 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.flip_peptide_using_cid(imol, "//A/20/C", "");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_2 = mc.calculate_new_rail_points();
+      int rpt_2 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points B: latest_move: " << rpn_2 << " total: " << rpt_2 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.flip_peptide_using_cid(imol, "//A/262/C", "");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_3 = mc.calculate_new_rail_points();
+      int rpt_3 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points C: latest_move: " << rpn_3 << " total: " << rpt_3 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.flip_peptide_using_cid(imol, "//A/33/C", "");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_4 = mc.calculate_new_rail_points();
+      int rpt_4 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points D: latest_move: " << rpn_4 << " total: " << rpt_4 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.fill_partial_residue_using_cid(imol, "//A/205");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_5 = mc.calculate_new_rail_points();
+      int rpt_5 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points E: latest_move: " << rpn_5 << " total: " << rpt_5 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.cis_trans_convert(imol, "//A/262/CA");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_6 = mc.calculate_new_rail_points();
+      int rpt_6 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points F: latest_move: " << rpn_6 << " total: " << rpt_6 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.refine_residues_using_atom_cid(imol, "//A/262/CA", "QUINTUPLE");
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_7 = mc.calculate_new_rail_points();
+      int rpt_7 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points G: latest_move: " << rpn_7 << " total: " << rpt_7 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.auto_fit_rotamer(imol, "A", 58, "", "", imol_map);
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_8 = mc.calculate_new_rail_points();
+      int rpt_8 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      int rpn_9 = mc.calculate_new_rail_points();
+      int rpt_9 = mc.rail_points_total();
+      std::cout << "::::::::::::::::::::::::::::::::::: Rail points G: latest_move: " << rpn_9 << " total: " << rpt_9 << std::endl;
+      std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
+
+      if (true) // fixme
+         status = 1;
+   }
+
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2071,6 +2161,7 @@ int main(int argc, char **argv) {
       status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
+      status += run_test(test_missing_atoms_info,    "missing atom info",        mc);
       status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
@@ -2087,7 +2178,7 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_missing_atoms_info, "missing atomm info",         mc);
+   status += run_test(test_editing_session, "an editing session",         mc);
 
    // Note to self:
    //
