@@ -1877,6 +1877,90 @@ int test_add_alt_conf(molecules_container_t &mc) {
    return status;
 }
 
+int test_fill_partial(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int part_1 = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   mc.set_imol_refinement_map(imol_map);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " OG ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         mc.delete_atom_using_cid(imol, "//A/270/OG");
+         at_1 = mc.get_atom(imol, atom_spec);
+         if (at_1) {
+            std::cout << "failed to delete " << std::endl;
+         } else {
+            mc.fill_partial_residue_using_cid(imol, "//A/270");
+            at_1 = mc.get_atom(imol, atom_spec);
+            if (at_1) {
+               std::cout << "Found the OG" << std::endl;
+               part_1 = 1;
+            }
+         }
+      }
+   }
+
+   // now test the all-molecule function
+
+   if (part_1 == 1) {
+      // there are more things to be filled than just these 2 residues
+      mc.delete_atom_using_cid(imol, "//A/43/CG");
+      mc.delete_atom_using_cid(imol, "//A/44/CG1");
+      mmdb::Atom *at_1 = mc.get_atom_using_cid(imol, "//A/43/CG");
+      mmdb::Atom *at_2 = mc.get_atom_using_cid(imol, "//A/44/CG1");
+      if (at_1) {
+         std::cout << "fail to delete 1" << std::endl;
+      } else {
+         if (at_2) {
+            std::cout << "fail to delete 2 " << std::endl;
+         } else {
+            mc.fill_partial_residues(imol);
+            at_1 = mc.get_atom_using_cid(imol, "//A/43/CG");
+            at_2 = mc.get_atom_using_cid(imol, "//A/44/CG1");
+            if (at_1) {
+               if (at_2) {
+                  status = 1;
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
+int test_missing_atoms_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_atom_using_cid(imol, "//A/43/CG");
+      mc.delete_atom_using_cid(imol, "//A/44/CG1");
+      coot::util::missing_atom_info mai = mc.missing_atoms_info_raw(imol);
+      std::cout << "missing_atom_info: residues with no dictionary: size " << mai.residues_with_no_dictionary.size() << std::endl;
+      for (unsigned int i=0; i<mai.residues_with_no_dictionary.size(); i++) {
+         std::cout << "   " << mai.residues_with_no_dictionary[i] << std::endl;
+      }
+      std::cout << "missing_atom_info: residues with missing atoms: size " << mai.residues_with_missing_atoms.size() << std::endl;
+      for (unsigned int i=0; i<mai.residues_with_missing_atoms.size(); i++) {
+         mmdb::Residue *r = mai.residues_with_missing_atoms[i];
+         std::cout << "   with missing atoms: " << coot::residue_spec_t(r)<< " " << r->GetResName() << std::endl;
+      }
+      if (mai.residues_with_missing_atoms.size() > 1)
+         status = 1;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -1976,6 +2060,8 @@ int main(int argc, char **argv) {
       status += run_test(test_read_a_map,            "read a map",               mc);
       status += run_test(test_add_compound,          "add compound",             mc);
       status += run_test(test_weird_delete,          "delete II",                mc);
+      status += run_test(test_fill_partial,    "fill partially-filled residues", mc);
+      status += run_test(test_add_alt_conf,          "add alt conf",             mc);
       status += run_test(test_delete_literal,        "delete literal",           mc);
       status += run_test(test_side_chain_180,        "side-chain 180",           mc);
       status += run_test(test_peptide_omega,         "peptide omega",            mc);
@@ -2001,9 +2087,7 @@ int main(int argc, char **argv) {
    }
 
 
-   // status += run_test(test_instanced_bonds_mesh, "instanced bonds mesh",   mc);
-
-   status += run_test(test_add_alt_conf, "add alt conf",   mc);
+   status += run_test(test_missing_atoms_info, "missing atomm info",         mc);
 
    // Note to self:
    //

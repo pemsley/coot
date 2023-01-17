@@ -12,6 +12,7 @@
 #include "coords/ramachandran-container.hh"
 #include "coot_molecule.hh"
 #include "coot-utils/coot-rama.hh"
+#include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "utils/coot-utils.hh"
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
@@ -455,6 +456,17 @@ public:
    //! @return a list of residue that don't have a dictionary
    std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
 
+   //! @return an object that has information about residues without dictionaries and residues with missing atom
+   //! in the the specified molecule
+   std::vector<coot::residue_spec_t> residues_with_missing_atoms(int imol);
+
+   //! Ths function is not const because missing_atoms() takes a non-const pointer to the geometry
+   // (20230117-PE I should fix that)
+   //!
+   //! @return an object that has information about residues without dictionaries and residues with missing atom
+   //! in the the specified molecule
+   coot::util::missing_atom_info missing_atoms_info_raw(int imol);
+
    //! undo
    //! @return 1 on successful undo, return 0 on failure
    int undo(int imol);
@@ -553,10 +565,21 @@ public:
    int add_waters(int imol_model, int imol_map);
 
    //! add an alternative conformation for the specified residue
+   //! @return 1 on a successful addition, 0 on failure.
    int add_alternative_conformation(int imol_model, const std::string &cid);
 
-   //! what does this do!?
-   int fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+   //! fill the specified residue
+   //! @return 1 on a successful fill, 0 on failure.
+   int fill_partial_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
+   //! fill the specified residue
+   //! @return 1 on a successful fill, 0 on failure.
+   int fill_partial_residue_using_cid(int imol, const std::string &cid);
+
+   //! fill all the the partially-filled residues in the molecule
+   //! @return 1 on a successful fill, 0 on failure.
+   int fill_partial_residues(int imol);
+
    //! flip peptide
    //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);

@@ -474,6 +474,13 @@ namespace coot {
       //! add an alternative conformation for the specified residue
       int add_alternative_conformation(const std::string &cid);
 
+      //! add atoms to a partially-filled side chaain
+      int fill_partial_residue(const residue_spec_t &res_spec, const std::string &alt_conf,
+                               const clipper::Xmap<float> &xmap, const protein_geometry &geom);
+
+      //! add atoms to a partially-filled side chaain
+      int fill_partial_residues(const clipper::Xmap<float> &xmap, protein_geometry *geom);
+
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
 
       int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,

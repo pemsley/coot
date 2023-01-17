@@ -3294,3 +3294,53 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
    return status;
 
 }
+
+
+//! add atoms to a partially-filled side chain
+int
+coot::molecule_t::fill_partial_residue(const residue_spec_t &res_spec, const std::string &alt_conf,
+                                       const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom) {
+
+   int status = 0;
+
+   mmdb::Residue *residue_p = get_residue(res_spec);
+   if (residue_p) {
+      std::string residue_type = residue_p->GetResName();
+      int success_a = mutate(res_spec, residue_type); // fill missing atoms
+      if (success_a) {
+         int success_b = auto_fit_rotamer(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, alt_conf, xmap, geom);
+         if (success_b)
+            status = 1;
+      }
+   }
+   return status;
+}
+
+
+#include "coot-utils/coot-coord-extras.hh"
+
+//! add atoms to a partially-filled side chain
+int
+coot::molecule_t::fill_partial_residues(const clipper::Xmap<float> &xmap, protein_geometry *geom_p) {
+
+   int status = 0;
+   bool do_missing_hydrogen_atoms_flag = false;
+   coot::util::missing_atom_info mai = coot::util::missing_atoms(atom_sel.mol, do_missing_hydrogen_atoms_flag, geom_p);
+
+   if (! mai.residues_with_missing_atoms.empty()) {
+      for (unsigned int i=0; i<mai.residues_with_missing_atoms.size(); i++) {
+         mmdb::Residue *residue_p = mai.residues_with_missing_atoms[i];
+         int res_no =  mai.residues_with_missing_atoms[i]->GetSeqNum();
+         std::string chain_id = mai.residues_with_missing_atoms[i]->GetChainID();
+         std::string residue_type = mai.residues_with_missing_atoms[i]->GetResName();
+         std::string inscode = mai.residues_with_missing_atoms[i]->GetInsCode();
+         std::string altloc("");
+         coot::residue_spec_t res_spec(residue_p);
+         mutate(res_spec, residue_type); // fill missing atoms
+         int success_b = auto_fit_rotamer(chain_id, res_no, inscode, altloc, xmap, *geom_p);
+         if (success_b)
+            status = 1;
+      }
+   }
+   return status;
+}

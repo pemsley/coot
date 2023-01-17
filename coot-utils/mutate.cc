@@ -93,7 +93,8 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       }
    }
 
-   std::cout << "end of mutate_internal() residue has type " << residue->GetResName() << std::endl;
+   if (false)
+      std::cout << "end of mutate_internal() residue has type " << residue->GetResName() << std::endl;
 
    residue->SetResName(std_residue->GetResName());
    residue->TrimAtomTable();

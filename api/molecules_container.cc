@@ -2759,20 +2759,71 @@ molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, 
 }
 
 int
-molecules_container_t::fill_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+molecules_container_t::fill_partial_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
 
    int status = 0;
+   std::string alt_conf;
 
-   // 20221025-PE Fill me later
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
-      // molecules[imol].fill_side_chain(res_spec);
-      std::cout << "------------- fill fill_side_chain() here!" << std::endl;
-      set_updating_maps_need_an_update(imol);
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         const clipper::Xmap<float> &xmap = molecules.at(imol_refinement_map).xmap;
+         molecules[imol].fill_partial_residue(res_spec, alt_conf, xmap, geom);
+         set_updating_maps_need_an_update(imol);
+      } else {
+         std::cout << "WARNING:: fill_partial_residue() incorrect imol_refinement_map " << std::endl;
+      }
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
+}
+
+//! fill the specified residue
+//! @return 1 on a successful fill, 0 on failure.
+int
+molecules_container_t::fill_partial_residue_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   std::string alt_conf;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec_pair = molecules[imol].cid_to_residue_spec(cid);
+      if (res_spec_pair.first) {
+         const auto &res_spec = res_spec_pair.second;
+         if (is_valid_map_molecule(imol_refinement_map)) {
+            const clipper::Xmap<float> &xmap = molecules.at(imol_refinement_map).xmap;
+            molecules[imol].fill_partial_residue(res_spec, alt_conf, xmap, geom);
+            set_updating_maps_need_an_update(imol);
+         } else {
+            std::cout << "WARNING:: fill_partial_residue_using_cid() incorrect imol_refinement_map " << std::endl;
+         }
+      } else {
+         std::cout << "fill_partial_residue_using_cid() residue not found " << cid << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}
+
+
+
+int
+molecules_container_t::fill_partial_residues(int imol) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         const clipper::Xmap<float> &xmap = molecules.at(imol_refinement_map).xmap;
+         status = molecules[imol].fill_partial_residues(xmap, &geom);
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
 }
 
 
@@ -3003,3 +3054,39 @@ molecules_container_t::add_alternative_conformation(int imol_model, const std::s
    }
    return status;
 }
+
+
+//! return@ an object that has information about residues without dictionaries and residues with missing atom
+//! in the the specified molecule
+coot::util::missing_atom_info
+molecules_container_t::missing_atoms_info_raw(int imol) {
+
+   coot::util::missing_atom_info mai;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      bool do_missing_hydrogen_atoms_flag = false;
+      mai = coot::util::missing_atoms(mol, do_missing_hydrogen_atoms_flag, &geom);
+   }
+   return mai;
+}
+
+
+//! @return an object that has information about residues without dictionaries and residues with missing atom
+//! in the the specified molecule
+std::vector<coot::residue_spec_t>
+molecules_container_t::residues_with_missing_atoms(int imol) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      bool do_missing_hydrogen_atoms_flag = false;
+      coot::util::missing_atom_info mai = coot::util::missing_atoms(mol, do_missing_hydrogen_atoms_flag, &geom);
+      for (unsigned int i=0; i<mai.residues_with_missing_atoms.size(); i++) {
+         mmdb::Residue *r = mai.residues_with_missing_atoms[i];
+         v.push_back(coot::residue_spec_t(r));
+      }
+   }
+   return v;
+}
+

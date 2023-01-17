@@ -87,6 +87,10 @@ namespace coot {
             atoms_in_coords_but_not_in_dict(atoms_in_coords_but_not_in_dict_in) {}
       };
 
+      missing_atom_info missing_atoms(mmdb::Manager *mol,
+                                      bool do_missing_hydrogen_atoms_flag,
+                                      protein_geometry *geom_p);
+
       class dict_atom_info_t {
       public:
 	 std::string name;
