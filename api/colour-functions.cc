@@ -36,7 +36,7 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
    std::vector<float> r = coot::convert_hsv_to_rgb(hsv);
    //     std::cout << "rotate from ("
    // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n"
-   //  	     << "         to ("
+   //           << "         to ("
    // << rgb[0] << " " << rgb[1] << " " << rgb[2] << ")\n";
    return r;
    // return convert_hsv_to_rgb(hsv);

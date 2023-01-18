@@ -100,22 +100,22 @@ molecules_container_t::read_standard_residues() {
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
-	                 // default location either...
-	 std::cout << "WARNING: Can't find standard residues file in the "
-		   << "default location \n";
-	 std::cout << "         and environment variable for standard residues ";
-	 std::cout << standard_env_dir << "\n";
-	 std::cout << "         is not set.";
-	 std::cout << " Mutations will not be possible\n";
-	 // mark as not read then:
-	 standard_residues_asc.read_success = 0;
-	 standard_residues_asc.n_selected_atoms = 0;
-	 // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
+                         // default location either...
+         std::cout << "WARNING: Can't find standard residues file in the "
+                   << "default location \n";
+         std::cout << "         and environment variable for standard residues ";
+         std::cout << standard_env_dir << "\n";
+         std::cout << "         is not set.";
+         std::cout << " Mutations will not be possible\n";
+         // mark as not read then:
+         standard_residues_asc.read_success = 0;
+         standard_residues_asc.n_selected_atoms = 0;
+         // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
       } else {
-	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
+         // stat success:
+         standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
       }
-   } else { 
+   } else {
       standard_residues_asc = get_atom_selection(filename, true, false, false);
    }
 }
@@ -396,7 +396,7 @@ molecules_container_t::get_monomer_from_dictionary(const std::string &comp_id,
       istat = imol;
    } else {
       std::cout << "WARNING:: Null mol from mol_from_dictionary() with comp_id " << comp_id << " "
-		<< idealised_flag << std::endl;
+                << idealised_flag << std::endl;
    }
    return istat;
 }
@@ -1793,21 +1793,21 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
       for (int ires=0; ires<nres; ires++) { // ires is a serial number
          mmdb::Residue *residue = chain_p->GetResidue(ires);
 
-	 // we are looking for the smallest negative diff:
-	 //
-	 int diff = residue->GetSeqNum() - seqnum_new;
-	 if ( (diff > 0) && (diff < current_diff) ) {
-	    iserial_no = ires;
-	    current_diff = diff;
-	 } else {
-	    if (diff == 0) {
-	       std::string ins_code_this = residue->GetInsCode();
-	       if (ins_code_this > ins_code_for_new) {
-		  iserial_no = ires;
-		  break;
-	       }
-	    }
-	 }
+         // we are looking for the smallest negative diff:
+         //
+         int diff = residue->GetSeqNum() - seqnum_new;
+         if ( (diff > 0) && (diff < current_diff) ) {
+            iserial_no = ires;
+            current_diff = diff;
+         } else {
+            if (diff == 0) {
+               std::string ins_code_this = residue->GetInsCode();
+               if (ins_code_this > ins_code_for_new) {
+                  iserial_no = ires;
+                  break;
+               }
+            }
+         }
       }
    }
    return iserial_no;
@@ -1831,24 +1831,24 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
 
    if (debug) {
       std::cout << "############ starting create_mmdbmanager_from_res_vector() with these "
-		<< " residues " << std::endl;
+                << " residues " << std::endl;
       for (std::size_t ii=0; ii<residues.size(); ii++)
-	 std::cout << "   " << coot::residue_spec_t(residues[ii])  << std::endl;
+         std::cout << "   " << coot::residue_spec_t(residues[ii])  << std::endl;
       int udd_atom_index_handle = mol_in->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
       std::cout << "############ udd for atom index from seeding molecule " << udd_atom_index_handle
-		<< std::endl;
+                << std::endl;
       for (std::size_t ii=0; ii<residues.size(); ii++) {
-	 mmdb::Residue *residue_p = residues[ii];
-	 mmdb::Atom **residue_atoms = 0;
-	 int n_residue_atoms;
-	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (int iat=0; iat<n_residue_atoms; iat++) {
-	    mmdb::Atom *at = residue_atoms[iat];
-	    int idx = -1;
-	    at->GetUDData(udd_atom_index_handle, idx);
-	    std::cout << "#### input residue atom " << coot::atom_spec_t(at) << " had udd index "
-		      << idx << std::endl;
-	 }
+         mmdb::Residue *residue_p = residues[ii];
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            int idx = -1;
+            at->GetUDData(udd_atom_index_handle, idx);
+            std::cout << "#### input residue atom " << coot::atom_spec_t(at) << " had udd index "
+                      << idx << std::endl;
+         }
       }
    }
 
@@ -1864,7 +1864,7 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
 
       std::pair<bool,std::string> use_alt_conf(false, "");
       if (! alt_conf.empty())
-	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
+         use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
 
       std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
                 << "\"" << alt_conf << "\"" << std::endl;
@@ -1872,207 +1872,207 @@ molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb
                 << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
-	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
+         coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
 
       // check that first is sane, so indent all this lot (when it works)
 
       if (n_mol_1.first) {
 
-	 int index_from_reference_residue_handle =
-	    n_mol_1.second->GetUDDHandle(mmdb::UDR_RESIDUE, "index from reference residue");
+         int index_from_reference_residue_handle =
+            n_mol_1.second->GetUDDHandle(mmdb::UDR_RESIDUE, "index from reference residue");
 
-	 if (false) { // debug
-	    int imod = 1;
-	    mmdb::Model *model_p = n_mol_1.second->GetModel(imod);
-	    if (model_p) {
-	       int n_chains = model_p->GetNumberOfChains();
-	       for (int ichain=0; ichain<n_chains; ichain++) {
-		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-		  int nres = chain_p->GetNumberOfResidues();
-		  for (int ires=0; ires<nres; ires++) {
-		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		     int n_atoms = residue_p->GetNumberOfAtoms();
-		     for (int iat=0; iat<n_atoms; iat++) {
-			mmdb::Atom *at = residue_p->GetAtom(iat);
-			int idx = -1;
-			at->GetUDData(index_from_reference_residue_handle, idx);
-			std::cout << "   create_mmdbmanager_from_residue_vector() returns this mol atom "
-				  << iat << " " << coot::atom_spec_t(at) << " with idx " << idx << std::endl;
-		     }
-		  }
-	       }
-	    }
-	 }
+         if (false) { // debug
+            int imod = 1;
+            mmdb::Model *model_p = n_mol_1.second->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int nres = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        int idx = -1;
+                        at->GetUDData(index_from_reference_residue_handle, idx);
+                        std::cout << "   create_mmdbmanager_from_residue_vector() returns this mol atom "
+                                  << iat << " " << coot::atom_spec_t(at) << " with idx " << idx << std::endl;
+                     }
+                  }
+               }
+            }
+         }
 
-	 new_mol = n_mol_1.second;
-	 mmdb::Model *model_p = new_mol->GetModel(1);
+         new_mol = n_mol_1.second;
+         mmdb::Model *model_p = new_mol->GetModel(1);
 
-	 // how many (free) residues were added to that model? (add them to rv)
-	 //
-	 int n_chains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<n_chains; ichain++) {
-	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) {
-	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	       rv.push_back(residue_p);
-	    }
-	 }
+         // how many (free) residues were added to that model? (add them to rv)
+         //
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               rv.push_back(residue_p);
+            }
+         }
 
-	 if (false) {
-	    for (std::size_t ir=0; ir<rv.size(); ir++) {
-	       mmdb::Residue *r = rv[ir];
-	       std::cout << "Moving Residue " << coot::residue_spec_t(r) << std::endl;
-	       mmdb::Atom **residue_atoms = 0;
-	       int n_residue_atoms;
-	       r->GetAtomTable(residue_atoms, n_residue_atoms);
-	       for (int iat=0; iat<n_residue_atoms; iat++) {
-		  mmdb::Atom *at = residue_atoms[iat];
-		  std::cout << "    " << coot::atom_spec_t(at) << std::endl;
-	       }
-	    }
-	 }
+         if (false) {
+            for (std::size_t ir=0; ir<rv.size(); ir++) {
+               mmdb::Residue *r = rv[ir];
+               std::cout << "Moving Residue " << coot::residue_spec_t(r) << std::endl;
+               mmdb::Atom **residue_atoms = 0;
+               int n_residue_atoms;
+               r->GetAtomTable(residue_atoms, n_residue_atoms);
+               for (int iat=0; iat<n_residue_atoms; iat++) {
+                  mmdb::Atom *at = residue_atoms[iat];
+                  std::cout << "    " << coot::atom_spec_t(at) << std::endl;
+               }
+            }
+         }
 
-	 short int whole_res_flag = 0;
-	 int atom_index_udd_handle = molecules[imol].atom_sel.UDDAtomIndexHandle;
+         short int whole_res_flag = 0;
+         int atom_index_udd_handle = molecules[imol].atom_sel.UDDAtomIndexHandle;
 
-	 // Now the flanking residues:
-	 //
-	 std::vector<mmdb::Residue *> flankers_in_reference_mol;
-	 flankers_in_reference_mol.reserve(32); // say
+         // Now the flanking residues:
+         //
+         std::vector<mmdb::Residue *> flankers_in_reference_mol;
+         flankers_in_reference_mol.reserve(32); // say
 
-	 // find the residues that are close to the residues of
-	 // residues that are not part of residues
-	 //
-	 // We don't have quite the function that we need in coot-utils,
-	 // so we need to munge residues in to local_residues:
-	 std::vector<std::pair<bool, mmdb::Residue *> > local_residues;
-	 local_residues.resize(residues.size());
-	 for (std::size_t ires=0; ires<residues.size(); ires++)
-	    local_residues[ires] = std::pair<bool, mmdb::Residue *>(false, residues[ires]);
-	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
-	    coot::residues_near_residues(local_residues, mol_in, dist_crit);
-	 // now fill @var{flankers_in_reference_mol} from rnr, avoiding residues
-	 // already in @var{residues}.
-	 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
-	 for (it=rnr.begin(); it!=rnr.end(); ++it) {
-	    const std::set<mmdb::Residue *> &s = it->second;
-	    std::set<mmdb::Residue *>::const_iterator its;
-	    for (its=s.begin(); its!=s.end(); ++its) {
-	       mmdb::Residue *tres = *its;
-	       if (std::find(residues.begin(), residues.end(), tres) == residues.end())
-		  if (std::find(flankers_in_reference_mol.begin(), flankers_in_reference_mol.end(), tres) == flankers_in_reference_mol.end())
-		     flankers_in_reference_mol.push_back(tres);
-	    }
-	 }
+         // find the residues that are close to the residues of
+         // residues that are not part of residues
+         //
+         // We don't have quite the function that we need in coot-utils,
+         // so we need to munge residues in to local_residues:
+         std::vector<std::pair<bool, mmdb::Residue *> > local_residues;
+         local_residues.resize(residues.size());
+         for (std::size_t ires=0; ires<residues.size(); ires++)
+            local_residues[ires] = std::pair<bool, mmdb::Residue *>(false, residues[ires]);
+         std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
+            coot::residues_near_residues(local_residues, mol_in, dist_crit);
+         // now fill @var{flankers_in_reference_mol} from rnr, avoiding residues
+         // already in @var{residues}.
+         std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+         for (it=rnr.begin(); it!=rnr.end(); ++it) {
+            const std::set<mmdb::Residue *> &s = it->second;
+            std::set<mmdb::Residue *>::const_iterator its;
+            for (its=s.begin(); its!=s.end(); ++its) {
+               mmdb::Residue *tres = *its;
+               if (std::find(residues.begin(), residues.end(), tres) == residues.end())
+                  if (std::find(flankers_in_reference_mol.begin(), flankers_in_reference_mol.end(), tres) == flankers_in_reference_mol.end())
+                     flankers_in_reference_mol.push_back(tres);
+            }
+         }
 
-	 // So we have a vector of residues that were flankers in the
-	 // reference molecule, we need to add copies of those to
-	 // new_mol (making sure that they go into the correct chain).
-	 //
-	 if (false) { // debug
-	    std::cout << "debug:: ############ Found " << flankers_in_reference_mol.size()
-		      << " flanking residues" << std::endl;
+         // So we have a vector of residues that were flankers in the
+         // reference molecule, we need to add copies of those to
+         // new_mol (making sure that they go into the correct chain).
+         //
+         if (false) { // debug
+            std::cout << "debug:: ############ Found " << flankers_in_reference_mol.size()
+                      << " flanking residues" << std::endl;
 
-	    for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++)
-	       std::cout << "     #### flankers_in_reference_mol: " << ires << " "
-			 << coot::residue_spec_t(flankers_in_reference_mol[ires]) << std::endl;
-	 }
+            for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++)
+               std::cout << "     #### flankers_in_reference_mol: " << ires << " "
+                         << coot::residue_spec_t(flankers_in_reference_mol[ires]) << std::endl;
+         }
 
 
-	 for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++) {
-	    mmdb::Residue *r;
+         for (unsigned int ires=0; ires<flankers_in_reference_mol.size(); ires++) {
+            mmdb::Residue *r;
 
-	    std::string ref_res_chain_id = flankers_in_reference_mol[ires]->GetChainID();
+            std::string ref_res_chain_id = flankers_in_reference_mol[ires]->GetChainID();
 
-	    mmdb::Chain *chain_p = NULL;
-	    int n_new_mol_chains = model_p->GetNumberOfChains();
-	    for (int ich=0; ich<n_new_mol_chains; ich++) {
-	       if (ref_res_chain_id == model_p->GetChain(ich)->GetChainID()) {
-		  chain_p = model_p->GetChain(ich);
-		  break;
-	       }
-	    }
+            mmdb::Chain *chain_p = NULL;
+            int n_new_mol_chains = model_p->GetNumberOfChains();
+            for (int ich=0; ich<n_new_mol_chains; ich++) {
+               if (ref_res_chain_id == model_p->GetChain(ich)->GetChainID()) {
+                  chain_p = model_p->GetChain(ich);
+                  break;
+               }
+            }
 
-	    if (! chain_p) {
-	       // Add a new one then.
-	       chain_p = new mmdb::Chain;
-	       chain_p->SetChainID(ref_res_chain_id.c_str());
-	       model_p->AddChain(chain_p);
-	    }
+            if (! chain_p) {
+               // Add a new one then.
+               chain_p = new mmdb::Chain;
+               chain_p->SetChainID(ref_res_chain_id.c_str());
+               model_p->AddChain(chain_p);
+            }
 
-	    if (false)
-	       std::cout << "debug:: flankers_in_reference_mol " << ires << " "
-			 << coot::residue_spec_t(flankers_in_reference_mol[ires]) << " "
-			 << "had index " << flankers_in_reference_mol[ires]->index
-			 << std::endl;
+            if (false)
+               std::cout << "debug:: flankers_in_reference_mol " << ires << " "
+                         << coot::residue_spec_t(flankers_in_reference_mol[ires]) << " "
+                         << "had index " << flankers_in_reference_mol[ires]->index
+                         << std::endl;
 
             // get rid of this function at some stage
             bool embed_in_chain = false;
-	    r = coot::deep_copy_this_residue_old_style(flankers_in_reference_mol[ires],
-					               alt_conf, whole_res_flag,
-					               atom_index_udd_handle, embed_in_chain);
+            r = coot::deep_copy_this_residue_old_style(flankers_in_reference_mol[ires],
+                                                       alt_conf, whole_res_flag,
+                                                       atom_index_udd_handle, embed_in_chain);
 
-	    if (r) {
+            if (r) {
 
-	       r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
+               r->PutUDData(index_from_reference_residue_handle, flankers_in_reference_mol[ires]->index);
 
-	       // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
-	       // indices in the returned molecule
+               // copy over the atom indices. UDDAtomIndexHandle in mol_n becomes UDDOldAtomIndexHandle
+               // indices in the returned molecule
 
-	       int sni = find_serial_number_for_insert(r->GetSeqNum(), r->GetInsCode(), chain_p);
+               int sni = find_serial_number_for_insert(r->GetSeqNum(), r->GetInsCode(), chain_p);
 
-	       if (false) { // debug
-		  mmdb::Atom **residue_atoms = 0;
-		  int n_residue_atoms;
-		  std::cout << "Flanker Residue " << coot::residue_spec_t(r) << std::endl;
-		  r->GetAtomTable(residue_atoms, n_residue_atoms);
-		  for (int iat=0; iat<n_residue_atoms; iat++) {
-		     mmdb::Atom *at = residue_atoms[iat];
-		     std::cout << "    " << coot::atom_spec_t(at) << std::endl;
-		  }
-	       }
+               if (false) { // debug
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms;
+                  std::cout << "Flanker Residue " << coot::residue_spec_t(r) << std::endl;
+                  r->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     std::cout << "    " << coot::atom_spec_t(at) << std::endl;
+                  }
+               }
 
-	       if (sni == -1)
-		  chain_p->AddResidue(r); // at the end
-	       else
-		  chain_p->InsResidue(r, sni);
-	       r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
-	       r->SetResName(flankers_in_reference_mol[ires]->GetResName());
-	       n_flanker++;
+               if (sni == -1)
+                  chain_p->AddResidue(r); // at the end
+               else
+                  chain_p->InsResidue(r, sni);
+               r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
+               r->SetResName(flankers_in_reference_mol[ires]->GetResName());
+               n_flanker++;
 
-	       if (false)
-		  std::cout << "debug:: create_mmdbmanager_from_residue_vector() inserted/added flanker "
-			    << coot::residue_spec_t(r) << std::endl;
+               if (false)
+                  std::cout << "debug:: create_mmdbmanager_from_residue_vector() inserted/added flanker "
+                            << coot::residue_spec_t(r) << std::endl;
 
-	    }
-	 }
+            }
+         }
 
-	 // super-critical for correct peptide bonding in refinement!
-	 //
-	 coot::util::pdbcleanup_serial_residue_numbers(new_mol);
+         // super-critical for correct peptide bonding in refinement!
+         //
+         coot::util::pdbcleanup_serial_residue_numbers(new_mol);
 
-	 if (debug) {
-	    int imod = 1;
-	    mmdb::Model *model_p = new_mol->GetModel(imod);
-	    if (model_p) {
-	       int n_chains = model_p->GetNumberOfChains();
-	       for (int ichain=0; ichain<n_chains; ichain++) {
-		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-		  int nres = chain_p->GetNumberOfResidues();
-		  for (int ires=0; ires<nres; ires++) {
-		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		     std::cout << "create_mmdb..  ^^^ " << coot::residue_spec_t(residue_p) << " "
-			       << residue_p << " index " << residue_p->index
-			       << std::endl;
-		  }
-	       }
-	    }
-	 }
+         if (debug) {
+            int imod = 1;
+            mmdb::Model *model_p = new_mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int nres = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     std::cout << "create_mmdb..  ^^^ " << coot::residue_spec_t(residue_p) << " "
+                               << residue_p << " index " << residue_p->index
+                               << std::endl;
+                  }
+               }
+            }
+         }
 
-	 if (debug)
-	    std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
-		      << " free residues and " << n_flanker << " flankers" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
+                      << " free residues and " << n_flanker << " flankers" << std::endl;
       }
    }
 
@@ -2088,7 +2088,7 @@ molecules_container_t::adjust_refinement_residue_name(const std::string &resname
    if (resname == "UNK") r = "ALA"; // hack for KC/buccaneer.
    if (resname.length() > 2)
       if (resname[2] == ' ')
-	 r = resname.substr(0,2);
+         r = resname.substr(0,2);
    return r;
 }
 
@@ -2109,15 +2109,15 @@ molecules_container_t::check_dictionary_for_residue_restraints(int imol, mmdb::P
       status = geom.have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
       cif_dictionary_read_number++;
       if (! status) {
-	 status_OK = 0;
-	 res_name_vec.push_back(resname);
+         status_OK = 0;
+         res_name_vec.push_back(resname);
       }
 
       if (0)
-	 std::cout << "DEBUG:: have_dictionary_for_residues() on residue "
-		   << ires << " of " << nSelResidues << ", "
-		   << resname << " returns "
-		   << status << std::endl;
+         std::cout << "DEBUG:: have_dictionary_for_residues() on residue "
+                   << ires << " of " << nSelResidues << ", "
+                   << resname << " returns "
+                   << status << std::endl;
       cif_dictionary_read_number++;
    }
    return std::pair<int, std::vector<std::string> > (status_OK, res_name_vec);
@@ -2132,8 +2132,8 @@ molecules_container_t::check_dictionary_for_residue_restraints(int imol, const s
       std::string resname = adjust_refinement_residue_name(residues[i]->GetResName());
       int status = geom.have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
       if (! status) {
-	 r.first = 0;
-	 r.second.push_back(resname);
+         r.first = 0;
+         r.second.push_back(resname);
       }
       cif_dictionary_read_number++; // not sure why this is needed.
    }
@@ -2718,31 +2718,31 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
-	 coot::ligand lig;
-	 int n_cycles = ligand_water_n_cycles; // 3 by default
+         coot::ligand lig;
+         int n_cycles = ligand_water_n_cycles; // 3 by default
 
-	 // n_cycles = 1; // for debugging.
+         // n_cycles = 1; // for debugging.
 
-	 short int mask_waters_flag; // treat waters like other atoms?
-	 // mask_waters_flag = g.find_ligand_mask_waters_flag;
-	 mask_waters_flag = 1; // when looking for waters we should not
-	 // ignore the waters that already exist.
-	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+         short int mask_waters_flag; // treat waters like other atoms?
+         // mask_waters_flag = g.find_ligand_mask_waters_flag;
+         mask_waters_flag = 1; // when looking for waters we should not
+         // ignore the waters that already exist.
+         // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	 lig.import_map_from(molecules[imol_map].xmap,
-			     molecules[imol_map].get_map_rmsd_approx());
-	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-	 lig.set_map_atom_mask_radius(1.9); // Angstroms
-	 lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
-						  ligand_water_to_protein_distance_lim_min);
-	 lig.set_variance_limit(ligand_water_variance_limit);
-	 lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
-	 // lig.output_map("masked-for-waters.map");
-	 std::cout << "debug:: add_waters(): using n-sigma cut off " << sigma_cut_off << std::endl;
+         lig.import_map_from(molecules[imol_map].xmap,
+                             molecules[imol_map].get_map_rmsd_approx());
+         // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+         lig.set_map_atom_mask_radius(1.9); // Angstroms
+         lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
+                                                  ligand_water_to_protein_distance_lim_min);
+         lig.set_variance_limit(ligand_water_variance_limit);
+         lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
+         // lig.output_map("masked-for-waters.map");
+         std::cout << "debug:: add_waters(): using n-sigma cut off " << sigma_cut_off << std::endl;
 
-	 lig.water_fit(sigma_cut_off, n_cycles);
+         lig.water_fit(sigma_cut_off, n_cycles);
 
-	 coot::minimol::molecule water_mol = lig.water_mol();
+         coot::minimol::molecule water_mol = lig.water_mol();
          molecules[imol_model].insert_waters_into_molecule(water_mol);
          n_waters_added = water_mol.count_atoms();
          set_updating_maps_need_an_update(imol_model);

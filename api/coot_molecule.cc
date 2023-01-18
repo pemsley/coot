@@ -904,7 +904,6 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                         std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
                      }
                   }
-                  
 
                   if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag))
                      mol_atom->SetCoordinates(atom->x,
@@ -2771,7 +2770,7 @@ coot::molecule_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
    if (n_residues > 0) {
       mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
       if (r)
-	 remove_TER_internal(r);
+         remove_TER_internal(r);
    }
 }
 
@@ -2786,10 +2785,10 @@ coot::molecule_t::remove_TER_internal(mmdb::Residue *res_p) {
    if (res_p) {
       res_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-	 if (residue_atoms[i]->isTer()) {
-	    res_p->DeleteAtom(i);
-	    deleted = 1;
-	 }
+         if (residue_atoms[i]->isTer()) {
+            res_p->DeleteAtom(i);
+            deleted = 1;
+         }
       }
    }
    if (deleted) {
@@ -3226,7 +3225,7 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
    };
 
    auto set_offset = [] (clipper::Coord_orth &offset, mmdb::Residue *residue_p) {
-      
+
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);

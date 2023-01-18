@@ -130,10 +130,10 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
       std::vector<double> max_values = {-big, -big, -big};
 
       for (const auto &v : ebi.positions) {
-	      for(unsigned int i=0; i<3; i++) {
-	         if (v[i] > max_values[i]) max_values[i] = v[i];
-	         if (v[i] < min_values[i]) min_values[i] = v[i];
-	 }
+              for(unsigned int i=0; i<3; i++) {
+                 if (v[i] > max_values[i]) max_values[i] = v[i];
+                 if (v[i] < min_values[i]) min_values[i] = v[i];
+         }
       }
       accessor_for_positions.minValues = min_values;
       accessor_for_positions.maxValues = max_values;
@@ -234,7 +234,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
       std::cout << "DEBUG:: buffer_view for triangles triangles.size " << triangles.size() << std::endl;
       std::cout << "DEBUG:: buffer_view for triangles: n_bytes " << n_bytes << std::endl;
       std::cout << "DEBUG:: buffer_view for triangles: accessor_for_indices.count "
-		<< accessor_for_indices.count << std::endl;
+                << accessor_for_indices.count << std::endl;
 
       model.accessors.push_back(accessor_for_indices);
       accessor_index_for_indices = model.accessors.size() - 1;

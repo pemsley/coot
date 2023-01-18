@@ -832,24 +832,24 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
             auto tp_2 = std::chrono::high_resolution_clock::now();
             auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
-	    // not to self: it takes 40ms to copy a const xmap reference to the function.
-	    // question for self: was it actually a reference though? I suspect not, because
-	    // std::ref() was not in the code until I (just) added it.
-	    //
+            // not to self: it takes 40ms to copy a const xmap reference to the function.
+            // question for self: was it actually a reference though? I suspect not, because
+            // std::ref() was not in the code until I (just) added it.
+            //
 
-	    // this is useful for debugging, but makes a mess
-	    if (false)
-	       std::cout << "pushing trial thread into pool: " << itrial << " " << d21
-	                 << " microseconds" << std::endl;
-	 }
+            // this is useful for debugging, but makes a mess
+            if (false)
+               std::cout << "pushing trial thread into pool: " << itrial << " " << d21
+                         << " microseconds" << std::endl;
+         }
 
-	 // wait for thread pool to finish jobs.
-	 bool wait_continue = true;
-	 while (wait_continue) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	    if (thread_pool.n_idle() == thread_pool.size())
-	       wait_continue = false;
-	 }
+         // wait for thread pool to finish jobs.
+         bool wait_continue = true;
+         while (wait_continue) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            if (thread_pool.n_idle() == thread_pool.size())
+               wait_continue = false;
+         }
       }
 
       catch (const std::bad_alloc &ba) {
@@ -951,9 +951,9 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(3) << i_trial << ": prelim-score was "
-		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
-		<< std::setw(5) << this_score;
+                << std::setw(3) << i_trial << ": prelim-score was "
+                << std::setw(7) << trial_results[i_trial].second << " post-fit "
+                << std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
          best_score_so_far = this_score;
          if (this_score > initial_score) {

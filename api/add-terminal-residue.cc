@@ -73,10 +73,10 @@ coot::remove_TER_internal(mmdb::Manager *mol, mmdb::Residue *residue_p) {
    if (residue_p) {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
-	 if (residue_atoms[i]->isTer()) {
-	    residue_p->DeleteAtom(i);
-	    deleted = 1;
-	 }
+         if (residue_atoms[i]->isTer()) {
+            residue_p->DeleteAtom(i);
+            deleted = 1;
+         }
       }
    }
    if (deleted) {
@@ -357,11 +357,11 @@ move_atom(const std::string &atom_name_in, mmdb::Residue *res_p, const clipper::
       mmdb::Atom *at = residue_atoms[i];
       std::string atom_name(at->name);
       if (atom_name == atom_name_in) {
-	 at->x = new_O_pos.x();
-	 at->y = new_O_pos.y();
-	 at->z = new_O_pos.z();
-	 done = true;
-	 break;
+         at->x = new_O_pos.x();
+         at->y = new_O_pos.y();
+         at->z = new_O_pos.z();
+         done = true;
+         break;
       }
    }
    return done;
