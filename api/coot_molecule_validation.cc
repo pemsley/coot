@@ -41,7 +41,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          auto start_end = std::make_pair(start, end);
          float h = 1.0;
          unsigned int n_slices = 16;
-         cylinder cyl(start_end, ball_size, ball_size, h, n_slices, 2);
+         cylinder cyl(start_end, 1.0, 1.0, h, n_slices, 2);
          float z_scale = 0.37;
          float unstubby_cap_factor = 1.1/z_scale;
          cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
@@ -56,22 +56,21 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          // -------------------instancing --------------
 
          glm::vec4 colour = colour_holder_to_glm(colour_holder("#ff59c9"));
-         glm::vec3 size(ball_size, ball_size, ball_size);
          for (unsigned int i=0; i<c.clashes.size(); i++) {
             std::pair<glm::vec3, glm::vec3> pos_pair_clash(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
                                                            glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
             const glm::vec3 &start_pos  = pos_pair_clash.first;
             const glm::vec3 &finish_pos = pos_pair_clash.second;
-            glm::vec3 b = finish_pos - start_pos;
+            // glm::vec3 b = finish_pos - start_pos;
+            glm::vec3 b = start_pos - finish_pos;
             glm::vec3 normalized_bond_orientation(glm::normalize(b));
             glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
-            glm::vec3 sc(1.1, 1.1, z_scale);
+            glm::vec3 sc(1.1 * ball_size, 1.1 * ball_size, z_scale);
             glm::mat4 unit(1.0);
             glm::mat4 mt_1 = glm::translate(unit, start);
             glm::mat4 mt_2 = mt_1 * ori;
             glm::mat4 mt_3 = glm::scale(mt_2, sc);
-            // mats.push_back(mt_3);
-            ig.instancing_data_B.push_back(instancing_data_type_B_t(start_pos, colour, size, mt_3));// might be finish_pos
+            ig.instancing_data_B.push_back(instancing_data_type_B_t(start_pos, colour, sc, ori));
          }
       }
    };
