@@ -60,7 +60,9 @@ namespace std {
 %}
 
 %feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
-%feature("docstring");
+// If the following line is enabled, then the comments extracted
+// using -doxygen on the command line are lost.
+// %feature("docstring");
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"

@@ -69,8 +69,12 @@
 
 BEGIN_C_DECLS
 
+#ifndef COOT_SCHEME_DIR
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
+#endif
+#ifndef COOT_PYTHON_DIR
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
+#endif
 
 int get_refmac_refinement_method();
 void set_refmac_refinement_method(int method);
