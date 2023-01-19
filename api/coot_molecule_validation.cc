@@ -37,7 +37,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          // -------------------vertices and triangles  --------------
 
          glm::vec3 start(0,0,0);
-         glm::vec3 end(0,0,0);
+         glm::vec3 end(0,0,1);
          auto start_end = std::make_pair(start, end);
          float h = 1.0;
          unsigned int n_slices = 16;
