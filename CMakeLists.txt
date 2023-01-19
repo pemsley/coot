@@ -64,6 +64,7 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/write-png.cc
             ${coot_src}/ideal/zo-rama.cc
             ${coot_src}/tw/tw.cc
+            ${coot_src}/utils/colour-holder.cc
             ${coot_src}/utils/radix.cc
             ${coot_src}/utils/coot-utils.cc
             ${coot_src}/utils/hsv-rgb.cc
@@ -328,6 +329,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_bonds_instanced.cc
             ${coot_src}/api/coot_molecule_moltris.cc
             ${coot_src}/api/coot_molecule_replace_fragment.cc
+            ${coot_src}/api/coot_molecule_validation.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/molecules_container_modelling.cc
             ${coot_src}/api/molecules_container_ligand_fitting.cc

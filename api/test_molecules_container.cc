@@ -2043,13 +2043,31 @@ int test_editing_session(molecules_container_t &mc) {
       std::cout << "::::::::::::::::::::::::::::::::::: Rail points G: latest_move: " << rpn_9 << " total: " << rpt_9 << std::endl;
       std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
 
-      if (true) // fixme
+      if (rpt_9 > 500)
          status = 1;
    }
 
    return status;
 }
 
+int test_ligand_contact_dots(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::instanced_mesh_t im = mc.contact_dots_for_ligand(imol, "262");
+      if (im.geom.size() > 1) {
+         if (im.geom[0].instancing_data_A.size() > 10) status = 1;
+         if (im.geom[1].instancing_data_A.size() > 10) status = 1;
+      }
+      for (unsigned int i=0; i<im.geom.size(); i++) {
+         std::cout << "geom " << i << " A: " << im.geom[i].instancing_data_A.size() << " B: " << im.geom[i].instancing_data_B.size()
+                   << std::endl;
+      }
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -2178,7 +2196,8 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_editing_session, "an editing session",         mc);
+   // status += run_test(test_editing_session, "an editing session",         mc);
+   status += run_test(test_ligand_contact_dots, "lgiand contact dots",         mc);
 
    // Note to self:
    //

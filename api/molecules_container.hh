@@ -684,6 +684,12 @@ public:
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
+   //! @return the instanced mesh for the specified ligand
+   coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid) const;
+
+   //! @return the instanced mesh for the specified molecule
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol) const;
+
    // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation
 
@@ -703,9 +709,6 @@ public:
    //! get the data for Ramachandran validation, which importantly contains probability information
    //! @return a vector of `phi_psi_prob_t`
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
-
-   //! all atom contact dots - this does not work yet
-   void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

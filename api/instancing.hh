@@ -37,6 +37,7 @@ namespace coot {
       std::vector<coot::api::vn_vertex> vertices;
       //! triangle indices
       std::vector<g_triangle> triangles;
+      std::string name;
 
       instanced_geometry_t() {}
       instanced_geometry_t(const std::vector<coot::api::vn_vertex> &v, std::vector<g_triangle> &t) :

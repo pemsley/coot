@@ -26,11 +26,13 @@ class cylinder {
 public:
    std::vector<coot::api::vnc_vertex> vertices;
    std::vector<g_triangle> triangles;
-   cylinder() { unstubby_rounded_cap_factor = 1.0; } // needs to be filled
-   cylinder(const std::pair<glm::vec3, glm::vec3> &cart_pair,
+   cylinder() {
+      height = 1.0; base_radius = 1.0; top_radius = 1.0; n_slices = 16;
+      unstubby_rounded_cap_factor = 1.0; } // needs to be filled
+   cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
             float base_radius, float top_radius, float height,
             unsigned int n_slices=8, unsigned int n_stacks=2);
-   cylinder(const std::pair<glm::vec3, glm::vec3> &cart_pair,
+   cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
             float base_radius, float top_radius, float height,
             const glm::vec4 &base_colour,
             unsigned int n_slices=8, unsigned int n_stacks=2);

@@ -2697,13 +2697,6 @@ molecules_container_t::jed_flip(int imol, const std::string &atom_cid, bool inve
 }
 
 
-void
-molecules_container_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
-
-   // 20221025-PE fill me later.
-
-}
-
 #include "ligand/ligand.hh"
 
 int
@@ -3102,3 +3095,29 @@ molecules_container_t::residues_with_missing_atoms(int imol) {
    return v;
 }
 
+//! @return the instanced mesh for the specified ligand
+coot::instanced_mesh_t
+molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid) const {
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].contact_dots_for_ligand(cid, geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
+
+
+//! @return the instanced mesh for the specified molecule
+coot::instanced_mesh_t
+molecules_container_t::all_molecule_contact_dots(int imol) const {
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].all_molecule_contact_dots(geom);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
