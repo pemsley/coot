@@ -271,7 +271,9 @@ auto_fit_best_rotamer(int imol_coords,
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
 	    // BL says:: dont think we do autoaccept!?
-	    short int auto_range = 1;
+            //
+            // 20230115-PE Yes. This needs an auto-accept wrapper.
+            //
 	    refine_auto_range(imol_coords, chain_id, resno, altloc);
 	 }
 
