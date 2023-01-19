@@ -3204,7 +3204,7 @@ coot::molecule_t::get_chemical_features_mesh(const std::string &cid,
    if (residue_p) {
       std::vector<simple_mesh_t> meshes = chemical_features::generate_meshes(imol_no, residue_p, geom);
       for (const auto &mesh : meshes)
-         mesh.add_submesh(mes);
+         mesh.add_submesh(mesh);
    }
 #endif
 
