@@ -3203,8 +3203,8 @@ coot::molecule_t::get_chemical_features_mesh(const std::string &cid,
    mmdb::Residue *residue_p = cid_to_residue(cid);
    if (residue_p) {
       std::vector<simple_mesh_t> meshes = chemical_features::generate_meshes(imol_no, residue_p, geom);
-      for (const auto &mesh : meshes)
-         mesh.add_submesh(mesh);
+      for (const auto &cf_mesh : meshes)
+         mesh.add_submesh(cf_mesh);
    }
 #endif
 
