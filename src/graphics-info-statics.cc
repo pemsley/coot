@@ -1716,7 +1716,8 @@ unsigned int graphics_info_t::shadow_texture_multiplier = 2;
 unsigned int graphics_info_t::shadow_texture_width  = graphics_info_t::shadow_texture_multiplier * 1024;
 unsigned int graphics_info_t::shadow_texture_height = graphics_info_t::shadow_texture_multiplier * 1024;
 bool graphics_info_t::show_just_shadows = false; // show *just* the shadows in the texture-mesh-with-shadows shader
-unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
+// unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_AO_SCENE;
+unsigned short int graphics_info_t::displayed_image_type = graphics_info_t::SHOW_BASIC_SCENE;
 
 GLuint graphics_info_t::screen_AO_quad_vertex_array_id = 0;
 GLuint graphics_info_t::screen_AO_quad_VBO = 0;
