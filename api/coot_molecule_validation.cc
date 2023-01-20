@@ -45,7 +45,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          float z_scale = 0.37;
          // I use 1.1 here so that the clash markup is a bit fatter
          // than a typical ball.
-         float unstubby_cap_factor = 1.1 * z_scale;
+         float unstubby_cap_factor = 0.8 * z_scale;
          cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
          cyl.add_octahemisphere_start_cap();
          cyl.add_octahemisphere_end_cap();
