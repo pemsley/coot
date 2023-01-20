@@ -383,9 +383,11 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
                         selHnd);
 #elif defined _OPENMP
 #warning Compiling for OMP
-    // compilation failure 9.2.1
-    // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
-#pragma omp parallel for default(none) shared(vdwBallPntrs, &contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
+      // compilation failure 9.2.1
+      // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
+      // 20230120-PE ... and again
+      // #pragma omp parallel for default(none) shared(vdwBallPntrs, &contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
+#pragma omp parallel for default(none) shared(vdwBallPntrs, contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
     for (int atomNr = 0; atomNr < nSelAtoms; atomNr++)
     {
         handleCentralAtom(atomNr, this, &vdwBallPntrs, elementSurfacesArray, radiusMultiplier,
@@ -435,7 +437,9 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
     });
 #else
     }
+#if __APPLE__ && !defined _OPENMP
     the_thread_pool.stop(true);
+#endif
 #endif
 
     vector<const CXXBall *> reentrantProbes;
