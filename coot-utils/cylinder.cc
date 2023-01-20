@@ -260,7 +260,7 @@ cylinder::add_octahemisphere_start_cap() {
    auto rw_triangles = hemi.second;
    for (auto &t : rw_triangles)
       t.reverse_winding();
-   triangles.insert(triangles.end(), hemi.second.begin(), hemi.second.end());
+   triangles.insert(triangles.end(), rw_triangles.begin(), rw_triangles.end());
    for (unsigned int i=idx_base_tri; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
 
