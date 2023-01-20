@@ -43,7 +43,9 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          unsigned int n_slices = 16;
          cylinder cyl(start_end, 1.0, 1.0, h, n_slices, 2);
          float z_scale = 0.37;
-         float unstubby_cap_factor = 1.1/z_scale;
+         // I use 1.1 here so that the clash markup is a bit fatter
+         // than a typical ball.
+         float unstubby_cap_factor = 1.1 * z_scale;
          cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
          cyl.add_octahemisphere_start_cap();
          cyl.add_octahemisphere_end_cap();
@@ -131,7 +133,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          const std::string &type = it->first;
          const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = ball_size;
-         if (type == "vdw-surface") point_size = 0.03;
+         if (type == "vdw-surface") point_size = 0.06; // 0.03 seems too small
          // if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
          std::string mesh_name = molecule_name_stub + type; // instanced_geometry_t doesn't have a name holder
          ig.name = mesh_name + std::string(" ") + type;
@@ -139,9 +141,9 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
          glm::vec3 size(point_size, point_size, point_size);
          for (unsigned int i=0; i<v.size(); i++) {
             const atom_overlaps_dots_container_t::dot_t &dot(v[i]);
-            std::map<std::string, coot::colour_holder>::const_iterator it = colour_map.find(dot.col);
-            if (it != colour_map.end()) {
-               glm::vec4 colour = colour_holder_to_glm(it->second);
+            std::map<std::string, coot::colour_holder>::const_iterator it_inner = colour_map.find(dot.col);
+            if (it_inner != colour_map.end()) {
+               glm::vec4 colour = colour_holder_to_glm(it_inner->second);
                glm::vec3 position(dot.pos.x(), dot.pos.y(), dot.pos.z());
                ig.instancing_data_A.push_back(instancing_data_type_A_t(position, colour, size));
             }
