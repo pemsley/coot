@@ -332,10 +332,12 @@ namespace coot {
 	 else
 	    return false;
       }
+#ifndef SWIG
       // needs testing
       bool operator<(const linked_residue_t &test_lr) const {
 	 return (residue_spec_t(residue) < residue_spec_t(test_lr.residue));
       }
+#endif
       friend std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
    };
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
@@ -384,9 +386,11 @@ namespace coot {
       tree<linked_residue_t> oligomannose_tree() const;
       tree<linked_residue_t>      complex_tree() const;
       tree<linked_residue_t>       hybrid_tree() const;
+#ifndef SWIG
       static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
 	 return (residue_spec_t(res1) < residue_spec_t(res2));
       }
+#endif
       void print(const tree<linked_residue_t> &glyco_tree) const;
       std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
       void output_internal_distances(mmdb::Residue *residue_p,
