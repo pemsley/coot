@@ -4,78 +4,137 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext.hpp>
 
-#include "coot-utils/atom-overlaps.hh"
 #include "coot_molecule.hh"
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
 
-//! @return the instanced mesh for the specified ligand
-coot::instanced_mesh_t
-coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom) const {
-
-   // this function is in src/mesh-generic-display-object.cc
-   auto colour_holder_to_glm = [] (const colour_holder &ch) {
-      return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
-   };
+void
+coot::molecule_t::setup_cylinder_clashes(instanced_mesh_t &im, const atom_overlaps_dots_container_t &c,
+                                         float ball_size, unsigned int num_subdivisions,
+                                         const std::string &molecule_name_stub) const {
 
    auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
       return glm::vec3(co.x(), co.y(), co.z());
    };
+   if (c.clashes.size() > 0) {
+      std::string clashes_name = molecule_name_stub + std::string(" clashes");
 
-   auto setup_cylinder_clashes = [coord_orth_to_glm, colour_holder_to_glm]
-      (instanced_mesh_t &im, const atom_overlaps_dots_container_t &c,
-       float ball_size, unsigned int num_subdivisions,
-       const std::string &molecule_name_stub) {
+      instanced_geometry_t ig_empty;
+      im.add(ig_empty);
+      instanced_geometry_t &ig = im.geom.back();
 
-      if (c.clashes.size() > 0) {
-         std::string clashes_name = molecule_name_stub + std::string(" clashes");
+      // -------------------vertices and triangles  --------------
 
-         instanced_geometry_t ig_empty;
-         im.add(ig_empty);
-         instanced_geometry_t &ig = im.geom.back();
+      glm::vec3 start(0,0,0);
+      glm::vec3 end(0,0,1);
+      auto start_end = std::make_pair(start, end);
+      float h = 1.0;
+      unsigned int n_slices = 16;
+      cylinder cyl(start_end, 1.0, 1.0, h, n_slices, 2);
+      float z_scale = 0.37;
+      // I use 1.1 here so that the clash markup is a bit fatter
+      // than a typical ball.
+      float unstubby_cap_factor = 0.8 * z_scale;
+      cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
+      cyl.add_octahemisphere_start_cap();
+      cyl.add_octahemisphere_end_cap();
 
-         // -------------------vertices and triangles  --------------
+      ig.vertices.resize(cyl.vertices.size());
+      for (unsigned int i=0; i<cyl.vertices.size(); i++)
+         ig.vertices[i] = api::vn_vertex(cyl.vertices[i].pos, cyl.vertices[i].pos);
+      ig.triangles = cyl.triangles;
 
-         glm::vec3 start(0,0,0);
-         glm::vec3 end(0,0,1);
-         auto start_end = std::make_pair(start, end);
-         float h = 1.0;
-         unsigned int n_slices = 16;
-         cylinder cyl(start_end, 1.0, 1.0, h, n_slices, 2);
-         float z_scale = 0.37;
-         // I use 1.1 here so that the clash markup is a bit fatter
-         // than a typical ball.
-         float unstubby_cap_factor = 0.8 * z_scale;
-         cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
-         cyl.add_octahemisphere_start_cap();
-         cyl.add_octahemisphere_end_cap();
+      // -------------------instancing --------------
 
-         ig.vertices.resize(cyl.vertices.size());
-         for (unsigned int i=0; i<cyl.vertices.size(); i++)
-            ig.vertices[i] = api::vn_vertex(cyl.vertices[i].pos, cyl.vertices[i].pos);
-         ig.triangles = cyl.triangles;
+      glm::vec4 colour = colour_holder_to_glm(colour_holder("#ff59c9"));
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+         std::pair<glm::vec3, glm::vec3> pos_pair_clash(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
+                                                        glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
+         const glm::vec3 &start_pos  = pos_pair_clash.first;
+         const glm::vec3 &finish_pos = pos_pair_clash.second;
+         // glm::vec3 b = finish_pos - start_pos;
+         glm::vec3 b = start_pos - finish_pos;
+         glm::vec3 normalized_bond_orientation(glm::normalize(b));
+         glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
+         glm::vec3 sc(1.1 * ball_size, 1.1 * ball_size, z_scale);
+         glm::mat4 unit(1.0);
+         glm::mat4 mt_1 = glm::translate(unit, start);
+         glm::mat4 mt_2 = mt_1 * ori;
+         glm::mat4 mt_3 = glm::scale(mt_2, sc);
+         ig.instancing_data_B.push_back(instancing_data_type_B_t(start_pos, colour, sc, ori));
+      }
+   }
+}
 
-         // -------------------instancing --------------
+void
+coot::molecule_t::setup_dots(instanced_mesh_t &im,
+                             const atom_overlaps_dots_container_t &c,
+                             float ball_size, unsigned int num_subdivisions,
+                             const std::string &molecule_name_stub) const {
 
-         glm::vec4 colour = colour_holder_to_glm(colour_holder("#ff59c9"));
-         for (unsigned int i=0; i<c.clashes.size(); i++) {
-            std::pair<glm::vec3, glm::vec3> pos_pair_clash(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
-                                                           glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
-            const glm::vec3 &start_pos  = pos_pair_clash.first;
-            const glm::vec3 &finish_pos = pos_pair_clash.second;
-            // glm::vec3 b = finish_pos - start_pos;
-            glm::vec3 b = start_pos - finish_pos;
-            glm::vec3 normalized_bond_orientation(glm::normalize(b));
-            glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
-            glm::vec3 sc(1.1 * ball_size, 1.1 * ball_size, z_scale);
-            glm::mat4 unit(1.0);
-            glm::mat4 mt_1 = glm::translate(unit, start);
-            glm::mat4 mt_2 = mt_1 * ori;
-            glm::mat4 mt_3 = glm::scale(mt_2, sc);
-            ig.instancing_data_B.push_back(instancing_data_type_B_t(start_pos, colour, sc, ori));
+   instanced_geometry_t ig_empty;
+   im.add(ig_empty);
+   instanced_geometry_t &ig = im.geom.back();
+
+   // -------------------vertices and triangles  --------------
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
+      tessellate_octasphere(num_subdivisions);
+   ig.vertices.resize(octaphere_geom.first.size());
+   for (unsigned int i=0; i<octaphere_geom.first.size(); i++)
+      ig.vertices[i] = api::vn_vertex(octaphere_geom.first[i], octaphere_geom.first[i]);
+   ig.triangles = octaphere_geom.second;
+
+   // -------------------instancing --------------
+
+   // setup the colour map
+   std::map<std::string, coot::colour_holder> colour_map;
+   colour_map["blue"      ] = colour_holder_from_colour_name("blue");
+   colour_map["sky"       ] = colour_holder_from_colour_name("sky");
+   colour_map["sea"       ] = colour_holder_from_colour_name("sea");
+   colour_map["greentint" ] = colour_holder_from_colour_name("greentint");
+   colour_map["darkpurple"] = colour_holder_from_colour_name("darkpurple");
+   colour_map["green"     ] = colour_holder_from_colour_name("green");
+   colour_map["orange"    ] = colour_holder_from_colour_name("orange");
+   colour_map["orangered" ] = colour_holder_from_colour_name("orangered");
+   colour_map["yellow"    ] = colour_holder_from_colour_name("yellow");
+   colour_map["yellowtint"] = colour_holder_from_colour_name("yellowtint");
+   colour_map["red"       ] = colour_holder_from_colour_name("red");
+   colour_map["#55dd55"   ] = colour_holder_from_colour_name("#55dd55");
+   colour_map["hotpink"   ] = colour_holder_from_colour_name("hotpink");
+   colour_map["grey"      ] = colour_holder_from_colour_name("grey");
+   colour_map["magenta"   ] = colour_holder_from_colour_name("magenta");
+   colour_map["royalblue" ] = colour_holder_from_colour_name("royalblue");
+
+   std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+   for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+      // float specular_strength = 0.5; //  default
+      const std::string &type = it->first;
+      const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+      float point_size = ball_size;
+      if (type == "vdw-surface") point_size = 0.06; // 0.03 seems too small
+      // if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
+      std::string mesh_name = molecule_name_stub + type; // instanced_geometry_t doesn't have a name holder
+      ig.name = mesh_name + std::string(" ") + type;
+
+      glm::vec3 size(point_size, point_size, point_size);
+      for (unsigned int i=0; i<v.size(); i++) {
+         const atom_overlaps_dots_container_t::dot_t &dot(v[i]);
+         std::map<std::string, colour_holder>::const_iterator it_inner = colour_map.find(dot.col);
+         if (it_inner != colour_map.end()) {
+            glm::vec4 colour = colour_holder_to_glm(it_inner->second);
+            glm::vec3 position(dot.pos.x(), dot.pos.y(), dot.pos.z());
+            ig.instancing_data_A.push_back(instancing_data_type_A_t(position, colour, size));
          }
       }
-   };
+   }
+}
+
+
+
+//! @return the instanced mesh for the specified ligand
+coot::instanced_mesh_t
+coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom) const {
 
    // Note: std::unordered_map<std::string, std::vector<dot_t> > dots;
    // class dot_t {
@@ -88,68 +147,8 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
    //    }
    // };
 
-   auto setup_dots = [colour_holder_to_glm] (instanced_mesh_t &im,
-                                             const atom_overlaps_dots_container_t &c,
-                                             float ball_size, unsigned int num_subdivisions,
-                                             const std::string &molecule_name_stub) {
+   return all_molecule_contact_dots(geom);
 
-      instanced_geometry_t ig_empty;
-      im.add(ig_empty);
-      instanced_geometry_t &ig = im.geom.back();
-
-      // -------------------vertices and triangles  --------------
-
-      std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
-         tessellate_octasphere(num_subdivisions);
-      ig.vertices.resize(octaphere_geom.first.size());
-      for (unsigned int i=0; i<octaphere_geom.first.size(); i++)
-         ig.vertices[i] = api::vn_vertex(octaphere_geom.first[i], octaphere_geom.first[i]);
-      ig.triangles = octaphere_geom.second;
-
-      // -------------------instancing --------------
-
-      // setup the colour map
-      std::map<std::string, coot::colour_holder> colour_map;
-      colour_map["blue"      ] = colour_holder_from_colour_name("blue");
-      colour_map["sky"       ] = colour_holder_from_colour_name("sky");
-      colour_map["sea"       ] = colour_holder_from_colour_name("sea");
-      colour_map["greentint" ] = colour_holder_from_colour_name("greentint");
-      colour_map["darkpurple"] = colour_holder_from_colour_name("darkpurple");
-      colour_map["green"     ] = colour_holder_from_colour_name("green");
-      colour_map["orange"    ] = colour_holder_from_colour_name("orange");
-      colour_map["orangered" ] = colour_holder_from_colour_name("orangered");
-      colour_map["yellow"    ] = colour_holder_from_colour_name("yellow");
-      colour_map["yellowtint"] = colour_holder_from_colour_name("yellowtint");
-      colour_map["red"       ] = colour_holder_from_colour_name("red");
-      colour_map["#55dd55"   ] = colour_holder_from_colour_name("#55dd55");
-      colour_map["hotpink"   ] = colour_holder_from_colour_name("hotpink");
-      colour_map["grey"      ] = colour_holder_from_colour_name("grey");
-      colour_map["magenta"   ] = colour_holder_from_colour_name("magenta");
-      colour_map["royalblue" ] = colour_holder_from_colour_name("royalblue");
-
-      std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
-         // float specular_strength = 0.5; //  default
-         const std::string &type = it->first;
-         const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-         float point_size = ball_size;
-         if (type == "vdw-surface") point_size = 0.06; // 0.03 seems too small
-         // if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
-         std::string mesh_name = molecule_name_stub + type; // instanced_geometry_t doesn't have a name holder
-         ig.name = mesh_name + std::string(" ") + type;
-
-         glm::vec3 size(point_size, point_size, point_size);
-         for (unsigned int i=0; i<v.size(); i++) {
-            const atom_overlaps_dots_container_t::dot_t &dot(v[i]);
-            std::map<std::string, coot::colour_holder>::const_iterator it_inner = colour_map.find(dot.col);
-            if (it_inner != colour_map.end()) {
-               glm::vec4 colour = colour_holder_to_glm(it_inner->second);
-               glm::vec3 position(dot.pos.x(), dot.pos.y(), dot.pos.z());
-               ig.instancing_data_A.push_back(instancing_data_type_A_t(position, colour, size));
-            }
-         }
-      }
-   };
 
    coot::instanced_mesh_t im;
    float contact_dots_density = 0.7; // 20220308-PE was 1.0
@@ -165,7 +164,6 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
    
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
       float ball_size = 0.07;
-      float tube_radius = ball_size;
       std::string name_stub = "Molecule " + std::to_string(imol_no);
       unsigned int num_subdivisions = 3;
 
@@ -182,6 +180,23 @@ coot::instanced_mesh_t
 coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom) const {
 
    coot::instanced_mesh_t im;
+
+   float contact_dots_density = 0.7; // 20220308-PE was 1.0
+   float cdd = contact_dots_density;
+
+   mmdb::Manager *mol = atom_sel.mol;
+   bool ignore_waters_flag = false;
+   coot::atom_overlaps_container_t overlaps(mol, &geom, ignore_waters_flag, 0.5, 0.25);
+
+   bool make_vdw_surface_flag = false;
+   coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(cdd, make_vdw_surface_flag);
+   float ball_size = 0.07;
+   std::string name_stub = "Molecule " + std::to_string(imol_no);
+   unsigned int num_subdivisions = 3;
+
+   setup_cylinder_clashes(im, c, ball_size, num_subdivisions, name_stub); //modify reference
+
+   setup_dots(im, c, ball_size, num_subdivisions, name_stub); // modify reference
 
    return im;
 }

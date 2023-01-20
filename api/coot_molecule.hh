@@ -27,6 +27,8 @@
 #include "merge-molecule-results-info-t.hh"
 #include "phi-psi-prob.hh"
 
+#include "coot-utils/atom-overlaps.hh"
+
 #include "instancing.hh"
 
 namespace coot {
@@ -211,6 +213,17 @@ namespace coot {
       glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch) const;
 
       std::pair<bool, coot::Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
+
+      //! modify the im
+      void setup_cylinder_clashes(instanced_mesh_t &im, const atom_overlaps_dots_container_t &c,
+                                  float ball_size, unsigned int num_subdivisions,
+                                  const std::string &molecule_name_stub) const;
+
+      //! modify the im
+      void setup_dots(instanced_mesh_t &im,
+                      const atom_overlaps_dots_container_t &c,
+                      float ball_size, unsigned int num_subdivisions,
+                      const std::string &molecule_name_stub) const;
 
       // ====================== SHELX stuff ======================================
 
