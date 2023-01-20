@@ -27,6 +27,9 @@ public:
          point_id[i] += idx_base;
       }
    }
+   void reverse_winding() {
+      std::swap(point_id[0], point_id[1]);
+   }
    friend std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 };
 

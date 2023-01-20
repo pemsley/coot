@@ -257,6 +257,9 @@ cylinder::add_octahemisphere_start_cap() {
    unsigned int idx_base = vertices.size();
    unsigned int idx_base_tri = triangles.size();
    vertices.insert(vertices.end(), nv.begin(), nv.end());
+   auto rw_triangles = hemi.second;
+   for (auto &t : rw_triangles)
+      t.reverse_winding();
    triangles.insert(triangles.end(), hemi.second.begin(), hemi.second.end());
    for (unsigned int i=idx_base_tri; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
