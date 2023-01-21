@@ -50,9 +50,13 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
             try {
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
+#ifdef EMSCRIPTEN
+               int n_threads = 3;
+#else
                int n_threads = coot::get_max_number_of_threads();
                n_threads = n_threads - 2;
                if (n_threads < 1) n_threads = 1;
+#endif
                ctpl::thread_pool thread_pool(n_threads);
                if (use_conformers) {
                   bool optim_geom = true;
