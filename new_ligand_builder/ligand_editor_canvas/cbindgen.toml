@@ -1,6 +1,9 @@
 
 namespace = "ligand_editor"
+include_guard = "COOT_LIGAND_EDITOR_CANVAS_HPP"
+after_includes = "// GObject declaration"
+
 
 [export]
 # item_types = ["enums", "structs", "opaque", "functions"]
-item_types = ["enums","unions","typedefs","opaque","functions"]
+item_types = ["enums","unions","opaque","functions"]
