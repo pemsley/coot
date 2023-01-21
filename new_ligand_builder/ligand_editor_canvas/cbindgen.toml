@@ -1,7 +1,15 @@
 
 namespace = "ligand_editor"
 include_guard = "COOT_LIGAND_EDITOR_CANVAS_HPP"
-after_includes = "// GObject declaration"
+includes = ["gtk/gtk.h"]
+after_includes = """// GObject declaration 
+G_BEGIN_DECLS   
+
+#define COOT_LIGAND_EDITOR_CANVAS_TYPE (coot_ligand_editor_canvas_get_type ())
+G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
+
+G_END_DECLS
+"""
 
 
 [export]

@@ -25,20 +25,28 @@ LDLIBS=-fuse-ld=mold \
        #`pkg-config --libs clipper` 
 
 HEADERS = \
-    ligand-builder.hpp \
-	ligand_editor_canvas.hpp
+    ligand-builder.hpp
 
 SOURCES = \
     ligand-builder.cpp \
     main.cpp
+
+RUST_SOURCES = \
+    ligand_editor_canvas/src/ffi.rs \
+    ligand_editor_canvas/src/lib.rs \
+    ligand_editor_canvas/src/model.rs \
+    ligand_editor_canvas/src/widget.rs \
+    ligand_editor_canvas/build.rs \
+    ligand_editor_canvas/Cargo.toml 
+
 
 OBJS := $(patsubst %.cc,%.o,$(SOURCES))
 
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-BUILD_RUST:
-	pushd ligand_editor_canvas && cargo build -r && popd 
-
-new-ligand-editor: BUILD_RUST $(OBJS) $(HEADERS)
+new-ligand-editor: ligand_editor_canvas.hpp ligand_editor_canvas/target/release/libligand_editor_canvas.a $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+ligand_editor_canvas.hpp: $(RUST_SOURCES)
+	./build_rust_lib.sh

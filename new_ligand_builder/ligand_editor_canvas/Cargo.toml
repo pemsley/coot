@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate_type = ["cdylib"]
+crate_type = ["staticlib"]
 
 [build-dependencies]
 cbindgen = "0.20"
@@ -18,5 +18,5 @@ glib = "0.16"
 [dependencies.gtk]
 package = "gtk4"
 version = "0.5"
-features = ["v4_6"]
+features = ["v4_6","unsafe-assume-initialized"]
 
