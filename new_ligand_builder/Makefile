@@ -37,6 +37,7 @@ RUST_SOURCES = \
     ligand_editor_canvas/src/model.rs \
     ligand_editor_canvas/src/widget.rs \
     ligand_editor_canvas/build.rs \
+    ligand_editor_canvas/cbindgen.toml \
     ligand_editor_canvas/Cargo.toml 
 
 

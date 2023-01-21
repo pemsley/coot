@@ -1,5 +1,5 @@
 
-namespace = "ligand_editor"
+# namespace = "ligand_editor"
 include_guard = "COOT_LIGAND_EDITOR_CANVAS_HPP"
 includes = ["gtk/gtk.h"]
 after_includes = """// GObject declaration 

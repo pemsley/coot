@@ -88,7 +88,7 @@ void build_main_window(GtkWindow* win) {
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
     //GtkWidget* canvas = gtk_label_new("The widget will land here");
-    auto* canvas = ligand_editor::coot_ligand_editor_canvas_new();
+    auto* canvas = coot_ligand_editor_canvas_new();
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas));
     // Statusbar / the bottom
     GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
