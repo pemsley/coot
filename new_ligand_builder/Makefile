@@ -13,11 +13,12 @@ CXXFLAGS= \
 # `pkg-config --cflags clipper` 
 
 LDLIBS=-fuse-ld=mold \
+       -L./ligand_editor_canvas/target/release \
        -L$(COOT_DIR)/lib \
        `pkg-config --libs gtk4`  \
         -g \
         -Wl,--rpath=$(COOT_DIR)/lib \
-        -lfreetype -lm -ldl
+        -lfreetype -lm -ldl -lligand_editor_canvas
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 
@@ -25,6 +26,7 @@ LDLIBS=-fuse-ld=mold \
 
 HEADERS = \
     ligand-builder.hpp \
+	ligand_editor_canvas.hpp
 
 SOURCES = \
     ligand-builder.cpp \
@@ -35,5 +37,8 @@ OBJS := $(patsubst %.cc,%.o,$(SOURCES))
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-new-ligand-editor: $(OBJS) $(HEADERS)
+BUILD_RUST:
+	pushd ligand_editor_canvas && cargo build -r && popd 
+
+new-ligand-editor: BUILD_RUST $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)

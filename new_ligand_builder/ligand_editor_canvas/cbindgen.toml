@@ -1,0 +1,6 @@
+
+namespace = "ligand_editor"
+
+[export]
+# item_types = ["enums", "structs", "opaque", "functions"]
+item_types = ["enums","unions","typedefs","opaque","functions"]

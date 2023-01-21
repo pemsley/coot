@@ -1,4 +1,5 @@
 #include "ligand-builder.hpp"
+#include "ligand_editor_canvas.hpp"
 #include <gtk/gtk.h>
 
 
