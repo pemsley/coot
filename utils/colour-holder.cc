@@ -34,9 +34,9 @@ coot::colour_holder_from_colour_name(const std::string &c) {
             colour.blue  = 0.05;
          } else {
             if (c == "greentint") {  // old Hydrogen-bond colour
-               colour.red = 0.3;
-               colour.green = 0.35;
-               colour.blue = 0.3;
+               colour.red = 0.08;
+               colour.green = 0.30;
+               colour.blue = 0.08;
             } else {
                if (c == "darkpurple") { // new Hydrogen-bond colour
                   colour.red   = 0.48;
