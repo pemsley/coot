@@ -29,15 +29,23 @@ coot::molecule_t::setup_cylinder_clashes(instanced_mesh_t &im, const atom_overla
       glm::vec3 end(0,0,1);
       auto start_end = std::make_pair(start, end);
       float h = 1.0;
-      unsigned int n_slices = 16;
+      unsigned int n_slices = 32;
       cylinder cyl(start_end, 1.0, 1.0, h, n_slices, 2);
       float z_scale = 0.37;
       // I use 1.1 here so that the clash markup is a bit fatter
       // than a typical ball.
-      float unstubby_cap_factor = 0.8 * z_scale;
+      float unstubby_cap_factor = 0.3;
+      bool cigar_mode = true;
+      if (cigar_mode) {
+         z_scale = 0.25;
+         unstubby_cap_factor = 0.92;
+      }
       cyl.set_unstubby_rounded_cap_factor(unstubby_cap_factor);
       cyl.add_octahemisphere_start_cap();
       cyl.add_octahemisphere_end_cap();
+      if (cigar_mode)
+         cyl.z_translate(-0.2);
+
 
       ig.vertices.resize(cyl.vertices.size());
       for (unsigned int i=0; i<cyl.vertices.size(); i++)

@@ -206,6 +206,8 @@ cylinder::add_octahemisphere_end_cap() {
 
    float radius = base_radius;
    unsigned int num_subdivisions = 2;
+   if (n_slices ==  8) num_subdivisions = 1;
+   if (n_slices == 32) num_subdivisions = 3;
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > hemi = tessellate_hemisphere_patch(num_subdivisions);
 
    std::vector<glm::vec3> &vv = hemi.first;
@@ -442,6 +444,13 @@ cylinder::add_sad_face()  {
    auto vertices_and_triangles_m = make_mouth();
    add_vertices_and_triangles(vertices_and_triangles_m);
 
+}
+
+void
+cylinder::z_translate(float f) {
+
+   for (auto &v : vertices)
+      v.pos.z += f;
 }
 
 void
