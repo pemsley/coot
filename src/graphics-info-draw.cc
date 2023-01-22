@@ -1320,49 +1320,8 @@ graphics_info_t::draw_atom_pull_restraints() {
 
 void
 graphics_info_t::draw_molecular_triangles() {
-#ifdef USE_MOLECULES_TO_TRIANGLES
-   // Martin's triangular molecules
-   //
-   // centre of the screen
-   FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-                 graphics_info_t::RotationCentre_y(),
-                 graphics_info_t::RotationCentre_z());
 
-   glm::vec3 eye_position = get_world_space_eye_position();
-   FCXXCoord eye_pos(eye_position.x, eye_position.y, eye_position.z);
-
-   // std::cout << "eye_pos: " << eye_pos << "\n";
-   // coot::Cartesian eye_cart = pos + 20 * diff;
-   // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
-   if (graphics_info_t::mol_tri_scene_setup) {
-      if (graphics_info_t::mol_tri_renderer) {
-         //Can retrieve reference to the light if so preferred
-         FCXXCoord light_pos = pos;
-         FCXXCoord neg_light_pos = pos;
-
-         graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
-         graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
-
-         for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-            if (graphics_info_t::is_valid_model_molecule(ii)) {
-               if (graphics_info_t::molecules[ii].draw_it) {
-                  if (graphics_info_t::molecules[ii].molrepinsts.size()) {
-                     std::cout << "----------------------- in draw_molecular_triangles() calling Martin code now... \n";
-                     // molrepinsts get added to mol_tri_scene_setup when then are made
-                     GLenum err = glGetError();
-                     if (err) std::cout << "gl error pre-renderer in draw_molecular_triangles() " << err << std::endl;
-                     // turns on glLighting.
-                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer,
-                                                                                           eye_pos);
-                     err = glGetError();
-                     if (err) std::cout << "gl error in draw_molecular_triangles() " << err << std::endl;
-                  }
-               }
-            }
-         }
-      }
-   }
-#endif
+   // goodby innards
 }
 
 // static
