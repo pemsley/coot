@@ -144,6 +144,7 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
 
 void
 cylinder::add_flat_start_cap() {
+
    add_flat_cap(0);
 }
 
@@ -195,6 +196,8 @@ cylinder::add_flat_cap(int end_type) {
       // hmmm.. .which is the correct winding? Both seem to work OK. // 20211006-PE but then again I am not using backface_culling
       // g_triangle triangle(idx_base, i_next, idx_base + i + 1);
       g_triangle triangle(idx_base, idx_base + i + 1, i_next);
+      if (end_type == 0)
+         triangle.reverse_winding();
       triangles.push_back(triangle);
    }
 
@@ -206,6 +209,8 @@ cylinder::add_octahemisphere_end_cap() {
 
    float radius = base_radius;
    unsigned int num_subdivisions = 2;
+   if (n_slices ==  8) num_subdivisions = 1;
+   if (n_slices == 32) num_subdivisions = 3;
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > hemi = tessellate_hemisphere_patch(num_subdivisions);
 
    std::vector<glm::vec3> &vv = hemi.first;
@@ -257,7 +262,10 @@ cylinder::add_octahemisphere_start_cap() {
    unsigned int idx_base = vertices.size();
    unsigned int idx_base_tri = triangles.size();
    vertices.insert(vertices.end(), nv.begin(), nv.end());
-   triangles.insert(triangles.end(), hemi.second.begin(), hemi.second.end());
+   auto rw_triangles = hemi.second;
+   for (auto &t : rw_triangles)
+      t.reverse_winding();
+   triangles.insert(triangles.end(), rw_triangles.begin(), rw_triangles.end());
    for (unsigned int i=idx_base_tri; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
 
@@ -439,6 +447,13 @@ cylinder::add_sad_face()  {
    auto vertices_and_triangles_m = make_mouth();
    add_vertices_and_triangles(vertices_and_triangles_m);
 
+}
+
+void
+cylinder::z_translate(float f) {
+
+   for (auto &v : vertices)
+      v.pos.z += f;
 }
 
 void

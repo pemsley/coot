@@ -27,10 +27,26 @@ public:
          point_id[i] += idx_base;
       }
    }
+   void reverse_winding() {
+      std::swap(point_id[0], point_id[1]);
+   }
    friend std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 };
 
 std::ostream& operator <<(std::ostream &s, const g_triangle &t);
 
-#endif // COOT_UTILS_G_TRIANGLE_HH
+
+// This is the g_triangle class that should be used for blender - and
+// recently used in webassembly.
+class g_triangle_with_colour_index : public g_triangle {
+   public:
+   int colour_index;
+   g_triangle_with_colour_index(const unsigned int &a0,
+                                const unsigned int &a1,
+                                const unsigned int &a2) : g_triangle(a0, a1, a2) {
+      colour_index = -1;
+   }
+};
+
+#endif // G_TRIANGLE_HH
 
