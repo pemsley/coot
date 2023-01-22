@@ -144,6 +144,7 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
 
 void
 cylinder::add_flat_start_cap() {
+
    add_flat_cap(0);
 }
 
@@ -195,6 +196,8 @@ cylinder::add_flat_cap(int end_type) {
       // hmmm.. .which is the correct winding? Both seem to work OK. // 20211006-PE but then again I am not using backface_culling
       // g_triangle triangle(idx_base, i_next, idx_base + i + 1);
       g_triangle triangle(idx_base, idx_base + i + 1, i_next);
+      if (end_type == 0)
+         triangle.reverse_winding();
       triangles.push_back(triangle);
    }
 

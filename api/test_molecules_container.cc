@@ -2069,6 +2069,17 @@ int test_ligand_contact_dots(molecules_container_t &mc) {
    return status;
 }
 
+int test_broken_function(molecules_container_t &mc) {
+
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   auto mesh = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
+   return status;
+
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2184,6 +2195,7 @@ int main(int argc, char **argv) {
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
       status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
+      status += run_test(test_ligand_contact_dots,   "lgiand contact dots",      mc);
       status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
       status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
       status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
@@ -2197,7 +2209,8 @@ int main(int argc, char **argv) {
 
 
    // status += run_test(test_editing_session, "an editing session",         mc);
-   status += run_test(test_ligand_contact_dots, "lgiand contact dots",         mc);
+
+   status += run_test(test_broken_function, "Something was broken",         mc);
 
    // Note to self:
    //

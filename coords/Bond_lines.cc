@@ -593,7 +593,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 					  if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
 					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 					     addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos, cc, imodel,
-                                                     atom_index_1, atom_index_2);
+                                                     atom_index_1, atom_index_2, false, false);
 					  } else {
 					     add_half_bonds(atom_1_pos, atom_2_pos,
 							    atom_selection_1[contact[i].id1],
@@ -623,7 +623,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				    if (len2 < 1.3) { // protection for weirdness, // was 1.0
 				       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
 				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2, false, false);
 				    }
 				 } else {
                                     // should this test be here or further up?
@@ -641,7 +641,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
                                     if (do_it) {
                                        col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type, nullptr);
                                        graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-                                       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+                                       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2, false, false);
                                     }
 				 }
 			      }
@@ -844,7 +844,10 @@ Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad
          if (ele_2 == ele_3) {
             int col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
             graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-            addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index);
+            if (bq.bond_type == bonded_quad_atoms::SINGLE)
+               addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index, false, false);
+            if (bq.bond_type == bonded_quad_atoms::DOUBLE)
+               addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index, true, true);
          } else {
             add_half_bonds(p2, p3, at_2, at_3, imodel, atom_2_index, atom_3_index,
                            atom_colour_type, atom_colour_map_p, false, false);
@@ -929,7 +932,7 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
          ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
          ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index, false, false);
       } else {
          add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index,
                         atom_colour_type, atom_colour_map_p, false, false);
@@ -966,6 +969,7 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       if (ele_1 == ele_2) {
          graphics_line_t::cylinder_class_t cc = graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND;
          bool add_end_cap = true;
+         std::cout << "in innner_doubles " << i << " " << atom_1_index << " " << atom_2_index << " " << add_end_cap<< std::endl;
          addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, add_end_cap, add_end_cap);
       } else {
          bool add_end_cap = true;

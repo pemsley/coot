@@ -324,8 +324,8 @@ class Bond_lines_container {
                 int model_number,
                 int atom_index_1,
                 int atom_index_2,
-                bool add_begin_end_cap = false,
-                bool add_end_end_cap = false);
+                bool add_begin_end_cap = true,
+                bool add_end_end_cap = true);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
    // void add_deloc_bond_lines(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
    // int deloc_half_flag);

@@ -204,9 +204,9 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
    cylinder c_01(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
    cylinder c_10(pp, 1.0, 1.0, 1.0, n_slices, n_stacks); // possibly none of these actually
    cylinder c_11(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
-   c_01.add_flat_end_cap();   // this and below might be the wrong way around
-   c_10.add_flat_start_cap();
-   c_11.add_flat_end_cap();
+   c_01.add_flat_start_cap();
+   c_10.add_flat_end_cap();   // 20230122-PE these orientations have now been checked.
+   c_11.add_flat_start_cap();
    c_11.add_flat_end_cap();
 
    ig_00.vertices = convert_vertices(c_00.vertices);
