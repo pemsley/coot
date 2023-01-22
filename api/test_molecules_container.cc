@@ -1689,8 +1689,15 @@ int test_molecular_representation(molecules_container_t &mc) {
       // style  = "MolecularSurface";
 
       coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
-      if (mesh.vertices.size() > 10)
+      if (mesh.vertices.size() > 10) {
+
+         std::cout << "test_molecular_representation() Ribbons OK" << std::endl;
+
+         style = "MolecularSurface";
+         coot::simple_mesh_t surface_mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+
          status = true;
+      }
    }
    mc.close_molecule(imol);
    return status;
@@ -2210,7 +2217,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_editing_session, "an editing session",         mc);
 
-   status += run_test(test_broken_function, "Something was broken",         mc);
+   // status += run_test(test_broken_function, "Something was broken",         mc);
+
+   status += run_test(test_molecular_representation, "molecular representation mesh", mc);
 
    // Note to self:
    //
