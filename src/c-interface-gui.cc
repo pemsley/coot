@@ -2241,7 +2241,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *dialog, GtkWidget *entry) {
 
-   auto python_network_get = [] (const std::string text, int n) {
+   auto python_network_get = [] (const std::string &text, int n) {
 
                                 std::string python_command;
                                 if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {

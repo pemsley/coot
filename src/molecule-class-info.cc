@@ -3544,6 +3544,9 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
                 << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
+   // Don't try to use OpenGL if we don't have graphics
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
    // come back to this
 
    GLenum err = glGetError();

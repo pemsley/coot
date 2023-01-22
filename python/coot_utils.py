@@ -93,12 +93,18 @@ def with_auto_accept(*funcs):
 
     replace_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
+    ret = None
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
-        # print "BL DEBUG:: func %s and args %s" %(func, args)
-        ret = func(*args)
-        coot.accept_regularizement()
+        try:
+            func(*args)
+            ret = coot.accept_moving_atoms_py()
+        except SystemError as e:
+            print("Py -----------------------------")
+            print('WARNING:: with_auto_accept() caught a SystemError exception')
+            print(e)
+            print("Py -----------------------------")
 
     if (replace_state == 0):
         coot.set_refinement_immediate_replacement(0)
@@ -4939,6 +4945,33 @@ def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
         apply_pir_alignment(imol, ch_id)
         simple_fill_partial_residues(imol)
         resolve_clashing_sidechains_by_deletion(imol)
+
+# Backrub rotamers for chain. After alignment mutation we should run this.
+#
+# this function cannot be in fitting.py because fitting.py depends on coot_gui
+#
+def backrub_rotamers_for_chain(imol, ch_id):
+
+    """Backrub rotamers for chain. After alignment mutation we should run this."""
+
+    coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
+    coot.make_backup(imol)
+
+    with NoBackups(imol):
+        n_times = 2
+        imol_map = coot.imol_refinement_map()
+        if valid_map_molecule_qm(imol_map):
+            n_res = coot.chain_n_residues(ch_id, imol)
+            for i_round in range(n_times):
+                for serial_number in range(n_res):
+                    res_name = coot.resname_from_serial_number(imol, ch_id, serial_number)
+                    res_no = coot.seqnum_from_serial_number(imol, ch_id, serial_number)
+                    ins_code = coot.insertion_code_from_serial_number(imol, ch_id, serial_number)
+                    if isinstance(ins_code, str):   # valid residue check :-)
+                        if not res_name == "HOH":
+                            coot.auto_fit_best_rotamer(imol, ch_id, res_no, ins_code, "", imol_map, 1, 0.1)
+
+
 
 
 ####### Back to Paul's scripting.

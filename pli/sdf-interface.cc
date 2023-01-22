@@ -41,6 +41,9 @@
 
 // #include "c-interface-generic-objects.h" // no longer in src
 
+#include "geometry/protein-geometry.hh"
+#include "coot-utils/simple-mesh.hh"
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 // rename these ideally.
@@ -145,14 +148,13 @@ bool residue_to_mdl_file_for_mogul(int imol, mmdb::Residue *residue_p,
 
 #include "utils/coot-utils.hh"
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 // rdkit chemical features.
 std::vector<coot::simple_mesh_t>
 chemical_features::generate_meshes(int imol, mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 
-
    std::vector<coot::simple_mesh_t> meshes;
-
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    // graphics_info_t g;
    // if (g.is_valid_model_molecule(imol)) {
@@ -186,11 +188,11 @@ chemical_features::generate_meshes(int imol, mmdb::Residue *residue_p, const coo
       }
    }
    return meshes;
-#else
-   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
-   return meshes;
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
+// #else
+//    std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+//    return meshes;
 }
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 // std::vector<coot::simple_mesh_t>
 // chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, const std::string &name) {
@@ -399,6 +401,7 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
 
 
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
 				   const RDKit::ROMol &mol,
@@ -417,7 +420,9 @@ chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
    } 
    return std::pair<bool, clipper::Coord_orth>(false, v); // fail
 }
+#endif
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
@@ -442,7 +447,9 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
  }
+#endif
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
@@ -486,3 +493,4 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
    return std::pair<bool, clipper::Coord_orth>(r, v);
 }
 
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

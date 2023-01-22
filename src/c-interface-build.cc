@@ -4794,12 +4794,15 @@ PyObject *accept_moving_atoms_py() {
 
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      // std::cout << "wait ..." << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
    }
+
    coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    rr.show();
    g.clear_moving_atoms_object();
-   return g.refinement_results_to_py(rr);
+   PyObject *o = g.refinement_results_to_py(rr);
+   return o;
 }
 #endif
 
