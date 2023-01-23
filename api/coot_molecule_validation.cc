@@ -155,7 +155,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
    //    }
    // };
 
-   return all_molecule_contact_dots(geom);
+   // return all_molecule_contact_dots(geom);
 
 
    coot::instanced_mesh_t im;
