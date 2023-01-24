@@ -2458,9 +2458,10 @@ graphics_info_t::setup_lights() {
    light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
    // light.is_on = false;
 
-   std::cout << "light 1 light: "
-             << "ambient " << glm::to_string(light.ambient) << " "
-             << "diffuse " << glm::to_string(light.diffuse) << std::endl;
+   if (false)
+      std::cout << "light 1 light: "
+                << "ambient " << glm::to_string(light.ambient) << " "
+                << "diffuse " << glm::to_string(light.diffuse) << std::endl;
    graphics_info_t::lights[1] = light;
 }
 
