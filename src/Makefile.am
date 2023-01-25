@@ -185,7 +185,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -py3 -c++ $(top_srcdir)/src/coot.i
+	swig -o $@ $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -341,12 +341,12 @@ lib_LTLIBRARIES=libcootsumo.la
 
 libcootsumo_la_SOURCES = \
 	atom-pull.hh		 \
-        atom-label-info.hh       \
+   atom-label-info.hh       \
 	array-2d.hh		 \
 	init_coot_as_python_module.cc \
 	init_coot_as_python_module.hh \
 	boids.hh boids.cc	 \
-        bond-colour-mode.hh      \
+   bond-colour-mode.hh      \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
@@ -573,11 +573,11 @@ libcootsumo_la_SOURCES = \
 	interface.h              \
 	key-bindings.cc		 \
 	key-bindings.hh		 \
-        manipulation-modes.hh    \
+   manipulation-modes.hh    \
 	LinesMesh.cc LinesMesh.hh \
 	LigandViewMesh.cc        \
 	LigandViewMesh.hh        \
-        lights-info.hh           \
+   lights-info.hh           \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh         \
 	lbg-callbacks-outer.cc   \

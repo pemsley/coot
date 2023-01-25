@@ -108,7 +108,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    int ssao_blur_size = graphics_info_t::ssao_blur_size;
 
-   if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
+   if (di.displayed_image_type == SHOW_AO_SCENE) {
 
       // std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
 
@@ -442,7 +442,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    int ssao_blur_size = graphics_info_t::ssao_blur_size;
 
-   if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
+   if (di.displayed_image_type == SHOW_AO_SCENE) {
 
       // std::cout << "DEBUG:: render_scene_with_depth_blur() ------------------------------- " << std::endl;
 

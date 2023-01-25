@@ -2499,6 +2499,7 @@ graphics_info_t::refinement_results_to_scm(const coot::refinement_results_t &rr)
 #ifdef USE_PYTHON
 PyObject *
 graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) const {
+
    PyObject *r = Py_False;
 
    if (rr.found_restraints_flag) {

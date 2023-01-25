@@ -276,7 +276,9 @@ auto_fit_best_rotamer(int imol_coords,
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
 	    // BL says:: dont think we do autoaccept!?
-	    short int auto_range = 1;
+            //
+            // 20230115-PE Yes. This needs an auto-accept wrapper.
+            //
 	    refine_auto_range(imol_coords, chain_id, resno, altloc);
 	 }
 
@@ -1257,12 +1259,10 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-         std::cout << "here 1" << std::endl;
          mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
          coot::side_chain_densities scd;
          unsigned int n_sequences = fam.size();
-         std::cout << "here 2 with n_sequences " << n_sequences << std::endl;
          if (n_sequences > 0) {
             for (unsigned int idx=0; idx<n_sequences; idx++) {
                std::string sequence = fam[idx].sequence;

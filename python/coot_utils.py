@@ -93,12 +93,18 @@ def with_auto_accept(*funcs):
 
     replace_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
+    ret = None
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
-        # print "BL DEBUG:: func %s and args %s" %(func, args)
-        ret = func(*args)
-        coot.accept_regularizement()
+        try:
+            func(*args)
+            ret = coot.accept_moving_atoms_py()
+        except SystemError as e:
+            print("Py -----------------------------")
+            print('WARNING:: with_auto_accept() caught a SystemError exception')
+            print(e)
+            print("Py -----------------------------")
 
     if (replace_state == 0):
         coot.set_refinement_immediate_replacement(0)
