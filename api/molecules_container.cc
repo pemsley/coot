@@ -244,6 +244,25 @@ molecules_container_t::set_updating_maps_need_an_update(int imol) {
 
 }
 
+molecules_container_t::r_factor_stats
+molecules_container_t::get_r_factor_stats() {
+
+   int rpn_8 = calculate_new_rail_points();
+   int rpt_8 = rail_points_total();
+   auto latest_r_factors = get_latest_sfcalc_stats();
+   std::cout << ":::::: Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
+   std::cout << ":::::: R-factor " << latest_r_factors.r_factor << std::endl;
+
+   r_factor_stats stats;
+   stats.r_factor = latest_r_factors.r_factor;
+   stats.free_r_factor = latest_r_factors.free_r_factor;
+   stats.rail_points_total = rpt_8;
+   stats.rail_points_new   = rpn_8;
+   return stats;
+
+}
+
+
 coot::atom_spec_t
 molecules_container_t::atom_cid_to_atom_spec(int imol, const std::string &cid) const {
 
