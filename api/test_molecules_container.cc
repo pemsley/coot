@@ -1552,7 +1552,7 @@ int test_delete_literal(molecules_container_t &mc) {
 
    if (mc.is_valid_model_molecule(imol)) {
 
-      int status_1 = mc.delete_using_cid(imol, "//A/10-20", "LITERAL");
+      int status_1 = mc.delete_using_cid(imol, "//A/10-20", "LITERAL").first;
 
       if (status_1) {
 
