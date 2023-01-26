@@ -67,7 +67,6 @@ html_theme_options = {
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
-    
     'logo_only': False,
 
     # Toc options

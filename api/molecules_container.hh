@@ -165,7 +165,7 @@ class molecules_container_t {
    static void get_restraints_lock(const std::string &calling_function_name);
    static void release_restraints_lock(const std::string &calling_function_name);
    static std::string restraints_locking_function_name; //  static because it is set by above
-   
+
    bool particles_have_been_shown_already_for_this_round_flag;
 
    static std::vector<atom_pull_info_t> atom_pulls;
@@ -452,6 +452,9 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! @return the number of atoms in the specified model, or 0 on error
+   unsigned int get_number_of_atoms(int imol) const;
+
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
    //! @return vector of single letter codes - in a pair with the given residue spec
@@ -520,42 +523,42 @@ public:
    //!
    //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
    //! @return 1 on successful modification, return 0 on failure
-   int delete_using_cid(int imol, const std::string &cid, const std::string &scope);
+   std::pair<int, unsigned int> delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
    //! delete atom
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_atom(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+   std::pair<int, unsigned int> delete_atom(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                    const std::string &atom_name, const std::string &alt_conf);
    //! delete atom using atom cid
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_atom_using_cid(int imol, const std::string &cid);
+   std::pair<int, unsigned int> delete_atom_using_cid(int imol, const std::string &cid);
 
    //! delete residue
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+   std::pair<int, unsigned int> delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! delete residue using cid
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_residue_using_cid(int imol, const std::string &cid);
+   std::pair<int, unsigned int> delete_residue_using_cid(int imol, const std::string &cid);
 
    //! delete residue atoms using alt_conf
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+   std::pair<int, unsigned int> delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                                           const std::string &alt_conf);
    //! delete residue atoms using cid
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_residue_atoms_using_cid(int imol, const std::string &cid);
+   std::pair<int, unsigned int> delete_residue_atoms_using_cid(int imol, const std::string &cid);
 
    //! delete side chain
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+   std::pair<int, unsigned int> delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! delete chain.
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_chain_using_cid(int imol, const std::string &cid);
+   std::pair<int, unsigned int> delete_chain_using_cid(int imol, const std::string &cid);
 
    //! delete the atoms specified in the CID selection
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   int delete_literal_using_cid(int imol, const std::string &cid);
+   std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
    //! add a residue onto the end of the chain by fitting to density
    //! @return a first of 1 on success. Return a useful message in second if the addition did not work

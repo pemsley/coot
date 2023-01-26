@@ -81,6 +81,16 @@ molecules_container_t::display_molecule_names_table() const {
    }
 }
 
+unsigned int
+molecules_container_t::get_number_of_atoms(int imol) const {
+
+   unsigned int n = 0;
+   if (is_valid_model_molecule(imol)) {
+      n = molecules[imol].get_number_of_atoms();
+   }
+   return n;
+}
+
 void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
    draw_missing_residue_loops_flag = state;
@@ -334,7 +344,7 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   atom_selection_container_t asc = get_atom_selection(file_name);
+   atom_selection_container_t asc = get_atom_selection(file_name, false, false, false);
    if (asc.read_success) {
 
       if (false) { // for debugging atom selections in the future
@@ -1240,7 +1250,7 @@ molecules_container_t::auto_fit_rotamer(int imol,
 }
 
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_atom(int imol,
                                    const std::string &chain_id, int res_no, const std::string &ins_code,
                                    const std::string &atom_name, const std::string &alt_conf) {
@@ -1251,10 +1261,11 @@ molecules_container_t::delete_atom(int imol,
       status = molecules[imol].delete_atom(atom_spec);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_atom_using_cid(int imol, const std::string &cid) {
 
    int status = 0;
@@ -1263,12 +1274,13 @@ molecules_container_t::delete_atom_using_cid(int imol, const std::string &cid) {
       status = molecules[imol].delete_atom(atom_spec);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
 
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_residue(int imol,
                                       const std::string &chain_id, int res_no, const std::string &ins_code) {
 
@@ -1278,11 +1290,12 @@ molecules_container_t::delete_residue(int imol,
       status = molecules[imol].delete_residue(residue_spec);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_residue_using_cid(int imol, const std::string &residue_cid) {
 
    int status = 0;
@@ -1291,10 +1304,11 @@ molecules_container_t::delete_residue_using_cid(int imol, const std::string &res
       status = molecules[imol].delete_residue(residue_spec);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_residue_atoms_using_cid(int imol, const std::string &atom_cid) {
 
    int status = 0;
@@ -1304,27 +1318,29 @@ molecules_container_t::delete_residue_atoms_using_cid(int imol, const std::strin
       status = molecules[imol].delete_residue(residue_spec);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id,
                                                           int res_no, const std::string &ins_code,
                                                           const std::string &alt_conf) {
-  int status = 0;
-  if (is_valid_model_molecule(imol)) {
-     std::string atom_cid = std::string("//") + chain_id + std::string("/") + std::to_string(res_no) + ins_code;
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      std::string atom_cid = std::string("//") + chain_id + std::string("/") + std::to_string(res_no) + ins_code;
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t residue_spec(atom_spec);
       status = molecules[imol].delete_residue(residue_spec);
       set_updating_maps_need_an_update(imol);
-  }
-  return status;
+   }
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
 
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) {
 
    int status = 0;
@@ -1332,13 +1348,14 @@ molecules_container_t::delete_chain_using_cid(int imol, const std::string &cid) 
       status = molecules[imol].delete_chain_using_atom_cid(cid);
       set_updating_maps_need_an_update(imol);
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
 
 //! delete the atoms specified in the CID selection
 //! @return 1 on successful deletion, return 0 on failure to delete.
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_literal_using_cid(int imol, const std::string &cid) {
 
    int status = 0;
@@ -1347,27 +1364,30 @@ molecules_container_t::delete_literal_using_cid(int imol, const std::string &cid
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
 
 
 
 //where scope in ["ATOM","WATER", "RESIDUE","CHAIN","MOLECULE"]
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_using_cid(int imol, const std::string &cid, const std::string &scope) {
 
-   int status = 0;
+   std::pair<int, unsigned int> r(0,0);
    if (scope == "ATOM")
-      status = delete_atom_using_cid(imol, cid);
+      r = delete_atom_using_cid(imol, cid);
    if (scope == "RESIDUE")
-      status = delete_residue_atoms_using_cid(imol, cid);
+      r = delete_residue_atoms_using_cid(imol, cid);
    if (scope == "CHAIN")
-      status = delete_chain_using_cid(imol, cid);
+      r = delete_chain_using_cid(imol, cid);
    if (scope == "LITERAL")
-      status = delete_literal_using_cid(imol, cid);
-   if (scope == "MOLECULE")
-      status = close_molecule(imol);
-   return status;
+      r = delete_literal_using_cid(imol, cid);
+   if (scope == "MOLECULE") {
+      int status = close_molecule(imol);
+      if (status == 1) r.first = 1;
+   }
+   return r;
 }
 
 // Old API
@@ -2745,10 +2765,10 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 }
 
 
-int
+std::pair<int, unsigned int>
 molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
 
-   int status = 0;
+   std::pair<int, unsigned int> r(0,0);
 
    // 20221025-PE Fill me later
    if (is_valid_model_molecule(imol)) {
@@ -2758,7 +2778,7 @@ molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, 
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   return r;
 }
 
 int

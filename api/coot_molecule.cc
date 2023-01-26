@@ -211,6 +211,36 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
    return err;
 }
 
+unsigned int
+coot::molecule_t::get_number_of_atoms() const {
+
+   unsigned int n = 0;
+   // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     n++;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return n;
+
+}
+
 std::string
 coot::molecule_t::name_for_display_manager() const {
 
