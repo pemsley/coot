@@ -5547,6 +5547,9 @@ void
 graphics_info_t::clear_measure_distances() {
 
    measure_distance_object_vec.clear();
+   mesh_for_measure_distance_object_vec.clear();
+   mesh_for_measure_distance_object_vec.setup_buffers(); // above function should do this I think
+   labels_for_measure_distances_and_angles.clear();
    graphics_draw();
 }
 

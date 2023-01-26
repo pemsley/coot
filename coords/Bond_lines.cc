@@ -6141,31 +6141,40 @@ Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model
                                              int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                                              int udd_atom_index_handle) {
 
+   std::vector<std::string> residue_alt_confs = coot::util::get_residue_alt_confs(residue_p);
    std::string rn = residue_p->GetResName();
    std::vector<std::string> ring_atom_names = {" CG ", " CD1", " CE1", " CZ ", " CE2", " CD2"};
-   std::vector<mmdb::Atom *> ring_atoms(6, 0);
-   unsigned int n_found = 0;
-   for (unsigned int i=0; i<ring_atom_names.size(); i++) {
-      const std::string &ring_atom_name = ring_atom_names[i];
-      mmdb::Atom **residue_atoms = 0;
-      int n_residue_atoms = 0;
-      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) {
-         mmdb::Atom *at = residue_atoms[iat];
-         if (! at->isTer()) {
-            std::string atom_name(at->name);
-            if (atom_name == ring_atom_name) {
-               ring_atoms[i] = at;
-               n_found++;
+   std::vector<std::string>::const_iterator it;
+   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); ++it) {
+      const std::string &alt_loc(*it);
+      std::vector<mmdb::Atom *> ring_atoms(6, 0);
+      unsigned int n_found = 0;
+      for (unsigned int i=0; i<ring_atom_names.size(); i++) {
+         const std::string &ring_atom_name = ring_atom_names[i];
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::string atom_name(at->name);
+               if (atom_name == ring_atom_name) {
+                  std::string a(at->altLoc);
+                  if (a == alt_loc || a == "") {
+                     ring_atoms[i] = at;
+                     n_found++;
+                  }
+               }
             }
          }
       }
+      if (n_found == 6)
+         draw_6_membered_ring(rn, ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+      else
+         if (n_found > 0)
+            std::cout << "partial ring sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
    }
-   if (n_found == 6)
-      draw_6_membered_ring(rn, ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
-   else
-      if (n_found > 0)
-         std::cout << "partial ring sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
+
 }
 
 // how does this draw a benzodiazepine? Does the ring finder find 7 membered rings?

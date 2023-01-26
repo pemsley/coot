@@ -94,8 +94,17 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    if ( ! ((graphics_x_size == GRAPHICS_WINDOW_X_START_SIZE) &&
 	   (graphics_y_size != GRAPHICS_WINDOW_Y_START_SIZE)) ) {
-      commands.push_back(state_command("set-graphics-window-size",
-				       graphics_x_size, graphics_y_size, il));
+      // On MacOS, this is doubling the size of the window on save and restore - I don't want that.
+      // I want the size of the *window* widget, not the size of the OpenGL widget.
+      // commands.push_back(state_command("set-graphics-window-size", graphics_x_size, graphics_y_size, il));
+      GtkWidget *mw = get_main_window();
+      if (mw) {
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(mw, &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+         commands.push_back(state_command("set-graphics-window-size", w, h, il));
+      }
    }
 
    // 20220702-PE don't save it if there are not sensible number (why are there not sensible numbers?
@@ -622,9 +631,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // view things: rotation centre and zoom. Sanity check the zoom first.
    //
    //
-   float zoom_f = zoom/100.0;
-   if (zoom_f < 0.1) zoom_f = 0.1;
-   commands.push_back(state_command("scale-zoom", zoom_f, il));
+   commands.push_back(state_command("set-zoom", zoom, il));
    commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation
