@@ -29,10 +29,12 @@ def get_this_dir():
 fn = inspect.getfile(get_this_dir)
 current_dir = os.path.dirname(fn)
 
-load_file = os.path.join(current_dir, "begin.py")
-load_file = os.path.normpath(load_file)
-if (os.path.isfile(load_file)):
-    exec(compile(open(load_file, "rb").read(), load_file, 'exec'), globals())
+# load_file = os.path.join(current_dir, "begin.py")
+# load_file = os.path.normpath(load_file)
+# if (os.path.isfile(load_file)):
+#     exec(compile(open(load_file, "rb").read(), load_file, 'exec'), globals())
+
+import coot_testing_utils # it used to be "begin.py" but that is not a good name now.
 
 log = StreamIO(sys.stderr, sys.stdout)
 
