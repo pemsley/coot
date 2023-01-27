@@ -2087,6 +2087,34 @@ int test_broken_function(molecules_container_t &mc) {
 
 }
 
+int test_delete_side_chain(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec_1("A", 270, "", " O  ","");
+      coot::atom_spec_t atom_spec_2("A", 270, "", " OG ","");
+      coot::atom_spec_t atom_spec_3("A",  51, "", " CG ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_1);
+      mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_2);
+      if (at_1 && at_2) {
+         mc.delete_side_chain(imol, "A", 270, "");
+         mc.delete_side_chain_using_cid(imol, "//A/51");
+         at_1 = mc.get_atom(imol, atom_spec_1);
+         at_2 = mc.get_atom(imol, atom_spec_2);
+         mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec_3);
+         if (at_1)
+            if (! at_2)
+               if (! at_3)
+                  status = 1;
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2219,7 +2247,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_broken_function, "Something was broken",         mc);
 
-   status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+   // status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+
+   status += run_test(test_delete_side_chain, "delete side chain", mc);
 
    // Note to self:
    //

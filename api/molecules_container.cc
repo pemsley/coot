@@ -2787,18 +2787,45 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 std::pair<int, unsigned int>
 molecules_container_t::delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
 
-   std::pair<int, unsigned int> r(0,0);
-
+   int status = 0;
    // 20221025-PE Fill me later
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
-      molecules[imol].delete_side_chain(res_spec);
-      set_updating_maps_need_an_update(imol);
+      status = molecules[imol].delete_side_chain(res_spec);
+      if (status) {
+         set_updating_maps_need_an_update(imol);
+      }
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return r;
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
 }
+
+//! delete side chain
+//! @return 1 on successful deletion, return 0 on failure to delete.
+std::pair<int, unsigned int>
+molecules_container_t::delete_side_chain_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+
+   // 20221025-PE Fill me later
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, cid);
+      if (! res_spec.unset_p()) {
+         status = molecules[imol].delete_side_chain(res_spec);
+         set_updating_maps_need_an_update(imol);
+      } else {
+         std::cout << "WARNING:: in delete_side_chain_using_cid didn't find residue from cid " << cid << std::endl;
+      }
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   unsigned int atom_count = get_number_of_atoms(imol);
+   return std::make_pair(status, atom_count);
+}
+
+
 
 int
 molecules_container_t::fill_partial_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {

@@ -1522,13 +1522,18 @@ coot::molecule_t::delete_side_chain(const residue_spec_t &residue_spec) {
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<mmdb::Atom *> atoms_to_be_deleted;
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          std::string atom_name(at->GetAtomName());
          if (std::find(main_chain_atoms_list.begin(), main_chain_atoms_list.end(), atom_name) == main_chain_atoms_list.end()) {
-            delete at;
-            was_deleted = true;
+            atoms_to_be_deleted.push_back(at);
          }
+      }
+
+      for (auto &at : atoms_to_be_deleted) {
+         delete at;
+         was_deleted = true;
       }
 
       if (was_deleted) {

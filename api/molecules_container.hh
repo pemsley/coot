@@ -562,6 +562,10 @@ public:
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! delete side chain
+   //! @return 1 on successful deletion, return 0 on failure to delete.
+   std::pair<int, unsigned int> delete_side_chain_using_cid(int imol, const std::string &cid);
+
    //! delete chain.
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_chain_using_cid(int imol, const std::string &cid);
