@@ -137,7 +137,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader \
 		     rotation-centre-cross-hairs-for-ssao.shader background-image.shader
 
-
+MOLTRIANGLES_CPPFLAGS=-DUSE_MOLECULES_TO_TRIANGLES
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage

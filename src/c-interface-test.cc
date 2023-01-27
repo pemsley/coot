@@ -1291,6 +1291,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          obj.mesh.setup_buffers();
       }
       graphics_draw();
+#else
+      std::cout << "No MAKE_ENHANCED_LIGAND_TOOLS (sad-face)" << std::endl;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
    }
 
