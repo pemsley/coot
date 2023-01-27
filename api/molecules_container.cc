@@ -96,6 +96,40 @@ molecules_container_t::set_draw_missing_residue_loops(bool state) {
    draw_missing_residue_loops_flag = state;
 }
 
+
+void
+molecules_container_t::testing_start_long_term_job(unsigned int n_seconds) {
+
+   if (interrupt_long_term_job) {
+      interrupt_long_term_job = false;
+      return;
+   }
+   unsigned int n_ms_count = 0;
+   unsigned int n_ms_per_cycle = 300;
+   while (true) {
+      double d = long_term_job_stats.time_difference();
+      long_term_job_stats.function_value = 0.01 * d * d;
+      if (interrupt_long_term_job) {
+         interrupt_long_term_job = false;
+         break;
+      }
+      if (n_seconds > 0)
+         if (n_ms_count > n_seconds * 1000)
+            break;
+      std::this_thread::sleep_for(std::chrono::milliseconds(n_ms_per_cycle));
+      n_ms_count += n_ms_per_cycle;
+   }
+
+}
+
+void
+molecules_container_t::testing_stop_long_term_job() {
+
+   interrupt_long_term_job = true;
+
+}
+
+
 void
 molecules_container_t::read_standard_residues() {
 

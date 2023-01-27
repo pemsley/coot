@@ -59,6 +59,9 @@ Validation Information
 .. doxygenfile:: validation-information.hh
       :project: libcootapi
 
+.. doxygenfile:: residue-validation-information.hh
+      :project: libcootapi
+
 .. doxygenfile:: geometry/residue-and-atom-specs.hh
       :project: libcootapi
 

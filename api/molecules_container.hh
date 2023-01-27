@@ -208,6 +208,7 @@ class molecules_container_t {
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
       make_backups_flag = true;
+      interrupt_long_term_job = false;
    }
 
 public:
@@ -230,9 +231,9 @@ public:
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
-   //! Allow the user to disable/enable backups (`state` is `true` for "enable")
+   //! Allow the user to disable/enable backups (`state` is `true` for "enable"). The default is `true`.
    void set_make_backups(bool state) { make_backups_flag = state; }
-   //! return the backup-enable state
+   //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
    //! the backup-enable state (raw public if needed/prefered)
    static bool make_backups_flag; // does this need to be static?
@@ -241,18 +242,20 @@ public:
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
    //! set the map weight
    void set_map_weight(float w) { map_weight = w; }
-   //! get the map weight
+   //! @return the map weight
    float get_map_weight() const { return map_weight; }
 
    //! Convert atom cid string to a coot atom specifier.
-   //! The test for these failing is spec.empty()
+   //! The test for these failing is `spec.empty()`
    coot::atom_spec_t atom_cid_to_atom_spec(int imol, const std::string &cid) const;
 
    //! Convert residue cid string to a coot residue specifier.
+   //! @return the residues spec.  `spec.empty()` is true on failure.
    coot::residue_spec_t residue_cid_to_residue_spec(int imol, const std::string &cid) const;
 
    //! this set the show_timings flag. Various (not all) functions in this class can calculate how long
    //! they took to run. Setting this will write the time to taken (in milliseconds) to stdout.
+   //! The default is `true`.
    void set_show_timings(bool s) { show_timings = s; }
 
    // -------------------------------- generic utils -----------------------------------
@@ -746,6 +749,12 @@ public:
    //! @returns a `coot::validation_information_t`
    coot::validation_information_t ramachandran_analysis(int imol_model) const;
 
+   //! ramachandran validation information (formatted for a graph, not 3d) for a given chain in a given molecule
+   //! 20230127-PE This function does not exist yet.
+   //!
+   //! @returns a `coot::validation_information_t`
+   coot::validation_information_t ramachandran_analysis_for_chain(int imol_model, const std::string &chain_id) const;
+
    //! peptide omega validation information
    //! @returns a `coot::validation_information_t`
    coot::validation_information_t peptide_omega_analysis(int imol_model) const;
@@ -870,6 +879,55 @@ public:
    //! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
+   // -------------------------------- Testing -------------------------------------
+   //! \name Testing functions
+
+   class ltj_stats_t {
+   public:
+      unsigned int count;
+      float function_value;
+      std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
+      std::chrono::time_point<std::chrono::high_resolution_clock> timer;
+      ltj_stats_t() : timer(std::chrono::high_resolution_clock::now()) {
+         count = 0;
+         function_value = 0;
+         timer_start = timer;
+      }
+      //! This function is called by the long-term job, udating the timer and count
+      void update_timer() {
+         timer = std::chrono::high_resolution_clock::now();
+         count += 1;
+      }
+      //! This function is called by the interrogation function - and is to help
+      //! the uer know how the job is going.
+      //!
+      //! 20230127-PE A nice graph of the change of the function value seems like a good idea
+      double time_difference() {
+         timer = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(timer - timer_start).count();
+         return d10;
+      }
+   };
+
+   //! long term job
+   ltj_stats_t long_term_job_stats;
+
+   // not for user-control
+   bool interrupt_long_term_job;
+
+   //! start a long-term job.
+   //!
+   //! if `n_seconds` is 0, then run forever (or until interrupted)
+   //!
+   void testing_start_long_term_job(unsigned int n_seconds);
+
+   //! stop the long-term job runnning (testing function)
+   void testing_stop_long_term_job();
+
+   //! get the stats for the long-term job (testing function)
+   ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
+
 
    // -------------------------------- Other ---------------------------------------
 
