@@ -52,7 +52,7 @@
 void
 add_python_scripting_entry_completion(GtkWidget *entry) {
 
-   std::cout << "======================= add_python_scripting_entry_completion() " << std::endl;
+   // std::cout << "======================= add_python_scripting_entry_completion() " << std::endl;
 
    graphics_info_t g; // for history
 
@@ -67,29 +67,35 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    std::vector<std::string> module_coot_utils_completions;
 
    PyErr_Clear();
+   // I'd like to do the dir(coot) using the API, something like:
+   // PyObject *object = PyObject_Dir(module_py);
+   // but I don't know how to get the module_py
+   // PyObject *PyState_FindModule(PyModuleDef *def) - what is def?
+   //
    PyObject *object = safe_python_command_with_return("dir(coot)");
    std::cout << "object " << object << std::endl;
    if (object) {
       std::string module_name = "coot";
       module_coot_completions.reserve(2000);
 
-      auto tp_0 = std::chrono::high_resolution_clock::now();
+      // auto tp_0 = std::chrono::high_resolution_clock::now();
       if (PyList_Check(object)) {
          Py_ssize_t n = PyList_Size(object);
          for (Py_ssize_t i=0; i<n; i++) {
             PyObject *item = PyList_GetItem(object, i);
             if (PyUnicode_Check(item)) {
-               std::string str = module_name + std::string(".") + PyBytes_AS_STRING(PyUnicode_AsUTF8String(item));
+               std::string str = module_name + std::string(".") +
+                  PyBytes_AS_STRING(PyUnicode_AsUTF8String(item)) + std::string("(");
                module_coot_completions.push_back(str);
             }
          }
       }
-      auto tp_1 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-      std::cout << "Timings: dir coot " << d10 << " microseconds" << std::endl;
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // std::cout << "Timings: dir coot " << d10 << " microseconds" << std::endl;
    }
 
-   auto tp_2 = std::chrono::high_resolution_clock::now();
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
    object = safe_python_command_with_return("dir(coot_utils)");
    if (object) {
       if (PyList_Check(object)) {
@@ -98,21 +104,20 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
          for (Py_ssize_t i=0; i<n; i++) {
             PyObject *item = PyList_GetItem(object, i);
             if (PyUnicode_Check(item)) {
-               std::string str = module_name + std::string(".") + PyBytes_AS_STRING(PyUnicode_AsUTF8String(item));
+               std::string str = module_name + std::string(".") +
+                  PyBytes_AS_STRING(PyUnicode_AsUTF8String(item)) + std::string("(");
                module_coot_utils_completions.push_back(str);
             }
          }
       }
-      auto tp_3 = std::chrono::high_resolution_clock::now();
-      auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
-      std::cout << "Timings: dir coot_utils " << d32 << " microseconds" << std::endl;
+      // auto tp_3 = std::chrono::high_resolution_clock::now();
+      // auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+      // std::cout << "Timings: dir coot_utils " << d32 << " microseconds" << std::endl;
    }
 
    // command history
    std::vector<std::string> chv = g.command_history.commands;
-   std::cout << "comand history length: " << chv.size() << std::endl;
-   chv = g.command_history.unique_commands();
-   std::cout << "unique comand history length: " << chv.size() << std::endl;
+   chv = g.command_history.unique_commands(); // there *were* unique already
 
    // add together the completions
    completions.push_back("import coot");
@@ -132,7 +137,6 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
       gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
    }
 
-   std::cout << "setting the model for the completion!" << std::endl;
    gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
 
 }
@@ -146,32 +150,40 @@ on_python_window_entry_key_press_event(GtkWidget   *entry,
                                        GdkEventKey *event,
                                        gpointer     user_data) {
 
-   std::cout << "Key-press " << event->keyval << std::endl;
+   // std::cout << "Key-press " << event->keyval << " " << event->state << std::endl;
 
-#if 0
    if (event->keyval == GDK_KEY_Up) {
-      graphics_info_t g;
-      std::string t = g.command_history.get_previous_command();
-      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
-      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
-      return TRUE;
+      // allow history scroll up if Ctrl is also pressed
+      if (event->state & GDK_CONTROL_MASK) {
+         graphics_info_t g;
+         std::string t = g.command_history.get_previous_command();
+         // std::cout << "previous-command: \"" << t << "\"" << std::endl;
+         gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+         return TRUE;
+      }
    }
    if (event->keyval == GDK_KEY_Down) {
-      graphics_info_t g;
-      std::string t = g.command_history.get_next_command();
-      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
-      return TRUE;
+      // Allow history scroll down if Ctrl is also pressed.
+      // Without Ctrl, this co-incides with navigating into and up and down in
+      // the completion dialog.
+      if (event->state & GDK_CONTROL_MASK) {
+         graphics_info_t g;
+         std::string t = g.command_history.get_next_command();
+         gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+         return TRUE;
+      }
    }
-#endif
 
    if (event->keyval == GDK_KEY_Return) {
-      GdkModifierType state;
-      gboolean es = gtk_get_current_event_state(&state);
+      // GdkModifierType state;
+      // gboolean es = gtk_get_current_event_state(&state);
+      int state = event->state;
       if (state & GDK_CONTROL_MASK) {
-         std::cout << "Return with control!" << std::endl;
-         run_python_scripting_window_entry_text(entry);
+         // std::cout << "Return with control!" << std::endl;
+         run_python_scripting_window_entry_text(entry); // clears the entry
+         return TRUE;
       } else {
-         std::cout << "Return!" << std::endl;
+         // std::cout << "Return!" << std::endl;
       }
    }
 
