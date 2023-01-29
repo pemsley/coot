@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 namespace coot {
 
@@ -14,7 +15,6 @@ namespace coot {
       void add_history_command(const std::vector<std::string> &command) {
 	 history_strings.push_back(command);
       }
-
    };
 
    class command_history_t {
@@ -22,9 +22,7 @@ namespace coot {
       std::vector<std::string> commands;
       int index;
       std::string command_history_file_name;
-      command_history_t() {
-         index = 0;
-         command_history_file_name = std::string(".coot_python_commands");
+      command_history_t() : index(0), command_history_file_name(std::string(".coot_python_commands")) {
          read_history();
       }
 
@@ -54,6 +52,17 @@ namespace coot {
          return commands[index];
       }
 
+      std::vector<std::string> unique_commands() const {
+         std::vector<std::string> v;
+         for (unsigned int i=0; i<commands.size(); i++) {
+            const auto &c = commands[i];
+            std::vector<std::string>::const_iterator it = std::find(v.begin(), v.end(), c);
+            if (it == v.end())
+               v.push_back(c);
+         }
+         return v;
+      }
+
       void write_history() {
          if (! commands.empty()) {
             std::vector<std::string> all_history;
@@ -66,10 +75,9 @@ namespace coot {
             all_history.insert(all_history.end(), commands.begin(), commands.end());
             std::ofstream f(command_history_file_name);
             std::vector<std::string>::iterator it;
-            for (it=commands.begin(); it!=commands.end(); it++) {
+            for (it=commands.begin(); it!=commands.end(); ++it) {
                const std::string &hs = *it;
                std::vector<std::string>::iterator it_next = it + 1;
-               std::find(it_next, commands.end(), hs);
                if (std::find(it_next, commands.end(), hs) == commands.end()) {
                   f << hs << "\n";
                }

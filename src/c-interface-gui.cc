@@ -212,18 +212,18 @@ fill_option_menu_with_coordinates_options_for_dictionary(GtkWidget *option_menu)
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
       gtk_widget_show(menuitem);
       for (int imol=0; imol<graphics_n_molecules(); imol++) {
-	 if (is_valid_model_molecule(imol)) {
-	    std::string ss = coot::util::int_to_string(imol);
-	    GtkWidget *menuitem = gtk_menu_item_new_with_label (ss.c_str());
-	    g_signal_connect(G_OBJECT (menuitem), "activate",
-			       signal_func,
-			       GINT_TO_POINTER(imol));
-	    g_object_set_data(G_OBJECT(menuitem),
-			      "select_molecule_number",
-			      GINT_TO_POINTER(imol));
-	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	    gtk_widget_show(menuitem);
-	 }
+         if (is_valid_model_molecule(imol)) {
+            std::string ss = coot::util::int_to_string(imol);
+            GtkWidget *menuitem = gtk_menu_item_new_with_label (ss.c_str());
+            g_signal_connect(G_OBJECT (menuitem), "activate",
+                  signal_func,
+                  GINT_TO_POINTER(imol));
+            g_object_set_data(G_OBJECT(menuitem),
+                  "select_molecule_number",
+                  GINT_TO_POINTER(imol));
+            gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+            gtk_widget_show(menuitem);
+         }
       }
       gtk_menu_set_active(GTK_MENU(menu), 0);
    }
@@ -1909,48 +1909,7 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*              scripting gtk interface                                      */
 /*  ------------------------------------------------------------------------ */
 
-// extern "C" G_MODULE_EXPORT
-gboolean
-on_python_window_entry_key_press_event(GtkWidget   *entry,
-                                       GdkEventKey *event,
-                                       gpointer     user_data) {
-
-   if (event->keyval == GDK_KEY_Up) {
-      graphics_info_t g;
-      std::string t = g.command_history.get_previous_command();
-      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
-      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
-      return TRUE;
-   }
-   if (event->keyval == GDK_KEY_Down) {
-      graphics_info_t g;
-      std::string t = g.command_history.get_next_command();
-      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
-      return TRUE;
-   }
-
-   return FALSE;
-}
-
-// We want to evaluate the string when we get a carriage return
-// in this entry widget
-void
-setup_python_window_entry(GtkWidget *entry) {
-
-#ifdef USE_PYTHON
-
-   // add python entry in entry callback code here...
-
-   g_signal_connect(G_OBJECT(entry), "activate",
-                    G_CALLBACK(python_window_enter_callback),
-                    (gpointer) entry);
-
-   g_signal_connect(G_OBJECT(entry), "key-press-event",
-                    G_CALLBACK(on_python_window_entry_key_press_event),
-                    (gpointer) entry);
-
-#endif // USE_PYTHON
-}
+#include "c-interface-python.hh"
 
 
 
@@ -1966,24 +1925,6 @@ setup_guile_window_entry(GtkWidget *entry) {
 #endif //  USE_GUILE
 
 }
-
-#ifdef USE_PYTHON
-void python_window_enter_callback(GtkWidget *widget,
-                                  GtkWidget *entry ) {
-
-  const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-  std::string entry_text_as_string(entry_text); // important to make a copy
-  PyRun_SimpleString(entry_text);
-
-  // clear the entry
-  gtk_entry_set_text(GTK_ENTRY(entry), "");
-
-  graphics_info_t g;
-  g.command_history.add_to_history(entry_text_as_string);
-
-}
-#endif
-
 
 #ifdef USE_GUILE
 void guile_window_enter_callback(GtkWidget *widget,

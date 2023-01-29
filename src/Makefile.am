@@ -331,9 +331,9 @@ check_PROGRAMS = test-coot-align test-cholesky
 coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc
 
 coot_bin_LDADD =  \
-        libcootsumo.la \
+	libcootsumo.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
 
 
@@ -341,18 +341,18 @@ lib_LTLIBRARIES=libcootsumo.la
 
 libcootsumo_la_SOURCES = \
 	atom-pull.hh		 \
-   atom-label-info.hh       \
+	atom-label-info.hh       \
 	array-2d.hh		 \
 	init_coot_as_python_module.cc \
 	init_coot_as_python_module.hh \
 	boids.hh boids.cc	 \
-   bond-colour-mode.hh      \
+	bond-colour-mode.hh      \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
-	git-revision-count.cc 	 \
-	scm-boot-guile.hh 	 \
-	scm-boot-guile.cc 	 \
+	git-revision-count.cc	 \
+	scm-boot-guile.hh	 \
+	scm-boot-guile.cc	 \
 	clipper-ccp4-map-file-wrapper.hh \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
@@ -611,16 +611,16 @@ libcootsumo_la_SOURCES = \
 	molecule-class-info-dots.cc 	\
 	molecule-class-info-dots-internal.cc 	\
 	molecule-class-info-other.cc 	\
-	molecule-class-info.h 	        \
+	molecule-class-info.h		\
 	molecule-class-info-mutate.cc 	\
 	molecule-class-info-residues.cc \
 	molecule-class-info-refine.cc   \
 	molecule-class-info-kk.cc       \
-	molecule-class-info-surface.cc 	\
-	molecule-class-info-string.cc 	\
+	molecule-class-info-surface.cc	\
+	molecule-class-info-string.cc	\
 	molecule-class-info-patterson.cc   \
 	molecule-class-info-ncs.cc         \
-	molecule-class-info-mol-tris.cc	   \
+	molecule-class-info-mol-tris.cc \
 	molecule-class-info-widget-work.cc \
 	molecule-class-info-geometry.cc    \
 	molecular-mesh-generator.cc \
@@ -628,10 +628,10 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
-	nsv.cc nsv.hh    	 \
+	nsv.cc nsv.hh		\
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
-        pick.hh pick.cc		 \
+	pick.hh pick.cc	 \
 	positioned-widgets.h     \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -640,7 +640,8 @@ libcootsumo_la_SOURCES = \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
 	python-classes.hh	 \
-	python-3-interface.hh 	 \
+	python-3-interface.hh	 \
+	python-scripting-gui.hh  \
 	Particle.cc Particle.hh  \
 	pulse-data.hh            \
 	read-phs.h		 \
@@ -660,7 +661,7 @@ libcootsumo_la_SOURCES = \
 	rotamer-search-modes.hh  \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
-	screen-utils.cc		 \
+	screen-utils.cc	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc \

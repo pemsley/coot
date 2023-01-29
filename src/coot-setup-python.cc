@@ -48,6 +48,206 @@
 #include <glob.h>
 
 
+
+void
+add_python_scripting_entry_completion(GtkWidget *entry) {
+
+   std::cout << "======================= add_python_scripting_entry_completion() " << std::endl;
+
+   graphics_info_t g; // for history
+
+   GtkEntryCompletion *completion = gtk_entry_completion_new();
+   gtk_entry_completion_set_popup_completion(completion, TRUE);
+   gtk_entry_completion_set_text_column(completion, 0);
+   gtk_entry_completion_set_minimum_key_length(completion, 2);
+   gtk_entry_set_completion(GTK_ENTRY(entry), completion);
+
+   std::vector<std::string> completions;
+   std::vector<std::string> module_coot_completions;
+   std::vector<std::string> module_coot_utils_completions;
+
+   PyErr_Clear();
+   PyObject *object = safe_python_command_with_return("dir(coot)");
+   std::cout << "object " << object << std::endl;
+   if (object) {
+      std::string module_name = "coot";
+      module_coot_completions.reserve(2000);
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      if (PyList_Check(object)) {
+         Py_ssize_t n = PyList_Size(object);
+         for (Py_ssize_t i=0; i<n; i++) {
+            PyObject *item = PyList_GetItem(object, i);
+            if (PyUnicode_Check(item)) {
+               std::string str = module_name + std::string(".") + PyBytes_AS_STRING(PyUnicode_AsUTF8String(item));
+               module_coot_completions.push_back(str);
+            }
+         }
+      }
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      std::cout << "Timings: dir coot " << d10 << " microseconds" << std::endl;
+   }
+
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   object = safe_python_command_with_return("dir(coot_utils)");
+   if (object) {
+      if (PyList_Check(object)) {
+         std::string module_name = "coot_utils";
+         Py_ssize_t n = PyList_Size(object);
+         for (Py_ssize_t i=0; i<n; i++) {
+            PyObject *item = PyList_GetItem(object, i);
+            if (PyUnicode_Check(item)) {
+               std::string str = module_name + std::string(".") + PyBytes_AS_STRING(PyUnicode_AsUTF8String(item));
+               module_coot_utils_completions.push_back(str);
+            }
+         }
+      }
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+      std::cout << "Timings: dir coot_utils " << d32 << " microseconds" << std::endl;
+   }
+
+   // command history
+   std::vector<std::string> chv = g.command_history.commands;
+   std::cout << "comand history length: " << chv.size() << std::endl;
+   chv = g.command_history.unique_commands();
+   std::cout << "unique comand history length: " << chv.size() << std::endl;
+
+   // add together the completions
+   completions.push_back("import coot");
+   completions.push_back("import coot_utils");
+   completions.insert(completions.end(), chv.begin(),                           chv.end());
+   completions.insert(completions.end(), module_coot_completions.begin(),       module_coot_completions.end());
+   completions.insert(completions.end(), module_coot_utils_completions.begin(), module_coot_utils_completions.end());
+
+   // maybe only once!
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   GtkTreeIter iter;
+
+   for (unsigned int i=0; i<completions.size(); i++) {
+      gtk_list_store_append( store, &iter );
+      std::string c = completions[i];
+      // std::cout << "adding to gtk-completion: " << c << std::endl;
+      gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
+   }
+
+   std::cout << "setting the model for the completion!" << std::endl;
+   gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
+
+}
+
+// used in both the button and the entry callback.
+#include "python-scripting-gui.hh"
+
+// extern "C" G_MODULE_EXPORT
+gboolean
+on_python_window_entry_key_press_event(GtkWidget   *entry,
+                                       GdkEventKey *event,
+                                       gpointer     user_data) {
+
+   std::cout << "Key-press " << event->keyval << std::endl;
+
+#if 0
+   if (event->keyval == GDK_KEY_Up) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_previous_command();
+      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+   if (event->keyval == GDK_KEY_Down) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_next_command();
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+#endif
+
+   if (event->keyval == GDK_KEY_Return) {
+      GdkModifierType state;
+      gboolean es = gtk_get_current_event_state(&state);
+      if (state & GDK_CONTROL_MASK) {
+         std::cout << "Return with control!" << std::endl;
+         run_python_scripting_window_entry_text(entry);
+      } else {
+         std::cout << "Return!" << std::endl;
+      }
+   }
+
+   // std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(object)));
+   // std::cout << s << std::endl;
+
+   return FALSE;
+}
+
+void
+run_python_scripting_window_entry_text(GtkWidget *entry) {
+
+   if (entry) {
+      const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+      std::string entry_text_as_string(entry_text); // important to make a copy
+      PyRun_SimpleString(entry_text);
+
+      // clear the entry
+      gtk_entry_set_text(GTK_ENTRY(entry), "");
+
+      graphics_info_t g;
+      g.command_history.add_to_history(entry_text_as_string);
+
+   }
+}
+
+// We want to evaluate the string when we get a carriage return
+// in this entry widget
+void
+setup_python_window_entry(GtkWidget *entry) {
+
+#ifdef USE_PYTHON
+
+#if 0
+   // setup the python entry in entry callback code here...
+
+   g_signal_connect(G_OBJECT(entry), "activate",
+                    G_CALLBACK(python_window_enter_callback),
+                    (gpointer) entry);
+
+#endif
+
+   g_signal_connect(G_OBJECT(entry), "key-press-event",
+                    G_CALLBACK(on_python_window_entry_key_press_event),
+                    (gpointer) entry);
+
+   add_python_scripting_entry_completion(entry);
+
+#endif // USE_PYTHON
+}
+
+#ifdef USE_PYTHON
+void python_window_enter_callback(GtkWidget *widget,
+                                  GtkWidget *entry ) {
+
+   std::cout << "============================ python_window_enter_callback()! " << std::endl;
+
+#if 0 //20230128-PE - now we have completions, an "enter" on a completion
+      // entry calls this function - we don't want that.
+
+   const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+   std::string entry_text_as_string(entry_text); // important to make a copy
+   PyRun_SimpleString(entry_text);
+   
+   // clear the entry
+   gtk_entry_set_text(GTK_ENTRY(entry), "");
+   
+   graphics_info_t g;
+   g.command_history.add_to_history(entry_text_as_string);
+#endif
+
+}
+#endif
+
+
+
 void setup_python(int argc, char **argv) {
 
 #ifdef USE_PYTHON
@@ -123,6 +323,13 @@ void setup_python(int argc, char **argv) {
       PyImport_ImportModule("extensions");
    }
    PyErr_PrintEx(0);
+
+   if (graphics_info_t::run_startup_scripts_flag) {
+      // setup_python_window_entry() is done only once now. So do it here.
+      GtkWidget *python_entry = widget_from_builder("python_window_entry");
+      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+   }
+   
    std::string home_directory = coot::get_home_dir();
    try_load_dot_coot_py_and_python_scripts(home_directory);
 
