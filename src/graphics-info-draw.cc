@@ -2007,6 +2007,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
+               if (! is_valid_model_molecule(jj)) continue;
+
                Mesh &mesh = m.meshes[jj];
 
                if (false)
@@ -2085,6 +2087,7 @@ graphics_info_t::draw_instanced_meshes() {
    bool have_meshes_to_draw = false;
    for (int i=n_molecules()-1; i>=0; i--) {
       if (! molecules[i].instanced_meshes.empty()) {
+         if (! is_valid_model_molecule(i)) continue;
          if (molecules[i].draw_it) {
             have_meshes_to_draw = true;
             break;
@@ -2102,8 +2105,9 @@ graphics_info_t::draw_instanced_meshes() {
       bool do_depth_fog = shader_do_depth_fog_flag;
       glDisable(GL_BLEND);
       for (int ii=n_molecules()-1; ii>=0; ii--) {
+         if (! is_valid_model_molecule(ii)) continue;
          molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-         if (molecules[ii].draw_it) {
+         if (m.draw_it) {
             for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
                // std::cout << "   graphics_info_t::draw_instanced_meshes() A " << m.instanced_meshes[jj].get_name() << std::endl;
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
@@ -5549,7 +5553,8 @@ graphics_info_t::setup_key_bindings() {
 
    // control
    // meh - ugly and almost useless. Try again.
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Control_L, key_bindings_t(l29, "Highlight Active Residue")));
+
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l29, "Highlight Active Residue")));
 
    // control keys
 

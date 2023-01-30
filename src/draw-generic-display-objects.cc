@@ -126,7 +126,17 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                if (is_valid_map_molecule(imol_for_mesh))
                   if (! molecules[imol_for_mesh].draw_it_for_map)
                      draw_it = false;
+
+               if (is_valid_map_molecule(imol_for_mesh) || is_valid_model_molecule(imol_for_mesh)) {
+               } else {
+                  // Don't draw the mesh if the molecule it came from has been deleted.
+                  // 20230130-PE Note to self: make sure the imol is set when making filling
+                  // the meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+                  //
+                  draw_it = false;
+               }
             }
+
             if (pass_type == PASS_TYPE_STANDARD) {
                if (draw_it) {
                   if (obj.mesh.is_instanced) {
