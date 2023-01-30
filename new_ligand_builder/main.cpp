@@ -97,15 +97,21 @@ void build_main_window(GtkWindow* win) {
     
 }
 
-GMenu* build_menu() {
-    GMenu* ret = g_menu_new();
-    //g_menu_append(GMenu *menu, const gchar *label, const gchar *detailed_action);
+GMenu *build_menu() {
+    GMenu *ret = g_menu_new();
+    // g_menu_append(GMenu *menu, const gchar *label, const gchar
+    // *detailed_action);
 
     // File
-
+    GMenu *file = g_menu_new();
+    g_menu_append(file,"Test","app.test");
+    g_menu_append_section(ret, "File", G_MENU_MODEL(file));
     // Display
-
+    GMenu *display = g_menu_new();
+    g_menu_append_section(ret, "Display", G_MENU_MODEL(display));
     // Help
+    GMenu *help = g_menu_new();
+    g_menu_append_section(ret, "Help", G_MENU_MODEL(help));
 
     return ret;
 }
@@ -119,10 +125,10 @@ int main() {
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         //GtkWindow* win = GTK_WINDOW(user_data);
-        GtkWidget* win = gtk_application_window_new(app);
-        gtk_application_add_window(app,GTK_WINDOW(win));
-        gtk_window_set_application(GTK_WINDOW(win),app);
         gtk_application_set_menubar(app, G_MENU_MODEL(build_menu()));
+        GtkWidget* win = gtk_application_window_new(app);
+        gtk_window_set_application(GTK_WINDOW(win),app);
+        gtk_application_add_window(app,GTK_WINDOW(win));
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         build_main_window(GTK_WINDOW(win));
         gtk_widget_show(win);
