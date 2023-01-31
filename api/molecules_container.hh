@@ -804,8 +804,11 @@ public:
                       int imol_map_with_data_attached,
                       int imol_updating_difference_map);
 
-   //! sfcalc and re-generate maps (low-level function) - generally use the updating maps method rather than this.
-   //! This functions uses bulk solvent.
+   //! sfcalc and re-generate maps (low-level function). This functions uses bulk solvent.
+   //!
+   //! Call this function after connecting maps for updating maps to set the initial R-factor
+   //! and store the initial map flatness.
+   //!
    //! @return a class of interesting statistics
    coot::util::sfcalc_genmap_stats_t
    sfcalc_genmaps_using_bulk_solvent(int imol_model,
