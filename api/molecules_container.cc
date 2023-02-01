@@ -3095,14 +3095,21 @@ molecules_container_t::get_molecular_representation_mesh(int imol, const std::st
                                                          const std::string &style) {
 
    coot::simple_mesh_t mesh;
-   int status = 0;
    if (is_valid_model_molecule(imol)) {
 
+#if 0 // testing the colour rules
+      add_colour_rule(imol, "//N", "tomato");
       add_colour_rule(imol, "//A", "pink");
       add_colour_rule(imol, "//B", "skyblue");
+      add_colour_rule(imol, "//G", "cyan");
       add_colour_rule(imol, "//P", "brown");
       add_colour_rule(imol, "//R", "yellow");
-      add_colour_rule(imol, "//A/100-200", "green");
+      add_colour_rule(imol, "//A/40-46",   "green");
+      add_colour_rule(imol, "//A/207-214", "green");
+      add_colour_rule(imol, "//A/217-223", "green");
+      add_colour_rule(imol, "//A/243-249", "green");
+      add_colour_rule(imol, "//A/276-283", "green");
+#endif
 
       mesh = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style);
    } else {
