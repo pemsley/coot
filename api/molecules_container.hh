@@ -82,14 +82,6 @@ class molecules_container_t {
                                                     // No action if imol is the the model for updating maps.
    void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
 
-   class r_factor_stats {
-      public:
-      float r_factor;  // 0 to 1
-      float free_r_factor;
-      unsigned int rail_points_total;
-      unsigned int rail_points_new;
-   };
-
    coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
 
 
@@ -521,6 +513,14 @@ public:
                                              float radius, float contour_level);
 
    coot::util::sfcalc_genmap_stats_t get_latest_sfcalc_stats() const { return latest_sfcalc_stats; }
+
+   class r_factor_stats {
+      public:
+      float r_factor;  // 0 to 1
+      float free_r_factor;
+      unsigned int rail_points_total;
+      unsigned int rail_points_new;
+   };
 
    r_factor_stats get_r_factor_stats();
 
