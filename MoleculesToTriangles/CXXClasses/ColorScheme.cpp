@@ -61,7 +61,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
    // std::cout << "#######  colorChainsScheme() !" << std::endl;
 
-   std::shared_ptr<ColorScheme> result(new ColorScheme());
+    std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
                                 //    "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
                                 "Salmon", "Sandy Brown",
@@ -77,13 +77,29 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
         // std::cout << "### " << selectionString << " " << colorNames[i%nColorNames] << std::endl;
+        std::string c =   colorNames[i%nColorNames];
         auto colorRule =
-           SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)),
-                                                        colorNames[i%nColorNames]);
+           SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), c);
         result->addRule(colorRule);
     }
     return result;
 }
+
+// static
+std::shared_ptr<ColorScheme> colorChainsSchemeWithChainColorMap(const std::map<std::string, std::string> &colour_map) {
+
+   std::shared_ptr<ColorScheme> result(new ColorScheme());
+   std::map<std::string, std::string>::const_iterator it;
+   for (it=colour_map.begin(); it!=colour_map.end(); ++it) {
+      const std::string &chain_id    = it->first;
+      const std::string &colorName = it->second;
+      std::string selectionString = "//" + chain_id;
+      auto colorRule = SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), colorName);
+      result->addRule(colorRule);
+   }
+   return result;
+}
+
 
 std::shared_ptr<ColorScheme> ColorScheme::colorBFactorScheme(){
     std::shared_ptr<ColorScheme> result(new ColorScheme());
