@@ -179,6 +179,8 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
    // auto chain_cs = ColorScheme::colorChainsScheme();
    auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+   if (colour_rules.empty())
+      chain_cs = ColorScheme::colorChainsScheme(); // use internal colour rules
    auto ele_cs   = ColorScheme::colorByElementScheme();
    auto ss_cs    = ColorScheme::colorBySecondaryScheme();
    auto bf_cs    = ColorScheme::colorBFactorScheme();

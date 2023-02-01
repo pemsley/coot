@@ -3092,11 +3092,18 @@ molecules_container_t::get_non_standard_residues_in_molecule(int imol) const {
 
 coot::simple_mesh_t
 molecules_container_t::get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style) const {
+                                                         const std::string &style) {
 
    coot::simple_mesh_t mesh;
    int status = 0;
    if (is_valid_model_molecule(imol)) {
+
+      add_colour_rule(imol, "//A", "pink");
+      add_colour_rule(imol, "//B", "skyblue");
+      add_colour_rule(imol, "//P", "brown");
+      add_colour_rule(imol, "//R", "yellow");
+      add_colour_rule(imol, "//A/100-200", "green");
+
       mesh = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;

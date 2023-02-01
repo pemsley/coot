@@ -86,7 +86,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 }
 
 // static
-std::shared_ptr<ColorScheme> colorChainsSchemeWithColourRules(const std::vector<std::pair<std::string, std::string> > &colour_rules) {
+std::shared_ptr<ColorScheme> ColorScheme::colorChainsSchemeWithColourRules(const std::vector<std::pair<std::string, std::string> > &colour_rules) {
 
    std::shared_ptr<ColorScheme> result(new ColorScheme());
    std::vector<std::pair<std::string, std::string> >::const_iterator it;

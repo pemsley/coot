@@ -441,7 +441,7 @@ public:
 
    //! get ribbon and surface representation
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style) const;
+                                                         const std::string &style);
 
    //! get Gaussian surface representation
    coot::simple_mesh_t get_gaussian_surface(int imol) const;
