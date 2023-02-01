@@ -65,6 +65,11 @@ Validation Information
 .. doxygenfile:: geometry/residue-and-atom-specs.hh
       :project: libcootapi
 
+Structure Factors
+=================
+
+.. doxygenfile:: coot-utils/sfcalc-genmap.hh
+      :project: libcootapi
 
 
 Indices and tables

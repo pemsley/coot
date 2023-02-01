@@ -628,30 +628,44 @@ namespace coot {
       // changes the internal map mesh holder (hence not const)
       coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
 
+      //! The container class for an interesting place.
+      //!
+      //! This documentation doesn't work and I don't know why.
       class interesting_place_t {
       public:
+         //! Feature
          std::string feature_type;
+         //! Residue specifier
          residue_spec_t residue_spec; // use this for sorting a combination of interesting_place_t types.
+         //! Position
          float x, y, z;
+         //! button label
          std::string button_label;
+         //! actual value of the feature
          float feature_value; // e.g. peak-height (not all "interesting" feature values can be captured by a float of course)
+         //! synthetic badness (for "score by badness")
          float badness; // a nubmer between 100.0 and 0.0 (inclusive) if it's negative then it's not set.
+         //! constructor
          interesting_place_t() {}
+         //! constructor
          interesting_place_t(const std::string &ft, const residue_spec_t &rs, const clipper::Coord_orth &pt, const std::string &bl) :
             feature_type(ft), residue_spec(rs), button_label(bl) {
             x = pt.x(); y = pt.y(); z = pt.z();
             feature_value = -1; // something "unset"
             badness = -1.1; // "unset"
          }
+         //! constructor
          interesting_place_t(const std::string &ft, const clipper::Coord_orth &pt, const std::string &bl) : feature_type(ft), button_label(bl) {
             x = pt.x(); y = pt.y(); z = pt.z();
             feature_value = -1; // something "unset"
             badness = -1.1; // "unset"
          }
+         //! internal to libcootapi function to set the values
          void set_feature_value(const float &f) { feature_value = f; }
          void set_badness_value(const float &b) { badness = b; }
       };
 
+      //! difference maps peaks class
       class difference_map_peaks_info_t {
       public:
          clipper::Coord_orth pos;
