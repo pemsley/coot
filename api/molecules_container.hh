@@ -431,6 +431,14 @@ public:
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
                                                    int smoothness_factor);
 
+   //! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme() will be called
+   //! (and that his its internal colour-by-chain colouring scheme).
+   //!
+   void add_colour_rule(int imol, const std::string &selection_cid, const std::string &colour);
+
+   //! delete the colour rules for the given molecule
+   void delete_colour_rules(int imol);
+
    //! get ribbon and surface representation
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
                                                          const std::string &style) const;

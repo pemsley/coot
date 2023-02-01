@@ -86,14 +86,13 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 }
 
 // static
-std::shared_ptr<ColorScheme> colorChainsSchemeWithChainColorMap(const std::map<std::string, std::string> &colour_map) {
+std::shared_ptr<ColorScheme> colorChainsSchemeWithColourRules(const std::vector<std::pair<std::string, std::string> > &colour_rules) {
 
    std::shared_ptr<ColorScheme> result(new ColorScheme());
-   std::map<std::string, std::string>::const_iterator it;
-   for (it=colour_map.begin(); it!=colour_map.end(); ++it) {
-      const std::string &chain_id    = it->first;
-      const std::string &colorName = it->second;
-      std::string selectionString = "//" + chain_id;
+   std::vector<std::pair<std::string, std::string> >::const_iterator it;
+   for (it=colour_rules.begin(); it!=colour_rules.end(); ++it) {
+      const std::string &selectionString = it->first;
+      const std::string &colorName       = it->second;
       auto colorRule = SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), colorName);
       result->addRule(colorRule);
    }

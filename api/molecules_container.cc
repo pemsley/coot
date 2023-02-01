@@ -3221,3 +3221,28 @@ molecules_container_t::all_molecule_contact_dots(int imol) const {
    }
    return im;
 }
+
+//! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme() will be called
+//! (and that his its internal colour-by-chain colouring scheme).
+//!
+void
+molecules_container_t::add_colour_rule(int imol, const std::string &selection_cid, const std::string &colour) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].add_colour_rule(selection_cid, colour);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+//! delete the colour rules for the given molecule
+void
+molecules_container_t::delete_colour_rules(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].delete_colour_rules();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}

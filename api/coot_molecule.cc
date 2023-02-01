@@ -3378,3 +3378,4 @@ coot::molecule_t::fill_partial_residues(const clipper::Xmap<float> &xmap, protei
    }
    return status;
 }
+

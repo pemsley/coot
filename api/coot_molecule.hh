@@ -420,6 +420,18 @@ namespace coot {
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
+      //! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme() will be called
+      //! (and that his its internal colour-by-chain colouring scheme).
+      //!
+      //! the `colour_rules` is a vector of things like: ("//A", "red")
+      std::vector<std::pair<std::string, std::string> > colour_rules;
+
+      //! Add a colour rule: eg. ("//A", "red")
+      void add_colour_rule(const std::string &selection, const std::string &colour_name);
+
+      //! delete all the colour rules
+      void delete_colour_rules();
+
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;

@@ -12,6 +12,23 @@
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
+
+//! Add a colour rule: eg. ("//A", "red")
+void
+coot::molecule_t::add_colour_rule(const std::string &selection, const std::string &colour_name) {
+
+
+   colour_rules.push_back(std::make_pair(selection, colour_name));
+
+}
+
+
+//! delete all the colour rules
+void
+coot::molecule_t::delete_colour_rules() {
+   colour_rules.clear();
+}
+
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
                                                     const std::string &colour_scheme,
@@ -160,7 +177,8 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    coot::simple_mesh_t mesh;
 
    auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
-   auto chain_cs = ColorScheme::colorChainsScheme();
+   // auto chain_cs = ColorScheme::colorChainsScheme();
+   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
    auto ele_cs   = ColorScheme::colorByElementScheme();
    auto ss_cs    = ColorScheme::colorBySecondaryScheme();
    auto bf_cs    = ColorScheme::colorBFactorScheme();

@@ -131,7 +131,7 @@ public:
     static std::shared_ptr<ColorScheme> colorBFactorScheme();
     static std::shared_ptr<ColorScheme> colorRampChainsScheme();
     static std::shared_ptr<ColorScheme> colorChainsScheme();
-    static std::shared_ptr<ColorScheme> colorChainsSchemeWithChainColorMap(const std::map<std::string, std::string> &colour_map);
+    static std::shared_ptr<ColorScheme> colorChainsSchemeWithColourRules(const std::vector<std::pair<std::string, std::string> > &colour_rules);
     static std::shared_ptr<ColorScheme> colorSchemeForColorName(const std::string name);
     
 };
