@@ -1287,7 +1287,7 @@ def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
 
 
 def residue_info_dialog_displayed_qm():
-    if (residue_info_dialog_is_displayed == 1):
+    if (coot.residue_info_dialog_is_displayed() == 1):
         return True
     else:
         return False
@@ -2797,8 +2797,8 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
             if (not is_nucleotide(imol_ligand, "A", 1)):
-                match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
-            delete_residue(imol, chain_id_in, resno, "")
+                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+            coot.delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             merge_status = new_chain_id_info[0]
             # merge_status is sometimes a spec, sometimes a chain-id pair
@@ -2934,13 +2934,13 @@ def label_all_CAs(imol):
 
 def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
 
-    import types
-
     atom_list = coot.residue_info_py(imol, chain_id, resno, inscode)
-    if type(atom_list) is ListType:
+    try:
         for atom_info in atom_list:
             coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
-        coot.graphics_draw()
+    except KeyError as e:
+        print(e)
+    coot.graphics_draw()
 
 
 def label_all_active_residue_atoms():
@@ -3293,8 +3293,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
         prodrg_log = os.path.join(prodrg_dir, "prodrg.log")
 
         coot.delete_residue_hydrogens(new_mol, chain_id, res_no, ins_code, "")
-        coot.delete_residue_hydrogens(
-            imol,    chain_id, res_no, ins_code, "")  # otherwise they fly
+        coot.delete_residue_hydrogens(imol,    chain_id, res_no, ins_code, "")  # otherwise they fly
         coot.write_pdb_file(new_mol, prodrg_xyzin)
         coot.close_molecule(new_mol)
         prodrg_exe = find_exe("cprodrg", "CBIN", "CCP4_BIN", "PATH")
@@ -3320,8 +3319,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 rn = coot.residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
                 overlap_ligands(imol_new, imol, chain_id, res_no)
-                coot.match_ligand_torsions(
-                    imol_new, imol, chain_id, res_no)  # broken?
+                coot.match_ligand_torsions(imol_new, imol, chain_id, res_no)  # broken?
                 overlap_ligands(imol_new, imol, chain_id, res_no)
                 coot.set_residue_name(imol_new, "", 1, "", rn)
                 coot.change_chain_id(imol_new, "", chain_id, 1, 1, 1)
@@ -3338,8 +3336,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 # coot.replace_fragment(imol, imol_new,
                 #                 "//" + chain_id + "/" + str(res_no))
 
-                imol_replacing = coot.add_ligand_delete_residue_copy_molecule(
-                    imol_new, chain_id, res_no, imol, chain_id, res_no)
+                imol_replacing = coot.add_ligand_delete_residue_copy_molecule(imol_new, chain_id, res_no, imol, chain_id, res_no)
                 col = coot.get_molecule_bonds_colour_map_rotation(imol)
                 new_col = col + 5
                 coot.set_molecule_bonds_colour_map_rotation(imol_replacing, new_col)
