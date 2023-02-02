@@ -119,7 +119,7 @@ GMenu *build_menu() {
 int main() {
     gtk_init();
     
-    GtkApplication* app = gtk_application_new("org.pemsley.NewLigandEditor",G_APPLICATION_FLAGS_NONE);
+    GtkApplication* app = gtk_application_new("org.pemsley.NewLigandEditor",G_APPLICATION_DEFAULT_FLAGS);
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
 
