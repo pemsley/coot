@@ -1,10 +1,17 @@
 #include "ligand_editor_canvas.hpp"
+#include "ligand_editor_canvas/model.hpp"
+#include <utility>
+#include <vector>
+#include <memory>
 
 using namespace coot::ligand_editor_canvas;
 
 struct _CootLigandEditorCanvas {
     GtkWidget parent;
 
+    std::unique_ptr<ActiveTool> active_tool;
+    /// molecules on the screen
+    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
 };
 
 G_BEGIN_DECLS
@@ -57,14 +64,59 @@ static void on_left_click (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    switch(self->active_tool->get_variant()) {
+
+        case ActiveTool::Variant::None:{
+            gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
+            break;
+        }
+        case ActiveTool::Variant::BondModifier:{
+            
+            break;
+        }
+        case ActiveTool::Variant::StructureInsertion:{
+            
+            break;
+        }
+        case ActiveTool::Variant::ElementInsertion:{
+            
+            break;
+        }
+        case ActiveTool::Variant::GeometryModifier:{
+            
+            break;
+        }
+        case ActiveTool::Variant::DeleteHydrogens:{
+            
+            break;
+        }
+        case ActiveTool::Variant::Delete:{
+            
+            break;
+        }
+        case ActiveTool::Variant::Format:{
+            
+            break;
+        }
+        case ActiveTool::Variant::ChargeModifier:{
+            
+            break;
+        }
+        default:{
+            gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
+            break;
+        };
+    }
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
     
-    //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
+    //
     
 }
 
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
+    self->active_tool = std::make_unique<ActiveTool>();
+    self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     // GtkEventController* hover_controller = gtk_event_controller_motion_new();
@@ -82,7 +134,8 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
-
+    self->molecules.reset(nullptr);
+    self->active_tool.reset(nullptr);
     G_OBJECT_CLASS(coot_ligand_editor_canvas_parent_class)->dispose(_self);
 }
 
@@ -101,3 +154,7 @@ coot_ligand_editor_canvas_new()
 }
 
 G_END_DECLS
+
+void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
+    self->active_tool = std::move(active_tool);
+}

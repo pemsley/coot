@@ -18,7 +18,7 @@ class BondModifier {
 
     BondModifierMode mode;
     public:
-    
+
 };
 
 class ElementInsertion {
@@ -75,6 +75,7 @@ class StructureInsertion {
 class ActiveTool {
     public:
     enum class Variant: unsigned char {
+        None,
         BondModifier,
         StructureInsertion,
         ElementInsertion,
@@ -98,9 +99,18 @@ class ActiveTool {
     Variant variant;
 
     public:
+    ActiveTool() noexcept;
+
+    Variant get_variant() const noexcept;
 
 };
 
+/// Drawing-friendly representation of RDKit molecule
+class CanvasMolecule {
+
+    public:
+
+};
 
 
 }

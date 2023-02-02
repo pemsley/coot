@@ -2,11 +2,7 @@
 #define COOT_LIGAND_EDITOR_CANVAS_HPP
 
 #include "ligand_editor_canvas/model.hpp"
-#include <cstdarg>
-#include <cstdint>
-#include <cstdlib>
-#include <ostream>
-#include <new>
+#include <memory>
 #include "gtk/gtk.h"
 // GObject declaration 
 G_BEGIN_DECLS   
@@ -21,6 +17,9 @@ extern "C" {
 
 CootLigandEditorCanvas *coot_ligand_editor_canvas_new();
 
+
 } // extern "C"
+
+void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
 
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP
