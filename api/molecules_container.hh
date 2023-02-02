@@ -712,11 +712,15 @@ public:
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
+   //! Recently (20230202) the smoothness factor has been added as an extra argument
+   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
    //! @return the instanced mesh for the specified ligand
-   coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid) const;
+   coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid, unsigned int smoothness_factor) const;
 
+   //! Recently (20230202) the smoothness factor has been added as an extra argument
+   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
    //! @return the instanced mesh for the specified molecule
-   coot::instanced_mesh_t all_molecule_contact_dots(int imol) const;
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
 
    // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation

@@ -2063,13 +2063,16 @@ int test_ligand_contact_dots(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    if (mc.is_valid_model_molecule(imol)) {
-      coot::instanced_mesh_t im = mc.contact_dots_for_ligand(imol, "262");
+      unsigned int num_subdivisions = 1;
+      coot::instanced_mesh_t im = mc.contact_dots_for_ligand(imol, "262", num_subdivisions);
       if (im.geom.size() > 1) {
          if (im.geom[0].instancing_data_A.size() > 10) status = 1;
          if (im.geom[1].instancing_data_A.size() > 10) status = 1;
       }
       for (unsigned int i=0; i<im.geom.size(); i++) {
-         std::cout << "geom " << i << " A: " << im.geom[i].instancing_data_A.size() << " B: " << im.geom[i].instancing_data_B.size()
+         std::cout << "geom " << i
+                   << " A: " << im.geom[i].instancing_data_A.size()
+                   << " B: " << im.geom[i].instancing_data_B.size()
                    << std::endl;
       }
    }

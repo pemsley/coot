@@ -3211,11 +3211,12 @@ molecules_container_t::residues_with_missing_atoms(int imol) {
 
 //! @return the instanced mesh for the specified ligand
 coot::instanced_mesh_t
-molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid) const {
+molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid,
+                                               unsigned int num_subdivisions) const {
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
-      im = molecules[imol].contact_dots_for_ligand(cid, geom);
+      im = molecules[imol].contact_dots_for_ligand(cid, geom, num_subdivisions);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -3225,11 +3226,11 @@ molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid)
 
 //! @return the instanced mesh for the specified molecule
 coot::instanced_mesh_t
-molecules_container_t::all_molecule_contact_dots(int imol) const {
+molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subdivisions) const {
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
-      im = molecules[imol].all_molecule_contact_dots(geom);
+      im = molecules[imol].all_molecule_contact_dots(geom, num_subdivisions);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

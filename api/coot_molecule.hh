@@ -466,10 +466,12 @@ namespace coot {
       std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule() const;
 
       //! @return the instanced mesh for the specified ligand
-      coot::instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom) const;
+      coot::instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom,
+                                                     unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
-      coot::instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom) const;
+      coot::instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
+                                                       unsigned int num_subdivisions) const;
 
       // ------------------------ model-changing functions
 

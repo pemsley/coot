@@ -142,7 +142,8 @@ coot::molecule_t::setup_dots(instanced_mesh_t &im,
 
 //! @return the instanced mesh for the specified ligand
 coot::instanced_mesh_t
-coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom) const {
+coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom,
+                                          unsigned int num_subdivisions) const {
 
    // Note: std::unordered_map<std::string, std::vector<dot_t> > dots;
    // class dot_t {
@@ -173,7 +174,6 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
       float ball_size = 0.07;
       std::string name_stub = "Molecule " + std::to_string(imol_no);
-      unsigned int num_subdivisions = 3;
 
       setup_cylinder_clashes(im, c, ball_size, num_subdivisions, name_stub); //modify reference
 
@@ -185,7 +185,8 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
 
 //! @return the instanced mesh for the specified molecule
 coot::instanced_mesh_t
-coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom) const {
+coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom,
+                                            unsigned int num_subdivisions) const {
 
    coot::instanced_mesh_t im;
 
@@ -200,7 +201,6 @@ coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom) 
    coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(cdd, make_vdw_surface_flag);
    float ball_size = 0.07;
    std::string name_stub = "Molecule " + std::to_string(imol_no);
-   unsigned int num_subdivisions = 3;
 
    setup_cylinder_clashes(im, c, ball_size, num_subdivisions, name_stub); //modify reference
 
