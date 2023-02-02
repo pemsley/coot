@@ -5315,6 +5315,11 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    int tmp_index;
    bool debug = false;
 
+   if (!asc.mol) {
+      std::cout << "ERROR:: unset moving_atoms_asc mol in replace_coords()" << std::endl;
+      return;
+   }
+
    make_backup();
 
    // debug::
@@ -6338,6 +6343,37 @@ molecule_class_info_t::quick_save() {
 void
 molecule_class_info_t::close_yourself() {
 
+   auto remove_this_molecule_from_display_control = [] (int imol_no, bool was_coords, bool was_map) {
+
+      GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
+
+      auto delete_mol_hbox_func = [] (GtkWidget *item, void *data) {
+         int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+         int imol_this = *static_cast<int *>(data);
+         if (imol_widget == imol_this) {
+            gtk_widget_hide(item); // destroying may do bad things to the foreach loop variable
+         }
+      };
+
+      if (display_control_window) {
+         if (was_map) {
+            GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
+            if (GTK_IS_BOX(map_vbox)) {
+               int imol_this = imol_no;
+               gtk_container_foreach(GTK_CONTAINER(map_vbox), delete_mol_hbox_func, &imol_this);
+            }
+         }
+
+         if (was_coords) {
+            GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
+            if (GTK_IS_BOX(coords_vbox)) {
+               int imol_this = imol_no;
+               gtk_container_foreach(GTK_CONTAINER(coords_vbox), delete_mol_hbox_func, &imol_this);
+            }
+         }
+      }
+   };
+
    // Deletion causing problems on application closure
 
    bool was_map    = false;
@@ -6383,33 +6419,8 @@ molecule_class_info_t::close_yourself() {
    // delete from display manager combo box
    //
    graphics_info_t g;
-   GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
-   //
-
-   auto delete_mol_hbox_func = [] (GtkWidget *item, void *data) {
-                                  int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
-                                  int imol_this = *static_cast<int *>(data);
-                                  if (imol_widget == imol_this) {
-                                     gtk_widget_hide(item); // destroying may do bad things to the foreach loop variable
-                                  }
-                               };
-
-   if (display_control_window) {
-      if (was_map) {
-         GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
-         if (GTK_IS_BOX(map_vbox)) {
-            int imol_this = imol_no;
-            gtk_container_foreach(GTK_CONTAINER(map_vbox), delete_mol_hbox_func, &imol_this);
-         }
-      }
-
-      if (was_coords) {
-         GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
-         if (GTK_IS_BOX(coords_vbox)) {
-            int imol_this = imol_no;
-            gtk_container_foreach(GTK_CONTAINER(coords_vbox), delete_mol_hbox_func, &imol_this);
-         }
-      }
+   if (g.use_graphics_interface_flag) {
+      remove_this_molecule_from_display_control(imol_no, was_coords, was_map);
    }
 
    if (was_coords) {

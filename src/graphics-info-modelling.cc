@@ -3082,8 +3082,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
       graphics_draw();
       if (! refinement_immediate_replacement_flag) {
-	 coot::refinement_results_t dummy;
 	 if (use_graphics_interface_flag) {
+            coot::refinement_results_t dummy;
 	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
 	 }
       }

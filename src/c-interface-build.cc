@@ -4541,7 +4541,8 @@ rigid_body_refine_by_atom_selection(int imol, const char *atom_selection_string)
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
 	 if (false)
-	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here UDDAtomIndexHandle is "
+	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here "
+                      << "UDDAtomIndexHandle is "
 		      << g.molecules[imol].atom_sel.UDDAtomIndexHandle << std::endl;
 
 	 std::string atom_selection_str(atom_selection_string);

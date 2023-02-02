@@ -1562,20 +1562,64 @@ graphics_info_t::set_refinement_map(int i) {
 coot::refinement_results_t
 graphics_info_t::accept_moving_atoms() {
 
+   auto debug_moving_atoms = [] () {
+      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc: " << moving_atoms_asc << std::endl;
+      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc mol: " << moving_atoms_asc->mol << std::endl;
+      mmdb::Manager *mol = moving_atoms_asc->mol;
+      if (! mol) {
+         std::cout << "ERROR:: null moving_atoms_asc mol in accept_moving_atoms() " << std::endl;
+         return;
+      }
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        std::cout << "moving atom: " << at << " " << coot::atom_spec_t(at) << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   coot::refinement_results_t rr;
+
    while (continue_threaded_refinement_loop) {
       // std::cout << "waiting for continue_threaded_refinement_loop to be false..." << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
 
-   bool debug = false;
+   bool debug = true;
+
    if (debug) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
                 << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
                 << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+      debug_moving_atoms();
    }
 
-   coot::refinement_results_t rr = get_refinement_results();
+   if (! moving_atoms_asc) {
+      std::cout << "ERROR:: null moving_atoms_asc in accept_moving_atoms() " << std::endl;
+      return rr;
+   }
+   if (! moving_atoms_asc->mol) {
+      std::cout << "ERROR:: null moving_atoms_asc mol in accept_moving_atoms() " << std::endl;
+      return rr;
+   }
+
+   rr = get_refinement_results();
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
