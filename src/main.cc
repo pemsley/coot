@@ -503,6 +503,8 @@ main(int argc, char *argv[]) {
             std::cout << "WARNING:: init_from_gtkbuilder() failed " << std::endl;
          }
       }
+   } else {
+      setup_python(argc, argv);
    }
 
    // Mac users often start somewhere where they can't write files
