@@ -26,10 +26,12 @@ LDLIBS=-fuse-ld=mold \
 
 HEADERS = \
     ligand-builder.hpp \
+    ligand_editor_canvas/model.hpp \
     ligand_editor_canvas.hpp
 
 SOURCES = \
     ligand-builder.cpp \
+    ligand_editor_canvas/model.cpp \
     ligand_editor_canvas.cpp \
     main.cpp
 

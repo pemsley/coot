@@ -1,5 +1,7 @@
 #include "ligand_editor_canvas.hpp"
 
+using namespace coot::ligand_editor_canvas;
+
 struct _CootLigandEditorCanvas {
     GtkWidget parent;
 

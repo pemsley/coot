@@ -1,6 +1,7 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_HPP
 
+#include "ligand_editor_canvas/model.hpp"
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
