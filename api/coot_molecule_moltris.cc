@@ -29,6 +29,21 @@ coot::molecule_t::delete_colour_rules() {
    colour_rules.clear();
 }
 
+void
+coot::molecule_t::print_colour_rules() const {
+
+   std::cout << "=============================" << std::endl;
+   std::cout << " colour rules for molecule " << imol_no << std::endl;
+   std::cout << "=============================" << std::endl;
+   for (unsigned int i=0; i<colour_rules.size(); i++) {
+      const auto &cr = colour_rules[i];
+      std::cout << "   " << i << " " << cr.first << " " << cr.second << std::endl;
+   }
+   std::cout << "=============================" << std::endl;
+
+}
+
+
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
                                                     const std::string &colour_scheme,

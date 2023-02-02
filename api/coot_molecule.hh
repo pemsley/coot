@@ -432,6 +432,8 @@ namespace coot {
       //! delete all the colour rules
       void delete_colour_rules();
 
+      void print_colour_rules() const;
+
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;

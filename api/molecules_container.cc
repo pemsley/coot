@@ -3261,3 +3261,17 @@ molecules_container_t::delete_colour_rules(int imol) {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 }
+
+
+//! print the colour rules
+void
+molecules_container_t::print_colour_rules(int imol) const {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].print_colour_rules();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+
+}
