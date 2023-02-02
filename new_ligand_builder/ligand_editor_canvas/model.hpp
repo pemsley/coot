@@ -17,6 +17,8 @@ class BondModifier {
     private:
 
     BondModifierMode mode;
+    public:
+    
 };
 
 class ElementInsertion {
@@ -38,6 +40,9 @@ class ElementInsertion {
     };
 
     private:
+    Element element;
+    public:
+
 };
 
 
@@ -45,7 +50,7 @@ class ElementInsertion {
 class StructureInsertion {
     public:
 
-    enum class Structure {
+    enum class Structure: unsigned int {
         CycloPropaneRing,
         CycloButaneRing,
         CycloPentaneRing,
@@ -59,6 +64,9 @@ class StructureInsertion {
 
     };
     private:
+    Structure structure;
+
+    public:
 
 };
 
@@ -66,7 +74,7 @@ class StructureInsertion {
 
 class ActiveTool {
     public:
-    enum class Variant {
+    enum class Variant: unsigned char {
         BondModifier,
         StructureInsertion,
         ElementInsertion,
@@ -87,6 +95,7 @@ class ActiveTool {
         /// Valid for Variant::StructureInsertion
         StructureInsertion structure_insertion;
     };
+    Variant variant;
 
     public:
 
