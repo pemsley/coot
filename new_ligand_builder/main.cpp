@@ -7,6 +7,7 @@
 
 void build_main_window(GtkWindow* win) {
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_window_set_child(win, mainbox);
     // Top toolbar
     GtkWidget* top_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_append(GTK_BOX(mainbox), top_toolbar);
@@ -93,8 +94,40 @@ void build_main_window(GtkWindow* win) {
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas));
     // Statusbar / the bottom
     GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_margin_start(bottom_bar, 10);
+    gtk_widget_set_margin_end(bottom_bar, 10);
     gtk_box_append(GTK_BOX(mainbox), bottom_bar);
-    gtk_window_set_child(win, mainbox);
+
+    GtkWidget* smiles_label = gtk_label_new("SMILES:");
+    gtk_box_append(GTK_BOX(bottom_bar),smiles_label);
+    GtkWidget* smiles_display_label = gtk_label_new("");
+    gtk_box_append(GTK_BOX(bottom_bar),smiles_display_label);
+    gtk_widget_set_hexpand(smiles_display_label, TRUE);
+    GtkWidget* scale_label = gtk_label_new("Scale");
+    gtk_box_append(GTK_BOX(bottom_bar),scale_label);
+    gtk_widget_set_halign(scale_label,GTK_ALIGN_END);
+    GtkAdjustment* adj = gtk_adjustment_new(1, 0.1, 20, 0.1, 1, 2);
+    GtkWidget* scale_spin_button = gtk_spin_button_new(adj, 0.1, 1);
+    gtk_box_append(GTK_BOX(bottom_bar),scale_spin_button);
+    gtk_widget_set_halign(scale_spin_button,GTK_ALIGN_END);
+
+    GtkWidget* show_alerts_checkbutton = gtk_check_button_new_with_label("Show Alerts");
+    gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_END);
+    gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
+    gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
+
+    GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_append(GTK_BOX(mainbox), button_box);
+    gtk_widget_set_halign(button_box,GTK_ALIGN_END);
+    gtk_widget_set_margin_end(button_box, 10);
+    gtk_widget_set_margin_start(button_box, 10);
+    gtk_widget_set_margin_top(button_box, 10);
+    gtk_widget_set_margin_bottom(button_box, 10);
+
+    GtkWidget* apply_button = gtk_button_new_with_label("Apply");
+    gtk_box_append(GTK_BOX(button_box),apply_button);
+    GtkWidget* close_button = gtk_button_new_with_label("Close");
+    gtk_box_append(GTK_BOX(button_box),close_button);
     
 }
 
