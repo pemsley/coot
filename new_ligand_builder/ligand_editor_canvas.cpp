@@ -26,6 +26,12 @@ G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET
 void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
+
+    float w = (float) gtk_widget_get_size(widget,GTK_ORIENTATION_HORIZONTAL);
+    float h = (float) gtk_widget_get_size(widget,GTK_ORIENTATION_VERTICAL);
+    const graphene_rect_t background_rect = graphene_rect_t{{0,0},{w,h}};
+    const GdkRGBA background_color = GdkRGBA{1.f,1.f,1.f,1.f};
+    gtk_snapshot_append_color(snapshot, &background_color, &background_rect);
    
 }
 
@@ -43,16 +49,22 @@ void coot_ligand_editor_canvas_measure
     switch (orientation)
     {
     case GTK_ORIENTATION_HORIZONTAL:{
-    
+         // For now:
+        *natural_size = 1200;
+        *minimum_size = 1200;
         break;
     }
     case GTK_ORIENTATION_VERTICAL:{
-    
+         // For now:
+        *natural_size = 300;
+        *minimum_size = 300;
         break;
     }
     default:
         break;
     }
+
+   
 
 }
 

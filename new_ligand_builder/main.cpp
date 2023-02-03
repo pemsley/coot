@@ -211,6 +211,7 @@ int main() {
         auto* canvas = coot_ligand_editor_canvas_new();
         gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas)));
         GtkWidget* win = gtk_application_window_new(app);
+        gtk_window_set_title(GTK_WINDOW(win),"New Ligand Editor");
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
         gtk_application_add_window(app,GTK_WINDOW(win));
