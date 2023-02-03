@@ -154,7 +154,6 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
 }
 
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
-
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);

@@ -2,6 +2,7 @@
 #define COOT_LIGAND_EDITOR_CANVAS_HPP
 
 #include "ligand_editor_canvas/model.hpp"
+#include "ligand_editor_canvas/tools.hpp"
 #include <memory>
 #include "gtk/gtk.h"
 // GObject declaration 

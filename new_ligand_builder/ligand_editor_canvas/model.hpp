@@ -72,38 +72,7 @@ class StructureInsertion {
 
 
 
-class ActiveTool {
-    public:
-    enum class Variant: unsigned char {
-        None,
-        BondModifier,
-        StructureInsertion,
-        ElementInsertion,
-        /// Stereo out
-        GeometryModifier,
-        DeleteHydrogens,
-        Delete,
-        Format,
-        ChargeModifier
-    };
 
-    private:
-    union {
-        /// Valid for Variant::BondModifier
-        BondModifier bond_modifier;
-        /// Valid for Variant::ElementInsertion
-        ElementInsertion element_insertion;
-        /// Valid for Variant::StructureInsertion
-        StructureInsertion structure_insertion;
-    };
-    Variant variant;
-
-    public:
-    ActiveTool() noexcept;
-
-    Variant get_variant() const noexcept;
-
-};
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
