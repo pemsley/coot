@@ -532,8 +532,8 @@ public:
       public:
       float r_factor;  // 0 to 1
       float free_r_factor;
-      unsigned int rail_points_total;
-      unsigned int rail_points_new;
+      int rail_points_total;
+      int rail_points_new;
    };
 
    r_factor_stats get_r_factor_stats();
