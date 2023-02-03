@@ -1,6 +1,7 @@
 #include "ligand-builder.hpp"
 #include "ligand_editor_canvas.hpp"
 #include <gtk/gtk.h>
+#include <string>
 
 
 
@@ -97,21 +98,33 @@ void build_main_window(GtkWindow* win) {
     
 }
 
-GMenu *build_menu() {
+GMenu *build_menu(GtkApplication* app) {
     GMenu *ret = g_menu_new();
+    
     // g_menu_append(GMenu *menu, const gchar *label, const gchar
     // *detailed_action);
+    auto new_menu_item = [app](const char* label,const char* action_name,GCallback func){
+        std::string detailed_action_name = "app.";
+        detailed_action_name += action_name;
+        GMenuItem* item = g_menu_item_new(label,detailed_action_name.c_str());
+        GSimpleAction* action = g_simple_action_new(action_name,nullptr);
+        g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
+        g_signal_connect(action, "activate", func, nullptr);
+        return item;
+    };
 
     // File
     GMenu *file = g_menu_new();
-    g_menu_append(file,"Test","app.test");
-    g_menu_append_section(ret, "File", G_MENU_MODEL(file));
+    g_menu_append_item(file, new_menu_item("Test", "test", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_submenu(ret, "File", G_MENU_MODEL(file));
     // Display
     GMenu *display = g_menu_new();
-    g_menu_append_section(ret, "Display", G_MENU_MODEL(display));
+    g_menu_append_submenu(ret, "Display", G_MENU_MODEL(display));
     // Help
     GMenu *help = g_menu_new();
-    g_menu_append_section(ret, "Help", G_MENU_MODEL(help));
+    g_menu_append_submenu(ret, "Help", G_MENU_MODEL(help));
 
     return ret;
 }
@@ -125,11 +138,11 @@ int main() {
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         //GtkWindow* win = GTK_WINDOW(user_data);
-        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu()));
+        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app)));
         GtkWidget* win = gtk_application_window_new(app);
+        gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
         gtk_application_add_window(app,GTK_WINDOW(win));
-        gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         build_main_window(GTK_WINDOW(win));
         gtk_widget_show(win);
 
