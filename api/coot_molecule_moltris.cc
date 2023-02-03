@@ -43,6 +43,58 @@ coot::molecule_t::print_colour_rules() const {
 
 }
 
+void
+coot::molecule_t::fill_stand_in_colour_rules() {
+
+   int imod = 1;
+   if (! atom_sel.mol) return;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      std::vector<std::string> chain_ids;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         if (n_res > 0) {
+            std::string chain_id(chain_p->GetChainID());
+            chain_ids.push_back(chain_id);
+         }
+      }
+
+      std::vector<std::string> colour_names = {
+         "Salmon", "Sandy Brown", "Burlywood", "Goldenrod", "tomato",
+         "limegreen", "royalblue", "gold", "aquamarine", "maroon",
+         "lightcoral", "deeppink", "brown" };
+
+      stand_in_colour_rules.clear();
+      unsigned int name_index = 0;
+      for (unsigned int i=0; i<chain_ids.size(); i++) {
+         const auto &chain_id = chain_ids[i];
+         std::string cid = std::string("//") + chain_id;
+         const std::string &cn = colour_names[name_index];
+         auto p = std::make_pair(cid, cn);
+         stand_in_colour_rules.push_back(p);
+
+         // next round
+         name_index++;
+         if (name_index == colour_names.size()) name_index = 0;
+      }
+   }
+}
+
+//! get the colour rules. Preferentially return the user-defined colour rules.
+//! @return If there are no user-defined colour rules, then return the stand-in rules
+std::vector<std::pair<std::string, std::string> >
+coot::molecule_t::get_colour_rules() const {
+
+   if (colour_rules.empty()) {
+      return stand_in_colour_rules;
+   } else {
+      return colour_rules;
+   }
+}
+
+
 
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,

@@ -439,6 +439,9 @@ public:
    //! delete the colour rules for the given molecule
    void delete_colour_rules(int imol);
 
+   //! get the colour rules
+   std::vector<std::pair<std::string, std::string> > get_colour_rules(int imol) const;
+
    //! print the colour rules
    void print_colour_rules(int imol) const;
 

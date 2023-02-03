@@ -400,17 +400,7 @@ molecules_container_t::read_pdb(const std::string &file_name) {
    atom_selection_container_t asc = get_atom_selection(file_name, false, false, false);
    if (asc.read_success) {
 
-      if (false) { // for debugging atom selections in the future
-         int udd_mess_indexing_1 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xx");
-         int udd_mess_indexing_2 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xy");
-         int udd_mess_indexing_3 = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "xz");
-
-         std::cout << "read_pdb(): udd_mess_indexing: "
-                   << udd_mess_indexing_1 << " " << udd_mess_indexing_2 << " " << udd_mess_indexing_3 << std::endl;
-      }
-
-      // 20221011-PE this constructor doesn't (at the moment) call make_bonds(). I
-      // don't know if that is a good idea.
+      // 20221011-PE this constructor doesn't call make_bonds().
       int imol = molecules.size();
       coot::molecule_t m = coot::molecule_t(asc, imol, file_name);
       // m.make_bonds(&geom, &rot_prob_tables); // where does this go? Here or as a container function?
@@ -3218,7 +3208,7 @@ molecules_container_t::contact_dots_for_ligand(int imol, const std::string &cid,
    if (is_valid_model_molecule(imol)) {
       im = molecules[imol].contact_dots_for_ligand(cid, geom, num_subdivisions);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return im;
 }
@@ -3232,7 +3222,7 @@ molecules_container_t::all_molecule_contact_dots(int imol, unsigned int num_subd
    if (is_valid_model_molecule(imol)) {
       im = molecules[imol].all_molecule_contact_dots(geom, num_subdivisions);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return im;
 }
@@ -3246,7 +3236,7 @@ molecules_container_t::add_colour_rule(int imol, const std::string &selection_ci
    if (is_valid_model_molecule(imol)) {
       molecules[imol].add_colour_rule(selection_cid, colour);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 
 }
@@ -3258,7 +3248,7 @@ molecules_container_t::delete_colour_rules(int imol) {
    if (is_valid_model_molecule(imol)) {
       molecules[imol].delete_colour_rules();
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 }
 
@@ -3270,8 +3260,20 @@ molecules_container_t::print_colour_rules(int imol) const {
    if (is_valid_model_molecule(imol)) {
       molecules[imol].print_colour_rules();
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+}
 
 
+//! get the colour rules
+std::vector<std::pair<std::string, std::string> >
+molecules_container_t::get_colour_rules(int imol) const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_colour_rules();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
 }

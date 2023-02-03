@@ -302,6 +302,7 @@ namespace coot {
             util::median_temperature_factor(atom_sel.atom_selection,
                                             atom_sel.n_selected_atoms,
                                             99999.9, 0.0, false, false);
+         fill_stand_in_colour_rules();
       }
 
       // ------------------------ close
@@ -420,7 +421,13 @@ namespace coot {
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
-      //! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme() will be called
+      //! stand-in colour roules. If no colour rules have been set by the user, we will use these colour rules
+      //!
+      std::vector<std::pair<std::string, std::string> > stand_in_colour_rules;
+
+      void fill_stand_in_colour_rules(); // assign colours to chains.
+
+      //! If any colour rule has been set for this molecule, then we will use these
       //! (and that his its internal colour-by-chain colouring scheme).
       //!
       //! the `colour_rules` is a vector of things like: ("//A", "red")
@@ -433,6 +440,10 @@ namespace coot {
       void delete_colour_rules();
 
       void print_colour_rules() const;
+
+      //! get the colour rules. Preferentially return the user-defined colour rules.
+      //! @return If there are no user-defined colour rules, then return the stand-in rules
+      std::vector<std::pair<std::string, std::string> > get_colour_rules() const;
 
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,

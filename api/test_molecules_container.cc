@@ -2118,6 +2118,34 @@ int test_delete_side_chain(molecules_container_t &mc) {
    return status;
 }
 
+int test_colour_rules(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string pdb_fn_1 = "moorhen-tutorial-structure-number-1.pdb";
+   std::string pdb_fn_2 = "pdb7vvl.ent";
+   unsigned int n = 6;
+   int imol = mc.read_pdb(reference_data(pdb_fn_2));
+   if (imol == -1) {
+      imol = mc.read_pdb(reference_data(pdb_fn_1));
+      n = 1;
+   }
+   auto v = mc.get_colour_rules(imol);
+
+   std::cout << "colour rules: " << std::endl;
+   std::cout << "-------------" << std::endl;
+   for (unsigned int i=0; i<v.size(); i++) {
+      std::cout << i << " " << v[i].first << " " << v[i].second<< std::endl;
+   }
+   std::cout << "-------------" << std::endl;
+
+   if (v.size() == n) status = 1;
+
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2252,7 +2280,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_molecular_representation, "molecular representation mesh", mc);
 
-   status += run_test(test_delete_side_chain, "delete side chain", mc);
+   // status += run_test(test_delete_side_chain, "delete side chain", mc);
+
+   status += run_test(test_colour_rules, "colour rules", mc);
 
    // Note to self:
    //
