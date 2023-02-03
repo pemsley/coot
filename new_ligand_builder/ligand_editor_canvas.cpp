@@ -32,6 +32,16 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     const graphene_rect_t background_rect = graphene_rect_t{{0,0},{w,h}};
     const GdkRGBA background_color = GdkRGBA{1.f,1.f,1.f,1.f};
     gtk_snapshot_append_color(snapshot, &background_color, &background_rect);
+    if (self->molecules) {
+        if(self->molecules->empty()) {
+            g_info("No molecules to be drawn.");
+        }
+        for(const auto& drawn_molecule: *self->molecules) {
+
+        }
+    } else {
+        g_error("Molecules vector empty!");
+    }
    
 }
 
@@ -56,8 +66,8 @@ void coot_ligand_editor_canvas_measure
     }
     case GTK_ORIENTATION_VERTICAL:{
          // For now:
-        *natural_size = 300;
-        *minimum_size = 300;
+        *natural_size = 500;
+        *minimum_size = 500;
         break;
     }
     default:
