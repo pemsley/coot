@@ -40,7 +40,7 @@ SOURCES = \
 
 
 
-OBJS := $(patsubst %.cc,%.o,$(SOURCES))
+OBJS := $(patsubst %.cpp,%.o,$(SOURCES))
 
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

@@ -126,21 +126,24 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_box_append(GTK_BOX(button_box),apply_button);
     GtkWidget* close_button = gtk_button_new_with_label("Close");
     gtk_box_append(GTK_BOX(button_box),close_button);
+    g_signal_connect(close_button, "clicked", G_CALLBACK(+[](GtkWidget* button, gpointer user_data){
+        gtk_window_close(GTK_WINDOW(user_data));
+    }), win);
     
 }
 
-GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas) {
+GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow* win) {
     GMenu *ret = g_menu_new();
     
     // g_menu_append(GMenu *menu, const gchar *label, const gchar
     // *detailed_action);
-    auto new_menu_item = [app](const char* label,const char* action_name,GCallback func){
+    auto new_menu_item = [app](const char* label,const char* action_name,GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "app.";
         detailed_action_name += action_name;
         GMenuItem* item = g_menu_item_new(label,detailed_action_name.c_str());
         GSimpleAction* action = g_simple_action_new(action_name,nullptr);
         g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
-        g_signal_connect(action, "activate", func, nullptr);
+        g_signal_connect(action, "activate", func, userdata);
         return item;
     };
 
@@ -175,8 +178,8 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas) {
         g_info("Test");
     })));
     g_menu_append_item(file, new_menu_item("_Exit", "exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
-    })));
+        gtk_window_close(GTK_WINDOW(user_data));
+    }),win));
     // Display
     GMenu *display = g_menu_new();
     g_menu_append_submenu(ret, "Display", G_MENU_MODEL(display));
@@ -208,12 +211,12 @@ int main() {
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         //GtkWindow* win = GTK_WINDOW(user_data);
-        auto* canvas = coot_ligand_editor_canvas_new();
-        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas)));
         GtkWidget* win = gtk_application_window_new(app);
         gtk_window_set_title(GTK_WINDOW(win),"New Ligand Editor");
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
+        auto* canvas = coot_ligand_editor_canvas_new();
+        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas,GTK_WINDOW(win))));
         gtk_application_add_window(app,GTK_WINDOW(win));
         build_main_window(GTK_WINDOW(win),canvas);
         gtk_widget_show(win);
