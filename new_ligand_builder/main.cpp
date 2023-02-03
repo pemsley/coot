@@ -115,16 +115,55 @@ GMenu *build_menu(GtkApplication* app) {
 
     // File
     GMenu *file = g_menu_new();
-    g_menu_append_item(file, new_menu_item("Test", "test", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+    g_menu_append_submenu(ret, "File", G_MENU_MODEL(file));
+    g_menu_append_item(file, new_menu_item("_New", "file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         g_info("Test");
     })));
-    g_menu_append_submenu(ret, "File", G_MENU_MODEL(file));
+    g_menu_append_item(file, new_menu_item("_Open", "file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Import from SMILES", "import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Import Molecule", "import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Fetch Molecule", "fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Save", "file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Export as PDF", "export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Export as PNG", "export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("Export as SVG", "export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(file, new_menu_item("_Exit", "exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
     // Display
     GMenu *display = g_menu_new();
     g_menu_append_submenu(ret, "Display", G_MENU_MODEL(display));
+    g_menu_append_item(display, new_menu_item("Standard", "display_standard", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(display, new_menu_item("Atom Indices", "display_atom_indices", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
+    g_menu_append_item(display, new_menu_item("Atom Names", "display_atom_names", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
     // Help
     GMenu *help = g_menu_new();
     g_menu_append_submenu(ret, "Help", G_MENU_MODEL(help));
+    g_menu_append_item(help, new_menu_item("About", "about", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("Test");
+    })));
 
     return ret;
 }
