@@ -1,11 +1,16 @@
 #include "ligand-builder.hpp"
 #include "ligand_editor_canvas.hpp"
+#include "ligand_editor_canvas/tools.hpp"
 #include <gtk/gtk.h>
 #include <string>
 
 
 
 void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
+    using coot::ligand_editor_canvas::ActiveTool;
+    using coot::ligand_editor_canvas::ElementInsertion;
+    using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
+
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_window_set_child(win, mainbox);
     // Top toolbar
@@ -67,26 +72,71 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_box_append(GTK_BOX(canvas_space), chem_element_picker);
 
     GtkWidget* C_button = gtk_button_new_with_label("C");
+    g_signal_connect(C_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::C)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), C_button);
     GtkWidget* N_button = gtk_button_new_with_label("N");
+    g_signal_connect(N_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::N)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), N_button);
     GtkWidget* O_button = gtk_button_new_with_label("O");
+    g_signal_connect(O_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::O)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), O_button);
     GtkWidget* S_button = gtk_button_new_with_label("S");
+    g_signal_connect(S_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::S)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), S_button);
     GtkWidget* P_button = gtk_button_new_with_label("P");
+    g_signal_connect(P_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::P)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), P_button);
     GtkWidget* H_button = gtk_button_new_with_label("H");
+    g_signal_connect(H_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::H)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), H_button);
     GtkWidget* F_button = gtk_button_new_with_label("F");
+    g_signal_connect(F_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::F)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), F_button);
     GtkWidget* Cl_button = gtk_button_new_with_label("Cl");
+    g_signal_connect(Cl_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::Cl)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), Cl_button);
     GtkWidget* Br_button = gtk_button_new_with_label("Br");
+    g_signal_connect(Br_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::Br)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), Br_button);
     GtkWidget* I_button = gtk_button_new_with_label("I");
+    g_signal_connect(I_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::I)));
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), I_button);
     GtkWidget* X_button = gtk_button_new_with_label("X");
+    g_signal_connect(X_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::X)));
+        // todo: make this work
+    }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas));

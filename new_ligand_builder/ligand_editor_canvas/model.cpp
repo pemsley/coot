@@ -11,3 +11,4 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot) const noexcept {
 
     }
 }
+

@@ -40,6 +40,9 @@ class ElementInsertion {
     Element element;
     public:
     ElementInsertion(Element el) noexcept;
+
+    Element get_element() const noexcept;
+    const char* get_element_symbol() const noexcept;
 };
 
 
@@ -96,6 +99,7 @@ class ActiveTool {
 
     public:
     ActiveTool() noexcept;
+    ActiveTool(ElementInsertion insertion) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.

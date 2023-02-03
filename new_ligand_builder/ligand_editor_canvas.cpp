@@ -104,7 +104,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::ElementInsertion:{
-            
+            self->active_tool->insert_atom((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::GeometryModifier:{
