@@ -5,7 +5,7 @@
 
 
 
-void build_main_window(GtkWindow* win) {
+void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_window_set_child(win, mainbox);
     // Top toolbar
@@ -89,8 +89,6 @@ void build_main_window(GtkWindow* win) {
     GtkWidget* X_button = gtk_button_new_with_label("X");
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
-    //GtkWidget* canvas = gtk_label_new("The widget will land here");
-    auto* canvas = coot_ligand_editor_canvas_new();
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas));
     // Statusbar / the bottom
     GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
@@ -131,7 +129,7 @@ void build_main_window(GtkWindow* win) {
     
 }
 
-GMenu *build_menu(GtkApplication* app) {
+GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas) {
     GMenu *ret = g_menu_new();
     
     // g_menu_append(GMenu *menu, const gchar *label, const gchar
@@ -210,12 +208,13 @@ int main() {
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         //GtkWindow* win = GTK_WINDOW(user_data);
-        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app)));
+        auto* canvas = coot_ligand_editor_canvas_new();
+        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas)));
         GtkWidget* win = gtk_application_window_new(app);
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
         gtk_application_add_window(app,GTK_WINDOW(win));
-        build_main_window(GTK_WINDOW(win));
+        build_main_window(GTK_WINDOW(win),canvas);
         gtk_widget_show(win);
 
     }),NULL);
