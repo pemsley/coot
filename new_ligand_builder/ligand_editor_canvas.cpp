@@ -1,5 +1,6 @@
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/model.hpp"
+#include <rdkit/GraphMol/RWMol.h>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -12,6 +13,8 @@ struct _CootLigandEditorCanvas {
     std::unique_ptr<ActiveTool> active_tool;
     /// molecules on the screen
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
+    /// molecules (RDKit)
+    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 };
 
 G_BEGIN_DECLS
@@ -37,7 +40,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             g_info("No molecules to be drawn.");
         }
         for(const auto& drawn_molecule: *self->molecules) {
-
+            drawn_molecule.draw(snapshot);
         }
     } else {
         g_error("Molecules vector empty!");
@@ -139,6 +142,7 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
     self->active_tool = std::make_unique<ActiveTool>();
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
+    self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     // GtkEventController* hover_controller = gtk_event_controller_motion_new();
@@ -157,6 +161,7 @@ static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);
+    self->rdkit_molecules.reset(nullptr);
     G_OBJECT_CLASS(coot_ligand_editor_canvas_parent_class)->dispose(_self);
 }
 

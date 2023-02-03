@@ -4,6 +4,68 @@
 
 namespace coot::ligand_editor_canvas {
 
+class BondModifier {
+    public:
+    enum class BondModifierMode {
+        Single,
+        Double,
+        Triple
+    };
+    private:
+
+    BondModifierMode mode;
+    public:
+
+};
+
+class ElementInsertion {
+    public:
+    enum class Element {
+        C,
+        N,
+        O,
+        S,
+        P,
+        H,
+        F,
+        Cl,
+        Br,
+        I,
+        // todo: what is this? an arbitrary element?
+        // [like eg. Selene for organoselene compounds]
+        X
+    };
+
+    private:
+    Element element;
+    public:
+    ElementInsertion(Element el) noexcept;
+};
+
+
+
+class StructureInsertion {
+    public:
+
+    enum class Structure: unsigned int {
+        CycloPropaneRing,
+        CycloButaneRing,
+        CycloPentaneRing,
+        CycloHexaneRing,
+        BenzeneRing,
+        CycloHeptaneRing,
+        CycloOctaneRing,
+        // todo:
+        // "env residues"
+        // "key"
+
+    };
+    private:
+    Structure structure;
+
+    public:
+
+};
 
 
 class ActiveTool {
@@ -36,7 +98,9 @@ class ActiveTool {
     ActiveTool() noexcept;
 
     Variant get_variant() const noexcept;
-
+    /// Valid for Variant::ElementInsertion.
+    /// Inserts currently chosen atom at the given coordinates.
+    void insert_atom(int x, int y) noexcept;
 };
 
 }

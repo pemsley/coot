@@ -7,6 +7,7 @@ COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix
 CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
+   -I/usr/include/rdkit \
    `pkg-config --cflags gtk4` \
    -ggdb -O2 -march=native -std=c++17
 # `pkg-config --cflags epoxy` 
