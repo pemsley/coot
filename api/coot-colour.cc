@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <math.h>
 
 #include "compat/coot-sysdep.h"
@@ -29,7 +30,7 @@
 
 namespace coot {
    std::ostream& operator<<(std::ostream &s, colour_t col) {
-      s << col.col[0] << " " << col.col[1] << " " << col.col[2];
+      s << std::setw(5) << col.col[0] << " " << std::setw(5) << col.col[1] << " " << std::setw(5) << col.col[2];
       return s;
    }
 
