@@ -606,15 +606,15 @@ public:
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    //! add waters, updating imol_model (of course)
-   //! @return 1 on a successful move, 0 on failure.
+   //! @return 1 on a success, 0 on failure.
    int add_waters(int imol_model, int imol_map);
 
    //! add hydrogen atoms, updating imol_model (of course)
-   //! @return 1 on a successful move, 0 on failure.
+   //! @return 1 on success, 0 on failure.
    int add_hydrogen_atoms(int imol_model);
 
    //! delete hydrogen atoms, updating imol_model (of course)
-   //! @return 1 on a successful move, 0 on failure.
+   //! @return 1 on a successful deletion, 0 on failure.
    int delete_hydrogen_atoms(int imol_model);
 
    //! add an alternative conformation for the specified residue
