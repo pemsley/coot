@@ -62,9 +62,9 @@ coot::molecule_t::fill_stand_in_colour_rules() {
       }
 
       std::vector<std::string> colour_names = {
-         "Salmon", "Sandy Brown", "Burlywood", "Goldenrod", "tomato",
+         "Salmon", "SandyBrown", "LightSeaGreen", "Goldenrod", "tomato",
          "limegreen", "royalblue", "gold", "aquamarine", "maroon",
-         "lightcoral", "deeppink", "brown" };
+         "lightcoral", "deeppink", "brown", "Burlywood", "steelblue"};
 
       stand_in_colour_rules.clear();
       unsigned int name_index = 0;
@@ -173,10 +173,22 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    };
 
    auto molecular_representation_instance_to_mesh = [] (std::shared_ptr<MolecularRepresentationInstance> molrepinst,
-                                                        const std::vector<std::pair<std::string, float> > &M2T_float_params) {
+                                                        const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                        const std::vector<std::pair<std::string, int> > &M2T_int_params) {
       coot::simple_mesh_t mesh;
 
       std::shared_ptr<Representation> r = molrepinst->getRepresentation();
+
+      if (! M2T_float_params.empty())
+         for (const auto &par : M2T_float_params)
+            r->updateFloatParameter(par.first, par.second);
+      if (! M2T_int_params.empty())
+         for (const auto &par : M2T_int_params)
+            r->updateIntParameter(par.first, par.second);
+
+      // testing
+      // r->updateFloatParameter("ribbonStyleCoilThickness", 1.8);
+      // r->updateFloatParameter("ribbonStyleHelixWidth", 2.6);
 
       r->redraw(); // 20221207-PE this was missing!
       std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
@@ -275,7 +287,8 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       (std::shared_ptr<MyMolecule> my_mol,
        const std::string &atom_selection_str,
        const std::string &style,
-       const std::vector<std::pair<std::string, float> > &M2T_float_params) {
+       const std::vector<std::pair<std::string, float> > &M2T_float_params,
+       const std::vector<std::pair<std::string, int> > &M2T_int_params) {
 
       coot::simple_mesh_t mesh;
       auto ramp_cs  = ColorScheme::colorRampChainsScheme();
@@ -292,7 +305,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
          ramp_cs->addRule(apcrr_p);
          std::shared_ptr<MolecularRepresentationInstance> molrepinst =
             MolecularRepresentationInstance::create(my_mol, ramp_cs, atom_selection_str, style);
-         coot::simple_mesh_t submesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params);
+         coot::simple_mesh_t submesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
          mesh.add_submesh(submesh);
       }
       return mesh;
@@ -302,9 +315,9 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
    // auto chain_cs = ColorScheme::colorChainsScheme();
-   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-   if (colour_rules.empty())
-      chain_cs = ColorScheme::colorChainsScheme(); // use internal colour rules
+   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(stand_in_colour_rules);
+   if (! colour_rules.empty())
+      chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
    auto ele_cs   = ColorScheme::colorByElementScheme();
    auto ss_cs    = ColorScheme::colorBySecondaryScheme();
    auto bf_cs    = ColorScheme::colorBFactorScheme();
@@ -314,11 +327,11 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    if (colour_scheme == "BFactor")   this_cs = bf_cs;
    if (colour_scheme == "Secondary") this_cs = ss_cs;
    if (colour_scheme == "RampChains") {
-      mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params);
+      mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
    } else {
       std::shared_ptr<MolecularRepresentationInstance> molrepinst =
          MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-      mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params);
+      mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
 
       if (false) {
          for (unsigned int i=0; i<mesh.vertices.size(); i++) {
