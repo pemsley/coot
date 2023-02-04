@@ -3138,6 +3138,28 @@ coot::molecule_t::add_compound(const coot::dictionary_residue_restraints_t &rest
 }
 
 
+#include "coot-utils/reduce.hh"
+
+int
+coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
+
+   coot::reduce r(atom_sel.mol, imol_no);
+   r.add_geometry(geom_p);
+   r.add_hydrogen_atoms();
+   return 1;
+
+}
+
+int
+coot::molecule_t::delete_hydrogen_atoms() {
+
+   coot::reduce r(atom_sel.mol, imol_no);
+   r.delete_hydrogen_atoms();
+   return 1;
+
+}
+
+
 std::vector<coot::residue_spec_t>
 coot::molecule_t::get_non_standard_residues_in_molecule() const {
 

@@ -609,6 +609,14 @@ public:
    //! @return 1 on a successful move, 0 on failure.
    int add_waters(int imol_model, int imol_map);
 
+   //! add hydrogen atoms, updating imol_model (of course)
+   //! @return 1 on a successful move, 0 on failure.
+   int add_hydrogen_atoms(int imol_model);
+
+   //! delete hydrogen atoms, updating imol_model (of course)
+   //! @return 1 on a successful move, 0 on failure.
+   int delete_hydrogen_atoms(int imol_model);
+
    //! add an alternative conformation for the specified residue
    //! @return 1 on a successful addition, 0 on failure.
    int add_alternative_conformation(int imol_model, const std::string &cid);

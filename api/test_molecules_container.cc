@@ -2145,6 +2145,24 @@ int test_colour_rules(molecules_container_t &mc) {
    return status;
 }
 
+int test_add_hydrogen_atoms(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int n_atoms_0 = mc.get_number_of_atoms(imol);
+   mc.add_hydrogen_atoms(imol);
+   int n_atoms_1 = mc.get_number_of_atoms(imol);
+   mc.delete_hydrogen_atoms(imol);
+   int n_atoms_2 = mc.get_number_of_atoms(imol);
+
+   if (n_atoms_1 > n_atoms_0)
+      if (n_atoms_2 == n_atoms_0)
+         status = 1;
+
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -2282,7 +2300,10 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_delete_side_chain, "delete side chain", mc);
 
-   status += run_test(test_colour_rules, "colour rules", mc);
+   // status += run_test(test_colour_rules, "colour rules", mc);
+
+
+   status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
    // Note to self:
    //

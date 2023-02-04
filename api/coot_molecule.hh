@@ -573,6 +573,12 @@ namespace coot {
                                                  clipper::Coord_orth &rotation_centre,
                                                  clipper::RTop_orth &rtop);
 
+      //! @return 1 on a successful additions, 0 on failure.
+      int add_hydrogen_atoms(protein_geometry *geom); // because of coot::reduce api - hmm.
+
+      //! @return 1 on a successful additions, 0 on failure.
+      int delete_hydrogen_atoms();
+
       class moved_atom_t {
       public:
          std::string atom_name;

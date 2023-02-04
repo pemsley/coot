@@ -3301,3 +3301,31 @@ molecules_container_t::M2T_updateIntParameter(int imol, const std::string &param
    }
 
 }
+
+
+//! add waters, updating imol_model (of course)
+//! @return 1 on a successful move, 0 on failure.
+int
+molecules_container_t::add_hydrogen_atoms(int imol_model) {
+   int status = 0;
+   if (is_valid_model_molecule(imol_model)) {
+      status = molecules[imol_model].add_hydrogen_atoms(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+   return status;
+}
+
+
+//! delete hydrogen atoms, updating imol_model (of course)
+//! @return 1 on a successful move, 0 on failure.
+int
+molecules_container_t::delete_hydrogen_atoms(int imol_model) {
+   int status = 0;
+   if (is_valid_model_molecule(imol_model)) {
+      status = molecules[imol_model].delete_hydrogen_atoms();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+   return status;
+}
