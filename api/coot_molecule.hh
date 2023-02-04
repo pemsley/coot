@@ -445,6 +445,22 @@ namespace coot {
       //! @return If there are no user-defined colour rules, then return the stand-in rules
       std::vector<std::pair<std::string, std::string> > get_colour_rules() const;
 
+      std::vector<std::pair<std::string, float> > M2T_float_params;
+      std::vector<std::pair<std::string, int> >   M2T_int_params;
+
+      //! Update float parameter for MoleculesToTriangles molecular mesh
+      void M2T_updateFloatParameter(const std::string &param_name, float value);
+
+      //! Update int parameter for MoleculesToTriangles molecular mesh
+      void M2T_updateFloatParameter(const std::string &param_name, int value);
+
+      void print_M2T_FloatParameters() const;
+
+      void print_M2T_IntParameters() const;
+
+      //! Update int parameter for MoleculesToTriangles molecular mesh
+      void M2T_updateIntParameter(const std::string &param_name, int value);
+
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;

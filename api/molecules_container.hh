@@ -445,6 +445,12 @@ public:
    //! print the colour rules
    void print_colour_rules(int imol) const;
 
+   //! Update float parameter for MoleculesToTriangles molecular mesh
+   void M2T_updateFloatParameter(int imol, const std::string &param_name, float value);
+
+   //! Update int parameter for MoleculesToTriangles molecular mesh
+   void M2T_updateIntParameter(int imol, const std::string &param_name, int value);
+
    //! get ribbon and surface representation
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
                                                          const std::string &style);

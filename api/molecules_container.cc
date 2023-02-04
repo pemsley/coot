@@ -3277,3 +3277,27 @@ molecules_container_t::get_colour_rules(int imol) const {
    }
    return v;
 }
+
+
+//! Update float parameter for MoleculesToTriangles molecular mesh
+void
+molecules_container_t::M2T_updateFloatParameter(int imol, const std::string &param_name, float value) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].M2T_updateFloatParameter(param_name, value);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! Update int parameter for MoleculesToTriangles molecular mesh
+void
+molecules_container_t::M2T_updateIntParameter(int imol, const std::string &param_name, int value) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].M2T_updateIntParameter(param_name, value);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
