@@ -166,7 +166,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
     std::map<mmdb::Chain *, DishyBaseContainer_t> dishy_bases_chain_map;
     
     int nModels = mmdb->GetNumberOfModels();
-    std::cout << "Protein consists of " << nModels << " Models\n";
+    std::cout << "debug:: identifySegments(): Protein consists of " << nModels << " Models\n";
     mmdb::Model* model = mmdb->GetModel(1);
     
     //Here is an approach for (bloomin) segIDs....repeat the segment determination for each segID
@@ -183,14 +183,14 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
             segIDs.insert(std::string(atoms[iAtom]->segID));
         }
     }
-    std::cout << "there are " << segIDs.size() << " segIDs ";
-    
+    std::cout << "debug:: identifySegments(): there are " << segIDs.size() << " segIDs\n";
+
     std::set<std::string>::iterator segIDIter = segIDs.begin();
     for (;segIDIter != segIDs.end(); ++segIDIter){
         int          nChains;
         mmdb::Chain**     chains;
         model->GetChainTable(chains, nChains);
-        std::cout << "Model 1 consists of " << nChains << " Chains\n";
+        std::cout << "debug:: identifySegments(): Model 1 consists of " << nChains << " Chains\n";
         //Pass through and identify any chain breaks
         for (int iChain = 0; iChain < nChains; iChain ++){
             mmdb::Chain* chain = model->GetChain(iChain);
@@ -198,7 +198,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
             int nResidues;
             mmdb::Residue**   residues;
             chain->GetResidueTable(residues, nResidues);
-            std::cout << "Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
+            std::cout << "debug:: identifySegments(): Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
             if (nResidues > 0){
                 for (int iResidue = 0; iResidue < nResidues; iResidue++){
                     if (residues[iResidue]->isAminoacid() ||
@@ -292,7 +292,7 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
 int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t> &dishy_bases_chain_map, int selHnd)
 {
     int nModels = mmdb->GetNumberOfModels();
-    std::cout << "Protein consists of " << nModels << " Models\n";
+    std::cout << "debug:: identifyDishyBases(): Protein consists of " << nModels << " Models\n";
     mmdb::Model* model = mmdb->GetModel(1);
     
     //Here is an approach for (bloomin) segIDs....repeat the segment determination for each segID
@@ -309,14 +309,13 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
             segIDs.insert(std::string(atoms[iAtom]->segID));
         }
     }
-    std::cout << "there are " << segIDs.size() << " segIDs ";
     
     std::set<std::string>::iterator segIDIter = segIDs.begin();
     for (;segIDIter != segIDs.end(); ++segIDIter){
         int          nChains;
         mmdb::Chain**     chains;
         model->GetChainTable(chains, nChains);
-        std::cout << "Model 1 consists of " << nChains << " Chains\n";
+        std::cout << "debug:: identifyDishyBases(): Model 1 consists of " << nChains << " Chains\n";
         //Pass through and identify any chain breaks
         for (int iChain = 0; iChain < nChains; iChain ++){
             mmdb::Chain* chain = model->GetChain(iChain);
@@ -324,12 +323,12 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
             int nResidues;
             mmdb::Residue**   residues;
             chain->GetResidueTable(residues, nResidues);
-            std::cout << "Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
+            std::cout << "debug:: identifyDishyBases(): Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
             
             // shall we do nucleic acid?
             if (chain->isNucleotideChain()) {
-                int nResidues;
-                mmdb::Residue**   residues;
+                int nResidues = 0;
+                mmdb::Residue**   residues = nullptr;
                 chain->GetResidueTable(residues, nResidues);
                 if (nResidues > 0){
                     DishyBaseContainer_t dishybases;
@@ -448,20 +447,20 @@ int MyMolecule::identifyBonds()
      */
     mmdb->MakeBonds(true);
     int nModels = mmdb->GetNumberOfModels();
-    std::cout << "Protein consists of " << nModels << " Models\n";
+    std::cout << "debug:: identifyBonds(): Protein consists of " << nModels << " Models\n";
     mmdb::Model* model = mmdb->GetModel(1);
     
     int          nChains;
     mmdb::Chain**     chains;
     model->GetChainTable(chains, nChains);
-    std::cout << "Model 1 consists of " << nChains << " Chains\n";
+    std::cout << "debug:: identifyBonds(): Model 1 consists of " << nChains << " Chains\n";
     //Pass through and add bonds corresponding to peptide bonds
     for (int iChain = 0; iChain < nChains; iChain ++){
         mmdb::Chain* chain = model->GetChain(iChain);
         int nResidues;
         mmdb::Residue**   residues;
         chain->GetResidueTable(residues, nResidues);
-        std::cout << "Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
+        std::cout << "debug:: identifyBonds(): Chain " << chain->GetChainID() << " consists of " << nResidues << " Residues\n";
         mmdb::Residue* lastResidue = 0;
         for (int iResidue = 0; iResidue < nResidues; iResidue++){
             mmdb::Residue* residue = chain->GetResidue(iResidue);
