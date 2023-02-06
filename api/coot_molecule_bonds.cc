@@ -964,7 +964,9 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
             rotation_size -= 1.0;
          }
 
-         if (against_a_dark_background) {
+         if (true) {
+
+            // if (against_a_dark_background) {
 
             if (false)
                std::cout << "get_bond_colour_by_mol_no() against_a_dark_background==true, idx: " << colour_index << " vs "
@@ -1136,8 +1138,19 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
          colour_table[icol] = col;
       } else {
-         coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-         colour_table[icol] = cc.to_glm();
+         graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+         int n_bonds = ll.num_lines;
+         if (n_bonds > 0) {
+            coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+            if (false) { // debugging colours
+               colour_holder ch = cc.to_colour_holder(); // around the houses
+               std::string hex = ch.hex();
+               std::cout << "imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+                         << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
+                         << " colour: " << hex << " " << cc << std::endl;
+            }
+            colour_table[icol] = cc.to_glm();
+         }
       }
    }
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)

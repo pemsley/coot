@@ -262,7 +262,7 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
-         imol_no = -1; // unset
+         // set the imol before calling this function.
          ligand_flip_number = 0;
          bonds_box_type = UNSET_TYPE;
          is_em_map_cached_flag = false;
@@ -284,6 +284,16 @@ namespace coot {
          while (bonds_colour_map_rotation > 360.0)
             bonds_colour_map_rotation -= 360.0;
 
+         fill_default_colour_rules();
+         if (false) {
+            auto v = get_colour_rules();
+            std::cout << "colour rules: " << std::endl;
+            std::cout << "-------------" << std::endl;
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::cout << i << " " << v[i].first << " " << v[i].second << std::endl;
+            }
+            std::cout << "-------------" << std::endl;
+         }
       }
 
    public:
@@ -294,15 +304,14 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
-      molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {init(); imol_no = mol_no_in; }
+      molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {imol_no = mol_no_in; init(); }
       explicit molecule_t(atom_selection_container_t asc, int imol_no_in, const std::string &name_in) : name(name_in), atom_sel(asc) {
-         init();
          imol_no = imol_no_in;
+         init();
          default_temperature_factor_for_new_atoms =
             util::median_temperature_factor(atom_sel.atom_selection,
                                             atom_sel.n_selected_atoms,
                                             99999.9, 0.0, false, false);
-         fill_stand_in_colour_rules();
       }
 
       // ------------------------ close
@@ -421,11 +430,7 @@ namespace coot {
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
-      //! stand-in colour roules. If no colour rules have been set by the user, we will use these colour rules
-      //!
-      std::vector<std::pair<std::string, std::string> > stand_in_colour_rules;
-
-      void fill_stand_in_colour_rules(); // assign colours to chains.
+      void fill_default_colour_rules(); // assign colours to chains.
 
       //! If any colour rule has been set for this molecule, then we will use these
       //! (and that his its internal colour-by-chain colouring scheme).

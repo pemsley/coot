@@ -44,7 +44,7 @@ coot::molecule_t::print_colour_rules() const {
 }
 
 void
-coot::molecule_t::fill_stand_in_colour_rules() {
+coot::molecule_t::fill_default_colour_rules() {
 
    int imod = 1;
    if (! atom_sel.mol) return;
@@ -66,18 +66,37 @@ coot::molecule_t::fill_stand_in_colour_rules() {
          "limegreen", "royalblue", "gold", "aquamarine", "maroon",
          "lightcoral", "deeppink", "brown", "Burlywood", "steelblue"};
 
-      stand_in_colour_rules.clear();
+      colour_rules.clear();
       unsigned int name_index = 0;
       for (unsigned int i=0; i<chain_ids.size(); i++) {
          const auto &chain_id = chain_ids[i];
          std::string cid = std::string("//") + chain_id;
          const std::string &cn = colour_names[name_index];
          auto p = std::make_pair(cid, cn);
-         stand_in_colour_rules.push_back(p);
+         colour_rules.push_back(p);
 
          // next round
          name_index++;
          if (name_index == colour_names.size()) name_index = 0;
+      }
+
+
+      // 20230204-PE try something else
+      // std::sort(chain_ids.begin(), chain_ids.end());
+      colour_rules.clear();
+      bool against_a_dark_background = true;
+      for (unsigned int i=0; i<chain_ids.size(); i++) {
+         const auto &chain_id = chain_ids[i];
+         int col_index = i + 50; // imol_no is added in get_bond_colour_by_mol_no()
+         colour_t col = get_bond_colour_by_mol_no(col_index, against_a_dark_background);
+         colour_holder ch = col.to_colour_holder(); // around the houses
+         std::string hex = ch.hex();
+         std::string cid = std::string("//") + chain_id;
+         if (false)
+            std::cout << "debug:: colour_rules(); imol " << imol_no << " i " << i << " col_index " << col_index
+                      << " " << hex << std::endl;
+         auto p = std::make_pair(cid, hex);
+         colour_rules.push_back(p);
       }
    }
 }
@@ -87,11 +106,7 @@ coot::molecule_t::fill_stand_in_colour_rules() {
 std::vector<std::pair<std::string, std::string> >
 coot::molecule_t::get_colour_rules() const {
 
-   if (colour_rules.empty()) {
-      return stand_in_colour_rules;
-   } else {
       return colour_rules;
-   }
 }
 
 //! Update float parameter for MoleculesToTriangles molecular mesh
@@ -315,7 +330,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
    // auto chain_cs = ColorScheme::colorChainsScheme();
-   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(stand_in_colour_rules);
+   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
    if (! colour_rules.empty())
       chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
    auto ele_cs   = ColorScheme::colorByElementScheme();
