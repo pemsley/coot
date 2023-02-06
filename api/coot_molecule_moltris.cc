@@ -82,7 +82,7 @@ coot::molecule_t::fill_default_colour_rules() {
 
 
       // 20230204-PE try something else
-      // std::sort(chain_ids.begin(), chain_ids.end());
+      std::sort(chain_ids.begin(), chain_ids.end());
       colour_rules.clear();
       bool against_a_dark_background = true;
       for (unsigned int i=0; i<chain_ids.size(); i++) {
