@@ -2175,6 +2175,32 @@ int test_add_hydrogen_atoms(molecules_container_t &mc) {
    return status;
 }
 
+int test_mmrrcc(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string chain_id = "A";
+      std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+                std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > results =
+         mc.mmrrcc(imol, chain_id, imol_map);
+      auto mc = results.first;
+      auto sc = results.second;
+
+      if (mc.size() > 90)
+         status = 1;
+
+      std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
+      for (it=mc.begin(); it!=mc.end(); ++it)
+         std::cout << "   " << it->first << " " << it->second.correlation() << std::endl;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -2312,7 +2338,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_delete_side_chain, "delete side chain", mc);
 
-   status += run_test(test_colour_rules, "colour rules", mc);
+   // status += run_test(test_colour_rules, "colour rules", mc);
+
+   status += run_test(test_mmrrcc, "MMRRCC", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
