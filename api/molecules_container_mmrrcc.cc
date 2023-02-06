@@ -57,6 +57,6 @@ std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_i
           std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 molecules_container_t::mmrrcc(int imol, const std::string &chain_id, int imol_map) const {
 
-   return mmrrcc_internal(molecules[imol].atom_sel, chain_id, molecules[imol].xmap);
+   return mmrrcc_internal(molecules[imol].atom_sel, chain_id, molecules[imol_map].xmap);
 
 }
