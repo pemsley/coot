@@ -20,6 +20,7 @@
 #include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -815,6 +816,13 @@ public:
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
 
+   //! calculate the MMRRCC for the residues in the chain
+   //! Multi Masked Residue Range Corellation Coefficient
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
+   mmrrcc(const atom_selection_container_t &asc,
+          const std::string &chain_id,
+          const clipper::Xmap<float> &xmap) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!

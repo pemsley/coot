@@ -40,7 +40,7 @@ may be *something* there that could usefully be declared as public.
 Mesh Objects
 ============
 
-.. doxygenfile:: g_triangle.hh
+.. doxygenfile:: coot-utils/g_triangle.hh
      :project: libcootapi
 
 .. doxygenfile:: coot-utils/vertex.hh
@@ -63,6 +63,9 @@ Validation Information
       :project: libcootapi
 
 .. doxygenfile:: geometry/residue-and-atom-specs.hh
+      :project: libcootapi
+
+.. doxygenfile:: coot-utils/coot-density-stats.hh
       :project: libcootapi
 
 Structure Factors
