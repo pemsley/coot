@@ -455,8 +455,20 @@ public:
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
                                                          const std::string &style);
 
-   //! get Gaussian surface representation
-   coot::simple_mesh_t get_gaussian_surface(int imol) const;
+   //! get a Gaussian surface representation
+   //!
+   //! These values seem to give a reasonable quite smooth surface:
+   //!
+   //! sigma = 4.4
+   //!
+   //! contour_level = 4.0
+   //!
+   //! box_radius = 5.0
+   //!
+   //! grid_scale = 0.7
+   //! @return a simple mesh composed of a number of Gaussian surfaces (one for each chain)
+   coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
+                                            float box_radius, float grid_scale) const;
 
    //! get chemical feaatures for the specified residue
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;

@@ -470,7 +470,8 @@ namespace coot {
                                                       const std::string &colour_scheme,
                                                       const std::string &style) const;
 
-      simple_mesh_t get_gaussian_surface() const;
+      simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
+                                       float box_radius, float grid_scale) const;
 
       simple_mesh_t get_chemical_features_mesh(const std::string &cid, const coot::protein_geometry &geom) const;
 

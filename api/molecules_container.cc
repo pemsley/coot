@@ -3126,11 +3126,12 @@ molecules_container_t::get_interesting_places(int imol, const std::string &mode)
 
 //! get Gaussian surface representation
 coot::simple_mesh_t
-molecules_container_t::get_gaussian_surface(int imol) const {
+molecules_container_t::get_gaussian_surface(int imol, float sigma, float contour_level,
+                                            float box_radius, float grid_scale) const {
 
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
-      mesh = molecules[imol].get_gaussian_surface();
+      mesh = molecules[imol].get_gaussian_surface(sigma, contour_level, box_radius, grid_scale);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

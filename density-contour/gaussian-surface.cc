@@ -20,7 +20,8 @@ coot::gaussian_surface_t::get_surface() const {
 }
 
 void
-coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id) {
+coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id,
+                                        float sigma_in, float contour_level_in, float box_radius_in, float grid_scale) {
 
    // these affect the smoothness/resolution of the surface
    //
@@ -32,6 +33,12 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    float gs = 0.7; // bigger number means more finely sampled grid (bigger numbers are cubic slower)
    float contour_level = 4.0;
    double box_radius = 5.0; // try smaller values - or larger ones for bigger sigma
+
+   // 20230206-PE use the passed parameters
+   sigma = sigma_in;
+   contour_level = contour_level_in;
+   box_radius = box_radius_in;
+   gs = grid_scale;
 
    auto expo_index_to_float = [] (int i) {
       return static_cast<float>(i) * 0.01;
@@ -296,9 +303,10 @@ coot::gaussian_surface_t::using_calc_density(mmdb::Manager *mol) {
 
 }
 
-coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id) {
+coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id,
+                                             float sigma, float contour_level, float box_radius, float grid_scale) {
 
    // using_calc_density(mol);
-   using_an_xmap(mol, chain_id);
+   using_an_xmap(mol, chain_id, sigma, contour_level, box_radius, grid_scale);
 
 }

@@ -1809,7 +1809,11 @@ int test_gaussian_surface(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
-      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol);
+      float sigma = 4.4;
+      float contour_level = 4.0;
+      float box_radius = 5.0;
+      float grid_scale = 0.7;
+      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale);
       std::cout << "in test_gaussian_surface() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
       if (mesh.vertices.size() > 0)
          if (mesh.triangles.size() > 0)
