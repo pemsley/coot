@@ -820,10 +820,15 @@ public:
    //! Multi Masked Residue Range Corellation Coefficient
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
-   mmrrcc(const atom_selection_container_t &asc,
-          const std::string &chain_id,
-          const clipper::Xmap<float> &xmap) const;
+   mmrrcc(int imol, const std::string &chain_id, int imol_map) const;
 
+   //! calculate the MMRRCC for the residues in the chain
+   //! Multi Masked Residue Range Corellation Coefficient
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
+   mmrrcc_internal(const atom_selection_container_t &asc,
+                   const std::string &chain_id,
+                   const clipper::Xmap<float> &xmap) const;
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!
 
