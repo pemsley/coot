@@ -20,10 +20,6 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     GtkWidget* top_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_append(GTK_BOX(mainbox), top_toolbar);
 
-    GtkWidget* undo_button = gtk_button_new_with_label("Undo");
-    gtk_box_append(GTK_BOX(top_toolbar), undo_button);
-    GtkWidget* redo_button = gtk_button_new_with_label("Redo");
-    gtk_box_append(GTK_BOX(top_toolbar), redo_button);
     GtkWidget* single_bond_button = gtk_button_new_with_label("Single Bond");
     gtk_box_append(GTK_BOX(top_toolbar), single_bond_button);
     GtkWidget* double_bond_button = gtk_button_new_with_label("Double Bond");
@@ -73,7 +69,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     // Canvas space: chemical element picker
     GtkWidget* chem_element_picker = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_widget_set_margin_top(chem_element_picker,10);
-    
+
     gtk_box_append(GTK_BOX(canvas_space), chem_element_picker);
 
     GtkWidget* C_button = gtk_button_new_with_label("C");
@@ -197,6 +193,8 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
 }
 
 GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow* win) {
+    using ExportMode = coot::ligand_editor::LigandBuilderState::ExportMode;
+
     GMenu *ret = g_menu_new();
     
     // g_menu_append(GMenu *menu, const gchar *label, const gchar
@@ -215,52 +213,61 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     GMenu *file = g_menu_new();
     g_menu_append_submenu(ret, "File", G_MENU_MODEL(file));
     g_menu_append_item(file, new_menu_item("_New", "file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: New");
     })));
     g_menu_append_item(file, new_menu_item("_Open", "file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Open");
     })));
     g_menu_append_item(file, new_menu_item("Import from SMILES", "import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        coot::ligand_editor::global_instance->load_from_smiles();
     })));
     g_menu_append_item(file, new_menu_item("Import Molecule", "import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Import Molecule");
     })));
     g_menu_append_item(file, new_menu_item("Fetch Molecule", "fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Fetch Molecule");
     })));
     g_menu_append_item(file, new_menu_item("Save", "file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Save");
     })));
     g_menu_append_item(file, new_menu_item("Export as PDF", "export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        coot::ligand_editor::global_instance->file_export(ExportMode::PDF);
     })));
     g_menu_append_item(file, new_menu_item("Export as PNG", "export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        coot::ligand_editor::global_instance->file_export(ExportMode::PNG);
     })));
     g_menu_append_item(file, new_menu_item("Export as SVG", "export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        coot::ligand_editor::global_instance->file_export(ExportMode::SVG);
     })));
     g_menu_append_item(file, new_menu_item("_Exit", "exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         gtk_window_close(GTK_WINDOW(user_data));
     }),win));
+    // Edit
+    GMenu *edit = g_menu_new();
+    g_menu_append_submenu(ret, "Edit", G_MENU_MODEL(edit));
+    g_menu_append_item(edit, new_menu_item("Undo", "undo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("TODO: Undo");
+    })));
+    g_menu_append_item(edit, new_menu_item("Redo", "redo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        g_info("TODO: Redo");
+    })));
     // Display
     GMenu *display = g_menu_new();
     g_menu_append_submenu(ret, "Display", G_MENU_MODEL(display));
     g_menu_append_item(display, new_menu_item("Standard", "display_standard", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Standard");
     })));
     g_menu_append_item(display, new_menu_item("Atom Indices", "display_atom_indices", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Atom Indices");
     })));
     g_menu_append_item(display, new_menu_item("Atom Names", "display_atom_names", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: Atom Names");
     })));
     // Help
     GMenu *help = g_menu_new();
     g_menu_append_submenu(ret, "Help", G_MENU_MODEL(help));
     g_menu_append_item(help, new_menu_item("About", "about", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("Test");
+        g_info("TODO: About");
     })));
 
     return ret;
@@ -280,6 +287,7 @@ int main() {
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
         auto* canvas = coot_ligand_editor_canvas_new();
+        coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win));
         gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas,GTK_WINDOW(win))));
         gtk_application_add_window(app,GTK_WINDOW(win));
         build_main_window(GTK_WINDOW(win),canvas);
@@ -288,5 +296,8 @@ int main() {
     }),NULL);
 
 
-    return g_application_run(G_APPLICATION(app),0,0);
+    auto ret = g_application_run(G_APPLICATION(app),0,0);
+    g_info("Exiting...");
+    delete coot::ligand_editor::global_instance;
+    return ret;
 }

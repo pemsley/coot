@@ -14,12 +14,11 @@ CXXFLAGS= \
 # `pkg-config --cflags clipper` 
 
 LDLIBS=-fuse-ld=mold \
-       -L./ligand_editor_canvas/target/release \
        -L$(COOT_DIR)/lib \
        `pkg-config --libs gtk4`  \
         -g \
         -Wl,--rpath=$(COOT_DIR)/lib \
-        -lfreetype -lm -ldl
+        -lfreetype -lm -ldl -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 
