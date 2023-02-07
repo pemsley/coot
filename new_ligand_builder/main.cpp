@@ -11,8 +11,11 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     using coot::ligand_editor_canvas::ElementInsertion;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
 
-    GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+
     gtk_window_set_child(win, mainbox);
+    gtk_widget_set_margin_start(mainbox,10);
+    gtk_widget_set_margin_end(mainbox,10);
     // Top toolbar
     GtkWidget* top_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_append(GTK_BOX(mainbox), top_toolbar);
@@ -69,6 +72,8 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_box_append(GTK_BOX(mainbox), canvas_space);
     // Canvas space: chemical element picker
     GtkWidget* chem_element_picker = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+    gtk_widget_set_margin_top(chem_element_picker,10);
+    
     gtk_box_append(GTK_BOX(canvas_space), chem_element_picker);
 
     GtkWidget* C_button = gtk_button_new_with_label("C");
@@ -139,7 +144,16 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
-    gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas));
+    GtkWidget* canvas_viewport = gtk_scrolled_window_new();
+    gtk_widget_set_hexpand(canvas_viewport,TRUE);
+    gtk_widget_set_vexpand(canvas_viewport,TRUE);
+    gtk_widget_set_margin_top(canvas_viewport,10);
+    //gtk_widget_set_margin_end(canvas_viewport,10);
+    gtk_widget_set_margin_start(canvas_viewport,10);
+    gtk_widget_set_margin_bottom(canvas_viewport,10);
+ 
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(canvas_viewport),GTK_WIDGET(canvas));
+    gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas_viewport));
     // Statusbar / the bottom
     GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     gtk_widget_set_margin_start(bottom_bar, 10);
