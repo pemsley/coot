@@ -36,6 +36,7 @@ void CanvasMolecule::lower_from_rdkit() {
     RDGeom::INT_POINT2D_MAP coordinate_map;
     RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map);
 
+    // 2.2 Process atoms and compute bonds
     for(const auto& [atom_idx,plane_point]: coordinate_map) {
         
     }
