@@ -2175,6 +2175,8 @@ int test_add_hydrogen_atoms(molecules_container_t &mc) {
    return status;
 }
 
+#include <fstream>
+
 int test_mmrrcc(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2198,6 +2200,23 @@ int test_mmrrcc(molecules_container_t &mc) {
          std::cout << "   " << it->first << " " << it->second.correlation() << std::endl;
    }
    mc.close_molecule(imol);
+
+
+   if (false) {
+      // Filo's example 11729 and 7adk
+      imol = mc.read_pdb("pdb7adk.ent");
+      imol_map = mc.read_ccp4_map("emd_11729.map", 0);
+      auto results = mc.mmrrcc(imol, "B", imol_map);
+      auto mc = results.first;
+      auto sc = results.second;
+      std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
+      std::ofstream f("7adk-b-chain-all-atom.table");
+      for (it=mc.begin(); it!=mc.end(); ++it)
+         f << "   " << it->first << " " << it->second.correlation() << std::endl;
+      std::ofstream fs("7adk-b-chain-side-chain.table");
+      for (it=sc.begin(); it!=sc.end(); ++it)
+         fs << "   " << it->first << " " << it->second.correlation() << std::endl;
+   }
    return status;
 }
 
