@@ -213,22 +213,25 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     GMenu *file = g_menu_new();
     g_menu_append_submenu(ret, "File", G_MENU_MODEL(file));
     g_menu_append_item(file, new_menu_item("_New", "file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: New");
+        coot::ligand_editor::global_instance->file_new();
     })));
     g_menu_append_item(file, new_menu_item("_Open", "file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Open");
+        coot::ligand_editor::global_instance->file_open();
     })));
     g_menu_append_item(file, new_menu_item("Import from SMILES", "import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         coot::ligand_editor::global_instance->load_from_smiles();
     })));
     g_menu_append_item(file, new_menu_item("Import Molecule", "import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Import Molecule");
+        coot::ligand_editor::global_instance->file_import_molecule();
     })));
     g_menu_append_item(file, new_menu_item("Fetch Molecule", "fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Fetch Molecule");
+        coot::ligand_editor::global_instance->file_fetch_molecule();
     })));
     g_menu_append_item(file, new_menu_item("Save", "file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Save");
+        coot::ligand_editor::global_instance->file_save();
+    })));
+    g_menu_append_item(file, new_menu_item("Save As", "file_save_as", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_save_as();
     })));
     g_menu_append_item(file, new_menu_item("Export as PDF", "export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         coot::ligand_editor::global_instance->file_export(ExportMode::PDF);
@@ -246,10 +249,10 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     GMenu *edit = g_menu_new();
     g_menu_append_submenu(ret, "Edit", G_MENU_MODEL(edit));
     g_menu_append_item(edit, new_menu_item("Undo", "undo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Undo");
+        coot::ligand_editor::global_instance->edit_undo();
     })));
     g_menu_append_item(edit, new_menu_item("Redo", "redo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Redo");
+        coot::ligand_editor::global_instance->edit_redo();
     })));
     // Display
     GMenu *display = g_menu_new();

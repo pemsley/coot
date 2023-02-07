@@ -84,16 +84,28 @@ void LigandBuilderState::load_from_smiles() {
     gtk_window_present(GTK_WINDOW(load_dialog));
 }
 
-void LigandBuilderState::file_new() {
+void LigandBuilderState::file_import_molecule() {
+    g_warning("TODO: Implement void LigandBuilderState::file_import_molecule()");
+}
 
+void LigandBuilderState::file_fetch_molecule() {
+    g_warning("TODO: Implement void LigandBuilderState::file_fetch_molecule()");
+}
+
+void LigandBuilderState::file_new() {
+    g_warning("TODO: Implement void LigandBuilderState::file_new()");
 }
 
 void LigandBuilderState::file_save() {
+    g_warning("TODO: Implement void LigandBuilderState::file_save()");
+}
 
+void LigandBuilderState::file_save_as() {
+    g_warning("TODO: Implement void LigandBuilderState::file_save_as()");
 }
 
 void LigandBuilderState::file_open() {
-
+    g_warning("TODO: Implement void LigandBuilderState::file_open()");
 }
 
 void LigandBuilderState::file_export(ExportMode mode) {
@@ -115,11 +127,11 @@ void LigandBuilderState::file_export(ExportMode mode) {
 }
 
 void LigandBuilderState::edit_undo() {
-
+    g_warning("TODO: Implement void LigandBuilderState::edit_undo()");
 }
 
 void LigandBuilderState::edit_redo() {
-
+    g_warning("TODO: Implement void LigandBuilderState::edit_redo()");
 }
 
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win) {

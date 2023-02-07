@@ -33,8 +33,11 @@ class LigandBuilderState {
     void load_from_smiles();
     void file_new();
     void file_save();
+    void file_save_as();
     void file_open();
     void file_export(ExportMode mode);
+    void file_import_molecule();
+    void file_fetch_molecule();
     // EDIT
     void edit_undo();
     void edit_redo();
