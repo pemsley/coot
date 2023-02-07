@@ -2161,16 +2161,29 @@ int test_add_hydrogen_atoms(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int n_atoms_0 = mc.get_number_of_atoms(imol);
+   auto mesh_0 = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
    mc.add_hydrogen_atoms(imol);
+   auto mesh_1 = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
    int n_atoms_1 = mc.get_number_of_atoms(imol);
    mc.delete_hydrogen_atoms(imol);
    int n_atoms_2 = mc.get_number_of_atoms(imol);
+   auto mesh_2 = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
 
-   if (n_atoms_1 > n_atoms_0)
-      if (n_atoms_2 == n_atoms_0)
+   if (n_atoms_1 > n_atoms_0) {
+      if (n_atoms_2 == n_atoms_0) {
+         int imol_lig = mc.get_monomer("GLC");
+         auto mesh_lig_1 = mc.get_bonds_mesh(imol_lig, mode, true, 0.1, 1.0, 1);
+         int n_atom_pre = mc.get_number_of_atoms(imol_lig);
+         mc.delete_hydrogen_atoms(imol_lig);
+         int n_atoms_post = mc.get_number_of_atoms(imol_lig);
+         std::cout << "pre: " << n_atom_pre << " n_atom_post " << n_atoms_post << std::endl;
+         auto mesh_lig_2 = mc.get_bonds_mesh(imol_lig, mode, true, 0.1, 1.0, 1);
          status = 1;
+      }
+   }
 
    return status;
 }
@@ -2379,9 +2392,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_mmrrcc, "MMRRCC", mc);
 
-   status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
+   //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
-   // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+   status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
    // Note to self:
    //
