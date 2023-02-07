@@ -1,6 +1,7 @@
 #include "ligand-builder.hpp"
 #include "gtk/gtktypebuiltins.h"
 #include "ligand_editor_canvas.hpp"
+#include <memory>
 #include <stdexcept>
 #include <gtk/gtk.h>
 #include <rdkit/GraphMol/RWMol.h>
@@ -14,9 +15,8 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     this->main_window = win;
 }
 
-void LigandBuilderState::set_molecule(RDKit::RWMol* molecule_ptr) {
-    g_warning("TODO: Implement setting molecule");
-    delete molecule_ptr;
+void LigandBuilderState::append_molecule(RDKit::RWMol* molecule_ptr) {
+    coot_ligand_editor_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
 void LigandBuilderState::load_from_smiles() {
@@ -62,7 +62,7 @@ void LigandBuilderState::load_from_smiles() {
             }
             g_info("SMILES Import: Molecule constructed.");
             LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
-            state->set_molecule(molecule);
+            state->append_molecule(molecule);
         } catch (std::exception& e) {
             g_warning("SMILES Import error: %s",e.what());
             auto* message = gtk_message_dialog_new(

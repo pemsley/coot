@@ -70,7 +70,14 @@ class CanvasMolecule {
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
     std::vector<Bond> bonds;
+
+    /// Clears the drawing-friendly 2D representation data
+    /// and re-creates it from the internal RDKit::RWMol
+    void lower_from_rdkit();
+
     public:
+
+    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
     void draw(GtkSnapshot* snapshot) const noexcept;
 

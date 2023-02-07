@@ -1,6 +1,6 @@
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/model.hpp"
-#include <rdkit/GraphMol/RWMol.h>
+#include <exception>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -43,7 +43,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             drawn_molecule.draw(snapshot);
         }
     } else {
-        g_error("Molecules vector empty!");
+        g_error("Molecules vector not initialized!");
     }
    
 }
@@ -183,4 +183,14 @@ G_END_DECLS
 
 void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
     self->active_tool = std::move(active_tool);
+}
+
+void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    try {
+        // Might throw if the constructor fails.
+        self->molecules->push_back(CanvasMolecule(rdkit_mol));
+        self->rdkit_molecules->push_back(std::move(rdkit_mol));
+    }catch(std::exception& e) {
+        g_warning("coot_ligand_editor_append_molecule: 2D representation could not be created: %s. Ignoring new molecule.",e.what());
+    }
 }

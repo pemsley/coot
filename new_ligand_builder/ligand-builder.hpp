@@ -18,13 +18,14 @@ class LigandBuilderState {
     };
     private:
 
-    /// the widget
+    /// The widget. Owned by glib/gtk
     CootLigandEditorCanvas* canvas;
+    /// Owned by glib/gtk
     GtkWindow* main_window;
 
-    /// Updates the widget content with the molecule.
+    /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
-    void set_molecule(RDKit::RWMol* molecule_ptr);
+    void append_molecule(RDKit::RWMol* molecule_ptr);
 
     public:
     LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window) noexcept;
