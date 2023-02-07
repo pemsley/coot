@@ -3153,8 +3153,10 @@ coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
 int
 coot::molecule_t::delete_hydrogen_atoms() {
 
+   atom_sel.delete_atom_selection();
    coot::reduce r(atom_sel.mol, imol_no);
    r.delete_hydrogen_atoms();
+   atom_sel = make_asc(atom_sel.mol); // is there an asc function for this?
    return 1;
 
 }
