@@ -2220,6 +2220,24 @@ int test_mmrrcc(molecules_container_t &mc) {
    return status;
 }
 
+int test_auto_read_mtz(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   std::vector<int> imol_maps = mc.auto_read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"));
+
+   if (imol_maps.size() == 2) {
+      float rmsd_0 = mc.get_map_rmsd_approx(imol_maps[0]);
+      float rmsd_1 = mc.get_map_rmsd_approx(imol_maps[1]);
+      std::cout << "rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
+      if (rmsd_0 > 0.4) // test that the FWT map is the first of the pair
+         if (rmsd_1 > 0.2)
+      status = 1;
+   }
+
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -2359,7 +2377,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_colour_rules, "colour rules", mc);
 
-   status += run_test(test_mmrrcc, "MMRRCC", mc);
+   // status += run_test(test_mmrrcc, "MMRRCC", mc);
+
+   status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 

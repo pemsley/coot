@@ -89,6 +89,7 @@ add_library(cootapi SHARED
             ${coot_src}/protein_db/rna_db.cpp
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
+            ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/shiftfield.cpp
             ${coot_src}/coot-utils/stack-and-pair.cc
             ${coot_src}/coot-utils/spherical-harmonics.cc

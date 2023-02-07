@@ -511,11 +511,202 @@ molecules_container_t::read_mtz(const std::string &file_name,
    if (status) {
       molecules.push_back(m);
       imol = imol_in_hope;
-      std::cout << "DEBUG:: in read_mtz() " << file_name << " imol map: " << imol
+      std::cout << "DEBUG:: in read_mtz() " << file_name << " " << f << " " << phi << " imol map: " << imol
                 << " diff-map-status: " << is_a_difference_map << std::endl;
    }
    return imol;
 }
+
+#include "coot-utils/cmtz-interface.hh"
+#include "coot-utils/mtz-column-auto-read.hh"
+
+// utlity function
+//
+// We should allow labels that are simply "FWT" and "PHWT" without
+// dataset and xtal info.
+int
+molecules_container_t::valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
+                                    const std::string &weight_col, int use_weights) const {
+
+   int valid = 0;
+
+   short int have_f = 0;
+   short int have_phi = 0;
+   short int have_weight = 1; // later turn on test if we have weights.
+
+   std::string f_col_str(f_col);
+   std::string phi_col_str(phi_col);
+   std::string weight_col_str("");
+
+   if (use_weights)
+      weight_col_str = weight_col;
+
+   // These now return have 0 members on failure
+   //
+//    char **f_cols      = get_f_cols(mtz_file_name, &n_f);
+//    char **phi_cols    = get_phi_cols(mtz_file_name, &n_phi);
+//    char **weight_cols = get_weight_cols(mtz_file_name, &n_weight);
+//    char **d_cols      = get_d_cols(mtz_file_name, &n_d); // anom
+
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+
+   // Check first the MTZ column labels that don't have a slash
+   for (unsigned int i=0; i<r.f_cols.size(); i++) {
+      std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.f_cols[i].column_label);
+      if (p.second.length() > 0)
+	 if (p.second == f_col_str) {
+	    have_f = 1;
+	    break;
+	 }
+   }
+   for (unsigned int i=0; i<r.phi_cols.size(); i++) {
+      std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.phi_cols[i].column_label);
+      if (p.second.length() > 0)
+	 if (p.second == phi_col_str) {
+	    have_phi = 1;
+	    break;
+	 }
+   }
+   if (use_weights) {
+      for (unsigned int i=0; i<r.weight_cols.size(); i++) {
+	 std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.weight_cols[i].column_label);
+	 if (p.second.length() > 0)
+	    if (p.second == weight_col_str) {
+	       have_weight = 1;
+	       break;
+	    }
+      }
+   }
+
+
+   // Now check the MTZ column labels that *do* have a slash
+   if (r.f_cols.size() > 0) {
+      for (unsigned int i=0; i< r.f_cols.size(); i++) {
+	 if (f_col_str == r.f_cols[i].column_label) {
+	    have_f = 1;
+	    break;
+	 }
+      }
+   } else {
+      std::cout << "ERROR: no f_cols! " << std::endl;
+   }
+
+   // We can be trying to make an anomalous fourier.
+   if (! have_f) {
+      if (r.d_cols.size() > 0) {
+	 for (unsigned int i=0; i< r.d_cols.size(); i++) {
+	    std::cout << "comparing " << f_col_str << " " << r.d_cols[i].column_label << std::endl;
+	    if (f_col_str == r.d_cols[i].column_label) {
+	       have_f = 1;
+	       break;
+	    }
+	    std::pair<std::string, std::string> p =
+	       coot::util::split_string_on_last_slash(r.d_cols[i].column_label);
+	    if (p.second.length() > 0) {
+	       if (f_col_str == p.second) {
+		  have_f = 1;
+		  break;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (r.phi_cols.size() > 0) {
+      for (unsigned int i=0; i< r.phi_cols.size(); i++) {
+	 if (phi_col_str == r.phi_cols[i].column_label) {
+	    have_phi = 1;
+	    break;
+	 }
+      }
+   } else {
+      std::cout << "ERROR: no phi_cols! " << std::endl;
+   }
+
+   if (use_weights) {
+      have_weight = 0;
+      weight_col_str = std::string(weight_col);
+      if (r.weight_cols.size() > 0) {
+	 for (unsigned int i=0; i< r.weight_cols.size(); i++) {
+	    if (weight_col_str == r.weight_cols[i].column_label) {
+	       have_weight = 1;
+	       break;
+	    }
+	 }
+      } else {
+	 std::cout << "ERROR: bad (null) weight_cols! " << std::endl;
+      }
+   }
+
+   if (have_f && have_phi && have_weight)
+      valid = 1;
+
+   if (false)  // debug
+      std::cout << "DEBUG:: done checking for valid column labels... returning "
+		<< valid << " have-f: " << have_f << " have_phi: " << have_phi << " "
+		<< "have_weight: " << have_weight << std::endl;
+   return valid;
+}
+
+
+//! Read the given mtz file.
+//! @return a vector of the maps created from reading the file
+std::vector<int>
+molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
+
+   std::vector<int> imols;
+
+   std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
+
+   // Built-ins
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",          "PHWT",      false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT",      "PH2FOFCWT", false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",       "PHDELWT",   true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",       "PHFOFCWT",  true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-Flate","PHI_early-late", true));
+
+   for (unsigned int i=0; i<auto_mtz_pairs.size(); i++) {
+      const coot::mtz_column_trials_info_t &b = auto_mtz_pairs[i];
+      if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
+         int imol = read_mtz(mtz_file_name, b.f_col, b.phi_col, "", 0, b.is_diff_map);
+	 if (is_valid_map_molecule(imol))
+	    imols.push_back(imol);
+      }
+   }
+
+   // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+   if (r.f_cols.size() == 1) {
+      if (r.phi_cols.size() == 1) {
+         int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
+         imols.push_back(imol);
+      }
+   }
+
+   for (unsigned int i=0; i<r.f_cols.size(); i++) {
+      std::string s = r.f_cols[i].column_label;
+      std::string::size_type idx = s.find(".F_phi.F");
+      if (idx != std::string::npos) {
+	 std::string prefix = s.substr(0, idx);
+	 std::string trial_phi_col = prefix + ".F_phi.phi";
+	 for (unsigned int j=0; j<r.phi_cols.size(); j++) {
+	    if (r.phi_cols[j].column_label == trial_phi_col) {
+	       std::string f_col   = r.f_cols[i].column_label;
+	       std::string phi_col = r.phi_cols[j].column_label;
+               int imol = read_mtz(mtz_file_name, f_col, phi_col, "", false, false);
+               if (is_valid_map_molecule(imol))
+                  imols.push_back(imol);
+	    }
+	 }
+      }
+   }
+
+   return imols;
+}
+
 
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "coot-utils/slurp-map.hh"

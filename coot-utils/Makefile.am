@@ -42,7 +42,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	pepflip-using-difference-map.hh blob-line.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh \
-	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh
+	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -75,7 +75,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
-	shapes.cc
+	shapes.cc cmtz-interface.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la

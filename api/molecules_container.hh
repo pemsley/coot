@@ -182,6 +182,10 @@ class molecules_container_t {
    void read_standard_residues();
    atom_selection_container_t standard_residues_asc;
 
+   // for auto-read mtz
+   int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
+                    const std::string &weight_col, int use_weights) const;
+   
    // --------------------- init --------------------------
 
    void init() {
@@ -527,9 +531,13 @@ public:
    //! set the map sampling rate (default is 1.8). Higher numbers mean smoother maps, but they take
    //! longer to generate, longer to transfer, longer to parse and longer to draw
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
+   //! Read the given mtz file.
    //! @return the new molecule number or -1 on failure
    int read_mtz(const std::string &file_name, const std::string &f, const std::string &phi, const std::string &weight,
                 bool use_weight, bool is_a_difference_map);
+   //! Read the given mtz file.
+   //! @return a vector of the maps created from reading the file
+   std::vector<int> auto_read_mtz(const std::string &file_name);
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
    //! write a map. This function was be renamed from ``writeMap``
