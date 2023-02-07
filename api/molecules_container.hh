@@ -263,9 +263,11 @@ public:
    //! debugging function: display the table of molecule and names
    void display_molecule_names_table() const;
    //! @return is this a valid model?
-   bool is_valid_model_molecule(int) const;
+   bool is_valid_model_molecule(int imol) const;
    //! @return is this a valid map?
-   bool is_valid_map_molecule(int) const;
+   bool is_valid_map_molecule(int imol_map) const;
+   //! @return is this a difference map?
+   bool is_a_difference_map(int imol_map) const;
    //! close the molecule (and delete dynamically allocated memory)
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);

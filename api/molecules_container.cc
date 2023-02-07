@@ -48,6 +48,20 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+//! @return is this a difference map?
+bool
+molecules_container_t::is_a_difference_map(int imol) const {
+
+   bool status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].is_difference_map_p();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
 int
 molecules_container_t::close_molecule(int imol) {
 
