@@ -1,5 +1,11 @@
 #include "model.hpp"
 #include <stdexcept>
+// #include <rdkit/GraphMol/MolDraw2D/MolDraw2D.h>
+// // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DCairo.h>
+// // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DSVG.h>
+// #include <rdkit/GraphMol/MolDraw2D/MolDraw2DUtils.h>
+#include <rdkit/GraphMol/Depictor/RDDepictor.h>
+#include <rdkit/Geometry/point.h>
 
 using namespace coot::ligand_editor_canvas;
 
@@ -23,6 +29,16 @@ void CanvasMolecule::lower_from_rdkit() {
     this->atoms.clear();
     this->bonds.clear();
     // 2. Do the lowering
-    throw std::runtime_error("Lowering unimplemented!");
+
+    // 2.1 Get geometry info
+
+    // Maps atom indices to 2D points
+    RDGeom::INT_POINT2D_MAP coordinate_map;
+    RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map);
+
+    for(const auto& [atom_idx,plane_point]: coordinate_map) {
+        
+    }
+    
 }
 
