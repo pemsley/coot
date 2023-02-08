@@ -9,6 +9,7 @@
 // // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DSVG.h>
 // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DUtils.h>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
+#include <GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
 #include <boost/range/iterator_range.hpp>
 
@@ -80,7 +81,24 @@ void CanvasMolecule::lower_from_rdkit() {
 
     // Maps atom indices to 2D points
     RDGeom::INT_POINT2D_MAP coordinate_map;
+
+    // Sadly, this doesn't seem to work. I'll have to learn how to use it properly.
     RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map);
+
+
+    // RDKit::MatchVectType matchVect;
+    // if(! RDKit::SubstructMatch( *mol1 , *templ , matchVect ) ) {
+    //     throw std::runtime_error("SubstractMatch failed.");
+    // }
+    // RDKit::Conformer &conf = templ->getConformer();
+    // RDGeom::INT_POINT2D_MAP coordMap;
+    // for(auto mv: matchVect) {
+    //     RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
+    //     RDGeom::Point2D pt2( pt3.x , pt3.y );
+    //     coordMap[mv.second] = pt2;
+    // }
+    // RDDepict::compute2DCoords( *mol1 , &coordMap );
+
 
     /// Used to avoid duplicating bonds
     std::set<unsigned int> processed_atoms_indices;
