@@ -40,7 +40,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             g_info("No molecules to be drawn.");
         }
         for(const auto& drawn_molecule: *self->molecules) {
-            drawn_molecule.draw(snapshot);
+            drawn_molecule.draw(snapshot,&background_rect);
         }
     } else {
         g_error("Molecules vector not initialized!");

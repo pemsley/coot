@@ -1,4 +1,6 @@
 #include "model.hpp"
+#include "cairo-deprecated.h"
+#include "cairo.h"
 #include <boost/range/iterator_range_core.hpp>
 #include <stdexcept>
 #include <set>
@@ -13,13 +15,19 @@
 using namespace coot::ligand_editor_canvas;
 
 
-void CanvasMolecule::draw(GtkSnapshot* snapshot) const noexcept {
+void CanvasMolecule::draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept {
+    cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
+    // todo: change
+    cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     for(const auto& bond: bonds) {
-
+        cairo_move_to(cr, bond.first_atom_x, bond.first_atom_y);
+        cairo_line_to(cr, bond.second_atom_x, bond.second_atom_y);
+        g_debug("TODO: Implement drawing various bond kinds, colors, hightlights etc.");
     }
     for(const auto& atom: atoms) {
-
+        g_debug("TODO: Implement drawing atoms");
     }
+    g_object_unref(cr);
 }
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
@@ -113,6 +121,7 @@ void CanvasMolecule::lower_from_rdkit() {
             canvas_bond.second_atom_y = coordinate_map[second_atom_idx].y;
 
             canvas_bond.highlighted = false;
+            // todo: implement processing aromatic bonds
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
 
             this->bonds.push_back(std::move(canvas_bond));

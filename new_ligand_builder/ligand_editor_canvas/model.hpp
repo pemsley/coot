@@ -88,7 +88,7 @@ class CanvasMolecule {
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
-    void draw(GtkSnapshot* snapshot) const noexcept;
+    void draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept;
 
 };
 
