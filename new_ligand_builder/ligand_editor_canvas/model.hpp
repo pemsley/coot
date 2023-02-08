@@ -51,6 +51,8 @@ class CanvasMolecule {
         int x;
         /// Position on canvas (y axis)
         int y;
+        /// Corresponds to RDKit atom index
+        unsigned int idx;
         bool highlighted;
     };
     enum class BondType: unsigned char {
@@ -61,12 +63,19 @@ class CanvasMolecule {
     // todo: geometry support
     struct Bond {
         BondType type;
-        std::size_t first_atom_idx;
-        std::size_t second_atom_idx;
+        int first_atom_x;
+        int first_atom_y;
+        unsigned int first_atom_idx;
+        int second_atom_x;
+        int second_atom_y;
+        unsigned int second_atom_idx;
         bool highlighted;
     };
 
     private:
+
+    static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
+
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
     std::vector<Bond> bonds;
