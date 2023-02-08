@@ -85,6 +85,9 @@ void CanvasMolecule::lower_from_rdkit() {
     /// Used to avoid duplicating bonds
     std::set<unsigned int> processed_atoms_indices;
 
+    if(coordinate_map.empty()) {
+        throw std::runtime_error("RDKit coordinate mapping is empty");
+    }
     // 2.2 Process atoms and compute bonds
     for(const auto& [atom_idx,plane_point]: coordinate_map) {
         const auto* rdkit_atom = this->rdkit_molecule->getAtomWithIdx(atom_idx);
