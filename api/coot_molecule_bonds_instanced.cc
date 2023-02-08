@@ -22,7 +22,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
-   coot::instanced_geometry_t ig;
+   coot::instanced_geometry_t ig("spherical-atoms");
 
    bool atoms_have_bigger_radius_than_bonds = false;
    if (atom_radius > bond_radius) atoms_have_bigger_radius_than_bonds = true;
@@ -92,7 +92,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
 
    // copied and edited from Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version
 
-   coot::instanced_geometry_t ig;
+   coot::instanced_geometry_t ig("hemispherical-atoms");
 
    bool atoms_have_bigger_radius_than_bonds = false;
    if (atom_radius > bond_radius)
@@ -192,10 +192,10 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
    // copied and edited from src/Mesh::Mesh-from-graphical-bonds-instanced.cc
    // make_graphical_bonds_bonds_instanced_version()
 
-   coot::instanced_geometry_t ig_00;
-   coot::instanced_geometry_t ig_01;
-   coot::instanced_geometry_t ig_10;
-   coot::instanced_geometry_t ig_11;
+   coot::instanced_geometry_t ig_00("cylinder-00");
+   coot::instanced_geometry_t ig_01("cylinder-01");
+   coot::instanced_geometry_t ig_10("cylinder-10");
+   coot::instanced_geometry_t ig_11("cylinder-11");
 
    // ----------------------- setup the vertices and triangles ----------------------
 
@@ -344,4 +344,71 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
    return m;
 
+}
+
+
+coot::instanced_mesh_t
+coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &atom_selection_cid,
+                                                         coot::protein_geometry *geom,
+                                                         bool against_a_dark_background, float bond_radius, float atom_radius_to_bond_width_ratio,
+                                                         int  num_subdivisions,
+                                                         bool draw_hydrogen_atoms_flag,
+                                                         bool draw_missing_residue_loops) {
+
+   coot::instanced_mesh_t m;
+
+   int sel_hnd = atom_sel.mol->NewSelection(); // d
+   atom_sel.mol->Select(sel_hnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, sel_hnd, false);
+   atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
+   atom_sel.mol->DeleteSelection(sel_hnd);
+
+   // atom_sel_ligand.SelectionHandle = atom_sel_ligand.mol->NewSelection();
+   // atom_sel_ligand.mol->Select(atom_sel_ligand.SelectionHandle, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   // atom_sel_ligand.mol->GetSelIndex(atom_sel_ligand.SelectionHandle, atom_sel_ligand.atom_selection, atom_sel_ligand.n_selected_atoms);
+   // atom_sel_ligand.read_success = 1;
+
+   float atom_radius = bond_radius * atom_radius_to_bond_width_ratio;
+
+   unsigned int n_slices = 8;
+   unsigned int n_stacks = 2;
+
+   if (num_subdivisions == 2) {
+      n_slices = 16;
+   }
+
+   if (num_subdivisions == 3) {
+      n_slices = 32;
+   }
+
+   std::set<int> no_bonds_to_these_atoms; // empty
+   bool change_c_only_flag =  true;
+   bool goodsell_mode = false;
+   bool do_rota_markup = false;
+   int udd_handle_bonded_type = atom_sel_ligand.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+   if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
+      std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
+      return m;
+   }
+
+   Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
+   bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
+                                  draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
+
+   auto gbc = bonds.make_graphical_bonds();
+
+   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+
+   make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
+                                                  atom_radius, bond_radius, num_subdivisions, colour_table);
+   make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
+                                            bond_radius, num_subdivisions, colour_table);
+
+   make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
+
+   make_graphical_bonds_cis_peptides(m.markup, gbc);
+
+   atom_sel_ligand.clear_up();
+
+   return m;
 }

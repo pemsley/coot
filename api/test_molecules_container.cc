@@ -1830,8 +1830,8 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    if (mc.is_valid_model_molecule(imol)) {
-      std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
       coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
       std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
       if (im.geom.size() > 3) {
@@ -1855,6 +1855,14 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
             }
          }
       }
+   }
+
+   std::string cid("//A/177-178");
+   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, 1);
+   unsigned int n_geoms = im_lig.geom.size();
+   for (unsigned int i=0; i<n_geoms; i++) {
+      std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
+      std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has B " << im_lig.geom[i].instancing_data_B.size() << std::endl;
    }
    mc.close_molecule(imol);
    return status;
@@ -2394,7 +2402,9 @@ int main(int argc, char **argv) {
 
    //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
-   status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+   // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+
+   status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
    // Note to self:
    //

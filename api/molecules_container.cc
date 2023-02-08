@@ -1413,6 +1413,32 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
    return im;
 }
 
+//! As above, but only return the bonds for the atom selection.
+//! Typically one would call this with a wider bond_with than one would use for standards atoms (all molecule)
+//!
+//! @return a ``coot::instanced_mesh_t``
+coot::instanced_mesh_t
+molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const std::string &atom_selection_cid,
+                                                              const std::string &mode,
+                                                              bool against_a_dark_background,
+                                                              float bond_width, float atom_radius_to_bond_width_ratio,
+                                                              int smoothness_factor) {
+   bool draw_hydrogen_atoms_flag = true; // pass this
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].get_bonds_mesh_for_selection_instanced(mode, atom_selection_cid,
+                                                                  &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
+                                                                  smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
+
+
 
 
 coot::simple_mesh_t

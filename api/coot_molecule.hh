@@ -430,6 +430,13 @@ namespace coot {
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
+      instanced_mesh_t get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &selection_cid,
+                                                              coot::protein_geometry *geom,
+                                                              bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              int smoothness_factor,
+                                                              bool draw_hydrogen_atoms_flag,
+                                                              bool draw_missing_residue_loops);
+
       void fill_default_colour_rules(); // assign colours to chains.
 
       //! If any colour rule has been set for this molecule, then we will use these

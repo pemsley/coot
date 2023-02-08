@@ -40,6 +40,7 @@ namespace coot {
       std::string name;
 
       instanced_geometry_t() {}
+      explicit instanced_geometry_t(const std::string &n) : name(n) {};
       instanced_geometry_t(const std::vector<coot::api::vn_vertex> &v, std::vector<g_triangle> &t) :
          vertices(v), triangles(t) {}
 

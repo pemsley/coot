@@ -438,6 +438,16 @@ public:
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
                                                    int smoothness_factor);
 
+   //! As above, but only return the bonds for the atom selection.
+   //! Typically one would call this with a wider bond_with than one would use for standards atoms (all molecule)
+   //!
+   //! @return a ``coot::instanced_mesh_t``
+   coot::instanced_mesh_t get_bonds_mesh_for_selection_instanced(int imol, const std::string &atom_selection_cid,
+                                                                 const std::string &mode,
+                                                                 bool against_a_dark_background,
+                                                                 float bond_width, float atom_radius_to_bond_width_ratio,
+                                                                 int smoothness_factor);
+
    //! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme()
    //! will be called (and that his its internal colour-by-chain colouring scheme).
    //!
