@@ -63,6 +63,7 @@ void LigandBuilderState::load_from_smiles() {
             g_info("SMILES Import: Molecule constructed.");
             LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
             state->append_molecule(molecule);
+            gtk_window_destroy(GTK_WINDOW(dialog));
         } catch (std::exception& e) {
             g_warning("SMILES Import error: %s",e.what());
             auto* message = gtk_message_dialog_new(

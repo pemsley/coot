@@ -187,6 +187,7 @@ void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::uniqu
 
 void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
     try {
+        g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
