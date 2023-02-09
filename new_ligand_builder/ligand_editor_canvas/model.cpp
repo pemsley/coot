@@ -44,14 +44,20 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
 
 CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondType rdkit_bond) {
     switch (rdkit_bond) {
-        case RDKit::Bond::DOUBLE: {
+        case RDKit::Bond::SINGLE: {
             return BondType::Single;
+        }
+        case RDKit::Bond::DOUBLE: {
+            return BondType::Double;
         }
         case RDKit::Bond::TRIPLE: {
             return BondType::Triple;
         }
+        case RDKit::Bond::AROMATIC:{
+            g_warning("Todo: Take care of aromatic bonds.");
+            return BondType::Single;
+        }
         case RDKit::Bond::UNSPECIFIED:
-        case RDKit::Bond::SINGLE:
         case RDKit::Bond::QUADRUPLE:
         case RDKit::Bond::QUINTUPLE:
         case RDKit::Bond::HEXTUPLE:
@@ -60,7 +66,6 @@ CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondT
         case RDKit::Bond::THREEANDAHALF:
         case RDKit::Bond::FOURANDAHALF:
         case RDKit::Bond::FIVEANDAHALF:
-        case RDKit::Bond::AROMATIC:
         case RDKit::Bond::IONIC:
         case RDKit::Bond::HYDROGEN:
         case RDKit::Bond::THREECENTER:
@@ -81,6 +86,7 @@ void CanvasMolecule::lower_from_rdkit() {
     // 1. Clear what we have
     this->atoms.clear();
     this->bonds.clear();
+
     // 2. Do the lowering
 
     // 2.1 Get geometry info
