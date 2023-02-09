@@ -97,15 +97,12 @@ void CanvasMolecule::lower_from_rdkit() {
         throw std::runtime_error("SubstractMatch failed.");
     }
     RDKit::Conformer &conf = this->rdkit_molecule->getConformer();
-    RDGeom::INT_POINT2D_MAP coordMap;
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
-        coordMap[mv.second] = pt2;
+        coordinate_map[mv.second] = pt2;
     }
-    RDDepict::compute2DCoords( *this->rdkit_molecule , &coordMap );
-
-    coordinate_map = coordMap;
+    RDDepict::compute2DCoords( *this->rdkit_molecule , &coordinate_map );
 
 
     /// Used to avoid duplicating bonds
