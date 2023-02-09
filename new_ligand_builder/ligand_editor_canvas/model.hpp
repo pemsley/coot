@@ -48,9 +48,9 @@ class CanvasMolecule {
         std::string symbol;
         AtomColor color;
         /// Position on canvas (x axis)
-        int x;
+        float x;
         /// Position on canvas (y axis)
-        int y;
+        float y;
         /// Corresponds to RDKit atom index
         unsigned int idx;
         bool highlighted;
@@ -63,11 +63,11 @@ class CanvasMolecule {
     // todo: geometry support
     struct Bond {
         BondType type;
-        int first_atom_x;
-        int first_atom_y;
+        float first_atom_x;
+        float first_atom_y;
         unsigned int first_atom_idx;
-        int second_atom_x;
-        int second_atom_y;
+        float second_atom_x;
+        float second_atom_y;
         unsigned int second_atom_idx;
         bool highlighted;
     };

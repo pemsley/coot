@@ -17,14 +17,17 @@ using namespace coot::ligand_editor_canvas;
 
 
 void CanvasMolecule::draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept {
+    auto x_offset = bounds->size.width / 2.0;
+    auto y_offset = bounds->size.height / 2.0;
+    auto scale_factor = 30.f;
+
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     // todo: change
     cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
     cairo_set_line_width(cr, 3.0);
     for(const auto& bond: bonds) {
-        cairo_move_to(cr, bond.first_atom_x + 100, bond.first_atom_y + 100);
-        cairo_line_to(cr, bond.second_atom_x + 100, bond.second_atom_y + 100);
-        g_debug("Line from %i %i to %i %i with rect: %f %f %f %f",bond.first_atom_x, bond.first_atom_y,bond.second_atom_x, bond.second_atom_y,bounds->origin.x,bounds->origin.y,bounds->size.width,bounds->size.height);
+        cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
+        cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
         cairo_stroke(cr);
         g_debug("TODO: Implement drawing various bond kinds, colors, hightlights etc.");
     }
