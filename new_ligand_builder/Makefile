@@ -18,7 +18,7 @@ LDLIBS=-fuse-ld=mold \
        `pkg-config --libs gtk4`  \
         -g \
         -Wl,--rpath=$(COOT_DIR)/lib \
-        -lfreetype -lm -ldl -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral
+        -lfreetype -lm -ldl -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitSubstructMatch
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 

@@ -19,16 +19,19 @@ using namespace coot::ligand_editor_canvas;
 void CanvasMolecule::draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept {
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     // todo: change
-    cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+    cairo_set_line_width(cr, 3.0);
     for(const auto& bond: bonds) {
-        cairo_move_to(cr, bond.first_atom_x, bond.first_atom_y);
-        cairo_line_to(cr, bond.second_atom_x, bond.second_atom_y);
+        cairo_move_to(cr, bond.first_atom_x + 100, bond.first_atom_y + 100);
+        cairo_line_to(cr, bond.second_atom_x + 100, bond.second_atom_y + 100);
+        g_debug("Line from %i %i to %i %i with rect: %f %f %f %f",bond.first_atom_x, bond.first_atom_y,bond.second_atom_x, bond.second_atom_y,bounds->origin.x,bounds->origin.y,bounds->size.width,bounds->size.height);
+        cairo_stroke(cr);
         g_debug("TODO: Implement drawing various bond kinds, colors, hightlights etc.");
     }
     for(const auto& atom: atoms) {
         g_debug("TODO: Implement drawing atoms");
     }
-    g_object_unref(cr);
+    cairo_destroy(cr);
 }
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
@@ -83,21 +86,23 @@ void CanvasMolecule::lower_from_rdkit() {
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
     // Sadly, this doesn't seem to work. I'll have to learn how to use it properly.
-    RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map);
+    RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map,true,false);
 
 
-    // RDKit::MatchVectType matchVect;
-    // if(! RDKit::SubstructMatch( *mol1 , *templ , matchVect ) ) {
-    //     throw std::runtime_error("SubstractMatch failed.");
-    // }
-    // RDKit::Conformer &conf = templ->getConformer();
-    // RDGeom::INT_POINT2D_MAP coordMap;
-    // for(auto mv: matchVect) {
-    //     RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
-    //     RDGeom::Point2D pt2( pt3.x , pt3.y );
-    //     coordMap[mv.second] = pt2;
-    // }
-    // RDDepict::compute2DCoords( *mol1 , &coordMap );
+    RDKit::MatchVectType matchVect;
+    if(! RDKit::SubstructMatch( *this->rdkit_molecule , *this->rdkit_molecule , matchVect ) ) {
+        throw std::runtime_error("SubstractMatch failed.");
+    }
+    RDKit::Conformer &conf = this->rdkit_molecule->getConformer();
+    RDGeom::INT_POINT2D_MAP coordMap;
+    for(auto mv: matchVect) {
+        RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
+        RDGeom::Point2D pt2( pt3.x , pt3.y );
+        coordMap[mv.second] = pt2;
+    }
+    RDDepict::compute2DCoords( *this->rdkit_molecule , &coordMap );
+
+    coordinate_map = coordMap;
 
 
     /// Used to avoid duplicating bonds
