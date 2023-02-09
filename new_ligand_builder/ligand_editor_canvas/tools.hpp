@@ -4,6 +4,15 @@
 
 namespace coot::ligand_editor_canvas {
 
+namespace impl {
+    /// This is a forward declaration of a structure defined at
+    /// "core.hpp"
+    struct WidgetCoreData;
+    /// This is a forward declaration of a structure defined at
+    /// "core.hpp"
+    struct CootLigandEditorCanvasPriv;
+}
+
 class BondModifier {
     public:
     enum class BondModifierMode {
@@ -96,6 +105,9 @@ class ActiveTool {
         StructureInsertion structure_insertion;
     };
     Variant variant;
+    /// Non-owning pointer
+    impl::WidgetCoreData* widget_data;
+   
 
     public:
     ActiveTool() noexcept;
@@ -105,6 +117,11 @@ class ActiveTool {
     /// Valid for Variant::ElementInsertion.
     /// Inserts currently chosen atom at the given coordinates.
     void insert_atom(int x, int y) noexcept;
+
+    /// Only meant to be invoked from within CootLigandEditorCanvas implementation
+    ///
+    /// Sets the pointer to access widget's data.
+    void set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_widget) noexcept;
 };
 
 }

@@ -1,4 +1,5 @@
 #include "tools.hpp"
+#include "core.hpp"
 
 using namespace coot::ligand_editor_canvas;
 
@@ -13,6 +14,10 @@ ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
 
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
+}
+
+void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_widget) noexcept {
+    this->widget_data = static_cast<impl::WidgetCoreData*>(owning_widget);
 }
 
 void ActiveTool::insert_atom(int x, int y) noexcept {

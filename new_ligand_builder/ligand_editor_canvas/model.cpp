@@ -15,8 +15,11 @@
 
 using namespace coot::ligand_editor_canvas;
 
+CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) {
+    //todo: implement
+}
 
-void CanvasMolecule::draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept {
+void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
     auto x_offset = bounds->size.width / 2.0;
     auto y_offset = bounds->size.height / 2.0;
     auto scale_factor = 30.f;
@@ -31,8 +34,29 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) 
         cairo_stroke(cr);
         g_debug("TODO: Implement drawing various bond kinds, colors, hightlights etc.");
     }
+
     for(const auto& atom: atoms) {
-        g_debug("TODO: Implement drawing atoms");
+        // Used to make the texts centered where they should be.
+        int layout_width, layout_height;
+
+        auto render_text = [&](const std::string& t){
+            //todo: color and size
+            std::string markup = "<span color=\"navy\" weight=\"bold\" size=\"x-large\">" + t + "</span>";
+            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
+            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+            cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
+            pango_cairo_show_layout(cr, pango_layout);
+        };
+
+        g_debug("TODO: Correctly implement drawing atoms");
+        
+        if (atom.symbol == "C") {
+            // Ignore drawing Carbon
+        } else if (atom.symbol == "H") {
+            // Ignore hydrogens for now
+        } else {
+           render_text(atom.symbol);
+        }
     }
     cairo_destroy(cr);
 }

@@ -1,4 +1,5 @@
 #include "ligand_editor_canvas.hpp"
+#include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include <exception>
 #include <utility>
@@ -7,14 +8,15 @@
 
 using namespace coot::ligand_editor_canvas;
 
-struct _CootLigandEditorCanvas {
-    GtkWidget parent;
+/// Because of GObject's amazing macro system, 
+/// I can't use a "typedef" to denote that
+/// "_CootLigandEditorCanvas" is the same type as "coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv".
+///
+/// A "using" statement doesn't compile too. I don't think there's anything I might be doing wrong.
+///
+/// An empty struct with inheritance should compile to the exactly same thing though.
+struct _CootLigandEditorCanvas:  coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
 
-    std::unique_ptr<ActiveTool> active_tool;
-    /// molecules on the screen
-    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
-    /// molecules (RDKit)
-    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 };
 
 G_BEGIN_DECLS
@@ -38,9 +40,14 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     if (self->molecules) {
         if(self->molecules->empty()) {
             g_info("No molecules to be drawn.");
-        }
-        for(const auto& drawn_molecule: *self->molecules) {
-            drawn_molecule.draw(snapshot,&background_rect);
+        } else {
+            // This does not respect GTK theming
+            // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
+            PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+            for(const auto& drawn_molecule: *self->molecules) {
+                drawn_molecule.draw(snapshot,pango_layout,&background_rect);
+            }
+            g_object_unref(pango_layout);
         }
     } else {
         g_error("Molecules vector not initialized!");
@@ -141,6 +148,7 @@ static void on_left_click (
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
     self->active_tool = std::make_unique<ActiveTool>();
+    self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
 
@@ -183,6 +191,7 @@ G_END_DECLS
 
 void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
     self->active_tool = std::move(active_tool);
+    self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
 }
 
 void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {

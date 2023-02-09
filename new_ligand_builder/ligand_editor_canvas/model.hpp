@@ -4,6 +4,8 @@
 #include <gtk/gtk.h>
 #include <memory>
 #include <vector>
+#include <variant>
+#include <optional>
 #include <rdkit/GraphMol/RWMol.h>
 
 namespace coot {
@@ -74,6 +76,12 @@ class CanvasMolecule {
 
     private:
 
+    typedef std::optional<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>> MaybeAtomOrBond;
+    
+    /// Checks if any object matches the click coordinates passed as arguments.
+    /// Returns the thing that was clicked on (or nullopt if there's no match).
+    static MaybeAtomOrBond resolve_click(int x, int y);
+
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
@@ -88,7 +96,7 @@ class CanvasMolecule {
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
-    void draw(GtkSnapshot* snapshot, const graphene_rect_t *bounds) const noexcept;
+    void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept;
 
 };
 
