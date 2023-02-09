@@ -88,7 +88,10 @@ void CanvasMolecule::lower_from_rdkit() {
     // Maps atom indices to 2D points
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
-    // Sadly, this doesn't seem to work. I'll have to learn how to use it properly.
+    // The following code is based on RDKit documentation.
+    // In fact, it's almost a copy-paste.
+    // I'm not exactly sure if what I did here is the most optimal solution
+    // but it seems to work.
     RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map,true,false);
 
 
