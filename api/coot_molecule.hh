@@ -679,6 +679,29 @@ namespace coot {
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
                         float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
+
+      // make them yourself - easy as pie.
+      void generate_self_restraints(float local_dist_max,
+                                    const coot::protein_geometry &geom);
+      void generate_chain_self_restraints(float local_dist_max,
+                                          const std::string &chain_id,
+                                          const coot::protein_geometry &geom);
+      void generate_local_self_restraints(float local_dist_max,
+                                          const std::vector<coot::residue_spec_t> &residue_specs,
+                                          const coot::protein_geometry &geom);
+      void generate_local_self_restraints(int selHnd, float local_dist_max,
+                                          const coot::protein_geometry &geom);
+
+      void add_parallel_plane_restraint(coot::residue_spec_t spec_1,
+                                        coot::residue_spec_t spec_2);
+
+      // which uses:
+      std::vector<std::string> nucelotide_residue_name_to_base_atom_names(const std::string &rn) const;
+      // for non-bases, normal amino acids (simple-minded, currently).
+      std::vector<std::string> residue_name_to_plane_atom_names(const std::string &rn) const;
+
+      void clear_extra_restraints();
+
       // ----------------------- map functions
 
       // return -1.1 on not-a-map

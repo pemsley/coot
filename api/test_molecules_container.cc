@@ -22,6 +22,26 @@ reference_data(const std::string &file) {
    }
 }
 
+int test_utils(molecules_container_t &mc_in) {
+
+   int status = 0; // initially fail status
+   starting_test(__FUNCTION__);
+
+   std::string test_string = "aaaaa||bbbb||c";
+   std::vector<std::string> parts = coot::util::split_string(test_string, "||");
+   if (parts.size() == 3) {
+      if (parts[0] == "aaaaa") {
+         if (parts[1] == "bbbb") {
+            if (parts[2] == "c") {
+               status = 1;
+            }
+         }
+      }
+   }
+
+   return status;
+}
+
 int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
 
    starting_test(__FUNCTION__);
@@ -2404,7 +2424,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
-   status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
+   // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
+
+   status = run_test(test_utils, "utils", mc);
 
    // Note to self:
    //

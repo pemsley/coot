@@ -329,6 +329,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_bonds.cc
             ${coot_src}/api/coot_molecule_bonds_instanced.cc
             ${coot_src}/api/coot_molecule_moltris.cc
+            ${coot_src}/api/coot_molecule_refine.cc
             ${coot_src}/api/coot_molecule_replace_fragment.cc
             ${coot_src}/api/coot_molecule_validation.cc
             ${coot_src}/api/molecules_container.cc

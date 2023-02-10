@@ -3572,3 +3572,80 @@ molecules_container_t::delete_hydrogen_atoms(int imol_model) {
    }
    return status;
 }
+
+//! generate GM self restraints
+int
+molecules_container_t::generate_self_restraints(int imol, float local_dist_max) {
+
+   int status = -1;
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].generate_self_restraints(local_dist_max, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status; // nothing useful.
+}
+
+
+//! generate GM self restraints for the given chain
+void
+molecules_container_t::generate_chain_self_restraints(int imol,
+                                                      float local_dist_max,
+                                                      const std::string &chain_id,
+                                                      const coot::protein_geometry &geom) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].generate_chain_self_restraints(local_dist_max, chain_id, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! generate GM self restraints for the given residues.
+//! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
+void
+molecules_container_t::generate_local_self_restraints(int imol, float local_dist_max,
+                                                      const std::string & residue_cids,
+                                                      const coot::protein_geometry &geom) {
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs;
+      std::vector<std::string> parts = coot::util::split_string(residue_cids, "||");
+      for (const auto &part : parts) {
+         coot::residue_spec_t rs = residue_cid_to_residue_spec(imol, part);
+         if (! rs.empty())
+            residue_specs.push_back(rs);
+      }
+      molecules[imol].generate_local_self_restraints(local_dist_max, residue_specs, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+
+//! generate parallel plane restraints (for RNA and DNA)
+void
+molecules_container_t::add_parallel_plane_restraint(int imol,
+                                                    const std::string &residue_cid_1,
+                                                    const std::string &residue_cid_2) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs_1 = residue_cid_to_residue_spec(imol, residue_cid_1);
+      coot::residue_spec_t rs_2 = residue_cid_to_residue_spec(imol, residue_cid_1);
+      molecules[imol].add_parallel_plane_restraint(rs_1, rs_2);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! clear the extra restraints
+
+void
+molecules_container_t::clear_extra_restraints(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_extra_restraints();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}

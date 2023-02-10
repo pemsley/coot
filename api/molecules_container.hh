@@ -103,6 +103,7 @@ class molecules_container_t {
    // or what static means in WebAssembly.
    static clipper::Xmap<float> *dummy_xmap;
    float map_weight;
+   float geman_mcclure_alpha;
 
    static ctpl::thread_pool static_thread_pool; // does this need to be static?
    bool show_timings;
@@ -174,7 +175,8 @@ class molecules_container_t {
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
-   // this is like mini-rsr:
+   //! this is like mini-rsr:
+   //! @return success status
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
@@ -201,6 +203,7 @@ class molecules_container_t {
       continue_threaded_refinement_loop = false;
       particles_have_been_shown_already_for_this_round_flag = false;
       map_weight = 50.0;
+      geman_mcclure_alpha = 0.01;
       map_sampling_rate = 1.8;
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
@@ -765,15 +768,34 @@ public:
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
 
-   //! Recently (20230202) the smoothness factor has been added as an extra argument
-   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
-   //! @return the instanced mesh for the specified ligand
-   coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid, unsigned int smoothness_factor) const;
+   //! set the refinement Geman-McClure alpha
+   void set_refinement_geman_mcclure_alpha(float a) { geman_mcclure_alpha = a; }
 
-   //! Recently (20230202) the smoothness factor has been added as an extra argument
-   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
-   //! @return the instanced mesh for the specified molecule
-   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+   //! set the refinement Geman-McClure alpha
+   float get_geman_mcclure_alpha() const { return geman_mcclure_alpha; }
+
+   //! generate GM self restraints for the whole molecule
+   //! @return nothing useful.
+   int generate_self_restraints(int imol, float local_dist_max);
+
+   //! generate GM self restraints for the given chain
+   void generate_chain_self_restraints(int imol, float local_dist_max,
+                                       const std::string &chain_id,
+                                       const coot::protein_geometry &geom);
+
+   //! generate GM self restraints for the given residues.
+   //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
+   void generate_local_self_restraints(int imol, float local_dist_max,
+                                       const std::string & residue_cids,
+                                       const coot::protein_geometry &geom);
+
+   //! generate parallel plane restraints (for RNA and DNA)
+   void add_parallel_plane_restraint(int imol,
+                                     const std::string &residue_cid_1,
+                                     const std::string &residue_cid_2);
+
+   //! clear the extra restraints
+   void clear_extra_restraints(int imol);
 
    // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation
@@ -794,6 +816,16 @@ public:
    //! get the data for Ramachandran validation, which importantly contains probability information
    //! @return a vector of `phi_psi_prob_t`
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
+
+   //! Recently (20230202) the smoothness factor has been added as an extra argument
+   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
+   //! @return the instanced mesh for the specified ligand
+   coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid, unsigned int smoothness_factor) const;
+
+   //! Recently (20230202) the smoothness factor has been added as an extra argument
+   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
+   //! @return the instanced mesh for the specified molecule
+   coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
