@@ -189,11 +189,17 @@ molecules_container_t::get_active_atom(float x, float y, float z, const std::str
          std::string s = "/";
          s += std::to_string(at->GetModelNum());
          s += "/";
+         s += std::string(at->GetChainID());
+         s += "/";
          s += std::to_string(at->GetSeqNum());
          s += std::string(at->GetInsCode());
          s += "/";
          s += std::string(at->GetAtomName());
-         s += std::string(at->altLoc);
+         std::string a(at->altLoc);
+         if (! a.empty()) {
+            s += ":";
+            s += std::string();
+         }
          return s;
       } else {
          return std::string("");
