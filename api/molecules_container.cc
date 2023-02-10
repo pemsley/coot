@@ -359,6 +359,7 @@ molecules_container_t::undo(int imol) {
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].undo();
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -370,7 +371,8 @@ molecules_container_t::redo(int imol) {
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].redo();
-         } else {
+      set_updating_maps_need_an_update(imol);
+   } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
