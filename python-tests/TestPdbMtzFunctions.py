@@ -215,8 +215,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         # bogus map test
         pre_n_molecules = coot.graphics_n_molecules()
         imol_map = coot.make_and_draw_map("bogus.mtz", "FWT", "PHWT", "", 5, 6)
-        self.assertEqual(imol_map, -1,
-                             "   bogus MTZ returns wrong molecule number")
+        self.assertEqual(imol_map, -1, "   bogus MTZ returns wrong molecule number")
         now_n_molecules = coot.graphics_n_molecules()
         self.assertEqual(now_n_molecules, pre_n_molecules,
                              "   bogus MTZ creates extra map %s %s" %(pre_n_molecules, now_n_molecules))

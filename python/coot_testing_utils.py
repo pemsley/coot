@@ -121,15 +121,15 @@ def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
 
 def shelx_waters_all_good_occ_qm(test, imol_insulin_res):
 
-    chain_id = water_chain(imol_insulin_res)
-    n_residues = chain_n_residues(chain_id, imol_insulin_res)
+    chain_id = coot.water_chain_py(imol_insulin_res)
+    n_residues = coot.chain_n_residues(chain_id, imol_insulin_res)
     serial_number = n_residues - 1
-    res_name = resname_from_serial_number(imol_insulin_res, chain_id, serial_number)
-    res_no   = seqnum_from_serial_number (imol_insulin_res, chain_id, serial_number)
-    ins_code = insertion_code_from_serial_number(imol_insulin_res, chain_id, serial_number)
+    res_name = coot.resname_from_serial_number(imol_insulin_res, chain_id, serial_number)
+    res_no   = coot.seqnum_from_serial_number (imol_insulin_res, chain_id, serial_number)
+    ins_code = coot.insertion_code_from_serial_number(imol_insulin_res, chain_id, serial_number)
 
     if (res_name == "HOH"):
-        atom_list = residue_info(imol_insulin_res, chain_id, res_no, ins_code)
+        atom_list = coot.residue_info_py(imol_insulin_res, chain_id, res_no, ins_code)
         for atom in atom_list:
             occ = atom[1][0]
             test.assertAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)

@@ -24,7 +24,9 @@
 # So, in Coot, if it sees the extention of .fcf then it calls the
 # fcf handler and the handler does the conversion, writes a new
 # mmCIF file and then reads it.
-# 
+#
+
+import coot
 
 from types import *
 import numbers
