@@ -1563,7 +1563,11 @@ coot::refinement_results_t
 graphics_info_t::accept_moving_atoms() {
 
    auto debug_moving_atoms = [] () {
-      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc: " << moving_atoms_asc << std::endl;
+      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc:" << moving_atoms_asc << std::endl;
+      if (! moving_atoms_asc) {
+         std::cout << "ERROR:: null moving_atoms_asc in accept_moving_atoms() debug_moving_atoms()" << std::endl;
+         return;
+      }
       std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc mol: " << moving_atoms_asc->mol << std::endl;
       mmdb::Manager *mol = moving_atoms_asc->mol;
       if (! mol) {
@@ -1600,7 +1604,7 @@ graphics_info_t::accept_moving_atoms() {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
 
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
@@ -1712,7 +1716,7 @@ graphics_info_t::run_post_read_model_hook(int imol) {
 
    s = "post-read-model-hook";
    SCM v = safe_scheme_command(s.c_str());
-   std::cout << "scm v " << v << std::endl;
+   // std::cout << "scm v " << v << std::endl;
    if (scm_is_true(scm_procedure_p(v))) {
       s += "(" + s + " " + int_to_string(imol) + ")";
       SCM result = safe_scheme_command(s);
@@ -2041,6 +2045,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
    dynamic_distances.clear();
 
+
+   std::cout << "------------------------ clear_up_moving_atoms(): setting moving_atoms_asc to null" << std::endl;
    // and now the signal that moving_atoms_asc has been cleared:
    //
    moving_atoms_asc = NULL; // 20200412-PE. Why was this not done years ago?
@@ -2155,14 +2161,14 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 // atoms, the static molecule's atoms move (but note that their bonds
 // are not updated)].
 //
+// 20230212-PE This function changes moving_atoms_asc!
+//
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                    const atom_selection_container_t &asc,
                                                    unsigned int do_rama_markup_in, // default MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING,
                                                    unsigned int do_rota_markup_in  // default MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING
                                                    ) {
-
-   if (! use_graphics_interface_flag) return;
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
@@ -2173,7 +2179,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
    }
 
+   // 20230212-PE this needs to happen in --no-graphics mode
    *moving_atoms_asc = asc;
+
+   if (! use_graphics_interface_flag) return;
 
    // --------------- also do the restraints -----------------------
    //
