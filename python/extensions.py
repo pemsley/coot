@@ -1664,5 +1664,5 @@ if True:
          lambda func: coot_gui.associate_pir_wih_molecule_gui(True))
 
   else:
-    print("BL WARNING:: could not find the main_menubar! Sorry, no extensions menu!")
+    rint("WARNING:: extensions.py: could not find the main_menubar")
 

@@ -30,7 +30,7 @@ global skipped_tests
 have_test_skip = False
 skipped_tests  = []
 
-print(dir(unittest.TestCase))
+# print(dir(unittest.TestCase))
 
 if ('skipTest' in dir(unittest.TestCase)):
     have_test_skip = True
@@ -235,7 +235,7 @@ def atom_distance(atom_1, atom_2):
 # note that things could go wrong if there is a mising EOL (not tested)
 # not sure about this in python
 #
-def file2string(rnase_pir):
+def file_to_string(rnase_pir):
     fin = open(rnase_pir, 'r')
     s = fin.read()
     fin.close()

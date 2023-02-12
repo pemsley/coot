@@ -2669,7 +2669,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
         aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
                    "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
-                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
+                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO", "MSE"]
         rn = coot.residue_name(imol, ch_id, res_no, "")
         if not isinstance(rn, str):
             return False
@@ -2687,13 +2687,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
                               imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
 
-        print("BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %
-              (imol_mov, imol_ref))
         coot.clear_lsq_matches()
-        list(map(lambda atom_name:
-                 add_lsq_atom_pair([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
-                                   [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "]))
-        apply_lsq_matches(imol_ref, imol_mov)
+        map(lambda atom_name:
+            coot.add_lsq_atom_pair_py([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
+                                      [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "])
+        coot.apply_lsq_matches_py(imol_ref, imol_mov)
 
     def is_purine(res_name):
         type_list = ["G", "A", "DA", "DG"]
@@ -2738,12 +2736,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 atom_list_2 = purine_to_pyrimidine_set
 
         for atom_name_1, atom_name_2 in zip(atom_list_1, atom_list_2):
-            add_lsq_atom_pair(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
-                              chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
+            coot.add_lsq_atom_pair_py(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
+                                      chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
 
-        print( "applying matches...")
-        apply_lsq_matches(imol_ref, imol_mov)
-        print( "done matches")
+        coot.apply_lsq_matches(imol_ref, imol_mov)
         
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
@@ -2778,10 +2774,13 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             coot.delete_atom(imol_ligand, "A", 1, "", " OXT", "")
-            if (is_amino_acid(imol_ligand, "A", 1) and
-                    is_amino_acid(imol, chain_id_in, resno)):
-                overlap_by_main_chain(imol_ligand, "A", 1, "",
-                                      imol, chain_id_in, resno, "")
+
+            # 20230207-PE match torsion before main-chain superposition
+            if not is_nucleotide(imol_ligand, "A", 1):
+                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+
+            if is_amino_acid(imol_ligand, "A", 1) and is_amino_acid(imol, chain_id_in, resno):
+                overlap_by_main_chain(imol_ligand, "A", 1, "", imol, chain_id_in, resno, "")
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
@@ -2796,21 +2795,19 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
-            if (not is_nucleotide(imol_ligand, "A", 1)):
-                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             coot.delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             merge_status = new_chain_id_info[0]
+
             # merge_status is sometimes a spec, sometimes a chain-id pair
             # BL says:: the rest of it is, merge_status should be 1
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)
-                print("BL DEBUG:: new res spec", new_res_spec)
                 coot.change_residue_number(imol, new_chain_id,
                                       residue_spec_to_res_no(new_res_spec),
-                                      residue_spec_to_ins_code(new_res_spec),
-                                      resno, "")
+                                      residue_spec_to_ins_code(new_res_spec), resno, "")
+
                 if not (new_chain_id == chain_id_in):
                     coot.change_chain_id(imol, new_chain_id, chain_id_in, 1,
                                     residue_spec_to_res_no(new_res_spec),
@@ -2818,26 +2815,29 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
                 replacement_state = coot.refinement_immediate_replacement_state()
                 imol_map = coot.imol_refinement_map()
-                coot.set_refinement_immediate_replacement(1)
-                if imol_map == -1:
-                    coot.regularize_zone(imol, chain_id_in, resno, resno, "")
-                else:
-                    spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
-                    phos_dir = {
-                        'PTR': [" CZ ", " OH "],
-                        'SEP': [" CB ", " OG "],
-                        'TPO': [" CB ", " OG1"]}
-                    if tlc in list(phos_dir.keys()):
-                        dir_atoms = phos_dir[tlc]
-                    else:
-                        dir_atoms = False
-                    #refine_zone(imol, chain_id_in, resno, resno, "")
-                    if dir_atoms:
-                        spin_search(imol_map, imol, chain_id_in, resno, "",
-                                    dir_atoms, spin_atoms)
-                        #refine_zone(imol, chain_id_in, resno, resno, "")
-                coot.accept_regularizement()
-                coot.set_refinement_immediate_replacement(replacement_state)
+
+                # 20230207-PE doing refinement with a residue that that type non-polymer
+                # is bad news. Let's skip that for now
+
+                # coot.set_refinement_immediate_replacement(1)
+                # if imol_map == -1:
+                #     coot.regularize_zone(imol, chain_id_in, resno, resno, "")
+                # else:
+                #     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
+                #     phos_dir = {
+                #         'PTR': [" CZ ", " OH "],
+                #         'SEP': [" CB ", " OG "],
+                #         'TPO': [" CB ", " OG1"]}
+                #     if tlc in list(phos_dir.keys()):
+                #         dir_atoms = phos_dir[tlc]
+                #     else:
+                #         dir_atoms = False
+                #     #refine_zone(imol, chain_id_in, resno, resno, "")
+                #     if dir_atoms:
+                #         spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
+                #         #refine_zone(imol, chain_id_in, resno, resno, "")
+                # coot.accept_regularizement()
+                # coot.set_refinement_immediate_replacement(replacement_state)
 
                 coot.set_mol_displayed(imol_ligand, 0)
                 coot.set_mol_active(imol_ligand, 0)
