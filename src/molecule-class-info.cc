@@ -3950,6 +3950,9 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
 
    // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() " << std::endl;
 
+   if (! graphics_info_t::use_graphics_interface_flag)
+      return;
+
    unsigned int num_subdivisions = 1;
    unsigned int n_slices = 8;
 

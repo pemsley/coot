@@ -1188,8 +1188,9 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
                                                           attribute_name, att_val);
 			v[imol].push_back(as);
 
-                        std::cout << "DEBUG:: Added attribute: "
-                                  << myPyString_AsString(display_python(attribute_expression));
+                        if (false)
+                           std::cout << "DEBUG:: Added attribute: "
+                                     << myPyString_AsString(display_python(attribute_expression));
 		     }
 		  }
 	       }
