@@ -4895,12 +4895,12 @@ def make_specs_list(file_name):
 
 
 def alphafold_pLDDT_colours(imol):
-    file_name = molecule_name(imol)
+    file_name = coot.molecule_name(imol)
     colours = make_alphafold_colours()
-    set_user_defined_colours_py(colours)
+    coot.set_user_defined_colours_py(colours)
     specs_list = make_specs_list(file_name)
-    set_user_defined_atom_colour_by_residue_py(imol, specs_list)
-    graphics_to_user_defined_atom_colours_representation(imol)
+    coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
+    coot.graphics_to_user_defined_atom_colours_representation(imol)
 
 
 
