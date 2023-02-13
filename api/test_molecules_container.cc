@@ -1877,12 +1877,16 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
       }
    }
 
-   std::string cid("//A/177-178");
+   std::string cid("/*/A/270");
    coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, 1);
    unsigned int n_geoms = im_lig.geom.size();
    for (unsigned int i=0; i<n_geoms; i++) {
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has B " << im_lig.geom[i].instancing_data_B.size() << std::endl;
+      for (unsigned int j=0; j<im_lig.geom[i].instancing_data_B.size(); j++) {
+         const auto &item = im_lig.geom[i].instancing_data_B[j];
+         std::cout << "   instanced bond: " << j << " has colour " << glm::to_string(item.colour) << std::endl;
+      }
    }
    mc.close_molecule(imol);
    return status;
@@ -2426,7 +2430,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
-   status = run_test(test_utils, "utils", mc);
+   // status = run_test(test_utils, "utils", mc);
+
+   status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
    // Note to self:
    //

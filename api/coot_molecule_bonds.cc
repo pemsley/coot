@@ -1132,6 +1132,8 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
    bool is_intermediate_atoms_molecule = false; // make a class member
 
+   bool debug_colour_table = true;
+
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
@@ -1142,10 +1144,10 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
          int n_bonds = ll.num_lines;
          if (n_bonds > 0) {
             coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-            if (false) { // debugging colours
+            if (debug_colour_table) { // debugging colours
                colour_holder ch = cc.to_colour_holder(); // around the houses
                std::string hex = ch.hex();
-               std::cout << "imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+               std::cout << "colour_table: imol " << imol_no << " icol " << std::setw(3) << icol << " has "
                          << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
                          << " colour: " << hex << " " << cc << std::endl;
             }

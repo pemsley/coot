@@ -355,6 +355,32 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
                                                          bool draw_hydrogen_atoms_flag,
                                                          bool draw_missing_residue_loops) {
 
+   auto count_atoms_in_mol = [] (mmdb::Manager *mol) {
+      unsigned int n = 0;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        n++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return n;
+   };
+
    coot::instanced_mesh_t m;
 
    int sel_hnd = atom_sel.mol->NewSelection(); // d
@@ -362,6 +388,11 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, sel_hnd, false);
    atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
    atom_sel.mol->DeleteSelection(sel_hnd);
+
+   if (true) {
+      unsigned int n_atoms = count_atoms_in_mol(new_mol);
+      std::cout << "debug:: there are " << n_atoms << " in the atom selection: " << atom_selection_cid << std::endl;
+   }
 
    // atom_sel_ligand.SelectionHandle = atom_sel_ligand.mol->NewSelection();
    // atom_sel_ligand.mol->Select(atom_sel_ligand.SelectionHandle, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
