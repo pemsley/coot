@@ -1188,8 +1188,9 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
                                                           attribute_name, att_val);
 			v[imol].push_back(as);
 
-                        std::cout << "DEBUG:: Added attribute: "
-                                  << myPyString_AsString(display_python(attribute_expression));
+                        if (false)
+                           std::cout << "DEBUG:: Added attribute: "
+                                     << myPyString_AsString(display_python(attribute_expression));
 		     }
 		  }
 	       }
@@ -4541,7 +4542,8 @@ rigid_body_refine_by_atom_selection(int imol, const char *atom_selection_string)
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
 	 if (false)
-	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here UDDAtomIndexHandle is "
+	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here "
+                      << "UDDAtomIndexHandle is "
 		      << g.molecules[imol].atom_sel.UDDAtomIndexHandle << std::endl;
 
 	 std::string atom_selection_str(atom_selection_string);

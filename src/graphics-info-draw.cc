@@ -4758,6 +4758,8 @@ graphics_info_t::setup_draw_for_boids() {
 void
 graphics_info_t::draw_hud_ligand_view() {
 
+   return; // Don't draw the ligand for now           FIXME
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
@@ -4771,8 +4773,9 @@ graphics_info_t::draw_hud_ligand_view() {
                                       &shader_for_hud_geometry_tooltip_text,
                                       w, h, ft_characters);
    err = glGetError();
+
    if (err)
-      std::cout << "draw_ligand_view() --- end --- " << err << std::endl;
+      std::cout << "GL ERROR:: draw_ligand_view() --- end --- " << err << std::endl;
 }
 
 

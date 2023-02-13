@@ -1562,20 +1562,68 @@ graphics_info_t::set_refinement_map(int i) {
 coot::refinement_results_t
 graphics_info_t::accept_moving_atoms() {
 
+   auto debug_moving_atoms = [] () {
+      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc:" << moving_atoms_asc << std::endl;
+      if (! moving_atoms_asc) {
+         std::cout << "ERROR:: null moving_atoms_asc in accept_moving_atoms() debug_moving_atoms()" << std::endl;
+         return;
+      }
+      std::cout << "::::::::: debug_moving_atoms() moving_atoms_asc mol: " << moving_atoms_asc->mol << std::endl;
+      mmdb::Manager *mol = moving_atoms_asc->mol;
+      if (! mol) {
+         std::cout << "ERROR:: null moving_atoms_asc mol in accept_moving_atoms() " << std::endl;
+         return;
+      }
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        std::cout << "moving atom: " << at << " " << coot::atom_spec_t(at) << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   coot::refinement_results_t rr;
+
    while (continue_threaded_refinement_loop) {
       // std::cout << "waiting for continue_threaded_refinement_loop to be false..." << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
    }
 
    bool debug = false;
+
    if (debug) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
                 << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
                 << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+      debug_moving_atoms();
    }
 
-   coot::refinement_results_t rr = get_refinement_results();
+   if (! moving_atoms_asc) {
+      std::cout << "ERROR:: null moving_atoms_asc in accept_moving_atoms() " << std::endl;
+      return rr;
+   }
+   if (! moving_atoms_asc->mol) {
+      std::cout << "ERROR:: null moving_atoms_asc mol in accept_moving_atoms() " << std::endl;
+      return rr;
+   }
+
+   rr = get_refinement_results();
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
       molecules[imol_moving_atoms].add_coords(*moving_atoms_asc);
@@ -1668,7 +1716,7 @@ graphics_info_t::run_post_read_model_hook(int imol) {
 
    s = "post-read-model-hook";
    SCM v = safe_scheme_command(s.c_str());
-   std::cout << "scm v " << v << std::endl;
+   // std::cout << "scm v " << v << std::endl;
    if (scm_is_true(scm_procedure_p(v))) {
       s += "(" + s + " " + int_to_string(imol) + ")";
       SCM result = safe_scheme_command(s);
@@ -1997,6 +2045,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
    dynamic_distances.clear();
 
+
+   std::cout << "------------------------ clear_up_moving_atoms(): setting moving_atoms_asc to null" << std::endl;
    // and now the signal that moving_atoms_asc has been cleared:
    //
    moving_atoms_asc = NULL; // 20200412-PE. Why was this not done years ago?
@@ -2111,14 +2161,14 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 // atoms, the static molecule's atoms move (but note that their bonds
 // are not updated)].
 //
+// 20230212-PE This function changes moving_atoms_asc!
+//
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                    const atom_selection_container_t &asc,
                                                    unsigned int do_rama_markup_in, // default MOVING_ATOMS_DO_RAMA_MARKUP_USE_INTERNAL_SETTING,
                                                    unsigned int do_rota_markup_in  // default MOVING_ATOMS_DO_ROTA_MARKUP_USE_INTERNAL_SETTING
                                                    ) {
-
-   if (! use_graphics_interface_flag) return;
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
@@ -2129,7 +2179,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
    }
 
+   // 20230212-PE this needs to happen in --no-graphics mode
    *moving_atoms_asc = asc;
+
+   if (! use_graphics_interface_flag) return;
 
    // --------------- also do the restraints -----------------------
    //

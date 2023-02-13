@@ -2842,20 +2842,27 @@ update_toolbar_icons_menu(int toolbar_index) {
 
 // functions for the modelling toolbar style
 void set_model_toolbar_style(int istate) {
+
    graphics_info_t::model_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *menuitem;
       if (istate <= 1) {
 	 // menuitem = lookup_widget(main_window(), "model_toolbar_icons1");
-	 menuitem = widget_from_builder("model_toolbar_icons1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+         GtkWidget *menuitem = widget_from_builder("model_toolbar_icons1");
+         if (menuitem)
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+         else
+            std::cout << "ERROR:: in set_model_toolbar_style() failed to get menuitem" << std::endl;
       } else if (istate == 2) {
 	 //    menuitem = lookup_widget(main_window(), "model_toolbar_icons_and_text1");
-	 menuitem = widget_from_builder("model_toolbar_icons_and_text1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+	 GtkWidget *menuitem = widget_from_builder("model_toolbar_icons_and_text1");
+         if (menuitem)
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+         else
+            std::cout << "ERROR:: in set_model_toolbar_style() failed to get menuitem" << std::endl;
       } else {
-	 menuitem = widget_from_builder("model_toolbar_text1");
-	 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+         GtkWidget *menuitem = widget_from_builder("model_toolbar_text1");
+         if (menuitem)
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
       }
    }
 }
@@ -3357,13 +3364,17 @@ void set_main_toolbar_style(int istate) {
    graphics_info_t::main_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *toolbar = widget_from_builder("main_toolbar");
-      // may have to keep text somewhere?!?! FIXME
-      if (istate <= 1) {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
-      } else if (istate == 2) {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
+      if (toolbar) {
+         // may have to keep text somewhere?!?! FIXME
+         if (istate <= 1) {
+            gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
+         } else if (istate == 2) {
+            gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
+         } else {
+            gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
+         }
       } else {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
+         std::cout << "ERROR:: no toolbar in set_main_toolbar_style()" << std::endl;
       }
    }
 }
