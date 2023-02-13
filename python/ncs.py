@@ -171,9 +171,9 @@ def single_manual_ncs_ghosts(imol, resno_start, resno_end, ref_chain, peer_chain
 #
 def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
 
-    from types import ListType
+    # from types import ListType
 
-    if (type(chain_id_list) is ListType):
+    if True:
         if (len(chain_id_list) > 1):
             # OK, OK, to the standard SSM-based NCS matrices are bad for this
             # molecule, lets use LSQ.
