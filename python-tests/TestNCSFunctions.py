@@ -24,29 +24,29 @@ import os
 import coot
 import coot_utils
 import ncs # coot.ncs one day
-import begin
+import coot_testing_utils
 
 
 def insulin_res():
-    return os.path.join(begin.unittest_data_dir, "insulin.res")
+    return os.path.join(coot_testing_utils.unittest_data_dir, "insulin.res")
 def imol_insulin():
-    return coot.read_pdb(begin.insulin_res())
+    return coot.read_pdb(insulin_res())
 
-class NcsTestFunctions(unittest.TestCase):
+class TestNCSFunctions(unittest.TestCase):
 
 
     def test01_1(self):
             """NCS maps test"""
 
-            global imol_rnase_map
-            global imol_rnase
+            imol_rnase = coot.read_pdb(coot_testing_utils.rnase_pdb())
+            imol_rnase_map = coot.make_and_draw_map(coot_testing_utils.rnase_mtz(), "FWT","PHWT","",0,0)
             self.assertTrue(coot_utils.valid_model_molecule_qm(imol_rnase), "imol_rnase not valid")
 
             self.assertTrue(coot_utils.valid_map_molecule_qm(imol_rnase_map), "imol_rnase_map not valid")
 
             n_mols = coot.graphics_n_molecules()
             # try to make it trip up by doing it twice:
-            imol_map_2 = coot.make_and_draw_map(begin.rnase_mtz(), "FWT", "PHWT", "", 0 ,0)
+            imol_map_2 = coot.make_and_draw_map(coot_testing_utils.rnase_mtz(), "FWT", "PHWT", "", 0 ,0)
             coot.make_dynamically_transformed_ncs_maps(imol_rnase, imol_rnase_map, 0)
             coot.make_dynamically_transformed_ncs_maps(imol_rnase, imol_map_2, 0)
             # 2*2 + 1 new maps should have been made
@@ -62,6 +62,7 @@ class NcsTestFunctions(unittest.TestCase):
         self.assertFalse(ncs_chain_info, "   Fail: ncs-chains returns %s, should be False" %ncs_chain_info)
 
         # a normal case
+        imol_rnase = coot.read_pdb(coot_testing_utils.rnase_pdb())
         coot.make_ncs_ghosts_maybe(imol_rnase)
         ncs_chain_info = coot.ncs_chain_ids_py(imol_rnase)
         self.assertTrue(ncs_chain_info, "   Fail: ncs-chain-ids returns False")
@@ -75,17 +76,18 @@ class NcsTestFunctions(unittest.TestCase):
         """NCS deviation info"""
 
         # should return False
-        ncs_chain_info = coot.ncs_chain_differences(-1, "XX")
+        ncs_chain_info = coot.ncs_chain_differences_py(-1, "XX")
         self.assertFalse(ncs_chain_info, "   Fail: ncs-chains returns %s, should be False" %ncs_chain_info)
 
         # should return False for insulin
         #global imol_insulin
-        ncs_chain_info = coot.ncs_chain_differences(imol_insulin(), "A")
+        ncs_chain_info = coot.ncs_chain_differences_py(imol_insulin(), "A")
         self.assertFalse(ncs_chain_info, "   Fail: ncs-chains for insulin returns %s, should be False" %ncs_chain_info)
 
         # a normal case
+        imol_rnase = coot.read_pdb(coot_testing_utils.rnase_pdb())
         coot.make_ncs_ghosts_maybe(imol_rnase)
-        ncs_chain_info = coot.ncs_chain_differences(imol_rnase, "A")
+        ncs_chain_info = coot.ncs_chain_differences_py(imol_rnase, "A")
         self.assertTrue(ncs_chain_info, "   Fail: ncs-chain-differences returns False")
         self.assertEqual(len(ncs_chain_info), 3,
                              """   Fail on length: length ncs-chain-differences should be 3 is %s\n
@@ -107,8 +109,8 @@ class NcsTestFunctions(unittest.TestCase):
                 return False
 
         # prepare the input
-        imol = coot.read_pdb(begin.rnase_pdb())
-        self.assertTrue(coot_utils.valid_model_molecule_qm(imol), "fail to read %s" %begin.rnase_pdb())
+        imol = coot.read_pdb(coot_testing_utils.rnase_pdb())
+        self.assertTrue(coot_utils.valid_model_molecule_qm(imol), "fail to read %s" %coot_testing_utils.rnase_pdb())
         for r in range(1, 4):
             coot.delete_residue(imol, "B", r, "")
         # make ghosts
@@ -150,7 +152,7 @@ class NcsTestFunctions(unittest.TestCase):
     def test05_0(self):
         """NCS Residue Range edit to all chains"""
 
-        imol = begin.unittest_pdb("pdb1t6q.ent")
+        imol = coot_testing_utils.unittest_pdb("pdb1t6q.ent")
         self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
 
         coot.mutate(imol, "A", 50, "", "ASP")
@@ -178,13 +180,13 @@ class NcsTestFunctions(unittest.TestCase):
     def test06_0(self):
         """Manual NCS ghosts generates correct NCS chain ids"""
 
-        imol = begin.unittest_pdb("pdb1hvv.ent")
+        imol = coot_testing_utils.unittest_pdb("pdb1hvv.ent")
 
         coot.set_draw_ncs_ghosts(imol, 1)
         coot.ncs_control_change_ncs_master_to_chain_id(imol, "B")
         coot.make_ncs_ghosts_maybe(imol)
         ncs_ghost_chains_1 = coot_utils.ncs_chain_ids(imol)
-        coot.manual_ncs_ghosts(imol, 220, 230, ["B", "A", "C", "D"])
+        ncs.manual_ncs_ghosts(imol, 220, 230, ["B", "A", "C", "D"])
         ncs_ghost_chains_2 = coot_utils.ncs_chain_ids(imol)
 
         print("   NCS ghost chain IDs pre:  ", ncs_ghost_chains_1)
@@ -202,8 +204,8 @@ class NcsTestFunctions(unittest.TestCase):
             if ("NCS found" in coot.molecule_name(imol)):
                 coot.close_molecule(imol)
 
-        imol = begin.unittest_pdb("pdb1hvv.ent")
-        imol_map = coot.make_and_draw_map(os.path.join(begin.unittest_data_dir, "1hvv_sigmaa.mtz"),
+        imol = coot_testing_utils.unittest_pdb("pdb1hvv.ent")
+        imol_map = coot.make_and_draw_map(os.path.join(coot_testing_utils.unittest_data_dir, "1hvv_sigmaa.mtz"),
                                           "2FOFCWT", "PH2FOFCWT", "", 0, 0)
 
         coot.make_dynamically_transformed_ncs_maps(imol, imol_map, 0)
@@ -221,5 +223,5 @@ class NcsTestFunctions(unittest.TestCase):
                         " onto Chain A"
 
             n_matchers = molecule_names.count(test_name)
-            print("BL DEBUG:: n_matchers", n_matchers)
+            # print("DEBUG:: n_matchers", n_matchers)
             self.assertTrue(n_matchers >= 2, "  Failed to find matching NCS chain %s" %chain_id)

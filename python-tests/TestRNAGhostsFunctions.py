@@ -24,7 +24,7 @@ import os
 import coot
 import coot_utils
 
-class RnaGhostsTestFunctions(unittest.TestCase):
+class TestRNAGhostsFunctions(unittest.TestCase):
 
     def test01_0(self):
         """RNA NCS Ghosts"""
@@ -49,7 +49,7 @@ class RnaGhostsTestFunctions(unittest.TestCase):
                         res_name = coot.resname_from_serial_number(imol, chain_id, serial_number)
                         res_no   = coot.seqnum_from_serial_number (imol, chain_id, serial_number)
                         ins_code = coot.insertion_code_from_serial_number(imol, chain_id, serial_number)
-                        atom_ls  = coot.residue_info(imol, chain_id, res_no, ins_code)
+                        atom_ls  = coot.residue_info_py(imol, chain_id, res_no, ins_code)
                         for atom in atom_ls:
                             compound_name = atom[0]
                             atom_name = compound_name[0]
@@ -64,31 +64,31 @@ class RnaGhostsTestFunctions(unittest.TestCase):
                                                              "y", (24 + y + 0.3 * jiggle_random)])
                             atom_attribute_settings.append([imol, chain_id, res_no, ins_code, atom_name, alt_conf,
                                                              "z", (24 + z + 0.3 * jiggle_random)])
-                            coot.set_atom_attributes(atom_attribute_settings)
+                            coot.set_atom_attributes_py(atom_attribute_settings)
 
         # main body
         rna_mol = coot.ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
         copy_rna_mol = coot.copy_molecule(rna_mol)
 
         # move the view over a bit so we can see the atoms being jiggled
-        rc = coot.rotation_centre()
+        rc = coot_utils.rotation_centre()
         coot.set_rotation_centre(rc[0] + 12,
                                  rc[1] + 3,
                                  rc[2])
-        view_number = coot.add_view([74.7079, 10.6267, 24.3308],
-                                    [-0.713385, -0.0433099, -0.105865, -0.691373],
-                                    70.3919,
-                                    "RNA-builder-view")
+        view_number = coot_utils.add_view([74.7079, 10.6267, 24.3308],
+                                          [-0.713385, -0.0433099, -0.105865, -0.691373],
+                                          70.3919,
+                                          "RNA-builder-view")
         coot.go_to_view_number(view_number, 1)
 
         # now jiggle the atoms of copy-rna-mol
-        coot.jiggle_atoms_of_mol(copy_rna_mol)
-        coot.merge_molecules([copy_rna_mol], rna_mol)
+        jiggle_atoms_of_mol(copy_rna_mol)
+        coot.merge_molecules_py([copy_rna_mol], rna_mol)
 
         imol_copy = coot.copy_molecule(rna_mol)
         coot.clear_lsq_matches()
         coot.add_lsq_match(1, 6, "A", 1, 6, "C", 0)   # ref mov - all atoms
-        rrtop = coot.apply_lsq_matches(imol_copy, imol_copy)
+        rrtop = coot.apply_lsq_matches_py(imol_copy, imol_copy)
         rtop = []
         for r in rrtop:
             rtop.extend(r)
@@ -97,9 +97,9 @@ class RnaGhostsTestFunctions(unittest.TestCase):
         self.assertTrue(rtop, "Failed to get matching matrix")
         coot.set_draw_ncs_ghosts(rna_mol, 1)
         coot.add_ncs_matrix(rna_mol, "C", "A", *rtop)
-        view_number = coot.add_view([72.3306, 10.6899, 24.073],
-                                    [-0.240736, -0.674651, -0.690658, -0.0994136],
-                                    14.9021,
-                                    "RNA-ghots-view")
+        view_number = coot_utils.add_view([72.3306, 10.6899, 24.073],
+                                          [-0.240736, -0.674651, -0.690658, -0.0994136],
+                                          14.9021,
+                                          "RNA-ghots-view")
         coot.go_to_view_number(view_number, 1)
-        coot.rotate_y_scene(coot.rotate_n_frames(200), 1)
+        # coot.rotate_y_scene(coot.rotate_n_frames(200), 1)

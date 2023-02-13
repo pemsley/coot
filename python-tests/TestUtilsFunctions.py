@@ -23,15 +23,16 @@ import unittest
 import os
 import coot
 import coot_utils
-import begin
+import coot_testing_utils
 
 
-class UtilTestFunctions(unittest.TestCase):
+class TestUtilsFunctions(unittest.TestCase):
 
     def test01_0(self):
         """Test key symbols"""
 
-        coot.add_key_binding_gtk3_py("name", "missing","")
+        # coot.add_key_binding_gtk3_py("name", "missing", "") # old
+        # coot.add_key_binding_gtk3_py(key-code, Ctrl-mode, function, label)
 
         test_list = [[coot.key_sym_code_py("a-symbol"), -1],
                      [coot.key_sym_code_py(["a", "b"]), -1],
@@ -47,25 +48,21 @@ class UtilTestFunctions(unittest.TestCase):
         for code, result in test_list:
             self.assertEqual(code, result, " fail on key_sym_code, %s is not equal to %s " %(code, result))
 
+    # 20230213-PE No scheme today sadly
+    # def test02_0(self):
+    #     """Test running a scheme function"""
 
-    def test02_0(self):
-        """Test running a scheme function"""
+    #     tot = coot.run_scheme_command("(+ 2 4)")
+    #     self.assertEqual(tot, 6)
 
-        if self.skip_test(not coot.coot_has_guile(),
-                          "Skipping guile test (no guile)"):
-            return
-
-        tot = coot.run_scheme_command("(+ 2 4)")
-        self.assertEqual(tot, 6)
-
-        #run_scheme_command("define test-val 4")
-        #run_scheme_command("(set! test-val 2)")
-        rv = coot.run_scheme_command("(rotation-centre)")
-        print("BL DEBUG:: return scheme is ", rv)
-        #rv = run_scheme_command("test-val")
-        #print "BL DEBUG:: return scheme is ", rv
-        rv = coot.run_scheme_command("2")
-        self.assertEqual(rv, 2)
+    #     #run_scheme_command("define test-val 4")
+    #     #run_scheme_command("(set! test-val 2)")
+    #     rv = coot.run_scheme_command("(rotation-centre)")
+    #     print("BL DEBUG:: return scheme is ", rv)
+    #     #rv = run_scheme_command("test-val")
+    #     #print "BL DEBUG:: return scheme is ", rv
+    #     rv = coot.run_scheme_command("2")
+    #     self.assertEqual(rv, 2)
 
 
     def test03_0(self):
@@ -186,7 +183,7 @@ class UtilTestFunctions(unittest.TestCase):
             from types import ListType
             from types import StringType
 
-            imol = begin.unittest_pdb("monomer-ACT.pdb")
+            imol = coot_testing_utils.unittest_pdb("monomer-ACT.pdb")
 
             for space_group in test_groups:
 

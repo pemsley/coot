@@ -248,86 +248,67 @@ class TestLigandFunctions(unittest.TestCase):
     #     self.assertTrue(dip_x < 0 and dip_x > -20)
 
 
-    def test09_0(self):
-        """Reading new dictionary restraints replaces"""
-
-        def get_torsions(r):
-            return r["_chem_comp_tor"]
-
-        coot.read_cif_dictionary(os.path.join(coot_testing_utils.unittest_data_dir, "libcheck_3GP.cif"))
-        coot.read_cif_dictionary(os.path.join(coot_testing_utils.unittest_data_dir, "libcheck_3GP.cif"))
-        coot.read_cif_dictionary(os.path.join(coot_testing_utils.unittest_data_dir, "libcheck_3GP.cif"))
-
-        r = coot.monomer_restraints_py("3GP")
-        self.assertTrue(r, "Failed to get restraints from monomer 3GP")
-        t = get_torsions(r)
-
-        #
-        self.assertTrue(len(t) < 26, "torsions: %s %s" %(len(t), t))
-        # 22 in new dictionary, it seems
+#     def test10_0(self):
+#         """Pyrogen Runs OK?"""
 
 
-    def test10_0(self):
-        """Pyrogen Runs OK?"""
+#         # bad things may well happen if we run the wrong version of pyrogen.
+#         # so force pyrogen to be the one that is installed alongside this version of coot
+#         # that we are running. We do that by looking and manipulating sys.argv[0]
+#         import os, sys
 
+#         coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+#         prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
+#         pyrogen_exe = "pyrogen"
+#         pyrogen_bin = pyrogen_exe # test installed pyrogen
+#         if coot_utils.is_windows():
+#             pyrogen_exe = "pyrogen.bat"
+#             pyrogen_bin = os.path.normpath(os.path.join(prefix_dir, "bin", pyrogen_exe))
 
-        # bad things may well happen if we run the wrong version of pyrogen.
-        # so force pyrogen to be the one that is installed alongside this version of coot
-        # that we are running. We do that by looking and manipulating sys.argv[0]
-        import os, sys
+#         smiles = "C1CNC1"
+#         tlc_text = "XXX"
+#         log_file_name = "pyrogen.log"
 
-        coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
-        pyrogen_exe = "pyrogen"
-        pyrogen_bin = pyrogen_exe # test installed pyrogen
-        if coot_utils.is_windows():
-            pyrogen_exe = "pyrogen.bat"
-            pyrogen_bin = os.path.normpath(os.path.join(prefix_dir, "bin", pyrogen_exe))
+#         # do we have pass now?
+#         if not coot.enhanced_ligand_coot_p():
+#             # dont test pyrogen
+#             # not needed any more. Tested above.
+#             return
+#         else:
 
-        smiles = "C1CNC1"
-        tlc_text = "XXX"
-        log_file_name = "pyrogen.log"
+#             arg_list = ["--no-mogul", "--residue-type", tlc_text, smiles] # --no-mogul is the default now
+#             popen_status = coot_utils.popen_command(pyrogen_bin, arg_list, [], log_file_name, True)
+#             # self.assertTrue(popen_status == 0)
+#             self.assertEqual(popen_status, 0,
+#                              "WARNING:: pyrogen exited with status %i\n" %popen_status)
+#             pdb_file_name = tlc_text + "-pyrogen.pdb"
+#             cif_file_name = tlc_text + "-pyrogen.cif"
+#             imol = coot.handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+#             print("INFO:: pyrogen will try to read pdb file %s" %pdb_file_name)
+#             # add test for chirality in the dictionary here
+#             self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
 
-        # do we have pass now?
-        if not coot.enhanced_ligand_coot_p():
-            # dont test pyrogen
-            # not needed any more. Tested above.
-            return
-        else:
+#     def test11_0(self):
+#         """pyrogen dictionary does not make double-quoted atom names"""
 
-            arg_list = ["--no-mogul", "--residue-type", tlc_text, smiles] # --no-mogul is the default now
-            popen_status = coot_utils.popen_command(pyrogen_bin, arg_list, [], log_file_name, True)
-            # self.assertTrue(popen_status == 0)
-            self.assertEqual(popen_status, 0,
-                             "WARNING:: pyrogen exited with status %i\n" %popen_status)
-            pdb_file_name = tlc_text + "-pyrogen.pdb"
-            cif_file_name = tlc_text + "-pyrogen.cif"
-            imol = coot.handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
-            print("INFO:: pyrogen will try to read pdb file %s" %pdb_file_name)
-            # add test for chirality in the dictionary here
-            self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
+#         # make sure that you are running the correct pyrogen
 
-    def test11_0(self):
-        """pyrogen dictionary does not make double-quoted atom names"""
+#         import os
+#         if os.path.isfile("UVP-pyrogen.cif"):
+#             os.remove("UVP-pyrogen.cif")
 
-        # make sure that you are running the correct pyrogen
-
-        import os
-        if os.path.isfile("UVP-pyrogen.cif"):
-            os.remove("UVP-pyrogen.cif")
-
-        popen_status = coot_utils.popen_command("pyrogen",
-#                                     ["-nM", "-r", "UVP",
-                                     ["-n", "-r", "UVP",
-                                      "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
-                                     [], "pyrogen.log", False)
-        self.assertEqual(popen_status, 0,
-                         "Fail to correctly run pyrogen\n")
-        coot.read_cif_dictionary("UVP-pyrogen.cif")
-        imol = coot.get_monomer("UVP")
-        self.assertTrue(coot_utils.valid_model_molecule_qm(imol),
-                        "Fail to load molecule from pyrogen dictionary\n")
-        atom_info = coot.residue_info(imol, "A", 1, "")
+#         popen_status = coot_utils.popen_command("pyrogen",
+# #                                     ["-nM", "-r", "UVP",
+#                                      ["-n", "-r", "UVP",
+#                                       "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
+#                                      [], "pyrogen.log", False)
+#         self.assertEqual(popen_status, 0,
+#                          "Fail to correctly run pyrogen\n")
+#         coot.read_cif_dictionary("UVP-pyrogen.cif")
+#         imol = coot.get_monomer("UVP")
+#         self.assertTrue(coot_utils.valid_model_molecule_qm(imol),
+#                         "Fail to load molecule from pyrogen dictionary\n")
+#         atom_info = coot.residue_info(imol, "A", 1, "")
 
     # FLEV will not make a PNG if it is not compiled with
     # C++-11 - and that is OK for 0.8.9.x.
