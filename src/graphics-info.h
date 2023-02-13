@@ -578,7 +578,8 @@ class graphics_info_t {
    static std::atomic<bool> moving_atoms_lock;
    static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
-   static atom_selection_container_t *moving_atoms_asc;
+   // make this private again when bugs are fixed.
+   // static atom_selection_container_t *moving_atoms_asc;
    // static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
@@ -1019,6 +1020,8 @@ public:
      return r;
    }
 
+   // delete this when the bugs are fixed - and uncomment the private version
+   static atom_selection_container_t *moving_atoms_asc;
 
 #ifndef EMSCRIPTEN
    // New-style gtkbuilder!

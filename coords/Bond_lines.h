@@ -283,6 +283,7 @@ class Bond_lines_container {
                        const coot::Cartesian &atom_2,
                        mmdb::Atom *at_1,
                        mmdb::Atom *at_2,
+                       graphics_line_t::cylinder_class_t cc,
                        int model_number,
                        int atom_index_1,
                        int atom_index_2,

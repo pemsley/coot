@@ -1320,49 +1320,8 @@ graphics_info_t::draw_atom_pull_restraints() {
 
 void
 graphics_info_t::draw_molecular_triangles() {
-#ifdef USE_MOLECULES_TO_TRIANGLES
-   // Martin's triangular molecules
-   //
-   // centre of the screen
-   FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-                 graphics_info_t::RotationCentre_y(),
-                 graphics_info_t::RotationCentre_z());
 
-   glm::vec3 eye_position = get_world_space_eye_position();
-   FCXXCoord eye_pos(eye_position.x, eye_position.y, eye_position.z);
-
-   // std::cout << "eye_pos: " << eye_pos << "\n";
-   // coot::Cartesian eye_cart = pos + 20 * diff;
-   // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
-   if (graphics_info_t::mol_tri_scene_setup) {
-      if (graphics_info_t::mol_tri_renderer) {
-         //Can retrieve reference to the light if so preferred
-         FCXXCoord light_pos = pos;
-         FCXXCoord neg_light_pos = pos;
-
-         graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
-         graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
-
-         for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-            if (graphics_info_t::is_valid_model_molecule(ii)) {
-               if (graphics_info_t::molecules[ii].draw_it) {
-                  if (graphics_info_t::molecules[ii].molrepinsts.size()) {
-                     std::cout << "----------------------- in draw_molecular_triangles() calling Martin code now... \n";
-                     // molrepinsts get added to mol_tri_scene_setup when then are made
-                     GLenum err = glGetError();
-                     if (err) std::cout << "gl error pre-renderer in draw_molecular_triangles() " << err << std::endl;
-                     // turns on glLighting.
-                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer,
-                                                                                           eye_pos);
-                     err = glGetError();
-                     if (err) std::cout << "gl error in draw_molecular_triangles() " << err << std::endl;
-                  }
-               }
-            }
-         }
-      }
-   }
-#endif
+   // goodby innards
 }
 
 // static
@@ -2048,6 +2007,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
+               if (! is_valid_model_molecule(jj)) continue;
+
                Mesh &mesh = m.meshes[jj];
 
                if (false)
@@ -2126,6 +2087,7 @@ graphics_info_t::draw_instanced_meshes() {
    bool have_meshes_to_draw = false;
    for (int i=n_molecules()-1; i>=0; i--) {
       if (! molecules[i].instanced_meshes.empty()) {
+         if (! is_valid_model_molecule(i)) continue;
          if (molecules[i].draw_it) {
             have_meshes_to_draw = true;
             break;
@@ -2143,8 +2105,9 @@ graphics_info_t::draw_instanced_meshes() {
       bool do_depth_fog = shader_do_depth_fog_flag;
       glDisable(GL_BLEND);
       for (int ii=n_molecules()-1; ii>=0; ii--) {
+         if (! is_valid_model_molecule(ii)) continue;
          molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-         if (molecules[ii].draw_it) {
+         if (m.draw_it) {
             for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
                // std::cout << "   graphics_info_t::draw_instanced_meshes() A " << m.instanced_meshes[jj].get_name() << std::endl;
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
@@ -4795,6 +4758,8 @@ graphics_info_t::setup_draw_for_boids() {
 void
 graphics_info_t::draw_hud_ligand_view() {
 
+   return; // Don't draw the ligand for now           FIXME
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
@@ -4808,8 +4773,9 @@ graphics_info_t::draw_hud_ligand_view() {
                                       &shader_for_hud_geometry_tooltip_text,
                                       w, h, ft_characters);
    err = glGetError();
+
    if (err)
-      std::cout << "draw_ligand_view() --- end --- " << err << std::endl;
+      std::cout << "GL ERROR:: draw_ligand_view() --- end --- " << err << std::endl;
 }
 
 
@@ -5595,7 +5561,8 @@ graphics_info_t::setup_key_bindings() {
 
    // control
    // meh - ugly and almost useless. Try again.
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Control_L, key_bindings_t(l29, "Highlight Active Residue")));
+
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l29, "Highlight Active Residue")));
 
    // control keys
 

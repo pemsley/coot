@@ -6797,7 +6797,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
    PyObject *globals = PyModule_GetDict(pModule);
    PyObject *result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
-   // std::cout << "in safe_python_command_with_return() J " << result << std::endl;
+   std::cout << "in safe_python_command_with_return() J " << result << std::endl;
+   if (!result)
+      PyErr_Print();
 
    return result;
 }
@@ -7240,8 +7242,13 @@ void post_python_scripting_window() {
 
       // old but better python script? Hmm.
       // Probably not. Anyway, for another time to resolve/delete
-      GtkWidget *python_entry = widget_from_builder("python_window_entry");
-      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+
+      // 20230126-PE Here is not the place to setup the python entry
+      // It should only be done once - an not (now) every time the
+      // window is opened. Now setup_python_window() is called in main().
+      // GtkWidget *python_entry = widget_from_builder("python_window_entry");
+      // setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+
       gtk_widget_show(window);
 
    }

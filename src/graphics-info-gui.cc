@@ -2605,22 +2605,27 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox_molecule) {
    // make the first undo molecule (a molecule with changes) be the active one.
 
    // 20220708-PE this is how to clear a combobox
-   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
 
-   int imol_active = -1;
-   for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_model()) {
-	 if (molecules[i].atom_sel.mol) {
-	    if (molecules[i].Have_modifications_p()) {
-	       imol_active = i;
-	       break;
-	    }
-	 }
+   if (combobox_molecule) {
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
+
+      int imol_active = -1;
+      for (int i=0; i<n_molecules(); i++) {
+         if (molecules[i].has_model()) {
+            if (molecules[i].atom_sel.mol) {
+               if (molecules[i].Have_modifications_p()) {
+                  imol_active = i;
+                  break;
+               }
+            }
+         }
       }
-   }
 
-   GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
-   fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
+      GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
+      fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
+   } else {
+      std::cout << "ERROR:: in fill_combobox_with_undo_options() combobox_molecule is null" << std::endl;
+   }
 }
 
 

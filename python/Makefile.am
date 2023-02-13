@@ -42,5 +42,6 @@ dist_pkgpython_PYTHON = \
    dynamic_atom_overlaps_and_other_outliers.py \
    chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
    populate_python_menus.py coot_hole.py refine.py what_check.py \
+   coot_testing_utils.py \
    $(TEXI_FILE)
 

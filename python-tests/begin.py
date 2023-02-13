@@ -14,10 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-print "==============================================================="
-print "==================== Testing =================================="
-print "==============================================================="
+print("===============================================================")
+print("==================== Testing ==================================")
+print("===============================================================")
 
+import coot
+import sys
 import unittest, os
 import inspect
 
@@ -30,14 +32,14 @@ skipped_tests  = []
 if ('skip' in dir(unittest.TestCase)):
     have_test_skip = True
 else:
-    print "WARNING:: unittest skip not avaliable!!!!!!"
+    print("WARNING:: unittest skip not avaliable!!!!!!")
 
 home = os.getenv('HOME')
 if ((not home) and (os.name == 'nt')):
     home = os.getenv('COOT_HOME')
 if (not home):
     # badness we dont have a home dir
-    print "ERROR:: Cannot find a HOME directory"
+    print("ERROR:: Cannot find a HOME directory")
 
 
 def get_unittest_data_dir():
@@ -79,7 +81,7 @@ def bond_length(pos_1, pos_2):
         return x-y
 
     import math
-    ret = math.sqrt(sum(map(square, map(sub, pos_1, pos_2))))
+    ret = math.sqrt(sum(map(square, list(map(sub, pos_1, pos_2)))))
     return ret
 
 pos_diff = bond_length
@@ -87,10 +89,10 @@ pos_diff = bond_length
 def bond_length_from_atoms(atom_1, atom_2):
     from types import ListType
     if (type(atom_1) is not ListType):
-        print "   WARNING:: bond_length_from_atoms: atom_1 not a list:", atom_1
+        print("   WARNING:: bond_length_from_atoms: atom_1 not a list:", atom_1)
         return False
     elif (type(atom_2) is not ListType):
-        print "   WARNING:: bond_length_from_atoms: atom_2 not a list:", atom_2
+        print("   WARNING:: bond_length_from_atoms: atom_2 not a list:", atom_2)
         return False
     else:
         return bond_length(atom_1[2],
@@ -120,7 +122,7 @@ def shelx_waters_all_good_occ_qm(test, imol_insulin_res):
         atom_list = residue_info(imol_insulin_res, chain_id, res_no, ins_code)
         for atom in atom_list:
             occ = atom[1][0]
-            test.failUnlessAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
+            test.assertAlmostEqual(occ, 11.0, 1, "  bad occupancy in SHELXL molecule %s" %atom)
 
 #  return restraints without the given bond restraints or
 # False if no restraints given
@@ -191,7 +193,7 @@ def atoms_match_qm(atom_1, atom_2):
 def transpose_mat(mat, defval=None):
     if not mat:
         return []
-    return map(lambda *row: [elem or defval for elem in row], *mat)
+    return list(map(lambda *row: [elem or defval for elem in row], *mat))
 
 # What is the distance atom-1 to atom-2? 
 # return False on not able to calculate
@@ -201,7 +203,7 @@ def atom_distance(atom_1, atom_2):
     def sub(x, y):
         return x-y
     import math
-    ret = math.sqrt(sum(map(square, map(sub, atom_1[2], atom_2[2]))))
+    ret = math.sqrt(sum(map(square, list(map(sub, atom_1[2], atom_2[2])))))
     return ret
 
 # a function from 04_cootaneering:
@@ -235,8 +237,7 @@ def residue_name_from_spec(imol, spec):
 #
 def get_residues_in_molecule_of_type(imol, residue_type):
 
-    return filter(lambda x: residue_name_from_spec(imol, x) == residue_type,
-                  fit_protein_make_specs(imol, 'all-chains'))
+    return [x for x in fit_protein_make_specs(imol, 'all-chains') if residue_name_from_spec(imol, x) == residue_type]
 
 # This takes 4 member specs, return True or False
 #
@@ -271,7 +272,7 @@ def spec_match_qm(spec_1, spec_2):
         return False
     return True
     
-set_console_display_commands_hilights(0, 0, 0)
+coot.set_console_display_commands_hilights(0, 0, 0)
 
 
 #################################
@@ -321,7 +322,7 @@ for test_file in test_file_list:
     load_file = os.path.join(current_dir, test_file)
     load_file = os.path.normpath(load_file)
     if (os.path.isfile(load_file)):
-        execfile(load_file, globals())
+        exec(compile(open(load_file, "rb").read(), load_file, 'exec'), globals())
 
 test_list = [PdbMtzTestFunctions, ShelxTestFunctions,
              LigandTestFunctions, CootaneerTestFunctions,
@@ -351,9 +352,9 @@ unittest_output = False
 class StreamIO:
         
     def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
-        import StringIO
+        import io
         global unittest_output
-        unittest_output = StringIO.StringIO()
+        unittest_output = io.StringIO()
         self.src = src
         self.dst = dst
         self.extra = unittest_output
@@ -370,9 +371,9 @@ class StreamIOnew:
 
     def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
         import io
-        import StringIO
+        import io
         global unittest_output
-        unittest_output = StringIO.StringIO()
+        unittest_output = io.StringIO()
 #        unittest_output = io.StringIO()
         self.src = src
         self.dst = dst
@@ -393,7 +394,7 @@ def run_one_test(no_of_test):
 
 # function to run one test set
 def run_test_set(no_of_test_set):
-    print "BL DEBUG:: should run ", test_list[no_of_test_set]
+    print("BL DEBUG:: should run ", test_list[no_of_test_set])
     if (no_of_test_set > 0):
         read_imol_rnase_and_map()
     set = unittest.TestSuite()
@@ -406,12 +407,12 @@ def read_imol_rnase_and_map():
     global imol_rnase
     global imol_rnase_map
 
-    if (imol_rnase < 0):
+    if imol_rnase < 0:
         # not set up-> read, i.e. run test02 from 01
         imol = read_pdb(rnase_pdb())
         imol_rnase = imol
 
-    if (imol_rnase_map < 0):
+    if imol_rnase_map < 0:
         imol_map = make_and_draw_map(rnase_mtz(), "FWT","PHWT","",0,0)
         set_imol_refinement_map(imol_map)
         imol_rnase_map = imol_map

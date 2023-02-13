@@ -9109,8 +9109,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_toolbar_display_manager_molecules_all_activate_gtkbuilder_callback
                                         (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
 }
 
@@ -9121,6 +9120,21 @@ on_calculate_scripting_python1_activate_gtkbuilder_callback (GtkMenuItem     *me
 
   post_python_scripting_window();
 
+}
+
+#include "python-scripting-gui.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_python_scripting_window_evaluate_entry_button_clicked(GtkButton *button,
+                                                         gpointer user_data) {
+
+   GtkWidget *entry = widget_from_builder("python_window_entry");
+   if (entry) {
+      std::string t = gtk_entry_get_text(GTK_ENTRY(entry));
+      std::cout << "evaluate this: " << t << std::endl;
+      run_python_scripting_window_entry_text(entry);
+   }
 }
 
 

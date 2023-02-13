@@ -165,8 +165,11 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    float min_dist = 0.1;
    float max_dist = 1.85;
 
-//    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
-//              << " selected atoms" << std::endl;
+   //    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
+   //              << " selected atoms" << std::endl;
+
+   if (! graphics_info_t::use_graphics_interface_flag)
+      return;
 
    Bond_lines_container bonds(asc, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds();

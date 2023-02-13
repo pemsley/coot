@@ -104,9 +104,9 @@ EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
 	mol-hierarchy.cc \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
-        post-process-coot-wrap-guile.sh \
-        post-process-coot-wrap-python.sh \
-        fixup-interface.h.sh \
+	post-process-coot-wrap-guile.sh \
+	post-process-coot-wrap-python.sh \
+	fixup-interface.h.sh \
 	coot_wrap_guile_pre.cc dynarama.glade
 
 
@@ -118,11 +118,11 @@ dist_cootglade_DATA = dynarama.glade geometry_graphs_builder.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
-                     hud-text.shader  hud-bars.shader hud-labels.shader \
-                     map.shader model.shader screen.shader \
+		     hud-text.shader  hud-bars.shader hud-labels.shader \
+		     map.shader model.shader screen.shader \
 		     moleculestotriangles.shader \
-                     instanced-objects.shader particles.shader lines.shader \
-                     draw-map-cap.shader lines-pulse.shader rama-balls.shader \
+		     instanced-objects.shader particles.shader lines.shader \
+		     draw-map-cap.shader lines-pulse.shader rama-balls.shader \
 		     hud-geometry-tooltip-text.shader \
 		     residue-markers.shader extra-distance-restraints.shader \
 		     residue-markers-for-ssao.shader \
@@ -131,13 +131,13 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     hud-image-texture.shader hud-lines.shader \
 		     depth-of-field.shader blur-x.shader blur-y.shader texture-meshes.shader \
 		     camera-facing-quad-shader-for-testing.shader outline-of-active-residue.shader \
-                     meshes.shader meshes-shadow-map.shader meshes-with-shadows.shader \
-                     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
+		     meshes.shader meshes-shadow-map.shader meshes-with-shadows.shader \
+		     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
 		     texture-meshes-for-ssao.shader texture-meshes-with-shadows.shader \
 		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader \
 		     rotation-centre-cross-hairs-for-ssao.shader background-image.shader
 
-
+MOLTRIANGLES_CPPFLAGS=-DUSE_MOLECULES_TO_TRIANGLES
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
@@ -225,16 +225,16 @@ AM_CXXFLAGS = \
 	-DPKGPYTHONDIR='"$(pkgpythondir)"' \
 	-DPYTHONDIR='"$(pythondir)"' \
 	-DDATADIR='"$(datadir)"'    \
-        -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
-        -DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
-	$(USE_LIBCURL) 	        \
+	-DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
+	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
+	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
-	$(USE_GUILE_GTK) 	\
-	$(GUILE_CFLAGS)		\
-        $(PYGOBJECT_CFLAGS)     \
+	$(USE_GUILE_GTK)	\
+	$(GUILE_CFLAGS)	\
+	$(PYGOBJECT_CFLAGS)	\
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)	\
-	$(COOT_WINDOWS_CFLAGS) 	\
+	$(COOT_WINDOWS_CFLAGS)	\
 	$(COOT_GSL_FLAGS) $(OPENMP_CFLAGS)
 
 
@@ -244,26 +244,26 @@ AM_CXXFLAGS = \
 #
 #
 AM_CPPFLAGS = \
-        -DUSE_PYTHON \
-	@GTK_CFLAGS@ 			\
+	-DUSE_PYTHON \
+	@GTK_CFLAGS@			\
 	-I$(top_srcdir)                 \
-	$(RDKIT_CXXFLAGS) 		\
-	$(BOOST_CPPFLAGS) 		\
+	$(RDKIT_CXXFLAGS)		\
+	$(BOOST_CPPFLAGS)		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(GLM_CXXFLAGS)                 \
 	$(SWIG_FLAGS)			\
 	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
-	$(USE_GUILE_GTK) 		\
+	$(USE_GUILE_GTK)		\
 	$(GUILE_GTK_CFLAGS)		\
-	$(GUILE_CFLAGS)			\
-	$(CANVAS_CFLAGS) 		\
+	$(GUILE_CFLAGS)		\
+	$(CANVAS_CFLAGS)		\
 	$(MOLTRIANGLES_CPPFLAGS)	\
-	$(LIBSSM_CXXFLAGS) 		\
-	$(MMDB_CXXFLAGS) 		\
-	$(CCP4SRS_CXXFLAGS) 		\
+	$(LIBSSM_CXXFLAGS)		\
+	$(MMDB_CXXFLAGS)		\
+	$(CCP4SRS_CXXFLAGS)		\
 	$(GSL_CFLAGS)			\
-	$(CLIPPER_CXXFLAGS) 		\
+	$(CLIPPER_CXXFLAGS)		\
 	$(PYGTK_CFLAGS)                 \
 	$(GLOB_CFLAGS)                  \
 	$(WITH_SOUND)                   \
@@ -303,14 +303,14 @@ pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
-           libcootsumo.la                \
-           $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-           $(top_builddir)/coords/libcoot-coords.la          \
+	   libcootsumo.la                \
+	   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	   $(top_builddir)/coords/libcoot-coords.la          \
 	   $(top_builddir)/geometry/libcoot-geometry.la      \
 	   $(top_builddir)/pli/libcoot-pli.la                \
 	   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-           $(top_builddir)/utils/libcoot-utils.la            \
-           $(PYTHON_LIBS) $(CLIPPER_LIBS)
+	   $(top_builddir)/utils/libcoot-utils.la            \
+	   $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
 if OS_WIN32
@@ -331,9 +331,9 @@ check_PROGRAMS = test-coot-align test-cholesky
 coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc
 
 coot_bin_LDADD =  \
-        libcootsumo.la \
+	libcootsumo.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
 
 
@@ -341,18 +341,18 @@ lib_LTLIBRARIES=libcootsumo.la
 
 libcootsumo_la_SOURCES = \
 	atom-pull.hh		 \
-   atom-label-info.hh       \
+	atom-label-info.hh       \
 	array-2d.hh		 \
 	init_coot_as_python_module.cc \
 	init_coot_as_python_module.hh \
 	boids.hh boids.cc	 \
-   bond-colour-mode.hh      \
+	bond-colour-mode.hh      \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
-	git-revision-count.cc 	 \
-	scm-boot-guile.hh 	 \
-	scm-boot-guile.cc 	 \
+	git-revision-count.cc	 \
+	scm-boot-guile.hh	 \
+	scm-boot-guile.cc	 \
 	clipper-ccp4-map-file-wrapper.hh \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
@@ -440,10 +440,10 @@ libcootsumo_la_SOURCES = \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
-        canvas-fixes.hh          \
-        cfc.cc cfc.hh            \
-        cfc-widgets.hh           \
-        cfc-widgets-c-interface.h \
+	canvas-fixes.hh          \
+	cfc.cc cfc.hh            \
+	cfc-widgets.hh           \
+	cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
@@ -452,14 +452,14 @@ libcootsumo_la_SOURCES = \
 	clipper-to-glm.hh        \
 	colour-functions.hh      \
 	command-arg.hh           \
-	command-line.cc		 \
+	command-line.cc	 \
 	command-line-extern.cc   \
 	command-line-extern.hh   \
-	command-line.hh		 \
+	command-line.hh	 \
 	coot-database.hh	 \
-	coot-colour.hh	 	 \
-	coot-colour.cc	 	 \
-	coot-align.cc 		 \
+	coot-colour.hh		 \
+	coot-colour.cc		 \
+	coot-align.cc		 \
 	coot-align.hh		 \
 	coot-nomenclature.cc	 \
 	coot-nomenclature.hh     \
@@ -478,11 +478,11 @@ libcootsumo_la_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
-        curlew.h                 \
-        curlew.hh                \
+	curlew.h                 \
+	curlew.hh                \
 	data-pair-remover.hh     \
-        density-results-container-t.hh \
-        dots-representation.hh   \
+	density-results-container-t.hh \
+	dots-representation.hh   \
 	draw.cc                  \
 	draw-2.cc                \
 	draw-2.hh                \
@@ -497,16 +497,16 @@ libcootsumo_la_SOURCES = \
 	fit-loop-gui.hh          \
 	flev.hh			 \
 	flev.cc                  \
-        framebuffer.cc           \
-        framebuffer.hh           \
-        fresnel-settings.hh      \
+	framebuffer.cc           \
+	framebuffer.hh           \
+	fresnel-settings.hh      \
 	ft-character.hh \
 	old-generic-display-object.hh \
 	old-generic-display-object.cc \
 	gaussian-surface.hh      \
 	gaussian-surface.cc      \
-	generic-objects.cc   	 \
-        generic-display-objects-c.h \
+	generic-objects.cc	 \
+	generic-display-objects-c.h \
 	generic-vertex.hh	 \
 	gensurf.hh               \
 	geometry-graphs.cc	 \
@@ -554,8 +554,8 @@ libcootsumo_la_SOURCES = \
 	graphics-ligand-view.hh	 \
 	graphics-ligand-mesh-molecule.cc \
 	graphics-ligand-mesh-molecule.hh \
-	gl-matrix.cc 		 \
-	graphics-info.h 	 \
+	gl-matrix.cc		 \
+	graphics-info.h	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
 	gtk-widget-conversion-utils.h  \
@@ -569,15 +569,15 @@ libcootsumo_la_SOURCES = \
 	HUDTextureMesh.hh        \
 	Instanced-Markup-Mesh.hh \
 	Instanced-Markup-Mesh.cc \
-        idles.hh                 \
+	idles.hh                 \
 	interface.h              \
-	key-bindings.cc		 \
-	key-bindings.hh		 \
-   manipulation-modes.hh    \
+	key-bindings.cc	 \
+	key-bindings.hh	 \
+	manipulation-modes.hh    \
 	LinesMesh.cc LinesMesh.hh \
 	LigandViewMesh.cc        \
 	LigandViewMesh.hh        \
-   lights-info.hh           \
+	lights-info.hh           \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh         \
 	lbg-callbacks-outer.cc   \
@@ -587,9 +587,9 @@ libcootsumo_la_SOURCES = \
 	make-a-dodec.cc make-a-dodec.hh \
 	matrix-utils.hh          \
 	matrix-utils.cc          \
-        map-statistics.hh        \
-        Material.hh              \
-        map_triangle.hh          \
+	map-statistics.hh        \
+	Material.hh              \
+	map_triangle.hh          \
 	Mesh.cc Mesh.hh          \
 	Mesh-from-glTF.cc        \
 	Mesh-from-graphical-bonds-instanced.cc     \
@@ -599,29 +599,29 @@ libcootsumo_la_SOURCES = \
 	map-statistics.hh        \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh  \
-        molecular-triangles-mesh.hh      \
-	molecule-class-info.cc 	         \
+	molecular-triangles-mesh.hh      \
+	molecule-class-info.cc		 \
 	molecule-class-info-alignment.cc \
 	molecule-class-info-analysis.cc \
 	molecule-class-info-bonds.cc    \
-	molecule-class-info-build.cc 	\
-	molecule-class-info-maps.cc 	\
-	molecule-class-info-maps-2.cc 	\
+	molecule-class-info-build.cc	\
+	molecule-class-info-maps.cc	\
+	molecule-class-info-maps-2.cc	\
 	molecule-class-info-molecular-symmetry.cc \
 	molecule-class-info-kdc.cc      \
-	molecule-class-info-dots.cc 	\
-	molecule-class-info-dots-internal.cc 	\
-	molecule-class-info-other.cc 	\
-	molecule-class-info.h 	        \
-	molecule-class-info-mutate.cc 	\
+	molecule-class-info-dots.cc	\
+	molecule-class-info-dots-internal.cc	\
+	molecule-class-info-other.cc	\
+	molecule-class-info.h		\
+	molecule-class-info-mutate.cc	\
 	molecule-class-info-residues.cc \
 	molecule-class-info-refine.cc   \
 	molecule-class-info-kk.cc       \
-	molecule-class-info-surface.cc 	\
-	molecule-class-info-string.cc 	\
+	molecule-class-info-surface.cc	\
+	molecule-class-info-string.cc	\
 	molecule-class-info-patterson.cc   \
 	molecule-class-info-ncs.cc         \
-	molecule-class-info-mol-tris.cc	   \
+	molecule-class-info-mol-tris.cc \
 	molecule-class-info-widget-work.cc \
 	molecule-class-info-geometry.cc    \
 	molecular-mesh-generator.cc \
@@ -629,10 +629,10 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
-	nsv.cc nsv.hh    	 \
+	nsv.cc nsv.hh		\
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
-        pick.hh pick.cc		 \
+	pick.hh pick.cc	 \
 	positioned-widgets.h     \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -641,7 +641,8 @@ libcootsumo_la_SOURCES = \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
 	python-classes.hh	 \
-	python-3-interface.hh 	 \
+	python-3-interface.hh	 \
+	python-scripting-gui.hh  \
 	Particle.cc Particle.hh  \
 	pulse-data.hh            \
 	read-phs.h		 \
@@ -652,8 +653,8 @@ libcootsumo_la_SOURCES = \
 	rama_mousey.hh		 \
 	rama_plot.cc		 \
 	rama_plot.hh		 \
-        text-rendering-utils.cc  \
-        text-rendering-utils.hh  \
+	text-rendering-utils.cc  \
+	text-rendering-utils.hh  \
 	restraints-editor.cc     \
 	restraints-editor.hh     \
 	restraints-editor-c.h    \
@@ -661,7 +662,7 @@ libcootsumo_la_SOURCES = \
 	rotamer-search-modes.hh  \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
-	screen-utils.cc		 \
+	screen-utils.cc	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc \
@@ -671,8 +672,8 @@ libcootsumo_la_SOURCES = \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
-        simple-distance-object.hh \
-        sound.cc                 \
+	simple-distance-object.hh \
+	sound.cc                 \
 	sound.hh                 \
 	startup-scripts.hh       \
 	support.c support.h      \
@@ -690,37 +691,37 @@ libcootsumo_la_SOURCES = \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
-	xmap-utils.cc 		 \
+	xmap-utils.cc		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
 	rama-plot-phi-psi.cc     \
 	rama-plot-phi-psi.hh     \
-	rama-rota-score.hh 	 \
+	rama-rota-score.hh	 \
 	spherical-density.cc     \
 	single-map-properties-dialog.cc \
 	single-map-properties-dialog.hh \
-	fragment-info.hh 	 \
-	atom-name-bits.hh 	 \
-	additional-representation.hh 	   \
+	fragment-info.hh	 \
+	atom-name-bits.hh	 \
+	additional-representation.hh	   \
 	extra-restraints-representation.hh \
-	atom-attribute.hh 	 \
-	animated-ligand.hh 	 \
-	atom-selection.hh 	 \
-	ncs.hh 		 \
-	model-view.hh 		 \
+	atom-attribute.hh	 \
+	animated-ligand.hh	 \
+	atom-selection.hh	 \
+	ncs.hh			 \
+	model-view.hh		 \
 	validation.hh            \
 	validation.cc            \
 	updating-map-params.hh   \
 	updating-coordinates-molecule-parameters.hh \
 	ud-colour-rule.hh        \
 	vnc-vertex-to-generic-vertex.hh \
-	view.hh 		 \
-	view.cc 		 \
+	view.hh		 \
+	view.cc		 \
 	new-centre.hh            \
-        widget-headers.hh        \
+	widget-headers.hh        \
 	widget-from-builder.hh   \
 	widget-from-builder.cc   \
-        json.hpp
+	json.hpp
 
 
 # 20220228-PE this appeared in a merge - not sure if it's needed (or should be included directly)

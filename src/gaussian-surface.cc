@@ -48,10 +48,11 @@ int gaussian_surface(int imol) {
 
       std::string object_name("Gaussian Surface #");
       object_name += std::to_string(imol);
-      object_name += " Chain ";
+      object_name += std::string(" Chain ");
       object_name += chain_id;
       int obj_mesh = new_generic_object_number(object_name);
       meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.imol = imol;
       obj.mesh.name = object_name;
       obj.mesh.set_draw_mesh_state(true);
       obj.mesh.import(vertices, smesh.triangles);

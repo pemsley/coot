@@ -1086,8 +1086,7 @@ graphics_info_t::refine_residues_vec(int imol,
    bool use_map_flag = true;
 
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \""
-		<< alt_conf << "\"" << std::endl;
+      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
 
@@ -1556,7 +1555,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       atom_selection_container_t local_moving_atoms_asc =
 		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
-	       make_moving_atoms_graphics_object(imol, local_moving_atoms_asc);
+
+               make_moving_atoms_graphics_object(imol, local_moving_atoms_asc);
 
                int n_cis = coot::util::count_cis_peptides(local_moving_atoms_asc.mol);
                moving_atoms_n_cis_peptides = n_cis;
@@ -1715,7 +1715,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
    if (false) { // debug atoms in other molecule
       std::set<int>::const_iterator it;
-      for(it=atom_set.begin(); it!=atom_set.end(); it++) {
+      for (it=atom_set.begin(); it!=atom_set.end(); ++it) {
 	 int idx = *it;
 	 mmdb::Atom *at = imol_asc.atom_selection[idx];
 	 coot::atom_spec_t as(at);
@@ -3082,8 +3082,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
       graphics_draw();
       if (! refinement_immediate_replacement_flag) {
-	 coot::refinement_results_t dummy;
 	 if (use_graphics_interface_flag) {
+            coot::refinement_results_t dummy;
 	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
 	 }
       }
