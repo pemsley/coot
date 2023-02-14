@@ -34,23 +34,29 @@ tlc_to_svg_file(const std::string &tlc, coot::protein_geometry &geom) {
    mmdb::Residue *r = geom.get_residue(tlc, imol, true, true, 30.0);
    if (r) {
 
-      bool undelocalize_flag = true;
-      // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
-      RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
+      try {
+         bool undelocalize_flag = true;
+         // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
+         RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
 
-      // coot::remove_non_polar_Hs(&rdkm); either is good.
-      RDKit::MolOps::removeHs(mol_rw);
-      RDKit::MolOps::Kekulize(mol_rw);
-      int iconf = RDDepict::compute2DCoords(mol_rw, NULL, true);
-      RDKit::Conformer &conf = mol_rw.getConformer(iconf);
-      RDKit::WedgeMolBonds(mol_rw, &conf);
-      svg_molecule_t svg;
-      svg.import_rdkit_mol(&mol_rw, iconf);
-      std::string s = svg.render_to_svg_string();
-      if (false) {
-         std::ofstream f("test.svg");
-         if (f)
-            f << s;
+         // coot::remove_non_polar_Hs(&rdkm); either is good.
+         RDKit::MolOps::removeHs(mol_rw);
+         RDKit::MolOps::Kekulize(mol_rw);
+         int iconf = RDDepict::compute2DCoords(mol_rw, NULL, true);
+         RDKit::Conformer &conf = mol_rw.getConformer(iconf);
+         RDKit::WedgeMolBonds(mol_rw, &conf);
+         svg_molecule_t svg;
+         svg.import_rdkit_mol(&mol_rw, iconf);
+         std::string s = svg.render_to_svg_string();
+         if (true) {
+            std::string fn = tlc + std::string(".svg");
+            std::ofstream f(fn);
+            if (f)
+               f << s;
+         }
+      }
+      catch (const Invar::Invariant &e) {
+         std::cout << "error " << e.what() << std::endl;
       }
    } else {
       std::cout << "Failed to get residue from dictionary" << std::endl;
