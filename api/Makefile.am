@@ -54,6 +54,23 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
+check_PROGRAMS = test-molecules-container
+
+test_molecules_container_SOURCES = test_molecules_container.cc
+
+test_molecules_container_LDFLAGS = ./libcoot-api.la \
+   $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
+   $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
+   $(top_builddir)/ligand/libcoot-ligand.la           \
+   $(top_builddir)/pli/libcoot-pli.la                 \
+   $(top_builddir)/density-contour/libcoot-isosurface.la \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la    \
+   $(top_builddir)/coot-utils/libcoot-coord-extras.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/geometry/libcoot-geometry.la      \
+   $(top_builddir)/coords/libcoot-coords.la	     \
+   $(top_builddir)/utils/libcoot-utils.la            \
+   $(CLIPPER_LIBS) $(MMDB_LIBS) 
 
 # ---------- pythonic ------------------
 

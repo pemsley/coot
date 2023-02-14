@@ -1175,7 +1175,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
          }
 	 
 	 int idx = m.addAtom(at);
-	 added_atoms[r.atom_info[iat].atom_id_4c] = idx; // for making bonds.
+         std::string key = coot::util::remove_whitespace(r.atom_info[iat].atom_id_4c);
+	 added_atoms[key] = idx; // for making bonds.
       }
       catch (const std::exception &rte) {
 	 std::cout << rte.what() << std::endl;
@@ -1275,7 +1276,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
-   std::cout << "##### numbonds " << m.getNumBonds() << std::endl;
+   std::cout << "debug:: ##### in rdkit_mol(): numbonds " << m.getNumBonds() << std::endl;
    set_3d_conformer_state(&m);
 
    bool debug = false;

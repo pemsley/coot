@@ -65,13 +65,13 @@ int
 coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
 
    auto get_chain =  [] (const std::string& chain_id) {
-      mmdb::Chain *chain_p;
+      mmdb::Chain *chain_p = nullptr;
       return chain_p;
    };
 
    if (! asc.mol) return 0;
 
-   bool move_zero_occ = 1;
+   bool move_zero_occ = true;
 
    // replace an atom if you can, otherwise create a new atom (and a new residue and chain if needed)
 

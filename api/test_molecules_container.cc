@@ -2283,6 +2283,23 @@ int test_auto_read_mtz(molecules_container_t &mc) {
    return status;
 }
 
+int test_svg(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   std::string s = mc.get_svg_for_residue_type(0, "ATP");
+
+   if (s.length() > 0) {
+      std::ofstream f("ATP.svg");
+      f << s;
+      f.close();
+      status = 1;
+   }
+   return status;
+
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -2432,7 +2449,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_utils, "utils", mc);
 
-   status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
+   // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
+
+   status = run_test(test_svg, "svg string", mc);
 
    // Note to self:
    //
