@@ -2189,6 +2189,22 @@ int test_colour_rules(molecules_container_t &mc) {
    return status;
 }
 
+
+int test_multi_colour_rules(molecules_container_t &mc) {
+
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::string crs = "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007";
+   mc.add_colour_rules_multi(imol, crs);
+   auto v = mc.get_colour_rules(imol);
+   if (v.size() == 4)
+      status = 1;
+   std::cout << "n colour rules " << v.size() << std::endl;
+   return status;
+}
+
+
+
 int test_add_hydrogen_atoms(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2499,7 +2515,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   status = run_test(test_superpose, "SSM superpose ", mc);
+   // status = run_test(test_superpose, "SSM superpose ", mc);
+
+   status = run_test(test_multi_colour_rules, "mult colour rules ", mc);
 
    // Note to self:
    //

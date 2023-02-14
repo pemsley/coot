@@ -3492,6 +3492,28 @@ molecules_container_t::add_colour_rule(int imol, const std::string &selection_ci
 
 }
 
+//! add multiple colour rules, combined like the following "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007"
+//!
+void
+molecules_container_t::add_colour_rules_multi(int imol, const std::string &selections_and_colours_combo_string) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> sel_col_pairs = coot::util::split_string(selections_and_colours_combo_string, "|");
+      for (const auto &pair_string : sel_col_pairs) {
+         std::vector<std::string> parts = coot::util::split_string(pair_string, "^");
+         if (parts.size() == 2) {
+            const std::string &selection_cid = parts[0];
+            const std::string &colour        = parts[1];
+            molecules[imol].add_colour_rule(selection_cid, colour);
+         }
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+
 //! delete the colour rules for the given molecule
 void
 molecules_container_t::delete_colour_rules(int imol) {

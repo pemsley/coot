@@ -504,10 +504,14 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
-   //! If any colour rule has been set for this molecule, then we will use those. Otherwise, colorChainsScheme()
-   //! will be called (and that his its internal colour-by-chain colouring scheme).
+   //! Add a colour rule
    //!
    void add_colour_rule(int imol, const std::string &selection_cid, const std::string &colour);
+
+   //! add multiple colour rules, combined like the following "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007"
+   //! i.e. "|" is the separator for each rule
+   //! and "^" is the separator for the selection string and the colour string
+   void add_colour_rules_multi(int imol, const std::string &selections_and_colours_combo_string);
 
    //! delete the colour rules for the given molecule
    void delete_colour_rules(int imol);
