@@ -583,7 +583,8 @@ public:
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
 
    //! superposition (using SSM)
-   //! The movign molecule is superposed onto the reference molecule (if possible)
+   //!
+   //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
    void SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                       int imol_mov, const std::string &chain_id_mov);
