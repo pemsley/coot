@@ -163,8 +163,12 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 
 }
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
+#endif
+
 #include "lidia-core/svg-molecule.hh"
+
 
 //! This is a ligand function, not really a ligand-fitting function.
 //!
