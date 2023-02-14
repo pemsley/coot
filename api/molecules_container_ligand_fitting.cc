@@ -182,16 +182,25 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 
    std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
    if (mr.first) {
-      const coot::dictionary_residue_restraints_t &restraints = mr.second;
-      svg_molecule_t svg;
-      RDKit::RWMol mol = coot::rdkit_mol(restraints);
-      RDKit::MolOps::removeHs(mol);
-      RDKit::MolOps::Kekulize(mol);
-      int iconf = RDDepict::compute2DCoords(mol, NULL, true);
-      RDKit::Conformer &conf = mol.getConformer(iconf);
-      RDKit::WedgeMolBonds(mol, &conf);
-      svg.import_rdkit_mol(&mol, iconf);
-      s = svg.render_to_svg_string();
+      try {
+         const coot::dictionary_residue_restraints_t &restraints = mr.second;
+         svg_molecule_t svg;
+         RDKit::RWMol mol = coot::rdkit_mol(restraints);
+         // bool undelocalize_flag = true;
+         // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
+         // RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
+         RDKit::MolOps::removeHs(mol);
+         RDKit::MolOps::Kekulize(mol);
+         int iconf = RDDepict::compute2DCoords(mol, NULL, true);
+         RDKit::Conformer &conf = mol.getConformer(iconf);
+         RDKit::WedgeMolBonds(mol, &conf);
+         svg.import_rdkit_mol(&mol, iconf);
+         s = svg.render_to_svg_string();
+      }
+      catch (const Invar::Invariant &e) {
+         std::cout << "error " << e.what() << std::endl;
+      }
+
    } else {
       s = std::string("No dictionary for ") + comp_id;
    }
