@@ -8,11 +8,16 @@
 #include "Python.h"
 #endif
 
+#ifdef HAVE_SSMLIB
+#include <ssm/ssm_align.h>
+#endif
+
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
 #include "coot_molecule.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
+#include "coot-utils/coot-map-utils.hh"
 #include "utils/coot-utils.hh"
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
@@ -20,7 +25,7 @@
 #include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
-#include "coot-utils/coot-map-utils.hh"
+#include "saved-strand-info.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -85,6 +90,7 @@ class molecules_container_t {
 
    coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
 
+   // --------------------- superposition --------------------------
 
    // --------------------- refinement --------------------------
 
@@ -184,6 +190,50 @@ class molecules_container_t {
    void read_standard_residues();
    atom_selection_container_t standard_residues_asc;
 
+   int install_model(const coot::molecule_t &m);
+
+   int superpose_with_atom_selection(atom_selection_container_t asc_ref,
+                                     atom_selection_container_t asc_mov,
+                                     int imol_mov,
+                                     std::string moving_mol_name,
+                                     std::string referennce_mol_name,
+                                     bool move_copy_of_imol2_flag);
+
+#ifdef HAVE_SSMLIB
+   void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
+				     atom_selection_container_t asc_ref,
+				     atom_selection_container_t asc_mov,
+				     mmdb::PAtom *atom_selection1,
+				     mmdb::PAtom *atom_selection2,
+				     int n_selected_atoms_1, int n_selected_atoms_2,
+				     bool move_copy_of_imol2_flag);
+
+   void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
+							 atom_selection_container_t asc_ref,
+							 atom_selection_container_t asc_mov,
+							 mmdb::PAtom *atom_selection1,
+							 mmdb::PAtom *atom_selection2,
+							 int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+   void map_secondary_structure_headers(ssm::Align *SSMAlign,
+					atom_selection_container_t asc_ref,
+					atom_selection_container_t asc_mov,
+					mmdb::PAtom *atom_selection1,
+					mmdb::PAtom *atom_selection2,
+					int n_selected_atoms_1, int n_selected_atoms_2) const;
+   //
+   void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
+
+   std::pair<std::string, std::string>
+      get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
+					   atom_selection_container_t asc_ref,
+					   atom_selection_container_t asc_mov,
+					   mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+#endif  // HAVE_SSMLIB
+   
+
    // for auto-read mtz
    int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
                     const std::string &weight_col, int use_weights) const;
@@ -237,6 +287,9 @@ public:
    bool get_make_backups() const { return make_backups_flag; }
    //! the backup-enable state (raw public if needed/prefered)
    static bool make_backups_flag; // does this need to be static?
+
+   //! @return the number of molecules
+   unsigned int get_number_of_molecules() const { return molecules.size(); }
 
    //! set the map used for refinement and fitting
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
@@ -528,6 +581,12 @@ public:
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
+
+   //! superposition (using SSM)
+   //! The movign molecule is superposed onto the reference molecule (if possible)
+   //! There is some alignment screen output that would be better added to the return value.
+   void SSM_superpose(int imol_ref, const std::string &chain_id_ref,
+                      int imol_mov, const std::string &chain_id_mov);
 
    //! undo
    //! @return 1 on successful undo, return 0 on failure

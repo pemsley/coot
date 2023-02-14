@@ -492,6 +492,10 @@ namespace coot {
          // make_bonds_type_checked("set_bespoke_carbon_atom_colour");
       }
 
+      void set_show_symmetry(bool f) { show_symmetry = f;}
+      bool get_show_symmetry() { return show_symmetry;}
+      void transform_by(mmdb::mat44 SSMAlign_TMatrix);
+
       // ----------------------- model analysis functions
 
       std::vector<std::string> non_standard_residue_types_in_model() const;

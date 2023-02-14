@@ -334,8 +334,9 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_validation.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/molecules_container_modelling.cc
-            ${coot_src}/api/molecules_container_mmrrcc.cc
             ${coot_src}/api/molecules_container_ligand_fitting.cc
+            ${coot_src}/api/molecules_container_mmrrcc.cc
+            ${coot_src}/api/molecules_container_superpose.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/make-a-dodec.cc
@@ -347,10 +348,10 @@ add_library(cootapi SHARED
 
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
-target_link_libraries(cootapi PUBLIC clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
+target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
 # add in -DCLIPPER_HAS_TOP8000=1
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)

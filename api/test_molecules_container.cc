@@ -2301,6 +2301,52 @@ int test_svg(molecules_container_t &mc) {
 
 }
 
+int test_superpose(molecules_container_t &mc) {
+
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
+
+   unsigned int n_pre = mc.get_number_of_molecules();
+
+   coot::atom_spec_t atom_spec_1("A", 227, "", " CA ","");
+   coot::atom_spec_t atom_spec_2("B", 256, "", " CA ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol_1, atom_spec_1);
+   mmdb::Atom *at_2 = mc.get_atom(imol_2, atom_spec_2);
+
+   coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+   coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
+
+   double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+   double d1 = std::sqrt(dd);
+   std::cout << "test d1 " << d1 << std::endl;
+   
+   mc.SSM_superpose(imol_1, "A", imol_2, "B");
+
+   mc.write_coordinates(imol_2, "superposed.pdb");
+
+   mmdb::Atom *at_3 = mc.get_atom(imol_2, atom_spec_2);
+   mmdb::Atom *at_4 = mc.get_atom(imol_1, atom_spec_1);
+   coot::Cartesian atom_pos_3 = atom_to_cartesian(at_3);
+   coot::Cartesian atom_pos_4 = atom_to_cartesian(at_4);
+
+   dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_3);
+   double d2 = std::sqrt(dd);
+   std::cout << "test d2 " << d2 << std::endl;
+
+   unsigned int n_post = mc.get_number_of_molecules();
+   if (n_pre == n_post)
+      if (d1 > 50.0)
+         if (d2 < 1.0)
+            status = 1;
+
+   std::cout << "debug:: n_mol_pre " << n_pre << " n_mol_post " << n_post << std::endl;
+   std::cout << "debug:: atom_pos_1 " << atom_pos_1 << " atom_pos_2 " << atom_pos_2 << " atom_pos_3 " << atom_pos_3 << " " << atom_pos_4 << std::endl;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2451,7 +2497,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
-   status = run_test(test_svg, "svg string", mc);
+   // status = run_test(test_svg, "svg string", mc);
+
+   status = run_test(test_superpose, "SSM superpose ", mc);
 
    // Note to self:
    //

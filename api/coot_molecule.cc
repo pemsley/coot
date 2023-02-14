@@ -385,6 +385,47 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
    }
 }
 
+void
+coot::molecule_t::transform_by(mmdb::mat44 mat) {
+
+   if (is_valid_model_molecule()) {
+      clipper::Coord_orth co;
+      clipper::Coord_orth trans_pos;
+      make_backup();
+      clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
+                                         mat[1][0], mat[1][1], mat[1][2],
+                                         mat[2][0], mat[2][1], mat[2][2]);
+      clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
+      clipper::RTop_orth rtop(clipper_mat, cco);
+      std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
+                << rtop.format() << std::endl;
+      clipper::Rotation rtn( clipper_mat );
+      clipper::Polar_ccp4 polar = rtn.polar_ccp4();
+      clipper::Euler_ccp4 euler = rtn.euler_ccp4();
+      std::cout << "  Rotation - polar (omega,phi,kappa)  " << clipper::Util::rad2d(polar.omega()) << " " << clipper::Util::rad2d(polar.phi())  << " " << clipper::Util::rad2d(polar.kappa()) << std::endl;
+      std::cout << "  Rotation - euler (alpha,beta,gamma) " << clipper::Util::rad2d(euler.alpha()) << " " << clipper::Util::rad2d(euler.beta()) << " " << clipper::Util::rad2d(euler.gamma()) << std::endl;
+      std::cout << "  Translation - Angstroms             " << cco.x() << " " << cco.y() << " " << cco.z() << " " << std::endl;
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+         mmdb::Atom *at = atom_sel.atom_selection[i];
+         co = clipper::Coord_orth(at->x, at->y, at->z);
+         trans_pos = co.transform(rtop);
+         at->x = trans_pos.x();
+         at->y = trans_pos.y();
+         at->z = trans_pos.z();
+         if (false) // debugging
+            if (co.x() < 0.0 && co.x() > -10.0)
+               if (co.y() < 20.0 && co.y() > 10.0)
+                  if (co.z() < 30.0 && co.z() > 20.0)
+                     std::cout << i << " from " << co.format() << " to " << at->x << " " << at->y << " " << at->z << std::endl;
+      }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+
+      save_info.new_modification("transform_by(mat)");
+   }
+}
+
+
 
 // shelx stuff
 //
@@ -998,7 +1039,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
    std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
 
    // have_unsaved_changes_flag = 1;
-   // save_info.new_modification("replace_coords()");
+   save_info.new_modification("replace_coords()");
 
    if (show_symmetry) {  // internal
       update_symmetry();

@@ -20,7 +20,7 @@ molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
 	 		 rama-plot-phi-psi.hh	                                           \
 add-terminal-residue.hh  interfaces.hh                          \
 atom-pull.hh		                           \
-phi-psi-prob.hh
+phi-psi-prob.hh saved-strand-info.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -31,7 +31,7 @@ coot_molecule_bonds.cc	     coot_molecule_validation.cc                      mol
 molecules_container.cc       make-a-dodec.cc	                              molecules_container_ligand_fitting.cc \
 phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc \
 coot_molecule_backup.cc      coot_molecule_bonds_instanced.cc                 molecules_container_mmrrcc.cc \
-coot_molecule_refine.cc
+coot_molecule_refine.cc      molecules_container_superpose.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

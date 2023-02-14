@@ -414,6 +414,14 @@ molecules_container_t::flip_peptide_using_cid(int imol, const std::string &atom_
    return result;
 }
 
+int
+molecules_container_t::install_model(const coot::molecule_t &m) {
+
+   int size = molecules.size();
+   molecules.push_back(m);
+   return size;
+}
+
 
 int
 molecules_container_t::read_pdb(const std::string &file_name) {
@@ -3649,3 +3657,4 @@ molecules_container_t::clear_extra_restraints(int imol) {
    }
 
 }
+
