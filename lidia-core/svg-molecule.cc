@@ -529,12 +529,23 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	    // filled shape (normal wedge)
 	    std::vector<lig_build::pos_t> v = lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
 
-	    lig_build::pos_t p = svg_molecule_t::mol_coords_to_svg_coords(v[0], centre, scale);
+	    // lig_build::pos_t p = svg_molecule_t::mol_coords_to_svg_coords(v[0], centre, scale);
 	    // cairo_move_to(cr, p.x, p.y);
 	    // cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	    for (unsigned int i=1; i<v.size(); i++) {
-	       lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
+	       // lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
 	       // cairo_line_to(cr, p_i.x, p_i.y);
+               std::string bond_string = "<polygon points=\"";
+               for (unsigned int i=0; i<v.size(); i++) {
+                  double sf = 400.0; // scale_factor
+                  lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);         
+                  bond_string += std::to_string(sf * p_i.x);
+                  bond_string += ",";
+                  bond_string += std::to_string(sf * p_i.y);
+                  bond_string += " ";
+               }
+               bond_string += "\" style=\"fill:#2020202;\" />\n";
+               s += bond_string;
 	    }
 	    // cairo_close_path(cr);
 	    // cairo_fill(cr);
