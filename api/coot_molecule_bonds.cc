@@ -38,6 +38,33 @@
 
 // #include "molecular-mesh-generator.hh"
 
+
+void
+coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) {
+
+   if (atom_sel.mol) {
+      int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+	 for(int iat=0; iat<nSelAtoms; iat++) {
+	    mmdb::Atom *at = SelAtoms[iat];
+	    int idx;
+            at->GetUDData(atom_index_udd_handle, idx);
+	    no_bonds_to_these_atom_indices.insert(idx);
+	 }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   if (false)
+      std::cout << "add_to_non_drawn_bonds() no_bonds_to_these_atom_indices now has size "
+	        << no_bonds_to_these_atom_indices.size() << std::endl;
+}
+
+
 // public - because currently making bonds is not done on molecule construction
 void
 coot::molecule_t::make_bonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p,
@@ -164,13 +191,13 @@ coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p,
 
    // coot::protein_geometry *geom_p = g.Geom_p();
 
-   std::set<int> dummy;
+   std::set<int> &no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
 
    if (bonds_box_type == coot::NORMAL_BONDS)
-      makebonds(geom_p, nullptr, dummy, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
+      makebonds(geom_p, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
 
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
-      makebonds(geom_p, nullptr, dummy, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
+      makebonds(geom_p, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
    if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS || bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
@@ -1147,9 +1174,10 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
             if (debug_colour_table) { // debugging colours
                colour_holder ch = cc.to_colour_holder(); // around the houses
                std::string hex = ch.hex();
-               std::cout << "colour_table: imol " << imol_no << " icol " << std::setw(3) << icol << " has "
-                         << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
-                         << " colour: " << hex << " " << cc << std::endl;
+	       if (false)
+                  std::cout << "colour_table: imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+                            << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
+                            << " colour: " << hex << " " << cc << std::endl;
             }
             colour_table[icol] = cc.to_glm();
          }
@@ -1258,7 +1286,7 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
       // something
    }
 
-   std::set<int> no_bonds_to_these_atoms; // empty
+   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
    // we don't make rotamer dodecs in this function
    makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogens_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
 

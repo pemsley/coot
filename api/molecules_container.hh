@@ -503,6 +503,11 @@ public:
                                                                  bool against_a_dark_background,
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
+   //! add a atom selection cid for atoms and bonds not to be drawn
+   void add_to_non_drawn_bonds(int imol, const std::string &atom_selection_cid);
+
+   //! clear the set of non-drawn atoms (so that they can be displayed again)
+   void clear_non_drawn_bonds(int imol);
 
    //! Add a colour rule
    //!

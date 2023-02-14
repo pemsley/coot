@@ -437,6 +437,12 @@ namespace coot {
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
 
+      std::set<int> no_bonds_to_these_atom_indices;
+
+      void add_to_non_drawn_bonds(const std::string &atom_selection_cid);
+
+      void clear_non_drawn_bonds() { no_bonds_to_these_atom_indices.clear(); }
+
       void fill_default_colour_rules(); // assign colours to chains.
 
       //! If any colour rule has been set for this molecule, then we will use these

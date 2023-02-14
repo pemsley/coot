@@ -1783,7 +1783,7 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
       coot::simple_mesh_t mz = mc.get_rotamer_dodecs(imol);
       coot::instanced_mesh_t m = mc.get_rotamer_dodecs_instanced(imol);
       if (! m.geom.empty()) {
-         const coot::instanced_geometry_t ig = m.geom[0];
+         const coot::instanced_geometry_t &ig = m.geom[0];
          if (ig.vertices.size() > 30) {
             if (ig.triangles.size() > 30) {
                if (ig.instancing_data_A.size() > 30) {
@@ -2363,6 +2363,39 @@ int test_superpose(molecules_container_t &mc) {
    return status;
 }
 
+int test_non_drawn_atoms(molecules_container_t &mc) {
+
+   auto atom_in_mesh = [] (const coot::instanced_mesh_t &mesh, const glm::vec3 &ca_pos) {
+      bool status = false;
+      for (unsigned int igeom=0; igeom<mesh.geom.size(); igeom++) {
+         const coot::instanced_geometry_t &ig = mesh.geom[0];
+         for (unsigned int j=0; j<ig.instancing_data_A.size(); j++) {
+            if (glm::distance(ig.instancing_data_A[j].position, ca_pos) < 0.01) return true;
+         }
+      }
+      return status;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   glm::vec3 ca_pos(70.328, 51.541, 38.560);
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   mc.add_to_non_drawn_bonds(imol, "//A/270");
+   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+
+   // the first one should have the atom, the second should not.
+   bool f1 = atom_in_mesh(mesh_1, ca_pos);
+   bool f2 = atom_in_mesh(mesh_2, ca_pos);
+   std::cout << "the f1 and f2 " << f1 << " " << f2 << std::endl;
+   if (f1 == true)
+      if (f2 == false)
+         status = 1;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2517,7 +2550,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_superpose, "SSM superpose ", mc);
 
-   status = run_test(test_multi_colour_rules, "mult colour rules ", mc);
+   // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
+
+   status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
    // Note to self:
    //

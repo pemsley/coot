@@ -306,7 +306,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       // something
    }
 
-   std::set<int> no_bonds_to_these_atoms; // empty
+   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is then passed.
+
    // we don't make rotamer dodecs in this function
    makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
 

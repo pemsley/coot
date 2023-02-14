@@ -1399,6 +1399,22 @@ molecules_container_t::get_bonds_mesh(int imol, const std::string &mode,
    return sm;
 }
 
+void
+molecules_container_t::add_to_non_drawn_bonds(int imol, const std::string &atom_selection_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+       molecules[imol].add_to_non_drawn_bonds(atom_selection_cid);
+   }
+}
+
+void
+molecules_container_t::clear_non_drawn_bonds(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+       molecules[imol].clear_non_drawn_bonds();
+   }
+}
+
 //! @return an ``instanced_mesh_t``
 coot::instanced_mesh_t
 molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mode,
