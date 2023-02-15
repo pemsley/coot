@@ -235,6 +235,8 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
          glm::mat4 ori = get_bond_matrix(pos_2, pos_1, bond_radius);
          float scale = 1.0;
          if (ll.thin_lines_flag) scale *= 0.5;
+         if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+            scale *= 0.7;
          float sar = scale * bond_radius;
          glm::vec3 sc(sar, sar, bl);
          coot::instancing_data_type_B_t id(pos_1, col, sc, ori); // perhaps use pos_1?
