@@ -3307,7 +3307,7 @@ molecules_container_t::pepflips_using_difference_map(int imol_coords, int imol_d
                   mmdb::Residue *residue_next_p = get_residue(imol_coords, res_spec);
                   if (residue_next_p) {
                      std::string feature_type = "Difference Map Suggest Pepflip";
-                     std::string label = "Flip this Bad boy: " + res_spec.format();
+                     std::string label = "Flip: " + res_spec.format();
                      mmdb::Atom *at_1 = residue_this_p->GetAtom(" CA ");
                      mmdb::Atom *at_2 = residue_next_p->GetAtom(" CA ");
                      if (at_1 && at_2) {
