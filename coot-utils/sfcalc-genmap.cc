@@ -102,7 +102,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
             if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
          }
       }
-      std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+      // std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
    }
 
    // calc abcd (needed?)
@@ -301,7 +301,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
             if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
          }
       }
-      std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+      // std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
    }
 
    // calc abcd (needed?)
