@@ -2045,14 +2045,16 @@ coot::molecule_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clip
          const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
          const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
 
-         std::cout << "DEBUG:: Sanity check A in molecule_t::sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                   << "cell: " << hkls_check.cell().format() << " "
-                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                   << "resolution: " << hkls_check.resolution().limit() << " "
-                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                   << std::endl;
-         std::cout << "DEBUG:: Sanity check B in molecule_t::sfcalc_genmaps_using_bulk_solvent(): Cell fofc-map"
-                   << xmap_fofc_p->cell().format() << std::endl;
+         if (false) {
+            std::cout << "DEBUG:: Sanity check A in molecule_t::sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                      << "cell: " << hkls_check.cell().format() << " "
+                      << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                      << "resolution: " << hkls_check.resolution().limit() << " "
+                      << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                      << std::endl;
+            std::cout << "DEBUG:: Sanity check B in molecule_t::sfcalc_genmaps_using_bulk_solvent(): Cell fofc-map"
+                      << xmap_fofc_p->cell().format() << std::endl;
+         }
       }
 
       stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);

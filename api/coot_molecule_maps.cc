@@ -571,9 +571,10 @@ coot::molecule_t::fill_fobs_sigfobs() {
 
    if (have_sensible_refmac_params) {
 
-      std::cout << "debug:: in fill_fobs_sigfobs() with original_fobs_sigfobs_filled " << original_fobs_sigfobs_filled
-                << " original_fobs_sigfobs_fill_tried_and_failed " << original_fobs_sigfobs_fill_tried_and_failed
-                << std::endl;
+      if (false)
+         std::cout << "debug:: in fill_fobs_sigfobs() with original_fobs_sigfobs_filled " << original_fobs_sigfobs_filled
+                   << " original_fobs_sigfobs_fill_tried_and_failed " << original_fobs_sigfobs_fill_tried_and_failed
+                   << std::endl;
 
       // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
       // already contains data, then crashiness.
@@ -612,9 +613,10 @@ coot::molecule_t::fill_fobs_sigfobs() {
             mtzin_p->open_read(Refmac_mtz_filename());
             mtzin_p->import_hkl_data(*original_fobs_sigfobs_p, p.first);
             mtzin_p->close_read();
-            std::cout << "INFO:: fill_fobs_sigfobs(): reading " << Refmac_mtz_filename() << " provided "
-                      << original_fobs_sigfobs_p->num_obs() << " data using data name: "
-                      << p.first << std::endl;
+            if (false)
+               std::cout << "INFO:: fill_fobs_sigfobs(): reading " << Refmac_mtz_filename() << " provided "
+                         << original_fobs_sigfobs_p->num_obs() << " data using data name: "
+                         << p.first << std::endl;
             if (original_fobs_sigfobs_p->num_obs() > 10)
                original_fobs_sigfobs_filled = 1;
             else
@@ -637,8 +639,9 @@ coot::molecule_t::fill_fobs_sigfobs() {
                mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
                mtzin_rfree_p->close_read();
 
-               std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
-                         << original_r_free_flags_p->num_obs() << " R-free flags\n";
+               if (false)
+                  std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
+                            << original_r_free_flags_p->num_obs() << " R-free flags\n";
             } else {
                std::cout << "INFO:: no sensible R-free flag column label\n";
             }

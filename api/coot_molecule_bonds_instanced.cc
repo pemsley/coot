@@ -66,6 +66,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          if (do_it) {
             float scale = 1.0;
             if (at_info.is_hydrogen_atom) scale *= 0.5;
+            if (at_info.is_water) scale *= 3.33;
             glm::vec3 t(at->x, at->y, at->z);
             float sar = scale * atom_radius;
             glm::vec3 sc(sar, sar, sar);
@@ -145,6 +146,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
          glm::mat4 ori(1.0); // 20230114-PE needs fixing.
          float scale = 1.0;
          if (at_info.is_hydrogen_atom) scale *= 0.5;
+         if (at_info.is_water) scale *= 3.33;
          float sar = scale * atom_radius;
          glm::vec3 sc(sar, sar, sar);
          coot::instancing_data_type_B_t id(t, col, sc, ori);

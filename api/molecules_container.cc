@@ -1480,17 +1480,12 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    auto tp_0 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
-      std::cout << "debug:: in get_map_contours_mesh() A " << std::endl;
       if (is_valid_map_molecule(imol)) {
-         std::cout << "debug:: in get_map_contours_mesh() B " << std::endl;
          clipper::Coord_orth position(position_x, position_y, position_z);
-
          if (updating_maps_info.maps_need_an_update) {
-            std::cout << "debug:: in get_map_contours_mesh() C " << std::endl;
             update_updating_maps(updating_maps_info.imol_model);
          }
 
-         std::cout << "debug:: in get_map_contours_mesh() D " << std::endl;
          mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
       } else {
          std::cout << "WARNING:: get_map_contours_mesh() Not a valid map molecule " << imol << std::endl;
@@ -1919,17 +1914,19 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                            const clipper::Cell &cell_check = fobs_data_p->base_cell();
                            const clipper::HKL_sampling &sampling_check = fobs_data_p->hkl_sampling();
 
-                           std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() imol_map_with_data_attached "
-                                     << imol_map_2fofc << std::endl;
+                           if (false) {
+                              std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() imol_map_with_data_attached "
+                                        << imol_map_2fofc << std::endl;
 
-                           std::cout << "DEBUG:: Sanity check in graphics_info_t:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                                     << "base_cell: " << cell_check.format() << " "
-                                     << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                                     << "sampling is null: " << sampling_check.is_null() << " "
-                                     << "resolution: " << hkls_check.resolution().limit() << " "
-                                     << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                                     << "num_reflections: " << hkls_check.num_reflections()
-                                     << std::endl;
+                              std::cout << "DEBUG:: Sanity check in graphics_info_t:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                                        << "base_cell: " << cell_check.format() << " "
+                                        << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                                        << "sampling is null: " << sampling_check.is_null() << " "
+                                        << "resolution: " << hkls_check.resolution().limit() << " "
+                                        << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                                        << "num_reflections: " << hkls_check.num_reflections()
+                                        << std::endl;
+                           }
                         }
 
                         clipper::Xmap<float> &xmap_2fofc = molecules[imol_map_2fofc].xmap;

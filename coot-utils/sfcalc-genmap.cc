@@ -142,7 +142,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    xmap_p->fft_from(f_diff);
 
    // DIAGNOSTIC OUTPUT
-   if (true) {
+   if (false) {
       std::cout << "\n Bulk Correction Volume: " << bulkfrc;
       std::cout << "\n Bulk Correction Factor: " << bulkscl << "\n";
       std::cout << "\nNumber of spline params: " << sfw.params_scale().size() << "\n";
@@ -178,13 +178,14 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       const clipper::HKL_info &hkls_check = fobs_in.base_hkl_info();
       const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
 
-      std::cout << "DEBUG:: Sanity check A in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                << "cell_for_fobs: " << cell_for_fobs.format() << " "
-                << "cell of fobs: " << hkls_check.cell().format() << " "
-                << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                << "resolution: " << hkls_check.resolution().limit() << " "
-                << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                << std::endl;
+      if (false)
+         std::cout << "DEBUG:: Sanity check A in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                   << "cell_for_fobs: " << cell_for_fobs.format() << " "
+                   << "cell of fobs: " << hkls_check.cell().format() << " "
+                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                   << "resolution: " << hkls_check.resolution().limit() << " "
+                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                   << std::endl;
    }
 
 
@@ -205,13 +206,14 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
       const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
 
-      std::cout << "DEBUG:: Sanity check B in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                << "cell_for_fobs: " << cell_for_fobs.format() << " "
-                << "cell of fobs: " << hkls_check.cell().format() << " "
-                << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                << "resolution: " << hkls_check.resolution().limit() << " "
-                << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                << std::endl;
+      if (false)
+         std::cout << "DEBUG:: Sanity check B in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                   << "cell_for_fobs: " << cell_for_fobs.format() << " "
+                   << "cell of fobs: " << hkls_check.cell().format() << " "
+                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                   << "resolution: " << hkls_check.resolution().limit() << " "
+                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                   << std::endl;
    }
 
    // get a list of all the atoms
@@ -239,13 +241,14 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
          const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
          const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
 
-         std::cout << "DEBUG:: Sanity check C in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                   << "cell_for_fobs: " << cell_for_fobs.format() << " "
-                   << "cell of fobs: " << hkls_check.cell().format() << " "
-                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                   << "resolution: " << hkls_check.resolution().limit() << " "
-                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                   << std::endl;
+         if (false)
+            std::cout << "DEBUG:: Sanity check C in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                      << "cell_for_fobs: " << cell_for_fobs.format() << " "
+                      << "cell of fobs: " << hkls_check.cell().format() << " "
+                      << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                      << "resolution: " << hkls_check.resolution().limit() << " "
+                      << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                      << std::endl;
       }
 
       sfcb(fc, fobs, atoms);
@@ -349,7 +352,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    xmap_fofc_p->fft_from(f_diff);
 
    // DIAGNOSTIC OUTPUT
-   if (true) {
+   if (false) {
       std::cout << "\n Bulk Correction Volume: " << bulkfrc;
       std::cout << "\n Bulk Correction Factor: " << bulkscl << "\n";
       std::cout << "\nNumber of spline params: " << sfw.params_scale().size() << "\n";
