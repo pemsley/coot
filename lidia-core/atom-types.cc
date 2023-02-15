@@ -9,8 +9,6 @@
 void
 coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 
-#ifdef HAVE_CXX11
-
    class idx_pair {
    public:
       unsigned int idx_0;
@@ -261,10 +259,6 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 	 }
       }
    }
-
-#else
-   std::cout << "No set_atom_type() for this build/compiler" << std::endl;
-#endif // HAVE_CXX11
 }
 
 // dicitionaries from CCDs don't have energy atom types. We need them for ligand
