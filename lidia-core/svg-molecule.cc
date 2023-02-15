@@ -418,9 +418,10 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 pos_2 = bp.second;
          lig_build::pos_t p1 = svg_molecule_t::mol_coords_to_svg_coords(pos_1, centre, scale);
          lig_build::pos_t p2 = svg_molecule_t::mol_coords_to_svg_coords(pos_2, centre, scale);
-	 std::cout << "pos_1 " << pos_1 << " pos_2 " << pos_2
-		   << " bp.first " << bp.first << " bp.second " << bp.second
-		   << " p1 " << p1 << " p2 " << p2 << std::endl;
+         if (false)
+            std::cout << "pos_1 " << pos_1 << " pos_2 " << pos_2
+                      << " bp.first " << bp.first << " bp.second " << bp.second
+                      << " p1 " << p1 << " p2 " << p2 << std::endl;
 
 	 // cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	 // cairo_move_to(cr, p1.x, p1.y);
@@ -857,7 +858,7 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
    s += viewBox_string;
    s += svg_header_2;
 
-   std::cout << "viewBox: " << viewBox_string << std::endl;
+   // std::cout << "viewBox: " << viewBox_string << std::endl;
 
    // just testing that I can see something. No longer needed because I can
    // s += "   <rect x=\"10\" y=\"10\" width=\"10\" height=\"10\" style=\"stroke:#ff0000; fill: #ff6666;\" />\n";
@@ -967,7 +968,7 @@ svg_molecule_t::get_scale() const {
    if (scale > scale_lim)
       scale = scale_lim;
 
-   std::cout << "get_scale() returns " << scale << std::endl;
+   // std::cout << "get_scale() returns " << scale << std::endl;
    return scale;
 }
 
