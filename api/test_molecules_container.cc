@@ -2305,7 +2305,8 @@ int test_svg(molecules_container_t &mc) {
    int status = 0;
 
    mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   std::string s = mc.get_svg_for_residue_type(0, "ATP");
+   bool dark_bg = false;
+   std::string s = mc.get_svg_for_residue_type(0, "ATP", dark_bg);
 
    if (s.length() > 0) {
       std::ofstream f("ATP.svg");

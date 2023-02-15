@@ -174,7 +174,8 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 //!
 //! But more importantly than that, it doesn't work yet.
 std::string
-molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id) const {
+molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
+                                                bool dark_bg_flag) const {
 
    std::string s = "Needs-to-be-compiled-with-the-RDKit";
 
@@ -195,7 +196,7 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
          RDKit::Conformer &conf = mol.getConformer(iconf);
          RDKit::WedgeMolBonds(mol, &conf);
          svg.import_rdkit_mol(&mol, iconf);
-         s = svg.render_to_svg_string();
+         s = svg.render_to_svg_string(dark_bg_flag);
       }
       catch (const Invar::Invariant &e) {
          std::cout << "error " << e.what() << std::endl;

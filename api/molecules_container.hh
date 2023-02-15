@@ -1040,10 +1040,14 @@ public:
    //! This is a ligand function, not really a ligand-fitting function.
    //!
    //! It won't work unless the dictionary for that ligand has been imported.
-   //! But more importantly than that, it doesn't work yet.
+   //! The output renderings are not very good at the moment.
+   //!
    //! Except for unusual cases, ``imol`` will be IMOL_ENC_ANY (-666666)
+   //!
+   //! ``dark_background_flag`` returns a representation suitable for rendering on a dark background (funnily enough).
+   //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id) const;
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool dark_background_flag) const;
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
