@@ -175,35 +175,44 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 //! But more importantly than that, it doesn't work yet.
 std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
-                                                bool dark_bg_flag) const {
+                                                bool dark_bg_flag) {
 
    std::string s = "Needs-to-be-compiled-with-the-RDKit";
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
-   if (mr.first) {
-      try {
-         const coot::dictionary_residue_restraints_t &restraints = mr.second;
-         svg_molecule_t svg;
-         RDKit::RWMol mol = coot::rdkit_mol(restraints);
-         // bool undelocalize_flag = true;
-         // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
-         // RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
-         RDKit::MolOps::removeHs(mol);
-         RDKit::MolOps::Kekulize(mol);
-         int iconf = RDDepict::compute2DCoords(mol, NULL, true);
-         RDKit::Conformer &conf = mol.getConformer(iconf);
-         RDKit::WedgeMolBonds(mol, &conf);
-         svg.import_rdkit_mol(&mol, iconf);
-         s = svg.render_to_svg_string(dark_bg_flag);
-      }
-      catch (const Invar::Invariant &e) {
-         std::cout << "error " << e.what() << std::endl;
-      }
+   std::map<std::string, std::string>::const_iterator it = ligand_svg_store.find(comp_id);
+   if (it != ligand_svg_store.end()) {
+
+      return it->second;
 
    } else {
-      s = std::string("No dictionary for ") + comp_id;
+
+      std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
+      if (mr.first) {
+         try {
+            const coot::dictionary_residue_restraints_t &restraints = mr.second;
+            svg_molecule_t svg;
+            RDKit::RWMol mol = coot::rdkit_mol(restraints);
+            // bool undelocalize_flag = true;
+            // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
+            // RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
+            RDKit::MolOps::removeHs(mol);
+            RDKit::MolOps::Kekulize(mol);
+            int iconf = RDDepict::compute2DCoords(mol, NULL, true);
+            RDKit::Conformer &conf = mol.getConformer(iconf);
+            RDKit::WedgeMolBonds(mol, &conf);
+            svg.import_rdkit_mol(&mol, iconf);
+            s = svg.render_to_svg_string(dark_bg_flag);
+            ligand_svg_store[comp_id] = s;
+         }
+         catch (const Invar::Invariant &e) {
+            std::cout << "error " << e.what() << std::endl;
+         }
+
+      } else {
+         s = std::string("No dictionary for ") + comp_id;
+      }
    }
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

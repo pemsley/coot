@@ -187,7 +187,28 @@ class molecules_container_t {
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
+   //! read the standard protein, RNA, and DNA dictionaries.
    void read_standard_residues();
+
+   // 20230215-PE The key to this map *should* contain the imol, so have it's own class ideally (with a less-than operator).
+   // However, it won't be a problem frequently. Let's see how long it is before someone complains.
+   // (It's the multi-LIG problem).
+   //
+   // class svg_store_key_t {
+   //    public:
+   //     int imol;
+   //     std::string comp_id;
+   //   opertor<(const svg_store_key_t &other) {
+   //      if (imol<other.imol)
+   //         return true;
+   //      else
+   //         if (comp_id < other.comp_id)
+   //            return true;
+   //      return false;
+   //   }
+   // };
+   std::map<std::string, std::string> ligand_svg_store;
+
    atom_selection_container_t standard_residues_asc;
 
    int install_model(const coot::molecule_t &m);
@@ -1046,8 +1067,10 @@ public:
    //!
    //! ``dark_background_flag`` returns a representation suitable for rendering on a dark background (funnily enough).
    //!
+   //! This function is not const because it caches the svgs if it can.
+   //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool dark_background_flag) const;
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool dark_background_flag);
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
