@@ -9,6 +9,8 @@
 void
 tlc_to_svg_file(const std::string &tlc, coot::protein_geometry &geom) {
 
+   bool dark_background_flag = true;
+
    if (tlc == "A4R") return;
    if (tlc == "A85") return;
    if (tlc == "ABZ") return;
@@ -47,7 +49,7 @@ tlc_to_svg_file(const std::string &tlc, coot::protein_geometry &geom) {
          RDKit::WedgeMolBonds(mol_rw, &conf);
          svg_molecule_t svg;
          svg.import_rdkit_mol(&mol_rw, iconf);
-         std::string s = svg.render_to_svg_string();
+         std::string s = svg.render_to_svg_string(dark_background_flag);
          if (true) {
             std::string fn = tlc + std::string(".svg");
             std::ofstream f(fn);
