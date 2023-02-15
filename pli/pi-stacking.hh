@@ -22,6 +22,13 @@
 #ifndef PI_STACKING_HH
 #define PI_STACKING_HH
 
+#include <vector>
+#include <string>
+#include <mmdb2/mmdb_manager.h>
+#include <clipper/core/coords.h>
+
+#include "geometry/protein-geometry.hh"
+
 namespace coot {
 
    class pi_stacking_instance_t {
@@ -43,19 +50,18 @@ namespace coot {
       std::string ligand_cationic_atom_name; // for cations on the ligand
       
       pi_stacking_instance_t(mmdb::Residue *res_in, stacking_t type_in,
-			     const std::vector<std::string> &ring_atoms) {
+			     const std::vector<std::string> &ring_atoms) : ligand_ring_atom_names(ring_atoms) {
 	 res = res_in;
 	 type = type_in;
-	 ligand_ring_atom_names = ring_atoms;
+         overlap_score = 0;
       }
       
       // and the constructor for CATION_PI_STACKING
       // 
       pi_stacking_instance_t(mmdb::Residue *residue_in,
-			     const std::string &ligand_atom_name_in) {
+			     const std::string &ligand_atom_name_in) : ligand_cationic_atom_name(ligand_atom_name_in) {
 	 type = CATION_PI_STACKING;
 	 res = residue_in;
-	 ligand_cationic_atom_name = ligand_atom_name_in;
 	 overlap_score = 0;
       }
       friend std::ostream& operator<< (std::ostream& s, const pi_stacking_instance_t &spec);
@@ -95,7 +101,7 @@ namespace coot {
       std::vector<clipper::Coord_orth> get_cation_atom_positions(mmdb::Residue *res) const;
       // by search through res_ref
       std::vector<std::pair<std::string, clipper::Coord_orth> >
-	 get_ligand_cations(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
+	 get_ligand_cations(mmdb::Residue *res, const dictionary_residue_restraints_t &monomer_restraints) const;
 
       std::vector<std::vector<std::string> >
       get_aromatic_ring_list(const dictionary_residue_restraints_t &monomer_restraints) const;
