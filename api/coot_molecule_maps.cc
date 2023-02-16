@@ -353,7 +353,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
          tri.rebase(idx_base);
          triangles.push_back(tri);
 
-         // date removed map triangle centres block here.
+         // removed map triangle centres block here.
 
       }
    }
@@ -365,7 +365,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
          unsigned int idx_base = vertices.size();
          for (unsigned int i=0; i<tri_con.points.size(); i++) {
             glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-            glm::vec3 normal = coord_orth_to_glm(- tri_con.normals[i]); // reverse normal.
+            glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]); // non-reverse normal!
             coot::api::vnc_vertex vert(pos, normal, diff_map_col);
             vertices.push_back(vert);
          }
@@ -376,7 +376,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
             tri.rebase(idx_base);
             triangles.push_back(tri);
 
-            // date removed map triangle centres block here.
+            // removed map triangle centres block here.
 
          }
       }

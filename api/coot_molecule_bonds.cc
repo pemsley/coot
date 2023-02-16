@@ -991,9 +991,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
             rotation_size -= 1.0;
          }
 
-         if (true) {
-
-            // if (against_a_dark_background) {
+         if (against_a_dark_background) {
 
             if (false)
                std::cout << "get_bond_colour_by_mol_no() against_a_dark_background==true, idx: " << colour_index << " vs "
@@ -1005,8 +1003,6 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                          << " H-grey "  << HYDROGEN_GREY_BOND << " "
                          << " magenta " << MAGENTA_BOND << " "
                          << std::endl;
-
-            // err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1c " << err << std::endl;
 
             switch (colour_index) {
             case CARBON_BOND:
