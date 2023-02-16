@@ -1358,9 +1358,13 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                                   mmdb::Residue *second_residue,
                                                   const coot::protein_geometry &geom) const {
 
-   // std::cout << "####################### find_link_type_2022()   called with first_residue "
-   // << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
-   // << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
+  bool debug_links = false;
+
+  if (debug_links) {
+    std::cout << "####################### find_link_type_2022()   called with first_residue "
+	      << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
+	      << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
+  }
 
    std::string link_type; // set this
    bool order_switch_was_needed = false; // and this
@@ -1394,8 +1398,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
       std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
-      // std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
-      // std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
+      if (debug_links) {
+	std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
+	std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
+      }
 
       std::vector<std::pair<coot::chem_link, bool> > chem_links;
       for (const auto &link : link_infos_f) chem_links.push_back(std::make_pair(link, false));
@@ -1415,6 +1421,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       }
    }
 
+   if (debug_links)
+     std::cout << "#################### find_link_type_2022() returns: " << link_type << " " << order_switch_was_needed << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
 
