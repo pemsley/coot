@@ -630,8 +630,11 @@ namespace coot {
       //! set new positions for the atoms of the specified residues
       int new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues);
 
-      //! not for wrapping (should be private)
-      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms);
+      //! not for wrapping (should be private).
+      //! We don't want this function to backup if the backup happens in the calling function (i.e.
+      //! new_positions_for_atoms_in_residues).
+      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms,
+                                          bool do_backup);
 
       //! merge molecules - copy the atom of mols into this molecule
       //! @return the number of atoms added.

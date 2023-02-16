@@ -2685,11 +2685,12 @@ int
 coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms) {
 
    mmdb::Residue *residue_p = cid_to_residue(residue_cid);
-   return new_positions_for_residue_atoms(residue_p, moved_atoms);
+   return new_positions_for_residue_atoms(residue_p, moved_atoms, true);
 }
 
 int
-coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms) {
+coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms,
+                                                  bool do_backup) {
 
    int n_atoms_moved = 0;
    if (residue_p) {
@@ -2716,6 +2717,8 @@ coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, cons
          }
       }
    }
+   if (do_backup)
+      save_info.new_modification(__FUNCTION__);
    return n_atoms_moved;
 }
 
@@ -2727,8 +2730,9 @@ coot::molecule_t::new_positions_for_atoms_in_residues(const std::vector<moved_re
       const moved_residue_t &mvr = moved_residues[i];
       coot::residue_spec_t res_spec(mvr.chain_id, mvr.res_no, mvr.ins_code);
       mmdb::Residue *residue_p = get_residue(res_spec);
-      new_positions_for_residue_atoms(residue_p, mvr.moved_atoms);
+      new_positions_for_residue_atoms(residue_p, mvr.moved_atoms, false);
    }
+   save_info.new_modification(__FUNCTION__);
    return status;
 
 }
