@@ -4903,10 +4903,8 @@ def alphafold_pLDDT_colours(imol):
     coot.graphics_to_user_defined_atom_colours_representation(imol)
 
 
-
-
 def write_current_sequence_as_pir(imol, ch_id, file_name):
-    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+    coot.print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
 
 def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
 
