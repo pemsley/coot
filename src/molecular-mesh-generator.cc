@@ -742,9 +742,10 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
    vv.push_back(s_generic_vertex(C_this_cutback + displacement,   normal_1A, col));
    vv.push_back(s_generic_vertex(N_next_cutback + displacement,  -normal_1B, col));
 
-   vt.push_back(g_triangle(2,4,0));
-   vt.push_back(g_triangle(4,5,0));
-   vt.push_back(g_triangle(0,5,3));
+   vt.push_back(g_triangle(2,0,4)); // 20230215-PE reverse the winding.
+   vt.push_back(g_triangle(4,0,5));
+   vt.push_back(g_triangle(0,3,5));
+
    vt.push_back(g_triangle(8,10,6));
    vt.push_back(g_triangle(10,11,6));
    vt.push_back(g_triangle(6,11,9));
