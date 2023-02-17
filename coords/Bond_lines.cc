@@ -850,7 +850,10 @@ Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad
          if (ele_2 == ele_3) {
             int col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
             graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-            addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index);
+            if (bq.bond_type == bonded_quad_atoms::SINGLE)
+               addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index, false, false);
+            if (bq.bond_type == bonded_quad_atoms::DOUBLE)
+               addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index, true, true);
          } else {
             graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
             add_half_bonds(p2, p3, at_2, at_3, cc, imodel, atom_2_index, atom_3_index,
@@ -938,7 +941,8 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       if (ele_1 == ele_2) {
          ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
          ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
-         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index, false, false);
       } else {
          add_half_bonds(p1, p2, at_1, at_2, cc, imodel, atom_1_index, atom_2_index,
                         atom_colour_type, atom_colour_map_p, false, false);
@@ -6455,10 +6459,10 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            int atom_idx_2 = -1;
                            ierr = residue_atoms[iat]->GetUDData(udd_atom_index_handle, atom_idx_1);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error A " << udd_atom_index_handle << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error A " << udd_atom_index_handle << " " << coot::atom_spec_t(residue_atoms[iat]) << std::endl;
                            ierr = residue_atoms[jat]->GetUDData(udd_atom_index_handle, atom_idx_2);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error B " << udd_atom_index_handle << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error B " << udd_atom_index_handle << " " << coot::atom_spec_t(residue_atoms[jat]) << std::endl;
 
                            mmdb::Atom *atom_p_1 = bond_atom_1;
                            mmdb::Atom *atom_p_2 = bond_atom_2;
@@ -6650,7 +6654,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    // -------- metals and waters
 
-   int udd_found_bond_handle = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM,"found bond");// Register! Not get.
+   int udd_found_bond_handle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM,"found bond");// Register! Not get.
    int ic = -1;
    for (int iat=0; iat<asc.n_selected_atoms; iat++) {
       mmdb::Atom *at = asc.atom_selection[iat];
