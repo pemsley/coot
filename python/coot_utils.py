@@ -4199,7 +4199,7 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
     else:
         cmd_execfile = find_exe(cmd, "CBIN", "CCP4_BIN", "PATH")
 
-    if (cmd_execfile):
+    if cmd_execfile:
         if (major >= 2 and minor >= 4):
             # subprocess
             import subprocess
@@ -4221,7 +4221,7 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
                 else:
                     return pid
             except:
-                print("BL WARNING:: could not run process with args", cmd_args)
+                print("WARNING:: run_concurrently(): could not run process with args", cmd_args)
                 return False
 
         else:
@@ -4231,11 +4231,11 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
                                 [cmd_execfile] + args)
                 return pid
             except:
-                print("BL WARNING:: could not run program %s with args %s"
+                print("WARNING:: run_concurrently(): could not run program %s with args %s"
                       % (cmd_execfile, args))
                 return False
     else:
-        print("WARNING:: could not find %s, so not running this program" % cmd)
+        print("WARNING:: run_concurrently(): could not find %s, so not running this program" % cmd)
         return False
 
 # python command to see if we have pygtk available
