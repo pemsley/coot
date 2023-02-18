@@ -12,7 +12,7 @@ Libcootapi's Documentation
 
 Libcootapi is a new (as of 2022) interface to the functionality of
 *Coot*. It is designed to be (is intended to be) a clean, consistent and easy-to-use
-interface primarily targeting WebAssembly/JavaScript.
+interface primarily targeting WebAssembly/JavaScript and secondarily, Python.
 
 The previous API for Coot still exists and is available for use with Python and
 Guile/Scheme (it provides the ``coot`` module). That interface is considerably more
