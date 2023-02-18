@@ -8,7 +8,7 @@
 #include "graphics-info.h"
 
 // static
-gint
+int
 graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    int retprog = -1;

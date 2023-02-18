@@ -36,9 +36,11 @@ if COND_LIDIA_ONLY
 else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
-	density-contour skeleton  high-res build MoleculesToTriangles greg-tests \
-	python-tests lbg cootilus goograph pli fonts pyrogen src data \
-	man rama-data doc rcrane glTF pixmaps textures
+	density-contour skeleton  high-res build MoleculesToTriangles api greg-tests \
+	python-tests cootilus goograph pli fonts pyrogen data \
+	man rama-data doc glTF pixmaps textures
+
+# note to self: don't compile lbg, rcrane src in the webassembly branch.
 endif
 
 # po, no po today.

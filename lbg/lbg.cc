@@ -19,7 +19,6 @@
  * 02110-1301, USA
  */
 
-
 #include <Python.h> // this is here get round header warnings
 
 #include <sys/types.h>  // for stating
@@ -5358,4 +5357,3 @@ lbg_info_t::pe_test_function() {
 
 #endif
 }
-

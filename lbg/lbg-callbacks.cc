@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#ifdef EMSCRIPTEN_THING
 
 #include <Python.h>
 
@@ -969,3 +970,5 @@ on_lbg_import_comp_id_menuitem_activate(GtkMenuItem *button, gpointer user_data)
    
 }
 
+
+#endif // EMSCRIPTEN

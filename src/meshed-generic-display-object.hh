@@ -9,7 +9,14 @@
 
 // How many ways of specifying a colour does an application need?
 // At least 3, it turns out.
+
+#include "generic-vertex.hh"
+#include "g_triangle.hh"
+#include "Material.hh"
+
+#ifndef EMSCRIPTEN
 #include "Mesh.hh"
+#endif
 #include "utils/colour-holder.hh"
 #include "coot-utils/arc-info.hh"
 #include "coot-colour.hh"
@@ -118,9 +125,15 @@ public:
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() { imol = UNDEFINED; wireframe_mode = false; }
    explicit meshed_generic_display_object(const std::string &name_in) {
-      imol = UNDEFINED; mesh.name = name_in; wireframe_mode = false; }
+      imol = UNDEFINED;
+#ifndef EMSCRIPTEN
+      mesh.name = name_in;
+#endif
+      wireframe_mode = false; }
+#ifndef EMSCRIPTEN
    explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) {
       imol = UNDEFINED; wireframe_mode = false; }
+#endif
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
       wrapped_make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,
@@ -130,12 +143,23 @@ public:
    int get_imol() const { return imol; }
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
    bool is_intermediate_atoms_object() const { return imol == INTERMEDIATE_ATOMS; }
+#ifndef EMSCRIPTEN
    Mesh mesh;
+#endif
+
    bool wireframe_mode;
    void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    void attach_to_molecule(int imol_in) { imol = imol_in; }
-   void clear() { mesh.clear(); imol = UNDEFINED; }
-   void close_yourself() { clear(); mesh.close(); }
+   void clear() {
+#ifndef EMSCRIPTEN
+      mesh.clear();
+#endif
+      imol = UNDEFINED; }
+   void close_yourself() { clear();
+#ifndef EMSCRIPTEN
+      mesh.close();
+#endif
+   }
    void add(const sphere_t &sphere) {
       std::cout << "FIXME:: meshed-generic-display-object add a sphere here " << sphere.centre.format() << std::endl;
    }

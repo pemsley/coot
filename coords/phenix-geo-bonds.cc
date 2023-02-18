@@ -20,7 +20,7 @@
  */
 
 #include "mmdb-extras.h"
-#include "mmdb.h"
+#include "mmdb.hh"
 #include "mmdb-crystal.h"  // should be merged with extras
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -315,9 +315,9 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 			   if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 			      if (ic == graphical_bonds_container::NO_BOND) {
 				 coot::Cartesian atom_pos(at->x, at->y, at->z);
-				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1);
-				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1);
-				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, -1, -1, -1);
+				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1, true, true);
+				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1, true, true);
+				 addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, -1, -1, -1, true, true);
 			      } 
 			   }
 			}

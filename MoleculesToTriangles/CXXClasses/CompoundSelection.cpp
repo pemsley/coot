@@ -35,7 +35,7 @@ CompoundSelection::~CompoundSelection(){
 int CompoundSelection::handleInMMDB(mmdb::Manager *mmdb){
     int mmdbHandle = mmdb->NewSelection();
 
-    std::cout << "In CompoundSelection::handleInMMDB " << " " << mmdbHandle << " " << selectionString << std::endl;
+    // std::cout << "In CompoundSelection::handleInMMDB " << " " << mmdbHandle << " " << selectionString << std::endl;
     
     std::vector<std::pair<mmdb::SELECTION_KEY, SelectionPrimitive *> >::iterator pair = pairs.begin();
     while (pair != pairs.end()){

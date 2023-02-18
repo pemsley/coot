@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#ifdef EMSCRIPTEN_THING
+
 #include <fstream>
 
 #include <stdlib.h> // for getenv()
@@ -480,3 +482,5 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
 
    }
 }
+
+#endif // EMSCRIPTEN

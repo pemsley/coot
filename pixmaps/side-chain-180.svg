@@ -2,25 +2,24 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="48"
    height="48"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="side-chain-180.svg"
    inkscape:export-filename="/home/paule/Projects/coot/git/coot-gtk3/coot/pixmaps/side-chain-180.png"
    inkscape:export-xdpi="31.555956"
    inkscape:export-ydpi="31.555956"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   version="1.1">
+   version="1.1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs3805">
     <inkscape:perspective
@@ -52,24 +51,6 @@
          offset="1"
          id="stop3234" />
     </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3230"
-       id="linearGradient3236"
-       x1="2.2448671"
-       y1="10.793498"
-       x2="15.189291"
-       y2="10.793498"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3238"
-       id="linearGradient3244"
-       x1="2.2448671"
-       y1="10.793498"
-       x2="15.189291"
-       y2="10.793498"
-       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -79,17 +60,18 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.5494504"
-     inkscape:cx="15.444067"
-     inkscape:cy="25.657251"
+     inkscape:cx="12.253466"
+     inkscape:cy="10.811881"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1376"
-     inkscape:window-height="1031"
-     inkscape:window-x="1078"
-     inkscape:window-y="92"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="2444"
+     inkscape:window-height="1035"
+     inkscape:window-x="966"
+     inkscape:window-y="209"
+     inkscape:window-maximized="0"
+     inkscape:pagecheckerboard="0" />
   <metadata
      id="metadata3808">
     <rdf:RDF>
@@ -115,34 +97,19 @@
        y="-32.435646"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
-    <path
-       sodipodi:type="arc"
-       style="fill:url(#linearGradient3244);fill-opacity:1.0;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="path3811"
-       sodipodi:cx="8.7170792"
-       sodipodi:cy="8.093812"
-       sodipodi:rx="5.9690595"
-       sodipodi:ry="5.473515"
-       d="M 14.686139,8.093812 A 5.9690595,5.473515 0 1 1 2.7485673,8.0196692"
-       sodipodi:start="0"
-       sodipodi:end="3.1551388"
-       sodipodi:open="true"
-       transform="matrix(3.7603255,0,0,4.3845671,-8.290414,-45.529891)"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
-       x="4.0767069"
-       y="-15.608515"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#3d3d3d;fill-opacity:1;stroke:none"
+       x="5.5769787"
+       y="-14.013084"
        id="text3813"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan3246"
-         x="4.0767069"
-         y="-15.608515"
-         style="font-size:18.16400019px;line-height:1;-inkscape-font-specification:'Noto Sans, Normal';font-family:'Noto Sans';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;fill:#cbcbcb;fill-opacity:1">Side</tspan></text>
+         x="5.5769787"
+         y="-14.013084"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.164px;line-height:1;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#3d3d3d;fill-opacity:1">Side</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
@@ -152,6 +119,11 @@
          sodipodi:role="line"
          id="tspan1430"
          x="30.273268"
-         y="34.531403"></tspan></text>
+         y="34.531403" /></text>
+    <path
+       style="opacity:1;fill:#db9f2b;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1.2755792,-8.5521855 c 0,0 -0.00561,9.83917 5.5844399,16.015482 4.3607089,4.8180415 9.5547089,8.2853025 17.4282309,8.2377405 10.46013,-0.06319 15.786062,-6.0642033 18.717267,-10.1074465 4.568784,-6.30208606 4.016742,-14.304825 4.016742,-14.304825 z"
+       id="path3679"
+       sodipodi:nodetypes="cssscc" />
   </g>
 </svg>

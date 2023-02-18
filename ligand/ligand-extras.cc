@@ -961,10 +961,13 @@ coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
    coot::minimol::molecule empty;
    unsigned int n_final_ligands = final_ligand.size();
    if (iclust < n_final_ligands) {
-      if (isolution < final_ligand[iclust].size())
+      if (isolution < final_ligand[iclust].size()) {
 	 return final_ligand[iclust][isolution].first;
+      } else {
+         std::cout << "ERROR:: in ligand::get_solution() bad isolution " << isolution << std::endl;
+      }
    } else {
-      std::cout << "Error in get_solution: iclust is " << iclust
+      std::cout << "ERROR:: in ligand::get_solution(): iclust is " << iclust
 		<< " but final_size is " << final_ligand.size()
 		<< " with inital ligand size "
 		<< int(initial_ligand.size()) << std::endl;

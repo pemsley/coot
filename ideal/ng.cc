@@ -1915,7 +1915,7 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
       }
    }
 
-   if (verbose_geometry_reporting)
+   if (verbose_geometry_reporting != QUIET)
       accum_links.report();
 
 }
@@ -2269,7 +2269,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
       link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
 
-      if (verbose_geometry_reporting)
+      if (verbose_geometry_reporting != QUIET)
          others.report();
 
       if (show_timings) {

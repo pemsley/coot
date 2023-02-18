@@ -17,7 +17,7 @@ rama_plot::phi_psi_t::phi_psi_t(double phi_in, double psi_in, const std::string 
 void
 rama_plot::phi_psi_t::update_self() {
 
-   // this is a bit of a weird construction. 
+   // this is a bit of a weird construction.
    // We want to get a new phi,psi, but to do that we make a new phi_psi_t - it's
    // lightweight and doesn't involve untangling the current code.
    std::pair<bool, phi_psi_t> p = util::get_phi_psi(residue_prev, residue_this, residue_next);
@@ -39,7 +39,7 @@ rama_plot::phi_psi_t::phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mm
       if (! bpp.first) {
          std::string mess = "bad residues for phi,psi calculation";
          throw std::runtime_error(mess);
-      } else { 
+      } else {
          *this = bpp.second;
       }
    }

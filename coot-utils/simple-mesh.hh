@@ -8,12 +8,15 @@
 
 namespace coot {
 
+   //! The basic mesh for transfering mesh geometry and colours
    class simple_mesh_t {
    public:
       std::vector<api::vnc_vertex> vertices;
       std::vector<g_triangle> triangles;
       std::string name;
+      //! constructor (for vectors)
       simple_mesh_t() {}
+      //! constructor with name
       explicit simple_mesh_t(const std::string &name_in) : name(name_in) {}
       simple_mesh_t(const std::vector<api::vnc_vertex> &vertices_in,
                     const std::vector<g_triangle> &triangles_in) : vertices(vertices_in), triangles(triangles_in) {}
@@ -23,7 +26,7 @@ namespace coot {
       // Maybe a std::vector would be a better/faster container.
       std::map<int, glm::vec4> colour_index_to_colour_map;
 
-      //! untilty function
+      //! utilty function
       void add_submesh(const simple_mesh_t &submesh);
 
       //! if the colour map is empty then go through the vector of vertices findling colours and putting them

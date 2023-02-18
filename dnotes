@@ -7472,6 +7472,11 @@ fragment of loaders.cache:
 
    break Shader::Use()
 
+   If that doesn't work crash it using this:
+   int *x = 0;
+   std::cout << " " << *x << std::endl;
+
+
 ----
 
    torsion fit this residue should do a rigid body refinement after each modification,
@@ -10691,5 +10696,20 @@ Tue 16 Aug 2022 18:21:12 BST
 https://stackoverflow.com/questions/35006614/what-does-symbol-not-found-expected-in-flat-namespace-actually-mean
 
 
+---
+Thu 19 Jan 00:43:28 GMT 2023
+
+   an instanced sphere:
+
+      instanced_geometry_t ig_empty;
+      im.add(ig_empty);
+      instanced_geometry_t &ig = im.geom.back();
+
+      std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
+         tessellate_octasphere(num_subdivisions);
+      ig.vertices.resize(octaphere_geom.first.size());
+      for (unsigned int i=0; i<octaphere_geom.first.size(); i++)
+         ig.vertices[i] = api::vn_vertex(octaphere_geom.first[i], octaphere_geom.first[i]);
+      ig.triangles = octaphere_geom.second;
 
 

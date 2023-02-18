@@ -540,6 +540,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    std::vector<std::pair<clipper::Coord_orth, float> > peaks =
       get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
+
    std::vector<std::pair<clipper::Coord_orth, float> > r;
 
    std::vector<clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords(mol);
@@ -547,8 +548,11 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    if (only_around_protein_flag) {
 
       sampled_protein_coords = sample_all_atoms();
+      // std::cout << "sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
+
       double max_dist = 4.0; // maybe a bit too much, actually!
       double max_dist_sqrd = max_dist * max_dist;
+      unsigned int n_outside = 0;
       for (const auto &peak : peaks) {
          bool within_dist = false;
          for (const auto &atom_pos : sampled_protein_coords) {
@@ -560,8 +564,11 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
          }
          if (within_dist) {
             r.push_back(peak);
+         } else {
+            n_outside++;
          }
       }
+      // std::cout << "........... n_outside " << n_outside << std::endl;
 
    } else {
 

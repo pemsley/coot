@@ -1467,7 +1467,7 @@ float get_positive_float_from_entry(GtkEntry *w) {
 }
 
 // return TRUE if we don't want the window destroyed.
-gboolean
+int
 coot_checked_exit(int retval) {
 
    graphics_info_t g;
