@@ -20,8 +20,6 @@
  * 02110-1301, USA
  */
 
-#ifdef EMSCRIPTEN_THING
-
 #include <stdexcept>
 #include <fstream>
 #include <iomanip>
@@ -2390,5 +2388,3 @@ topological_equivalence_t::tetrahedral_atoms() const {
    
    return v;
 }
-
-#endif // EMSCRIPTEN

@@ -32,6 +32,7 @@
 #include <vector>
 
 #include <gtk/gtk.h>
+#include "coords/mmdb.hh"
 #include "graphics-info.h"
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
@@ -44,6 +45,7 @@
 #include "generic-display-objects-c.h"
 
 #include "widget-from-builder.hh"
+
 
 GtkWidget *main_menubar() {
 
@@ -278,8 +280,6 @@ void remarks_dialog(int imol) {
       }
    }
 }
-
-#include "coords/mmdb.h"
 
 void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
 

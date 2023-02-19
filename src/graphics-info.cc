@@ -57,7 +57,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -234,13 +234,15 @@ GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
    auto rotation_size_raw_to_gdkcol = [] (float rotation_size_raw) {
                                          float rotation_size = -0.33f * rotation_size_raw; // cooked
-                                         std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
-                                         std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+                                         // std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
+                                         // std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+                                         coot::colour_holder ch(0.0f, 0.8f, 0.0f);
+                                         ch.rotate_by(rotation_size);
                                          GdkRGBA col;
                                          col.alpha = 1;
-                                         col.red   = rgb_new[0] * 255.0 * 255.0;
-                                         col.green = rgb_new[1] * 255.0 * 255.0;
-                                         col.blue  = rgb_new[2] * 255.0 * 255.0;
+                                         col.red   = ch.red * 255.0 * 255.0;
+                                         col.green = ch.green * 255.0 * 255.0;
+                                         col.blue  = ch.blue * 255.0 * 255.0;
                                          return col;
                                       };
 
@@ -250,21 +252,6 @@ GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
       // scheme will do for both
       // But then I changed the weight on ZO rama
       // So colours need to be different
-
-      //  Let's rotate the colour map
-
-      if (false) { // print a rotation to colour table
-         int n_cols = 100; // either side
-         for (int i = -n_cols; i<n_cols; i++) {
-            float rotation_size = 0.01f * static_cast<float>(i);
-            std::vector<float> orig_colours = { 0.0f,  0.8f, 0.0f };
-            std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-            std::cout << "debug colours::" << rgb_new[0] << " " << rgb_new[1] << " " << rgb_new[2]
-                      << " using rotation_size " << rotation_size << std::endl;
-         }
-         // if we start at solid green then rotation_size for "no rotation" is 0.0
-         //                                 rotation_size for full rotation is -0.33 (solid red) # cooked
-      }
 
       // the range of good to bad rama plot score is -18 to -8. That should be mapped to
       // rotation_size_raw of 0.0 to 1.0.
@@ -752,7 +739,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
 
-#ifndef EMSCRIPTEN
+#ifdef DO_GEOMETRY_GRAPHS
    GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -766,7 +753,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
 
 }
 
-#ifndef EMSCRIPTEN
+#ifdef DO_RAMA_PLOT
 void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
@@ -810,7 +797,6 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms) {
 
-#ifndef EMSCRIPTEN
    // get the centre residue from moving atoms when 1 or 3 residue are
    // being refined and call update_ramachandran_plot_point_maybe()
    // with the residue spec.
@@ -819,7 +805,6 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, atom_selection_c
       coot::residue_spec_t r(aa_spec_pair.second.second);
       update_ramachandran_plot_point_maybe(imol, r);
    }
-#endif
 }
 
 
@@ -1705,7 +1690,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-#ifndef EMSCRIPTEN
+#ifdef DO_GEOMETRY_GRAPHS
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
@@ -1713,15 +1698,13 @@ graphics_info_t::accept_moving_atoms() {
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
    }
-#endif
+#endif // DO_GEOMETRY_GRAPHS
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
    update_environment_distances_by_rotation_centre_maybe(imol_moving_atoms);
 
-#ifndef EMSCRIPTEN
    hide_atom_pull_toolbar_buttons();
-#endif
 
    normal_cursor(); // we may have had fleur cursor.
    // and set the rotation translation atom index to unknown again:
@@ -2155,11 +2138,10 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
 
 
 
-#ifndef EMSCRIPTEN
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
-
+#ifdef DO_RAMA_PLOT
    // first delete the old plot for this molecule (if it exists)
    //
    if (is_valid_model_molecule(imol)) {
@@ -2175,10 +2157,9 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       std::cout << "DEBUG:: in graphics_info_t::set_dynarama_is_displayed() imol " << imol
                 << " is not valid" << std::endl;
    }
-}
 #endif
+}
 
-#ifndef EMSCRIPTEN
 void
 graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
 
@@ -2201,7 +2182,6 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
       // std::cout << "close: display_control_window is not active" << std::endl;
    }
 }
-#endif
 
 
 
@@ -4535,7 +4515,7 @@ graphics_info_t::apply_undo() {
                   update_go_to_atom_window_on_changed_mol(umol);
 
                   // update the ramachandran, if there was one
-#ifndef EMSCRIPTEN
+#ifdef DO_GEOMETRY_GRAPHS
                   GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
                   if (w) {
                      coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4582,13 +4562,11 @@ graphics_info_t::apply_redo() {
 
    int umol = Undo_molecule(coot::REDO);
    if (umol == -2) { // ambiguity
-#ifndef EMSCRIPTEN
       // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
       GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
       GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
       fill_combobox_with_undo_options(combobox);
       gtk_widget_show(dialog);
-#endif
    } else {
       if (umol == -1) { // unset
          std::cout << "There are no molecules with modifications "
@@ -4607,7 +4585,7 @@ graphics_info_t::apply_redo() {
             // BL says:: from undo, maybe more should be updated!?!
             // update the ramachandran, if there was one
 
-#ifndef EMSCRIPTEN
+#ifdef DO_GEOMETRY_GRAPHS
             GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
             if (w) {
                coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
@@ -4640,7 +4618,7 @@ graphics_info_t::apply_redo() {
 void
 graphics_info_t::activate_redo_button() {
 
-#ifndef EMSCRIPTEN
+#if 0
    GtkWidget *dialog = model_fit_refine_dialog;
    if (dialog) {
       // which it should be!
@@ -4648,6 +4626,7 @@ graphics_info_t::activate_redo_button() {
       gtk_widget_set_sensitive(button, TRUE);
    }
 #endif
+
 }
 
 
@@ -4829,16 +4808,17 @@ graphics_info_t::alt_conf_split_type_number() {
 void
 graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 
-#ifndef EMSCRIPTEN
+   std::cout << "graphics_info_t::execute_edit_phi_psi() is commented out " << std::endl;
+#if 0
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
       coot::rama_plot *plot = new coot::rama_plot;
 
       plot->init("phi/psi-edit");  // magic string
-      coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
-      "moving residue", 1, "inscode", "chainid");
-      plot->draw_it(phipsi);
+      // coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
+      //                              "moving residue", 1, "inscode", "chainid");
+      plot->draw_it(phi_psi);
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol;
@@ -4860,7 +4840,8 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
 void
 graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
-#ifndef EMSCRIPTEN
+#ifdef DO_RAMA_PLOT
+
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4879,17 +4860,16 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
       coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
       label, 1, "inscode", "chainid");
-      edit_phi_psi_plot->draw_it(phipsi);
+      edit_phi_psi_plot->draw_it(coot::util::phi_psi_with_residues_t(phipsi));
 
    }
-#endif
-
+#endif // DO_RAMA_PLOT
 }
 
 void
 graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
-#ifndef EMSCRIPTEN
+#ifdef DO_RAMA_PLOT
    std::pair<double, double> phi_psi = molecules[imol].get_phi_psi(atom_index);
 
    if (phi_psi.first > -200.0) {
@@ -4908,19 +4888,18 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
       coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
                                    label, 1, "inscode", "chainid");
-      edit_phi_psi_plot->draw_it(phipsi);
-
+      edit_phi_psi_plot->draw_it(coot::util::phi_psi_with_residues_t(phipsi));
    }
-#endif
+#endif // DO_RAMA_PLOT
 }
 
-#ifndef EMSCRIPTEN
 // activated from the edit torsion angles cancel button (and OK button, I
 // suppose).
 //
 void
 graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
 
+#ifdef DO_RAMA_PLOT
    printf("start graphics_info_t::destroy_edit_backbone_rama_plot()\n");
 
    if (edit_phi_psi_plot) {
@@ -4930,8 +4909,8 @@ graphics_info_t::destroy_edit_backbone_rama_plot() {  // only one of these.
    } else {
       std::cout << "WARNING:: edit_phi_psi_plot is NULL\n";
    }
+#endif // DO_RAMA_PLOT
 }
-#endif
 
 
 
@@ -5981,7 +5960,7 @@ void
 graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) {
 
   std::vector<std::string>::iterator it;
-  for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); it++) {
+  for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); ++it) {
     if (*it == extension) {
       coordinates_glob_extensions->erase(it);
       // could put in break here!?

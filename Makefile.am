@@ -38,7 +38,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton  high-res build MoleculesToTriangles api greg-tests \
 	python-tests cootilus goograph pli fonts pyrogen data \
-	man rama-data doc glTF pixmaps textures
+	man rama-data doc glTF pixmaps textures src
 
 # note to self: don't compile lbg, rcrane src in the webassembly branch.
 endif

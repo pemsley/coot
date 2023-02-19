@@ -432,7 +432,6 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
    }
 }
 
-
 // ignore_lys_and_arg_flag is a default arg (false, don't ignore)
 void
 coot::rotamer_probability_tables::fill_tables(const std::string &dir, bool ignore_lys_and_arg_flag) {

@@ -460,6 +460,9 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
+lbg/Makefile
+src/Makefile
+src/coot
 ])
 AC_OUTPUT
 

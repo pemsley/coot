@@ -27,9 +27,7 @@
 #include <clipper/core/coords.h>
 #include <mmdb2/mmdb_manager.h>
 
-#ifndef EMSCRIPTEN
 #include "Instanced-Markup-Mesh.hh"
-#endif
 #include "coot-colour.hh"
 #include "lbg/solvent-exposure-difference.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -43,27 +41,19 @@ namespace coot {
    public:
       dots_representation_info_t() {
 	 is_closed = false;
-#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
-#endif
       }
       std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
-#ifndef EMSCRIPTEN
       Instanced_Markup_Mesh imm;
-#endif
       // 20111123 modern usage
       dots_representation_info_t(const std::string &name_in) : name_(name_in) {
-#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
-#endif
          is_closed = false;
       }
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
 	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
 	 is_closed = 0;
-#ifndef EMSCRIPTEN
          imm.setup_octasphere(2);
-#endif
       }
       dots_representation_info_t(mmdb::Manager *mol);
       // make dots around the atoms of mol, only if they are close to
@@ -75,9 +65,7 @@ namespace coot {
       void close_yourself() {
 	 points.clear();
 	 is_closed = 1;
-#ifndef EMSCRIPTEN
          imm.clear();
-#endif
       }
       void pure_points(mmdb::Manager *mol); // don't surface mol, the surface points *are* the
 					   // (synthetic) atoms in mol.

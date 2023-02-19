@@ -19,8 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef EMSCRIPTEN_THING
-
 #include <Python.h>
 
 #include "lbg.hh"
@@ -471,7 +469,7 @@ lbg_info_t::optimise_residue_circles::df(const gsl_vector *v, void *params, gsl_
 			   + 2.0 * kk_bond_length_scale * frac_bond_length_dev
 			   * (current_pos.y - attachment_points[iattach].first.y));
 
-	    if (0) { 
+	    if (false) { 
 	       std::cout << "some numbers: " << current_pos << " " << bond_vector << " "
 			 << dist_to_attachment_point << " " << target_length << " "
 			 << frac_bond_length_dev << " "
@@ -525,5 +523,3 @@ lbg_info_t::optimise_residue_circles::numerical_gradients(gsl_vector *x, gsl_vec
       std::cout << "gradient_comparison " << i << " " << gsl_vector_get(df, i) << "    " << v_av/micro_step << std::endl; 
    }
 }
-
-#endif // EMSCRIPTEN

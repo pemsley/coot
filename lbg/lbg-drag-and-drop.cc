@@ -19,8 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef EMSCRIPTEN_THING
-
 #include <Python.h>
 
 #include <iostream>
@@ -447,5 +445,3 @@ lbg_info_t::handle_lbg_drag_and_drop_mol_file(const std::string &uri_clean,
 
 }
 
-
-#endif // EMSCRIPTEN

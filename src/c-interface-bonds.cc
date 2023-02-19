@@ -14,7 +14,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "coords/mmdb-crystal.h"
 
@@ -33,9 +33,7 @@
 #include "c-interface-bonds.hh"
 
 #include "coot-utils/coot-h-bonds.hh"
-#ifndef EMSCRIPTEN
 #include "glarea_tick_function.hh"
-#endif
 
 #ifdef USE_PYTHON
 
@@ -175,9 +173,7 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
 
 void set_draw_hydrogen_bonds(int state) {
 
-#ifndef EMSCRIPTEN
    graphics_info_t::mesh_for_hydrogen_bonds.set_draw_this_mesh(state);
-#endif
 
 }
 

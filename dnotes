@@ -10713,3 +10713,27 @@ Thu 19 Jan 00:43:28 GMT 2023
       ig.triangles = octaphere_geom.second;
 
 
+
+
+---
+Sun 19 Feb 13:32:39 GMT 2023
+
+fix these functions:
+
+void
+graphics_info_t::remove_coordinates_glob_extension(const std::string &extension) {
+
+  std::vector<std::string>::iterator it;
+  for (it = coordinates_glob_extensions->begin(); it<coordinates_glob_extensions->end(); ++it) {
+    if (*it == extension) {
+      coordinates_glob_extensions->erase(it);
+      // could put in break here!?
+      // avoid since it could happen that you have multiples of same entry
+    }
+  }
+}
+
+void graphics_info_t::remove_data_glob_extension(const std::string &extension) 
+void graphics_info_t::remove_map_glob_extension(const std::string &extension)
+void graphics_info_t::remove_dictionary_glob_extension(const std::string &extension)
+

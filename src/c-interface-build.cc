@@ -53,12 +53,10 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
-#ifndef EMSCRIPTEN
 // 20220723-PE perhaps delete (the use of) this include file completely?
 #include "globjects.h" //includes gtk/gtk.h
-#endif
 
 #include "coords/mmdb-crystal.h"
 
@@ -67,9 +65,7 @@
 
 #include "graphics-info.h"
 
-#ifndef EMSCRIPTEN
 #include "widget-headers.hh"
-#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-fasta.hh"
@@ -87,9 +83,7 @@
 
 
 #include "c-interface.h"
-#ifndef EMSCRIPTEN
 #include "c-interface-gtk-widgets.h"
-#endif
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 
@@ -121,7 +115,6 @@
 /*                   model/fit/refine functions:                             */
 /*  ------------------------------------------------------------------------ */
  void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
-#ifndef EMSCRIPTEN
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
    // if we have the dialog open we shall change the label
    if (graphics_info_t::model_fit_refine_dialog) {
@@ -131,7 +124,6 @@
    command_strings.push_back("set-model-fit-refine-rotate-translate-zone-label");
    command_strings.push_back(txt);
    add_to_history(command_strings);
-#endif
 }
 
 void set_model_fit_refine_place_atom_at_pointer_label(const char *txt) {
@@ -2050,14 +2042,12 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 	 res_specs.push_back(r);
       }
 
-#ifndef EMSCRIPTEN
       g.delete_residues_from_geometry_graphs(imol, res_specs);
       if (graphics_info_t::go_to_atom_window) {
 	 update_go_to_atom_window_on_changed_mol(imol);
       }
       if (! is_valid_model_molecule(imol))
 	 g.delete_molecule_from_from_display_manager(imol, false);
-#endif
 
    }
    graphics_draw();
@@ -2526,12 +2516,10 @@ void sort_chains(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].sort_chains();
       if (graphics_info_t::use_graphics_interface_flag) {
-#ifndef EMSCRIPTEN
 	 graphics_info_t g;
 	 if (g.go_to_atom_window) {
 	    g.update_go_to_atom_window_on_changed_mol(imol);
 	 }
-#endif
       }
    }
 }
@@ -2542,12 +2530,10 @@ void sort_residues(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].sort_residues();
       if (graphics_info_t::use_graphics_interface_flag) {
-#ifndef EMSCRIPTEN
         graphics_info_t g;
         if (g.go_to_atom_window) {
            g.update_go_to_atom_window_on_changed_mol(imol);
         }
-#endif
       }
    }
 }
@@ -2929,9 +2915,7 @@ void set_add_alt_conf_split_type_number(short int i) {
 
 void unset_add_alt_conf_dialog()  { /* set the static dialog holder in
 				     graphics info to NULL */
-#ifndef EMSCRIPTEN
    graphics_info_t::add_alt_conf_dialog = NULL;
-#endif
 }
 
 void unset_add_alt_conf_define() {  /* turn off pending atom pick */
@@ -4161,14 +4145,13 @@ int place_helix_here() {
 	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), mol_name, 1);
 	  }
 
-#ifndef EMSCRIPTEN
 	  if (g.go_to_atom_window) {
 	     g.set_go_to_atom_molecule(imol);
 	     g.update_go_to_atom_window_on_new_mol();
 	  } else {
 	     g.set_go_to_atom_molecule(imol);
 	  }
-#endif
+
 	  g.add_status_bar_text("Helix added");
        } else {
 	  std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
@@ -4246,12 +4229,10 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 std::cout << "Strand addition failure: message: " << si.failure_message << "\n";
 	 g.add_status_bar_text(si.failure_message);
       }
-#ifndef EMSCRIPTEN
       if (g.go_to_atom_window) {
 	 g.set_go_to_atom_molecule(imol);
 	 g.update_go_to_atom_window_on_new_mol();
       }
-#endif
 
       std::vector<std::string> command_strings;
       command_strings.push_back("set-rotation-centre");
@@ -4351,14 +4332,12 @@ int find_secondary_structure_local(
 	 imol = g.create_molecule();
 	 graphics_info_t::molecules[imol].install_model(imol,asc,g.Geom_p(),"SecStruc",1);
 	 g.molecules[imol].ca_representation(true);
-#ifndef EMSCRIPTEN
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
 	    g.update_go_to_atom_window_on_new_mol();
 	 } else {
 	    g.set_go_to_atom_molecule(imol);
 	 }
-#endif
 	 g.add_status_bar_text("Secondary structure added");
       } else {
 	 std::cout << "No secondary structure found\n";
@@ -4431,14 +4410,12 @@ int find_nucleic_acids_local(float radius) {
    graphics_info_t::molecules[imol].update_molecule_after_additions();
 
    if (success) {
-#ifndef EMSCRIPTEN
    	 if (g.go_to_atom_window) {
    	    g.set_go_to_atom_molecule(imol);
    	    g.update_go_to_atom_window_on_new_mol();
    	 } else {
    	    g.set_go_to_atom_molecule(imol);
    	 }
-#endif
    	 std::cout << "Nucleic acids found" << std::endl;;
    	 g.add_status_bar_text("Nucleic acids added");
    } else {
@@ -5218,7 +5195,6 @@ int read_shelx_ins_file(const char *filename, short int recentre_flag) {
       } else {
 	 std::cout << "Molecule " << imol << " read successfully\n";
 	 istat = imol; // for return status
-#ifndef EMSCRIPTEN
 	 if (g.go_to_atom_window) {
 
 	    // See comments in
@@ -5227,7 +5203,6 @@ int read_shelx_ins_file(const char *filename, short int recentre_flag) {
 
 	    g.update_go_to_atom_window_on_new_mol();
 	 }
-#endif
 	 graphics_draw();
 	 std::vector<std::string> command_strings;
 	 command_strings.push_back("read-shelx-ins-file");

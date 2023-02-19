@@ -56,7 +56,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -423,7 +423,8 @@ graphics_info_t::show_refinement_and_regularization_parameters_dialog() {
 
 
 // static
-GtkWidget *
+// 20230218-PE webassembly merge: make this void
+void
 graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
 
    GtkWidget *w = NULL;
@@ -457,7 +458,6 @@ graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
       }
       gtk_widget_show(w);
    }
-   return w;
 }
 
 void
@@ -476,15 +476,13 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
 
    std::string s = mutation_info.alignment_string;
 
-   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) {
-      // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
-      GtkWidget *label = widget_from_builder("nothing_bad_label");
-      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+   info_dialog(s); // get trashed by markup text
+   // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+   GtkWidget *label = widget_from_builder("nothing_bad_label");
+   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 
-      // guessing that we need > 6, could be more than 6.
-      gtk_label_set_markup(GTK_LABEL(label), s.c_str());
-   }
+   // guessing that we need > 6, could be more than 6.
+   gtk_label_set_markup(GTK_LABEL(label), s.c_str());
 }
 
 void
@@ -512,13 +510,10 @@ graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair
       s += "   That would cause exploding atoms, so the refinement didn't start\n";
    }
 
-
-   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) {
-      // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
-      GtkWidget *label = widget_from_builder("nothing_bad_label");
-      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-   }
+   info_dialog(s); // get trashed by markup text
+   // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+   GtkWidget *label = widget_from_builder("nothing_bad_label");
+   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 }
 
 
@@ -1310,6 +1305,7 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
 }
 
 // coot::rama_plot is an unknown type if we don't have canvas
+#ifdef DO_RAMA_PLOT
 void
 graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 
@@ -1348,6 +1344,7 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
       std::cout << "ERROR:: (trapped) in handle_rama_plot_update() attempt to draw to null plot\n";
    }
 }
+#endif
 
 
 // --------------------------------------------------------------------------------
@@ -1954,8 +1951,7 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *d
 
 // static
 void
-graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
-						float val) {
+graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai, float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -1974,8 +1970,7 @@ graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
 
 // static
 void
-graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
-					   float val) {
+graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai, float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -3303,6 +3298,8 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 void
 graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) {
 
+#ifdef DO_RAMA_PLOT
+
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
 
@@ -3378,11 +3375,14 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func"
 		<< std::endl;
    }
+#endif
 }
 
 // static
 void
 graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidget *window) {
+
+#ifdef DO_GEOMETRY_GRAPHS
 
    graphics_info_t g;
    // std::cout << "change backbone peptide by: " << adj->value << std::endl;
@@ -3461,6 +3461,7 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
       std::cout << "ERROR:: can't find rama points in edit_backbone_peptide_changed_func"
 		<< std::endl;
    }
+#endif // DO_GEOMETRY_GRAPHS
 }
 
 
@@ -3470,6 +3471,7 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 void
 graphics_info_t::change_peptide_carbonyl_by(double angle) {
 
+#ifdef DO_GEOMETRY_GRAPHS
 //    std::cout << "move carbonyl by " << angle << std::endl;
    mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
    mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
@@ -3529,6 +3531,7 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    int imol = 0; // should be fine for backbone edits
    make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
+#endif // DO_GEOMETRY_GRAPHS
 }
 
 
@@ -3642,6 +3645,8 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
+#ifdef DO_RAMA_PLOT
+
    if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
@@ -3659,6 +3664,7 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
       vp.push_back(phipsi2);
       edit_phi_psi_plot->draw_it(vp);
    }
+#endif
 
 
    regularize_object_bonds_box.clear_up();
@@ -3723,6 +3729,8 @@ graphics_info_t::get_sequence_view(int imol) {
 void
 graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 
+#ifdef DO_GEOMETRY_GRAPHS
+
    if (imol < n_molecules()) {
 
       // first delete the old sequence view if it exists
@@ -3748,16 +3756,18 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
 
+#endif // DO_GEOMETRY_GRAPHS
+
 }
 
 GtkWidget *
 graphics_info_t::get_sequence_view_is_displayed(int imol) const {
 
    GtkWidget *w = 0;
-
+#ifdef DO_GEOMETRY_GRAPHS
    if (is_valid_model_molecule(imol))
        w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-
+#endif // DO_GEOMETRY_GRAPHS
    return w;
 }
 

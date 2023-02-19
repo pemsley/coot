@@ -79,9 +79,7 @@ p  So we need to have this function external for c++ linking.
 #include "Python.h"
 #endif
 
-#ifndef EMSCRIPTEN
 #include <gtk/gtk.h>
-#endif
 
 #ifndef BEGIN_C_DECLS
 
@@ -2488,13 +2486,11 @@ void set_use_stroke_characters(int state);
 /*! \name  Rotation Centre */
 /* \{ */
 
-#ifndef EMSCRIPTEN
 /* 20220723-PE I agree with my comments from earlier - these should not be here */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size();
-#endif
 
 /*! \brief set rotoation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
@@ -2667,7 +2663,6 @@ void set_max_skeleton_search_depth(int v); /* for high resolution
 /*                  skeletonization level widgets                           */
 /*  ----------------------------------------------------------------------- */
 
-#ifndef EMSCRIPTEN
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeletonization_level_entry();
 
@@ -2679,7 +2674,6 @@ gchar *get_text_for_skeleton_box_size_entry();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeleton_box_size_from_widget(const char *txt);
-#endif // EMSCRIPTEN
 
 
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
@@ -2771,7 +2765,6 @@ given "x,y,z ; -x,y+1/2,-z" */
 /* char * */
 /* spacegroup_from_operators(const char *symm_operators_in_clipper_format);  */
 
-#ifndef EMSCRIPTEN
 // 20220723-PE MOVE-ME!
 void
 graphics_store_phs_filename(const gchar *phs_filename);
@@ -2780,7 +2773,6 @@ short int possible_cell_symm_for_phs_file();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_phs_cell_chooser(int imol, char *field);
-#endif
 
 /* \} */
 
@@ -2866,12 +2858,10 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3,
 						     short int make_the_move_flag);
 
-#ifndef EMSCRIPTEN
 // MOVE-ME!
 int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *t2,
 						   const gchar *txt);
-#endif
 
 
 /*! \brief update the Go To Atom widget entries to atom closest to

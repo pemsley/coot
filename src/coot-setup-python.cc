@@ -338,8 +338,10 @@ void setup_python(int argc, char **argv) {
 
    if (graphics_info_t::run_startup_scripts_flag) {
       // setup_python_window_entry() is done only once now. So do it here.
-      GtkWidget *python_entry = widget_from_builder("python_window_entry");
-      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      if (graphics_info_t::use_graphics_interface_flag) {
+         GtkWidget *python_entry = widget_from_builder("python_window_entry");
+         setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      }
    }
    
    std::string home_directory = coot::get_home_dir();

@@ -46,7 +46,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -675,8 +675,9 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 	    imol = graphs->Imol();
 
 	    if (is_valid_model_molecule(imol)) {
-
+#ifdef DO_GEOMETRY_GRAPHS
 	       coot::set_validation_graph(imol, graphs->Graph_Type(), NULL);
+#endif
 
 // Old style array of molecules code
 // 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
@@ -1378,6 +1379,7 @@ void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *comb
 
 void do_ramachandran_plot(int imol) {
 
+#ifdef DO_GEOMETRY_GRAPHS
    if (is_valid_model_molecule(imol)) {
 
       coot::rama_plot *rama = new coot::rama_plot;
@@ -1399,6 +1401,9 @@ void do_ramachandran_plot(int imol) {
          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
       }
    }
+#else
+   std::cout << "in do_ramachandran_plot() DO_GEOMETRY_GRAPHS not set" << std::endl;
+#endif // DO_GEOMETRY_GRAPHS
 }
 
 void set_kleywegt_plot_n_diffs(int ndiffs) {
@@ -1587,12 +1592,12 @@ void set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 GtkWidget *dynarama_is_displayed_state(int imol) {
 
    GtkWidget *w = NULL;
-
+#ifdef DO_GEOMETRY_GRAPHS
    if (is_valid_model_molecule(imol)) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
-
+#endif
    return w;
 }
 
@@ -1600,10 +1605,12 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 GtkWidget *dynarama_widget(int imol) {
 
    GtkWidget *w = NULL;
+#ifdef DO_GEOMETRY_GRAPHS
    if (imol < graphics_info_t::n_molecules()) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
    }
+#endif
    return w;
 }
 
@@ -1675,18 +1682,24 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 
 void set_ramachandran_psi_axis_mode(int mode) {
 
+#ifdef DO_RAMA_PLOT
    graphics_info_t g;
    if (mode == 1)
       g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
    else
       g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif // DO_RAMA_PLOT
 }
 
 int
 ramachandran_psi_axis_mode() {
 
+#ifdef DO_RAMA_PLOT
    graphics_info_t g;
    return g.rama_psi_axis_mode;
+#else
+   return 0;
+#endif // DO_RAMA_PLOT
 }
 
 // ----------------------------------------------------------------------------------

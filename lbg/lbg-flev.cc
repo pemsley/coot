@@ -19,8 +19,6 @@
  * 02110-1301, USA
  */
 
-#ifdef EMSCRIPTEN_THING
-
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -3177,5 +3175,3 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
 
    return r;
 } 
-
-#endif // EMSCRIPTEN

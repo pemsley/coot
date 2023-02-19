@@ -50,12 +50,10 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
-#ifndef EMSCRIPTEN
 // 20220723-PE maybe just delete this header altogether.
 #include "globjects.h" //includes gtk/gtk.h
-#endif
 
 #include "coords/mmdb-crystal.h"
 
@@ -80,9 +78,7 @@
 
 
 #include "c-interface.h"
-#ifndef EMSCRIPTEN
 #include "c-interface-gtk-widgets.h"
-#endif
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 
@@ -127,9 +123,7 @@ void do_add_terminal_residue(short int state) {
       } else {
 	 g.show_select_map_dialog();
 	 g.in_terminal_residue_define = 0;
-#ifndef EMSCRIPTEN
 	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_fit_terminal_residue_togglebutton");
-#endif
 	 g.normal_cursor();
       }
    } else {
@@ -300,13 +294,12 @@ int try_set_draw_baton(short int i) {
 
    graphics_info_t g;
 
-#ifndef EMSCRIPTEN
    g.try_set_draw_baton(i);
    std::string cmd = "set-draw-baton";
    std::vector<coot::command_arg_t> args;
    args.push_back(i);
    add_to_history_typed(cmd, args);
-#endif
+
    return g.draw_baton_flag;
 }
 

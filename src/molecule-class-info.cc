@@ -74,7 +74,7 @@ const double pi = M_PI;
 #include <clipper/contrib/sfweight.h>
 
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #ifndef EMSCRIPTEN
 #include "gtk-manual.hh"
@@ -10213,7 +10213,6 @@ molecule_class_info_t::print_secondary_structure_info() {
 }
 
 
-#ifndef EMSCRIPTEN
 // static
 int
 molecule_class_info_t::watch_coordinates_file(gpointer data) {
@@ -10227,11 +10226,9 @@ molecule_class_info_t::watch_coordinates_file(gpointer data) {
    status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
    return status;
 }
-#endif
 
 // bool continue_watching_coordinates_file;
 // updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
-#ifndef EMSCRIPTEN
 int
 molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &ucp_in) {
 
@@ -10296,9 +10293,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
    }
    return status;
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // no redraw
 void
 molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
@@ -10320,19 +10315,15 @@ molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
                              false);
 
 }
-#endif
 
-#ifndef EMSCRIPTEN
 void
 molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 
 }
-#endif
 
 // update this difference map if the coordinates of the other molecule have changed.
 //
 // static (!) - this is a callback function
-#ifndef EMSCRIPTEN
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
@@ -10371,13 +10362,11 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
    }
    return status;
 }
-#endif
 
 // update this map if the coordinates of the other molecule have changed. Both maps use this function callback
 // looking for changes in the model molecule
 //
 // static (!) - this is a callback function
-#ifndef EMSCRIPTEN
 int
 molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
 

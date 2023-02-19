@@ -12,6 +12,8 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
+#include "clip-hybrid-atom.hh"
+
 // These unproject functions now return a glm::vec4 and are in graphics_info_t
 // coot::Cartesian unproject(float screen_z);
 // coot::Cartesian unproject_xyz(int x, int y, float screen_z);

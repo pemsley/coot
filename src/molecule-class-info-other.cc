@@ -61,7 +61,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -8934,34 +8934,6 @@ molecule_class_info_t::fill_partial_residue(const coot::residue_spec_t &residue_
 // ------------------------------------------------------------------------
 //                       dots
 // ------------------------------------------------------------------------
-void
-molecule_class_info_t::draw_dots() {
-
-   // delete this now there is a new function draw_dots()
-
-   if (draw_it) {
-      for (unsigned int iset=0; iset<dots.size(); iset++) {
-         if (dots[iset].is_open_p() == 1) {
-            glPointSize(2);
-            unsigned int n_atoms = dots[iset].points.size();
-            for (unsigned int iat=0; iat<n_atoms; iat++) {
-               glColor3f(dots[iset].points[iat].first.col[0],
-                         dots[iset].points[iat].first.col[1],
-                         dots[iset].points[iat].first.col[2]);
-               glBegin(GL_POINTS);
-               for (unsigned int i=0; i<dots[iset].points[iat].second.size(); i++) {
-                  glVertex3f(dots[iset].points[iat].second[i].x(),
-                             dots[iset].points[iat].second[i].y(),
-                             dots[iset].points[iat].second[i].z());
-               }
-               glEnd();
-            }
-         }
-      }
-   }
-}
-
-
 
 void
 molecule_class_info_t::draw_dots(Shader *shader_p,
