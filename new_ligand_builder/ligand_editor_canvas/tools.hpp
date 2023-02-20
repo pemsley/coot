@@ -112,12 +112,6 @@ class ActiveTool {
     /// Throws an exception in case of a mismatch.
     void check_variant(Variant);
 
-    /// Goes over all molecules stored in the widget
-    /// and calls CanvasMolecule::resolve_click(x,y) on each of them
-    /// until an object matching the coordinates is found.
-    /// If nothing matches the coordinates, nullopt is returned.
-    CanvasMolecule::MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
-
     public:
     ActiveTool() noexcept;
     ActiveTool(ElementInsertion insertion) noexcept;

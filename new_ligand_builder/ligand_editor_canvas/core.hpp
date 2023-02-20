@@ -4,6 +4,7 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <memory>
 #include <vector>
+#include "model.hpp"
 #include "tools.hpp"
 
 // GObject declaration 
@@ -37,6 +38,15 @@ struct WidgetCoreData {
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
     /// molecules (RDKit)
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+
+    typedef std::optional<std::pair<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>,unsigned int>> MaybeAtomOrBondWithMolIdx;
+
+    /// Goes over all molecules stored in the widget
+    /// and calls CanvasMolecule::resolve_click(x,y) on each of them
+    /// until an object matching the coordinates is found.
+    /// The index number indicates which molecule the object comes from.
+    /// If nothing matches the coordinates, nullopt is returned.
+    MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
 };
 
 /// This is the private struct for GObject

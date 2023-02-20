@@ -111,6 +111,10 @@ class CanvasMolecule {
     /// Returns the thing that was clicked on (or nullopt if there's no match).
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
+    void highlight_atom(int atom_idx);
+    void highlight_bond(int atom_a, int atom_b); 
+    void clear_highlights();
+
 };
 
 

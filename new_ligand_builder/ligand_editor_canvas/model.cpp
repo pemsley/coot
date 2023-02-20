@@ -4,6 +4,7 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <optional>
 #include <stdexcept>
+#include <algorithm>
 #include <set>
 // #include <rdkit/GraphMol/MolDraw2D/MolDraw2D.h>
 // // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DCairo.h>
@@ -57,19 +58,36 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
     auto y_offset = this->_y_offset;
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
-    // todo: change
-    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-    cairo_set_line_width(cr, 3.0);
+    
+
     for(const auto& bond: bonds) {
+        if(bond.highlighted) {
+            cairo_set_line_width(cr, 5.0);
+            cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+        } else {
+            cairo_set_line_width(cr, 3.0);
+            cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+        }
         cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
         cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
         cairo_stroke(cr);
-        g_debug("TODO: Implement drawing various bond kinds, colors, hightlights etc.");
+        g_warning_once("TODO: Implement drawing various bond kinds, colors etc.");
     }
 
+    cairo_set_line_width(cr, 0.5);
     for(const auto& atom: atoms) {
         // Used to make the texts centered where they should be.
         int layout_width, layout_height;
+
+        cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+
+        if(atom.highlighted) {
+            cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
+            cairo_stroke_preserve(cr);
+            cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.5);
+            cairo_fill(cr);
+        }
 
         auto render_text = [&](const std::string& t){
             //todo: color and size
@@ -80,7 +98,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             pango_cairo_show_layout(cr, pango_layout);
         };
 
-        g_debug("TODO: Correctly implement drawing atoms");
+        g_warning_once("TODO: Correctly implement drawing atoms");
         
         if (atom.symbol == "C") {
             // Ignore drawing Carbon
@@ -222,6 +240,31 @@ void CanvasMolecule::lower_from_rdkit() {
         // Mark the atom as processed
         processed_atoms_indices.insert(atom_idx);
     }
+    std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
+        return lhs.idx < rhs.idx;
+    });
     
 }
 
+void CanvasMolecule::highlight_atom(int atom_idx) {
+    this->atoms.at(atom_idx).highlighted = true;
+}
+
+void CanvasMolecule::highlight_bond(int atom_a, int atom_b) {
+    auto target = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
+        return bond.first_atom_idx == atom_a && bond.second_atom_idx == atom_b;
+    });
+    if (target == this->bonds.end()) {
+        throw std::runtime_error("Bond doesn't exist");
+    }
+    target->highlighted = true;
+}
+
+void CanvasMolecule::clear_highlights() {
+    for(auto& bond: this->bonds) {
+        bond.highlighted = false;
+    }
+    for(auto& atom: this->atoms) {
+        atom.highlighted = false;
+    }
+}

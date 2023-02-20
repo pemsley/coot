@@ -34,16 +34,7 @@ void ActiveTool::check_variant(ActiveTool::Variant expected) {
     }
 }
 
-CanvasMolecule::MaybeAtomOrBond ActiveTool::resolve_click(int x, int y) const noexcept {
-    const auto* molecules_vec = this->widget_data->molecules.get();
-    for(const auto& mol: *molecules_vec) {
-        auto result = mol.resolve_click(x, y);
-        if(result.has_value()) {
-            return result;
-        }
-    }
-    return std::nullopt;
-}
+
 
 void ActiveTool::insert_atom(int x, int y) {
     check_variant(Variant::ElementInsertion);
@@ -51,9 +42,9 @@ void ActiveTool::insert_atom(int x, int y) {
     const char* el_name = element_insertion.get_element_symbol();
     g_debug("Inserting element '%s' at %i %i.",el_name,x,y);
     //1. Find what we've clicked at
-    auto click_result = this->resolve_click(x, y);
+    auto click_result = this->widget_data->resolve_click(x, y);
     try{
-        auto bond_or_atom = click_result.value();
+        auto [bond_or_atom,molecule_idx] = click_result.value();
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());

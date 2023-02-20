@@ -3,6 +3,7 @@
 #include "ligand_editor_canvas/model.hpp"
 #include <exception>
 #include <utility>
+#include <algorithm>
 #include <vector>
 #include <memory>
 
@@ -89,6 +90,33 @@ void coot_ligand_editor_canvas_measure
 
 }
 
+static void on_hover (
+  GtkEventControllerMotion* controller,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    try {
+        auto [bond_or_atom,molecule_idx] = self->resolve_click(x, y).value();
+        auto& target = (*self->molecules)[molecule_idx];
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            target.highlight_atom(atom.idx);
+        } else { // a bond
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+            target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
+        }
+
+    } catch (std::exception& e) {
+        // Nothing was hovered on
+        for(auto& molecule: *self->molecules) {
+            molecule.clear_highlights();
+        }
+    }
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
 static void on_left_click (
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -154,16 +182,16 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
 
     GtkGesture* click_controller = gtk_gesture_click_new();
-    // GtkEventController* hover_controller = gtk_event_controller_motion_new();
+    GtkEventController* hover_controller = gtk_event_controller_motion_new();
 
     // left mouse button
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
     g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
 
-    // g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
+    g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
 
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
-    // gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
+    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
 }
 
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
