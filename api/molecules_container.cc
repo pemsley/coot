@@ -1054,6 +1054,42 @@ molecules_container_t::ramachandran_analysis(int imol_model) const {
    return vi;
 }
 
+//! ramachandran validation information (formatted for a graph, not 3d) for a given chain in a given molecule
+//! 20230127-PE This function does not exist yet.
+//!
+//! @returns a `coot::validation_information_t`
+coot::validation_information_t
+molecules_container_t::ramachandran_analysis_for_chain(int imol_model, const std::string &user_chain_id) const {
+
+   coot::validation_information_t vi;
+   vi.name = "Ramachandran plot Probability";
+#ifdef EMSCRIPTEN
+   vi.type = "PROBABILITY";
+#else
+   vi.type = coot::PROBABILITY;
+#endif
+   std::vector<coot::phi_psi_prob_t> rv = ramachandran_validation(imol_model);
+
+   for (unsigned int i=0; i<rv.size(); i++) {
+      std::string chain_id = rv[i].phi_psi.chain_id;
+      if (chain_id != user_chain_id) continue;
+      coot::residue_spec_t residue_spec(rv[i].phi_psi.chain_id, rv[i].phi_psi.residue_number, rv[i].phi_psi.ins_code);
+      double pr = rv[i].probability;
+      std::string label = rv[i].phi_psi.chain_id + std::string(" ") + std::to_string(rv[i].phi_psi.residue_number);
+      if (! rv[i].phi_psi.ins_code.empty())
+         label += std::string(" ") + rv[i].phi_psi.ins_code;
+      coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
+      if (false)
+         std::cout << "         " << residue_spec << " " << rv[i].phi_psi.phi() << " " << rv[i].phi_psi.psi()
+                   << " pr " << pr << " " << std::endl;
+      vi.add_residue_validation_information(rvi, chain_id);
+   }
+   vi.set_min_max();
+   return vi;
+}
+
+
 //! peptide omega validation information
 //! @returns a `validation_information_t`
 coot::validation_information_t

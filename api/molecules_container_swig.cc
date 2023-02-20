@@ -106,26 +106,17 @@ molecules_container_t::simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &m
 }
 
 PyObject *
-molecules_container_t::get_pythonic_bonds_mesh(int imol) {
+molecules_container_t::get_pythonic_bonds_mesh(int imol,
+                                               const std::string &mode, bool against_a_dark_background,
+                                               float bond_width, float atom_radius_to_bond_width_ratio,
+                                               int smoothness_factor) {
 
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
       std::string mode("bonds");
-      bool against_a_dark_background = true;
-      float bw = 0.1;
-      float ratio = 1.5;
-      int sf = 2;
-      mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bw, ratio, sf, true, true);
-   }
-   return simple_mesh_to_pythonic_mesh(mesh);
-}
-
-PyObject *
-molecules_container_t::get_pythonic_model_mesh(int imol, unsigned int mesh_index) {
-
-   coot::simple_mesh_t mesh;
-   if (is_valid_model_molecule(imol)) {
-      // get MoleculesToTriangles representation here
+      float ratio = atom_radius_to_bond_width_ratio;
+      int sf = smoothness_factor;
+      mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bond_width, ratio, sf, true, true);
    }
    return simple_mesh_to_pythonic_mesh(mesh);
 }

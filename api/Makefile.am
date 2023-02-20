@@ -13,7 +13,7 @@ AM_CPPFLAGS = \
 pkgincludedir = $(includedir)/coot/api
 
 pkginclude_HEADERS = \
-coot_molecule.hh	 make-a-dodec.hh	                                     \
+coot_molecule.hh	 make-a-dodec.hh	                                           \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
@@ -37,6 +37,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
    $(top_builddir)/ligand/libcoot-ligand.la           \
+   $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
    $(top_builddir)/cootaneer/libcootaneer.la          \
