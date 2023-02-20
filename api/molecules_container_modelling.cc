@@ -310,6 +310,28 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_base << std::endl;
    }
    return status;
+}
+
+
+//! Rigid-body fitting
+//!
+//! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+int
+molecules_container_t::rigid_body_fit(int imol, const std::string &multi_cid, int imol_map) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         status = molecules[imol].rigid_body_fit(multi_cid, xmap);
+      } else {
+         std::cout << "ERROR:: in rigid_body_fit() bad map index " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 
 
 }
+

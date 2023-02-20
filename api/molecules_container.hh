@@ -839,6 +839,11 @@ public:
    //! @return the success status
    int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 
+   //! Rigid-body fitting
+   //!
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 
@@ -876,7 +881,7 @@ public:
    //! generate GM self restraints for the given residues.
    //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
    void generate_local_self_restraints(int imol, float local_dist_max,
-                                       const std::string & residue_cids,
+                                       const std::string &residue_cids,
                                        const coot::protein_geometry &geom);
 
    //! generate parallel plane restraints (for RNA and DNA)
@@ -1143,8 +1148,9 @@ public:
    //! \name Python functions
 
    PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh);
-   PyObject *get_pythonic_bonds_mesh(int imol);
-   PyObject *get_pythonic_model_mesh(int imol, unsigned int mesh_index);
+   PyObject *get_pythonic_bonds_mesh(int imol, const std::string &mode, bool against_a_dark_background,
+                                     float bond_width, float atom_radius_to_bond_width_ratio,
+                                     int smoothness_factor);
    PyObject *get_pythonic_map_mesh(int imol, float x, float y, float z, float radius, float contour_level);
    PyObject *get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
                                                         const std::string &colour_sheme,

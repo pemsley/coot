@@ -337,6 +337,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules_container_ligand_fitting.cc
             ${coot_src}/api/molecules_container_mmrrcc.cc
             ${coot_src}/api/molecules_container_superpose.cc
+            ${coot_src}/api/rigid-body-fit.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/make-a-dodec.cc

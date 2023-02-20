@@ -715,6 +715,9 @@ namespace coot {
 
       void clear_extra_restraints();
 
+      // --------------- rigid body fit
+      int rigid_body_fit(const std::string &mult_cids, const clipper::Xmap<float> &xmap);
+
       // ----------------------- map functions
 
       // return -1.1 on not-a-map
