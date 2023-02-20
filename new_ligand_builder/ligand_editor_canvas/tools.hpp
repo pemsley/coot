@@ -112,6 +112,7 @@ class ActiveTool {
     public:
     ActiveTool() noexcept;
     ActiveTool(ElementInsertion insertion) noexcept;
+    ActiveTool(BondModifier modifier) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.

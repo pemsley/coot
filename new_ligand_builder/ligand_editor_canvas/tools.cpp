@@ -12,6 +12,11 @@ ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
     this->element_insertion = insertion;
 }
 
+ActiveTool::ActiveTool(BondModifier modifier) noexcept {
+    this->variant = ActiveTool::Variant::BondModifier;
+    this->bond_modifier = modifier;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }
