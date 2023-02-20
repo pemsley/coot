@@ -141,6 +141,7 @@ static void on_left_click (
         }
         case ActiveTool::Variant::ElementInsertion:{
             self->active_tool->insert_atom((int)x, (int) y);
+            gtk_widget_queue_draw(GTK_WIDGET(self));
             break;
         }
         case ActiveTool::Variant::GeometryModifier:{
