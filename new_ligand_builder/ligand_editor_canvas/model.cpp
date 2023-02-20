@@ -172,11 +172,11 @@ void CanvasMolecule::lower_from_rdkit() {
     // In fact, it's almost a copy-paste.
     // I'm not exactly sure if what I did here is the most optimal solution
     // but it seems to work.
-    RDDepict::compute2DCoords(*this->rdkit_molecule,&coordinate_map,true,false);
+    RDDepict::compute2DCoords(*this->rdkit_molecule,nullptr,true,true);
 
 
     RDKit::MatchVectType matchVect;
-    if(! RDKit::SubstructMatch( *this->rdkit_molecule , *this->rdkit_molecule , matchVect ) ) {
+    if(! RDKit::SubstructMatch(*this->rdkit_molecule, *this->rdkit_molecule, matchVect ) ) {
         throw std::runtime_error("SubstractMatch failed.");
     }
     RDKit::Conformer &conf = this->rdkit_molecule->getConformer();
@@ -185,7 +185,9 @@ void CanvasMolecule::lower_from_rdkit() {
         RDGeom::Point2D pt2( pt3.x , pt3.y );
         coordinate_map[mv.second] = pt2;
     }
-    RDDepict::compute2DCoords( *this->rdkit_molecule , &coordinate_map );
+    // what is going on here?
+    // That doesn't seem to change much
+    // RDDepict::compute2DCoords( *this->rdkit_molecule, &coordinate_map, true, true);
 
 
     /// Used to avoid duplicating bonds

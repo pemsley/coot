@@ -88,9 +88,6 @@ class CanvasMolecule {
     float _x_offset;
     float _y_offset;
 
-    /// Clears the drawing-friendly 2D representation data
-    /// and re-creates it from the internal RDKit::RWMol
-    void lower_from_rdkit();
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates
@@ -100,6 +97,10 @@ class CanvasMolecule {
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
+    /// Clears the drawing-friendly 2D representation data
+    /// and re-creates it from the internal RDKit::RWMol
+    void lower_from_rdkit();
+    
     /// Changes the relative placement of the molecule on the screen
     void set_offset_from_bounds(const graphene_rect_t *bounds) noexcept;
 
