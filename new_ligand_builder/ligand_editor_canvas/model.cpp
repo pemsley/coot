@@ -15,6 +15,8 @@
 #include <rdkit/Geometry/point.h>
 #include <cmath>
 #include <boost/range/iterator_range.hpp>
+#include <string>
+#include <tuple>
 
 using namespace coot::ligand_editor_canvas;
 
@@ -52,6 +54,65 @@ void CanvasMolecule::set_offset_from_bounds(const graphene_rect_t *bounds) noexc
     this->_y_offset = bounds->size.height / 2.0;
 }
 
+std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) {
+    switch (color) {
+        case AtomColor::Green:{
+            return std::make_tuple(0.0,1.0,0.0);
+        }
+        case AtomColor::Blue:{
+            return std::make_tuple(0.0,0.0,1.0);
+        }
+        case AtomColor::Red:{
+            return std::make_tuple(1.0,0.0,0.0);
+        }
+        case AtomColor::Black:
+        default: {
+            return std::make_tuple(0.0,0.0,0.0);
+        }
+    }
+}
+
+std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) {
+    switch (color) {
+        case AtomColor::Green:{
+            return "#00FF00";
+        }
+        case AtomColor::Blue:{
+            return "#0000FF";
+        }
+        case AtomColor::Red:{
+            return "#FF0000";
+        }
+        case AtomColor::Black:
+        default: {
+            return "#000000";
+        }
+    }
+}
+
+CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Atom * atom) {
+    auto atomic_number = atom->getAtomicNum();
+    switch(atomic_number) {
+        // Nitrogen
+        case 7: {
+            return AtomColor::Blue;
+        }
+        // Oxygen
+        case 8: {
+            return AtomColor::Red;
+        }
+        // Chlorine
+        case 17: {
+            return AtomColor::Green;
+        }
+        // Carbon
+        case 6:
+        default: {
+            return AtomColor::Black;
+        }
+    }
+}
+
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
     auto scale_factor = this->get_scale();
     auto x_offset = this->_x_offset;
@@ -63,7 +124,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
     for(const auto& bond: bonds) {
         if(bond.highlighted) {
             cairo_set_line_width(cr, 5.0);
-            cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+            cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
         } else {
             cairo_set_line_width(cr, 3.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
@@ -79,15 +140,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         // Used to make the texts centered where they should be.
         int layout_width, layout_height;
 
-        
-
         auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
             if(atom.highlighted) {
                 cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-                cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+                cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
                 cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
                 cairo_stroke_preserve(cr);
-                cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.5);
+                cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
                 cairo_fill(cr);
             }
         };
@@ -100,24 +159,27 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_fill(cr);
         };
 
-        auto render_text = [&](const std::string& t){
-            //todo: color and size
-            std::string markup = "<span color=\"navy\" weight=\"bold\" size=\"x-large\">" + t + "</span>";
+        auto render_text = [&](const std::string& t, AtomColor color,bool bold = false){
+            auto [r,g,b] = atom_color_to_rgb(color);
+            std::string color_str = atom_color_to_html(color);
+            std::string weight_str = bold ? "bold" : "normal";
+            std::string markup = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">" + t + "</span>";
             pango_layout_set_markup(pango_layout,markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
             pango_cairo_show_layout(cr, pango_layout);
         };
 
-        g_warning_once("TODO: Correctly implement drawing atoms");
+        g_warning_once("TODO: Implement drawing atoms correctly");
         
         if (atom.symbol == "C" || atom.symbol == "H") {
             process_highlight();
-            // Ignore drawing Carbon and hydrogen now
+            // Ignore drawing Carbon and hydrogen now.
+            // This should probably be computed at lowering time in the future.
         } else {
             render_white_background();
             process_highlight();
-            render_text(atom.symbol);
+            render_text(atom.symbol,atom.color,atom.highlighted);
         }
     }
     cairo_destroy(cr);
@@ -212,8 +274,7 @@ void CanvasMolecule::lower_from_rdkit() {
     for(const auto& [atom_idx,plane_point]: coordinate_map) {
         const auto* rdkit_atom = this->rdkit_molecule->getAtomWithIdx(atom_idx);
         auto canvas_atom = CanvasMolecule::Atom();
-        // todo: change this
-        canvas_atom.color = CanvasMolecule::AtomColor::Black;
+        canvas_atom.color = atom_color_from_rdkit(rdkit_atom);
         canvas_atom.highlighted = false;
         canvas_atom.idx = atom_idx;
         canvas_atom.symbol = rdkit_atom->getSymbol();

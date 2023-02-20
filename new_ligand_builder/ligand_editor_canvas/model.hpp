@@ -46,6 +46,7 @@ class CanvasMolecule {
         Red
         // are there more colors?
     };
+    
     struct Atom {
         std::string symbol;
         AtomColor color;
@@ -79,7 +80,11 @@ class CanvasMolecule {
 
     static const float ATOM_HITBOX_RADIUS;
     static const float BASE_SCALE_FACTOR;
+
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
+    static AtomColor atom_color_from_rdkit(const RDKit::Atom *);
+    static std::tuple<float,float,float> atom_color_to_rgb(AtomColor);
+    static std::string atom_color_to_html(AtomColor);
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
@@ -100,7 +105,7 @@ class CanvasMolecule {
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
     void lower_from_rdkit();
-    
+
     /// Changes the relative placement of the molecule on the screen
     void set_offset_from_bounds(const graphene_rect_t *bounds) noexcept;
 
