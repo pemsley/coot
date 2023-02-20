@@ -3457,3 +3457,30 @@ coot::molecule_t::fill_partial_residues(const clipper::Xmap<float> &xmap, protei
    return status;
 }
 
+// --------------- rigid body fit
+#include "rigid-body-fit.hh"
+int
+coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::Xmap<float> &xmap) {
+
+   int status = 0;
+
+   std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+
+   if (! v.empty()) {
+
+      // udd_atom_selection is (just) the selection for the moving atoms.
+      // we make it and delete it. the atom_sel selection is not touched.
+      int udd_atom_selection = atom_sel.mol->NewSelection(); // d
+
+      for (const auto &cid : v)
+         atom_sel.mol->Select(udd_atom_selection, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+
+      // update the atoms of atom-sel.mol
+      coot::api::rigid_body_fit(atom_sel.mol, udd_atom_selection, xmap);
+      status = 1;
+      atom_sel.mol->DeleteSelection(udd_atom_selection);
+   }
+   save_info.new_modification("rigid-body-fit " + multi_cids);
+   return status;
+}
+

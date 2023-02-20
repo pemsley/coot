@@ -2397,6 +2397,25 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    return status;
 }
 
+int test_rigid_body_fit(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   //! Rigid-body fitting
+   //!
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   std::string multi_cids = "//A/20-22||//A/60-66";
+   status = mc.rigid_body_fit(imol, multi_cids, imol_map);
+
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2553,7 +2572,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
-   status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
+   // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
+
+   status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // Note to self:
    //

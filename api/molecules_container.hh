@@ -839,6 +839,11 @@ public:
    //! @return the success status
    int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 
+   //! Rigid-body fitting
+   //!
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 
@@ -876,7 +881,7 @@ public:
    //! generate GM self restraints for the given residues.
    //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
    void generate_local_self_restraints(int imol, float local_dist_max,
-                                       const std::string & residue_cids,
+                                       const std::string &residue_cids,
                                        const coot::protein_geometry &geom);
 
    //! generate parallel plane restraints (for RNA and DNA)
