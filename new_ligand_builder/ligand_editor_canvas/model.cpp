@@ -79,15 +79,26 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         // Used to make the texts centered where they should be.
         int layout_width, layout_height;
 
-        cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+        
 
-        if(atom.highlighted) {
-            cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+        auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
+            if(atom.highlighted) {
+                cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+                cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+                cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
+                cairo_stroke_preserve(cr);
+                cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.5);
+                cairo_fill(cr);
+            }
+        };
+        
+        // an alternative to doing this is to shorten the bonds at the time of lowering
+        auto render_white_background = [&,cr,x_offset,y_offset,scale_factor]{
+            cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
             cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
-            cairo_stroke_preserve(cr);
-            cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.5);
             cairo_fill(cr);
-        }
+        };
 
         auto render_text = [&](const std::string& t){
             //todo: color and size
@@ -100,12 +111,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
         g_warning_once("TODO: Correctly implement drawing atoms");
         
-        if (atom.symbol == "C") {
-            // Ignore drawing Carbon
-        } else if (atom.symbol == "H") {
-            // Ignore hydrogens for now
+        if (atom.symbol == "C" || atom.symbol == "H") {
+            process_highlight();
+            // Ignore drawing Carbon and hydrogen now
         } else {
-           render_text(atom.symbol);
+            render_white_background();
+            process_highlight();
+            render_text(atom.symbol);
         }
     }
     cairo_destroy(cr);
