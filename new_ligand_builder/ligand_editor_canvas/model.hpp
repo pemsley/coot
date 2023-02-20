@@ -74,29 +74,42 @@ class CanvasMolecule {
         bool highlighted;
     };
 
+    typedef std::optional<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>> MaybeAtomOrBond;
     private:
 
-    typedef std::optional<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>> MaybeAtomOrBond;
-    
-    /// Checks if any object matches the click coordinates passed as arguments.
-    /// Returns the thing that was clicked on (or nullopt if there's no match).
-    static MaybeAtomOrBond resolve_click(int x, int y);
-
+    static const float ATOM_HITBOX_RADIUS;
+    static const float BASE_SCALE_FACTOR;
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
     std::vector<Bond> bonds;
 
+    float _x_offset;
+    float _y_offset;
+
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
     void lower_from_rdkit();
+
+    /// Computes the scale used for drawing
+    /// And interfacing with screen coordinates
+    float get_scale() const noexcept;
 
     public:
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
+    /// Changes the relative placement of the molecule on the screen
+    void set_offset_from_bounds(const graphene_rect_t *bounds) noexcept;
+
+    /// Draws the molecule on the widget.
+    /// Be sure to call set_offset_from_bounds before drawing.
     void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept;
+
+    /// Checks if any object matches the click coordinates passed as arguments.
+    /// Returns the thing that was clicked on (or nullopt if there's no match).
+    MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
 };
 

@@ -1,5 +1,8 @@
 #include "tools.hpp"
 #include "core.hpp"
+#include "model.hpp"
+#include <stdexcept>
+#include <variant>
 
 using namespace coot::ligand_editor_canvas;
 
@@ -25,14 +28,43 @@ void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_w
     this->widget_data = static_cast<impl::WidgetCoreData*>(owning_widget);
 }
 
-void ActiveTool::insert_atom(int x, int y) noexcept {
-    // optional safety check (with exceptions)
+void ActiveTool::check_variant(ActiveTool::Variant expected) {
+    if (expected != this->variant) {
+        throw std::runtime_error("Unexpected ActiveTool variant.");
+    }
+}
+
+CanvasMolecule::MaybeAtomOrBond ActiveTool::resolve_click(int x, int y) const noexcept {
+    const auto* molecules_vec = this->widget_data->molecules.get();
+    for(const auto& mol: *molecules_vec) {
+        auto result = mol.resolve_click(x, y);
+        if(result.has_value()) {
+            return result;
+        }
+    }
+    return std::nullopt;
+}
+
+void ActiveTool::insert_atom(int x, int y) {
+    check_variant(Variant::ElementInsertion);
     auto& element_insertion = this->element_insertion;
     const char* el_name = element_insertion.get_element_symbol();
     g_debug("Inserting element '%s' at %i %i.",el_name,x,y);
     //1. Find what we've clicked at
-    //2. Decide what to do based on that
-    //3. Do it
+    auto click_result = this->resolve_click(x, y);
+    try{
+        auto bond_or_atom = click_result.value();
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
+        } else { // a bond
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+            g_warning("TODO: Implement handling insertion at bonds");
+        }
+    } catch(std::exception& e) {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    }
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

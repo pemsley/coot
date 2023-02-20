@@ -2,6 +2,7 @@
 #include "cairo-deprecated.h"
 #include "cairo.h"
 #include <boost/range/iterator_range_core.hpp>
+#include <optional>
 #include <stdexcept>
 #include <set>
 // #include <rdkit/GraphMol/MolDraw2D/MolDraw2D.h>
@@ -11,18 +12,49 @@
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
+#include <cmath>
 #include <boost/range/iterator_range.hpp>
 
 using namespace coot::ligand_editor_canvas;
 
-CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) {
-    //todo: implement
+const float CanvasMolecule::ATOM_HITBOX_RADIUS = 10.f;
+const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
+
+float CanvasMolecule::get_scale() const noexcept {
+    // todo: Add internal canvas scaling
+    return BASE_SCALE_FACTOR;
+}
+
+CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {
+    float scale = this->get_scale();
+    auto x_offset = this->_x_offset;
+    auto y_offset = this->_y_offset;
+    // atoms first 
+    for(const auto& atom: this->atoms) {
+        float atom_x = atom.x * scale + x_offset;
+        float atom_y = atom.y * scale + y_offset;
+        // Circle equation. Checks if click coords are within atom's radius
+        if (ATOM_HITBOX_RADIUS * ATOM_HITBOX_RADIUS >= std::pow(atom_x - x,2.f) + std::pow(atom_y - y,2.f)) {
+            return atom;
+        }
+    }
+    // then bonds
+    for(const auto& bond: this->bonds) {
+        // todo: figure out how to do hitboxes of bonds. Clipper might be very useful.
+        g_warning_once("todo: implement hitboxes of bonds.");
+    }
+    return std::nullopt;
+}
+
+void CanvasMolecule::set_offset_from_bounds(const graphene_rect_t *bounds) noexcept {
+    this->_x_offset = bounds->size.width / 2.0;
+    this->_y_offset = bounds->size.height / 2.0;
 }
 
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
-    auto x_offset = bounds->size.width / 2.0;
-    auto y_offset = bounds->size.height / 2.0;
-    auto scale_factor = 30.f;
+    auto scale_factor = this->get_scale();
+    auto x_offset = this->_x_offset;
+    auto y_offset = this->_y_offset;
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     // todo: change

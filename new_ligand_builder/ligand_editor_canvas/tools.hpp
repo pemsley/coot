@@ -107,7 +107,16 @@ class ActiveTool {
     Variant variant;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
-   
+
+    /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
+    /// Throws an exception in case of a mismatch.
+    void check_variant(Variant);
+
+    /// Goes over all molecules stored in the widget
+    /// and calls CanvasMolecule::resolve_click(x,y) on each of them
+    /// until an object matching the coordinates is found.
+    /// If nothing matches the coordinates, nullopt is returned.
+    CanvasMolecule::MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
     public:
     ActiveTool() noexcept;
@@ -117,7 +126,7 @@ class ActiveTool {
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
     /// Inserts currently chosen atom at the given coordinates.
-    void insert_atom(int x, int y) noexcept;
+    void insert_atom(int x, int y);
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///
