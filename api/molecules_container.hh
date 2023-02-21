@@ -1147,7 +1147,8 @@ public:
 #ifdef SWIG
    //! \name Python functions
 
-   PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh);
+   enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
+   PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh, int mesh_mode);
    PyObject *get_pythonic_bonds_mesh(int imol, const std::string &mode, bool against_a_dark_background,
                                      float bond_width, float atom_radius_to_bond_width_ratio,
                                      int smoothness_factor);
