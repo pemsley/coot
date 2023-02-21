@@ -21,6 +21,7 @@
 using namespace coot::ligand_editor_canvas;
 
 const float CanvasMolecule::ATOM_HITBOX_RADIUS = 10.f;
+const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
 
 float CanvasMolecule::get_scale() const noexcept {
@@ -43,9 +44,33 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
     }
     // then bonds
     for(const auto& bond: this->bonds) {
-        // todo: figure out how to do hitboxes of bonds. Clipper might be very useful.
-        g_warning_once("todo: implement hitboxes of bonds.");
+        // 1. Find the point lying in the middle of the segment representing the bond
+        float first_atom_x = bond.first_atom_x * scale + x_offset;
+        float first_atom_y = bond.first_atom_y * scale + y_offset;
+        float second_atom_x = bond.second_atom_x * scale + x_offset;
+        float second_atom_y = bond.second_atom_y * scale + y_offset;
+        float bond_center_x = (first_atom_x + second_atom_x) / 2.0f;
+        float bond_center_y = (first_atom_y + second_atom_y) / 2.0f;
+        // 2. Compute its' distance to the edges and let it be the radius of a circle
+        //    inside of which the click location has to be found (as a pre-condition)
+        float bounding_circle_radius_squared = std::pow(first_atom_x - bond_center_x,2.f) + std::pow(first_atom_y - bond_center_y,2.f);
+        // If our distance from the bond's center point is greater than the radius
+        // then this means that we're outside of the circle of interest and so the current bond can be skipped.
+        // Operating on squared values saves us from the expensive square root operation.
+        if (bounding_circle_radius_squared < std::pow(bond_center_x - x,2.f) + std::pow(bond_center_y - y,2.f)) {
+            continue;
+        }
+        // 3. Use the formula for distance to a point from a line to determine if
+        //    the click location qualifies as matching.
+
+        float distance = std::fabs((second_atom_x - first_atom_x)*(first_atom_y - y) - (first_atom_x - x)*(second_atom_y - first_atom_y)) 
+            / std::sqrt(std::pow(first_atom_x - second_atom_x,2.f) + std::pow(first_atom_y - second_atom_y,2.f));
+        // We've got a match
+        if (BOND_DISTANCE_BOUNDARY >= distance) {
+            return bond;
+        }
     }
+    // nothing matches the click
     return std::nullopt;
 }
 

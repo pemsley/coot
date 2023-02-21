@@ -79,6 +79,7 @@ class CanvasMolecule {
     private:
 
     static const float ATOM_HITBOX_RADIUS;
+    static const float BOND_DISTANCE_BOUNDARY;
     static const float BASE_SCALE_FACTOR;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);

@@ -97,6 +97,9 @@ static void on_hover (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    for(auto& molecule: *self->molecules) {
+        molecule.clear_highlights();
+    }
     try {
         auto [bond_or_atom,molecule_idx] = self->resolve_click(x, y).value();
         auto& target = (*self->molecules)[molecule_idx];
@@ -110,9 +113,6 @@ static void on_hover (
 
     } catch (std::exception& e) {
         // Nothing was hovered on
-        for(auto& molecule: *self->molecules) {
-            molecule.clear_highlights();
-        }
     }
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
