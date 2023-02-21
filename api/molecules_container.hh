@@ -651,6 +651,10 @@ public:
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
+   //! create a new map that is blurred/sharpened
+   //! @return the molecule index of the new map or -1 on failure.
+   int sharpen_blur_map(int imol_map, float b_factor);
+
    //! get the mesh for the map contours.
    //!
    //! This function is not **const** because the internal state of a `coot_molecule_t` is changed.
