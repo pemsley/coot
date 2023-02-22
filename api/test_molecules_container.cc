@@ -715,7 +715,20 @@ int test_add_terminal_residue(molecules_container_t &mc) {
          part_three_done = true;
    }
 
-   if (part_one_done && part_two_done && part_three_done)
+   // part four - add to a residue that has an OXT atom
+   std::cout << "################## starting part 4 " << std::endl;
+   bool part_four_done = false;
+   mmdb::Atom *oxt_1 = mc.get_atom(imol, coot::atom_spec_t("A", 303, "", " OXT", ""));
+   if (oxt_1) {
+      mc.add_terminal_residue_directly(imol, "A", 303, "");
+      mmdb::Atom *oxt_2 = mc.get_atom(imol, coot::atom_spec_t("A", 303, "", " OXT", ""));
+      if (oxt_2 == nullptr) // not there
+         part_four_done = true;
+   }
+
+   std::cout << "################## part_four_done " << part_four_done << std::endl;
+
+   if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
 
    mc.close_molecule(imol);
@@ -2574,7 +2587,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
-   status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
+   // status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
+
+   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // Note to self:
    //

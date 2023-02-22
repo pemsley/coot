@@ -10,6 +10,7 @@
 namespace coot {
 
    void remove_TER_internal(mmdb::Manager *mol, mmdb::Residue *residue_p);
+   void remove_OXT_internal(mmdb::Residue *residue_p, mmdb::Manager *mol); // usually not there, but if it is, it needs to go.
 
    atom_selection_container_t
    add_side_chain_to_terminal_res(atom_selection_container_t asc,

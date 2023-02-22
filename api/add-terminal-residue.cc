@@ -67,15 +67,38 @@ find_serial_number_for_insert(mmdb::Manager *mol,
 void
 coot::remove_TER_internal(mmdb::Manager *mol, mmdb::Residue *residue_p) {
 
-   int n_residue_atoms;
-   mmdb::PPAtom residue_atoms;
-   bool deleted = 0;
+   bool deleted = false;
    if (residue_p) {
+      int n_residue_atoms;
+      mmdb::PPAtom residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
          if (residue_atoms[i]->isTer()) {
             residue_p->DeleteAtom(i);
             deleted = 1;
+         }
+      }
+   }
+   if (deleted) {
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+   }
+}
+
+void
+coot::remove_OXT_internal(mmdb::Residue *residue_p, mmdb::Manager *mol) {
+
+   bool deleted = false;
+   if (residue_p) {
+      int n_residue_atoms;
+      mmdb::PPAtom residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+         mmdb:: Atom *at = residue_atoms[i];
+         std::string atom_name(at->GetAtomName());
+         if (atom_name == " OXT") {
+            delete at;
+            break;
          }
       }
    }
@@ -834,6 +857,7 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
 
                coot::residue_spec_t rs(residue_p);
                remove_TER_internal(mol, residue_p);
+               remove_OXT_internal(residue_p, mol); // usually it's not there.
 
                if (false) {
 #if 0
