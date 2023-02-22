@@ -655,6 +655,19 @@ public:
    //! @return the molecule index of the new map or -1 on failure.
    int sharpen_blur_map(int imol_map, float b_factor);
 
+   //! mask map by atom selection (note the argument order is reversed compared to the coot api).
+   //!
+   //! the ``invert_flag`` changes the parts of the map that are masked, so to highlight the density
+   //! for a ligand one would pass the ``cid`` for the ligand and invert_flag as true, so that the
+   //! parts of the map that are not the ligand are suppressed.
+   //!
+   //! @return the index of the new map - or -1 on failure
+   int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
+
+   //! Make a vector of maps that are split by chain-id of the input imol
+   //! @return a vector of the map molecule indices.
+   std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
+
    //! get the mesh for the map contours.
    //!
    //! This function is not **const** because the internal state of a `coot_molecule_t` is changed.

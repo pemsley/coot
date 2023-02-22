@@ -141,7 +141,6 @@ namespace coot {
 
       void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
 
-      bool is_EM_map() const;
       short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
       short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
       coot::ghost_molecule_display_t map_ghost_info;
@@ -304,7 +303,12 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
+      //! constructor
       molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {imol_no = mol_no_in; init(); }
+      //! constructor
+      molecule_t(const std::string &name_in, int mol_no_in, const clipper::Xmap<float> &xmap_in, bool is_em_map_flag)
+         : name(name_in), xmap(xmap_in) {imol_no = mol_no_in; init(); is_em_map_cached_flag = is_em_map_flag; }
+      //! constructor
       explicit molecule_t(atom_selection_container_t asc, int imol_no_in, const std::string &name_in) : name(name_in), atom_sel(asc) {
          imol_no = imol_no_in;
          init();
@@ -719,6 +723,8 @@ namespace coot {
       int rigid_body_fit(const std::string &mult_cids, const clipper::Xmap<float> &xmap);
 
       // ----------------------- map functions
+
+      bool is_EM_map() const;
 
       // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;

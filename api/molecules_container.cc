@@ -3753,3 +3753,80 @@ molecules_container_t::sharpen_blur_map(int imol_map, float b_factor) {
    return imol_new;
 }
 
+
+
+//! Make a vector of maps that are split by chain-id of the input imol
+//! @return a vector of the map molecule indices.
+std::vector<int>
+molecules_container_t::make_masked_maps_split_by_chain(int imol, int imol_map) {
+
+   std::vector<int> v;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         coot::ligand lig;
+         mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+         lig.set_map_atom_mask_radius(3.3);
+         lig.import_map_from(molecules[imol_map].xmap);
+         // monster
+         std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
+         std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         std::string orig_map_name = molecules[imol_map].get_name();
+         bool is_em_flag = molecules[imol_map].is_EM_map();
+         for(unsigned int i=0; i<maps.size(); i++) {
+            std::string map_name = std::string("Map for chain ") + maps[i].first;
+            map_name += std::string(" of ") + orig_map_name;
+            int idx = molecules.size();
+            coot::molecule_t cm(map_name, idx, maps[i].second, is_em_flag);
+            molecules.push_back(cm);
+            v.push_back(idx);
+         }
+      } else {
+         std::cout << "WARNING:: molecule " << imol_map << " is not a valid map molecule"
+                   << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: molecule " << imol_map << " is not a valid model molecule"
+                << std::endl;
+   }
+   return v;
+}
+
+
+//! mask map by atom selection (note the argument order is reversed compared to the coot api).
+//!
+//! the ``invert_flag`` changes the parts of the map that are masked, so to highlight the density
+//! for a ligand one would pass the ``cid`` for the ligand and invert_flag as true, so that the
+//! parts of the map that are not the ligand are suppressed.
+//!
+//! @return the index of the new map - or -1 on failure
+int
+molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag) {
+
+   int imol_map_new = -1;
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_map)) {
+         coot::ligand lig;
+         lig.import_map_from(molecules[imol_map].xmap);
+
+         float map_mask_atom_radius = 1.5; // check
+         lig.set_map_atom_mask_radius(map_mask_atom_radius);
+
+         int selectionhandle = molecules[imol_coords].atom_sel.mol->NewSelection();
+         molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+         lig.mask_map(molecules[imol_coords].atom_sel.mol, selectionhandle, invert_flag);
+         imol_map_new = molecules.size();
+         std::string name = get_molecule_name(imol_map);
+         std::string new_name = name + " Masked Map";
+         bool is_em_map_flag = molecules[imol_map].is_EM_map();
+         coot::molecule_t cm(new_name, imol_map_new, lig.masked_map(), is_em_map_flag);
+         molecules.push_back(cm);
+      } else {
+         std::cout << "WARNING:: molecule " << imol_map << " is not a valid map molecule"
+                   << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: molecule " << imol_map << " is not a valid model molecule"
+                << std::endl;
+   }
+   return imol_map_new;
+}
