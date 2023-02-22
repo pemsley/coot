@@ -156,7 +156,6 @@ remove_redundant_vertices(std::vector<glm::vec3> *vertices_p,
    std::set<unsigned int>::const_iterator it_s;
    for (it_s=accumulated_unused_vertices.begin(); it_s!=accumulated_unused_vertices.end(); ++it_s) {
       int idx = *it_s;
-      // std::cout << "remove idx " << idx << std::endl;
       std::map<int, int>::iterator map_iti;
       for (map_iti=old_index_to_new_index_map.begin(); map_iti!=old_index_to_new_index_map.end(); ++map_iti) {
          if (map_iti->first >= idx)
@@ -172,11 +171,11 @@ remove_redundant_vertices(std::vector<glm::vec3> *vertices_p,
          if (accumulated_unused_vertices.find(map_it->first) != accumulated_unused_vertices.end()) std::cout << "unused";
          std::cout << std::endl;
       }
-      std::set<unsigned int>::reverse_iterator rit;
-      for(rit=accumulated_unused_vertices.rbegin(); rit!=accumulated_unused_vertices.rend(); ++rit) {
-         std::cout << "         " << *rit << std::endl;
-         vertices_p->erase(vertices_p->begin() +  *rit);
-      }
+   }
+
+   std::set<unsigned int>::reverse_iterator rit;
+   for(rit=accumulated_unused_vertices.rbegin(); rit!=accumulated_unused_vertices.rend(); ++rit) {
+      vertices_p->erase(vertices_p->begin() +  *rit);
    }
 
    // now go through the triangles changing the indices of the vertices using the old_index_to_new_index_map map
