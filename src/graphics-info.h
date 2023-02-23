@@ -3775,8 +3775,10 @@ public:
    static volatile bool have_socket_string_waiting_flag;
    static volatile bool have_socket_python_string_waiting_flag;
    static volatile bool socket_string_waiting_mutex_lock;
+#ifdef USE_GUILE
    static SCM safe_scheme_command(const std::string &scheme_command);
    static SCM process_socket_string_waiting();
+#endif
    static gboolean process_socket_string_waiting_bool(gpointer user_data);
    static gboolean process_socket_python_string_waiting_bool(gpointer user_data);
 
