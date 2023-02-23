@@ -929,7 +929,7 @@ coot::molecule_t::get_bond_colour_basic(int colour_index, bool against_a_dark_ba
          col = coot::colour_t (0.8, 0.1, 0.8);
          break;
       case DARK_GREEN_BOND:
-         col = coot::colour_t (0.05, 0.69, 0.05);
+         col = coot::colour_t (0.05, 0.49, 0.05);
          break;
       case DARK_ORANGE_BOND:
          col = coot::colour_t (0.7, 0.7, 0.05);
@@ -1047,7 +1047,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
                break;
             case DARK_GREEN_BOND:
-               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
                break;
             case DARK_ORANGE_BOND:
                rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
@@ -1103,7 +1103,7 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
                rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
                break;
             case DARK_GREEN_BOND:
-               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
                break;
             case DARK_ORANGE_BOND:
                rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
