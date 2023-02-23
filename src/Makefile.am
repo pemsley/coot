@@ -241,7 +241,8 @@ AM_CXXFLAGS = \
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
-#
+# 20230218-PE the webassembly merge: SWIG_FLAGS is removed from AM_CPPFLAGS
+#             because we want operator== to work for residue specs.
 #
 AM_CPPFLAGS = \
 	-DUSE_PYTHON \
@@ -251,12 +252,11 @@ AM_CPPFLAGS = \
 	$(BOOST_CPPFLAGS)		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(GLM_CXXFLAGS)                 \
-	$(SWIG_FLAGS)			\
 	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK)		\
 	$(GUILE_GTK_CFLAGS)		\
-	$(GUILE_CFLAGS)		\
+	$(GUILE_CFLAGS)		        \
 	$(CANVAS_CFLAGS)		\
 	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS)		\
@@ -295,15 +295,14 @@ _coot_extended_la_LIBADD = \
                         $(top_builddir)/geometry/libcoot-geometry.la       \
                         $(top_builddir)/utils/libcoot-utils.la             \
                         $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                        $(PYTHON_LIBS) \
-                        $(MMDB_LIBS)
+                        $(PYTHON_LIBS) $(MMDB_LIBS)
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
-	   libcootsumo.la                \
+	   libcootsumo.la                                    \
 	   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	   $(top_builddir)/coords/libcoot-coords.la          \
 	   $(top_builddir)/geometry/libcoot-geometry.la      \
@@ -450,6 +449,7 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	clipper-to-glm.hh        \
+	colour-functions.hh      \
 	command-arg.hh           \
 	command-line.cc	 \
 	command-line-extern.cc   \

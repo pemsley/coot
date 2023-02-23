@@ -12,14 +12,14 @@ libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
 	Representation.cpp BallsPrimitive.cpp DiscreteSegment.cpp		 \
 	RepresentationInstance.cpp BondsPrimitive.cpp DisplayPrimitive.cpp	 \
 	RotatedTranslatedScaledEntity.cpp BoxSectionPrimitive.cpp Light.cpp	 \
-	SceneSetup.cpp CXXMatrix.cpp MolecularRepresentation.cpp		 \
-	SecondaryColorScheme.cpp Camera.cpp MyMolecule.cpp	                 \
+	CXXMatrix.cpp MolecularRepresentation.cpp		                 \
+	SecondaryColorScheme.cpp MyMolecule.cpp	                 \
 	SolidColorRule.cpp ColorRule.cpp NRStuff.cpp SpherePrimitive.cpp	 \
 	ColorScheme.cpp Polyhedron.cpp SticksPrimitive.cpp CompoundSelection.cpp \
 	PositionedEntity.cpp SurfacePrimitive.cpp CylinderPoint.cpp Renderer.cpp \
-	VertexColorNormalPrimitive.cpp CylindersPrimitive.cpp RendererGL.cpp	 \
+	VertexColorNormalPrimitive.cpp CylindersPrimitive.cpp  \
 	oglPolyhedron.cpp MolecularRepresentationInstance.cpp Quaternion.cpp	 \
-	Vector2.cpp Vector3.cpp RendererGLSL.cpp lfit.c DishyBase.cpp            \
+	Vector2.cpp Vector3.cpp lfit.c DishyBase.cpp            \
         FlatFanPrimitive.cpp
 
 # I want pkg-config/configure to make MMDB_CPPFLAGS, not MMDB_CFLAGS (but, after some reading,

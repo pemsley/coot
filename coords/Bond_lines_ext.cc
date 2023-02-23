@@ -104,7 +104,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 			     atom_sel[ contact[i].id2 ]->y,
 			     atom_sel[ contact[i].id2 ]->z);
 
-	    addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
+	    addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2, true, true);
 
 	 } // contact atom is higher up the list check.
       } // i over ncontacts

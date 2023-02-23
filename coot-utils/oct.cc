@@ -79,12 +79,24 @@ tessellate_hemisphere_patch(unsigned int num_subdivisions) {
    return std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > (verts,triangles);
 }
 
+#include<algorithm>
+
 // adjust triangles_p - the vertices are not changed - so if this is successful,
 // then vertices that are not used will be sent to the graphics card.
 // Not many though, in the scheme of things. Also, fixing the vertex indexing might be painful.
 void
-remove_redundant_vertices(std::vector<g_triangle> *triangles_p,
+remove_redundant_vertices(std::vector<glm::vec3> *vertices_p,
+                          std::vector<g_triangle> *triangles_p,
                           const std::map<unsigned int, std::set<unsigned int> > &redundant_map) {
+
+   // debug the triangles: they are fine
+   // for (unsigned int i=0; i<triangles_p->size(); i++) {
+   //    g_triangle &tri = triangles_p->at(i);
+   //    std::cout << "debug the triangles " << i << " : point indices: "
+   //              << tri.point_id[0] << " "
+   //              << tri.point_id[1] << " "
+   //              << tri.point_id[2] << " " << std::endl;
+   // }
 
    std::map<unsigned int, std::set<unsigned int> >::const_iterator it;
    unsigned int n_done = 0;
@@ -93,7 +105,7 @@ remove_redundant_vertices(std::vector<g_triangle> *triangles_p,
       std::set<unsigned int>::const_iterator it_s;
 
       if (false) {
-         std::cout << "reference idx " << it->first << " has sames ";
+         std::cout << "debug:: reference idx " << it->first << " has sames ";
          for (it_s=s.begin(); it_s!=s.end(); ++it_s)
             std::cout << " " << *it_s;
          std::cout << std::endl;
@@ -103,22 +115,80 @@ remove_redundant_vertices(std::vector<g_triangle> *triangles_p,
          for (unsigned int i=0; i<triangles_p->size(); i++) {
             g_triangle &tri = triangles_p->at(i);
 
-            if (false) {
-               if (tri.point_id[0] == *it_s) n_done++;
-               if (tri.point_id[1] == *it_s) n_done++;
-               if (tri.point_id[2] == *it_s) n_done++;
+            if (true) { // debug
+               if (tri.point_id[0] == *it_s) { n_done++; }
+               if (tri.point_id[1] == *it_s) { n_done++; }
+               if (tri.point_id[2] == *it_s) { n_done++; }
             }
 
             if (tri.point_id[0] == *it_s) tri.point_id[0] = it->first;
             if (tri.point_id[1] == *it_s) tri.point_id[1] = it->first;
             if (tri.point_id[2] == *it_s) tri.point_id[2] = it->first;
-
          }
       }
    }
-   // std::cout << "remove_redundant_vertices() n_done " << n_done << std::endl;
+
+   std::map<int, int> old_index_to_new_index_map;
+   for (unsigned int i=0; i<vertices_p->size(); i++)
+      old_index_to_new_index_map[i] = i;
+
+   std::set<unsigned int> accumulated_unused_vertices;
+   for (it=redundant_map.begin(); it!=redundant_map.end(); ++it) {
+      const std::set<unsigned int> &s = it->second;
+      std::set<unsigned int>::const_iterator it_s;
+      for (it_s=s.begin(); it_s!=s.end(); ++it_s) {
+         accumulated_unused_vertices.insert(*it_s);
+      }
+   }
+
+   if (false) {
+      std::cout << "DEBUG:: remove_redundant_vertices(): Here are the accumulated_unused_vertices: " << std::endl;
+      std::set<unsigned int>::const_iterator it_s;
+      for (it_s=accumulated_unused_vertices.begin(); it_s!=accumulated_unused_vertices.end(); ++it_s)
+         std::cout << " " << *it_s;
+      std::cout << std::endl;
+   }
+
+   std::map<int, int>::const_iterator map_it;
+   // for (map_it=old_index_to_new_index_map.begin(); map_it!=old_index_to_new_index_map.end(); ++map_it)
+   // std::cout << "   pre: old-index: " << map_it->first << " new-index " << map_it->second << std::endl;
+
+   std::set<unsigned int>::const_iterator it_s;
+   for (it_s=accumulated_unused_vertices.begin(); it_s!=accumulated_unused_vertices.end(); ++it_s) {
+      int idx = *it_s;
+      std::map<int, int>::iterator map_iti;
+      for (map_iti=old_index_to_new_index_map.begin(); map_iti!=old_index_to_new_index_map.end(); ++map_iti) {
+         if (map_iti->first >= idx)
+            map_iti->second -= 1;
+      }
+   }
+
+   if (false) { // debugging
+      int new_size = vertices_p->size() - accumulated_unused_vertices.size();
+      std::cout << "DEBUG:: remove_redundant_vertices(): new vertices size " << new_size << std::endl;
+      for (map_it=old_index_to_new_index_map.begin(); map_it!=old_index_to_new_index_map.end(); ++map_it) {
+         std::cout << "   old-index: " << map_it->first << " new-index " << map_it->second << " ";
+         if (accumulated_unused_vertices.find(map_it->first) != accumulated_unused_vertices.end()) std::cout << "unused";
+         std::cout << std::endl;
+      }
+   }
+
+   std::set<unsigned int>::reverse_iterator rit;
+   for(rit=accumulated_unused_vertices.rbegin(); rit!=accumulated_unused_vertices.rend(); ++rit) {
+      vertices_p->erase(vertices_p->begin() +  *rit);
+   }
+
+   // now go through the triangles changing the indices of the vertices using the old_index_to_new_index_map map
+   for (unsigned int itry=0; itry<triangles_p->size(); itry++) {
+      g_triangle &tri = triangles_p->at(itry);
+      for (unsigned int ii=0; ii<3; ii++)
+         tri.point_id[ii] = old_index_to_new_index_map[tri.point_id[ii]];
+   }
+
+   // std::cout << "DEBUG:: remove_redundant_vertices(): n_done " << n_done << std::endl;
 }
 
+#include <chrono>
 
 std::pair<std::vector<glm::vec3>, std::vector<g_triangle> >
 tessellate_octasphere(unsigned int num_subdivisions, bool remove_redundant_vertices_flag) {
@@ -152,11 +222,31 @@ tessellate_octasphere(unsigned int num_subdivisions, bool remove_redundant_verti
       }
    }
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   remove_redundant_vertices_flag = true;
    if (remove_redundant_vertices_flag) {
       std::map<unsigned int, std::set<unsigned int> > redundant_map = find_same_vertices(verts);
-      // adjust triangles
-      remove_redundant_vertices(&triangles, redundant_map);
+      tp_1 = std::chrono::high_resolution_clock::now();
+
+      if (false) { // debugging
+         std::cout << "debug:: in tessellate_octasphere_patch() with redundant_map size " << redundant_map.size() << std::endl;
+         std::map<unsigned int, std::set<unsigned int> >::const_iterator it;
+         for (it=redundant_map.begin(); it!=redundant_map.end(); ++it) {
+            std::cout << "   " << it->first << ": ";
+            for (const auto its : it->second)
+               std::cout << its << " ";
+            std::cout << std::endl;
+         }
+      }
+
+      // OK! now adjust vertices and triangles
+      remove_redundant_vertices(&verts, &triangles, redundant_map);
    }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   // std::cout << "----------- remove redundant vertices: " << d10 << " " << d21 << " us" << std::endl;
 
    return std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > (verts,triangles);
 }
@@ -164,12 +254,19 @@ tessellate_octasphere(unsigned int num_subdivisions, bool remove_redundant_verti
 std::map<unsigned int, std::set<unsigned int> >
 find_same_vertices(const std::vector<glm::vec3> &verts) {
 
+   // with semi_edge sixe 50, this algorithm takes 21 milliseconds for smoothness 2! (That's terrible)
+   // (due to malloc of the boxes vector)
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    std::map<unsigned int, std::set<unsigned int> > m;
 
-   const unsigned int semi_edge = 50;
+   const unsigned int semi_edge = 5;
    const unsigned int n_per_side = 2 * semi_edge + 1; // 0.00 and 1.0 are covered
    const unsigned int n_boxes = n_per_side * n_per_side * n_per_side;
    std::vector<std::set<unsigned int> > boxes(n_boxes);
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
 
    for (unsigned int i=0; i<verts.size(); i++) {
       const glm::vec3 &vert = verts[i];
@@ -187,6 +284,8 @@ find_same_vertices(const std::vector<glm::vec3> &verts) {
       }
       boxes[box_id].insert(i);
    }
+
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
 
    float tiny = 0.00001;
    for (unsigned int i=0; i<n_boxes; i++) {
@@ -237,18 +336,25 @@ find_same_vertices(const std::vector<glm::vec3> &verts) {
          }
       }
    }
+#if 0
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+   std::cout << "----------- find_same vertices: " << d10 << " " << d21 << " " << d32 << " us" << std::endl;
+#endif
 
    return m;
 }
 
 std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &centre,
-                float radius, const glm::vec4 &colour_in, bool remove_redundant_vertices) {
+                float radius, const glm::vec4 &colour_in, bool remove_redundant_vertices_flag) {
 
    std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > r;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > vp =
-      tessellate_octasphere(num_subdivisions, remove_redundant_vertices);
+      tessellate_octasphere(num_subdivisions, remove_redundant_vertices_flag);
    r.first.resize(vp.first.size());
    r.second = vp.second;
 

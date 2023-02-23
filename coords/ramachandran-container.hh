@@ -9,6 +9,7 @@ class ramachandrans_container_t {
 public:
    // make a heavyweight object   
    ramachandrans_container_t() {
+
 #ifdef CLIPPER_HAS_TOP8000
       rama.init(            clipper::Ramachandran::All2);
       rama_gly.init(        clipper::Ramachandran::Gly2);

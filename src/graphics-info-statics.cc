@@ -1023,11 +1023,13 @@ short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
 int graphics_info_t::edit_phi_psi_imol = -1;
 short int graphics_info_t::in_backbone_torsion_define = 0;
+#ifdef DO_RAMA_PLOT
 coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
+#endif
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
-int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();

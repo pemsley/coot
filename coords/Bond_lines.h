@@ -97,6 +97,9 @@ namespace coot {
          const unsigned n_b_factor_colours = 48;
          return static_cast<int>(static_cast<float>(n_b_factor_colours) * fraction); // 48 so that we don't overlap with CA colours
       }
+
+      void fill_chain_id_map(const atom_selection_container_t &SelAtom);
+
    };
 
    class model_bond_atom_info_t {
@@ -325,8 +328,8 @@ class Bond_lines_container {
                 int model_number,
                 int atom_index_1,
                 int atom_index_2,
-                bool add_begin_end_cap = false,
-                bool add_end_end_cap = false);
+                bool add_begin_end_cap = true,
+                bool add_end_end_cap = true);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
    // void add_deloc_bond_lines(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
    // int deloc_half_flag);
@@ -479,6 +482,7 @@ class Bond_lines_container {
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues,
+                               const atom_selection_container_t &sel_atoms,
                                int imol, int atom_colour_t, short int have_udd_atoms,
                                int udd_found_bond_handle, int udd_atom_index_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints,

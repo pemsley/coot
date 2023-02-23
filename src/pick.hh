@@ -12,6 +12,8 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
+#include "clip-hybrid-atom.hh"
+
 // These unproject functions now return a glm::vec4 and are in graphics_info_t
 // coot::Cartesian unproject(float screen_z);
 // coot::Cartesian unproject_xyz(int x, int y, float screen_z);
@@ -55,14 +57,6 @@ class symm_atom_info_t {
 };
 
 namespace coot {
-   class clip_hybrid_atom {
-   public:
-      mmdb::Atom *atom;
-      // clipper::Coord_orth pos;
-      coot::Cartesian pos;
-      clip_hybrid_atom() { atom = NULL; }
-      clip_hybrid_atom(mmdb::Atom *mmdb_atom_p, const coot::Cartesian &p) : atom(mmdb_atom_p), pos(p) {}
-   };
 
    class Symm_Atom_Pick_Info_t {
    public:

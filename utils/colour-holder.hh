@@ -6,6 +6,8 @@
 #include <string>
 
 namespace coot {
+
+   //! a container for colours
    class colour_holder {
    public:
       // values between 0 and 1.0
@@ -17,7 +19,7 @@ namespace coot {
 	 green = g;
 	 blue = b;
       }
-      // needed because it's in a vector.
+      // this constructor is needed because colour_holder can be used in a vector.
       colour_holder() {
 	 red = 0.5;
 	 green = 0.5;
@@ -49,6 +51,10 @@ namespace coot {
    std::vector<float> convert_rgb_to_hsv(const std::vector<float> &in_vals);
    colour_holder hsv_to_colour(const std::vector<float> &hsv);
 
+   //! the constructor above uses a hash colour, the argument here is things like "red", "orange", "blue";
+   //! if a hashed colour hex is give to this function, then the above constructor
+   //! is used to generate the return value
+   colour_holder colour_holder_from_colour_name(const std::string &colour_name);
 
 }
 

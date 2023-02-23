@@ -409,7 +409,7 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
    std::vector<glm::mat4> instanced_matrices;
    std::vector<glm::vec4> instanced_colours;
 
-   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into thg gbc)
+   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into the gbc)
    for (int icol=0; icol<gbc.num_colours; icol++) {
       glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];

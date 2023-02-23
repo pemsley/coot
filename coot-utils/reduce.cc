@@ -1263,7 +1263,7 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
          }
       }
    } else {
-      std::cout << "No geometry" << std::endl;
+      std::cout << "WARNING:: in find_best_his_protonation_orientation(): No geometry" << std::endl;
    }
 }
 
@@ -1468,6 +1468,8 @@ coot::reduce::delete_atom_by_name(const std::string &at_name, mmdb::Residue *res
 void
 coot::reduce::delete_hydrogen_atoms() {
 
+   std::vector<mmdb::Atom *> atoms_to_be_deleted;
+
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
@@ -1477,26 +1479,28 @@ coot::reduce::delete_hydrogen_atoms() {
             chain_p = model_p->GetChain(ichain);
             int nres = chain_p->GetNumberOfResidues();
             mmdb::Residue *residue_p;
-            mmdb::Atom *at;
             for (int ires=0; ires<nres; ires++) {
                residue_p = chain_p->GetResidue(ires);
                int n_atoms = residue_p->GetNumberOfAtoms();
-               bool an_atom_was_deleted = true; // so we can start the while loop
-               while (an_atom_was_deleted) {
-                  an_atom_was_deleted = false;
-                  for (int iat=0; iat<n_atoms; iat++) {
-                     at = residue_p->GetAtom(iat);
-                     std::string ele(at->element);
-                     if (ele == " H" || ele == " D") {
-                        residue_p->DeleteAtom(iat);
-                        an_atom_was_deleted = true;
-                        break;
-                     }
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  std::string ele(at->element);
+                  if (ele == " H" || ele == " D") {
+                     atoms_to_be_deleted.push_back(at);
                   }
                }
             }
          }
       }
+   }
+   if (! atoms_to_be_deleted.empty()) {
+      std::cout << "INFO:: " << atoms_to_be_deleted.size() << " atoms to be deleted" << std::endl;
+      for (unsigned int i=0; i<atoms_to_be_deleted.size(); i++) {
+         delete atoms_to_be_deleted[i];
+      }
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      util::pdbcleanup_serial_residue_numbers(mol);
+      mol->FinishStructEdit();
    }
 }
 

@@ -1756,7 +1756,8 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            const double &dist_crit = 1.95; // 20221127-PE was 0.55 // 20220924-PE was 0.25 - but that made too many
+            const double &dist_crit = 5.0; // 20230215-PE was 1.95; // 20221127-PE was 0.55 // 20220924-PE was 0.25
+                                           // - but that made too many
             if (dist > dist_crit) { // 20220503-PE was 0.05 - we want to see angry diego only when the
                                     // atom are really too close
 

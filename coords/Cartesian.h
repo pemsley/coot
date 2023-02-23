@@ -82,6 +82,7 @@ namespace coot {
       Cartesian by_scalar(float scale);
       void invert_z(void);
 
+      // 20221105-PE interesting
       Cartesian& operator=(const Cartesian &in) {
 	 x_ = in.x_;
 	 y_ = in.y_;
@@ -90,13 +91,13 @@ namespace coot {
       }
    
       void unit_vector_yourself() {
-	 float length = (*this).amplitude();
-	 (*this) /= length; 
+	 float l = (*this).amplitude();
+	 (*this) /= l;
       }
 
       Cartesian unit() const {
-	 float length = amplitude();
-	 return Cartesian(x()/length, y()/length, z()/length);
+	 float l = amplitude();
+	 return Cartesian(x()/l, y()/l, z()/l);
       }
 
       // rotate this point about direction, with origin at origin.

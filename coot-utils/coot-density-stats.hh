@@ -72,6 +72,7 @@ namespace coot {
       };
 
 
+      //! density correlation state - between map and model typically.
       class density_correlation_stats_info_t {
       public:
 	 double n;
@@ -83,6 +84,7 @@ namespace coot {
 	 // for doing KS tests (against normal distribution) , we want
 	 // all the density samples
 	 std::vector<double> density_values;
+         //! constructor
 	 density_correlation_stats_info_t() {
 	    n = 0;
 	    sum_xy = 0;
@@ -91,6 +93,7 @@ namespace coot {
 	    sum_x = 0;
 	    sum_y = 0;
 	 }
+         //! constructor
 	 density_correlation_stats_info_t(double n_in,
 					  double sum_xy_in,
 					  double sum_sqrd_x_in,
@@ -120,6 +123,7 @@ namespace coot {
             sum_sqrd_x += x * x;
             sum_sqrd_y += y * y;
          }
+         //! the correlation
 	 double correlation() const {
 	    double top = n * sum_xy - sum_x * sum_y;
 	    double b_1 = n * sum_sqrd_x - sum_x * sum_x;

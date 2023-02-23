@@ -53,8 +53,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
+// 20220723-PE perhaps delete (the use of) this include file completely?
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "coords/mmdb-crystal.h"
@@ -63,6 +64,7 @@
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
+
 #include "widget-headers.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -2046,6 +2048,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
       }
       if (! is_valid_model_molecule(imol))
 	 g.delete_molecule_from_from_display_manager(imol, false);
+
    }
    graphics_draw();
    std::string cmd = "delete-residue-range";
@@ -2529,7 +2532,7 @@ void sort_residues(int imol) {
       if (graphics_info_t::use_graphics_interface_flag) {
         graphics_info_t g;
         if (g.go_to_atom_window) {
-          g.update_go_to_atom_window_on_changed_mol(imol);
+           g.update_go_to_atom_window_on_changed_mol(imol);
         }
       }
    }
@@ -4148,6 +4151,7 @@ int place_helix_here() {
 	  } else {
 	     g.set_go_to_atom_molecule(imol);
 	  }
+
 	  g.add_status_bar_text("Helix added");
        } else {
 	  std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
@@ -4359,8 +4363,8 @@ int find_secondary_structure_local(
 /*  ----------------------------------------------------------------------- */
 /* Find secondary structure local to current view in the current map.
    Add to a molecule called "NuclAcid", create it if needed. */
-int find_nucleic_acids_local( float radius )
-{
+int find_nucleic_acids_local(float radius) {
+
    // check for data file
    std::string nafile;
    const char *cp = getenv("COOT_PREFIX");
@@ -4412,7 +4416,7 @@ int find_nucleic_acids_local( float radius )
    	 } else {
    	    g.set_go_to_atom_molecule(imol);
    	 }
-   	 std::cout << "Nucleic acids found\n";
+   	 std::cout << "Nucleic acids found" << std::endl;;
    	 g.add_status_bar_text("Nucleic acids added");
    } else {
    	 std::cout << "No nucleic acids found\n";
@@ -5225,7 +5229,8 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
 	 if (istat != 1) {
-	    wrapped_nothing_bad_dialog(stat.second);
+	    // wrapped_nothing_bad_dialog(stat.second);
+            info_dialog(stat.second.c_str());
 	 }
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol

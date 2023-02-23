@@ -23,17 +23,15 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
-#include <Python.h>
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
 
 #include <gtk/gtk.h>
 
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -105,6 +103,8 @@ std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
 
+// 20220723-PE these functions should not be in this header! - Move them to a widget header
+// MOVE-ME!
 GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
 
 std::pair<short int, float> float_from_entry(GtkWidget *entry);
@@ -1225,6 +1225,8 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
+// 20220723-PE These functions should not be here. Move this functions to a widget header.
+//             MOVE-ME!
 void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
 void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
@@ -1739,9 +1741,10 @@ void hole(int imol,
           std::string export_surface_dots_file_name);
 
 
-// GUI stuff
-void probe_radius_graph_close_callback( GtkWidget *button,
-                                         GtkWidget *dialog);
+// GUI stuff - Move these functions to a widget header
+// 20220723-PE MOVE-ME!
+void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
+
 void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);

@@ -79,7 +79,7 @@
 #include "cc-interface-scripting.hh"
 #include "cmtz-interface.hh"
 #include "cmtz-interface-gui.hh"
-#include "coords/mmdb.h"  // for centre of molecule
+#include "coords/mmdb.hh"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
 #include "c-interface-gui.hh"
@@ -1467,7 +1467,7 @@ float get_positive_float_from_entry(GtkEntry *w) {
 }
 
 // return TRUE if we don't want the window destroyed.
-gboolean
+int
 coot_checked_exit(int retval) {
 
    graphics_info_t g;
@@ -5460,6 +5460,8 @@ void set_sequence_view_is_docked(short int state) {
 
 void nsv(int imol) {
 
+#ifdef DO_GEOMETRY_GRAPHS
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5495,8 +5497,8 @@ void nsv(int imol) {
 		  gtk_widget_show(widget);
 	       } else {
 #if (GTK_MAJOR_VERSION < 4)
-                  GdkWindow *w = gtk_widget_get_window(widget);
-		  gdk_window_raise(w);
+                  GdkWindow *ww = gtk_widget_get_window(widget);
+		  gdk_window_raise(ww);
 #endif
 	       }
 	    }
@@ -5524,6 +5526,7 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
+#endif // DO_GEOMETRY_GRAPHS
 }
 
 void set_nsv_canvas_pixel_limit(int cpl) {

@@ -647,7 +647,7 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
                      "*", // elements
                      "*"  // alt loc.
                      );
-   int nSelAtoms;
+
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");

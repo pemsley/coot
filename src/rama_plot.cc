@@ -1803,7 +1803,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
       if (chain_id_1 == chain_id_2) {
          if (chain_id_2 == chain_id_3) {
             try {
-               coot::util::phi_psi_t pp(res_prev, res_this, res_next);
+               coot::util::phi_psi_with_residues_t pp(res_prev, res_this, res_next);
                coot::residue_spec_t spec(res_this);
                model_phi_psis.add_phi_psi(spec, pp);
             }
@@ -2480,7 +2480,7 @@ coot::rama_plot::counts_to_canvas(cairo_t *cr) {
 
 
 void
-coot::rama_plot::draw_it(const coot::util::phi_psi_t &phipsi) {
+coot::rama_plot::draw_it(const coot::util::phi_psi_with_residues_t &phipsi) {
 
    clear_canvas_items();
    coot::phi_psis_for_model_t phi_psi_set(1);
@@ -2499,13 +2499,13 @@ coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phi_psi_s) {
    clear_canvas_items();
    phi_psi_model_sets.clear();
    //clear_last_canvas_items(phi_psi_s.size());
-   
+
    coot::phi_psis_for_model_t phi_psi_set_m0(0);
    coot::phi_psis_for_model_t phi_psi_set(1);
    phi_psi_model_sets.push_back(phi_psi_set_m0); // dummy/unused for model 0
    for (unsigned int i=0; i<phi_psi_s.size(); i++) {
       coot::residue_spec_t spec("", i, "");
-      phi_psi_set.add_phi_psi(spec, phi_psi_s[i]);
+      phi_psi_set.add_phi_psi(spec, util::phi_psi_with_residues_t(phi_psi_s[i]));
    }
    phi_psi_model_sets.push_back(phi_psi_set);
    draw_phi_psi_points();

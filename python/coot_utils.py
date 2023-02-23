@@ -2227,7 +2227,7 @@ def decode_key(key_val_name):
 
 def add_key_binding(name, key, thunk):
 
-    if (use_gui_qm):
+    if use_gui_qm:
 
         from types import IntType, StringType
 
@@ -4189,53 +4189,56 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
     import sys
     import string
     import os
+    import subprocess
 
     major, minor, micro, releaselevel, serial = sys.version_info
 
     cmd_execfile = ""
-    if not(command_in_path_qm(cmd)):
-        print("command ", cmd, " not found in $PATH!")
-        print("BL INFO:: Maybe we'll find it somewhere else later...")
+    if not command_in_path_qm(cmd):
+        print("WARNING:: run_concurrently(): command ", cmd, " not found in $PATH!")
     else:
         cmd_execfile = find_exe(cmd, "CBIN", "CCP4_BIN", "PATH")
 
-    if (cmd_execfile):
+    if cmd_execfile:
         if (major >= 2 and minor >= 4):
             # subprocess
-            import subprocess
             cmd_args = [cmd_execfile] + args
             log = logfile
-            if (logfile):
+            if logfile:
                 log = open(logfile, 'w')
             try:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
-                                           stdout=log)
-                if (data_list):
+                print("DEBUG:: run_concurrently() log", log)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
+                print("DEBUG:: run_concurrently() process", process)
+                if data_list:
                     for data in data_list:
-                        process.stdin.write(data + "\n")
+                        d = data + "\n"
+                        print("DEBUG:: run_concurrently(): sending data: ", d.encode())
+                        process.stdin.write(d.encode())
 
                 pid = process.pid
+                
+                print("DEBUG:: run_concurrently() pid", pid)
 
                 if log:
                     return (process, log)
                 else:
                     return pid
-            except:
-                print("BL WARNING:: could not run process with args", cmd_args)
+            except KeyError as e:
+                print(e)
+                print("WARNING:: run_concurrently(): could not run process with args", cmd_args)
                 return False
 
         else:
             # spawn (old)
             try:
-                pid = os.spawnv(os.P_NOWAIT, cmd_execfile,
-                                [cmd_execfile] + args)
+                pid = os.spawnv(os.P_NOWAIT, cmd_execfile, [cmd_execfile] + args)
                 return pid
             except:
-                print("BL WARNING:: could not run program %s with args %s"
-                      % (cmd_execfile, args))
+                print("WARNING:: run_concurrently(): could not run program %s with args %s" % (cmd_execfile, args))
                 return False
     else:
-        print("WARNING:: could not find %s, so not running this program" % cmd)
+        print("WARNING:: run_concurrently(): could not find %s, so not running this program" % cmd)
         return False
 
 # python command to see if we have pygtk available

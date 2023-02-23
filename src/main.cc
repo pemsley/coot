@@ -75,10 +75,10 @@
 #include <vector>
 #include <string>
 
-#include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
-#include "coords/mmdb-crystal.h"
+// #include <mmdb2/mmdb_manager.h>
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
+// #include "coords/mmdb-crystal.h"
 
 #include "clipper/core/test_core.h"
 #include "clipper/contrib/test_contrib.h"

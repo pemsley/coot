@@ -432,9 +432,9 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
    }
 }
 
-
+// ignore_lys_and_arg_flag is a default arg (false, don't ignore)
 void
-coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
+coot::rotamer_probability_tables::fill_tables(const std::string &dir, bool ignore_lys_and_arg_flag) {
 
    if (is_well_formatted_)
       return; // filled already.
@@ -461,9 +461,11 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
    res.push_back(std::pair<std::string, std::string> ("MSE", "rota500-met.data"));
    res.push_back(std::pair<std::string, std::string> ("GLU", "rota500-glu.data"));
    res.push_back(std::pair<std::string, std::string> ("GLN", "rota500-gln.data"));
-		 
-   res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
-   res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
+
+   if (! ignore_lys_and_arg_flag) {
+      res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
+      res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
+   }
 
    std::string file_name_stub = dir;
    bool bad_read = 0;

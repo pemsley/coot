@@ -93,7 +93,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -120,17 +120,21 @@
 #include "coot-version.hh"
 
 #include "nsv.hh"
+#include "widget-headers.hh"
+#include "widget-from-builder.hh"
 
 #include "testing.hh"
 
-#include "positioned-widgets.h"
-#include "widget-headers.hh"
 
-#include "widget-from-builder.hh"
+#include "positioned-widgets.h"
 
 // moving column_label selection to c-interface from mtz bits.
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
+
+#include "widget-from-builder.hh"
+#include "glarea_tick_function.hh"
+#include "dynamic-menus.hh"
 
 
 // This is (already) in git-revision-count.cc
@@ -171,10 +175,11 @@ std::string coot_version_extra_info() {
    version_string += coot::util::int_to_string(PY_MICRO_VERSION);
    version_string += " embedded]\n";
 #endif
-   std::string s = COOT_BUILD_INFO_STRING;
+   std::string s = "COOT_BUILD_INFO_STRING"; // FIXME
+   s = COOT_BUILD_INFO_STRING;
    if (! s.empty()) {
       version_string += "Builder_info: ";
-      version_string += COOT_BUILD_INFO_STRING;
+      version_string += s;
       version_string += "\n";
    }
 
@@ -183,10 +188,11 @@ std::string coot_version_extra_info() {
    version_string += s;
    version_string += "\n";
 
-   s = COOT_SYS_BUILD_TYPE;
    if (! s.empty()) {
+      std::string bt =  "COOT_SYS_BUILD_TYPE";  // FIXME
+      bt = COOT_SYS_BUILD_TYPE;
       version_string += "Binary type: ";
-      version_string += COOT_SYS_BUILD_TYPE;
+      version_string += bt;
       version_string += "\n";
    }
 
@@ -408,17 +414,6 @@ short int python_at_prompt_at_startup_state() {
    return graphics_info_t::python_at_prompt_flag;
 }
 
-/*! \brief start Gtk (and graphics)
-
-   This function is useful if it was not started already (which can be
-   achieved by using the command line argument --no-graphics).
-
-   An interface for Ralf */
-void start_graphics_interface() {
-   add_to_history_simple("start-graphics-interface");
-   gtk_main();
-}
-
 #include "startup-scripts.hh"
 
 bool run_startup_scripts_state() {
@@ -468,6 +463,7 @@ int handle_read_draw_molecule(const char *filename) {
 int make_updating_model_molecule(const char *filename) {
 
    int status = 1;
+
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
 
    if (is_valid_model_molecule(imol)) {
@@ -808,7 +804,6 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 
 	 // if the go to atom widget exists, update its optionmenu to
 	 // reflect the existance of this new molecule.
-
 	 if (g.go_to_atom_window) {
 	    //
 	    // 20090620:
@@ -851,6 +846,8 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
    return r;
 }
 
+// this is declared in the wrong header - put it in c-interface.hh?
+int move_molecule_to_screen_centre_internal(int imol);
 
 /*! \brief read coordinates from filename and recentre the new
   molecule at the scren rotation centre. */
@@ -988,7 +985,6 @@ void hardware_stereo_mode() {
       }
    }
    add_to_history_simple("hardware-stereo-mode");
-
 }
 
 void zalman_stereo_mode() {
@@ -1039,7 +1035,6 @@ void zalman_stereo_mode() {
       }
    }
    add_to_history_simple("zalman-stereo-mode");
-
 }
 
 void mono_mode() {
@@ -1441,12 +1436,10 @@ void post_other_modelling_tools_dialog() {
    std::vector<std::string> command_strings;
    command_strings.push_back("post-other-modelling-tools-dialog");
    add_to_history(command_strings);
-
 }
 
 void set_auto_read_column_labels(const char *fwt, const char *phwt,
 				 int is_for_diff_map_flag) {
-
 
    coot::mtz_column_trials_info_t n(fwt, phwt, is_for_diff_map_flag);
    graphics_info_t::user_defined_auto_mtz_pairs.push_back(n);
@@ -1459,8 +1452,6 @@ void set_auto_read_column_labels(const char *fwt, const char *phwt,
    add_to_history_typed(cmd, args);
 
 }
-
-#include "glarea_tick_function.hh"
 
 void toggle_idle_spin_function() {
 
@@ -1526,7 +1517,6 @@ void toggle_flev_idle_ligand_interactions() {
 }
 
 void set_flev_idle_ligand_interactions(int state) {
-
    graphics_info_t g;
    if (state == 0) {
       // turn them off if they were on
@@ -1554,7 +1544,6 @@ void set_flev_idle_ligand_interactions(int state) {
       }
    }
    g.graphics_draw();
-
 }
 
 
@@ -1641,8 +1630,6 @@ set_main_window_title(const char *s) {
    }
 }
 
-#include "widget-from-builder.hh"
-
 /*! function to show or hide the vertical modelling toolbar */
 void set_show_modelling_toolbar(short int state) {
 
@@ -1709,8 +1696,6 @@ void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) 
    graphics_info_t g;
    g.save_directory_for_saving_from_filechooser(fileselection);
 }
-
-
 
 
 bool compare_mtimes(coot::str_mtime a, coot::str_mtime b) {
@@ -2354,10 +2339,8 @@ int  show_origin_marker_state() {
 
 
 
-
-
 void
-handle_symmetry_colour_change(int mol, gdouble* col) {
+handle_symmetry_colour_change(int mol, double* col) {
 
    //
    graphics_info_t::symmetry_colour[0] = col[0];
@@ -2388,9 +2371,8 @@ get_map_colour(int imol) {
    return colour;
 }
 
-#if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-#else
-   // can I remove this?
+
+// HHHHHmmm!
 void
 on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
                                                      gpointer           user_data) {
@@ -2398,7 +2380,6 @@ on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorsel
    // this is not used now, I think
    std::cout << "colour changed" << std::endl;
 }
-#endif
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
@@ -2420,6 +2401,7 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
    }
    gtk_widget_destroy (GTK_WIDGET (dialog));
 }
+
 
 void
 on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
@@ -2470,6 +2452,7 @@ SCM map_colour_components(int imol) {
    return r;
 }
 #endif
+
 // BL says:: this is for python
 #ifdef USE_PYTHON
 PyObject *map_colour_components_py(int imol) {
@@ -2477,6 +2460,7 @@ PyObject *map_colour_components_py(int imol) {
    PyObject *r;
    r = Py_False;
    if (is_valid_map_molecule(imol)) {
+
       double rc = graphics_info_t::molecules[imol].map_colour.red;
       double gc = graphics_info_t::molecules[imol].map_colour.green;
       double bc = graphics_info_t::molecules[imol].map_colour.blue;
@@ -2538,7 +2522,7 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
 
 }
 
-
+#ifdef USE_PYTHON
 //! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
 //! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
 void
@@ -2582,6 +2566,7 @@ colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float 
    }
    graphics_draw();
 }
+#endif
 
 
 void
@@ -2596,7 +2581,7 @@ colour_map_by_other_map_turn_off(int imol_map) {
 
 
 // -------------------------------------------------------------------
-
+#ifdef USE_PYTHON
 PyObject *export_molecule_as_x3d(int imol) {
 
    PyObject *r = PyList_New(3);
@@ -2641,6 +2626,7 @@ PyObject *export_molecule_as_x3d(int imol) {
    return r;
 
 }
+#endif
 
 bool export_molecule_as_obj(int imol, const std::string &fn)  {
 
@@ -2679,9 +2665,6 @@ get_symmetry_bonds_colour(int idummy) {
 }
 
 
-
-
-
 // In future the gui will usefully set a mol number and we
 // will use that.
 //
@@ -2712,7 +2695,7 @@ void set_show_symmetry_master(short int state) {
 
       int n_has_symm = 0;
       int n_model_molecules = 0;
-      for (int ii=0; ii<g.n_molecules(); ii++)
+      for (int ii=0; ii<g.n_molecules(); ii++) {
 	 if (is_valid_model_molecule(ii)) {
 	    n_model_molecules++;
 	    mmdb::mat44 my_matt;
@@ -2721,15 +2704,6 @@ void set_show_symmetry_master(short int state) {
 	       n_has_symm++;
 	       break;
 	    }
-	 }
-      if ((n_has_symm == 0) && (n_model_molecules > 0)) {
-	 std::string s = "WARNING:: there are no model molecules\n";
-	 s += " that can display symmetry.  \n\nCRYST1 problem?";
-         if (false) { // I don't like this noise in the days of molecular symmetry for EM models
-            if (graphics_info_t::use_graphics_interface_flag) {
-               GtkWidget *w = g.wrapped_nothing_bad_dialog(s);
-               gtk_widget_show(w);
-            }
 	 }
       }
    }
@@ -2797,7 +2771,6 @@ short int get_show_symmetry() {
 }
 
 
-
 void
 set_clipping_front(float v) {
    graphics_info_t g;
@@ -2810,7 +2783,6 @@ set_clipping_front(float v) {
    // std::cout << "done set_clipping_front" << std::endl;
 }
 
-
 void
 set_clipping_back(float v) {
    graphics_info_t g;
@@ -2821,7 +2793,6 @@ set_clipping_back(float v) {
    args.push_back(v);
    add_to_history_typed(cmd, args);
 }
-
 
 /*! \brief get clipping plane front */
 float get_clipping_plane_front() {
@@ -2835,7 +2806,6 @@ float get_clipping_plane_back() {
    return g.get_clipping_plane_back();
 }
 
-
 /*! increase the *amount* of clipping, that is (independent of projection matrix)*/
 void increase_clipping_front() {
    graphics_info_t g;
@@ -2846,7 +2816,6 @@ void increase_clipping_front() {
 void increase_clipping_back() {
    graphics_info_t g;
    g.increase_clipping_back();
-
 }
 
 /*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
@@ -3448,6 +3417,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int draw_hydrogens_flag) {
 
    int r = -1;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
@@ -3513,7 +3483,6 @@ SCM additional_representation_info_scm(int imol) {
    }
    return r;
 }
-
 #endif	/* USE_GUILE */
 
 #ifdef USE_PYTHON
@@ -3646,7 +3615,6 @@ int n_dots_sets(int imol) {
    return r;
 }
 
-
 std::pair<short int, float> float_from_entry(GtkWidget *entry) {
 
    std::pair<short int, float> p(0,0);
@@ -3670,7 +3638,6 @@ std::pair<short int, int> int_from_entry(GtkWidget *entry) {
    }
    return p;
 }
-
 
 
 
@@ -3804,6 +3771,7 @@ void set_use_stroke_characters(int state) {
 /*                         Rotation Centre Cube Size                       */
 /*  ---------------------------------------------------------------------- */
 
+
 void set_rotation_centre_size_from_widget(const gchar *text) {
 
    float val;
@@ -3852,10 +3820,9 @@ void set_draw_axes(int i) {
 }
 
 
-
 GtkWidget *main_window() {
    return graphics_info_t::get_main_window();
-};
+}
 
 int graphics_n_molecules() {
    return graphics_info_t::n_molecules();
@@ -4259,7 +4226,6 @@ int reset_view() {
 //                   Skeleton
 // ------------------------------------------------------
 
-
 void
 handle_skeleton_colour_change(int mol, gdouble* map_col) {
 
@@ -4268,7 +4234,6 @@ handle_skeleton_colour_change(int mol, gdouble* map_col) {
    graphics_info_t::skeleton_colour[2] = map_col[2];
 
    graphics_draw();
-
 }
 
 gdouble*
@@ -4532,6 +4497,7 @@ void do_clipping1_activate() {
 		    G_CALLBACK(clipping_adjustment_changed), NULL);
 
    gtk_widget_show(clipping_window);
+
 }
 
 void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window) {
@@ -4613,7 +4579,7 @@ void set_save_molecule_number(int imol) {
 /*  ----------------------------------------------------------------------- */
 
 void
-read_phs_and_coords_and_make_map(const gchar *pdb_filename){
+read_phs_and_coords_and_make_map(const char *pdb_filename){
 
    // This function is the .phs equivalent of c.f. make_and_draw_map,
    // map_fill_from_mtz.  We have previously stored the phs_filename
@@ -4638,8 +4604,8 @@ read_phs_and_coords_and_make_map(const gchar *pdb_filename){
       w += pdb_filename;
       w += "\n";
       w += "Can't make map from phs file.";
-      GtkWidget *widget = wrapped_nothing_bad_dialog(w);
-      gtk_widget_show(widget);
+      graphics_info_t g;
+      g.info_dialog(w);
    }
 }
 
@@ -4730,8 +4696,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 	 w += coot::util::int_to_string(imol_ref);
 	 w += "\n";
 	 w += "Can't make map from phs file.";
-	 GtkWidget *widget = wrapped_nothing_bad_dialog(w);
-	 gtk_widget_show(widget);
+         g.info_dialog(w);
       }
    } else {
       g.erase_last_molecule();
@@ -4741,8 +4706,7 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
       w += coot::util::int_to_string(imol_ref);
       w += "\n";
       w += "Can't make map from phs file.";
-      GtkWidget *widget = wrapped_nothing_bad_dialog(w);
-      gtk_widget_show(widget);
+      g.info_dialog(w);
    }
 
    return istat;
@@ -4877,7 +4841,7 @@ read_phs_and_make_map_using_cell_symm(const char *phs_file_name,
 
 
 void
-graphics_store_phs_filename(const gchar *phs_filename) {
+graphics_store_phs_filename(const char *phs_filename) {
 
    graphics_info_t g;
    g.set_phs_filename(std::string(phs_filename));
@@ -4987,6 +4951,13 @@ int go_to_atom_molecule_number() {
    return g.go_to_atom_molecule();
 }
 
+
+// 20220723-PE make these strings
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+
 char *go_to_atom_chain_id() {
    graphics_info_t g;
    gchar *txt = (gchar *)malloc(100);
@@ -5019,6 +4990,11 @@ char *go_to_atom_alt_conf() {
    snprintf(txt, 9, "%s", g.go_to_atom_alt_conf());
    return txt;
 }
+
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 
 
 // Note that t3 is an atom name with (possibly) an altLoc tag (after the comma).
@@ -5131,7 +5107,6 @@ goto_next_atom_maybe_new(GtkWidget *goto_atom_window) {
 
 }
 
-
 int
 goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
 
@@ -5140,7 +5115,6 @@ goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
 
    graphics_info_t g;
    return g.intelligent_previous_atom_centring(goto_atom_window);
-
 }
 
 
@@ -5644,7 +5618,6 @@ void set_ca_bonds_loop_params(float p1, float p2, float p3) {
 //                        skeletonization level
 // -------------------------------------------------------------------------
 //
-
 gchar *get_text_for_skeletonization_level_entry() {
 
    graphics_info_t g;
@@ -5677,7 +5650,6 @@ void set_skeletonization_level_from_widget(const char *txt) {
    }
    graphics_draw();
 }
-
 
 gchar *get_text_for_skeleton_box_size_entry() {
 
@@ -5755,7 +5727,6 @@ void store_keyed_user_name(std::string key, std::string user_name, std::string p
 /*  ----------------------------------------------------------------------- */
 
 
-
 void save_display_control_widget_in_graphics(GtkWidget *widget) {
 
    graphics_info_t g;
@@ -5770,6 +5741,7 @@ post_display_control_window() {
    std::vector<std::string> command_strings;
    command_strings.push_back("post-display-control-window");
    add_to_history(command_strings);
+
 }
 
 void
@@ -5822,7 +5794,6 @@ void add_map_and_mol_display_control_widgets() {
 
 // resets to NULL the scroll group too.
 void reset_graphics_display_control_window() {
-
    graphics_info_t g;
    g.save_display_control_widget_in_graphics(NULL);
 }
@@ -5928,7 +5899,6 @@ void display_maps_py(PyObject *pyo) {
 // button_type is "Displayed" or "Active"
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
-
    //   button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
@@ -6138,7 +6108,6 @@ void set_only_last_model_molecule_displayed() {
 	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
 	 if (g.display_control_window())
 	    set_display_control_button_state(turn_these_off[j], "Active", 0);
-
       }
    }
    if (is_valid_model_molecule(imol_last)) {
@@ -6151,7 +6120,6 @@ void set_only_last_model_molecule_displayed() {
 	 g.molecules[imol_last].set_mol_is_active(1);
 	 if (g.display_control_window())
 	    set_display_control_button_state(imol_last, "Displayed", 1);
-
       }
    }
    g.mol_displayed_toggle_do_redraw = true; // back on again
@@ -7064,7 +7032,6 @@ void post_scheme_scripting_window() {
 
 /*! \brief pop-up a scripting window for pythoning */
 void post_python_scripting_window() {
-
 #ifdef USE_PYTHON
 
    bool do_script_scripting_gui = false;
@@ -7507,21 +7474,15 @@ import_python_module(const char *module_name, int use_namespace) {
 }
 
 
-#include "dynamic-menus.hh"
-
 void add_on_rama_choices() {  // the the menu
-
    GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
    add_on_validation_graph_mol_options(menu_item, "ramachandran");
-
 }
 
 
 void destroy_edit_backbone_rama_plot() {
-
    graphics_info_t g;
    g.destroy_edit_backbone_rama_plot();
-
 }
 
 
@@ -8341,6 +8302,9 @@ void set_do_anti_aliasing(int state) {
 
 
 void set_do_GL_lighting(int state) {
+
+   // 20220724-PE  old function can be deleted.
+  
    graphics_info_t::do_lighting_flag = state;
    setup_lighting(state);
    graphics_draw();
@@ -8636,7 +8600,6 @@ void set_remote_control_port(int port_number) {
 int get_remote_control_port_number() {
   return graphics_info_t::remote_control_port_number;
 }
-
 
 gint coot_socket_listener_idle_func(gpointer data) {
 
@@ -8999,6 +8962,7 @@ SCM view_name(int view_number) {
    return r;
 }
 #endif	/* USE_GUILE */
+
 #ifdef USE_PYTHON
 PyObject *view_name_py(int view_number) {
 
@@ -9015,7 +8979,6 @@ PyObject *view_name_py(int view_number) {
    }
    return r;
 }
-
 #endif // PYTHON
 
 #ifdef USE_GUILE
@@ -9032,6 +8995,7 @@ SCM view_description(int view_number) {
    return r;
 }
 #endif	/* USE_GUILE */
+
 #ifdef USE_PYTHON
 PyObject *view_description_py(int view_number) {
 
@@ -9236,7 +9200,6 @@ float views_play_speed() {
 /*  ----------------------------------------------------------------------- */
 /*                  remote control                                          */
 /*  ----------------------------------------------------------------------- */
-
 void set_socket_string_waiting(const char *s) {
 
    // wait for lock:
@@ -9281,7 +9244,6 @@ void set_socket_string_waiting(const char *s) {
 
 }
 
-
 /*! \brief feed the main thread a python script to evaluate */
 void set_socket_python_string_waiting(const char *s) {
 
@@ -9290,8 +9252,6 @@ void set_socket_python_string_waiting(const char *s) {
 
    GSourceFunc f = graphics_info_t::process_socket_python_string_waiting_bool;
    g_idle_add(f, NULL); // if f returns FALSE then f is not called again.
-
-
 }
 
 

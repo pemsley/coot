@@ -771,11 +771,15 @@ namespace coot {
       explicit target_position_for_atom_eraser(const atom_spec_t &spec_in) : spec(spec_in) {}
       atom_spec_t spec;
       bool operator() (const simple_restraint &r) const {
+#ifdef SWIG
+         // 20221028-PE it feels like a trap
+#else
          if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
             if (r.atom_spec == spec) {
                return true;
             }
          }
+#endif
          return false;
       }
    };
@@ -799,8 +803,12 @@ namespace coot {
             double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
             if (d < close_dist) {
                atom_spec_t t(atoms[r.atom_index_1]);
+#ifdef SWIG
+               // 20221028-PE more trap?
+#else
                if (t != exclude_spec)
                   v = true;
+#endif
             }
          }
          return v;
@@ -920,10 +928,9 @@ namespace coot {
       int resno;
       double distortion;
       std::string info_string;
-      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) {
+      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) : info_string(s) {
          resno = resno_in;
          distortion = distortion_in;
-         info_string = s;
       }
    };
 
@@ -933,8 +940,7 @@ namespace coot {
       std::vector<omega_distortion_info_t> omega_distortions; // in degrees away from 180
       int min_resno;
       int max_resno;
-      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) {
-         chain_id = chain_id_in;
+      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) : chain_id(chain_id_in) {
          min_resno = min_resno_in;
          max_resno = max_resno_in;
       }

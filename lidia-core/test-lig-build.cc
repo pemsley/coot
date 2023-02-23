@@ -32,6 +32,8 @@ tlc_to_svg_file(const std::string &tlc, coot::protein_geometry &geom) {
    if (tlc == "AU3") return;
    if (tlc == "AZZ") return;
 
+   std::cout << "Here in tlc_to_svg_file: " << tlc << std::endl;
+
    int imol = coot::protein_geometry::IMOL_ENC_ANY;
    mmdb::Residue *r = geom.get_residue(tlc, imol, true, true, 30.0);
    if (r) {

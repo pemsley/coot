@@ -77,7 +77,7 @@ namespace coot {
 			     std::string phi_col,
 			     std::string weight_col,
 			     short int use_weights,
-			     short int is_diff_map);
+                             float sampling_rate=1.5);
 
       bool map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			     std::string mtz_file_name,
@@ -85,9 +85,9 @@ namespace coot {
 			     std::string phi_col,
 			     std::string weight_col,
 			     short int use_weights,
-			     short int is_diff_map,
 			     float reso_limit_high,
-			     short int use_reso_limit_high);
+			     short int use_reso_limit_high,
+                             float sampling_rate=1.5);
 
       // needed by above:
       void filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,

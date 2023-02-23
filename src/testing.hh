@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/coot-coord-extras.hh"

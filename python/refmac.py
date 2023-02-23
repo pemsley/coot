@@ -40,6 +40,9 @@
 import os
 import sys
 import numbers
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import GLib
 import coot
 import coot_utils
 
@@ -81,6 +84,8 @@ refmac_extra_params = None
 global refmac_count
 refmac_count = 0
 
+
+global use_gui_qm
 
 # /a/b/c -> c
 def split_label(label):
@@ -396,42 +401,53 @@ def run_refmac_by_filename_inner(pdb_in_filename, pdb_out_filename,
 
         # can spawn refmac and add button
 
-        print("calling run_concurrently with ", refmac_execfile, command_line_args, data_lines, refmac_log_file_name, to_screen_flag)
+        print("DEBUG:: run_refmac_by_filename_inner(): calling run_concurrently with ", refmac_execfile, command_line_args, data_lines, refmac_log_file_name, to_screen_flag)
 
-        refmac_process, logObj = coot_utils.run_concurrently(refmac_execfile,
-                                                  command_line_args,
-                                                  data_lines,
-                                                  refmac_log_file_name,
-                                                  to_screen_flag)
-
-        if use_gui_qm:
-            separator   = add_coot_toolbar_separator()
-            kill_button = coot_toolbar_button("Kill refmac",
-                                              "kill_process(" + str(refmac_process.pid)+ ")",
-                                              "stop.svg")
-            button_tup = (kill_button, separator)
-            add_status_bar_text("Running refmac")
+        run_concurrently_results = coot_utils.run_concurrently(refmac_execfile,
+                                                               command_line_args,
+                                                               data_lines,
+                                                               refmac_log_file_name,
+                                                               to_screen_flag)
+        print("DEBUG:: run_refmac_by_filename_inner(): run_concurrently_results", run_concurrently_results)
+        if run_concurrently_results == False:
+            print("DEBUG:: run_refmac_by_filename_inner(): failed to start running concurrently")
         else:
-            button_tup = None
+            global use_gui_qm
+            refmac_process, logObj = run_concurrently_results
+            print("HHHHHHHHHHHHHHHHHHHHHHHHere 0000000000000")
+            if coot_utils.use_gui_qm:
+                print("HHHHHHHHHHHHHHHHHHHHHHHHere  PATH A")
+                separator   = add_coot_toolbar_separator()
+                kill_button = coot_toolbar_button("Kill refmac",
+                                                  "kill_process(" + str(refmac_process.pid)+ ")",
+                                                  "stop.svg")
+                button_tup = (kill_button, separator)
+                add_status_bar_text("Running refmac")
+            else:
+                button_tup = None
+                print("HHHHHHHHHHHHHHHHHHHHHHHHere  PATH B")
 
-        gobject.timeout_add(1000,
-                            post_run_refmac,
-                            imol_refmac_count,
-                            imol_mtz_molecule, swap_map_colours_post_refmac_p,
-                            show_diff_map_flag,
-                            pdb_out_filename, mtz_out_filename, mtz_in_filename,
-                            refmac_log_file_name,
-                            phib_fom_pair, f_col, sig_f_col, r_free_col,
-                            phase_combine_flag, make_molecules_flag,
-                            refmac_process, logObj,
-                            button_tup, True)
+            print("HHHHHHHHHHHHHHHHHHHHHHHHere  PATH C")
+            GLib.timeout_add(1000,
+                             post_run_refmac,
+                             imol_refmac_count,
+                             imol_mtz_molecule, swap_map_colours_post_refmac_p,
+                             show_diff_map_flag,
+                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
+                             refmac_log_file_name,
+                             phib_fom_pair, f_col, sig_f_col, r_free_col,
+                             phase_combine_flag, make_molecules_flag,
+                             refmac_process, logObj,
+                             button_tup, True)
+            print("HHHHHHHHHHHHHHHHHHHHHHHHere  PATH D")
     else:
+        print("HHHHHHHHHHHHHHHHHHHHHHHHere  PATH OTHER")
         # no gobject and no subprocess, so run 'old' coot_utils.popen_command
         refmac_status = coot_utils.popen_command(refmac_execfile,
                                       command_line_args,
                                       data_lines,
                                       refmac_log_file_name, to_screen_flag)
-        if (make_molecules_flag == 0):
+        if make_molecules_flag == 0:
             # e.g. from get_recent_pdb, i.e. dont load new files, basically
             # dont thread here...
             return pdb_out_filename, mtz_out_filename  # return values

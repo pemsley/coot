@@ -53,8 +53,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
+// just delete this header?
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "coords/mmdb-crystal.h"
@@ -639,6 +640,7 @@ void mutate_active_residue() {
       g.residue_type_chooser_auto_fit_flag = 1;
       g.pick_pending_flag = 0;
    }
+
 }
 
 void
