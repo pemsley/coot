@@ -3862,3 +3862,20 @@ molecules_container_t::set_colour_wheel_rotation_base(int imol, float r) {
 
 }
 
+
+
+//! @return the string of the contents of the given file-name.
+std::string
+molecules_container_t::file_name_to_string(const std::string &file_name) const {
+
+   std::string s;
+   std::ifstream f(file_name.c_str(), std::ios::binary);
+   if (!f) {
+      std::cout << "WARNING:: Failed to open " << file_name << std::endl;
+   } else {
+      std::ostringstream ostrm;
+      ostrm << f.rdbuf();
+      s = ostrm.str();
+   }
+   return s;
+}

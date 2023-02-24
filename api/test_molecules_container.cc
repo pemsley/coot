@@ -2447,6 +2447,17 @@ int test_symmetry(molecules_container_t &mc) {
    return status;
 }
 
+int test_read_file(molecules_container_t &mc) {
+
+   int status = 0;
+   std::string s = mc.file_name_to_string("1x8b.pdb");
+   if (s.size() == 225099)
+      status = 1;
+
+   return status;
+
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2609,7 +2620,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
-   status = run_test(test_symmetry, "symmetry", mc);
+   // status = run_test(test_symmetry, "symmetry", mc);
+
+   status = run_test(test_symmetry, "read file", mc);
 
    // Note to self:
    //

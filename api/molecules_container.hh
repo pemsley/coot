@@ -309,6 +309,9 @@ public:
    //! the backup-enable state (raw public if needed/prefered)
    static bool make_backups_flag; // does this need to be static?
 
+   //! @return the string of the contents of the given file-name.
+   std::string file_name_to_string(const std::string &file_name) const;
+
    //! @return the number of molecules
    unsigned int get_number_of_molecules() const { return molecules.size(); }
 
