@@ -2430,8 +2430,8 @@ int test_symmetry(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   coot::Cartesian position(0,0,10);
-   std::vector<std::pair<symm_trans_t, Cell_Translation> > v = mc.get_symmetry(imol, 10.0, position);
+   coot::Cartesian pos(1,0,10);
+   std::vector<std::pair<symm_trans_t, Cell_Translation> > v = mc.get_symmetry(imol, 10.0, pos.x(), pos.y(), pos.z());
 
    std::cout << "Got " << v.size() << " symmetry-related molecules" << std::endl;
 

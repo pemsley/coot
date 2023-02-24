@@ -3837,11 +3837,12 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
 //! symmetry
 
 std::vector<std::pair<symm_trans_t, Cell_Translation> >
-molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, const coot::Cartesian &rotation_centre) const {
+molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, float x, float y, float z) const {
 
+   coot::Cartesian symmetry_centre(x, y, z);
    std::vector<std::pair<symm_trans_t, Cell_Translation> > v;
    if (is_valid_model_molecule(imol)) {
-      v = molecules[imol].get_symmetry(symmetry_search_radius, rotation_centre);
+      v = molecules[imol].get_symmetry(symmetry_search_radius, symmetry_centre);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

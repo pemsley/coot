@@ -3495,7 +3495,5 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
    std::cout << "extents: " << extents << std::endl;
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
       extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
-   std::cout << "debug:: in get_symmetry() symm_trans_boxes is of size " << symm_trans_boxes.size() << std::endl;
    return symm_trans_boxes;
-
 }

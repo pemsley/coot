@@ -508,7 +508,7 @@ namespace coot {
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
 
       std::vector<std::pair<symm_trans_t, Cell_Translation> >
-      get_symmetry(float symmetry_search_radius, const coot::Cartesian &RotationCentre) const;
+      get_symmetry(float symmetry_search_radius, const coot::Cartesian &symm_centre) const;
 
       // ----------------------- model analysis functions
 

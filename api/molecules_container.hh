@@ -621,7 +621,7 @@ public:
 
    //! symmetry
    std::vector<std::pair<symm_trans_t, Cell_Translation> >
-   get_symmetry(int imol, float symmetry_search_radius, const coot::Cartesian &rotation_centre) const;
+   get_symmetry(int imol, float symmetry_search_radius, float centre_x, float centre_y, float centre_z) const;
 
    //! undo
    //! @return 1 on successful undo, return 0 on failure
