@@ -1458,7 +1458,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                 float bond_width, float atom_radius_to_bond_width_ratio,
                                                 int smoothness_factor) {
 
-   std::cout << " ==================================== get_bonds_mesh_instanced() start" << std::endl;
+   //   std::cout << " ==================================== get_bonds_mesh_instanced() start" << std::endl;
 
    bool draw_hydrogen_atoms_flag = true; // pass this
 
@@ -1474,10 +1474,10 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
    auto tp_1 = std::chrono::high_resolution_clock::now();
    if (show_timings) {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
+      // std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
    }
 
-   std::cout << " ==================================== get_bonds_mesh_instanced() done" << std::endl;
+   // std::cout << " ==================================== get_bonds_mesh_instanced() done" << std::endl;
    return im;
 }
 

@@ -50,8 +50,8 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          col = colour_table[icol];
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
-         bool do_it = atoms_have_bigger_radius_than_bonds;
          mmdb::Atom *at = at_info.atom_p;
+         // bool do_it = atoms_have_bigger_radius_than_bonds;
 
          // if (! do_it) {
          //    int state = -1;
@@ -61,11 +61,12 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          //    }
          // }
 
-         do_it = true;  // everything is spherical for the moment.
+         bool do_it = true;  // everything is spherical for the moment.
 
          if (do_it) {
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
+            if (sar > 5.5) sar = 5.5;
             glm::vec3 sc(sar, sar, sar);
             glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);

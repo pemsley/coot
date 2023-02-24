@@ -240,7 +240,7 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
-   void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type,
+   void add_atom_centres(int imol, const atom_selection_container_t &SelAtom, int atom_colour_type,
                          coot::my_atom_colour_map_t *atom_colour_map = 0);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
                         mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
@@ -850,6 +850,7 @@ public:
                                  bool do_goodsell_colour_mode,
                                  bool do_ramachandran_markup); // 20221011-PE we want bond by dict *and* rota dodecs!
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
+                                    int imol,
                                     int draw_hydrogens_flag);
    void do_normal_bonds_no_water(const atom_selection_container_t &asc,
                                  int imol,

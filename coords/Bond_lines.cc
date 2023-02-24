@@ -2511,7 +2511,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       // std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
       add_rotamer_goodness_markup(SelAtom);
    }
-   add_atom_centres(SelAtom, atom_colour_type);
+   add_atom_centres(imol, SelAtom, atom_colour_type);
    add_cis_peptide_markup(SelAtom, model_number);
 }
 
@@ -5428,14 +5428,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 					  return DARK_BROWN_BOND;
 				       } else {
 					  if (element == " I") {
-					     return MAGENTA_BOND;
+					     return DARK_VIOLET;
 					  } else {
-					     if (element == "MG") {
+                                             if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
 						return DARK_GREEN_BOND;
 					     } else {
 						if (element == "FE") {
 						   return DARK_ORANGE_BOND;
-						}
+						} else {
+                                                   if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                      return VIOLET;
+                                                   }
+                                                }
 					     }
 					  }
 				       }
@@ -5493,13 +5497,17 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                              return DARK_BROWN_BOND;
                                           } else {
                                              if (element == " I") {
-                                                return MAGENTA_BOND;
+                                                return DARK_VIOLET;
                                              } else {
-                                                if (element == "MG") {
+                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
                                                    return DARK_GREEN_BOND;
                                                 } else {
                                                    if (element == "FE") {
                                                       return DARK_ORANGE_BOND;
+                                                   } else {
+                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                         return VIOLET;
+                                                      }
                                                    }
                                                 }
                                              }
@@ -6731,7 +6739,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
+   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
 
 }
 
@@ -7208,7 +7216,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
+   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
    int model_number = 0; // for all cis peptide markup (hmm, this function should be pass a model number?)
    add_cis_peptide_markup(asc, model_number);
 }
@@ -7488,7 +7496,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL;
 
    std::cout << "in " << __FUNCTION__ << " with atom_colour_type " << atom_colour_type << std::endl;
-   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
+   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
    if (draw_missing_loops_flag)
@@ -7717,6 +7725,7 @@ Bond_lines_container::do_colour_by_chain_bonds_internals_goodsell_mode(int imol,
 
 void
 Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
+                                                  int imol,
 						  int draw_hydrogens_flag) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -7897,7 +7906,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_MOLECULE;
-   add_atom_centres(asc, atom_colour_type, nullptr);
+   add_atom_centres(imol, asc, atom_colour_type, nullptr);
 }
 
 
@@ -8019,9 +8028,14 @@ Bond_lines_container::add_rotamer_goodness_markup(const atom_selection_container
 
 // you can use the atom_colour_map here - it might be null
 void
-Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
+Bond_lines_container::add_atom_centres(int imol,
+                                       const atom_selection_container_t &SelAtom,
 				       int atom_colour_type,
                                        coot::my_atom_colour_map_t *atom_colour_map_p) {
+
+   // 20230224-PE we want atoms in ligands with no dictionary to be bigger
+   // So let's store a list of list of residue name and if they have a dictionary:
+   std::map<std::string, bool> have_at_least_minimal_dictionary;
 
    atom_centres.clear();
    atom_centres_colour.clear(); // vector of ints
@@ -8041,6 +8055,16 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       mmdb::Atom *at = SelAtom.atom_selection[i];
       bool is_H_flag = false;
+      std::string res_type(at->GetResName());
+      bool have_dict_for_this_type = false;
+      std::map<std::string, bool>::const_iterator it = have_at_least_minimal_dictionary.find(res_type);
+      if (it == have_at_least_minimal_dictionary.end()) {
+         bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
+         have_at_least_minimal_dictionary[res_type] = s;
+         have_dict_for_this_type = s;
+      } else {
+         have_dict_for_this_type = it->second;
+      }
       if (is_hydrogen(std::string(at->element)))
          is_H_flag = true;
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
@@ -8052,7 +8076,7 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
          // p.radius_scale = 2.0;
          // p.radius_scale = p.get_radius_scale_for_atom(at);
          // replace with:
-         p.set_radius_scale_for_atom(at);
+         p.set_radius_scale_for_atom(at, have_dict_for_this_type);
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
                if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;

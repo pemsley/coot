@@ -109,10 +109,14 @@ public:
       return scale;
    }
 
-   void set_radius_scale_for_atom(mmdb::Atom *at) {
+   void set_radius_scale_for_atom(mmdb::Atom *at, bool have_dictionary) {
+      // 20230224-PE if there is no dictionary, then we want big fat atoms
       radius_scale = get_radius_scale_for_atom(at);
+      if (!have_dictionary)
+         radius_scale = 6.0;
+      if (radius_scale > 6.0) radius_scale = 6.0;
    }
-   
+
 };
 
 template<class T> class graphical_bonds_points_list {
