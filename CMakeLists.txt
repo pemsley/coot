@@ -351,7 +351,7 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
 target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1" "-DCLIPPER_HAS_TOP8000")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
