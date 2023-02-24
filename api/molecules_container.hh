@@ -1048,6 +1048,9 @@ public:
                                      int imol_updating_difference_map,
                                      int imol_map_with_data_attached);
 
+   //! the stored data set file name
+   std::string get_data_set_file_name(int imol) const;
+
    // -------------------------------- Go To Blob ---------------------------------------
    //! \name Go to Blob
 

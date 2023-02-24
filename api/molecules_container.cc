@@ -3879,3 +3879,14 @@ molecules_container_t::file_name_to_string(const std::string &file_name) const {
    }
    return s;
 }
+
+//! the stored data set file name
+std::string
+molecules_container_t::get_data_set_file_name(int imol) const {
+
+   std::string r;
+   if (is_valid_model_molecule(imol))
+      r = molecules[imol].Refmac_mtz_filename();
+
+   return r;
+}
