@@ -38,6 +38,11 @@
 
 // #include "molecular-mesh-generator.hh"
 
+//! set the colour wheel rotation base for the specified molecule
+void
+coot::molecule_t::set_colour_wheel_rotation_base(float r) {
+   bonds_colour_map_rotation = r;
+}
 
 void
 coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) {

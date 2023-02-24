@@ -3848,3 +3848,17 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    }
    return v;
 }
+
+
+//! set the colour wheel rotation base for the specified molecule
+void
+molecules_container_t::set_colour_wheel_rotation_base(int imol, float r) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_colour_wheel_rotation_base(r);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+

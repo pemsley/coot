@@ -524,6 +524,10 @@ public:
                                                                  bool against_a_dark_background,
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
+
+   //! set the colour wheel rotation base for the specified molecule (in degrees)
+   void set_colour_wheel_rotation_base(int imol, float r);
+
    //! add a atom selection cid for atoms and bonds not to be drawn
    void add_to_non_drawn_bonds(int imol, const std::string &atom_selection_cid);
 

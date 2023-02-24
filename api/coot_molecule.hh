@@ -442,6 +442,9 @@ namespace coot {
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
 
+      //! set the colour wheel rotation base for the specified molecule
+      void set_colour_wheel_rotation_base(float r);
+
       std::set<int> no_bonds_to_these_atom_indices;
 
       void add_to_non_drawn_bonds(const std::string &atom_selection_cid);
