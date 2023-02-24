@@ -3763,7 +3763,9 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
    //bool force_rebonding?
 
    Bond_lines_container bonds;
-   bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
+   // the imol_no is passed because we search the dictionary to find if
+   // the residue of the atoms has a dictionary (if not, they are drawn large).
+   bonds.do_colour_by_molecule_bonds(atom_sel, imol_no, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
    make_glsl_bonds_type_checked(__FUNCTION__);
