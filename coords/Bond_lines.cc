@@ -8046,8 +8046,14 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
          coot::Cartesian pos(at->x, at->y, at->z);
 	 graphical_bonds_atom_info_t p(pos, i, is_H_flag);
-         if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
-            p.radius_scale = 2.0;
+
+         // 20230224-PE
+         // if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
+         // p.radius_scale = 2.0;
+         // p.radius_scale = p.get_radius_scale_for_atom(at);
+         // replace with:
+         p.set_radius_scale_for_atom(at);
+
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
                if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
                if (is_H_flag) p.is_hydrogen_atom = true;

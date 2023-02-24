@@ -14,8 +14,8 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                      const graphical_bonds_container &gbc,
                                      int bonds_box_type,
                                      int udd_handle_bonded_type,
-                                     float atom_radius,
-                                     float bond_radius,
+                                     float base_atom_radius,
+                                     float base_bond_radius,
                                      unsigned int num_subdivisions,
                                      const std::vector<glm::vec4> &colour_table) {
 
@@ -25,7 +25,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    coot::instanced_geometry_t ig("spherical-atoms");
 
    bool atoms_have_bigger_radius_than_bonds = false;
-   if (atom_radius > bond_radius) atoms_have_bigger_radius_than_bonds = true;
+   if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
       tessellate_octasphere(num_subdivisions);
@@ -53,23 +53,21 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          bool do_it = atoms_have_bigger_radius_than_bonds;
          mmdb::Atom *at = at_info.atom_p;
 
-         if (! do_it) {
-            if (at) {
-               int state = -1;
-               at->GetUDData(udd_handle_bonded_type, state);
-               if (state == graphical_bonds_container::NO_BOND) {
-                  do_it = true;
-               }
-            }
-         }
+         // if (! do_it) {
+         //    int state = -1;
+         //    at->GetUDData(udd_handle_bonded_type, state);
+         //    if (state == graphical_bonds_container::NO_BOND) {
+         //       do_it = true;
+         //    }
+         // }
+
+         do_it = true;  // everything is spherical for the moment.
 
          if (do_it) {
-            float scale = 1.0;
-            if (at_info.is_hydrogen_atom) scale *= 0.5;
-            if (at_info.is_water) scale *= 3.33;
-            glm::vec3 t(at->x, at->y, at->z);
-            float sar = scale * atom_radius;
+            float scale = at_info.radius_scale;
+            float sar = scale * base_atom_radius;
             glm::vec3 sc(sar, sar, sar);
+            glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);
             ig.instancing_data_A.push_back(idA);
          }
@@ -90,6 +88,8 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
                                      float bond_radius,
                                      unsigned int num_subdivisions,
                                      const std::vector<glm::vec4> &colour_table) {
+
+   return; // 20230224-PE every atom is spherical for the moment.
 
    // copied and edited from Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version
 

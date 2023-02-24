@@ -82,6 +82,37 @@ public:
       }
       return false;
    }
+
+   float get_radius_scale_for_atom(mmdb::Atom *atom_p) const {
+
+      float scale = 1.0f;
+      mmdb::Residue *r = atom_p->GetResidue();
+      if (r) {
+         std::string ele(atom_p->element);
+         if (ele == " H") return 0.5f;
+         std::string res_name = r->GetResName();
+         if (res_name == "HOH")
+            return 2.6f;
+         if (res_name == "CA")
+            return 4.0f;
+         if (res_name == "MG")
+            return 4.0f;
+         if (res_name == "IOD")
+            return 4.0f;
+         if (res_name == "CL")
+            return 4.0f;
+         if (res_name == "NA")
+            return 4.0f;
+         if (res_name == "K")
+            return 4.0f;
+      }
+      return scale;
+   }
+
+   void set_radius_scale_for_atom(mmdb::Atom *at) {
+      radius_scale = get_radius_scale_for_atom(at);
+   }
+   
 };
 
 template<class T> class graphical_bonds_points_list {
