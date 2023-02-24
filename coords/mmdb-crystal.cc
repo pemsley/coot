@@ -190,11 +190,18 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
 
 molecule_extents_t::~molecule_extents_t() {
 
+   // these comments were added because I was passing a molecule_extents_t by value to the operator<< !
+
    for (int i=0; i<6; i++) {
+      // std::cout << "molecule_extents_t deconstructor deleting atom " << i << " " << extents_selection[i] << std::endl;
       delete extents_selection[i];
+      extents_selection[i] = nullptr;
    }
+   // std::cout << "molecule_extents_t deconstructor deleting the container " << std::endl;
    delete [] extents_selection;
-} 
+   extents_selection = nullptr;
+   // std::cout << "molecule_extents_t deconstructor done " << std::endl;
+}
 
 coot::Cartesian
 molecule_extents_t::get_front() const {
@@ -254,14 +261,14 @@ molecule_extents_t::get_bottom() const {
 
 
 
-std::ostream& operator<<(std::ostream &s, molecule_extents_t e) {
+std::ostream& operator<<(std::ostream &s, const molecule_extents_t &e) {
 
-   s << "front:  " << e.front << std::endl;
-   s << "back :  " << e.back  << std::endl;
-   s << "left :  " << e.left  << std::endl;
-   s << "right:  " << e.right << std::endl;
-   s << "top  :  " << e.top   << std::endl;
-   s << "bottom: " << e.bottom  << std::endl;
+   s << "front:  " << e.get_front()   << std::endl;
+   s << "back :  " << e.get_back()    << std::endl;
+   s << "left :  " << e.get_left()    << std::endl;
+   s << "right:  " << e.get_right()   << std::endl;
+   s << "top  :  " << e.get_top()     << std::endl;
+   s << "bottom: " << e.get_bottom()  << std::endl;
 
    return s;
 }
@@ -961,7 +968,7 @@ symm_trans_t::is_identity() {
 
 //
 std::string
-symm_trans_t::str(short int expanded_flag) const {
+symm_trans_t::str(bool expanded_flag) const {
 
    //
    std::string b; 

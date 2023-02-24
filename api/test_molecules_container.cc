@@ -710,13 +710,11 @@ int test_add_terminal_residue(molecules_container_t &mc) {
             n_vertex++;
          }
       }
-      std::cout << "here with n_vertex " << n_vertex << std::endl;
       if (n_vertex > 2)
          part_three_done = true;
    }
 
    // part four - add to a residue that has an OXT atom
-   std::cout << "################## starting part 4 " << std::endl;
    bool part_four_done = false;
    mmdb::Atom *oxt_1 = mc.get_atom(imol, coot::atom_spec_t("A", 303, "", " OXT", ""));
    if (oxt_1) {
@@ -725,8 +723,6 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       if (oxt_2 == nullptr) // not there
          part_four_done = true;
    }
-
-   std::cout << "################## part_four_done " << part_four_done << std::endl;
 
    if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
@@ -2429,6 +2425,28 @@ int test_rigid_body_fit(molecules_container_t &mc) {
    return status;
 }
 
+int test_symmetry(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::Cartesian position(0,0,10);
+   std::vector<std::pair<symm_trans_t, Cell_Translation> > v = mc.get_symmetry(imol, 10.0, position);
+
+   std::cout << "Got " << v.size() << " symmetry-related molecules" << std::endl;
+
+   if (! v.empty())
+      status = 1;
+
+   for (unsigned int i=0; i<v.size(); i++) {
+      const symm_trans_t &st     = v[i].first;
+      const Cell_Translation &ct = v[i].second;
+      std::cout << "  " << i << " " << st << " " << ct << std::endl;
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2589,7 +2607,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
-   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+   // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+
+   status = run_test(test_symmetry, "symmetry", mc);
 
    // Note to self:
    //

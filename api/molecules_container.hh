@@ -619,6 +619,10 @@ public:
    void SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                       int imol_mov, const std::string &chain_id_mov);
 
+   //! symmetry
+   std::vector<std::pair<symm_trans_t, Cell_Translation> >
+   get_symmetry(int imol, float symmetry_search_radius, const coot::Cartesian &rotation_centre) const;
+
    //! undo
    //! @return 1 on successful undo, return 0 on failure
    int undo(int imol);

@@ -3484,3 +3484,18 @@ coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::X
    return status;
 }
 
+
+// ----------------------------------- symmetry ----------------------------------
+
+std::vector<std::pair<symm_trans_t, Cell_Translation> >
+coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesian &rotation_centre) const {
+
+   int symmetry_shift_search_size = 2; // is 1 in graphics-info-statics
+   molecule_extents_t extents(atom_sel, symmetry_search_radius);
+   std::cout << "extents: " << extents << std::endl;
+   std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
+      extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
+   std::cout << "debug:: in get_symmetry() symm_trans_boxes is of size " << symm_trans_boxes.size() << std::endl;
+   return symm_trans_boxes;
+
+}

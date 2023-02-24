@@ -236,6 +236,7 @@ namespace coot {
       void delete_ghost_selections();
       void update_symmetry();
       bool show_symmetry;
+
       void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
       void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
@@ -505,6 +506,9 @@ namespace coot {
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
+
+      std::vector<std::pair<symm_trans_t, Cell_Translation> >
+      get_symmetry(float symmetry_search_radius, const coot::Cartesian &RotationCentre) const;
 
       // ----------------------- model analysis functions
 

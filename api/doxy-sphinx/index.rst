@@ -68,6 +68,12 @@ Validation Information
 .. doxygenfile:: coot-utils/coot-density-stats.hh
       :project: libcootapi
 
+Symmetry
+========
+
+.. doxygenfile:: coords/mmdb-crystal.h
+      :project: libcootapi
+
 Structure Factors
 =================
 
