@@ -2145,43 +2145,40 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
 
-   if (true) {
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   std::vector<mmdb::Link> links;
+   coot::restraints_container_t restraints(local_residues,
+                                           links,
+                                           geom,
+                                           mol,
+                                           fixed_atom_specs, &xmap);
 
-      make_backup();
-      mmdb::Manager *mol = atom_sel.mol;
-      std::vector<mmdb::Link> links;
-      coot::restraints_container_t restraints(local_residues,
-                                              links,
-                                              geom,
-                                              mol,
-                                              fixed_atom_specs, &xmap);
+   if (refinement_is_quiet)
+      restraints.set_quiet_reporting();
 
-      if (refinement_is_quiet)
-         restraints.set_quiet_reporting();
+   std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   restraints.add_map(map_weight);
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   flags = coot::TYPICAL_RESTRAINTS;
+   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
-      std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
-      restraints.add_map(map_weight);
-      coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      flags = coot::TYPICAL_RESTRAINTS;
-      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   int n_threads = 4; // coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+   restraints.thread_pool(&thread_pool, n_threads);
 
-      int n_threads = 4; // coot::get_max_number_of_threads();
-      ctpl::thread_pool thread_pool(n_threads);
-      restraints.thread_pool(&thread_pool, n_threads);
+   int imol = 0; // dummy
+   restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+                              1.0, do_rama_plot_restraints, true, true, false, pseudos);
+   int nsteps_max = 4000;
+   short int print_chi_sq_flag = 1;
+   restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+   coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+   if (! refinement_is_quiet)
+      gd.print();
 
-      int imol = 0; // dummy
-      restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-                                 1.0, do_rama_plot_restraints, true, true, false, pseudos);
-      int nsteps_max = 4000;
-      short int print_chi_sq_flag = 1;
-      restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
-      coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
-      if (! refinement_is_quiet)
-         gd.print();
+   save_info.new_modification("refine_direct");
 
-      save_info.new_modification("refine_direct");
-
-   }
    return status;
 }
 
@@ -2283,6 +2280,7 @@ coot::molecule_t::move_molecule_to_new_centre(const coot::Cartesian &new_centre)
          }
       }
    }
+   save_info.new_modification("move_molecule_to_new_centre");
    return status;
 }
 
@@ -2527,6 +2525,9 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                      coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
                      problem_string = jed_flip_internal(tree, interesting_torsions, atom_name, invert_selection);
                      atom_sel.mol->FinishStructEdit();
+
+                     save_info.new_modification("jed_flip");
+                     
                   }
                   catch (const std::runtime_error &rte) {
                      std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
@@ -3196,6 +3197,8 @@ coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
    r.add_hydrogen_atoms();
    coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
    atom_sel = make_asc(atom_sel.mol); // it would be better if there was a member function to do this.
+
+   save_info.new_modification("add-hydrogen-atoms");
    return 1;
 
 }
@@ -3207,6 +3210,7 @@ coot::molecule_t::delete_hydrogen_atoms() {
    coot::reduce r(atom_sel.mol, imol_no);
    r.delete_hydrogen_atoms();
    atom_sel = make_asc(atom_sel.mol); // is there an asc function for this?
+   save_info.new_modification("add-hydrogen-atoms");
    return 1;
 
 }
