@@ -3190,9 +3190,12 @@ coot::molecule_t::add_compound(const coot::dictionary_residue_restraints_t &rest
 int
 coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
 
+   atom_sel.delete_atom_selection();
    coot::reduce r(atom_sel.mol, imol_no);
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
+   coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+   atom_sel = make_asc(atom_sel.mol); // it would be better if there was a member function to do this.
    return 1;
 
 }

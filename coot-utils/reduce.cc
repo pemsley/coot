@@ -261,7 +261,7 @@ coot::reduce::add_riding_hydrogens(double bl_aliph,
    // std::vector<std::vector<atom_with_attached_Hs> > cliques = spinables.get_cliques();
 
    // debug
-   if (true) {
+   if (false) {
       std::cout << "--------------------------- " << spinables.cliques.size() << " cliques ----------------"
                 << std::endl;
       for (std::size_t icl=0; icl<spinables.cliques.size(); icl++) {
@@ -1154,7 +1154,8 @@ coot::reduce::add_xH_H(const std::string &H_name,
          r.push_back(at);
          spinables.add(at_1, atom_with_attached_Hs::HYDROXYL, at); // maybe need SULFHYDRYL separate?
       } else {
-         std::cout << " a lookup fail for " << at_name_1 << " " << at_name_2 << " " << at_name_3 << " placing " << H_name << std::endl;
+         std::cout << "WARNING:: reduce::add_xH_H a lookup fail for "
+                   << at_name_1 << " " << at_name_2 << " " << at_name_3 << " placing " << H_name << std::endl;
       }
    }
    return r;
@@ -1246,12 +1247,13 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
          atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
          atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand(0.7);
          double s2 = aod_2.score();
-         std::cout << "DEBUG:: HIS protonation scores: (bigger is better) "
-                   << residue_spec_t(residue_p)
-                   << " NE2: "
-                   << std::right << std::setprecision(1) << std::fixed << s1
-                   << " vs ND1: "
-                   << std::right << std::setprecision(1) << std::fixed << s2 << std::endl;
+         if (false)
+            std::cout << "DEBUG:: HIS protonation scores: (bigger is better) "
+                      << residue_spec_t(residue_p)
+                      << " NE2: "
+                      << std::right << std::setprecision(1) << std::fixed << s1
+                      << " vs ND1: "
+                      << std::right << std::setprecision(1) << std::fixed << s2 << std::endl;
          if (v.size() > 0) { // sanity check
             if (s1 > s2) {
                // delete HD1
@@ -1828,7 +1830,7 @@ coot::reduce::atoms_with_spinnable_Hs::cliquize() {
    // std::map<std::string, std::vector<std::pair<hydrogen_t, mmdb::Atom *> > >::const_iterator it;
    std::map<std::string, std::vector<atom_with_attached_Hs> >::const_iterator it;
 
-   if (true) {
+   if (false) {
       for(it=typed_atoms.begin(); it!=typed_atoms.end(); ++it) {
          const std::string &key = it->first;
          std::cout << "cliquize " << typed_atoms[key].size() << " spinables for altconf "

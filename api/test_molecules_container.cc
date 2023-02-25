@@ -2236,7 +2236,7 @@ int test_add_hydrogen_atoms(molecules_container_t &mc) {
          int n_atom_pre = mc.get_number_of_atoms(imol_lig);
          mc.delete_hydrogen_atoms(imol_lig);
          int n_atoms_post = mc.get_number_of_atoms(imol_lig);
-         std::cout << "pre: " << n_atom_pre << " n_atom_post " << n_atoms_post << std::endl;
+         std::cout << "test_add_hydrogen_atoms(): pre: " << n_atom_pre << " n_atom_post " << n_atoms_post << std::endl;
          auto mesh_lig_2 = mc.get_bonds_mesh(imol_lig, mode, true, 0.1, 1.0, 1);
          status = 1;
       }
@@ -2600,8 +2600,6 @@ int main(int argc, char **argv) {
 
    //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
-   // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
-
    // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
    // status = run_test(test_utils, "utils", mc);
@@ -2622,7 +2620,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_symmetry, "symmetry", mc);
 
-   status = run_test(test_symmetry, "read file", mc);
+   // status = run_test(test_symmetry, "read file", mc);
+
+   status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
    // Note to self:
    //

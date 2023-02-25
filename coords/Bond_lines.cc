@@ -6494,10 +6494,16 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            int atom_idx_2 = -1;
                            ierr = residue_atoms[iat]->GetUDData(udd_atom_index_handle, atom_idx_1);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error A " << udd_atom_index_handle << " " << coot::atom_spec_t(residue_atoms[iat]) << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error A " << udd_atom_index_handle << " "
+                                        << coot::atom_spec_t(residue_atoms[iat]) << std::endl;
                            ierr = residue_atoms[jat]->GetUDData(udd_atom_index_handle, atom_idx_2);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error B " << udd_atom_index_handle << " " << coot::atom_spec_t(residue_atoms[jat]) << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error B " << udd_atom_index_handle << " "
+                                        << coot::atom_spec_t(residue_atoms[jat]) << std::endl;
+                           if (true) {
+                              if (ierr != mmdb::UDDATA_Ok) {
+                              }
+                           }
 
                            mmdb::Atom *atom_p_1 = bond_atom_1;
                            mmdb::Atom *atom_p_2 = bond_atom_2;

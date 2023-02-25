@@ -540,14 +540,16 @@ make_graphical_bonds_hemispherical_atoms(coot::simple_mesh_t &m, // fill m
                   for (unsigned int k=idx_tri_base; k<m.triangles.size(); k++)
                      m.triangles[k].rebase(idx_base);
                } else {
-                  std::cout << "WARNING:: other_at is null for atom_index " << atom_index << " " << coot::atom_spec_t(at) << std::endl;
+                  std::cout << "WARNING:: make_graphical_bonds_hemispherical_atoms() other_at is null for atom_index "
+                            << atom_index << " " << coot::atom_spec_t(at) << std::endl;
                }
             } else {
                // 20220220-PE Is there an error that causes us to get here? I think so, but I have other things to do so
                // inhibit this message for the moment.
                if (false)
-                  std::cout << "DEBUG:: failed to find other_atom for atom index " << atom_index << " " << coot::atom_spec_t(at)
-                            << " in bonded_atom_other_atom map of size " << bonded_atom_other_atom.size()  << std::endl;
+                  std::cout << "DEBUG:: make_graphical_bonds_hemispherical_atoms failed to find other_atom for atom index "
+                            << atom_index << " " << coot::atom_spec_t(at) << " in bonded_atom_other_atom map of size "
+                            << bonded_atom_other_atom.size()  << std::endl;
             }
          }
       }

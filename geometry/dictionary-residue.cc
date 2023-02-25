@@ -656,6 +656,11 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 	 break;
       }
    }
+
+   // special case for N-terminal hydrogen atoms
+   if (r.empty())
+      if (atom_name == " H1 ")
+         r = "H";
    return r;
 }
 

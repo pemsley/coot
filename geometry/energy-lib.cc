@@ -933,7 +933,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 	    }
 	 }
       } 
-      
+
       if (! found) {
 	 mess = "in get_bond() failed to find bond for energy types ";
 	 mess += energy_type_1;
