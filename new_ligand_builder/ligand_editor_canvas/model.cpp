@@ -360,7 +360,8 @@ void CanvasMolecule::lower_from_rdkit() {
     // 3. Resolve aromatic bonds
     for(auto& bond: this->bonds) {
         if(bond.raw_type == BondTypeRaw::Aromatic) {
-            
+            // for now
+            bond.type = BondType::Single;
         }
     }
     
