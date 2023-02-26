@@ -79,7 +79,7 @@ void CanvasMolecule::set_offset_from_bounds(const graphene_rect_t *bounds) noexc
     this->_y_offset = bounds->size.height / 2.0;
 }
 
-std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) {
+std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
             return std::make_tuple(0.0,1.0,0.0);
@@ -97,7 +97,7 @@ std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::
     }
 }
 
-std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) {
+std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
             return "#00FF00";
@@ -115,7 +115,7 @@ std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) 
     }
 }
 
-CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Atom * atom) {
+CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Atom * atom) noexcept {
     auto atomic_number = atom->getAtomicNum();
     switch(atomic_number) {
         // Nitrogen
@@ -215,20 +215,19 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->lower_from_rdkit();
 }
 
-CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondType rdkit_bond) {
+CanvasMolecule::BondTypeRaw CanvasMolecule::bond_type_raw_from_rdkit(RDKit::Bond::BondType rdkit_bond) noexcept {
     switch (rdkit_bond) {
         case RDKit::Bond::SINGLE: {
-            return BondType::Single;
+            return BondTypeRaw::Single;
         }
         case RDKit::Bond::DOUBLE: {
-            return BondType::Double;
+            return BondTypeRaw::Double;
         }
         case RDKit::Bond::TRIPLE: {
-            return BondType::Triple;
+            return BondTypeRaw::Triple;
         }
         case RDKit::Bond::AROMATIC:{
-            g_warning("Todo: Take care of aromatic bonds.");
-            return BondType::Single;
+            return BondTypeRaw::Aromatic;
         }
         case RDKit::Bond::UNSPECIFIED:
         case RDKit::Bond::QUADRUPLE:
@@ -250,10 +249,26 @@ CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondT
         case RDKit::Bond::ZERO:
         default: {
             g_warning("Unhandled RDKit bond type: %i", rdkit_bond);
-            return BondType::Single;
+            return BondTypeRaw::Single;
         }
     }
 }
+
+// CanvasMolecule::BondType CanvasMolecule::bond_type_from_raw(CanvasMolecule::BondTypeRaw raw_bond) {
+//     switch(raw_bond) {
+//     case BondTypeRaw::Single:{
+//         return BondType::Single;
+//     }
+//     case BondTypeRaw::Double:{
+//         return BondType::Double;
+//     }
+//     case BondTypeRaw::Triple:{
+//         return BondType::Triple;
+//     }
+//     case BondTypeRaw::Aromatic:
+//         throw std::runtime_error("Unhandled aromatic bond");
+//     }
+// }
 
 void CanvasMolecule::lower_from_rdkit() {
     // 1. Clear what we have
@@ -330,8 +345,7 @@ void CanvasMolecule::lower_from_rdkit() {
             canvas_bond.second_atom_y = coordinate_map[second_atom_idx].y;
 
             canvas_bond.highlighted = false;
-            // todo: implement processing aromatic bonds
-            canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
+            canvas_bond.raw_type = bond_type_raw_from_rdkit(bond_ptr->getBondType());
 
             this->bonds.push_back(std::move(canvas_bond));
         }
@@ -343,6 +357,12 @@ void CanvasMolecule::lower_from_rdkit() {
     std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
         return lhs.idx < rhs.idx;
     });
+    // 3. Resolve aromatic bonds
+    for(auto& bond: this->bonds) {
+        if(bond.raw_type == BondTypeRaw::Aromatic) {
+            
+        }
+    }
     
 }
 
