@@ -7,11 +7,14 @@
 //                            I think that they should be in the coot-utils library.
 
 //! superposition (using SSM)
-void
+std::pair<std::string, std::string>
 molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                                      int imol_mov, const std::string &chain_id_mov) {
 
    int imol_new = -1;
+   std::string aligned_sequences_formatted_string;
+   std::string alignment_info;
+   
    if (is_valid_model_molecule(imol_ref)) {
       if (is_valid_model_molecule(imol_mov)) {
          atom_selection_container_t asc_ref = molecules[imol_ref].atom_sel;
@@ -28,7 +31,9 @@ molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_r
          std::string name = "Chain";
          std::string ref_name = "Chain";
          // superpose in place
-         imol_new = superpose_with_atom_selection(asc_ref, asc_mov, imol_mov, name, ref_name, false);
+         std::pair<std::string , std::string> p = superpose_with_atom_selection(asc_ref, asc_mov, imol_mov, name, ref_name, false);
+         aligned_sequences_formatted_string = p.second;
+         alignment_info = p.first;
 
          asc_ref.delete_atom_selection();
          asc_mov.delete_atom_selection();
@@ -39,10 +44,11 @@ molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_r
       }
    }
    // because we replace the position of imol_mov the return value is not interesting.
+   return std::make_pair(alignment_info, aligned_sequences_formatted_string);
 }
 
 
-int
+std::pair<std::string, std::string>
 molecules_container_t::superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                                      atom_selection_container_t asc_mov,
                                                      int imol_mov,
@@ -52,6 +58,8 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
 
    int imodel_return = -1;
+   std::string aligned_sequences_formatted_string;
+   std::string alignment_info;
 
 #ifdef HAVE_SSMLIB
 
@@ -81,7 +89,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
          std::string name1 = reference_mol_name;
          std::string name2 = moving_mol_name;
-         std::cout << "superposing..." << std::endl;
+         // std::cout << "superposing..." << std::endl;
 
          // Remove the pointer one day.
          //
@@ -90,6 +98,21 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                                                asc_mov.SelectionHandle,
                                                asc_ref.SelectionHandle);
 
+         {
+            mmdb::PAtom *atom_selection1 = NULL;
+            mmdb::PAtom *atom_selection2 = NULL;
+            int n_selected_atoms_1, n_selected_atoms_2;
+            asc_mov.mol->GetSelIndex(SSMAlign->selHndCa1, atom_selection1, n_selected_atoms_1);
+            asc_ref.mol->GetSelIndex(SSMAlign->selHndCa2, atom_selection2, n_selected_atoms_2);
+            std::pair<std::string, std::string> aligned_sequences =
+               get_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
+                                                     atom_selection1, atom_selection2,
+                                                     n_selected_atoms_1, n_selected_atoms_2);
+            aligned_sequences_formatted_string = generate_horizontal_ssm_sequence_alignment_string(aligned_sequences);
+
+
+         }
+            
          if (rc)  {
             std::string ws;
             switch (rc)  {
@@ -161,6 +184,8 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
             std::string res_no_str_2;
             std::string reference_seq, moving_seq;
 
+#if 0 // no console stuff for moorhen interface
+
             // another go at the sequence alignment used in the superposition.
             //
             // correct: number of residues in reference structure: " << SSMAlign->nres2
@@ -174,6 +199,8 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
             make_and_print_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
                                                              atom_selection1, atom_selection2,
                                                              n_selected_atoms_1, n_selected_atoms_2);
+
+#endif
 
             // map assignment of secondary structure for Ana
             //
@@ -198,17 +225,18 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
             // nCa2, tmat, rmsdAchieved, nAligned, nGaps, seqIdentity,
             // nMisD, nCombs);
             //
-            std::cout << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
-                      << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
-                      << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
-                      << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
-                      << "      number of residues in aligned sections (moving):     " << SSMAlign->nsel1 << "\n"
-                      << "      number of aligned residues:  " << SSMAlign->nalgn << "\n"
-                      << "      number of gaps:              " << SSMAlign->ngaps << "\n"
-                      << "      number of misdirections:     " << SSMAlign->nmd << "\n"
-                      << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
-                      << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
-
+            std::stringstream ss;
+            ss << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
+               << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
+               << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
+               << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
+               << "      number of residues in aligned sections (moving):     " << SSMAlign->nsel1 << "\n"
+               << "      number of aligned residues:  " << SSMAlign->nalgn << "\n"
+               << "      number of gaps:              " << SSMAlign->ngaps << "\n"
+               << "      number of misdirections:     " << SSMAlign->nmd << "\n"
+               << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
+               << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
+            alignment_info = ss.str();
          }
          delete SSMAlign;
       } else {
@@ -220,7 +248,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
 #endif // HAVE_SSMLIB
 
-   return imodel_return;
+   return std::make_pair(alignment_info, aligned_sequences_formatted_string);
 
 }
 
@@ -358,6 +386,50 @@ molecules_container_t::map_secondary_structure_headers(ssm::Align *SSMAlign,
 
 
 #ifdef HAVE_SSMLIB
+std::string
+molecules_container_t::generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const {
+
+   std::stringstream ss;
+
+   bool debug = false;
+
+   if (debug) {
+      std::cout << "DEBUG:: moving :" << aligned_sequences.first  << ":" << std::endl;
+      std::cout << "DEBUG:: target :" << aligned_sequences.second << ":" << std::endl;
+   }
+
+   int chars_per_line = 70;
+   int lf = aligned_sequences.first.length();
+   int ls = aligned_sequences.second.length();
+   int l = lf;
+   if (ls > l)
+      l = ls;
+   int n_lines = 1 + l/chars_per_line;
+   // std::cout << "DEUBG:: n_lines: " << n_lines << " " << lf << " " << ls << std::endl;
+
+   for (int i=0; i<n_lines; i++) {
+      int f_start = i*chars_per_line;
+      int f_end = chars_per_line;
+      if (f_end > lf)
+         f_end = lf - f_start;
+      // std::cout << "DEBUG:: comparing  first " << f_start << " with " << lf << std::endl;
+      if (f_start < lf)
+         ss << " Moving: " << aligned_sequences.first.substr(f_start, f_end) << std::endl;
+
+      int s_start = i*chars_per_line;
+      int s_end = chars_per_line;
+      if (s_end > ls)
+         s_end = ls - s_start;
+      // std::cout << "DEBUG:: comparing second " << s_start << " with " << ls << std::endl;
+      if (s_start < ls)
+         ss << " Target: " << aligned_sequences.second.substr(s_start, s_end) << std::endl;
+      ss << std::endl; // for neatness
+   }
+   return ss.str();
+}
+#endif
+
+#ifdef HAVE_SSMLIB
 //
 // To make a GUI dialog with the alignment, we need this function to
 // generate a string, rather than print to the screen.  Easily converted.
@@ -365,11 +437,11 @@ molecules_container_t::map_secondary_structure_headers(ssm::Align *SSMAlign,
 void
 molecules_container_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const {
 
-   bool debug = 0;
+   bool debug = false;
 
    if (debug) {
-      std::cout << "DEBUG:: moving :" << aligned_sequences.first  << ":" << std::endl;
-      std::cout << "DEBUG:: target :" << aligned_sequences.second << ":" << std::endl;
+      std::cout << "DEBUG:: in print_horizontal_ssm_sequence_alignment() moving :" << aligned_sequences.first  << ":" << std::endl;
+      std::cout << "DEBUG:: in print_horizontal_ssm_sequence_alignment() target :" << aligned_sequences.second << ":" << std::endl;
    }
 
    int chars_per_line = 70;

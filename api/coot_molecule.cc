@@ -388,6 +388,8 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
 void
 coot::molecule_t::transform_by(mmdb::mat44 mat) {
 
+   bool verbose = false;
+
    if (is_valid_model_molecule()) {
       clipper::Coord_orth co;
       clipper::Coord_orth trans_pos;
@@ -397,14 +399,17 @@ coot::molecule_t::transform_by(mmdb::mat44 mat) {
                                          mat[2][0], mat[2][1], mat[2][2]);
       clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
       clipper::RTop_orth rtop(clipper_mat, cco);
-      std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
-                << rtop.format() << std::endl;
+      if (verbose)
+         std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
+                   << rtop.format() << std::endl;
       clipper::Rotation rtn( clipper_mat );
       clipper::Polar_ccp4 polar = rtn.polar_ccp4();
       clipper::Euler_ccp4 euler = rtn.euler_ccp4();
-      std::cout << "  Rotation - polar (omega,phi,kappa)  " << clipper::Util::rad2d(polar.omega()) << " " << clipper::Util::rad2d(polar.phi())  << " " << clipper::Util::rad2d(polar.kappa()) << std::endl;
-      std::cout << "  Rotation - euler (alpha,beta,gamma) " << clipper::Util::rad2d(euler.alpha()) << " " << clipper::Util::rad2d(euler.beta()) << " " << clipper::Util::rad2d(euler.gamma()) << std::endl;
-      std::cout << "  Translation - Angstroms             " << cco.x() << " " << cco.y() << " " << cco.z() << " " << std::endl;
+      if (verbose) {
+         std::cout << "  Rotation - polar (omega,phi,kappa)  " << clipper::Util::rad2d(polar.omega()) << " " << clipper::Util::rad2d(polar.phi())  << " " << clipper::Util::rad2d(polar.kappa()) << std::endl;
+         std::cout << "  Rotation - euler (alpha,beta,gamma) " << clipper::Util::rad2d(euler.alpha()) << " " << clipper::Util::rad2d(euler.beta()) << " " << clipper::Util::rad2d(euler.gamma()) << std::endl;
+         std::cout << "  Translation - Angstroms             " << cco.x() << " " << cco.y() << " " << cco.z() << " " << std::endl;
+      }
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
          mmdb::Atom *at = atom_sel.atom_selection[i];
          co = clipper::Coord_orth(at->x, at->y, at->z);

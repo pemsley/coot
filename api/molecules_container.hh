@@ -213,12 +213,13 @@ class molecules_container_t {
 
    int install_model(const coot::molecule_t &m);
 
-   int superpose_with_atom_selection(atom_selection_container_t asc_ref,
-                                     atom_selection_container_t asc_mov,
-                                     int imol_mov,
-                                     std::string moving_mol_name,
-                                     std::string referennce_mol_name,
-                                     bool move_copy_of_imol2_flag);
+   std::pair<std::string, std::string>
+   superpose_with_atom_selection(atom_selection_container_t asc_ref,
+                                 atom_selection_container_t asc_mov,
+                                 int imol_mov,
+                                 std::string moving_mol_name,
+                                 std::string referennce_mol_name,
+                                 bool move_copy_of_imol2_flag);
 
 #ifdef HAVE_SSMLIB
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
@@ -244,6 +245,8 @@ class molecules_container_t {
 					int n_selected_atoms_1, int n_selected_atoms_2) const;
    //
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
+
+   std::string generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const;
 
    std::pair<std::string, std::string>
       get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
@@ -623,8 +626,8 @@ public:
    //!
    //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
-   void SSM_superpose(int imol_ref, const std::string &chain_id_ref,
-                      int imol_mov, const std::string &chain_id_mov);
+   std::pair<std::string, std::string> SSM_superpose(int imol_ref, const std::string &chain_id_ref,
+                                                     int imol_mov, const std::string &chain_id_mov);
 
    //! symmetry
    std::vector<std::pair<symm_trans_t, Cell_Translation> >

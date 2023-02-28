@@ -2348,7 +2348,10 @@ int test_superpose(molecules_container_t &mc) {
    double d1 = std::sqrt(dd);
    std::cout << "test d1 " << d1 << std::endl;
    
-   mc.SSM_superpose(imol_1, "A", imol_2, "B");
+   std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+
+   std::cout << "ss_result:\n" << ss_result_pair.first << std::endl;
+   std::cout << "ss_result:\n" << ss_result_pair.second << std::endl;
 
    mc.write_coordinates(imol_2, "superposed.pdb");
 
@@ -2368,7 +2371,8 @@ int test_superpose(molecules_container_t &mc) {
             status = 1;
 
    std::cout << "debug:: n_mol_pre " << n_pre << " n_mol_post " << n_post << std::endl;
-   std::cout << "debug:: atom_pos_1 " << atom_pos_1 << " atom_pos_2 " << atom_pos_2 << " atom_pos_3 " << atom_pos_3 << " " << atom_pos_4 << std::endl;
+   std::cout << "debug:: atom_pos_1 " << atom_pos_1 << " atom_pos_2 " << atom_pos_2
+             << " atom_pos_3 " << atom_pos_3 << " atom_pos_4 " << atom_pos_4 << std::endl;
 
    return status;
 }
@@ -2608,7 +2612,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   // status = run_test(test_superpose, "SSM superpose ", mc);
+   status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -2622,7 +2626,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_symmetry, "read file", mc);
 
-   status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+   // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
    // Note to self:
    //
