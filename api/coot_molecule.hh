@@ -97,6 +97,8 @@ namespace coot {
       bool is_from_shelx_ins_flag;
       ShelxIns shelxins;
 
+      std::map<residue_spec_t, int> current_rotamer_map;
+
       // private
       void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms,
                      bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
@@ -243,6 +245,9 @@ namespace coot {
       bool sanity_check_atoms(mmdb::Manager *mol) const; // sfcalc_genmap crashes after merge of ligand.
       // Why? Something wrong with the atoms after merge?
       // Let's diagnose.... Return false on non-sane.
+
+      // internal function for public rotamer functions
+      int set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Residue *moving_res);
 
       // ====================== Jiggle-Fit (internal) ================================
 
@@ -661,6 +666,9 @@ namespace coot {
 
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
+
+      //! change rotamers
+      int change_to_next_rotamer(const coot::residue_spec_t &res_spec, const coot::protein_geometry &pg);
 
       // ----------------------- merge molecules
 

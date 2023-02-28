@@ -709,6 +709,11 @@ public:
    int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf,
                         int imol_map);
 
+   //! change to the next rotamer (rotamer cycling is implicit if needed)
+   //!
+   //! @return the success status (0 for fail, 1 for success).
+   int change_to_next_rotamer(int imol, const std::string &residue_cid);
+
    //! delete item
    //!
    //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]

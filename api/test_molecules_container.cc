@@ -2462,6 +2462,36 @@ int test_read_file(molecules_container_t &mc) {
 
 }
 
+int test_set_rotamer(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec_CB("A", 270, "", " CB ","");
+   coot::atom_spec_t atom_spec_OG("A", 270, "", " OG ","");
+   mmdb::Atom *at_start_CB = mc.get_atom(imol, atom_spec_CB);
+   mmdb::Atom *at_start_OG = mc.get_atom(imol, atom_spec_OG);
+   if (at_start_OG) {
+      if (at_start_CB) {
+         coot::Cartesian atom_pos_start_CB = atom_to_cartesian(at_start_CB);
+         coot::Cartesian atom_pos_start_OG = atom_to_cartesian(at_start_OG);
+         mc.change_to_next_rotamer(imol, "//A/270");
+         coot::Cartesian atom_pos_done_CB = atom_to_cartesian(at_start_CB);
+         coot::Cartesian atom_pos_done_OG = atom_to_cartesian(at_start_OG);
+         double dd_CB = coot::Cartesian::lengthsq(atom_pos_start_CB, atom_pos_done_CB);
+         double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_OG, atom_pos_done_OG);
+         double d_CB = std::sqrt(dd_CB);
+         double d_OG = std::sqrt(dd_OG);
+         std::cout << "d_CB " << d_CB << " d_OG " << d_OG << std::endl;
+         if (d_OG > 0.3)
+            if (d_CB < 0.1)
+               status = 1;
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2612,7 +2642,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   status = run_test(test_superpose, "SSM superpose ", mc);
+   // status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -2627,6 +2657,8 @@ int main(int argc, char **argv) {
    // status = run_test(test_symmetry, "read file", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+
+   status = run_test(test_set_rotamer, "set rotamer ", mc);
 
    // Note to self:
    //

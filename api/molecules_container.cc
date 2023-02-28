@@ -171,7 +171,10 @@ molecules_container_t::read_standard_residues() {
          // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
       } else {
          // stat success:
-         standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
+
+         // unresolved (linking related?) startup bug here:
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
+         standard_residues_asc = t_asc;
       }
    } else {
       standard_residues_asc = get_atom_selection(filename, true, false, false);
@@ -1588,6 +1591,22 @@ molecules_container_t::auto_fit_rotamer(int imol,
    }
    return status;
 }
+
+int
+molecules_container_t::change_to_next_rotamer(int imol, const std::string &residue_cid)  {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      status = molecules[imol].change_to_next_rotamer(res_spec, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}
+
+
 
 
 std::pair<int, unsigned int>

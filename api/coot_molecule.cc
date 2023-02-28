@@ -1554,6 +1554,7 @@ coot::molecule_t::auto_fit_rotamer(const std::string &chain_id, int res_no, cons
    return status;
 }
 
+
 int
 coot::molecule_t::delete_side_chain(const residue_spec_t &residue_spec) {
 
@@ -3508,4 +3509,97 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
       extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
    return symm_trans_boxes;
+}
+
+
+// should the be in coot_molecule_rotamers?
+
+#include "ligand/richardson-rotamer.hh"
+//
+//! change rotamers
+int
+coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const coot::protein_geometry &pg) {
+
+   int i_done;
+   mmdb::Residue *residue_p = util::get_residue(res_spec, atom_sel.mol);
+   if (residue_p) {
+      int current_rotamer = -1; // not found
+      std::map<residue_spec_t, int>::const_iterator it = current_rotamer_map.find(res_spec);
+      if (it != current_rotamer_map.end()) {
+         current_rotamer = it->second;
+      }
+
+      std::string alt_conf = ""; // fixme?
+      coot::richardson_rotamer d(residue_p, alt_conf, atom_sel.mol, 0.01, 0);
+      std::string res_type = residue_p->GetResName();
+      if (res_type == "GLY") return 0;
+      if (res_type == "ALA") return 0;
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+         pg.get_monomer_restraints(res_type, imol_no);
+
+      if (p.first) {
+         int rotamer_number = current_rotamer + 1;
+         float prob_cut = 0.01;
+         std::vector<simple_rotamer> rotamers = d.get_rotamers(res_type, prob_cut);
+         int n_rotamers = rotamers.size();
+         if (rotamer_number >= n_rotamers)
+            rotamer_number = 0;
+
+         coot::dictionary_residue_restraints_t rest = p.second;
+         mmdb::Residue *moving_res = d.GetResidue(rest, rotamer_number);
+         if (moving_res) {
+            i_done = set_residue_to_rotamer_move_atoms(residue_p, moving_res);
+            delete moving_res; // or moving_res->chain?
+            current_rotamer_map[res_spec] = rotamer_number;
+         }
+      }
+   }
+   if (! i_done)
+      std::cout << "WARNING:: change_to_next_rotamer(): set rotamer number failed" << std::endl;
+
+   save_info.new_modification("change_to_next_rotamer()");
+   return i_done;
+
+}
+
+
+int
+coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Residue *moving_res) {
+
+   // note: calling function makes the backup
+
+   int i_done = 0;
+   int n_ref_atoms;
+   mmdb::PPAtom ref_residue_atoms = 0;
+   int n_mov_atoms;
+   mmdb::PPAtom mov_residue_atoms= 0;
+
+   res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
+   moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
+
+   int n_atoms = 0;
+   for (int imov=0; imov<n_mov_atoms; imov++) {
+      std::string atom_name_mov(mov_residue_atoms[imov]->name);
+      std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
+      for (int iref=0; iref<n_ref_atoms; iref++) {
+         std::string atom_name_ref(ref_residue_atoms[iref]->name);
+         std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
+         if (atom_name_mov == atom_name_ref) {
+            if (alt_loc_mov == alt_loc_ref) {
+               ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
+               ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
+               ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
+               n_atoms++;
+               i_done = 1;
+            }
+         }
+      }
+   }
+
+   if (i_done) {
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+   }
+   return i_done;
 }
