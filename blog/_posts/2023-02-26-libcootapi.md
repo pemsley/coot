@@ -21,7 +21,7 @@ and OpenGL are not part of the dependencies. A new directory was
 created ("api") and the resulting library is called libcootapi. It is available
 int the `gtk3` branch of Coot.
 
-It is this API that has been compiled to WebAssembly has has
+It is this API that has been compiled to WebAssembly and has
 JavaScript bindings so that it is useful in the web browser and thus
 is the basis of Moorhen.
 
