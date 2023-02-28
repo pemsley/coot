@@ -18,22 +18,25 @@ to WebAssembly using emscripten) then it needed to be stripped of GTK and OpenGL
 After some testing, I decided to abandon that idea (it was too ugly -
 too many #ifdefs) and to create a new API from scratch - one where GTK
 and OpenGL are not part of the dependencies. A new directory was
-created ("api") and the resulting library is called libcootapi. It is available
-int the `gtk3` branch of Coot.
+created ("api") and the resulting library is called libcootapi. It is
+available in the `gtk3` branch of Coot.
 
-It is this API that has been compiled to WebAssembly and has
-JavaScript bindings so that it is useful in the web browser and thus
-is the basis of Moorhen.
+The libcootapi API has been compiled to WebAssembly and has JavaScript
+bindings so that it is useful in the web browser and thus is the basis
+of Moorhen.
 
 Additionally, this API now has Python bindings (currently generated
-using SWIG).
+using SWIG) so that it is useful from command-line python3 or plugging
+into other programs, such as... oh, I don't know... Blender perhaps.
 
-It is this API that am now recommending to Python scripters that want
-to use Coot functions. Although it does not contain many of the
-functions of the `coot` module, I am keen to transfer them if/when
-they are needed. But with real space refinement, additions, deletions,
-validation information, rotamers and mutations already, you can get
-quite a lot done as it stands.
+libcootapi is the API that I am now recommending to Python scripters
+that want to use Coot functions. Although it does not contain many of
+the functions of the `coot` module, I am keen to transfer them into
+libcootapi if/when they are needed.
+
+However, with real space refinement, additions, deletions, validation
+information, superpositions, rotamers, ligand-fitting and mutations
+already in place, you can get quite a lot done as it stands.
 
 ```
 $ python3
