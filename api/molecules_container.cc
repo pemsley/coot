@@ -307,8 +307,8 @@ molecules_container_t::get_r_factor_stats() {
    int rpn_8 = calculate_new_rail_points();
    int rpt_8 = rail_points_total();
    auto latest_r_factors = get_latest_sfcalc_stats();
-   std::cout << ":::::: Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
-   std::cout << ":::::: R-factor " << latest_r_factors.r_factor << std::endl;
+   // std::cout << ":::::: Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
+   // std::cout << ":::::: R-factor " << latest_r_factors.r_factor << std::endl;
 
    r_factor_stats stats;
    stats.r_factor = latest_r_factors.r_factor;

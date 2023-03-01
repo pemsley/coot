@@ -133,7 +133,8 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    }
    r1f /= clipper::Util::max(f1f, 0.1);
    r1w /= clipper::Util::max(f1w, 0.1);
-   std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
+   if (false)
+      std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
 
    // now make a map
 
@@ -340,9 +341,11 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       loct.add(item);
    }
 
-   std::cout << "debug:: capturing rfactors " << r1w << " and " << r1f << std::endl;
+   if (false)
+      std::cout << "debug:: capturing rfactors " << r1w << " and " << r1f << std::endl;
    sfcgs = sfcalc_genmap_stats_t(r1w, r1f, bulkfrc, bulkscl, sfw.params_scale().size(), loct);
-   std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
+   if (false)
+      std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
 
    // now make a map
 

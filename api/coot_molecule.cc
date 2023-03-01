@@ -2067,10 +2067,12 @@ coot::molecule_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clip
       stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
 
       // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
-      std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
-      std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
-      std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
-      std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+      if (false) {
+         std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
+         std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
+         std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
+         std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+      }
 
    } else {
       std::cout << "ERROR:: coordinates were not sane" << std::endl;
