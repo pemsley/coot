@@ -244,11 +244,11 @@ void insert_coords(mmdb::Manager *mol, int udd_atom_index,
       mmdb::Chain *adding_frag_chain = asc_for_atoms_to_be_added.mol->GetChain(imod, i_adding_frag_chain);
       int nres_adding_frag = adding_frag_chain->GetNumberOfResidues();
 
-      std::cout << "DEBUG:: There are " << nres_adding_frag << " residues in "
-                << "protein_chain (chain id: " << adding_frag_chain->GetChainID() << ")." << std::endl;
+      // std::cout << "DEBUG:: There are " << nres_adding_frag << " residues in "
+      // << "protein_chain (chain id: " << adding_frag_chain->GetChainID() << ")." << std::endl;
 
       for (int ires_adding_frag=0; ires_adding_frag<nres_adding_frag; ires_adding_frag++) {
-         std::cout << "------------------- New adding frag residue " << ires_adding_frag << std::endl;
+         // std::cout << "------------------- New adding frag residue " << ires_adding_frag << std::endl;
          mmdb::Residue *adding_frag_residue = adding_frag_chain->GetResidue(ires_adding_frag);
 
          if (! adding_frag_residue) continue;
@@ -259,7 +259,7 @@ void insert_coords(mmdb::Manager *mol, int udd_atom_index,
          int n_chains = mol->GetNumberOfChains(imodel);
          for (int i_chain=0; i_chain<n_chains; i_chain++) {
 
-            std::cout << "------------------- New protein chain " << i_chain << std::endl;
+            // std::cout << "------------------- New protein chain " << i_chain << std::endl;
 
             mmdb::Chain *chain = mol->GetChain(imod, i_chain);
 
@@ -267,7 +267,7 @@ void insert_coords(mmdb::Manager *mol, int udd_atom_index,
             std::string protein_chain_str(chain->GetChainID());
             std::string adding_frag_chain_str(adding_frag_chain->GetChainID());
 
-            if (true)
+            if (false)
                std::cout << "comparing chain ids :" << protein_chain_str << ": :"
                          << adding_frag_chain_str << ":" << std::endl;
 
