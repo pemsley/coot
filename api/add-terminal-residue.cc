@@ -295,7 +295,7 @@ void insert_coords(mmdb::Manager *mol, int udd_atom_index,
                                                 std::string(adding_frag_residue->GetInsCode()),
                                                 protein_chain_str);
 
-               std::cout << "DEBUG:: returned serial_number: " << serial_number.first << " " << serial_number.second << std::endl;
+               // std::cout << "DEBUG:: returned serial_number: " << serial_number.first << " " << serial_number.second << std::endl;
 
                if (res) {
 
