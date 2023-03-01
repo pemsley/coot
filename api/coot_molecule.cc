@@ -2683,6 +2683,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
          }
       }
       atom_sel.mol->DeleteSelection(selHnd);
+      save_info.new_modification(__FUNCTION__);
    }
    return n_atoms_moved;
 }
@@ -2692,7 +2693,12 @@ int
 coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms) {
 
    mmdb::Residue *residue_p = cid_to_residue(residue_cid);
-   return new_positions_for_residue_atoms(residue_p, moved_atoms, true);
+   if (residue_p) {
+      return new_positions_for_residue_atoms(residue_p, moved_atoms, true);
+   } else {
+      std::cout << "ERROR:: in new_positions_for_residue_atoms() failed to find residue " << residue_cid << std::endl;
+      return -1;
+   }
 }
 
 int
@@ -2723,6 +2729,8 @@ coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, cons
             }
          }
       }
+   } else {
+      std::cout << "ERROR:: in new_positions_for_residue_atoms() failed to find residue " << std::endl;
    }
    if (do_backup)
       save_info.new_modification(__FUNCTION__);
@@ -3520,7 +3528,7 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
 int
 coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const coot::protein_geometry &pg) {
 
-   int i_done;
+   int i_done = 0;
    mmdb::Residue *residue_p = util::get_residue(res_spec, atom_sel.mol);
    if (residue_p) {
       int current_rotamer = -1; // not found

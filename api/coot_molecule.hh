@@ -60,7 +60,8 @@ namespace coot {
                                   max_modification_index(0) {}
          void new_modification(const std::string &mod_string) {
             modification_index++;
-            std::cout << "new_modification! moved on to " << modification_index << " by " << mod_string << std::endl;
+            if (false) // debugging
+               std::cout << "new_modification: moved on to " << modification_index << " by " << mod_string << std::endl;
             if (modification_index > max_modification_index)
                max_modification_index = modification_index;
          }

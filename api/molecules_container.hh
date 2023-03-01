@@ -737,8 +737,8 @@ public:
 
    //! delete residue atoms using alt_conf
    //! @return 1 on successful deletion, return 0 on failure to delete.
-   std::pair<int, unsigned int> delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                                          const std::string &alt_conf);
+   std::pair<int, unsigned int> delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no,
+                                                                   const std::string &ins_code, const std::string &alt_conf);
    //! delete residue atoms using cid
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue_atoms_using_cid(int imol, const std::string &cid);
