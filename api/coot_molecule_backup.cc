@@ -82,7 +82,7 @@ coot::molecule_t::make_backup() {
             // all is hunkey-dorey.  Directory exists.
 
             std::string backup_file_name = get_save_molecule_filename(backup_dir);
-            std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
+            // std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
 
             mmdb::byte gz;
             if (backup_compress_files_flag) {
@@ -106,7 +106,7 @@ coot::molecule_t::make_backup() {
                   struct stat buf;
                   int err = stat(backup_file_name.c_str(), &buf);
                   if (err == 0) {
-                     std::cout << "DEBUG:: in make_backup() " << backup_file_name << " confirmed as existing" << std::endl;
+                     // std::cout << "DEBUG:: in make_backup() " << backup_file_name << " confirmed as existing" << std::endl;
                   } else {
                      std::cout << "DEBUG:: in make_backup() " << backup_file_name << " does not exist!" << std::endl;
                   }

@@ -187,7 +187,7 @@ coot::util::create_directory(const std::string &dir_name_in) {
    int err = stat(dir_name.c_str(), &buf);
    if (err == 0) {
       istat = 0; // all OK then.
-      std::cout << "INFO:: in create_directory() " << dir_name << " confirmed as existing" << std::endl;
+      // std::cout << "INFO:: in create_directory() " << dir_name << " confirmed as existing" << std::endl;
    } else {
       std::cout << "ERROR:: in create_directory() " << dir_name << " does not exist!" << std::endl;
    }
