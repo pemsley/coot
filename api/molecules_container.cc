@@ -777,52 +777,52 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    if (! done) {
-         std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
-         // clipper::CCP4MAPfile file;
-         clipper_map_file_wrapper w_file;
-         try {
-            w_file.open_read(file_name);
+      // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
+      // clipper::CCP4MAPfile file;
+      clipper_map_file_wrapper w_file;
+      try {
+         w_file.open_read(file_name);
 
-            // em = set_is_em_map(file);
+         // em = set_is_em_map(file);
 
-            bool use_xmap = true; // not an nxmap
-            if (true) {
-               clipper::Grid_sampling fgs = w_file.grid_sampling();
-               clipper::Cell fcell = w_file.cell();
-               double vol = fcell.volume();
-               if (vol < 1.0) {
-                  std::cout << "WARNING:: read_ccp4_map(): non-sane unit cell volume " << vol << " - skip read"
-                            << std::endl;
-                  // bad_read = true;
-               } else {
-                  try {
-                     clipper::CCP4MAPfile file;
-                     file.open_read(file_name);
-                     clipper::Xmap<float> xmap;
-                     file.import_xmap(xmap);
-                     if (xmap.is_null()) {
-                        std::cout << "ERROR:: failed to read the map" << file_name << std::endl;
-                     } else {
-                        std::string name = file_name;
-                        coot::molecule_t m(name, imol_in_hope);
-                        m.xmap = xmap;
-                        if (is_a_difference_map)
-                           m.set_map_is_difference_map(true);
-                        molecules.push_back(m); // oof.
-                        imol = imol_in_hope;
-                     }
-                  }
-                  catch (const clipper::Message_generic &exc) {
-                     std::cout << "WARNING:: failed to read " << file_name
-                               << " Bad ASU (inconsistant gridding?)." << std::endl;
-                     // bad_read = true;
+         bool use_xmap = true; // not an nxmap
+         if (true) {
+            clipper::Grid_sampling fgs = w_file.grid_sampling();
+            clipper::Cell fcell = w_file.cell();
+            double vol = fcell.volume();
+            if (vol < 1.0) {
+               std::cout << "WARNING:: read_ccp4_map(): non-sane unit cell volume " << vol << " - skip read"
+                         << std::endl;
+               // bad_read = true;
+            } else {
+               try {
+                  clipper::CCP4MAPfile file;
+                  file.open_read(file_name);
+                  clipper::Xmap<float> xmap;
+                  file.import_xmap(xmap);
+                  if (xmap.is_null()) {
+                     std::cout << "ERROR:: failed to read the map" << file_name << std::endl;
+                  } else {
+                     std::string name = file_name;
+                     coot::molecule_t m(name, imol_in_hope);
+                     m.xmap = xmap;
+                     if (is_a_difference_map)
+                        m.set_map_is_difference_map(true);
+                     molecules.push_back(m); // oof.
+                     imol = imol_in_hope;
                   }
                }
+               catch (const clipper::Message_generic &exc) {
+                  std::cout << "WARNING:: failed to read " << file_name
+                            << " Bad ASU (inconsistant gridding?)." << std::endl;
+                  // bad_read = true;
+               }
             }
-         } catch (const clipper::Message_base &exc) {
-            std::cout << "WARNING:: failed to open " << file_name << std::endl;
-            // bad_read = true;
          }
+      } catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: failed to open " << file_name << std::endl;
+         // bad_read = true;
+      }
    }
    return imol;
 }
