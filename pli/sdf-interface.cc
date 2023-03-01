@@ -326,14 +326,14 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
          if (family == "Donor") {
             coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
             arrow.name = family;
-            std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
+            // std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
             meshes.push_back(arrow);
          }
 
          if (family == "Acceptor") {
             coot::simple_mesh_t cone = make_acceptor_cone(sp, rdkm, conf, centre);
             cone.name = family;
-            std::cout << "debug:: acceptor-cone " << family << " has " << cone.vandt() << std::endl;
+            // std::cout << "debug:: acceptor-cone " << family << " has " << cone.vandt() << std::endl;
             meshes.push_back(cone);
          }
 
@@ -354,7 +354,7 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
          }
          if (family == "Donor") {
             coot::simple_mesh_t arrow = make_h_bond_arrow(sp, rdkm, conf, centre);
-            std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
+            // std::cout << "debug:: arrow " << family << " has " << arrow.vandt() << std::endl;
             arrow.name = family;
             std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
             if (iter == mesh_map.end()) {
@@ -365,7 +365,7 @@ chemical_features::generate_meshes(int imol, const RDKit::ROMol &rdkm, int iconf
          }
          if (family == "Acceptor") {
             coot::simple_mesh_t cone = make_acceptor_cone(sp, rdkm, conf, centre);
-            std::cout << "debug:: cone " << family << " has " << cone.vandt() << std::endl;
+            // std::cout << "debug:: cone " << family << " has " << cone.vandt() << std::endl;
             cone.name = family;
             std::map<std::string, coot::simple_mesh_t>::const_iterator iter = mesh_map.find(family);
             if (iter == mesh_map.end()) {
