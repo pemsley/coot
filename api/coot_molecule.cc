@@ -1269,7 +1269,7 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
    bool force_rebonding = true;
    make_colour_by_chain_bonds(geom_p, dummy, change_c_only_flag, goodsell_mode, draw_hydrogen_atoms_flag, draw_missing_loops_flag, do_rota_markup, rpt, force_rebonding);
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: in get_rotamer_dodecs() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
                 << std::endl;
 
@@ -1325,8 +1325,9 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
 
       double rama_ball_pos_offset_scale = 1.5; // may need tweaking, (was 1.2)
 
-      std::cout << "DEBUG:: in get_rotamer_dodecs() there were " << bonds_box.n_rotamer_markups
-                << " rotamer markups " << std::endl;
+      if (false)
+         std::cout << "DEBUG:: in get_rotamer_dodecs() there were " << bonds_box.n_rotamer_markups
+                   << " rotamer markups " << std::endl;
 
       for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
          const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
@@ -1401,7 +1402,7 @@ coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer
    bool force_rebonding = true;
    make_colour_by_chain_bonds(geom_p, dummy, change_c_only_flag, goodsell_mode, draw_hydrogen_atoms_flag, draw_missing_loops_flag, do_rota_markup, rpt, force_rebonding);
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: in get_rotamer_dodecs_instanced() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
                 << std::endl;
 
