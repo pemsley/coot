@@ -8064,12 +8064,14 @@ Bond_lines_container::add_atom_centres(int imol,
       std::string res_type(at->GetResName());
       bool have_dict_for_this_type = false;
       std::map<std::string, bool>::const_iterator it = have_at_least_minimal_dictionary.find(res_type);
-      if (it == have_at_least_minimal_dictionary.end()) {
-         bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
-         have_at_least_minimal_dictionary[res_type] = s;
-         have_dict_for_this_type = s;
-      } else {
-         have_dict_for_this_type = it->second;
+      if (geom) {
+         if (it == have_at_least_minimal_dictionary.end()) {
+            bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
+            have_at_least_minimal_dictionary[res_type] = s;
+            have_dict_for_this_type = s;
+         } else {
+            have_dict_for_this_type = it->second;
+         }
       }
       if (is_hydrogen(std::string(at->element)))
          is_H_flag = true;
@@ -8082,7 +8084,9 @@ Bond_lines_container::add_atom_centres(int imol,
          // p.radius_scale = 2.0;
          // p.radius_scale = p.get_radius_scale_for_atom(at);
          // replace with:
-         p.set_radius_scale_for_atom(at, have_dict_for_this_type);
+         bool make_fat_atom = false;
+         if (have_dict_for_this_type) make_fat_atom = true;
+         p.set_radius_scale_for_atom(at, make_fat_atom);
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
                if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
