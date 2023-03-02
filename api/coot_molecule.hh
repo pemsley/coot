@@ -110,11 +110,11 @@ namespace coot {
       void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
 #else
       void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s =0);
+      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
 #endif
 #else // repeat above
       void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s =0);
+      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
 #endif
 
       int bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()

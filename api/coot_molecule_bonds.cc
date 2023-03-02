@@ -78,8 +78,8 @@ coot::molecule_t::make_bonds(coot::protein_geometry *geom, coot::rotamer_probabi
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
    make_bonds_type_checked(geom, rot_prob_tables_p, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
 
-   std::cout << "debug:: in molecule_t::make_bonds() " << bonds_box.n_bonds() << " bonds " << bonds_box.n_atoms() << " atoms "
-             << std::endl;
+   // std::cout << "debug:: in molecule_t::make_bonds() " << bonds_box.n_bonds() << " bonds " << bonds_box.n_atoms() << " atoms "
+   // << std::endl;
 }
 
 
