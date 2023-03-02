@@ -8085,7 +8085,7 @@ Bond_lines_container::add_atom_centres(int imol,
          // p.radius_scale = p.get_radius_scale_for_atom(at);
          // replace with:
          bool make_fat_atom = false;
-         if (have_dict_for_this_type) make_fat_atom = true;
+         if (! have_dict_for_this_type) make_fat_atom = true;
          p.set_radius_scale_for_atom(at, make_fat_atom);
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
