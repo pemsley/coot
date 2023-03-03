@@ -41,7 +41,7 @@ already in place, you can get quite a lot done as it stands.
 ```
 $ python3
 >>> import coot_headless_api
->>> coot = coot_headless_api.molecules_container_t
+>>> coot = coot_headless_api.molecules_container_t()
 ```
 
 Many useful functions are now available from `coot`:
@@ -49,7 +49,10 @@ Many useful functions are now available from `coot`:
 ```
 >>> imol     = coot.read_pdb("test.pdb")
 >>> imol_map = coot.read_mtz("test.mtz", "FWT", "PHWT", "W", 0, 0)
->>> dca      = coot.density_correlation_analysis(imol, imol_map)
+>>> coot.auto_fit_rotamer(imol, "A", 44, "", "", imol_map)
+>>> coot.set_imol_refinement_map(imol_map)
+>>> coot.refine_residue_range(imol, "A", 43, 45)
+>>> coot.write_coordinates(imol, "mini-ref.pdb")
 ```
 
 The libcootapi documentation is here:
