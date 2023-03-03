@@ -48,7 +48,7 @@ Many useful functions are now available from `coot`:
 
 ```
 >>> imol     = coot.read_pdb("test.pdb")
->>> imol_map = coot.read_mtz("test.mtz", "FWT", "PHWT", "W", 0, 0)
+>>> imol_map = coot.read_mtz("test.mtz", "FWT", "PHWT", "W", False, False)
 >>> coot.auto_fit_rotamer(imol, "A", 44, "", "", imol_map)
 >>> coot.set_imol_refinement_map(imol_map)
 >>> coot.refine_residue_range(imol, "A", 43, 45)
