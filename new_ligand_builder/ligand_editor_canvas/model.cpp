@@ -16,12 +16,14 @@
 #include <boost/range/iterator_range.hpp>
 #include <string>
 #include <tuple>
+#include <utility>
 
 using namespace coot::ligand_editor_canvas;
 
 const float CanvasMolecule::ATOM_HITBOX_RADIUS = 10.f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
+const float CanvasMolecule::BOND_LINE_SEPARATION = 0.2f;
 
 float CanvasMolecule::get_scale() const noexcept {
     // todo: Add internal canvas scaling
@@ -137,6 +139,17 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
     }
 }
 
+std::pair<float,float> CanvasMolecule::Bond::get_perpendicular_versor() const noexcept {
+    float bond_vector_x = second_atom_x - first_atom_x;
+    float bond_vector_y = second_atom_y - first_atom_y;
+    float bond_vector_len = std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
+    if (bond_vector_len == 0) {
+        return std::make_pair(0.f, 0.f);
+    } else {
+        return std::make_pair(-bond_vector_y/bond_vector_len,bond_vector_x/bond_vector_len);
+    }
+}
+
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
     auto scale_factor = this->get_scale();
     auto x_offset = this->_x_offset;
@@ -156,7 +169,31 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
         cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
         cairo_stroke(cr);
-        g_warning_once("TODO: Implement drawing various bond kinds, colors etc.");
+
+        auto draw_side_bond_line = [&](bool addOrSub){
+            auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+            if (!addOrSub) { // change sign of the versor
+                pv_x *= -1.f;
+                pv_y *= -1.f;
+            }
+            // Convert the versor to a vector of the desired length
+            pv_x *= BOND_LINE_SEPARATION;
+            pv_y *= BOND_LINE_SEPARATION;
+            cairo_move_to(cr, (bond.first_atom_x + pv_x) * scale_factor + x_offset, (bond.first_atom_y + pv_y) * scale_factor + y_offset);
+            cairo_line_to(cr, (bond.second_atom_x + pv_x) * scale_factor + x_offset, (bond.second_atom_y + pv_y) * scale_factor + y_offset);
+            cairo_stroke(cr);
+        };
+
+        g_warning_once("TODO: Implement drawing different bond types correctly.");
+        if(bond.type == BondType::Double) {
+            // todo: store the information about what the boolean should be
+            draw_side_bond_line(false);
+        } else if(bond.type == BondType::Triple) {
+            // "to the left"
+            draw_side_bond_line(false);
+            // "to the right"
+            draw_side_bond_line(true);
+        }
     }
 
     cairo_set_line_width(cr, 0.5);
@@ -194,12 +231,12 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             pango_cairo_show_layout(cr, pango_layout);
         };
 
-        g_warning_once("TODO: Implement drawing atoms correctly");
         
         if (atom.symbol == "C" || atom.symbol == "H") {
             process_highlight();
             // Ignore drawing Carbon and hydrogen now.
             // This should probably be computed at lowering time in the future.
+            g_warning_once("TODO: Implement drawing atoms correctly");
         } else {
             render_white_background();
             process_highlight();
@@ -342,6 +379,8 @@ void CanvasMolecule::lower_from_rdkit() {
     std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
         return lhs.idx < rhs.idx;
     });
+    // Reverse kekulization on the original molecule after lowering.
+    RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
     
 }
 

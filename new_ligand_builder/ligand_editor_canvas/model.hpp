@@ -73,6 +73,9 @@ class CanvasMolecule {
         float second_atom_y;
         unsigned int second_atom_idx;
         bool highlighted;
+
+        /// Returns an [x,y] pair of numbers
+        std::pair<float,float> get_perpendicular_versor() const noexcept;
     };
 
     typedef std::optional<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>> MaybeAtomOrBond;
@@ -81,6 +84,7 @@ class CanvasMolecule {
     static const float ATOM_HITBOX_RADIUS;
     static const float BOND_DISTANCE_BOUNDARY;
     static const float BASE_SCALE_FACTOR;
+    static const float BOND_LINE_SEPARATION;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
