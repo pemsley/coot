@@ -34,14 +34,6 @@ typedef std::vector<Operation> OperationStack;
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
-    /// Used for lowering for RDKit.
-    /// ABI must be kept compatible with BondType
-    enum class BondTypeRaw: unsigned char {
-        Single,
-        Double,
-        Triple,
-        Aromatic
-    };
     public:
     enum class AtomColor: unsigned char {
         /// Carbon and hydrogens
@@ -73,12 +65,7 @@ class CanvasMolecule {
     };
     // todo: geometry support
     struct Bond {
-        union {
-            /// Used after lowering has been completed
-            BondType type;
-            /// Used while lowering from RDKit
-            BondTypeRaw raw_type;
-        };
+        BondType type;
         float first_atom_x;
         float first_atom_y;
         unsigned int first_atom_idx;
@@ -95,8 +82,7 @@ class CanvasMolecule {
     static const float BOND_DISTANCE_BOUNDARY;
     static const float BASE_SCALE_FACTOR;
 
-    static BondTypeRaw bond_type_raw_from_rdkit(RDKit::Bond::BondType) noexcept;
-    // static BondType bond_type_from_raw(BondTypeRaw);
+    static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;
@@ -105,7 +91,9 @@ class CanvasMolecule {
     std::vector<Atom> atoms;
     std::vector<Bond> bonds;
 
+    /// X offset on canvas
     float _x_offset;
+    /// Y offset on canvas
     float _y_offset;
 
 

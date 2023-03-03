@@ -1,7 +1,5 @@
 #include "model.hpp"
-#include "cairo-deprecated.h"
 #include "cairo.h"
-#include <boost/range/iterator_range_core.hpp>
 #include <optional>
 #include <stdexcept>
 #include <algorithm>
@@ -11,8 +9,9 @@
 // // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DSVG.h>
 // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DUtils.h>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
-#include <GraphMol/Substruct/SubstructMatch.h>
+#include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
+#include <rdkit/GraphMol/MolOps.h>
 #include <cmath>
 #include <boost/range/iterator_range.hpp>
 #include <string>
@@ -215,19 +214,19 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->lower_from_rdkit();
 }
 
-CanvasMolecule::BondTypeRaw CanvasMolecule::bond_type_raw_from_rdkit(RDKit::Bond::BondType rdkit_bond) noexcept {
+CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondType rdkit_bond) {
     switch (rdkit_bond) {
         case RDKit::Bond::SINGLE: {
-            return BondTypeRaw::Single;
+            return BondType::Single;
         }
         case RDKit::Bond::DOUBLE: {
-            return BondTypeRaw::Double;
+            return BondType::Double;
         }
         case RDKit::Bond::TRIPLE: {
-            return BondTypeRaw::Triple;
+            return BondType::Triple;
         }
         case RDKit::Bond::AROMATIC:{
-            return BondTypeRaw::Aromatic;
+            throw std::runtime_error("An aromatic bond remained after kekulization!");
         }
         case RDKit::Bond::UNSPECIFIED:
         case RDKit::Bond::QUADRUPLE:
@@ -249,26 +248,10 @@ CanvasMolecule::BondTypeRaw CanvasMolecule::bond_type_raw_from_rdkit(RDKit::Bond
         case RDKit::Bond::ZERO:
         default: {
             g_warning("Unhandled RDKit bond type: %i", rdkit_bond);
-            return BondTypeRaw::Single;
+            return BondType::Single;
         }
     }
 }
-
-// CanvasMolecule::BondType CanvasMolecule::bond_type_from_raw(CanvasMolecule::BondTypeRaw raw_bond) {
-//     switch(raw_bond) {
-//     case BondTypeRaw::Single:{
-//         return BondType::Single;
-//     }
-//     case BondTypeRaw::Double:{
-//         return BondType::Double;
-//     }
-//     case BondTypeRaw::Triple:{
-//         return BondType::Triple;
-//     }
-//     case BondTypeRaw::Aromatic:
-//         throw std::runtime_error("Unhandled aromatic bond");
-//     }
-// }
 
 void CanvasMolecule::lower_from_rdkit() {
     // 1. Clear what we have
@@ -277,6 +260,8 @@ void CanvasMolecule::lower_from_rdkit() {
 
     // 2. Do the lowering
 
+    // 2.0 Kekulize
+    RDKit::MolOps::Kekulize( *this->rdkit_molecule );
     // 2.1 Get geometry info
 
     // Maps atom indices to 2D points
@@ -345,7 +330,7 @@ void CanvasMolecule::lower_from_rdkit() {
             canvas_bond.second_atom_y = coordinate_map[second_atom_idx].y;
 
             canvas_bond.highlighted = false;
-            canvas_bond.raw_type = bond_type_raw_from_rdkit(bond_ptr->getBondType());
+            canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
 
             this->bonds.push_back(std::move(canvas_bond));
         }
@@ -357,13 +342,6 @@ void CanvasMolecule::lower_from_rdkit() {
     std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
         return lhs.idx < rhs.idx;
     });
-    // 3. Resolve aromatic bonds
-    for(auto& bond: this->bonds) {
-        if(bond.raw_type == BondTypeRaw::Aromatic) {
-            // for now
-            bond.type = BondType::Single;
-        }
-    }
     
 }
 
