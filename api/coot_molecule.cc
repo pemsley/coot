@@ -2166,7 +2166,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (refinement_is_quiet)
       restraints.set_quiet_reporting();
 
-   std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
    restraints.add_map(map_weight);
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS;
