@@ -73,7 +73,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
   clipper::MTZdataset myset;
   clipper::MTZcrystal myxtl;
 
-  std::cout << "reading mtz file..." << std::endl;
+  // std::cout << "reading mtz file..." << std::endl;
   clipper::CCP4MTZfile mtzin;
   mtzin.open_read( mtz_file_name );       // open new file
   mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
@@ -90,7 +90,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      std::cout << dataname << "\n";
      mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
      mtzin.close_read();
-     std::cout << "We should use the weights: " << weight_col << std::endl;
+     // std::cout << "We should use the weights: " << weight_col << std::endl;
 
      fphidata.compute(f_sigf_data, phi_fom_data,
                       clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
@@ -100,8 +100,8 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      mtzin.import_hkl_data(     fphidata, myset, myxtl, dataname );
      mtzin.close_read();
   }
-  std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
-  std::cout << "finding ASU unique map points..." << std::endl;
+  // std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
+  // std::cout << "finding ASU unique map points..." << std::endl;
 
   clipper::Resolution fft_reso;
   if (use_reso_limit_high) {
@@ -114,10 +114,10 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 
   clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
   xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
-  std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
-  std::cout << "doing fft..." << std::endl;
+  // std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
+  // std::cout << "doing fft..." << std::endl;
   xmap->fft_from( fphidata );                  // generate map
-  std::cout << "done fft..." << std::endl;
+  // std::cout << "done fft..." << std::endl;
   return 1;
 }
 

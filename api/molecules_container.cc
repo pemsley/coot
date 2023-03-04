@@ -544,8 +544,9 @@ molecules_container_t::read_mtz(const std::string &file_name,
    if (status) {
       molecules.push_back(m);
       imol = imol_in_hope;
-      std::cout << "DEBUG:: in read_mtz() " << file_name << " " << f << " " << phi << " imol map: " << imol
-                << " diff-map-status: " << is_a_difference_map << std::endl;
+      if (false)
+         std::cout << "DEBUG:: in read_mtz() " << file_name << " " << f << " " << phi << " imol map: " << imol
+                   << " diff-map-status: " << is_a_difference_map << std::endl;
    }
    return imol;
 }
