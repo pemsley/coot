@@ -128,6 +128,8 @@ class CanvasMolecule {
     void highlight_bond(int atom_a, int atom_b); 
     void clear_highlights();
 
+    static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;
+
 };
 
 

@@ -26,6 +26,8 @@ class BondModifier {
     public:
     BondModifier(BondModifierMode) noexcept;
 
+    CanvasMolecule::BondType get_target_bond_type() const noexcept;
+
 };
 
 class ElementInsertion {

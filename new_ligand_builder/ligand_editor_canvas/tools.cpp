@@ -3,6 +3,7 @@
 #include "model.hpp"
 #include <stdexcept>
 #include <variant>
+#include <rdkit/GraphMol/MolOps.h>
 
 using namespace coot::ligand_editor_canvas;
 
@@ -12,6 +13,20 @@ ActiveTool::ActiveTool() noexcept {
 
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
     this->mode = mode;
+}
+
+CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
+    switch (this->mode) {
+        case BondModifierMode::Single:{
+            return CanvasMolecule::BondType::Single;
+        }
+        case BondModifierMode::Double:{
+            return CanvasMolecule::BondType::Double;
+        }
+        case BondModifierMode::Triple:{
+            return CanvasMolecule::BondType::Triple;
+        }
+    }
 }
 
 ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
@@ -83,22 +98,96 @@ void ActiveTool::insert_atom(int x, int y) {
 
 void ActiveTool::alter_bond(int x, int y) {
     check_variant(Variant::BondModifier);
+    BondModifier& mod = this->bond_modifier;
     g_warning("TODO: Implement ActiveTool::alter_bond");
+    auto click_result = this->widget_data->resolve_click(x, y);
+    try{
+        auto [bond_or_atom,molecule_idx] = click_result.value();
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            g_warning("The BondModifier tool does not operate on atoms. Nothing to do.");
+        } else {
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+            auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+            RDKit::MolOps::Kekulize(*rdkit_mol.get());
+            auto old_type = rdkit_bond->getBondType();
+            rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+            try {
+                RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+            }catch(std::exception& e) {
+                // rollback
+                g_warning("Rolling back invalid molecule change that makes it unable to sanitize with the following error: %s",e.what());
+                rdkit_bond->setBondType(old_type);
+                RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+                // rethrow
+                throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
+            }
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            canvas_mol.lower_from_rdkit();
+        }
+    } catch(std::bad_optional_access& e) {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    } catch(std::exception& e) {
+        g_warning("An error occured: %s",e.what());
+    }
 }
 
 void ActiveTool::alter_charge(int x, int y) {
     check_variant(Variant::ChargeModifier);
     g_warning("TODO: Implement ActiveTool::alter_charge");
+    auto click_result = this->widget_data->resolve_click(x, y);
+    try{
+        auto [bond_or_atom,molecule_idx] = click_result.value();
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+        } else { // a bond
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+        }
+    } catch(std::bad_optional_access& e) {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    } catch(std::exception& e) {
+        g_warning("An error occured: %s",e.what());
+    }
 }
 
 void ActiveTool::delete_at(int x, int y) {
     check_variant(Variant::Delete);
     g_warning("TODO: Implement ActiveTool::delete_at");
+    auto click_result = this->widget_data->resolve_click(x, y);
+    try{
+        auto [bond_or_atom,molecule_idx] = click_result.value();
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+        } else { // a bond
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+        }
+    } catch(std::bad_optional_access& e) {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    } catch(std::exception& e) {
+        g_warning("An error occured: %s",e.what());
+    }
 }
 
 void ActiveTool::insert_structure(int x, int y) {
     check_variant(Variant::StructureInsertion);
     g_warning("TODO: Implement ActiveTool::insert_structure");
+    auto click_result = this->widget_data->resolve_click(x, y);
+    try{
+        auto [bond_or_atom,molecule_idx] = click_result.value();
+        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+        } else { // a bond
+            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+        }
+    } catch(std::bad_optional_access& e) {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    } catch(std::exception& e) {
+        g_warning("An error occured: %s",e.what());
+    }
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

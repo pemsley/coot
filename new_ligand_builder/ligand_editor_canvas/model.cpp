@@ -290,6 +290,20 @@ CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondT
     }
 }
 
+RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondType ty) noexcept {
+    switch (ty) {
+        case BondType::Single:{
+            return RDKit::Bond::SINGLE;
+        }
+        case BondType::Double:{
+            return RDKit::Bond::DOUBLE;
+        }
+        case BondType::Triple:{
+            return RDKit::Bond::TRIPLE;
+        }
+    }
+}
+
 void CanvasMolecule::lower_from_rdkit() {
     // 1. Clear what we have
     this->atoms.clear();
