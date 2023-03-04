@@ -10,6 +10,10 @@ ActiveTool::ActiveTool() noexcept {
     this->variant = ActiveTool::Variant::None;
 }
 
+BondModifier::BondModifier(BondModifierMode mode) noexcept {
+    this->mode = mode;
+}
+
 ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
     this->variant = ActiveTool::Variant::ElementInsertion;
     this->element_insertion = insertion;
@@ -18,6 +22,16 @@ ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
 ActiveTool::ActiveTool(BondModifier modifier) noexcept {
     this->variant = ActiveTool::Variant::BondModifier;
     this->bond_modifier = modifier;
+}
+
+ActiveTool::ActiveTool(DeleteTool deltool) noexcept {
+    this->variant = ActiveTool::Variant::Delete;
+    this->delete_tool = deltool;
+}
+
+ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
+    this->variant = ActiveTool::Variant::ChargeModifier;
+    this->charge_modifier = chargemod;
 }
 
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {

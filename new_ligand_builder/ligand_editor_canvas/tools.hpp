@@ -24,6 +24,7 @@ class BondModifier {
 
     BondModifierMode mode;
     public:
+    BondModifier(BondModifierMode) noexcept;
 
 };
 
@@ -79,6 +80,14 @@ class StructureInsertion {
 
 };
 
+class ChargeModifier {
+
+};
+
+class DeleteTool {
+
+};
+
 
 class ActiveTool {
     public:
@@ -103,6 +112,10 @@ class ActiveTool {
         ElementInsertion element_insertion;
         /// Valid for Variant::StructureInsertion
         StructureInsertion structure_insertion;
+        /// Valid for Variant::ChargeModifier
+        ChargeModifier charge_modifier;
+        /// Valid for Variant::Delete
+        DeleteTool delete_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -116,6 +129,8 @@ class ActiveTool {
     ActiveTool() noexcept;
     ActiveTool(ElementInsertion insertion) noexcept;
     ActiveTool(BondModifier modifier) noexcept;
+    ActiveTool(DeleteTool) noexcept;
+    ActiveTool(ChargeModifier) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
