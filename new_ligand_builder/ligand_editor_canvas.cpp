@@ -132,11 +132,11 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::BondModifier:{
-            
+            self->active_tool->alter_bond((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::StructureInsertion:{
-            
+            self->active_tool->insert_structure((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::ElementInsertion:{
@@ -153,7 +153,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::Delete:{
-            
+            self->active_tool->delete_at((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::Format:{
@@ -161,7 +161,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::ChargeModifier:{
-            
+            self->active_tool->alter_charge((int)x, (int) y);
             break;
         }
         default:{

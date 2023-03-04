@@ -137,6 +137,20 @@ class ActiveTool {
     /// Inserts currently chosen atom at the given coordinates.
     void insert_atom(int x, int y);
 
+    /// Valid for Variant::BondModifier.
+    /// Changes the bond found at the given coordinates.
+    /// The kind of the bond depends upon current BondModifierMode.
+    void alter_bond(int x, int y);
+    /// Valid for Variant::ChargeModifier.
+    /// Modifies the charge of bond found at the given coordinates.
+    void alter_charge(int x, int y);
+    /// Valid for Variant::Delete.
+    /// Deletes whatever is found at the given coordinates
+    void delete_at(int x, int y);
+    /// Valid for Variant::StructureInsertion.
+    /// Inserts currently chosen structure at the given coordinates.
+    void insert_structure(int x, int y);
+
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///
     /// Sets the pointer to access widget's data.

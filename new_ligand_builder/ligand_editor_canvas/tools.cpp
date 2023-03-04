@@ -81,6 +81,26 @@ void ActiveTool::insert_atom(int x, int y) {
     }
 }
 
+void ActiveTool::alter_bond(int x, int y) {
+    check_variant(Variant::BondModifier);
+    g_warning("TODO: Implement ActiveTool::alter_bond");
+}
+
+void ActiveTool::alter_charge(int x, int y) {
+    check_variant(Variant::ChargeModifier);
+    g_warning("TODO: Implement ActiveTool::alter_charge");
+}
+
+void ActiveTool::delete_at(int x, int y) {
+    check_variant(Variant::Delete);
+    g_warning("TODO: Implement ActiveTool::delete_at");
+}
+
+void ActiveTool::insert_structure(int x, int y) {
+    check_variant(Variant::StructureInsertion);
+    g_warning("TODO: Implement ActiveTool::insert_structure");
+}
+
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {
     this->element = el;
 }
