@@ -91,7 +91,7 @@ namespace coot {
 	 // return std::to_string(idx);
 	 // old style C++
 	 char buff[20];
-	 std::sprintf(buff, "%d", idx+1);
+	 std::snprintf(buff, 5, "%d", idx+1);
 	 return std::string(buff);
       }
 

@@ -3,18 +3,20 @@
 #include <iomanip>
 #include "molecules_container.hh"
 
+#include "json.hpp" // clever stuff from Niels Lohmann
+using json = nlohmann::json;
+
 // 20230214-PE -------------- all of these function copied from graphics-info-superpose.cc.
 //                            I think that they should be in the coot-utils library.
 
 //! superposition (using SSM)
-std::pair<std::string, std::string>
+superpose_results_t
 molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                                      int imol_mov, const std::string &chain_id_mov) {
 
    int imol_new = -1;
-   std::string aligned_sequences_formatted_string;
-   std::string alignment_info;
-   
+   superpose_results_t results;
+
    if (is_valid_model_molecule(imol_ref)) {
       if (is_valid_model_molecule(imol_mov)) {
          atom_selection_container_t asc_ref = molecules[imol_ref].atom_sel;
@@ -31,9 +33,7 @@ molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_r
          std::string name = "Chain";
          std::string ref_name = "Chain";
          // superpose in place
-         std::pair<std::string , std::string> p = superpose_with_atom_selection(asc_ref, asc_mov, imol_mov, name, ref_name, false);
-         aligned_sequences_formatted_string = p.second;
-         alignment_info = p.first;
+         results = superpose_with_atom_selection(asc_ref, asc_mov, imol_mov, name, ref_name, false);
 
          asc_ref.delete_atom_selection();
          asc_mov.delete_atom_selection();
@@ -43,12 +43,11 @@ molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_r
 
       }
    }
-   // because we replace the position of imol_mov the return value is not interesting.
-   return std::make_pair(alignment_info, aligned_sequences_formatted_string);
+   return results;
 }
 
 
-std::pair<std::string, std::string>
+superpose_results_t
 molecules_container_t::superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                                      atom_selection_container_t asc_mov,
                                                      int imol_mov,
@@ -57,11 +56,43 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                                                      bool move_copy_of_imol2_flag) {
 
 
-   int imodel_return = -1;
-   std::string aligned_sequences_formatted_string;
-   std::string alignment_info;
+   // int imodel_return = -1;
+   // std::string aligned_sequences_formatted_string;
+   // std::string alignment_info;
+   superpose_results_t results;
 
 #ifdef HAVE_SSMLIB
+
+   auto make_alignment_json_string = [] (ssm::Align *SSMAlign) {
+
+#if 0
+            ss << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
+               << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
+               << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
+               << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
+               << "      number of residues in aligned sections (moving):     " << SSMAlign->nsel1 << "\n"
+               << "      number of aligned residues:  " << SSMAlign->nalgn << "\n"
+               << "      number of gaps:              " << SSMAlign->ngaps << "\n"
+               << "      number of misdirections:     " << SSMAlign->nmd << "\n"
+               << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
+               << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
+#endif
+
+      json j;
+      j["rmsd"]  = SSMAlign->rmsd;
+      j["nres1"] = SSMAlign->nres1;
+      j["nres2"] = SSMAlign->nres2;
+      j["nsel1"] = SSMAlign->nsel1;
+      j["nsel2"] = SSMAlign->nsel2;
+      j["nalgn"] = SSMAlign->nalgn;
+      j["ngaps"] = SSMAlign->ngaps;
+      j["nmd"]   = SSMAlign->nmd;
+      j["ncombs"]= SSMAlign->ncombs;
+      j["seqIdentity"]= SSMAlign->seqIdentity;
+
+      return j.dump();
+
+   };
 
    ssm::PRECISION precision = ssm::PREC_Normal;
    ssm::CONNECTIVITY connectivity = ssm::CONNECT_Flexible;
@@ -93,7 +124,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
          // Remove the pointer one day.
          //
-         ssm::Align *SSMAlign = new ssm::Align();
+         ssm::Align *SSMAlign = new ssm::Align(); // d
          int rc = SSMAlign->AlignSelectedMatch(mol2, mol1, precision, connectivity,
                                                asc_mov.SelectionHandle,
                                                asc_ref.SelectionHandle);
@@ -108,11 +139,11 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                get_horizontal_ssm_sequence_alignment(SSMAlign, asc_ref, asc_mov,
                                                      atom_selection1, atom_selection2,
                                                      n_selected_atoms_1, n_selected_atoms_2);
-            aligned_sequences_formatted_string = generate_horizontal_ssm_sequence_alignment_string(aligned_sequences);
-
+            std::string aligned_sequences_formatted_string = generate_horizontal_ssm_sequence_alignment_string(aligned_sequences);
+            results.alignment = aligned_sequences;
 
          }
-            
+
          if (rc)  {
             std::string ws;
             switch (rc)  {
@@ -162,7 +193,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                atom_selection_container_t asc_new = make_asc(mol2);
                coot::molecule_t mol_new(asc_new, imol_new, name);
                imol_mov = imol_new;
-               imodel_return = install_model(mol_new);
+               int imodel_return = install_model(mol_new);
             }
 
             // OK, let's get a consistent naming system:  1 is moving: 2 is reference
@@ -202,6 +233,13 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
 #endif
 
+            results.alignment_info =
+            make_ssm_sequence_alignment_as_validation_information(SSMAlign,
+                                         asc_ref, asc_mov,
+                                         atom_selection1, atom_selection2,
+                                         n_selected_atoms_1, n_selected_atoms_2,
+                                         move_copy_of_imol2_flag);
+
             // map assignment of secondary structure for Ana
             //
             if (false)
@@ -236,7 +274,8 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                << "      number of misdirections:     " << SSMAlign->nmd << "\n"
                << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
                << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
-            alignment_info = ss.str();
+            std::string alignment_info = ss.str();
+            results.suppose_info = make_alignment_json_string(SSMAlign);
          }
          delete SSMAlign;
       } else {
@@ -248,7 +287,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
 #endif // HAVE_SSMLIB
 
-   return std::make_pair(alignment_info, aligned_sequences_formatted_string);
+   return results; // std::make_pair(alignment_info, aligned_sequences_formatted_string);
 
 }
 
@@ -612,5 +651,94 @@ molecules_container_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
    } else {
       std::cout << "ERROR:: Failed to get moving or reference_chain pointer\n";
    }
+}
+#endif
+
+
+#ifdef HAVE_SSMLIB
+coot::validation_information_t
+molecules_container_t::make_ssm_sequence_alignment_as_validation_information(ssm::Align *SSMAlign,
+                                                    atom_selection_container_t asc_ref,
+                                                    atom_selection_container_t asc_mov,
+                                                    mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+                                                    int n_selected_atoms_1, int n_selected_atoms_2,
+                                                    bool move_copy_of_imol2_flag) {
+
+   coot::validation_information_t vi;
+
+   mmdb::Chain *moving_chain_p = 0;
+   mmdb::Chain *reference_chain_p = 0;
+   std::string mov_chain_id = std::string(atom_selection1[0]->GetChainID());
+   std::string ref_chain_id = std::string(atom_selection2[0]->GetChainID());
+   std::string slc_1, slc_2; // single letter code.
+
+   int nchains_ref = asc_ref.mol->GetNumberOfChains(1);
+   for (int ich=0; ich<nchains_ref; ich++) {
+      mmdb::Chain *chain_p = asc_ref.mol->GetChain(1, ich);
+      std::string mol_chain_id(chain_p->GetChainID());
+      if (mol_chain_id == std::string(ref_chain_id)) {
+         reference_chain_p = chain_p;
+         break;
+      }
+   }
+   int nchains_mov = asc_mov.mol->GetNumberOfChains(1);
+   for (int ich=0; ich<nchains_mov; ich++) {
+      mmdb::Chain *chain_p = asc_mov.mol->GetChain(1, ich);
+      std::string mol_chain_id(chain_p->GetChainID());
+      if (mol_chain_id == std::string(mov_chain_id)) {
+         moving_chain_p = chain_p;
+         break;
+      }
+   }
+
+   if (moving_chain_p && reference_chain_p) {
+
+      // print alignment (distance) table (not sequence)
+      //
+      if (n_selected_atoms_1 > 0) {
+         clipper::RTop_orth ssm_matrix = coot::util::matrix_convert(SSMAlign->TMatrix);
+         if (false)
+            std::cout << "     Moving      Reference   Distance(/A)" << std::endl;
+         for (int ires=0; ires<n_selected_atoms_1; ires++) {
+            if (ires < SSMAlign->nalgn) {
+               mmdb::Atom *mov_at = atom_selection1[ires];
+               std::string ins_code_mov(mov_at->GetInsCode());
+
+               int mov_index = SSMAlign->Ca1[ires];
+               if (false)
+                  std::cout << "      " << mov_at->GetChainID() << " "
+                            << std::setw(3) << mov_at->GetSeqNum() << ins_code_mov;
+               if ((mov_index > -1) && (mov_index < n_selected_atoms_1)) {
+                  mmdb::Atom *ref_at = atom_selection2[mov_index];
+                  if (ref_at) {
+                     clipper::Coord_orth pos1 = coot::co(mov_at);
+                     clipper::Coord_orth pos2 = coot::co(ref_at);
+                     clipper::Coord_orth pos3 = pos1.transform(ssm_matrix);
+                     double d = clipper::Coord_orth::length(pos3, pos2);
+                     std::string ins_code_ref(ref_at->GetInsCode());
+                     if (false)
+                        std::cout << "  <--->  " << ref_at->GetChainID() << " "
+                                  << std::setw(3) << ref_at->GetSeqNum() << ins_code_ref << "  :  "
+                                  << std::right << std::setprecision(4) << std::fixed
+                                  << d << "\n";
+                     std::string label = std::string(mov_at->GetChainID()) + std::string("") + std::to_string(mov_at->GetSeqNum());
+                     label += std::string(" <---> ") + std::string(ref_at->GetChainID()) + std::string("") + std::to_string(ref_at->GetSeqNum());
+                     coot::residue_spec_t res_spec(mov_at->GetResidue());
+                     coot::atom_spec_t atom_spec(mov_at);
+                     coot::residue_validation_information_t rvi(res_spec, atom_spec, d, label);
+                     std::string chain_id(mov_at->GetChainID());
+                     vi.add_residue_validation_information(rvi, chain_id);
+                  }
+               } else {
+                  if (false)
+                     std::cout << "\n";
+               }
+            }
+         }
+      }
+   } else {
+      std::cout << "ERROR:: Failed to get moving or reference_chain pointer\n";
+   }
+   return vi;
 }
 #endif

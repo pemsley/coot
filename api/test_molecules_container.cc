@@ -2347,11 +2347,21 @@ int test_superpose(molecules_container_t &mc) {
    double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
    double d1 = std::sqrt(dd);
    std::cout << "test d1 " << d1 << std::endl;
-   
-   std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
 
-   std::cout << "ss_result:\n" << ss_result_pair.first << std::endl;
-   std::cout << "ss_result:\n" << ss_result_pair.second << std::endl;
+   // std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+
+   std::cout << "ss_result:\n" << ss_results.suppose_info << std::endl;
+   std::cout << "ss_result:\n" << ss_results.alignment.first  << std::endl;
+   std::cout << "ss_result:\n" << ss_results.alignment.second << std::endl;
+
+   if (true) {
+      for (const auto chain : ss_results.alignment_info.cviv) {
+         for (const auto res : chain.rviv) {
+            std::cout << res.residue_spec << " " << res.function_value << std::endl;
+         }
+      }
+   }
 
    mc.write_coordinates(imol_2, "superposed.pdb");
 
@@ -2520,7 +2530,6 @@ int test_template(molecules_container_t &mc) {
                }
             }
          }
-         
       }
    }
    mc.close_molecule(imol);
@@ -2642,7 +2651,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   // status = run_test(test_superpose, "SSM superpose ", mc);
+   status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -2658,7 +2667,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
-   status = run_test(test_set_rotamer, "set rotamer ", mc);
+   // status = run_test(test_set_rotamer, "set rotamer ", mc);
 
    // Note to self:
    //
