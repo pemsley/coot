@@ -299,6 +299,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                if (naii.success) {
                   mmdb::Atom *at = moving_atoms_asc->atom_selection[naii.atom_index];
+                  moving_atoms_currently_dragged_atom_index = naii.atom_index;
                   std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
                }
             }
