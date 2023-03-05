@@ -52,6 +52,11 @@ Mesh Objects
 .. doxygenfile:: instancing.hh
      :project: libcootapi
 
+Atom and Residue Specifiers
+===========================
+
+.. doxygenfile:: geometry/residue-and-atom-specs.hh
+      :project: libcootapi
 
 Validation Information
 ======================
@@ -62,10 +67,13 @@ Validation Information
 .. doxygenfile:: residue-validation-information.hh
       :project: libcootapi
 
-.. doxygenfile:: geometry/residue-and-atom-specs.hh
+.. doxygenfile:: coot-utils/coot-density-stats.hh
       :project: libcootapi
 
-.. doxygenfile:: coot-utils/coot-density-stats.hh
+Superposition
+=============
+
+.. doxygenfile:: superpose-results.hh
       :project: libcootapi
 
 Symmetry
