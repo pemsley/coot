@@ -18,6 +18,11 @@
 
 std::atomic<bool> coot::molecule_t::draw_vector_sets_lock(false);
 
+void
+coot::molecule_t::set_map_colour(coot::colour_holder ch) {
+   map_colour = ch;
+}
+
 int
 coot::molecule_t::write_map(const std::string &file_name) const {
 
@@ -331,7 +336,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    // now convert the contents of the draw-vector sets to a simple_mesh_t.
 
-   coot::colour_holder map_colour(0.4, 0.4, 0.7);
+   // coot::colour_holder map_colour(0.3, 0.3, 0.8); // now is a class member
    if (xmap_is_diff_map)
       map_colour = coot::colour_holder(0.4, 0.8, 0.4);
 

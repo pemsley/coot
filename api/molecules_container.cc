@@ -1542,6 +1542,16 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    return mesh;
 }
 
+void
+molecules_container_t::set_map_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_map_molecule(imol)) {
+      coot::colour_holder ch(r,g,b);
+      molecules[imol].set_map_colour(ch);
+   }
+}
+
+
 
 // get the rotamer dodecs for the model
 coot::simple_mesh_t

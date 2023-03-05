@@ -151,6 +151,8 @@ namespace coot {
       bool xmap_is_diff_map;
       bool has_xmap() const { return is_valid_map_molecule(); }
 
+      colour_holder map_colour;
+
       // save the data used for the fourier, so that we can use it to
       // sharpen the map:
       // uncommenting the following line causes a crash in the multi-molecule
@@ -284,6 +286,8 @@ namespace coot {
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
+
+         map_colour = colour_holder(0.3, 0.3, 0.8);
 
          float rotate_colour_map_on_read_pdb = 0.24;
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
@@ -749,7 +753,9 @@ namespace coot {
       bool is_difference_map_p() const;
 
       // changes the internal map mesh holder (hence not const)
-      coot::simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+      simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+
+      void set_map_colour(colour_holder holder);
 
       //! The container class for an interesting place.
       //!

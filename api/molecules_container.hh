@@ -693,6 +693,11 @@ public:
    //! @return a vector of the map molecule indices.
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
 
+   //! set the map colour.
+   //! The next time a map mesh is requested, it will have this colour.
+   //! This does not affect the colour of the difference maps.
+   void set_map_colour(int imol, float r, float g, float b);
+
    //! get the mesh for the map contours.
    //!
    //! This function is not **const** because the internal state of a `coot_molecule_t` is changed.
