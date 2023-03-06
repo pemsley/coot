@@ -18,6 +18,7 @@ G_END_DECLS
 namespace coot::ligand_editor_canvas::impl {
 
 inline guint status_updated_signal;
+inline guint scale_changed_signal;
 
 /// This is here as a workaround.
 /// 
@@ -40,6 +41,8 @@ struct WidgetCoreData {
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
     /// molecules (RDKit)
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+
+    float scale;
 
     typedef std::optional<std::pair<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>,unsigned int>> MaybeAtomOrBondWithMolIdx;
 

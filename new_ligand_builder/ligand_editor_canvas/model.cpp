@@ -26,8 +26,11 @@ const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.2f;
 
 float CanvasMolecule::get_scale() const noexcept {
-    // todo: Add internal canvas scaling
-    return BASE_SCALE_FACTOR;
+    return BASE_SCALE_FACTOR * this->canvas_scale;
+}
+
+void CanvasMolecule::set_canvas_scale(float scale) {
+    this->canvas_scale = scale;
 }
 
 CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {

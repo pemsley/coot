@@ -47,6 +47,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
             for(auto& drawn_molecule: *self->molecules) {
                 drawn_molecule.set_offset_from_bounds(&background_rect);
+                drawn_molecule.set_canvas_scale(self->scale);
                 drawn_molecule.draw(snapshot,pango_layout,&background_rect);
             }
             g_object_unref(pango_layout);
@@ -57,14 +58,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
    
 }
 
-void coot_ligand_editor_canvas_measure
-    (GtkWidget      *widget,
-    GtkOrientation  orientation,
-    int             for_size,
-    int            *minimum_size,
-    int            *natural_size,
-    int            *minimum_baseline,
-    int            *natural_baseline)
+void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
 
@@ -72,14 +66,14 @@ void coot_ligand_editor_canvas_measure
     {
     case GTK_ORIENTATION_HORIZONTAL:{
          // For now:
-        *natural_size = 1200;
-        *minimum_size = 1200;
+        *natural_size = 1200 * self->scale;
+        *minimum_size = 1200 * self->scale;
         break;
     }
     case GTK_ORIENTATION_VERTICAL:{
          // For now:
-        *natural_size = 500;
-        *minimum_size = 500;
+        *natural_size = 500 * self->scale;
+        *minimum_size = 500 * self->scale;
         break;
     }
     default:
@@ -115,6 +109,22 @@ static void on_hover (
         // Nothing was hovered on
     }
     gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
+static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx, gdouble dy, gpointer user_data) {
+    GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(zoom_controller));
+    GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+
+    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+
+    if (modifiers & GDK_CONTROL_MASK) {
+        self->scale *= (1.f - dy / 20.f);
+        g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+        gtk_widget_queue_resize(GTK_WIDGET(self));
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static void on_left_click (
@@ -181,9 +191,11 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
+    self->scale = 1.0;
 
     GtkGesture* click_controller = gtk_gesture_click_new();
     GtkEventController* hover_controller = gtk_event_controller_motion_new();
+    GtkEventController* zoom_controller = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
 
     // left mouse button
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
@@ -191,8 +203,11 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
 
     g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
 
+    g_signal_connect(zoom_controller, "scroll",G_CALLBACK(on_scroll), self);
+
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
+    gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(zoom_controller));
 }
 
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
@@ -216,6 +231,17 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
         1     /* n_params */,
         G_TYPE_STRING
     );
+    impl::scale_changed_signal = g_signal_new("scale-changed",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        1     /* n_params */,
+        G_TYPE_FLOAT
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_ligand_editor_canvas_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_ligand_editor_canvas_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
@@ -230,6 +256,18 @@ coot_ligand_editor_canvas_new()
 
 G_END_DECLS
 
+
+void coot_ligand_editor_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
+    self->scale = display_scale;
+    g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+    gtk_widget_queue_resize(GTK_WIDGET(self));
+}
+
+float coot_ligand_editor_get_scale(CootLigandEditorCanvas* self) noexcept {
+    return self->scale;
+}
+
 void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
     self->active_tool = std::move(active_tool);
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
@@ -240,6 +278,7 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
+        self->molecules->back().set_canvas_scale(self->scale);
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         // g_debug("Should draw.");
         gtk_widget_queue_draw(GTK_WIDGET(self));

@@ -188,6 +188,19 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     GtkAdjustment* adj = gtk_adjustment_new(1, 0.1, 20, 0.1, 1, 2);
     GtkWidget* scale_spin_button = gtk_spin_button_new(adj, 0.1, 1);
     gtk_box_append(GTK_BOX(bottom_bar),scale_spin_button);
+
+    g_signal_connect(canvas, "scale-changed", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, float new_scale, gpointer user_data){
+        GtkSpinButton* spin_button = GTK_SPIN_BUTTON(user_data);
+        gtk_spin_button_set_value(spin_button, new_scale);
+    }), scale_spin_button);
+
+    g_signal_connect(scale_spin_button, "value-changed", G_CALLBACK(+[](GtkSpinButton* self,gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        double new_scale = gtk_spin_button_get_value(self);
+        if (coot_ligand_editor_get_scale(canvas) != new_scale);
+        coot_ligand_editor_set_scale(canvas, new_scale);
+    }), canvas);
+
     gtk_widget_set_halign(scale_spin_button,GTK_ALIGN_END);
 
 

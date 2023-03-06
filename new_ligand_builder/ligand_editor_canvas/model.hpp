@@ -100,6 +100,9 @@ class CanvasMolecule {
     /// Y offset on canvas
     float _y_offset;
 
+    /// Scale used by the widget
+    float canvas_scale;
+
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates
@@ -115,6 +118,9 @@ class CanvasMolecule {
 
     /// Changes the relative placement of the molecule on the screen
     void set_offset_from_bounds(const graphene_rect_t *bounds) noexcept;
+    
+    /// Sets the scale for drawing
+    void set_canvas_scale(float scale);
 
     /// Draws the molecule on the widget.
     /// Be sure to call set_offset_from_bounds before drawing.
