@@ -1,6 +1,7 @@
 #include "tools.hpp"
 #include "core.hpp"
 #include "model.hpp"
+#include <exception>
 #include <stdexcept>
 #include <variant>
 #include <rdkit/GraphMol/MolOps.h>
@@ -105,7 +106,18 @@ void ActiveTool::alter_bond(int x, int y) {
     try{
         auto [bond_or_atom,molecule_idx] = click_result.value();
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-            g_warning("The BondModifier tool does not operate on atoms. Nothing to do.");
+            //g_warning("The BondModifier tool does not operate on atoms. Nothing to do.");
+            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            //g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
+            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+            auto* new_atom = new RDKit::Atom(6);
+            RDKit::MolOps::Kekulize(*rdkit_mol.get());
+            auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
+            rdkit_mol->addBond(new_atom_idx,atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+            g_info("New atom added: idx=%i",new_atom_idx);
+            RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            canvas_mol.lower_from_rdkit();
         } else {
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
