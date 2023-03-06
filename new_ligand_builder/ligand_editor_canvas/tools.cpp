@@ -171,11 +171,18 @@ void ActiveTool::delete_at(int x, int y) {
     auto click_result = this->widget_data->resolve_click(x, y);
     try{
         auto [bond_or_atom,molecule_idx] = click_result.value();
+        auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+        RDKit::MolOps::Kekulize(*rdkit_mol.get());
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            rdkit_mol->removeAtom(atom.idx);
         } else { // a bond
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+            rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
         }
+        RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+        auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+        canvas_mol.lower_from_rdkit();
     } catch(std::bad_optional_access& e) {
         // Nothing has been clicked on.
         g_debug("The click could not be resolved to any atom or bond.");
