@@ -15,3 +15,8 @@ WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, i
     }
     return std::nullopt;
 }
+
+void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    g_signal_emit((gpointer) widget_ptr, status_updated_signal, 0, status_text);
+}

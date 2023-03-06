@@ -205,6 +205,17 @@ static void coot_ligand_editor_canvas_dispose(GObject* _self) {
 
 static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
+    impl::status_updated_signal = g_signal_new("status-updated",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        1     /* n_params */,
+        G_TYPE_STRING
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_ligand_editor_canvas_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_ligand_editor_canvas_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;

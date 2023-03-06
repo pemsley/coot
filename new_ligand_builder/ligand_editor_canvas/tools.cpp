@@ -100,6 +100,7 @@ void ActiveTool::alter_bond(int x, int y) {
     check_variant(Variant::BondModifier);
     BondModifier& mod = this->bond_modifier;
     g_warning("TODO: Implement ActiveTool::alter_bond");
+    
     auto click_result = this->widget_data->resolve_click(x, y);
     try{
         auto [bond_or_atom,molecule_idx] = click_result.value();

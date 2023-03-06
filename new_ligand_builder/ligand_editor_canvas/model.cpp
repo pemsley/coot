@@ -20,7 +20,7 @@
 
 using namespace coot::ligand_editor_canvas;
 
-const float CanvasMolecule::ATOM_HITBOX_RADIUS = 10.f;
+const float CanvasMolecule::ATOM_HITBOX_RADIUS = 12.f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.2f;

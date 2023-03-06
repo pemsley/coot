@@ -1,5 +1,6 @@
 #include "ligand-builder.hpp"
 #include "ligand_editor_canvas.hpp"
+#include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 #include <gtk/gtk.h>
 #include <string>
@@ -170,7 +171,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
  
     gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(canvas_viewport),GTK_WIDGET(canvas));
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas_viewport));
-    // Statusbar / the bottom
+    // Bottom controls
     GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     gtk_widget_set_margin_start(bottom_bar, 10);
     gtk_widget_set_margin_end(bottom_bar, 10);
@@ -189,10 +190,17 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_box_append(GTK_BOX(bottom_bar),scale_spin_button);
     gtk_widget_set_halign(scale_spin_button,GTK_ALIGN_END);
 
+
     GtkWidget* show_alerts_checkbutton = gtk_check_button_new_with_label("Show Alerts");
     gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_END);
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
+    
+    GtkWidget* status_label = gtk_label_new("");
+    gtk_box_append(GTK_BOX(mainbox),status_label);
+    g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
+        gtk_label_set_text(GTK_LABEL(user_data), status_text);
+    }), status_label);
 
     GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
     gtk_box_append(GTK_BOX(mainbox), button_box);

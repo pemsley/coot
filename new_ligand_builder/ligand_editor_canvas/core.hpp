@@ -17,6 +17,8 @@ G_END_DECLS
 
 namespace coot::ligand_editor_canvas::impl {
 
+inline guint status_updated_signal;
+
 /// This is here as a workaround.
 /// 
 /// GObject expects the first data field in the struct
@@ -47,6 +49,7 @@ struct WidgetCoreData {
     /// The index number indicates which molecule the object comes from.
     /// If nothing matches the coordinates, nullopt is returned.
     MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
+    void update_status(const gchar* status_text) const noexcept;
 };
 
 /// This is the private struct for GObject
