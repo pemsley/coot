@@ -195,8 +195,12 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_END);
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
-    
+
     GtkWidget* status_label = gtk_label_new("");
+    gtk_widget_set_margin_start(status_label, 10);
+    gtk_widget_set_margin_end(status_label, 10);
+    gtk_widget_set_halign(status_label, GTK_ALIGN_START);
+
     gtk_box_append(GTK_BOX(mainbox),status_label);
     g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
         gtk_label_set_text(GTK_LABEL(user_data), status_text);
