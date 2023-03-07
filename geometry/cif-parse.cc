@@ -69,7 +69,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       imol_enc = IMOL_ENC_ANY;
 
    } else {
-      
+
       // it's too late (too deep) by the time we get here, to use IMOL_ENC_AUTO - that should
       // have been done by the calling function (where, if auto, then set imol_enc_in to imol_no)
       // for a specific model
@@ -82,7 +82,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       // we have it:  is_non_auto_load_ligand()
 
    }
-      
+
 
    read_refmac_mon_lib_info_t rmit;
    mmdb::mmcif::File ciffile;
@@ -116,16 +116,16 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    } else {
 
       int ierr = ciffile.ReadMMCIFFile(ciffilename.c_str());
-      std::string comp_id_1; 
+      std::string comp_id_1;
       std::string comp_id_2;  // initially unset
-   
+
       if (ierr!=mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename << std::endl;
 	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
 
 	 std::cout << "    " << mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr))
-		   << std::endl;
-	 
+		        << std::endl;
+
  	 char        err_buff[1000];
  	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
  	    mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
@@ -147,7 +147,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       } else {
 	 if (verbose_mode)
 	    std::cout << "There are " << ciffile.GetNofData() << " data in "
-		      << ciffilename << std::endl; 
+		      << ciffilename << std::endl;
       
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) {
 	    
@@ -189,9 +189,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
-	       
-	       // All categories have loops (AFAICS). 
-	       // std::cout << "DEBUG:: got category: " << cat_name << std::endl; 
+
+	       // All categories have loops (AFAICS).
+	       // std::cout << "DEBUG:: got category: " << cat_name << std::endl;
 
 	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
@@ -234,13 +234,13 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     }
 		  }
 
-                  if (cat_name == "_lib") {
+         if (cat_name == "_lib") {
 		     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
                      if (structure) {
                         parse_lib_info(structure);
                         handled = true; // hack for now - so that we don't get the warning message
                      }
-                  }
+         }
 
 		  if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
 		                   // with one atom e.g. AM.cif (Americium ion)
@@ -779,9 +779,9 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       s = mmCIFLoop->GetString("group", j, ierr);
       ierr_tot += ierr;
       if (s) {
-	 group = s; // e.g. "L-peptide"
-	 if (group == "L-PEPTIDE") // fix acedrg output
-	    group = "L-peptide";
+	      group = s; // e.g. "L-peptide"
+	      if (group == "L-PEPTIDE") // fix acedrg output
+	         group = "L-peptide";
       }
 
       ierr = mmCIFLoop->GetInteger(number_atoms_all, "number_atoms_all", j);
@@ -793,7 +793,7 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       char *release_status_cs = mmCIFLoop->GetString("release_status", j, ierr);
       std::string release_status;
       if (release_status_cs)
-	 release_status = release_status_cs; // can be "OBS" or "REL"
+	         release_status = release_status_cs; // can be "OBS" or "REL"
 
       // If desc_level is in the file, extract it, otherwise set it to "None"
       //
@@ -852,7 +852,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, i
       std::string description_level = "None";
 
       if (ierr == 0) {
-	 int ierr_tot = 0;
+	      int ierr_tot = 0;
          if (s) { // 20220223-PE add protection for null id extraction.
             comp_id = s;
             s = mmCIFLoop->GetString("three_letter_code", j, ierr);
@@ -892,7 +892,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, i
                                             group, number_atoms_all, number_atoms_nh,
                                             description_level);
             }
-	 }
+	      }
       }
    }
    return comp_id;
@@ -1822,7 +1822,7 @@ coot::protein_geometry::add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 
-int 
+int
 coot::protein_geometry::add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int n_chem_mods = 0;
@@ -1831,7 +1831,7 @@ coot::protein_geometry::add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop) {
 
       int ierr_tot = 0;
       int ierr;
-      
+
       std::string id;
       std::string name;
       std::string comp_id; // often "." (default)
@@ -1841,29 +1841,29 @@ coot::protein_geometry::add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop) {
       s = mmCIFLoop->GetString("id", j, ierr);
       ierr_tot += ierr;
       if (s) id = s;
-      
+
       s = mmCIFLoop->GetString("name", j, ierr);
       ierr_tot += ierr;
       if (s) name = s;
-      
+
       s = mmCIFLoop->GetString("comp_id", j, ierr);
       ierr_tot += ierr;
       if (s) comp_id = s;
-      
+
       s = mmCIFLoop->GetString("group_id", j, ierr);
       ierr_tot += ierr;
       if (s) group_id = s;
 
       if (ierr_tot == 0) {
-	 coot::list_chem_mod mod(id, name, comp_id, group_id);
-	 chem_mod_vec.push_back(mod);
-	 n_chem_mods++;
-      } 
+	      list_chem_mod mod(id, name, comp_id, group_id);
+	      chem_mod_vec.push_back(mod);
+	      n_chem_mods++;
+      }
    }
    return n_chem_mods;
 }
 
-int 
+int
 coot::protein_geometry::init_standard() {
 
    // So, first we check if COOT_REFMAC_LIB_DIR has been set.  If it
@@ -1877,28 +1877,32 @@ coot::protein_geometry::init_standard() {
    // install (PKGDATADIR).  If so, use that...  [This is the prefered
    // option].
    //
-   
-   std::string dir = DATADIR; 
+
+   bool debug = false;
+
+   std::string dir = DATADIR;
    std::string hardwired_default_place;
    hardwired_default_place = util::append_dir_dir(dir, "coot");
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
    bool using_clibd_mon = false;
 
-   std::string mon_lib_dir; 
+   std::cout << "DEBUG:: hardwired_default_place: " << hardwired_default_place << std::endl;
+
+   std::string mon_lib_dir;
    short int env_dir_fails = 0;
    int istat;
 
    // struct stat buf;
    char *cmld = NULL;
-   
+
    char *s = getenv("COOT_REFMAC_LIB_DIR");
    if (s) {
-      if (! is_dir_or_link(s)) { 
-	 env_dir_fails = 1;
-	 std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
-		   << "failed to find a dictionary " << s << std::endl;
+      if (! is_dir_or_link(s)) {
+	      env_dir_fails = 1;
+	      std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
+		             << "failed to find a dictionary " << s << std::endl;
       } else {
-	 mon_lib_dir = s;
+	      mon_lib_dir = s;
       }
    }
 
@@ -1906,10 +1910,10 @@ coot::protein_geometry::init_standard() {
       cmld = getenv("COOT_MONOMER_LIB_DIR"); // for phenix.
       // we find $COOT_MONOMER_LIB_DIR/a/ALA.cif
       if (cmld) {
-	 mon_lib_dir = cmld;
+	      mon_lib_dir = cmld;
       }
    }
-      
+
    if (!s || env_dir_fails) {
 
       // OK, so COOT_REFMAC_LIB_DIR didn't provide a library.
@@ -1918,83 +1922,85 @@ coot::protein_geometry::init_standard() {
       s = getenv("CLIBD_MON");
       if (s) {
 
-	 std::string ss(s); // might have trailing "/"
-	 ss = coot::util::remove_trailing_slash(ss);
-	 if (! is_dir_or_link(ss)) { 
-	    env_dir_fails = 1;
-	 } else {
-	    env_dir_fails = 0;
+	      std::string ss(s); // might have trailing "/"
+	      ss = coot::util::remove_trailing_slash(ss);
+	      if (! is_dir_or_link(ss)) {
+	         env_dir_fails = 1;
+	      } else {
+	         env_dir_fails = 0;
             if (verbose_mode)
                std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
                          << " CLIBD_MON: " << s << std::endl;
-	    mon_lib_dir = s;
-	    using_clibd_mon = true;
-	    // strip any trailing / from mon_lib_dir
-	    if (mon_lib_dir.length() > 0) {
-	       if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
-		  mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
-	    }
-	 }
+	         mon_lib_dir = s;
+	         using_clibd_mon = true;
+	         // strip any trailing / from mon_lib_dir
+	         if (mon_lib_dir.length() > 0) {
+	            if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
+		            mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
+	         }
+	      }
       }
 
-      
       if (!s || env_dir_fails) {
-	 // Next, try CCP4_LIB
+	      // Next, try CCP4_LIB
 
-	 s = getenv("CCP4_LIB");
-	 if (s) {
+	      s = getenv("CCP4_LIB");
+	      if (s) {
             if (verbose_mode)
                std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
                          << s << std::endl;
-	    mon_lib_dir = s;
+	         mon_lib_dir = s;
 
-	 } else {
+         } else {
 
-	    // OK, CCP4 failed to give us a dictionary, now try the
-	    // version that comes with Coot:
+	         // OK, CCP4 failed to give us a dictionary, now try the
+	         // version that comes with Coot:
 
-	    if (is_dir_or_link(hardwired_default_place)) {
-	       mon_lib_dir = hardwired_default_place;
-	    } else {
+	         if (is_dir_or_link(hardwired_default_place)) {
+	            mon_lib_dir = hardwired_default_place;
+	         } else {
 
-	       // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
-	       // would with the binary distros)
+	            // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
+	            // would with the binary distros)
 
-	       s = getenv("COOT_PREFIX");
-	       if (s) {
-		  std::string lib_dir = util::append_dir_dir(s, "share");
-		  lib_dir = util::append_dir_dir(lib_dir, "coot");
-		  lib_dir = util::append_dir_dir(lib_dir, "lib");
-		  if (is_dir_or_link(lib_dir)) {
-		     mon_lib_dir = lib_dir;
-		  } else {
-		     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
-		  }
-	       } else {
-		  std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
-			    << "find dictionary lib failed\n";
+	            s = getenv("COOT_PREFIX");
+	            if (s) {
+		            std::string lib_dir = util::append_dir_dir(s, "share");
+		            lib_dir = util::append_dir_dir(lib_dir, "coot");
+		            lib_dir = util::append_dir_dir(lib_dir, "lib");
+		            if (is_dir_or_link(lib_dir)) {
+		               mon_lib_dir = lib_dir;
+		            } else {
+		               std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
+		            }
+	            } else {
+		            std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
+			                   << "find dictionary lib failed\n";
                   mon_lib_dir.clear();
-	       }
-	    }
-	 }
+	            }
+	         }
+	      }
       }
    }
-   
+
+   if (debug)
+      std::cout << "Here with mon_lib_dir set to " << mon_lib_dir << std::endl;
+
    if (mon_lib_dir.length() > 0) {
       mon_lib_dir =  coot::util::intelligent_debackslash(mon_lib_dir);
       std::string filename = mon_lib_dir;
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
       if (using_clibd_mon) {
-	 filename = util::remove_trailing_slash(mon_lib_dir);
-	 filename += "/list/mon_lib_list.cif";
+	      filename = util::remove_trailing_slash(mon_lib_dir);
+	      filename += "/list/mon_lib_list.cif";
       }
       // now check that that file is there:
       if (! is_regular_file(filename)) {
-	 std::cout << "ERROR: dictionary " << filename << " is not a regular file"
-		   << std::endl;
+	      std::cout << "ERROR: dictionary " << filename << " is not a regular file"
+		             << std::endl;
       } else {
-	 // OK 
+	      // OK
       }
 
       // setting up CCP4 sets mon_lib_cif to
@@ -2011,7 +2017,8 @@ coot::protein_geometry::init_standard() {
          mon_lib_cif += "/list/mon_lib_list.cif";
          energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
       }
-   
+
+      std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
       init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
       // now the protein monomers:
       read_number = 1;
@@ -2019,7 +2026,7 @@ coot::protein_geometry::init_standard() {
       for (unsigned int i=0; i<protein_mono.size(); i++) {
          std::string monomer_cif_file = protein_mono[i];
          if (!cmld && !using_clibd_mon) {
-	    monomer_cif_file = "data/monomers/" + monomer_cif_file;
+	         monomer_cif_file = "data/monomers/" + monomer_cif_file;
          }
          refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
       }
@@ -2034,12 +2041,12 @@ coot::protein_geometry::init_standard() {
 }
 
 
-int 
+int
 coot::protein_geometry::refmac_monomer(const std::string &s, // dir
 				       const std::string &protein_mono) { // extra path to file
-   
+
    int imol_enc = IMOL_ENC_ANY; // maybe pass this?
-   
+
    std::string filename = util::append_dir_file(s, protein_mono);
    if (is_regular_file(filename)) {
       init_refmac_mon_lib(filename, read_number, imol_enc);
@@ -2056,11 +2063,11 @@ void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
    mmdb::mmcif::File *mmCIFFile = new mmdb::mmcif::File(); // d
-      
+
    mmdb::mmcif::Data   *mmCIFData = NULL;
    mmdb::mmcif::Struct *mmCIFStruct;
    char S[2000];
-   
+
    //  2.1  Example 1: add a structure into mmCIF object
 
    int rc;
