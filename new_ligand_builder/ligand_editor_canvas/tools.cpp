@@ -133,9 +133,7 @@ void ActiveTool::insert_atom(int x, int y) {
                 g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
                 auto* new_atom = new RDKit::Atom(std::string(el_name));
-                auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
-                rdkit_mol->addBond(new_atom_idx,atom.idx);
-                g_info("New atom added: idx=%i",new_atom_idx);
+                rdkit_mol->replaceAtom(atom.idx, new_atom);
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit();
             } else { // a bond
