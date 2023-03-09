@@ -95,10 +95,10 @@ class CanvasMolecule {
     std::vector<Atom> atoms;
     std::vector<Bond> bonds;
 
-    /// X offset on canvas
-    float _x_offset;
-    /// Y offset on canvas
-    float _y_offset;
+    /// X centering offset on canvas
+    float x_canvas_size_adjustment;
+    /// Y centering offset on canvas
+    float y_canvas_size_adjustment;
 
     /// Scale used by the widget
     float canvas_scale;
@@ -117,7 +117,7 @@ class CanvasMolecule {
     void lower_from_rdkit();
 
     /// Changes the relative placement of the molecule on the screen
-    void set_offset_from_bounds(const graphene_rect_t *bounds) noexcept;
+    void set_canvas_size_adjustment_from_bounds(const graphene_rect_t *bounds) noexcept;
     
     /// Sets the scale for drawing
     void set_canvas_scale(float scale);

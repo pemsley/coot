@@ -47,7 +47,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
             PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
             for(auto& drawn_molecule: *self->molecules) {
-                drawn_molecule.set_offset_from_bounds(&background_rect);
+                drawn_molecule.set_canvas_size_adjustment_from_bounds(&background_rect);
                 drawn_molecule.set_canvas_scale(self->scale);
                 drawn_molecule.draw(snapshot,pango_layout,&background_rect);
             }
