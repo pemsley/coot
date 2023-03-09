@@ -128,11 +128,11 @@ void LigandBuilderState::file_export(ExportMode mode) {
 }
 
 void LigandBuilderState::edit_undo() {
-    g_warning("TODO: Implement void LigandBuilderState::edit_undo()");
+    coot_ligand_editor_undo_edition(this->canvas);
 }
 
 void LigandBuilderState::edit_redo() {
-    g_warning("TODO: Implement void LigandBuilderState::edit_redo()");
+    coot_ligand_editor_redo_edition(this->canvas);
 }
 
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win) {

@@ -20,4 +20,7 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
 void coot_ligand_editor_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
 float coot_ligand_editor_get_scale(CootLigandEditorCanvas* self) noexcept;
 
+void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept;
+
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP

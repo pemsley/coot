@@ -331,3 +331,13 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
         g_warning("coot_ligand_editor_append_molecule: 2D representation could not be created: %s. Ignoring new molecule.",e.what());
     }
 }
+
+void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept {
+    self->undo_edition();
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+}
+
+void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept {
+    self->redo_edition();
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+}
