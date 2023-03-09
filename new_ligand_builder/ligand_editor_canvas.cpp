@@ -1,6 +1,7 @@
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
+#include "ligand_editor_canvas/tools.hpp"
 #include <exception>
 #include <utility>
 #include <algorithm>
@@ -91,6 +92,11 @@ static void on_hover (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    if(self->active_tool->get_variant() == ActiveTool::Variant::MoveTool) {
+        if(self->active_tool->is_in_move()) {
+            self->active_tool->update_move_cursor_pos((int)x, (int)y);
+        }
+    }
     for(auto& molecule: *self->molecules) {
         molecule.clear_highlights();
     }
@@ -127,6 +133,20 @@ static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx,
     return FALSE;
 }
 
+static void
+on_left_click_released (
+  GtkGestureClick* gesture_click,
+  gint n_press,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    if(self->active_tool->get_variant() == ActiveTool::Variant::MoveTool) {
+        self->active_tool->end_move();
+    }
+}
+
 static void on_left_click (
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -139,6 +159,10 @@ static void on_left_click (
 
         case ActiveTool::Variant::None:{
             gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
+            break;
+        }
+        case ActiveTool::Variant::MoveTool:{
+            self->active_tool->begin_move((int)x, (int)y);
             break;
         }
         case ActiveTool::Variant::BondModifier:{
@@ -200,6 +224,7 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // left mouse button
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
     g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
+    g_signal_connect(click_controller,"released",G_CALLBACK(on_left_click_released),self);
 
     g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
 

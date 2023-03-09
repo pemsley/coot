@@ -47,7 +47,8 @@ class LigandBuilderState {
 
 };
 
-/// Let this be the singleton used by the editor executable
+/// Let this be the singleton used by the editor executable.
+/// Could by used by Coot as well.
 inline LigandBuilderState* global_instance;
 
 void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win);

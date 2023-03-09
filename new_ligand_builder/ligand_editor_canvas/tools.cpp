@@ -3,6 +3,7 @@
 #include "model.hpp"
 #include <exception>
 #include <stdexcept>
+#include <utility>
 #include <variant>
 #include <rdkit/GraphMol/MolOps.h>
 
@@ -15,6 +16,42 @@ ActiveTool::ActiveTool() noexcept {
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
     this->mode = mode;
 }
+
+MoveTool::MoveTool() noexcept {
+    this->in_move = false;
+}
+
+void MoveTool::begin_move(int x, int y) noexcept {
+    this->begin_move_pos = std::make_pair(x,y);
+    this->in_move = true;
+    this->current_move_pos = std::make_pair(x, y);
+}
+
+std::pair<int,int> MoveTool::end_move() {
+    this->in_move = false;
+    auto ret = this->get_offset();
+    this->current_move_pos = std::nullopt;
+    this->begin_move_pos = std::nullopt;
+    return ret.value();
+}
+
+void MoveTool::update_current_move_pos(int x, int y) noexcept {
+    this->current_move_pos = std::make_pair(x, y);
+}
+
+std::optional<std::pair<int,int>> MoveTool::get_offset() const {
+    if(!this->current_move_pos.has_value() || !this->begin_move_pos.has_value()) {
+        return std::nullopt;
+    }
+    auto [x1,y1] = this->begin_move_pos.value();
+    auto [x2,y2] = this->current_move_pos.value();
+    return std::make_pair(x2 - x1, y2 - y1);
+}
+
+bool MoveTool::is_in_move() const noexcept {
+    return this->in_move;
+}
+
 
 CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
     switch (this->mode) {
@@ -50,6 +87,11 @@ ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
     this->charge_modifier = chargemod;
 }
 
+ActiveTool::ActiveTool(MoveTool mov) noexcept {
+    this->variant = ActiveTool::Variant::MoveTool;
+    this->move_tool = mov;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }
@@ -58,7 +100,7 @@ void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_w
     this->widget_data = static_cast<impl::WidgetCoreData*>(owning_widget);
 }
 
-void ActiveTool::check_variant(ActiveTool::Variant expected) {
+void ActiveTool::check_variant(ActiveTool::Variant expected) const {
     if (expected != this->variant) {
         throw std::runtime_error("Unexpected ActiveTool variant.");
     }
@@ -208,6 +250,41 @@ void ActiveTool::insert_structure(int x, int y) {
     } catch(std::exception& e) {
         g_warning("An error occured: %s",e.what());
     }
+}
+
+void ActiveTool::update_move_cursor_pos(int x, int y) {
+    check_variant(Variant::MoveTool);
+    auto& move_tool = this->move_tool;
+    if(move_tool.is_in_move()) {
+        move_tool.update_current_move_pos(x, y);
+        auto [offset_x,offset_y] = move_tool.get_offset().value();
+        g_warning("TODO: Implement applying viewport translation.");
+    } else {
+        g_error("Attempted to update cursor position for MoveTool while we're not moving.");
+    }
+}
+
+void ActiveTool::end_move() {
+    check_variant(Variant::MoveTool);
+    auto& move_tool = this->move_tool;
+    if(move_tool.is_in_move()) {
+        auto [offset_x,offset_y] = move_tool.end_move();
+        g_warning("TODO: Motion ended. Implement applying viewport translation.");
+    } else {
+        g_error("Attempted to finalize move while we're not moving.");
+    }
+}
+
+void ActiveTool::begin_move(int x, int y) {
+    check_variant(Variant::MoveTool);
+    auto& move_tool = this->move_tool;
+    move_tool.begin_move(x, y);
+}
+
+bool ActiveTool::is_in_move() const {
+    check_variant(Variant::MoveTool);
+    auto& move_tool = this->move_tool;
+    return move_tool.is_in_move();
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

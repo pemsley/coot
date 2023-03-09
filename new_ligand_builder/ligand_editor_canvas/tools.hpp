@@ -90,11 +90,30 @@ class DeleteTool {
 
 };
 
+class MoveTool {
+    std::optional<std::pair<int,int>> begin_move_pos;
+    std::optional<std::pair<int,int>> current_move_pos;
+    /// Describes whether the user is currently dragging with their mouse
+    bool in_move;
+
+
+    public:
+
+    void begin_move(int x, int y) noexcept;
+    std::pair<int,int> end_move();
+    void update_current_move_pos(int x, int y) noexcept;
+    std::optional<std::pair<int,int>> get_offset() const;
+    bool is_in_move() const noexcept;
+
+    MoveTool() noexcept;
+};
+
 
 class ActiveTool {
     public:
     enum class Variant: unsigned char {
         None,
+        MoveTool,
         BondModifier,
         StructureInsertion,
         ElementInsertion,
@@ -118,6 +137,8 @@ class ActiveTool {
         ChargeModifier charge_modifier;
         /// Valid for Variant::Delete
         DeleteTool delete_tool;
+        /// Valid for Variant::MoveTool
+        MoveTool move_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -125,7 +146,7 @@ class ActiveTool {
 
     /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
     /// Throws an exception in case of a mismatch.
-    void check_variant(Variant);
+    void check_variant(Variant) const;
 
     public:
     ActiveTool() noexcept;
@@ -133,6 +154,7 @@ class ActiveTool {
     ActiveTool(BondModifier modifier) noexcept;
     ActiveTool(DeleteTool) noexcept;
     ActiveTool(ChargeModifier) noexcept;
+    ActiveTool(MoveTool) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
@@ -152,6 +174,20 @@ class ActiveTool {
     /// Valid for Variant::StructureInsertion.
     /// Inserts currently chosen structure at the given coordinates.
     void insert_structure(int x, int y);
+    /// Valid for Variant::MoveTool
+    /// Updates the current mouse coordinates
+    /// allowing to compute adequate viewport translation.
+    void update_move_cursor_pos(int x, int y);
+    /// Valid for Variant::MoveTool
+    /// Ends move
+    void end_move();
+    /// Valid for Variant::MoveTool
+    /// Begins move
+    void begin_move(int x, int y);
+    /// Valid for Variant::MoveTool
+    /// Returns if the user is currently dragging their mouse
+    /// to shift the viewport.
+    bool is_in_move() const;
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///

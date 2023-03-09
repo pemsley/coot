@@ -21,6 +21,13 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     GtkWidget* top_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_append(GTK_BOX(mainbox), top_toolbar);
 
+    GtkWidget* move_button = gtk_button_new_with_label("Move");
+    g_signal_connect(move_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(MoveTool()));
+    }), canvas);
+    gtk_box_append(GTK_BOX(top_toolbar), move_button);
+
     GtkWidget* single_bond_button = gtk_button_new_with_label("Single Bond");
     g_signal_connect(single_bond_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
@@ -197,8 +204,10 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     g_signal_connect(scale_spin_button, "value-changed", G_CALLBACK(+[](GtkSpinButton* self,gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         double new_scale = gtk_spin_button_get_value(self);
-        if (coot_ligand_editor_get_scale(canvas) != new_scale);
-        coot_ligand_editor_set_scale(canvas, new_scale);
+        // This should prevent infinite cascade of signals being emited
+        if (coot_ligand_editor_get_scale(canvas) != new_scale) {
+            coot_ligand_editor_set_scale(canvas, new_scale);
+        }
     }), canvas);
 
     gtk_widget_set_halign(scale_spin_button,GTK_ALIGN_END);
@@ -229,9 +238,13 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
 
     GtkWidget* apply_button = gtk_button_new_with_label("Apply");
     gtk_box_append(GTK_BOX(button_box),apply_button);
+    g_signal_connect(apply_button, "clicked", G_CALLBACK(+[](GtkWidget* button, gpointer user_data){
+        g_warning("TODO: Implement 'Apply'");
+    }), win);
     GtkWidget* close_button = gtk_button_new_with_label("Close");
     gtk_box_append(GTK_BOX(button_box),close_button);
     g_signal_connect(close_button, "clicked", G_CALLBACK(+[](GtkWidget* button, gpointer user_data){
+        // todo: this should probably do some checks before just closing
         gtk_window_close(GTK_WINDOW(user_data));
     }), win);
     
@@ -339,7 +352,7 @@ int main() {
         gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas,GTK_WINDOW(win))));
         gtk_application_add_window(app,GTK_WINDOW(win));
         build_main_window(GTK_WINDOW(win),canvas);
-        gtk_widget_show(win);
+        gtk_window_present(GTK_WINDOW(win));
 
     }),NULL);
 
