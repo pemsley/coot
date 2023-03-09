@@ -29,8 +29,7 @@ void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
 
 
 void WidgetCoreData::undo_edition() {
-    // WARNING! UNTESTED CODE
-    
+    g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
     auto iterator = this->state_stack->rbegin();
     std::advance(iterator,this->state_stack_pos);
     auto& target_state = *iterator;
@@ -41,8 +40,7 @@ void WidgetCoreData::undo_edition() {
 
 
 void WidgetCoreData::redo_edition() {
-    // WARNING! UNTESTED CODE
-    
+    g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
     if(this->state_stack_pos > 0) {
         this->state_stack_pos--;
         auto iterator = this->state_stack->rbegin();
@@ -70,9 +68,11 @@ void WidgetCoreData::begin_edition() {
 void WidgetCoreData::finalize_edition() {
     if(this->state_before_edition) {
         if (this->state_stack_pos > 0) {
+            g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
             auto& state_stack = *this->state_stack;
-            // todo: cut the end of the state stack
-            //state_stack.erase()
+            auto it1 = state_stack.begin();
+            std::advance(it1,state_stack.size() - this->state_stack_pos);
+            state_stack.erase(it1);
             this->state_stack_pos = 0;
         }
         this->state_stack->push_back(std::move(this->state_before_edition));
