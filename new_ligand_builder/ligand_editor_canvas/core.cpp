@@ -1,7 +1,13 @@
 #include "core.hpp"
+#include <iterator>
 
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
+
+StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {
+    this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*core_data.molecules);
+    this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*core_data.rdkit_molecules);
+}
 
 WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, int y) const noexcept {
     const auto* molecules_vec = this->molecules.get();
@@ -23,24 +29,52 @@ void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
 
 
 void WidgetCoreData::undo_edition() {
+    // WARNING! UNTESTED CODE
     
+    auto iterator = this->state_stack->rbegin();
+    std::advance(iterator,this->state_stack_pos);
+    auto& target_state = *iterator;
+    this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
+    this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
+    this->state_stack_pos++;
 }
 
 
 void WidgetCoreData::redo_edition() {
+    // WARNING! UNTESTED CODE
     
+    if(this->state_stack_pos > 0) {
+        this->state_stack_pos--;
+        auto iterator = this->state_stack->rbegin();
+        std::advance(iterator,this->state_stack_pos);
+        auto& target_state = *iterator;
+        this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
+        this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
+    }
 }
 
 
 void WidgetCoreData::rollback_current_edition() {
-    
+    if(this->state_before_edition) {
+        this->molecules = std::move(this->state_before_edition->molecules);
+        this->rdkit_molecules = std::move(this->state_before_edition->rdkit_molecules);
+        this->state_before_edition.reset(nullptr);
+    }
 }
 
 
 void WidgetCoreData::begin_edition() {
-    
+    this->state_before_edition = std::make_unique<StateSnapshot>(*this);
 }
 
 void WidgetCoreData::finalize_edition() {
-    
+    if(this->state_before_edition) {
+        if (this->state_stack_pos > 0) {
+            auto& state_stack = *this->state_stack;
+            // todo: cut the end of the state stack
+            //state_stack.erase()
+            this->state_stack_pos = 0;
+        }
+        this->state_stack->push_back(std::move(this->state_before_edition));
+    }
 }

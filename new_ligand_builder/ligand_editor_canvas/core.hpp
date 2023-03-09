@@ -36,18 +36,23 @@ struct CootLigandEditorCanvasPrivBase {
 
 
 struct StateSnapshot {
+    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
+    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 
+    StateSnapshot(const WidgetCoreData& core_data);
 };
 
 /// Used for widget's struct as a base class.
 /// Useful for exposing inner state to the active tool.
 struct WidgetCoreData {
-    typedef std::vector<StateSnapshot> StateStack;
+    typedef std::vector<std::unique_ptr<StateSnapshot>> StateStack;
     typedef std::pair<CanvasMolecule::AtomOrBond,unsigned int> AtomOrBondWithMolIdx;
     typedef std::optional<AtomOrBondWithMolIdx> MaybeAtomOrBondWithMolIdx;
 
     protected:
 
+    /// Current position in the state_stack, counting from the back
+    unsigned int state_stack_pos;
     /// For Edit->Undo/Redo.
     /// To remember internal states
     std::unique_ptr<StateStack> state_stack;
@@ -64,8 +69,6 @@ struct WidgetCoreData {
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 
     float scale;
-
-    public:
 
     /// Does Edit->Undo
     void undo_edition();
