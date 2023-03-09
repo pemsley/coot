@@ -83,6 +83,11 @@ void CanvasMolecule::set_canvas_size_adjustment_from_bounds(const graphene_rect_
     this->y_canvas_size_adjustment = bounds->size.height / 2.0;
 }
 
+void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept {
+    this->x_canvas_translation += delta_x;
+    this->y_canvas_translation += delta_y;
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{

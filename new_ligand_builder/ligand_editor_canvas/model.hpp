@@ -127,6 +127,8 @@ class CanvasMolecule {
     /// Sets the scale for drawing
     void set_canvas_scale(float scale);
 
+    void apply_canvas_translation(int delta_x, int delta_y) noexcept;
+
     /// Draws the molecule on the widget.
     /// Be sure to call set_offset_from_bounds before drawing.
     void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept;

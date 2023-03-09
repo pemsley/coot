@@ -148,6 +148,8 @@ class ActiveTool {
     /// Throws an exception in case of a mismatch.
     void check_variant(Variant) const;
 
+    void apply_canvas_translation(int delta_x, int delta_y) noexcept;
+
     public:
     ActiveTool() noexcept;
     ActiveTool(ElementInsertion insertion) noexcept;

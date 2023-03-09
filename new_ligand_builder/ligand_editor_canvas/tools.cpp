@@ -253,13 +253,19 @@ void ActiveTool::insert_structure(int x, int y) {
     }
 }
 
+void ActiveTool::apply_canvas_translation(int delta_x, int delta_y) noexcept {
+    for(auto& molecule: *this->widget_data->molecules) {
+        molecule.apply_canvas_translation(delta_x, delta_y);
+    }
+}
+
 void ActiveTool::update_move_cursor_pos(int x, int y) {
     check_variant(Variant::MoveTool);
     auto& move_tool = this->move_tool;
     if(move_tool.is_in_move()) {
         move_tool.update_current_move_pos(x, y);
         auto [offset_x,offset_y] = move_tool.get_current_offset().value();
-        g_warning("TODO: Implement applying viewport translation.");
+        apply_canvas_translation(offset_x, offset_y);
     } else {
         g_error("Attempted to update cursor position for MoveTool while we're not moving.");
     }
@@ -270,7 +276,7 @@ void ActiveTool::end_move() {
     auto& move_tool = this->move_tool;
     if(move_tool.is_in_move()) {
         auto [offset_x,offset_y] = move_tool.end_move();
-        g_warning("TODO: Motion ended. Implement applying viewport translation.");
+        apply_canvas_translation(offset_x, offset_y);
     } else {
         g_error("Attempted to finalize move while we're not moving.");
     }
