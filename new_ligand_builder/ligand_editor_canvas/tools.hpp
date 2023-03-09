@@ -95,7 +95,7 @@ class MoveTool {
     std::optional<std::pair<int,int>> current_move_pos;
     /// Describes whether the user is currently dragging with their mouse
     bool in_move;
-
+    std::optional<unsigned int> canvas_mol_idx;
 
     public:
 
@@ -104,7 +104,8 @@ class MoveTool {
     void update_current_move_pos(int x, int y) noexcept;
     std::optional<std::pair<int,int>> get_current_offset() const;
     bool is_in_move() const noexcept;
-
+    void set_canvas_molecule_index(unsigned int) noexcept;
+    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
     MoveTool() noexcept;
 };
 
@@ -147,8 +148,6 @@ class ActiveTool {
     /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
     /// Throws an exception in case of a mismatch.
     void check_variant(Variant) const;
-
-    void apply_canvas_translation(int delta_x, int delta_y) noexcept;
 
     public:
     ActiveTool() noexcept;

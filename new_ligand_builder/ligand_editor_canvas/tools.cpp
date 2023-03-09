@@ -32,6 +32,7 @@ std::pair<int,int> MoveTool::end_move() {
     auto ret = this->get_current_offset();
     this->current_move_pos = std::nullopt;
     this->prev_move_pos = std::nullopt;
+    this->canvas_mol_idx = std::nullopt;
     return ret.value();
 }
 
@@ -51,6 +52,14 @@ std::optional<std::pair<int,int>> MoveTool::get_current_offset() const {
 
 bool MoveTool::is_in_move() const noexcept {
     return this->in_move;
+}
+
+void MoveTool::set_canvas_molecule_index(unsigned int idx) noexcept {
+    this->canvas_mol_idx = idx;
+}
+
+std::optional<unsigned int> MoveTool::get_canvas_molecule_index() const noexcept {
+    return this->canvas_mol_idx;
 }
 
 
@@ -253,21 +262,14 @@ void ActiveTool::insert_structure(int x, int y) {
     }
 }
 
-void ActiveTool::apply_canvas_translation(int delta_x, int delta_y) noexcept {
-    for(auto& molecule: *this->widget_data->molecules) {
-        molecule.apply_canvas_translation(delta_x, delta_y);
-    }
-}
-
 void ActiveTool::update_move_cursor_pos(int x, int y) {
     check_variant(Variant::MoveTool);
     auto& move_tool = this->move_tool;
     if(move_tool.is_in_move()) {
         move_tool.update_current_move_pos(x, y);
         auto [offset_x,offset_y] = move_tool.get_current_offset().value();
-        apply_canvas_translation(offset_x, offset_y);
-    } else {
-        g_error("Attempted to update cursor position for MoveTool while we're not moving.");
+        auto mol_idx_opt = move_tool.get_canvas_molecule_index();
+        this->widget_data->molecules->at(mol_idx_opt.value()).apply_canvas_translation(offset_x, offset_y);
     }
 }
 
@@ -275,17 +277,21 @@ void ActiveTool::end_move() {
     check_variant(Variant::MoveTool);
     auto& move_tool = this->move_tool;
     if(move_tool.is_in_move()) {
+        auto mol_idx_opt = move_tool.get_canvas_molecule_index();
         auto [offset_x,offset_y] = move_tool.end_move();
-        apply_canvas_translation(offset_x, offset_y);
-    } else {
-        g_error("Attempted to finalize move while we're not moving.");
+        this->widget_data->molecules->at(mol_idx_opt.value()).apply_canvas_translation(offset_x, offset_y);
     }
 }
 
 void ActiveTool::begin_move(int x, int y) {
     check_variant(Variant::MoveTool);
     auto& move_tool = this->move_tool;
-    move_tool.begin_move(x, y);
+    auto mol_opt = this->widget_data->resolve_click(x, y);
+    if(mol_opt.has_value()) {
+        auto [atom_or_bond,mol_id] = mol_opt.value();
+        move_tool.begin_move(x, y);
+        move_tool.set_canvas_molecule_index(mol_id);
+    }
 }
 
 bool ActiveTool::is_in_move() const {

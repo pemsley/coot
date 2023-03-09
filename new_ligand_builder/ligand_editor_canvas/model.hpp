@@ -77,8 +77,8 @@ class CanvasMolecule {
         /// Returns an [x,y] pair of numbers
         std::pair<float,float> get_perpendicular_versor() const noexcept;
     };
-
-    typedef std::optional<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>> MaybeAtomOrBond;
+    typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
+    typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     private:
 
     static const float ATOM_HITBOX_RADIUS;
