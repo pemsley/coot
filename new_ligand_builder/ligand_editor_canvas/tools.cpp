@@ -128,6 +128,7 @@ void ActiveTool::insert_atom(int x, int y) {
     if(click_result.has_value()) {
         try{
             auto [bond_or_atom,molecule_idx] = click_result.value();
+            this->widget_data->begin_edition();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
                 g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
@@ -140,8 +141,10 @@ void ActiveTool::insert_atom(int x, int y) {
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
             }
+            this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            this->widget_data->rollback_current_edition();
         }
     } else {
         g_debug("The click could not be resolved to any atom or bond.");
@@ -157,6 +160,7 @@ void ActiveTool::alter_bond(int x, int y) {
     if(click_result.has_value()) {
         try{
             auto [bond_or_atom,molecule_idx] = click_result.value();
+            this->widget_data->begin_edition();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 //g_warning("The BondModifier tool does not operate on atoms. Nothing to do.");
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
@@ -190,8 +194,10 @@ void ActiveTool::alter_bond(int x, int y) {
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit();
             }
+            this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            this->widget_data->rollback_current_edition();
         }
     } else {
         // Nothing has been clicked on.
@@ -226,6 +232,7 @@ void ActiveTool::delete_at(int x, int y) {
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
+            this->widget_data->begin_edition();
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
             RDKit::MolOps::Kekulize(*rdkit_mol.get());
@@ -239,8 +246,10 @@ void ActiveTool::delete_at(int x, int y) {
             RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
             canvas_mol.lower_from_rdkit();
+            this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            this->widget_data->rollback_current_edition();
         }
     } else {
         // Nothing has been clicked on.
@@ -287,6 +296,7 @@ void ActiveTool::end_move() {
         auto mol_idx_opt = move_tool.get_canvas_molecule_index();
         auto [offset_x,offset_y] = move_tool.end_move();
         this->widget_data->molecules->at(mol_idx_opt.value()).apply_canvas_translation(offset_x, offset_y);
+        this->widget_data->finalize_edition();
     }
 }
 
@@ -298,6 +308,7 @@ void ActiveTool::begin_move(int x, int y) {
         auto [atom_or_bond,mol_id] = mol_opt.value();
         move_tool.begin_move(x, y);
         move_tool.set_canvas_molecule_index(mol_id);
+        this->widget_data->begin_edition();
     }
 }
 

@@ -322,13 +322,16 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
     try {
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
+        self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
         self->molecules->back().set_canvas_scale(self->scale);
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
+        self->finalize_edition();
         // g_debug("Should draw.");
         gtk_widget_queue_draw(GTK_WIDGET(self));
     }catch(std::exception& e) {
         g_warning("coot_ligand_editor_append_molecule: 2D representation could not be created: %s. Ignoring new molecule.",e.what());
+        self->rollback_current_edition();
     }
 }
 
