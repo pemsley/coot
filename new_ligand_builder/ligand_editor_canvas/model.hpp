@@ -100,6 +100,11 @@ class CanvasMolecule {
     /// Y centering offset on canvas
     float y_canvas_size_adjustment;
 
+    /// X offset due to translation
+    int x_canvas_translation;
+    /// Y offset due to translation
+    int y_canvas_translation;
+
     /// Scale used by the widget
     float canvas_scale;
 

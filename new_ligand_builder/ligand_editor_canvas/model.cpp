@@ -35,8 +35,8 @@ void CanvasMolecule::set_canvas_scale(float scale) {
 
 CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {
     float scale = this->get_scale();
-    auto x_offset = this->x_canvas_size_adjustment;
-    auto y_offset = this->y_canvas_size_adjustment;
+    auto x_offset = this->x_canvas_size_adjustment + this->x_canvas_translation;
+    auto y_offset = this->y_canvas_size_adjustment + this->y_canvas_translation;
     // atoms first 
     for(const auto& atom: this->atoms) {
         float atom_x = atom.x * scale + x_offset;
@@ -155,8 +155,8 @@ std::pair<float,float> CanvasMolecule::Bond::get_perpendicular_versor() const no
 
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
     auto scale_factor = this->get_scale();
-    auto x_offset = this->x_canvas_size_adjustment;
-    auto y_offset = this->y_canvas_size_adjustment;
+    auto x_offset = this->x_canvas_size_adjustment + this->x_canvas_translation;
+    auto y_offset = this->y_canvas_size_adjustment + this->y_canvas_translation;
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
@@ -252,6 +252,10 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->lower_from_rdkit();
+    this->x_canvas_size_adjustment = 0;
+    this->y_canvas_size_adjustment = 0;
+    this->x_canvas_translation = 0;
+    this->y_canvas_translation = 0;
 }
 
 CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondType rdkit_bond) {
