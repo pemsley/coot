@@ -125,27 +125,28 @@ void ActiveTool::insert_atom(int x, int y) {
     g_debug("Inserting element '%s' at %i %i.",el_name,x,y);
     //1. Find what we've clicked at
     auto click_result = this->widget_data->resolve_click(x, y);
-    try{
-        auto [bond_or_atom,molecule_idx] = click_result.value();
-        if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-            auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-            g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
-            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-            auto* new_atom = new RDKit::Atom(std::string(el_name));
-            auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
-            rdkit_mol->addBond(new_atom_idx,atom.idx);
-            g_info("New atom added: idx=%i",new_atom_idx);
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.lower_from_rdkit();
-        } else { // a bond
-            auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-            g_warning("TODO: Implement handling insertion at bonds");
+    if(click_result.has_value()) {
+        try{
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
+                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+                auto* new_atom = new RDKit::Atom(std::string(el_name));
+                auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
+                rdkit_mol->addBond(new_atom_idx,atom.idx);
+                g_info("New atom added: idx=%i",new_atom_idx);
+                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+                canvas_mol.lower_from_rdkit();
+            } else { // a bond
+                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                g_warning("TODO: Implement handling insertion at bonds");
+            }
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
         }
-    } catch(std::bad_optional_access& e) {
-        // Nothing has been clicked on.
+    } else {
         g_debug("The click could not be resolved to any atom or bond.");
-    } catch(std::exception& e) {
-        g_warning("An error occured: %s",e.what());
     }
 }
 
