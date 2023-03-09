@@ -91,7 +91,7 @@ class DeleteTool {
 };
 
 class MoveTool {
-    std::optional<std::pair<int,int>> begin_move_pos;
+    std::optional<std::pair<int,int>> prev_move_pos;
     std::optional<std::pair<int,int>> current_move_pos;
     /// Describes whether the user is currently dragging with their mouse
     bool in_move;
@@ -102,7 +102,7 @@ class MoveTool {
     void begin_move(int x, int y) noexcept;
     std::pair<int,int> end_move();
     void update_current_move_pos(int x, int y) noexcept;
-    std::optional<std::pair<int,int>> get_offset() const;
+    std::optional<std::pair<int,int>> get_current_offset() const;
     bool is_in_move() const noexcept;
 
     MoveTool() noexcept;

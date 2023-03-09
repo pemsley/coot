@@ -22,28 +22,29 @@ MoveTool::MoveTool() noexcept {
 }
 
 void MoveTool::begin_move(int x, int y) noexcept {
-    this->begin_move_pos = std::make_pair(x,y);
+    this->prev_move_pos = std::make_pair(x,y);
     this->in_move = true;
     this->current_move_pos = std::make_pair(x, y);
 }
 
 std::pair<int,int> MoveTool::end_move() {
     this->in_move = false;
-    auto ret = this->get_offset();
+    auto ret = this->get_current_offset();
     this->current_move_pos = std::nullopt;
-    this->begin_move_pos = std::nullopt;
+    this->prev_move_pos = std::nullopt;
     return ret.value();
 }
 
 void MoveTool::update_current_move_pos(int x, int y) noexcept {
+    this->prev_move_pos = this->current_move_pos;
     this->current_move_pos = std::make_pair(x, y);
 }
 
-std::optional<std::pair<int,int>> MoveTool::get_offset() const {
-    if(!this->current_move_pos.has_value() || !this->begin_move_pos.has_value()) {
+std::optional<std::pair<int,int>> MoveTool::get_current_offset() const {
+    if(!this->current_move_pos.has_value() || !this->prev_move_pos.has_value()) {
         return std::nullopt;
     }
-    auto [x1,y1] = this->begin_move_pos.value();
+    auto [x1,y1] = this->prev_move_pos.value();
     auto [x2,y2] = this->current_move_pos.value();
     return std::make_pair(x2 - x1, y2 - y1);
 }
@@ -257,7 +258,7 @@ void ActiveTool::update_move_cursor_pos(int x, int y) {
     auto& move_tool = this->move_tool;
     if(move_tool.is_in_move()) {
         move_tool.update_current_move_pos(x, y);
-        auto [offset_x,offset_y] = move_tool.get_offset().value();
+        auto [offset_x,offset_y] = move_tool.get_current_offset().value();
         g_warning("TODO: Implement applying viewport translation.");
     } else {
         g_error("Attempted to update cursor position for MoveTool while we're not moving.");
