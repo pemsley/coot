@@ -34,9 +34,30 @@ struct CootLigandEditorCanvasPrivBase {
     GtkWidget parent;
 };
 
+
+struct StateSnapshot {
+
+};
+
 /// Used for widget's struct as a base class.
 /// Useful for exposing inner state to the active tool.
 struct WidgetCoreData {
+    typedef std::vector<StateSnapshot> StateStack;
+    typedef std::pair<CanvasMolecule::AtomOrBond,unsigned int> AtomOrBondWithMolIdx;
+    typedef std::optional<AtomOrBondWithMolIdx> MaybeAtomOrBondWithMolIdx;
+
+    protected:
+
+    /// For Edit->Undo/Redo.
+    /// To remember internal states
+    std::unique_ptr<StateStack> state_stack;
+
+    /// A snapshot preserving internal state
+    /// from before the current edition began.
+    /// nullptr if no edition is being done at the moment.
+    std::unique_ptr<StateSnapshot> state_before_edition;
+
+    public:
     /// molecules on the screen
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
     /// molecules (RDKit)
@@ -44,7 +65,32 @@ struct WidgetCoreData {
 
     float scale;
 
-    typedef std::optional<std::pair<std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond>,unsigned int>> MaybeAtomOrBondWithMolIdx;
+    public:
+
+    /// Does Edit->Undo
+    void undo_edition();
+
+    /// Does Edit->Redo
+    void redo_edition();
+
+    /// Cancels the current edition
+    /// and resets the state to the current snapshot.
+    void rollback_current_edition();
+
+    /// Snapshots the current state and opens new edition.
+    ///
+    /// This function must be called if one wishes
+    /// to integrate any kind of state-altering operation
+    /// with the Edit->Undo/Redo system
+    void begin_edition();
+
+    /// Completes the current edition.
+    /// Moves the current snapshot to the state history stack.
+    ///
+    /// This function must be called after any kind 
+    /// of state-altering operation if one wishes 
+    /// to integrate it with the Edit->Undo/Redo system
+    void finalize_edition();
 
     /// Goes over all molecules stored in the widget
     /// and calls CanvasMolecule::resolve_click(x,y) on each of them
@@ -52,6 +98,8 @@ struct WidgetCoreData {
     /// The index number indicates which molecule the object comes from.
     /// If nothing matches the coordinates, nullopt is returned.
     MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
+
+    /// Emits 'status-updated' signal.
     void update_status(const gchar* status_text) const noexcept;
 };
 

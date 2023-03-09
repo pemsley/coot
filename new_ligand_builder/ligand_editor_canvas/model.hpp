@@ -12,26 +12,6 @@ namespace coot {
 namespace ligand_editor_canvas {
 
 
-/// For Edit Undo/Redo
-class Operation {
-    public:
-    enum class OpType: unsigned char {
-        ElementInsertion
-    };
-    class ElementInsertion {
-
-    };
-    private:
-    union {
-        ElementInsertion element_insertion;
-    };
-    OpType variant;
-    public:
-    
-};
-
-typedef std::vector<Operation> OperationStack;
-
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
     public:

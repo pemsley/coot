@@ -140,7 +140,7 @@ void ActiveTool::insert_atom(int x, int y) {
                 canvas_mol.lower_from_rdkit();
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                g_warning("TODO: Implement handling insertion at bonds");
+                g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
             }
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());

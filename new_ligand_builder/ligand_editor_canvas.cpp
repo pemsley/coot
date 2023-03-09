@@ -18,8 +18,25 @@ using namespace coot::ligand_editor_canvas;
 ///
 /// An empty struct with inheritance should compile to the exactly same thing though.
 struct _CootLigandEditorCanvas:  coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
-
+    friend void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self);
+    friend void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self);
 };
+
+void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
+    self->active_tool = std::make_unique<ActiveTool>();
+    self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
+    self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
+    self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
+    self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
+    self->scale = 1.0;
+}
+
+void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {
+    self->molecules.reset(nullptr);
+    self->active_tool.reset(nullptr);
+    self->rdkit_molecules.reset(nullptr);
+    self->state_stack.reset(nullptr);
+}
 
 G_BEGIN_DECLS
 
@@ -209,14 +226,14 @@ static void on_left_click (
     
 }
 
+
+
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
-    self->active_tool = std::make_unique<ActiveTool>();
-    self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
-    self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
-    self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
-    self->scale = 1.0;
-
+    
+    // GObject doesn't run C++ constructors upon allocation
+    // so we take care of this ourselves
+    coot_ligand_editor_canvas_init_impl(self);
     GtkGesture* click_controller = gtk_gesture_click_new();
     GtkEventController* hover_controller = gtk_event_controller_motion_new();
     GtkEventController* zoom_controller = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
@@ -235,11 +252,13 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(zoom_controller));
 }
 
+
+
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
-    self->molecules.reset(nullptr);
-    self->active_tool.reset(nullptr);
-    self->rdkit_molecules.reset(nullptr);
+    // GObject doesn't run C++ destructors
+    // so we take care of this ourselves
+    coot_ligand_editor_canvas_dispose_impl(self);
     G_OBJECT_CLASS(coot_ligand_editor_canvas_parent_class)->dispose(_self);
 }
 
