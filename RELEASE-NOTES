@@ -1,3 +1,20 @@
+  Release 0.9.8.7
+
+  o FEATURE: res_tracer() added to the API
+
+  o FEATURE: read_mtz() added to the API [ChatGPT guessed at this function name, and there is
+             no reason for it not to be there]
+
+  o BUG-FIX: PDBe URLs fixed for downloading dictionaries with pyrogen
+
+  o BUG-FIX: Carbohydrate Linking fixed again [Keitaro Yamashita and others]
+
+  o BUG-FIX: RNA linking fixed [Keitaro Yamashita and Andrey Lebadev]
+
+  o NOTE: Coot is now tested against the new monomer library.
+
+----
+
   Release 0.9.8.6
 
   o CHANGE:  More auto-read column pairs added [Clemens Vonrhein]
@@ -15,7 +32,7 @@
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
-  o CHANGE:  Load files from ~/.coot if it is a directory.
+  o CHANGE:  Don't load files from ~/.coot if it is a directory.
 
   o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
 

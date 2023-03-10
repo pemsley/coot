@@ -474,7 +474,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   bool debug = false;
+   bool debug = true;
    double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
                                // 20170505: changed to 2.4, was 3.0.
@@ -550,7 +550,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " ND2")
 	       if (close[i].distance < smallest_link_dist) {
 		  smallest_link_dist = close[i].distance;
-		  link_type = "NAG-ASN";
+		  // link_type = "NAG-ASN";
+		  link_type = "pyr-ASN"; // 20221211-PE new dictionary
 	       }
       
 	 if (name_1 == " O4 " )
@@ -605,8 +606,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       }
 
 	 // 20180111 Add ALPHA2-6 links for SIA
-	 if (name_1 == " C2 " )
-	    if (name_2 == " O6 ")
+	 if (name_1 == " C2 " ) {
+	    if (name_2 == " O6 ") {
 	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
@@ -614,12 +615,16 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 			       << close[i].at1->GetResName() << " "
 			       << close[i].at2->GetResName() << " "
 			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
+                     // 20221212-PE I changed this test to be negative - it was positive
+                     // But for the 4byh test, it needs to be negative.
+		     if (glyco_chiral_quad.chiral_volume() < 0.0) {
 			smallest_link_dist = close[i].distance;
 			link_type = "ALPHA2-6";
 		     }
 		  }
 	       }
+            }
+         }
 
 	 if (name_1 == " O6 " )
 	    if (name_2 == " C1 ")
@@ -686,6 +691,33 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "ALPHA1-6";
 		  }
 	       }
+
+	 // pyr-SER
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG ") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "SER")
+                     link_type = "pyr-SER"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
+	 // pyr-THR
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG1") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "THR")
+                     link_type = "pyr-THR"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
       }
    }
    catch (const std::runtime_error &rte) {

@@ -338,6 +338,16 @@ void show_select_map_dialog() {
    add_to_history_simple("show-select-map-dialog");
 }
 
+int read_mtz(const char *mtz_file_name,
+             const char *f_col, const char *phi_col,
+             const char *weight,
+             int use_weights, int is_diff_map) {
+
+   return make_and_draw_map(mtz_file_name, f_col, phi_col, weight, use_weights, is_diff_map);
+
+}
+
+
 // return the new molecule number
 int make_and_draw_map(const char* mtz_file_name,
 		      const char *f_col, const char *phi_col,
