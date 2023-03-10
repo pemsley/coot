@@ -11,6 +11,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     using namespace coot::ligand_editor_canvas;
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
+    using Structure = coot::ligand_editor_canvas::StructureInsertion::Structure;
 
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 
@@ -73,20 +74,50 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     GtkWidget* carbon_ring_picker = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_append(GTK_BOX(mainbox), carbon_ring_picker);
 
-    GtkWidget* buttom_3C = gtk_button_new_with_label("3-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_3C);
-    GtkWidget* buttom_4C = gtk_button_new_with_label("4-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_4C);
-    GtkWidget* buttom_5C = gtk_button_new_with_label("5-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_5C);
-    GtkWidget* buttom_6C = gtk_button_new_with_label("6-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_6C);
-    GtkWidget* buttom_6Arom = gtk_button_new_with_label("6-Arom");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_6Arom);
-    GtkWidget* buttom_7C = gtk_button_new_with_label("7-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_7C);
-    GtkWidget* buttom_8C = gtk_button_new_with_label("8-C");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_8C);
+    GtkWidget* button_3C = gtk_button_new_with_label("3-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_3C);
+    g_signal_connect(button_3C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPropaneRing)));
+
+    }), canvas);
+    GtkWidget* button_4C = gtk_button_new_with_label("4-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_4C);
+    g_signal_connect(button_4C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloButaneRing)));
+
+    }), canvas);
+    GtkWidget* button_5C = gtk_button_new_with_label("5-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_5C);
+    g_signal_connect(button_5C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPentaneRing)));
+
+    }), canvas);
+    GtkWidget* button_6C = gtk_button_new_with_label("6-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_6C);
+    g_signal_connect(button_6C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHexaneRing)));
+
+    }), canvas);
+    GtkWidget* button_6Arom = gtk_button_new_with_label("6-Arom");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_6Arom);
+    g_signal_connect(button_6Arom, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::BenzeneRing)));
+
+    }), canvas);
+    GtkWidget* button_7C = gtk_button_new_with_label("7-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_7C);
+    g_signal_connect(button_7C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHeptaneRing)));
+
+    }), canvas);
+    GtkWidget* button_8C = gtk_button_new_with_label("8-C");
+    gtk_box_append(GTK_BOX(carbon_ring_picker), button_8C);
     GtkWidget* buttom_EnvResidues = gtk_button_new_with_label("Env. Residues");
     gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_EnvResidues);
     GtkWidget* buttom_Key = gtk_button_new_with_label("Key");

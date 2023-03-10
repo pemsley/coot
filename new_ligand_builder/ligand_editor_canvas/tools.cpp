@@ -62,6 +62,11 @@ std::optional<unsigned int> MoveTool::get_canvas_molecule_index() const noexcept
     return this->canvas_mol_idx;
 }
 
+StructureInsertion::StructureInsertion(StructureInsertion::Structure st) noexcept 
+:structure(st) {
+
+}
+
 
 CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
     switch (this->mode) {
@@ -100,6 +105,11 @@ ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
 ActiveTool::ActiveTool(MoveTool mov) noexcept {
     this->variant = ActiveTool::Variant::MoveTool;
     this->move_tool = mov;
+}
+
+ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
+    this->variant = ActiveTool::Variant::StructureInsertion;
+    this->structure_insertion = insertion;
 }
 
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {

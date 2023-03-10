@@ -79,6 +79,7 @@ class StructureInsertion {
     Structure structure;
 
     public:
+    StructureInsertion(Structure) noexcept;
 
 };
 
@@ -156,6 +157,7 @@ class ActiveTool {
     ActiveTool(DeleteTool) noexcept;
     ActiveTool(ChargeModifier) noexcept;
     ActiveTool(MoveTool) noexcept;
+    ActiveTool(StructureInsertion insertion) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
