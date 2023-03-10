@@ -40,48 +40,55 @@ void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
 
 void WidgetCoreData::undo_edition() {
     g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
-    if(this->state_stack->size() > this->state_stack_pos) {
-        auto iterator = this->state_stack->rbegin();
-        if(this->state_stack_pos == 0) { // special case. the current state has to be snapshotted
+    if(this->state_stack->size() > this->state_stack_pos + 1) {
+        if(this->state_stack_pos == -1) {
+            // Special case. 
+            // We need to backup the current state
+            // so that we can later go back to it via "Redo"
             this->state_stack->push_back(std::make_unique<StateSnapshot>(*this));
-            g_debug("Special case: stack pos is at 0. Current state has been snapshotted and appended to the stack.");
-            iterator = this->state_stack->rbegin();
-            iterator++;
-        } else {
-            std::advance(iterator,this->state_stack_pos);
-            g_debug("Reverse iterator advanced by %u, thus expected to point at [last - %u] with stack size: %zu",this->state_stack_pos, this->state_stack_pos,this->state_stack->size());
+            this->state_stack_pos++;
         }
+        this->state_stack_pos++;
+        auto iterator = this->state_stack->rbegin();
+        std::advance(iterator,this->state_stack_pos);
         auto& target_state = *iterator;
         this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
         this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
-        this->state_stack_pos++;
     } else {
-        g_debug("Nothing to be undone.");
+        g_debug("Nothing to be undone. Stack size: %zu Stack pos: %i",this->state_stack->size(),this->state_stack_pos);
     }
 }
 
 
 void WidgetCoreData::redo_edition() {
     g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
-    if(this->state_stack_pos > 0) {
+    if(this->state_stack_pos == 0) { 
+        g_error("Internal error: Undo/Redo stack position should never stay at 0.");
+    }
+    if(this->state_stack_pos != -1) {
         g_debug("Initial stack pos: %u",this->state_stack_pos);
-        auto old_state_stack_pos = this->state_stack_pos;
         this->state_stack_pos--;
         g_debug("Target stack pos: %u",this->state_stack_pos);
         auto iterator = this->state_stack->rbegin();
         std::advance(iterator,this->state_stack_pos);
-        g_debug("Reverse iterator advanced by %u, thus expected to point at [last - %u] with stack size: %zu",this->state_stack_pos, this->state_stack_pos,this->state_stack->size());
+        
         auto& target_state = *iterator;
         this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
         this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
-        if(old_state_stack_pos == 1) { 
-            // special case. If we're now at pos 0
-            // the last thing from the stack needs to be removed
+        if(this->state_stack_pos == 0) { 
+            // Special case. We're now at pos 0 which means 
+            // that we've reached the newest state.
+            // We should remove it from the state history stack
+            // and set the position to -1 to denote that we're "fresh", at the newest change.
+            g_debug(
+                "We're now at position 0. The newest state has been reached. "
+                "Resetting position to -1 and removing the last element from the stack to prevent duplication."
+            );
             this->state_stack->pop_back();
-            g_debug("We're not at position 0. The newest element has been removed from stack to prevent duplication.");
+            this->state_stack_pos = -1;
         }
     } else {
-        g_debug("Position in stack is 0 (the newest element). Nothing to redo. Stack size: %zu",this->state_stack->size());
+        g_debug("Position in stack is at -1 (fresh change). Nothing to redo. Stack size: %zu",this->state_stack->size());
     }
 }
 
@@ -101,15 +108,15 @@ void WidgetCoreData::begin_edition() {
 
 void WidgetCoreData::finalize_edition() {
     if(this->state_before_edition) {
-        if (this->state_stack_pos > 0) {
+        if (this->state_stack_pos != -1) {
             g_warning("EDIT->UNDO/REDO IS EXPERIMENTAL UNTESTED CODE. BUGS ARE EXPECTED");
             auto& state_stack = *this->state_stack;
             auto it1 = state_stack.begin();
-            g_debug("Finalizing edition with pos in stack: %u. The stack has to be trimmed.",this->state_stack_pos);
-            g_debug("Current stack size: %zu Iterator advanced by: %zu",this->state_stack->size(),this->state_stack->size() - this->state_stack_pos);
-            std::advance(it1,state_stack.size() - this->state_stack_pos);
+            g_debug("Finalizing edition with pos in stack: %i. The stack has to be trimmed.",this->state_stack_pos);
+            g_debug("Current stack size: %zu Iterator advanced by: %zu",this->state_stack->size(),this->state_stack->size() - this->state_stack_pos - 1);
+            std::advance(it1,state_stack.size() - this->state_stack_pos - 1);
             state_stack.erase(it1);
-            this->state_stack_pos = 0;
+            this->state_stack_pos = -1;
             g_debug("Stack size after trim: %zu",this->state_stack->size());
         }
         this->state_stack->push_back(std::move(this->state_before_edition));

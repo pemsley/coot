@@ -29,7 +29,7 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->scale = 1.0;
-    self->state_stack_pos = 0;
+    self->state_stack_pos = -1;
 }
 
 void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {

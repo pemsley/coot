@@ -51,8 +51,9 @@ struct WidgetCoreData {
 
     protected:
 
-    /// Current position in the state_stack, counting from the back
-    unsigned int state_stack_pos;
+    /// Current position in the state_stack, counting from the back.
+    /// -1 if we're "fresh", that is, no action has been undone
+    int state_stack_pos;
     /// For Edit->Undo/Redo.
     /// To remember internal states
     std::unique_ptr<StateStack> state_stack;
