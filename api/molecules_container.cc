@@ -3763,22 +3763,26 @@ molecules_container_t::clear_extra_restraints(int imol) {
 
 // ----------------------- map utils
 int
-molecules_container_t::sharpen_blur_map(int imol_map, float b_factor) {
+molecules_container_t::sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag) {
 
    int imol_new = -1;
    if (is_valid_map_molecule(imol_map)) {
       const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
       clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap, b_factor);
-      std::string name = molecules[imol_map].get_name();
-      if (b_factor < 0.0)
-         name += " Sharpen ";
-      else
-         name += " Blur ";
-      name += std::to_string(b_factor);
-      imol_new = molecules.size();
-      coot::molecule_t cm(name, imol_new);
-      cm.xmap = xmap_new;
-      molecules.push_back(cm);
+      if (in_place_flag) {
+         molecules[imol_map].xmap = xmap_new;
+      } else {
+         std::string name = molecules[imol_map].get_name();
+         if (b_factor < 0.0)
+            name += " Sharpen ";
+         else
+            name += " Blur ";
+         name += std::to_string(b_factor);
+         imol_new = molecules.size();
+         coot::molecule_t cm(name, imol_new);
+         cm.xmap = xmap_new;
+         molecules.push_back(cm);
+      }
    }
    return imol_new;
 }
