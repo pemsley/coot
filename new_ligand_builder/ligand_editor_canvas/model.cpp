@@ -263,6 +263,10 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->y_canvas_translation = 0;
 }
 
+void CanvasMolecule::update_source_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
+    this->rdkit_molecule = rdkit_mol;
+}
+
 CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondType rdkit_bond) {
     switch (rdkit_bond) {
         case RDKit::Bond::SINGLE: {

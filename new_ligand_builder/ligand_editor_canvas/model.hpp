@@ -97,6 +97,12 @@ class CanvasMolecule {
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
 
+    /// Replaces the inner shared_ptr to the molecule
+    /// from which the CanvasMolecule is lowered.
+    ///
+    /// Meant to be called when performing a deep-copy
+    void update_source_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
+
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
     void lower_from_rdkit();

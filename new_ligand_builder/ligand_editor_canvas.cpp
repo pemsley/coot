@@ -58,9 +58,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     const GdkRGBA background_color = GdkRGBA{1.f,1.f,1.f,1.f};
     gtk_snapshot_append_color(snapshot, &background_color, &background_rect);
     if (self->molecules) {
-        if(self->molecules->empty()) {
-            g_info("No molecules to be drawn.");
-        } else {
+        if(!self->molecules->empty()) {
             // This does not respect GTK theming
             // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
             PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
