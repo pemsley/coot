@@ -118,6 +118,11 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     }), canvas);
     GtkWidget* button_8C = gtk_button_new_with_label("8-C");
     gtk_box_append(GTK_BOX(carbon_ring_picker), button_8C);
+    g_signal_connect(button_8C, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloOctaneRing)));
+
+    }), canvas);
     GtkWidget* buttom_EnvResidues = gtk_button_new_with_label("Env. Residues");
     gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_EnvResidues);
     GtkWidget* buttom_Key = gtk_button_new_with_label("Key");
