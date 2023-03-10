@@ -135,6 +135,7 @@ void ActiveTool::insert_atom(int x, int y) {
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
                 auto* new_atom = new RDKit::Atom(std::string(el_name));
                 rdkit_mol->replaceAtom(atom.idx, new_atom);
+                this->widget_data->update_status("Atom has been replaced.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit();
             } else { // a bond
@@ -144,6 +145,8 @@ void ActiveTool::insert_atom(int x, int y) {
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            std::string msg = std::string("Could not insert atom: ") + e.what();
+            this->widget_data->update_status(msg.c_str());
             this->widget_data->rollback_current_edition();
         }
     } else {
@@ -171,6 +174,7 @@ void ActiveTool::alter_bond(int x, int y) {
                 auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
                 rdkit_mol->addBond(new_atom_idx,atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
                 g_info("New atom added: idx=%i",new_atom_idx);
+                this->widget_data->update_status("New carbon atom added.");
                 RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit();
@@ -191,12 +195,15 @@ void ActiveTool::alter_bond(int x, int y) {
                     // rethrow
                     throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
                 }
+                this->widget_data->update_status("Bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit();
             }
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            std::string msg = std::string("Could not alter bond: ") + e.what();
+            this->widget_data->update_status(msg.c_str());
             this->widget_data->rollback_current_edition();
         }
     } else {
@@ -239,9 +246,11 @@ void ActiveTool::delete_at(int x, int y) {
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
                 rdkit_mol->removeAtom(atom.idx);
+                this->widget_data->update_status("Atom has been deleted.");
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+                this->widget_data->update_status("Bond has been deleted.");
             }
             RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
@@ -249,6 +258,8 @@ void ActiveTool::delete_at(int x, int y) {
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            std::string status_msg = "Coud not delete atom: "; status_msg += e.what();
+            this->widget_data->update_status(status_msg.c_str());
             this->widget_data->rollback_current_edition();
         }
     } else {

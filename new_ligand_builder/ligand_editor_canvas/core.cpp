@@ -53,6 +53,7 @@ void WidgetCoreData::undo_edition() {
         auto& target_state = *iterator;
         this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
         this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
+        update_status("");
     } else {
         //g_debug("Nothing to be undone. Stack size: %zu Stack pos: %i",this->state_stack->size(),this->state_stack_pos);
         update_status("Nothing to be undone.");
@@ -87,6 +88,7 @@ void WidgetCoreData::redo_edition() {
             this->state_stack->pop_back();
             this->state_stack_pos = -1;
         }
+        update_status("");
     } else {
         //g_debug("Position in stack is at -1 (fresh change). Nothing to redo. Stack size: %zu",this->state_stack->size());
         update_status("Nothing to be redone.");
