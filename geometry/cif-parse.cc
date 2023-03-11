@@ -2081,13 +2081,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
-	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
+	      printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
       }
    } else {
       if (rc == mmdb::mmcif::CIFRC_Created) {
-	 // printf ( " -- new structure created\n" );
-      } else { 
-	 printf(" -- structure was already in mmCIF, it will be extended\n");
+	      // printf ( " -- new structure created\n" );
+      } else {
+	      printf(" -- structure was already in mmCIF, it will be extended\n");
       }
       // std::cout << "SUMMARY:: rc mmdb::mmcif::CIFRC_Ok or newly created. " << std::endl;
 
@@ -2111,14 +2111,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
       s = residue_info.description_level.c_str();
       mmCIFLoop->PutString(s, "desc_level", i);
-      
+
       std::string comp_record = "comp_list";
       mmCIFData->PutDataName(comp_record.c_str()); // 'data_' record
 
       // atom loop
 
       std::string comp_monomer_name = "comp_";
-      comp_monomer_name += residue_info.comp_id; 
+      comp_monomer_name += residue_info.comp_id;
       rc = mmCIFFile->AddCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
 
@@ -2127,78 +2127,78 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       bool add_coordinates = true; // if no atoms have coords, this gets set to false.
       int n_atoms_with_coords = 0;
       for (unsigned int i=0; i<atom_info.size(); i++) {
-	 if (atom_info[i].model_Cartn.first)
-	    n_atoms_with_coords++;
-      }
-      
-      if (n_atoms_with_coords == 0)
-	 add_coordinates = false;
-      
-      if (atom_info.size()) {
-	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
-	    for (unsigned int i=0; i<atom_info.size(); i++) {
-	       const dict_atom &ai = atom_info[i];
-	       const char *ss =  residue_info.comp_id.c_str();
-	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       std::string annw = util::remove_whitespace(ai.atom_id).c_str();
-	       std::string qan = quoted_atom_name(annw);
-	       mmCIFLoop->PutString(annw.c_str(), "atom_id", i);
-	       std::string up_type_symbol = util::upcase(util::remove_whitespace(atom_info[i].type_symbol));
-	       ss = up_type_symbol.c_str();
-	       mmCIFLoop->PutString(ss, "type_symbol", i);
-	       // std::cout << "up_type_symbol: " << up_type_symbol << std::endl;
-	       std::string up_type_energy = util::upcase(atom_info[i].type_energy);
-	       // std::cout << "up_type_energy: " << up_type_energy << std::endl;
-	       ss = up_type_energy.c_str();
-	       mmCIFLoop->PutString(ss, "type_energy", i);
-	       if (atom_info[i].partial_charge.first) {
-		  float v = atom_info[i].partial_charge.second;
-		  mmCIFLoop->PutReal(v, "partial_charge", i, 4);
-	       }
-	       if (add_coordinates) {
-		  if (atom_info[i].model_Cartn.first) {
-		     float x = atom_info[i].model_Cartn.second.x();
-		     float y = atom_info[i].model_Cartn.second.y();
-		     float z = atom_info[i].model_Cartn.second.z();
-		     mmCIFLoop->PutReal(x, "x", i, 6);
-		     mmCIFLoop->PutReal(y, "y", i, 6);
-		     mmCIFLoop->PutReal(z, "z", i, 6);
-		  }
-	       }
-	    }
-	 }
-      }
+	      if (atom_info[i].model_Cartn.first)
+	         n_atoms_with_coords++;
+         }
 
-      // bond loop
+         if (n_atoms_with_coords == 0)
+	         add_coordinates = false;
 
-      if (bond_restraint.size()) {
-         // bool nuclear_distances_flag = false;
-	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+         if (atom_info.size()) {
+	         rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
+	         if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+	         for (unsigned int i=0; i<atom_info.size(); i++) {
+	            const dict_atom &ai = atom_info[i];
+	            const char *ss =  residue_info.comp_id.c_str();
+               mmCIFLoop->PutString(ss, "comp_id", i);
+               std::string annw = util::remove_whitespace(ai.atom_id).c_str();
+               std::string qan = quoted_atom_name(annw);
+               mmCIFLoop->PutString(annw.c_str(), "atom_id", i);
+               std::string up_type_symbol = util::upcase(util::remove_whitespace(atom_info[i].type_symbol));
+               ss = up_type_symbol.c_str();
+               mmCIFLoop->PutString(ss, "type_symbol", i);
+               // std::cout << "up_type_symbol: " << up_type_symbol << std::endl;
+               std::string up_type_energy = util::upcase(atom_info[i].type_energy);
+               // std::cout << "up_type_energy: " << up_type_energy << std::endl;
+               ss = up_type_energy.c_str();
+               mmCIFLoop->PutString(ss, "type_energy", i);
+               if (atom_info[i].partial_charge.first) {
+		         float v = atom_info[i].partial_charge.second;
+		         mmCIFLoop->PutReal(v, "partial_charge", i, 4);
+	         }
+	         if (add_coordinates) {
+		         if (atom_info[i].model_Cartn.first) {
+                  float x = atom_info[i].model_Cartn.second.x();
+                  float y = atom_info[i].model_Cartn.second.y();
+                  float z = atom_info[i].model_Cartn.second.z();
+                  mmCIFLoop->PutReal(x, "x", i, 6);
+                  mmCIFLoop->PutReal(y, "y", i, 6);
+                  mmCIFLoop->PutReal(z, "z", i, 6);
+		         }
+	         }
+	      }
+	   }
+   }
+
+   // bond loop
+
+   if (bond_restraint.size()) {
+      // bool nuclear_distances_flag = false;
+	   rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
+	   if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 
             // nuclear_distances_flag means that we only have one distance - and it's the
             // nuclear distance. So we need to "invent" non-nuclear distance for bonds
             // to hydrogen atoms
-	    for (unsigned int i=0; i<bond_restraint.size(); i++) {
-               const dict_bond_restraint_t &br = bond_restraint[i];
-               std::string value_dist("value_dist");
-               std::string value_dist_esd("value_dist_esd");
-	       // std::cout << "ading bond number " << i << std::endl;
-	       const char *ss = residue_info.comp_id.c_str();
-	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       std::string id_1 = util::remove_whitespace(br.atom_id_1_4c());
-	       std::string id_2 = util::remove_whitespace(br.atom_id_2_4c());
-	       std::string qan_1 = quoted_atom_name(id_1);
-	       std::string qan_2 = quoted_atom_name(id_2);
-	       ss = id_1.c_str();
-	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = id_2.c_str();
-	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-               std::string bond_type = bond_restraint[i].type();
-	       mmCIFLoop->PutString(bond_type.c_str(), "type", i);
-	       try {
+	      for (unsigned int i=0; i<bond_restraint.size(); i++) {
+            const dict_bond_restraint_t &br = bond_restraint[i];
+            std::string value_dist("value_dist");
+            std::string value_dist_esd("value_dist_esd");
+	         // std::cout << "ading bond number " << i << std::endl;
+	         const char *ss = residue_info.comp_id.c_str();
+	         mmCIFLoop->PutString(ss, "comp_id", i);
+	         std::string id_1 = util::remove_whitespace(br.atom_id_1_4c());
+	         std::string id_2 = util::remove_whitespace(br.atom_id_2_4c());
+	         std::string qan_1 = quoted_atom_name(id_1);
+	         std::string qan_2 = quoted_atom_name(id_2);
+	         ss = id_1.c_str();
+	         mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
+	         ss = id_2.c_str();
+	         mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
+            std::string bond_type = bond_restraint[i].type();
+	         mmCIFLoop->PutString(bond_type.c_str(), "type", i);
+	         try {
 
                   if (nuclear_distances_flag) {
 
@@ -2232,13 +2232,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
 	       }
 	       catch (const std::runtime_error &rte) {
-		  // do nothing, it's not really an error if the dictionary
-		  // doesn't have target geometry (the bonding description came
-		  // from a Chemical Component Dictionary entry for example).
-	       }
-	    }
+		      // do nothing, it's not really an error if the dictionary
+		      // doesn't have target geometry (the bonding description came
+		      // from a Chemical Component Dictionary entry for example).
+	      }
+	   }
 	 }
-      }
+   }
 
       // angle loop
 
@@ -2276,7 +2276,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // torsion loop
 
-      if (torsion_restraint.size() > 0) { 
+      if (torsion_restraint.size() > 0) {
 	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
@@ -2321,8 +2321,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       }
 
       // chiral loop
-      // 
-      if (chiral_restraint.size() > 0) { 
+      //
+      if (chiral_restraint.size() > 0) {
 	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
@@ -2359,43 +2359,43 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       }
 
       // plane loop
-      if (plane_restraint.size() > 0) { 
-	 rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
-	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
-	    int icount = 0;
-	    for (unsigned int i=0; i<plane_restraint.size(); i++) {
-	       // std::cout << "DEBUG:: adding plane number " << i << std::endl;
-	       for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
-		  const char *ss = residue_info.comp_id.c_str();
-		  mmCIFLoop->PutString(ss, "comp_id", icount);
-		  ss = plane_restraint[i].plane_id.c_str();
-		  mmCIFLoop->PutString(ss, "plane_id", icount);
-		  
-		  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
-		  std::string qan = quoted_atom_name(id);
-		  ss = id.c_str();
-		  mmCIFLoop->PutString(id.c_str(), "atom_id", icount);
+      if (plane_restraint.size() > 0) {
+	      rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
+	      if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
+	         // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
+	         int icount = 0;
+	         for (unsigned int i=0; i<plane_restraint.size(); i++) {
+	            // std::cout << "DEBUG:: adding plane number " << i << std::endl;
+	            for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
+		            const char *ss = residue_info.comp_id.c_str();
+                  mmCIFLoop->PutString(ss, "comp_id", icount);
+                  ss = plane_restraint[i].plane_id.c_str();
+                  mmCIFLoop->PutString(ss, "plane_id", icount);
 
-		  float v = plane_restraint[i].dist_esd(iat);
-		  mmCIFLoop->PutReal(v, "dist_esd", icount, 4);
-		  icount++;
-	       }
-	    }
-	 }
+                  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
+                  std::string qan = quoted_atom_name(id);
+                  ss = id.c_str();
+                  mmCIFLoop->PutString(id.c_str(), "atom_id", icount);
+
+                  float v = plane_restraint[i].dist_esd(iat);
+                  mmCIFLoop->PutReal(v, "dist_esd", icount, 4);
+                  icount++;
+	            }
+	         }
+	      }
       }
 
 
       write_cif_pdbx_chem_comp_descriptor(mmCIFData);
 
       // delete mmCIFLoop; // crashed when enabled?
-      
+
       int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
-      if (status == 0) 
-	 std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
-      else 
-	 std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
-		   << status << std::endl;
+      if (status == 0)
+	      std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
+      else
+	      std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
+		             << status << std::endl;
    }
    delete mmCIFFile; // deletes all its attributes too.
 }

@@ -526,14 +526,14 @@ coot::protein_geometry::comp_id_to_file_name(const std::string &comp_id) const {
       }
    }
    return file_name;
-} 
+}
 
 
 // Return 0 on failure to do a dynamic add (actually, the number of
 // atoms read).
 //
 // try_dynamic_add() will add with an imol of IMOL_ENC_ANY
-// 
+//
 int
 coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_number) {
 
@@ -542,7 +542,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 		     // init_refmac_mon_lib().
 
    // If this is INH, DRG etc, don't try to auto-add
-   // 
+   //
    if (is_non_auto_load_ligand(resname)) {
       std::cout << "INFO:: comp-id: " << resname
 		<< " is marked for non-autoloading - stopping now "
