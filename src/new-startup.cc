@@ -599,7 +599,7 @@ struct application_activate_data {
 void
 new_startup_application_activate(GtkApplication *application,
                                  gpointer user_data) {
-   
+
    application_activate_data* activate_data = (application_activate_data*) user_data;
 
    activate_data->application = application;
@@ -677,7 +677,6 @@ new_startup_application_activate(GtkApplication *application,
 
       install_icons_into_theme(GTK_WIDGET(sb));
 
-      
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
       // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
@@ -741,7 +740,6 @@ int new_startup(int argc, char **argv) {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
-   
    setup_symm_lib();
    check_reference_structures_dir();
    gtk_init();

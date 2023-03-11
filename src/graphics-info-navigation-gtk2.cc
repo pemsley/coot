@@ -281,8 +281,9 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
          if (false)
             std::cout << "tree store set for " << ires << " " << residue_chains[ichain].tree_residue[ires].residue_spec
                       << " " << residue_chains[ichain].tree_residue[ires].button_label << std::endl;
+         std::string lab =  residue_chains[ichain].tree_residue[ires].button_label;
          gtk_tree_store_set(tree_store, &child,
-                            CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
+                            CHAIN_COL, lab.c_str(),
                             RESIDUE_COL, res_spec_ptr,
                             -1);
       }
@@ -291,7 +292,8 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
    std::cout << ";;;;;;;;;;;;;;; here with need_renderer " << need_renderer << std::endl;
    if (need_renderer) {  // need_renderer
       GtkCellRenderer *cell = gtk_cell_renderer_text_new();
-      GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
+      // GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
+      GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "markup", 0, NULL);
       gtk_tree_view_append_column (GTK_TREE_VIEW (tv), GTK_TREE_VIEW_COLUMN (column));
 
       GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
