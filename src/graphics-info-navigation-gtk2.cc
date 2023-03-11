@@ -45,7 +45,8 @@
 
 enum {
    CHAIN_COL,
-   RESIDUE_COL
+   RESIDUE_COL,
+   VISIBILITY_COL
 };
 
 void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *dialog) {
@@ -61,7 +62,7 @@ void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *dialog) {
                                              vec.push_back(i);
                                        return vec;
                                     };
-   
+
    // make this a wrapper function for a graphics_info_t function
    // After the GTK3 build is working - FIXME
 
@@ -285,16 +286,19 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
          gtk_tree_store_set(tree_store, &child,
                             CHAIN_COL, lab.c_str(),
                             RESIDUE_COL, res_spec_ptr,
+                            VISIBILITY_COL, TRUE,
                             -1);
       }
    }
 
    std::cout << ";;;;;;;;;;;;;;; here with need_renderer " << need_renderer << std::endl;
    if (need_renderer) {  // need_renderer
-      GtkCellRenderer *cell = gtk_cell_renderer_text_new();
+      GtkCellRenderer *cell_renderer = gtk_cell_renderer_text_new();
       // GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "text", 0, NULL);
-      GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell, "markup", 0, NULL);
-      gtk_tree_view_append_column (GTK_TREE_VIEW (tv), GTK_TREE_VIEW_COLUMN (column));
+      GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes ("Chains", cell_renderer, "markup", 0, NULL);
+
+
+      gtk_tree_view_append_column(GTK_TREE_VIEW (tv), GTK_TREE_VIEW_COLUMN (column));
 
       GtkTreeSelection*   tree_sel = gtk_tree_view_get_selection (tv);
       gtk_tree_selection_set_mode(tree_sel, GTK_SELECTION_SINGLE);
@@ -318,9 +322,64 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
 
 }
 
+void goto_residue_show_hide_water_items() {
+
+   // can this be simplified? (copied from above)
+   auto add_residue_tree_to_scrolled_window_if_needed = [] (GtkWidget *scrolled_window) {
+
+                                                GtkTreeView *residue_tree = nullptr; // return this
+
+                                                GtkWidget *item_widget = gtk_widget_get_first_child(scrolled_window);
+                                                while (item_widget) {
+                                                   if (GTK_IS_TREE_VIEW(item_widget)) {
+                                                      residue_tree = GTK_TREE_VIEW(item_widget);
+                                                   }
+                                                   item_widget = gtk_widget_get_next_sibling(item_widget);
+                                                }
+                                                if (! residue_tree) {
+                                                   residue_tree = GTK_TREE_VIEW(gtk_tree_view_new());
+                                                   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(residue_tree));
+                                                }
+                                                return residue_tree;
+                                             };
+
+#if 0
+   // http://scentric.net/tutorial/sec-misc-get-renderer-from-click.html
+
+   GtkTreeViewColumn *col = NULL;
+	GList             *columns, *cells;
+	cells = gtk_tree_view_column_get_cell_renderers(col);
+   GtkCellRenderer *cell_renderer = cells[0];
+
+
+   GtkTreeIter iter;
+   GtkTreePath *path; // needs to be set
+
+   GtkWidget *residue_tree_scrolled_window = widget_from_builder("go_to_atom_residue_scrolledwindow");
+   GtkTreeView *residue_tree = add_residue_tree_to_scrolled_window_if_needed(residue_tree_scrolled_window);
+   GtkTreeView *gtktree = residue_tree;
+   GtkTreeView *tv = NULL;
+   if (gtktree)
+      tv = GTK_TREE_VIEW(gtktree);
+   if (! tv)
+      tv = GTK_TREE_VIEW(gtk_tree_view_new());
+
+   GtkTreeModel *model = gtk_tree_view_get_model(tv);
+
+   gtk_tree_model_get_iter(model, &iter, path); //  convert the path to an iter.
+   int bol;
+   gtk_tree_model_get(model, &iter, VISIBILITY_COL, &bol, -1);
+   if (bol == 0) {
+      g_object_set(cell_renderer, "visible", FALSE, NULL);
+   } else {
+      g_object_set(cell_renderer, "visible", TRUE, "active", TRUE, NULL);
+   }
+#endif
+}
+
 
 // This gets called on window close with the residue_tree as the data.
-// 
+//
 // static
 void
 graphics_info_t::go_to_atom_residue_tree_destroy(gpointer data) {
@@ -329,18 +388,18 @@ graphics_info_t::go_to_atom_residue_tree_destroy(gpointer data) {
    // the residue_tree is a GtkTreeView (that's what gtk_tree_view_new() returns).
    GtkTreeView *residue_tree = static_cast<GtkTreeView *>(data);
    // gtk_widget_unref(GTK_WIDGET(residue_tree));
-} 
+}
 
 
 // This gets called on window close with the atom_list as the data.
-// 
+//
 // static
 void
 graphics_info_t::go_to_atom_list_destroy(gpointer data) {
 
    // std::cout << "go_to_atom_list_destroy called " << data << std::endl;
    GtkTreeView *atom_list = static_cast<GtkTreeView *>(data);
-} 
+}
 
 
 void
@@ -473,7 +532,7 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 
    GtkTreeIter   iter;
    gboolean can_change_selected_status_flag = TRUE;
-   
+
     if (gtk_tree_model_get_iter(model, &iter, path)) {
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);

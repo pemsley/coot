@@ -1298,6 +1298,16 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
 }
 
 
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
+                                               gpointer user_data) {
+
+   std::cout << "on_go_to_atom_show_waters check button toggled" << std::endl;
+
+}
+
+
 // -----------------Toolbar buttons - Go to Atom and Go to ligand
 
 
