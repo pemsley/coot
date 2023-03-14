@@ -18,6 +18,7 @@
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/coot-h-bonds.hh"
 #include "utils/coot-utils.hh"
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
@@ -1147,6 +1148,18 @@ public:
    //! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
+   std::vector<coot::h_bond> get_hbonds(int imol, const std::string &cid_str){
+       mmdb::Manager *mol = get_mol(imol);
+       int sel1 = mol->NewSelection();
+       int sel2 = mol->NewSelection();
+       const char *cid = cid_str.c_str();
+       mol->SelectAtoms(sel1, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+       mol->Select(sel2, mmdb::STYPE_ATOM, cid, mmdb::SKEY_NEW);
+       coot::h_bonds hbs;
+       std::vector<coot::h_bond> hbonds = hbs.get(sel1, sel2, mol, geom);
+       return hbonds;
+   }
 
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions
