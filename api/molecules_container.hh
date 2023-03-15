@@ -293,7 +293,10 @@ class molecules_container_t {
       read_standard_residues();
       make_backups_flag = true;
       interrupt_long_term_job = false;
+      debug();
    }
+
+   void debug() const;
 
 public:
 

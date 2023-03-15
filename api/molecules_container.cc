@@ -76,6 +76,30 @@ molecules_container_t::close_molecule(int imol) {
    return status;
 }
 
+
+void
+molecules_container_t::debug() const {
+
+   // debug:
+   char *env_var = getenv("SYMINFO");
+   if (! env_var) {
+      std::cout << "ERROR:: SYMINFO was not set" << std::endl;
+   } else {
+      std::string s(env_var);
+      std::cout << "DEBUG:: SYMINFO was set to " << s << std::endl;
+
+      struct stat buf;
+      int status = stat(s.c_str(), &buf);
+      if (status != 0) { // standard-residues file was not found in
+                         // default location either...
+        std::cout << "ERROR:: syminfo file " << s << " was not found" << std::endl;
+      } else {
+        std::cout << "DEBUG:: syminfo file " << s << " was found" << std::endl;
+      }
+   }
+}
+
+
 std::string
 molecules_container_t::get_molecule_name(int imol) const {
 
