@@ -470,6 +470,22 @@ molecules_container_t::read_pdb(const std::string &file_name) {
    return status;
 }
 
+//! read a PDB file (or mmcif coordinates file, despite the name) to
+//! replace the current molecule. This will only work if the molecules
+//! is already a model molecule
+void
+molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].replace_molecule_by_model_from_file(pdb_file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   // return status;
+}
+
+
 int
 molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, int imol_enc) {
 

@@ -2502,6 +2502,33 @@ int test_set_rotamer(molecules_container_t &mc) {
    return status;
 }
 
+int test_replace_model_from_file(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         std::string rn_1 = at_1->GetResidue()->GetResName();
+         mc.replace_molecule_by_model_from_file(imol, "3pzt.pdb");
+         mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
+         if (at_2) {
+            std::string rn_2 = at_2->GetResidue()->GetResName();
+
+            if (rn_1 == "SER")
+               if (rn_2 == "PHE")
+                  status = 1;
+         }
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2661,9 +2688,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
-   status = run_test(test_symmetry, "symmetry", mc);
-
-   // status = run_test(test_symmetry, "read file", mc);
+   // status = run_test(test_symmetry, "symmetry", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
@@ -2672,6 +2697,8 @@ int main(int argc, char **argv) {
    // Note to self:
    //
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+
+   status = run_test(test_replace_model_from_file, "replace model from file", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

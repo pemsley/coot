@@ -195,6 +195,17 @@ coot::molecule_t::redo() {
    return status;
 }
 
+void
+coot::molecule_t::replace_molecule_by_model_from_file(const std::string &pdb_file_name) {
+
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false, false);
+   if (asc.read_success) {
+      atom_sel.clear_up();
+      atom_sel = asc;
+   }
+}
+
+
 int
 coot::molecule_t::write_coordinates(const std::string &file_name) const {
 
