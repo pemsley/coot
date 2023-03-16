@@ -7,6 +7,7 @@
 namespace coot {
    class residue_validation_information_t {
    public:
+      residue_validation_information_t() : function_value(-1) {}
       residue_validation_information_t(const coot::residue_spec_t &rs,
                                        const coot::atom_spec_t &atom_spec_in,
                                        double d, const std::string &l) :

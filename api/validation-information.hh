@@ -10,6 +10,7 @@ namespace coot {
    public:
       std::string chain_id;
       std::vector<residue_validation_information_t> rviv;
+      chain_validation_information_t() {}
       explicit chain_validation_information_t(const std::string &chain_id_in) : chain_id(chain_id_in) {}
       void add_residue_validation_information(const residue_validation_information_t &rvi) {
          rviv.push_back(rvi);

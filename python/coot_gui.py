@@ -1355,12 +1355,9 @@ def coot_menubar_menu(menu_label):
 #
 def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
 
-    submenu = Gtk.Menu()  # what this for?
     sub_menuitem = Gtk.MenuItem(menu_item_label)
-
     menu.append(sub_menuitem)
     sub_menuitem.show()
-
     sub_menuitem.connect("activate", activate_function)
 
 
