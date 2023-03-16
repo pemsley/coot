@@ -53,7 +53,7 @@ bool
 molecules_container_t::is_a_difference_map(int imol) const {
 
    bool status = 0;
-   if (is_valid_model_molecule(imol)) {
+   if (is_valid_map_molecule(imol)) {
       status = molecules[imol].is_difference_map_p();
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
