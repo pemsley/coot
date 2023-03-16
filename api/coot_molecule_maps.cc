@@ -478,10 +478,10 @@ coot::molecule_t::get_map_rmsd_approx() const {
 bool
 coot::molecule_t::is_difference_map_p() const {
 
-   short int istat = 0;
+   bool istat = false;
    if (is_valid_map_molecule())
       if (xmap_is_diff_map)
-         istat = 1;
+         istat = true;
    return istat;
 }
 
