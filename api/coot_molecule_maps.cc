@@ -18,6 +18,11 @@
 
 std::atomic<bool> coot::molecule_t::draw_vector_sets_lock(false);
 
+void
+coot::molecule_t::set_map_colour(coot::colour_holder ch) {
+   map_colour = ch;
+}
+
 int
 coot::molecule_t::write_map(const std::string &file_name) const {
 
@@ -331,7 +336,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    // now convert the contents of the draw-vector sets to a simple_mesh_t.
 
-   coot::colour_holder map_colour(0.4, 0.4, 0.7);
+   // coot::colour_holder map_colour(0.3, 0.3, 0.8); // now is a class member
    if (xmap_is_diff_map)
       map_colour = coot::colour_holder(0.4, 0.8, 0.4);
 
@@ -473,10 +478,10 @@ coot::molecule_t::get_map_rmsd_approx() const {
 bool
 coot::molecule_t::is_difference_map_p() const {
 
-   short int istat = 0;
+   bool istat = false;
    if (is_valid_map_molecule())
       if (xmap_is_diff_map)
-         istat = 1;
+         istat = true;
    return istat;
 }
 
@@ -565,6 +570,8 @@ coot::molecule_t::make_import_datanames(const std::string &f_col_in,
 void
 coot::molecule_t::fill_fobs_sigfobs() {
 
+   bool show_timings = false;
+
    // set original_fobs_sigfobs_filled when done
 
    bool have_sensible_refmac_params = true; // 20221016-PE need to be set properly!
@@ -633,7 +640,8 @@ coot::molecule_t::fill_fobs_sigfobs() {
                      dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
                   }
                }
-               std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               if (false)
+                  std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
                clipper::CCP4MTZfile *mtzin_rfree_p = new clipper::CCP4MTZfile;
                mtzin_rfree_p->open_read(Refmac_mtz_filename());
                mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
@@ -655,7 +663,8 @@ coot::molecule_t::fill_fobs_sigfobs() {
 
          auto tp_1 = std::chrono::high_resolution_clock::now();
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-         std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
+         if (show_timings)
+            std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
       }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";

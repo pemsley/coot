@@ -53,7 +53,7 @@ bool
 molecules_container_t::is_a_difference_map(int imol) const {
 
    bool status = 0;
-   if (is_valid_model_molecule(imol)) {
+   if (is_valid_map_molecule(imol)) {
       status = molecules[imol].is_difference_map_p();
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
@@ -75,6 +75,30 @@ molecules_container_t::close_molecule(int imol) {
    }
    return status;
 }
+
+
+void
+molecules_container_t::debug() const {
+
+   // debug:
+   char *env_var = getenv("SYMINFO");
+   if (! env_var) {
+      std::cout << "ERROR:: SYMINFO was not set" << std::endl;
+   } else {
+      std::string s(env_var);
+      std::cout << "DEBUG:: SYMINFO was set to " << s << std::endl;
+
+      struct stat buf;
+      int status = stat(s.c_str(), &buf);
+      if (status != 0) { // standard-residues file was not found in
+                         // default location either...
+        std::cout << "ERROR:: syminfo file " << s << " was not found" << std::endl;
+      } else {
+        std::cout << "DEBUG:: syminfo file " << s << " was found" << std::endl;
+      }
+   }
+}
+
 
 std::string
 molecules_container_t::get_molecule_name(int imol) const {
@@ -544,8 +568,9 @@ molecules_container_t::read_mtz(const std::string &file_name,
    if (status) {
       molecules.push_back(m);
       imol = imol_in_hope;
-      std::cout << "DEBUG:: in read_mtz() " << file_name << " " << f << " " << phi << " imol map: " << imol
-                << " diff-map-status: " << is_a_difference_map << std::endl;
+      if (false)
+         std::cout << "DEBUG:: in read_mtz() " << file_name << " " << f << " " << phi << " imol map: " << imol
+                   << " diff-map-status: " << is_a_difference_map << std::endl;
    }
    return imol;
 }
@@ -1540,6 +1565,16 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    }
    return mesh;
 }
+
+void
+molecules_container_t::set_map_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_map_molecule(imol)) {
+      coot::colour_holder ch(r,g,b);
+      molecules[imol].set_map_colour(ch);
+   }
+}
+
 
 
 // get the rotamer dodecs for the model
@@ -3752,22 +3787,26 @@ molecules_container_t::clear_extra_restraints(int imol) {
 
 // ----------------------- map utils
 int
-molecules_container_t::sharpen_blur_map(int imol_map, float b_factor) {
+molecules_container_t::sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag) {
 
    int imol_new = -1;
    if (is_valid_map_molecule(imol_map)) {
       const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
       clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap, b_factor);
-      std::string name = molecules[imol_map].get_name();
-      if (b_factor < 0.0)
-         name += " Sharpen ";
-      else
-         name += " Blur ";
-      name += std::to_string(b_factor);
-      imol_new = molecules.size();
-      coot::molecule_t cm(name, imol_new);
-      cm.xmap = xmap_new;
-      molecules.push_back(cm);
+      if (in_place_flag) {
+         molecules[imol_map].xmap = xmap_new;
+      } else {
+         std::string name = molecules[imol_map].get_name();
+         if (b_factor < 0.0)
+            name += " Sharpen ";
+         else
+            name += " Blur ";
+         name += std::to_string(b_factor);
+         imol_new = molecules.size();
+         coot::molecule_t cm(name, imol_new);
+         cm.xmap = xmap_new;
+         molecules.push_back(cm);
+      }
    }
    return imol_new;
 }
@@ -3862,6 +3901,7 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    std::vector<std::pair<symm_trans_t, Cell_Translation> > v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].get_symmetry(symmetry_search_radius, symmetry_centre);
+      std::cout << "DEBUG:: molecules_container_t::get_symmetry received " << v.size() << " sym ops" << std::endl;
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

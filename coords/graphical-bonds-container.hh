@@ -109,10 +109,10 @@ public:
       return scale;
    }
 
-   void set_radius_scale_for_atom(mmdb::Atom *at, bool have_dictionary) {
+   void set_radius_scale_for_atom(mmdb::Atom *at, bool make_fat_atom) {
       // 20230224-PE if there is no dictionary, then we want big fat atoms
       radius_scale = get_radius_scale_for_atom(at);
-      if (!have_dictionary)
+      if (make_fat_atom)
          radius_scale = 6.0;
       if (radius_scale > 6.0) radius_scale = 6.0;
    }

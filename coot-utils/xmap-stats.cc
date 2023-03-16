@@ -32,6 +32,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
                          bool ignore_pseudo_zeros // default false
                          ) {
 
+   bool debug = false;
    mean_and_variance<T> mv;  // returned object
 
    double density_min = 1e10, density_max = -1e10, sum = 0.0, sum_sq = 0;
@@ -112,8 +113,10 @@ map_density_distribution(const clipper::Xmap<T> &map,
    mv.histogram_max = bin[ibin_second_highest_counts] * 1.25;
    mv.bins = bin;
 
-   std::cout << "Pre-filter Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
-   std::cout << "Pre-filter Map statistics:  min: " << density_min << " max: " << density_max << std::endl;
+   if (debug) {
+      std::cout << "Pre-filter Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+      std::cout << "Pre-filter Map statistics:  min: " << density_min << " max: " << density_max << std::endl;
+   }
 
    if (ignore_pseudo_zeros) {
 
@@ -139,25 +142,28 @@ map_density_distribution(const clipper::Xmap<T> &map,
 
       int n_remainder = n - bin[ibin_max_counts];
 
-      std::cout << "INFO:: n grid points:             " << n << std::endl;
-      std::cout << "INFO:: mean before filtering:     " << mv.mean     << std::endl;
-      std::cout << "INFO:: variance before filtering: " << mv.variance << std::endl;
+      if (debug) {
+         std::cout << "INFO:: n grid points:             " << n << std::endl;
+         std::cout << "INFO:: mean before filtering:     " << mv.mean     << std::endl;
+         std::cout << "INFO:: variance before filtering: " << mv.variance << std::endl;
+      }
 
       double di = static_cast<double>(ibin_max_counts);
       double average_density_for_ibin_max_counts      = (di + 0.5) * range/double(nbins_filter) + density_min;
       double lower_bound_density_for_ibin_max_counts  =  di        * range/double(nbins_filter) + density_min;
       double uppoer_bound_density_for_ibin_max_counts = (di+1.0)   * range/double(nbins_filter) + density_min;
 
-      std::cout << "INFO:: filter by ignoring " << bin[ibin_max_counts]
-                << " of " << n << " counts ( = " << std::setprecision(4)
-                << 100*float(bin[ibin_max_counts])/float(n) << "%)"
-                << " with values around "
-                << std::setprecision(4)
-                << average_density_for_ibin_max_counts
-                << " bounds " << lower_bound_density_for_ibin_max_counts << " "
-                << uppoer_bound_density_for_ibin_max_counts
-                << " from bin-number " << ibin_max_counts << " of "
-                << nbins_filter<< std::endl;
+      if (debug)
+         std::cout << "INFO:: filter by ignoring " << bin[ibin_max_counts]
+                   << " of " << n << " counts ( = " << std::setprecision(4)
+                   << 100*float(bin[ibin_max_counts])/float(n) << "%)"
+                   << " with values around "
+                   << std::setprecision(4)
+                   << average_density_for_ibin_max_counts
+                   << " bounds " << lower_bound_density_for_ibin_max_counts << " "
+                   << uppoer_bound_density_for_ibin_max_counts
+                   << " from bin-number " << ibin_max_counts << " of "
+                   << nbins_filter<< std::endl;
       sum = 0;
       sum_sq = 0;
       for (unsigned int i=0; i<bin.size(); i++) {
@@ -174,8 +180,10 @@ map_density_distribution(const clipper::Xmap<T> &map,
       mv.variance = sum_sq/double(n_remainder) - mv.mean * mv.mean;
       if (mv.variance < 0.0) mv.variance = 0.0;
 
-      std::cout << "Post-filter Map statistics: mean: " << mv.mean << " st.d: " << sqrt(mv.variance) << std::endl;
-      std::cout << "Post-filter Map statistics: min: " << density_min << " max: " << density_max << std::endl;
+      if (debug) {
+         std::cout << "Post-filter Map statistics: mean: " << mv.mean << " st.d: " << sqrt(mv.variance) << std::endl;
+         std::cout << "Post-filter Map statistics: min: " << density_min << " max: " << density_max << std::endl;
+      }
 
    }
    return mv;

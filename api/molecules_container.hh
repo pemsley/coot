@@ -22,6 +22,7 @@
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
 #include "validation-information.hh"
+#include "superpose-results.hh"
 #include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
@@ -213,7 +214,7 @@ class molecules_container_t {
 
    int install_model(const coot::molecule_t &m);
 
-   std::pair<std::string, std::string>
+   superpose_results_t
    superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                  atom_selection_container_t asc_mov,
                                  int imol_mov,
@@ -229,6 +230,15 @@ class molecules_container_t {
 				     mmdb::PAtom *atom_selection2,
 				     int n_selected_atoms_1, int n_selected_atoms_2,
 				     bool move_copy_of_imol2_flag);
+
+
+   coot::validation_information_t
+   make_ssm_sequence_alignment_as_validation_information(ssm::Align *SSMAlign,
+                                                    atom_selection_container_t asc_ref,
+                                                    atom_selection_container_t asc_mov,
+                                                    mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+                                                    int n_selected_atoms_1, int n_selected_atoms_2,
+                                                    bool move_copy_of_imol2_flag);
 
    void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
@@ -256,12 +266,12 @@ class molecules_container_t {
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB
-   
+
 
    // for auto-read mtz
    int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
                     const std::string &weight_col, int use_weights) const;
-   
+
    // --------------------- init --------------------------
 
    void init() {
@@ -283,7 +293,11 @@ class molecules_container_t {
       read_standard_residues();
       make_backups_flag = true;
       interrupt_long_term_job = false;
+      mmdb::InitMatType();
+      debug();
    }
+
+   void debug() const;
 
 public:
 
@@ -626,8 +640,9 @@ public:
    //!
    //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
-   std::pair<std::string, std::string> SSM_superpose(int imol_ref, const std::string &chain_id_ref,
-                                                     int imol_mov, const std::string &chain_id_mov);
+   // std::pair<std::string, std::string>
+   superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,
+                                     int imol_mov, const std::string &chain_id_mov);
 
    //! symmetry
    std::vector<std::pair<symm_trans_t, Cell_Translation> >
@@ -666,8 +681,8 @@ public:
    float get_map_rmsd_approx(int imol_map) const;
 
    //! create a new map that is blurred/sharpened
-   //! @return the molecule index of the new map or -1 on failure.
-   int sharpen_blur_map(int imol_map, float b_factor);
+   //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
+   int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
@@ -681,6 +696,11 @@ public:
    //! Make a vector of maps that are split by chain-id of the input imol
    //! @return a vector of the map molecule indices.
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
+
+   //! set the map colour.
+   //! The next time a map mesh is requested, it will have this colour.
+   //! This does not affect the colour of the difference maps.
+   void set_map_colour(int imol, float r, float g, float b);
 
    //! get the mesh for the map contours.
    //!

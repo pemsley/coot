@@ -2166,7 +2166,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (refinement_is_quiet)
       restraints.set_quiet_reporting();
 
-   std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
    restraints.add_map(map_weight);
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS;
@@ -3519,6 +3519,7 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
    std::cout << "extents: " << extents << std::endl;
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
       extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
+   std::cout << "DEBUG:: in coot::molecule_t::get_symmetry() symm_trans_boxes size " << symm_trans_boxes.size() << std::endl;
    return symm_trans_boxes;
 }
 

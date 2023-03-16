@@ -5421,7 +5421,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				 if (element == " F") {
 				    return GREEN_BOND;
 				 } else {
-				    if (element == "CL") {
+				    if (element == "CL" || element == "Cl") {
 				       return GREEN_BOND;
 				    } else {
 				       if (element == "BR") {
@@ -5490,7 +5490,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                     if (element == " F") {
                                        return GREEN_BOND;
                                     } else {
-                                       if (element == "CL") {
+                                       if (element == "CL" || element == "Cl") {
                                           return GREEN_BOND;
                                        } else {
                                           if (element == "BR") {

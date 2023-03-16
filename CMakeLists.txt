@@ -348,7 +348,7 @@ add_library(cootapi SHARED
 # target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
 
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
-target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib)
+target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib /usr/local/Cellar/libpng/1.6.39/lib)
 target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
 set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
@@ -362,7 +362,8 @@ target_link_directories(test-molecules-container PUBLIC ${dependency_install_dir
 target_link_libraries(test-molecules-container cootapi)
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src
   ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm
-  ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include)
+  ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include
+)
 set_target_properties(test-molecules-container PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 # target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
