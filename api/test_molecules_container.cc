@@ -2651,7 +2651,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   status = run_test(test_superpose, "SSM superpose ", mc);
+   // status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -2661,7 +2661,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
-   // status = run_test(test_symmetry, "symmetry", mc);
+   status = run_test(test_symmetry, "symmetry", mc);
 
    // status = run_test(test_symmetry, "read file", mc);
 
