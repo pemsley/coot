@@ -9,10 +9,16 @@
 %include "std_vector.i"
 %include "std_pair.i"
 
+
 namespace std {
-%template(vector_string) vector<std::string>;
-%template(pairbf) pair<bool, float>;
-%template(IntVector) vector<int>;
+   %template(vector_string) vector<std::string>;
+   %template(pairbf) pair<bool, float>;
+   %template(IntVector) vector<int>;
+}
+
+namespace std {
+  %template(coot_chain_validation)   std::vector<coot::chain_validation_information_t>;
+  %template(coot_residue_validation) std::vector<coot::residue_validation_information_t>;
 }
 
 %init %{
@@ -22,3 +28,4 @@ namespace std {
 %feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
 
 %include "molecules_container.hh"
+

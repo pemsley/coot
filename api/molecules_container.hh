@@ -450,6 +450,11 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 
+   //! read a PDB file (or mmcif coordinates file, despite the name) to
+   //! replace the current molecule. This will only work if the molecules
+   //! is already a model molecule
+   void replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name);
+
    //! get the active atom given the screen centre
    //!
    //! ``displayed_model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
