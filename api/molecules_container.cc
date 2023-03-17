@@ -3917,7 +3917,6 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    std::vector<std::pair<symm_trans_t, Cell_Translation> > v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].get_symmetry(symmetry_search_radius, symmetry_centre);
-      std::cout << "DEBUG:: molecules_container_t::get_symmetry received " << v.size() << " sym ops" << std::endl;
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

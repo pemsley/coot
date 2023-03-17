@@ -146,10 +146,12 @@ coot::ligand::move_atom_to_peak(const clipper::Coord_orth &a,
       n_cycle++;
    }
 
-   if (n_cycle == n_cycle_max) {
-      std::cout << "WARNING:: refinement failure" <<  std::endl;
-      std::cout << "          start pos: " << a.format()   << std::endl;
-      std::cout << "          final pos: " << pos.format() << std::endl << std::endl;
+   if (false) { // who looks at this?
+      if (n_cycle == n_cycle_max) {
+         std::cout << "WARNING:: refinement failure" <<  std::endl;
+         std::cout << "          start pos: " << a.format()   << std::endl;
+         std::cout << "          final pos: " << pos.format() << std::endl << std::endl;
+      }
    }
    return pos;
 

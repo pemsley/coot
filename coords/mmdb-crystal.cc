@@ -313,8 +313,6 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
    coot::trans_selection_t trans_selection_obj;
    bool in;
 
-   std::cout << "DEBUG:: in which_boxes() n is " << n << std::endl;
-
    if (n > 0) { 
 
       // First we move point as close to the origin as we can.  Remember
@@ -355,8 +353,6 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 	 if (a[i]< min_cell)
 	    min_cell = a[i];
       ishift = shift_search_size + int((expansion_size_)/min_cell);
-
-      std::cout << "DEBUG:: in which_boxes() ishift " << ishift << std::endl;
 
 //       std::cout << "old ishift " << ishift << " "
 // 		<< expansion_size_ << "/" << min_cell << std::endl;
@@ -421,12 +417,14 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 			symm_trans.push_back(p);
 // 		     } else {
  			s_t.symm_as_string = AtomSel.mol->GetSymOp(ii);
+#if 0
  			std::cout << "DEBUG:: in which_boxes() rejecting " << s_t << " "
  				  << "atom_sel_cell_trans " << atom_sel_cell_trans << " "
  				  << "point_unit_cell" << " " << point_unit_cell[0] << " "
  				  << point_unit_cell[1] << " "
  				  << point_unit_cell[2] << " "
  				  << std::endl;
+#endif
 		     } 
 		  }
 	       }

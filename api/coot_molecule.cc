@@ -3531,10 +3531,10 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
 
    int symmetry_shift_search_size = 2; // is 1 in graphics-info-statics
    molecule_extents_t extents(atom_sel, symmetry_search_radius);
-   std::cout << "extents: " << extents << std::endl;
+   if (true) // turn this off later.
+      std::cout << "extents: " << extents << std::endl;
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
       extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
-   std::cout << "DEBUG:: in coot::molecule_t::get_symmetry() symm_trans_boxes size " << symm_trans_boxes.size() << std::endl;
    return symm_trans_boxes;
 }
 
