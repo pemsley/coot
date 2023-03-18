@@ -2976,8 +2976,8 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
    }
    if (p.first || (i_have_solvent_chain_flag == 0)) {
       make_backup();
-      std::cout << "INFO:: Adding to solvent chain: " << chain_p->GetChainID()
-                << std::endl;
+      std::cout << "INFO:: Adding to solvent chain: " << chain_p->GetChainID() << std::endl;
+      atom_sel.delete_atom_selection();
       int prev_max_resno = max_resno;
       mmdb::Residue *new_residue_p = NULL;
       mmdb::Atom    *new_atom_p = NULL;
@@ -3015,9 +3015,13 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
             }
          }
       }
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      atom_sel = make_asc(atom_sel.mol);
       // update_molecule_after_additions(); // sets unsaved changes flag
       update_symmetry();
+      save_info.new_modification("insert_waters_into_molecule");
    }
    return istat;
 }
