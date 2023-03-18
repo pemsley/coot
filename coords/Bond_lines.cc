@@ -5181,6 +5181,30 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			      } else {
 				 if (is_hydrogen(element)) {
 				    return HYDROGEN_GREY_BOND;
+                                 } else {
+                                    if (element == " F") {
+                                       return GREEN_BOND;
+                                    } else {
+                                       if (element == "CL" || element == "Cl") {
+                                          return GREEN_BOND;
+                                       } else {
+                                          if (element == "BR") {
+                                             return DARK_BROWN_BOND;
+                                          } else {
+                                             if (element == " I") {
+                                                return MAGENTA_BOND;
+                                             } else {
+                                                if (element == "MG") {
+                                                   return DARK_GREEN_BOND;
+                                                } else {
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
 				 }
 			      }
 			   }
