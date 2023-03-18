@@ -650,7 +650,8 @@ public:
                                      int imol_mov, const std::string &chain_id_mov);
 
    //! symmetry
-   std::vector<std::pair<symm_trans_t, Cell_Translation> >
+   //! now comes in a simple container that also includes the cell
+   coot::symmetry_info_t
    get_symmetry(int imol, float symmetry_search_radius, float centre_x, float centre_y, float centre_z) const;
 
    //! undo
