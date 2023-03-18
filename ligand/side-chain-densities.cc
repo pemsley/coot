@@ -392,7 +392,6 @@ coot::side_chain_densities::make_a_run_of_residues(mmdb::Manager *mol, const std
 
    std::vector<mmdb::Residue *> a_run_of_residues;
 
-   // What is the probability of each rotamer at each residue?
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    if (model_p) {
@@ -427,7 +426,6 @@ std::pair<std::string, std::vector<mmdb::Residue *> >
 coot::side_chain_densities::setup_test_sequence(mmdb::Manager *mol,
                                                 const std::string &chain_id, int resno_start, int resno_end,
                                                 const clipper::Xmap<float> &xmap) {
-   // What is the probability of each rotamer at each residue?
 
    auto calculate_CB_ideal_pos = [] (mmdb::Residue *residue_p) {
                                     mmdb::Atom *cb_atom = residue_p->GetAtom(" CB ");
@@ -528,7 +526,6 @@ coot::side_chain_densities::setup_likelihood_of_each_rotamer_at_every_residue(co
                                                                          // and fixup other functions to match
       }
    }
-   
 }
 
 void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *> &a_run_of_residues,
@@ -598,7 +595,7 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
          scored_residues[i] =
             std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > >(residue_p, likelihood_of_each_rotamer_at_this_residue(residue_p, xmap));
       }
-      
+
       // insta-fail when the protein sequence for test is shorter than the model.
       if (sequence.length() < a_run_of_residues.size()) return;
 
