@@ -1221,6 +1221,8 @@ public:
    PyObject *get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
                                                         const std::string &colour_sheme,
                                                         const std::string &style);
+   PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
+                                                float box_radius, float grid_scale);
 #endif
 
 };

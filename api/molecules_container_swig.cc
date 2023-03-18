@@ -160,4 +160,15 @@ molecules_container_t::get_pythonic_molecular_representation_mesh(int imol, cons
    return simple_mesh_to_pythonic_mesh(mesh, MULTI_COLOUR);
 }
 
+PyObject *
+molecules_container_t::get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
+                                                          float box_radius, float grid_scale) {
+
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_gaussian_surface(sigma, contour_level, box_radius, grid_scale);
+   }
+   return simple_mesh_to_pythonic_mesh(mesh, MULTI_COLOUR);
+}
+
 #endif // SWIG
