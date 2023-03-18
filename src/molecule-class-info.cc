@@ -4067,7 +4067,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
          molecule_as_mesh.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
                                                udd_handle_bonded_type,
                                                draw_cis_peptide_markups, atom_radius, bond_radius,
-                                               num_subdivisions, n_slices, n_stacks, colour_table);
+                                               num_subdivisions, n_slices, n_stacks, colour_table, *graphics_info_t::Geom_p());
          molecule_as_mesh.set_name(name_);
          molecule_as_mesh.set_material(material_for_models);
       }
@@ -4150,14 +4150,12 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
    // make_meshes_from_bonds_box(); // instanced meshes, that is. Not today.
 
-#ifndef EMSCRIPTEN
    make_mesh_from_bonds_box(); // non-instanced version - add lots of vectors of vertices and triangles
                                //
                                // needs:
                                // cis peptides,
                                // missing residue loops
                                // and rama balls if intermediate atoms.
-#endif
 }
 
 void
@@ -4165,10 +4163,8 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
 
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
-#ifndef EMSCRIPTEN
    graphics_info_t::attach_buffers();
    mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box); // boxes
-#endif
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4178,7 +4174,6 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
    // we should use goodsell colouring by default here
 
-#ifndef EMSCRIPTEN  // restore this?
    if (mode == Mesh::BALL_AND_STICK) {
       if (model_representation_mode != Mesh::BALL_AND_STICK) {
          model_representation_mode = mode;
@@ -4191,7 +4186,12 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
-#endif
+   if (mode == Mesh::VDW_BALLS) {
+      if (model_representation_mode != Mesh::VDW_BALLS) {
+         model_representation_mode = mode;
+         make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
 
 }
 

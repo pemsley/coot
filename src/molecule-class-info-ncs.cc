@@ -234,7 +234,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    std::vector<glm::vec4> colour_table;
    for (unsigned int i=0; i<15; i++) { colour_table.push_back(glm::vec4(0.4, 0.8, 0.2, 1.0)); }
    graphics_info_t::attach_buffers();
-   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table);
+   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table, *graphics_info_t::Geom_p());
    if (false)
       std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
                 << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
