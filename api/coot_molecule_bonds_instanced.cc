@@ -358,10 +358,17 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
-   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is then passed.
+   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is not passed.
 
    if (mode == "CA+LIGANDS") {
-      // something
+
+      Bond_lines_container bonds(geom);
+      float min_dist = 2.4;
+      float max_dist = 4.7;
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
    }
 
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
