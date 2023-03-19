@@ -2453,8 +2453,10 @@ int test_symmetry(molecules_container_t &mc) {
       status = 1;
 
    for (unsigned int i=0; i<v.size(); i++) {
+      mmdb::mat44 my_matt;
       const symm_trans_t &st     = v[i].first;
       const Cell_Translation &ct = v[i].second;
+      int err = mc.get_mol(imol)->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
       std::cout << "  " << i << " " << st << " " << ct << std::endl;
    }
 
@@ -2688,7 +2690,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
-   // status = run_test(test_symmetry, "symmetry", mc);
+   status = run_test(test_symmetry, "symmetry", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
@@ -2698,7 +2700,7 @@ int main(int argc, char **argv) {
    //
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
-   status = run_test(test_replace_model_from_file, "replace model from file", mc);
+   // status = run_test(test_replace_model_from_file, "replace model from file", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

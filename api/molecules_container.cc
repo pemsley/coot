@@ -3136,7 +3136,7 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 
    int n_waters_added = 0;
    int ligand_water_n_cycles = 3;
-   float ligand_water_to_protein_distance_lim_max = 3.2;
+   float ligand_water_to_protein_distance_lim_max = 3.4;
    float ligand_water_to_protein_distance_lim_min = 2.4;
    float ligand_water_variance_limit = 0.12;
    float sigma_cut_off = 1.0; // what is this?
@@ -3154,8 +3154,7 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          // ignore the waters that already exist.
          // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-         lig.import_map_from(molecules[imol_map].xmap,
-                             molecules[imol_map].get_map_rmsd_approx());
+         lig.import_map_from(molecules[imol_map].xmap, molecules[imol_map].get_map_rmsd_approx());
          // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
          lig.set_map_atom_mask_radius(1.9); // Angstroms
          lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
@@ -3175,6 +3174,34 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
    }
    return n_waters_added;
 }
+
+std::vector<coot::molecule_t::interesting_place_t>
+molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
+
+   std::vector<coot::molecule_t::interesting_place_t> v;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         coot::ligand lig;
+         int n_cycles = 1;
+
+         short int mask_waters_flag = true;
+         float sigma = molecules[imol_map].get_map_rmsd_approx();
+         lig.import_map_from(molecules[imol_map].xmap, sigma);
+         lig.set_map_atom_mask_radius(1.9); // Angstrom
+         lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
+         float sigma_cut_off = 1.4;
+         std::cout << "Unmodelled blobs using sigma cut off " << sigma_cut_off << std::endl;
+         lig.water_fit(sigma_cut_off, n_cycles);
+         int n_big_blobs = lig.big_blobs().size();
+         std::vector<std::pair<clipper::Coord_orth, double> > big_blobs = lig.big_blobs();
+      }
+   }
+   return v;
+}
+
+
+
 
 
 std::pair<int, unsigned int>

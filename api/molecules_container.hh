@@ -1024,6 +1024,10 @@ public:
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> pepflips_using_difference_map(int imol_coords, int imol_difference_map, float n_sigma) const;
 
+   //! unmodelled blobs
+   //! @return a vector of `coot::validation_information_t`
+   std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map) const;
+
    //! calculate the MMRRCC for the residues in the chain
    //! Multi Masked Residue Range Corellation Coefficient
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
