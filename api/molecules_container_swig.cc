@@ -51,6 +51,9 @@ molecules_container_t::simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &m
    const std::vector<g_triangle> &tris = mesh.triangles;
    const std::vector<coot::api::vnc_vertex> &vertices = mesh.vertices;
 
+   if (tris.empty()) return r_py;
+   if (vertices.empty()) return r_py;
+
    std::cout << "DEBUG:: simple_mesh_to_pythonic_mesh(): mesh vertices size " << mesh.vertices.size() << std::endl;
    std::cout << "DEBUG:: simple_mesh_to_pythonic_mesh(): tris size " << tris.size() << std::endl;
 
@@ -130,7 +133,6 @@ molecules_container_t::get_pythonic_bonds_mesh(int imol,
 
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
-      std::string mode("bonds");
       float ratio = atom_radius_to_bond_width_ratio;
       int sf = smoothness_factor;
       mesh = molecules[imol].get_bonds_mesh(mode, &geom, against_a_dark_background, bond_width, ratio, sf, true, true);

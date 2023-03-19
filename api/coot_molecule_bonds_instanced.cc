@@ -386,12 +386,6 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
       const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
 
-      unsigned int n_bonds = 0;
-      for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
-         graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol_bond];
-         n_bonds += ll.num_lines;
-      }
-
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
                                                      atom_radius, bond_radius, num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
