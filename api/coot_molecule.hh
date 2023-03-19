@@ -779,14 +779,15 @@ namespace coot {
          //! constructor
          interesting_place_t() {}
          //! constructor
-         interesting_place_t(const std::string &ft, const residue_spec_t &rs, const clipper::Coord_orth &pt, const std::string &bl) :
-            feature_type(ft), residue_spec(rs), button_label(bl) {
+         interesting_place_t(const std::string &feature_type, const residue_spec_t &rs, const clipper::Coord_orth &pt, const std::string &bl) :
+            feature_type(feature_type), residue_spec(rs), button_label(bl) {
             x = pt.x(); y = pt.y(); z = pt.z();
             feature_value = -1; // something "unset"
             badness = -1.1; // "unset"
          }
          //! constructor
-         interesting_place_t(const std::string &ft, const clipper::Coord_orth &pt, const std::string &bl) : feature_type(ft), button_label(bl) {
+         interesting_place_t(const std::string &feature_type, const clipper::Coord_orth &pt, const std::string &button_label) :
+            feature_type(feature_type), button_label(button_label) {
             x = pt.x(); y = pt.y(); z = pt.z();
             feature_value = -1; // something "unset"
             badness = -1.1; // "unset"

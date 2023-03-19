@@ -3183,7 +3183,6 @@ molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
       if (is_valid_map_molecule(imol_map)) {
 
          coot::ligand lig;
-         int n_cycles = 1;
 
          short int mask_waters_flag = true;
          float sigma = molecules[imol_map].get_map_rmsd_approx();
@@ -3192,9 +3191,18 @@ molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
          lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
          float sigma_cut_off = 1.4;
          std::cout << "Unmodelled blobs using sigma cut off " << sigma_cut_off << std::endl;
+         int n_cycles = 1;
          lig.water_fit(sigma_cut_off, n_cycles);
-         int n_big_blobs = lig.big_blobs().size();
          std::vector<std::pair<clipper::Coord_orth, double> > big_blobs = lig.big_blobs();
+         int n_big_blobs = lig.big_blobs().size();
+         if (n_big_blobs > 0) {
+            for (unsigned int i=0; i<big_blobs.size(); i++) {
+               std::string l = std::string("Blob ") + std::to_string(i+1);
+               clipper::Coord_orth pt = big_blobs[i].first;
+               coot::molecule_t::interesting_place_t ip("Unmodelled Blob", pt, l);
+               ip.set_feature_value(big_blobs[i].second);
+            }
+         }
       }
    }
    return v;
