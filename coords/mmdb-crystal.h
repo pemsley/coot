@@ -87,6 +87,7 @@ class symm_trans_t {
       { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
    explicit symm_trans_t(int idx) { symm_no = idx; x_shift_ = 0; y_shift_ = 0; z_shift_ = 0; }
    symm_trans_t() {};
+   mmdb::mat44 mat;
 
    friend std::ostream & operator<<(std::ostream &s, const symm_trans_t &st);
 
@@ -109,6 +110,14 @@ class symm_trans_t {
 
    //! symmetry as string
    std::string str(bool expanded_flag) const;
+
+   //! fill mat using mol
+   void as_mat44(mmdb::mat44 *mat, mmdb::Manager *mol);
+
+   //! fill m
+   void fill_mat(mmdb::Manager *mol) {
+      as_mat44(&mat, mol);
+   }
 
 };
 

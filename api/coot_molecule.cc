@@ -3526,7 +3526,7 @@ coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::X
 
 // ----------------------------------- symmetry ----------------------------------
 
-std::vector<std::pair<symm_trans_t, Cell_Translation> >
+coot::symmetry_info_t
 coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesian &rotation_centre) const {
 
    int symmetry_shift_search_size = 2; // is 1 in graphics-info-statics
@@ -3535,7 +3535,12 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
       std::cout << "extents: " << extents << std::endl;
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans_boxes =
       extents.which_boxes(rotation_centre, atom_sel, symmetry_shift_search_size);
-   return symm_trans_boxes;
+   mmdb::realtype a[6];
+   mmdb::realtype vol;
+   int orthcode;
+   atom_sel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);   
+   Cell cell(a[0], a[1], a[2], clipper::Util::d2rad(a[3]), clipper::Util::d2rad(a[4]), clipper::Util::d2rad(a[5]));
+   return symmetry_info_t(symm_trans_boxes, cell);
 }
 
 

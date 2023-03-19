@@ -2445,12 +2445,17 @@ int test_symmetry(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::Cartesian pos(1,0,10);
-   std::vector<std::pair<symm_trans_t, Cell_Translation> > v = mc.get_symmetry(imol, 10.0, pos.x(), pos.y(), pos.z());
+   coot::symmetry_info_t si = mc.get_symmetry(imol, 10.0, pos.x(), pos.y(), pos.z());
+   std::vector<std::pair<symm_trans_t, Cell_Translation> > v = si.symm_trans;
 
    std::cout << "Got " << v.size() << " symmetry-related molecules" << std::endl;
 
-   if (! v.empty())
+   if (! v.empty()) // not a good test
       status = 1;
+
+   std::cout << "cell: " << si.cell.a << " " << si.cell.b << " " << si.cell.c << " "
+             << si.cell.alpha << " " << si.cell.beta << " " << si.cell.gamma
+             << std::endl;
 
    for (unsigned int i=0; i<v.size(); i++) {
       mmdb::mat44 my_matt;
@@ -2458,6 +2463,12 @@ int test_symmetry(molecules_container_t &mc) {
       const Cell_Translation &ct = v[i].second;
       int err = mc.get_mol(imol)->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
       std::cout << "  " << i << " " << st << " " << ct << std::endl;
+      std::cout
+         << "   " << st.mat[0][0] << " " << st.mat[0][1] << " " << st.mat[0][2] << " " << st.mat[0][3] << "\n"
+         << "   " << st.mat[1][0] << " " << st.mat[1][1] << " " << st.mat[1][2] << " " << st.mat[1][3] << "\n"
+         << "   " << st.mat[2][0] << " " << st.mat[2][1] << " " << st.mat[2][2] << " " << st.mat[2][3] << "\n"
+         << "   " << st.mat[3][0] << " " << st.mat[3][1] << " " << st.mat[3][2] << " " << st.mat[3][3] << "\n"
+         << std::endl;
    }
 
    return status;

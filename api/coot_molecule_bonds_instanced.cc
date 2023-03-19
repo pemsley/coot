@@ -27,18 +27,18 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    bool atoms_have_bigger_radius_than_bonds = false;
    if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
 
-   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octosphere_geom =
       tessellate_octasphere(num_subdivisions);
 
    // ----------------------- setup the vertices and triangles ---------------------
 
-   std::vector<coot::api::vn_vertex> local_vertices(octaphere_geom.first.size());
-   for (unsigned int i=0; i<octaphere_geom.first.size(); i++) {
-      const glm::vec3 &v(octaphere_geom.first[i]);
+   std::vector<coot::api::vn_vertex> local_vertices(octosphere_geom.first.size());
+   for (unsigned int i=0; i<octosphere_geom.first.size(); i++) {
+      const glm::vec3 &v(octosphere_geom.first[i]);
       local_vertices[i] = coot::api::vn_vertex(v, v);
    }
    ig.vertices = local_vertices;
-   ig.triangles = octaphere_geom.second;
+   ig.triangles = octosphere_geom.second;
 
    // ----------------------- setup the instances ----------------------
 
@@ -158,13 +158,64 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
    m.add(ig);
 }
 
+void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanced_mesh_t &m, const graphical_bonds_container &gbc,
+                                                                   unsigned int num_subdivisions,
+                                                                   const std::vector<glm::vec4> &colour_table,
+                                                                   const coot::protein_geometry &geom) {
+
+   coot::instanced_geometry_t ig("vdW Balls");
+
+   // ----------------------- setup the vertices and triangles ---------------------
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octosphere_geom =
+      tessellate_octasphere(num_subdivisions);
+
+   std::vector<coot::api::vn_vertex> local_vertices(octosphere_geom.first.size());
+   for (unsigned int i=0; i<octosphere_geom.first.size(); i++) {
+      const glm::vec3 &v(octosphere_geom.first[i]);
+      local_vertices[i] = coot::api::vn_vertex(v, v);
+   }
+   ig.vertices = local_vertices;
+   ig.triangles = octosphere_geom.second;
+
+   // ----------------------- setup the instances ----------------------
+
+   std::map<std::string, float> ele_to_radius_map;
+   glm::mat4 unit(1.0);
+   for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
+      glm::vec4 col = colour_table[icol];
+      for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
+         const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+         mmdb::Atom *at = at_info.atom_p;
+         std::string ele(at->element);
+         std::map<std::string, float>::const_iterator it = ele_to_radius_map.find(ele);
+         float atom_radius = 1.0;
+         if (it != ele_to_radius_map.end()) {
+            atom_radius = it->second;
+         } else {
+            std::string atom_name(at->GetAtomName());
+            std::string residue_name(at->GetResName());
+            atom_radius = geom.get_vdw_radius(atom_name, residue_name, coot::protein_geometry::IMOL_ENC_ANY, false);
+            ele_to_radius_map[ele] = atom_radius;
+         }
+
+         glm::vec3 t(at->x, at->y, at->z);
+         glm::vec3 sc(atom_radius, atom_radius, atom_radius);
+         coot::instancing_data_type_A_t id(t, col, sc);
+         ig.instancing_data_A.push_back(id);
+      }
+   }
+   m.add(ig);
+}
+
+
 void
 make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
-                           const graphical_bonds_container &gbc,
-                           float bond_radius,
-                           unsigned int n_slices,
-                           unsigned int n_stacks,
-                           const std::vector<glm::vec4> &colour_table) {
+                                     const graphical_bonds_container &gbc,
+                                     float bond_radius,
+                                     unsigned int n_slices,
+                                     unsigned int n_stacks,
+                                     const std::vector<glm::vec4> &colour_table) {
 
    auto get_bond_matrix = [] (const glm::vec3 &pos_1, const glm::vec3 &pos_2, float radius) {
                              glm::vec3 delta = pos_2 - pos_1;
@@ -307,46 +358,58 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
+   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is then passed.
+
    if (mode == "CA+LIGANDS") {
       // something
    }
 
-   std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is then passed.
+   if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
 
-   // we don't make rotamer dodecs in this function
-   makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
+      // we don't make rotamer dodecs in this function
+      makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
 
-   // get the udd_handle_bonded_type after making the bonds (because the handle is made by making the bond)
-   int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
-   if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
-      std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
-      return m;
-   } else {
-      // std::cout << "debug:: OK, udd_handle_bonded_type is " << udd_handle_bonded_type
-      // << " not " << mmdb::UDDATA_WrongUDRType << std::endl;
+      // get the udd_handle_bonded_type after making the bonds (because the handle is made by making the bond)
+      int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+      if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
+         std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
+         return m;
+      } else {
+         // std::cout << "debug:: OK, udd_handle_bonded_type is " << udd_handle_bonded_type
+         // << " not " << mmdb::UDDATA_WrongUDRType << std::endl;
+      }
+
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      if (colour_table.empty()) {
+         std::cout << "ERROR:: you need to make the bonds before getting the bonds mesh" << std::endl;
+      }
+
+      const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
+
+      unsigned int n_bonds = 0;
+      for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
+         graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol_bond];
+         n_bonds += ll.num_lines;
+      }
+
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
+                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
+                                                         bond_radius, num_subdivisions, colour_table);
+
+      make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
+
+      make_graphical_bonds_cis_peptides(m.markup, gbc);
    }
 
-   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-   if (colour_table.empty()) {
-      std::cout << "ERROR:: you need to make the bonds before getting the bonds mesh" << std::endl;
+   if (mode == "VDW_BALLS" || mode == "VDW-BALLS") {
+
+      // we don't make rotamer dodecs in this function
+      makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+
    }
-
-   const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
-
-   unsigned int n_bonds = 0;
-   for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
-      graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol_bond];
-      n_bonds += ll.num_lines;
-   }
-
-   make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                        atom_radius, bond_radius, num_subdivisions, colour_table);
-   make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                            bond_radius, num_subdivisions, colour_table);
-
-   make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
-
-   make_graphical_bonds_cis_peptides(m.markup, gbc);
 
    return m;
 

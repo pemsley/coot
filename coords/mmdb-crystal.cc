@@ -390,7 +390,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 		  //
 		  // shift extents close to origin,
 		  symm_trans_t s_t(ii, x_shift, y_shift, z_shift);
-		  
+
 		  // Now add the transformation to get from close
 		  // to the origin to point
 		  s_t.add_shift(point_unit_cell[0],
@@ -413,6 +413,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 			s_t.symm_as_string = AtomSel.mol->GetSymOp(ii);
 			// coords needs a atom_unit_cell_shift (back
 			// to origin) applied to them before s_t is applied
+                        s_t.fill_mat(AtomSel.mol);
 			std::pair<symm_trans_t, Cell_Translation> p(s_t, atom_sel_cell_trans);
 			symm_trans.push_back(p);
 // 		     } else {
@@ -1116,13 +1117,25 @@ int set_mmdb_cell_and_symm(atom_selection_container_t asc,
    if (cell_spgr.first.size() == 6) { 
       std::vector<float> a = cell_spgr.first; // short name
       asc.mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      asc.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
-      std::cout << "successfully set cell and symmetry" << std::endl;
+      asc.mol->SetSpaceGroup(cell_spgr.second.c_str());
+      std::cout << "INFO:: successfully set cell and symmetry" << std::endl;
       istat = 1;
    } else { 
       std::cout << "WARNING:: failure to set cell on this molecule" << std::endl;
    } 
    return istat;
+}
+
+
+//! fill mat
+void
+symm_trans_t::as_mat44(mmdb::mat44 *mat, mmdb::Manager *mol) {
+
+   int err = mol->GetTMatrix(*mat, symm_no, x_shift_, y_shift_, z_shift_);
+
+   if (err) {
+      std::cout << "symm_trans_t::as_mat44() failed " << std::endl;
+   }
 }
 
 

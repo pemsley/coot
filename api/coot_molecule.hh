@@ -28,6 +28,7 @@
 #include "phi-psi-prob.hh"
 
 #include "coot-utils/atom-overlaps.hh"
+#include "symmetry-info.hh" // contains cell
 
 #include "instancing.hh"
 
@@ -522,8 +523,7 @@ namespace coot {
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
 
-      std::vector<std::pair<symm_trans_t, Cell_Translation> >
-      get_symmetry(float symmetry_search_radius, const coot::Cartesian &symm_centre) const;
+      symmetry_info_t get_symmetry(float symmetry_search_radius, const coot::Cartesian &symm_centre) const;
 
       // ----------------------- model analysis functions
 

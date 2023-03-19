@@ -56,7 +56,7 @@ class Mesh {
 #endif
 
 public:
-   enum { BALL_AND_STICK, BALLS_NOT_BONDS };
+   enum { BALL_AND_STICK, BALLS_NOT_BONDS, VDW_BALLS };
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
@@ -266,7 +266,8 @@ public:
                              unsigned int num_subdivisions,
                              unsigned int n_slices,
                              unsigned int n_stacks,
-                             const std::vector<glm::vec4> &colour_table);
+                             const std::vector<glm::vec4> &colour_table,
+                             const coot::protein_geometry &geom);
    void make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
                                              int bonds_box_type,
                                              int udd_handle_bonded_type,
@@ -281,6 +282,13 @@ public:
                                                  float bond_radius,
                                                  unsigned int num_subdivisions,
                                                  const std::vector<glm::vec4> &colour_table);
+
+   // this makes Mesh depend on protein_geometry
+   void make_graphical_bonds_spherical_atoms_with_vdw_radii(const graphical_bonds_container &gbc,
+                                                            unsigned int num_subdivisions,
+                                                            const std::vector<glm::vec4> &colour_table,
+                                                            const coot::protein_geometry &geom);
+
    void make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
                                    float bond_radius,
                                    unsigned int n_slices,
