@@ -802,7 +802,7 @@ coot::side_chain_densities::get_result(bool only_probable, bool print_sequencing
          std::cout << "WARNING:: in get_result() only found " << scores.size() << " scored results" << std::endl;
       }
    } else {
-      if (print_sequencing_solutions)
+      if (print_sequencing_solutions_flag)
          print_sequencing_solutions(results_container);
    }
 
