@@ -171,14 +171,18 @@ molecules_container_t::testing_stop_long_term_job() {
 void
 molecules_container_t::read_standard_residues() {
 
+   // std::cout << "------------------ read_standard_residues() start " << std::endl;
+
    std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
 
-   const char *filename = getenv(standard_env_dir.c_str());
-   if (! filename) {
+   const char *env_var_filename = getenv(standard_env_dir.c_str());
+   if (! env_var_filename) {
 
+      // std::cout << "------------------ read_standard_residues() A " << std::endl;
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
+      // std::cout << "------------------ read_standard_residues() B " << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
@@ -197,12 +201,22 @@ molecules_container_t::read_standard_residues() {
          // stat success:
 
          // unresolved (linking related?) startup bug here:
+         // std::cout << "------------------ read_standard_residues() C " << std::endl;
          atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
-         standard_residues_asc = t_asc;
+         // std::cout << "------------------ read_standard_residues() D " << std::endl;
+         standard_residues_asc = t_asc; // Here's the problem
+#if 0
+         standard_residues_asc.mol              = t_asc.mol;
+         standard_residues_asc.n_selected_atoms = t_asc.n_selected_atoms;
+         standard_residues_asc.read_success     = t_asc.read_success;
+         standard_residues_asc.SelectionHandle  = t_asc.SelectionHandle;
+#endif
+         // std::cout << "------------------ read_standard_residues() E " << std::endl;
       }
    } else {
-      standard_residues_asc = get_atom_selection(filename, true, false, false);
+      standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
    }
+   // std::cout << "------------------ read_standard_residues() done " << std::endl;
 }
 
 
@@ -341,6 +355,17 @@ molecules_container_t::get_r_factor_stats() {
    stats.rail_points_new   = rpn_8;
    return stats;
 
+}
+
+std::string
+molecules_container_t::r_factor_stats_as_string(const molecules_container_t::r_factor_stats &rfs) const {
+
+   std::string s;
+   s += "R-factor " + std::to_string(rfs.r_factor);
+   s += " Free-R-factor " + std::to_string(rfs.free_r_factor);
+   s += " Moorhen-Points-Total  " + std::to_string(rfs.rail_points_total);
+   s += " Moorhen-Points-New  " + std::to_string(rfs.rail_points_new);
+   return s;
 }
 
 
@@ -1558,11 +1583,13 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
                                              float radius, float contour_level) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
+   auto tp_1 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
       if (is_valid_map_molecule(imol)) {
          clipper::Coord_orth position(position_x, position_y, position_z);
          if (updating_maps_info.maps_need_an_update) {
+            tp_1 = std::chrono::high_resolution_clock::now();
             update_updating_maps(updating_maps_info.imol_model);
          }
 
@@ -1574,10 +1601,13 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    catch (...) {
       std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
    }
-   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    if (show_timings) {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "---------- timings: for get_map_contours_mesh(): : " << d10 << " milliseconds " << std::endl;
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d20 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_0).count();
+      std::cout << "---------- timings: for get_map_contours_mesh(): : " << d10 << " " << d20 << " ms "
+                << "with " << d21 << " ms for sfc" << std::endl;
    }
    return mesh;
 }
@@ -1911,6 +1941,7 @@ molecules_container_t::connect_updating_maps(int imol_model, int imol_with_data_
    imol_difference_map = imol_map_fofc;
 
    // Let's force a sfcalc_genmap here.
+   updating_maps_info.maps_need_an_update = true;
    update_updating_maps(imol_model);
 
    return status;

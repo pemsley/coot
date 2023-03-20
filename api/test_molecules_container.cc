@@ -2014,7 +2014,7 @@ int test_missing_atoms_info(molecules_container_t &mc) {
    return status;
 }
 
-int test_editing_session(molecules_container_t &mc) {
+int test_editing_session_tutorial_1(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -2024,8 +2024,42 @@ int test_editing_session(molecules_container_t &mc) {
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
 
    if (mc.is_valid_model_molecule(imol)) {
+      coot::simple_mesh_t map_mesh; // just throw it away for testing
+
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+
       mc.set_imol_refinement_map(imol_map);
-      mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
+      mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FP", "SIGFP", "FREE");
+      mc.connect_updating_maps(imol, imol_map, imol_map, imol_diff_map);
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      molecules_container_t::r_factor_stats stats_1 = mc.get_r_factor_stats();
+      std::cout << "stats_1: " << mc.r_factor_stats_as_string(stats_1) << std::endl;
+
+      // debugging
+      mc.display_molecule_names_table();
+      mc.add_waters(imol, imol_map);
+
+      map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
+      molecules_container_t::r_factor_stats stats_2 = mc.get_r_factor_stats();
+      std::cout << "stats_2: " << mc.r_factor_stats_as_string(stats_2) << std::endl;
+      if (stats_2.rail_points_total > 500)
+         status = 1;
+   }
+   return status;
+}
+
+int test_editing_session_tutorial_4(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol          = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.set_imol_refinement_map(imol_map);
+      mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-4.mtz"), "F", "SIGF", "FREER");
       mc.connect_updating_maps(imol, imol_map, imol_map, imol_diff_map);
 
       // debugging
@@ -2356,8 +2390,8 @@ int test_superpose(molecules_container_t &mc) {
    std::cout << "ss_result:\n" << ss_results.alignment.second << std::endl;
 
    if (true) {
-      for (const auto chain : ss_results.alignment_info.cviv) {
-         for (const auto res : chain.rviv) {
+      for (const auto &chain : ss_results.alignment_info.cviv) {
+         for (const auto &res : chain.rviv) {
             std::cout << res.residue_spec << " " << res.function_value << std::endl;
          }
       }
@@ -2669,7 +2703,7 @@ int main(int argc, char **argv) {
    }
 
 
-   // status += run_test(test_editing_session, "an editing session",         mc);
+   status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
    // status += run_test(test_broken_function, "Something was broken",         mc);
 
@@ -2701,7 +2735,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
-   status = run_test(test_symmetry, "symmetry", mc);
+   // status = run_test(test_symmetry, "symmetry", mc);
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 

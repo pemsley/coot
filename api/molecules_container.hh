@@ -727,6 +727,8 @@ public:
 
    r_factor_stats get_r_factor_stats();
 
+   std::string r_factor_stats_as_string(const r_factor_stats &rfs) const;
+
    // -------------------------------- coordinates modelling -------------------------------
    //! \name Coordinates Modelling
 
