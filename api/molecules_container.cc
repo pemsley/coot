@@ -345,14 +345,16 @@ molecules_container_t::get_r_factor_stats() {
    int rpn_8 = calculate_new_rail_points();
    int rpt_8 = rail_points_total();
    auto latest_r_factors = get_latest_sfcalc_stats();
-   // std::cout << ":::::: Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
-   // std::cout << ":::::: R-factor " << latest_r_factors.r_factor << std::endl;
+   std::cout << ":::::: get_r_factor_stats() R-factor " << latest_r_factors.r_factor << std::endl;
+   std::cout << ":::::: get_r_factor_stats() Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
 
    r_factor_stats stats;
    stats.r_factor = latest_r_factors.r_factor;
    stats.free_r_factor = latest_r_factors.free_r_factor;
    stats.rail_points_total = rpt_8;
    stats.rail_points_new   = rpn_8;
+
+   std::cout << ":::::: get_r_factor_stats() " << r_factor_stats_as_string(stats) << std::endl;
    return stats;
 
 }
@@ -3165,12 +3167,12 @@ molecules_container_t::jed_flip(int imol, const std::string &atom_cid, bool inve
 int
 molecules_container_t::add_waters(int imol_model, int imol_map) {
 
-   int n_waters_added = 0;
+   int n_waters_added = -1;
    int ligand_water_n_cycles = 3;
    float ligand_water_to_protein_distance_lim_max = 3.4;
    float ligand_water_to_protein_distance_lim_min = 2.4;
-   float ligand_water_variance_limit = 0.12;
-   float sigma_cut_off = 2.0; // rmsd cut-off after masking
+   float ligand_water_variance_limit = 0.1;
+   float sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {

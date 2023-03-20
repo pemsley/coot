@@ -796,7 +796,7 @@ public:
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    //! add waters, updating imol_model (of course)
-   //! @return 1 on a success, 0 on failure.
+   //! @return the number of waters added on a success, -1 on failure.
    int add_waters(int imol_model, int imol_map);
 
    //! add hydrogen atoms, updating imol_model (of course)
