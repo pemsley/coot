@@ -315,7 +315,7 @@ coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
 
 short int
 coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
-				       const clipper::Xmap<float> &search_map) const {
+                                       const clipper::Xmap<float> &search_map) const {
 
    // var_limit = 0.07;
 
@@ -353,7 +353,7 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
 
    double total_var = var[0] + var[1] + var[2];
 //    std::cout << "variance test vars: " << var[0] << " " << var[1]
-// 	     << " " << var[2] << std::endl;
+//              << " " << var[2] << std::endl;
 //    std::cout << "variance test : (peak height " << peak_height << ") "
 // 	     << total_var/(peak_height*peak_height)
 // 	      << " vs. " << var_limit << std::endl;
@@ -363,7 +363,7 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
       iret = 0;
    }
 
-   std::cout << "has_sphericalish_density returns " << iret << std::endl;
+   // std::cout << "has_sphericalish_density returns " << iret << std::endl;
    return iret;
 }
 
@@ -583,13 +583,12 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
                     (chem_sensible == coot::ligand::OK_GOLDILOCKS))
                    || (do_chemically_sensible_test_flag == 0)) {
                   if (has_sphericalish_density(new_centre, xmap_cluster)) {
-                     std::cout << "is spherical " << std::endl;
                      float water_b_estimate = get_b_estimate(new_centre, xmap_cluster, map_rms);
                      auto new_centre_with_b_est = std::make_pair(new_centre, water_b_estimate);
                      water_list.push_back(new_centre_with_b_est);
                      iterator_remove_list.push_back(it);
                   } else {
-                     std::cout << "is not spherical " << new_centre.format() << std::endl;
+                     // std::cout << "INFO:: water_fit: is not spherical " << new_centre.format() << std::endl;
                   }
 
 //                } else {
