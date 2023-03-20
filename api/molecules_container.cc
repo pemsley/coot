@@ -3139,7 +3139,7 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
    float ligand_water_to_protein_distance_lim_max = 3.4;
    float ligand_water_to_protein_distance_lim_min = 2.4;
    float ligand_water_variance_limit = 0.12;
-   float sigma_cut_off = 1.0; // what is this?
+   float sigma_cut_off = 2.0; // rmsd cut-off after masking
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
