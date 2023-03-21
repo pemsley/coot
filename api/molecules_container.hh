@@ -87,6 +87,8 @@ class molecules_container_t {
                                                     // the next contouring mesh is requested.
                                                     // Checks the above information before acting, of course.
                                                     // No action if imol is the the model for updating maps.
+
+   //! update the updating maps without generating a mesh
    void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
 
    coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
