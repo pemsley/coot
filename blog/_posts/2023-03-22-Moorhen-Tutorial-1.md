@@ -1,13 +1,8 @@
 ---
 layout: post
-title:  "x"
+title: "Moorhen Tutorial 1: Fix up the Cyclin-Dependent Kinase"
 date: Wed 22 Mar 17:41:45 GMT 2023
 ---
-
-
-
-Tutorial 1: Fix up the Cyclin-Dependent Kinase
-==============================================
 
 Welcome to Moorhen ("Coot on the Web").
 
