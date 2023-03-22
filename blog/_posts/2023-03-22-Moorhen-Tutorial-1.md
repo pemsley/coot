@@ -11,7 +11,7 @@ Welcome to Moorhen ("Coot on the Web").
 ![layout](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/images/moorhen-gui-items.png)
 
 
-  - Open a web browser window and point it at [moorhen.org](moorhen.org).
+  - Open a web browser window and point it at [moorhen.org](https://moorhen.org).
 
 Let's load some data:
 
@@ -92,7 +92,7 @@ Notice that there is a green blob close to the N of A180. Maybe it would be bett
 
  - Along the bottom there is a tool drawer than can be expanded - do so.
 
-_Moorhen displays a toolbar with icons for modelling (with which you may already be familiar if you have used _Coot_)_
+_Moorhen displays a toolbar with icons for modelling (with which you may already be familiar if you have used Coot)_
 
 As you move the mouse over the icons in the toolbar, you will see a tooltip for that icon.
 
