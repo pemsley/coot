@@ -44,6 +44,15 @@ coot::molecule_t::set_colour_wheel_rotation_base(float r) {
    bonds_colour_map_rotation = r;
 }
 
+//! set the base colour - to be used as a base for colour wheel rotation
+void
+coot::molecule_t::set_base_colour_for_bonds(float r, float g, float b) {
+
+   base_colour_for_bonds = colour_holder(r,g,b);
+
+}
+
+
 void
 coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) {
 
@@ -1039,9 +1048,13 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
          float ii_f = colour_index - 50;
          ii_f += 1.2 * static_cast<float>(imol_no);
          if (against_a_dark_background) {
-            rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45; // pale/cream
+            rgb[0] = base_colour_for_bonds.red   + 0.2;
+            rgb[1] = base_colour_for_bonds.green + 0.2;
+            rgb[2] = base_colour_for_bonds.blue  + 0.3;
          } else {
-            rgb[0] = 0.5; rgb[1] = 0.3; rgb[2] = 0.1;
+            rgb[0] = base_colour_for_bonds.red;
+            rgb[1] = base_colour_for_bonds.green;
+            rgb[2] = base_colour_for_bonds.blue;
          }
          float ra = ii_f*79.0/360.0;
          ra += rotation_size;

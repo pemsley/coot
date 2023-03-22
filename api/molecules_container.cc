@@ -345,8 +345,6 @@ molecules_container_t::get_r_factor_stats() {
    int rpn_8 = calculate_new_rail_points();
    int rpt_8 = rail_points_total();
    auto latest_r_factors = get_latest_sfcalc_stats();
-   std::cout << ":::::: get_r_factor_stats() R-factor " << latest_r_factors.r_factor << std::endl;
-   std::cout << ":::::: get_r_factor_stats() Rail points G: latest_move: " << rpn_8 << " total: " << rpt_8 << std::endl;
 
    r_factor_stats stats;
    stats.r_factor = latest_r_factors.r_factor;
@@ -354,7 +352,7 @@ molecules_container_t::get_r_factor_stats() {
    stats.rail_points_total = rpt_8;
    stats.rail_points_new   = rpn_8;
 
-   std::cout << ":::::: get_r_factor_stats() " << r_factor_stats_as_string(stats) << std::endl;
+   // std::cout << ":::::: get_r_factor_stats() " << r_factor_stats_as_string(stats) << std::endl;
    return stats;
 
 }
@@ -4002,10 +4000,18 @@ molecules_container_t::set_colour_wheel_rotation_base(int imol, float r) {
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-
 }
 
 
+//! set the base colour - to be used as a base for colour wheel rotation
+void
+molecules_container_t::set_base_colour_for_bonds(int imol, float r, float g, float b) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_base_colour_for_bonds(r,g,b);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
 
 //! @return the string of the contents of the given file-name.
 std::string

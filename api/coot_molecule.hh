@@ -288,12 +288,14 @@ namespace coot {
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
 
-         map_colour = colour_holder(0.3, 0.3, 0.8);
+         map_colour = colour_holder(0.3, 0.3, 0.7);
 
          float rotate_colour_map_on_read_pdb = 0.24;
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
          while (bonds_colour_map_rotation > 360.0)
             bonds_colour_map_rotation -= 360.0;
+
+         base_colour_for_bonds = colour_holder(0.43, 0.33, 0.2);
 
          fill_default_colour_rules();
          if (false) {
@@ -457,6 +459,11 @@ namespace coot {
 
       //! set the colour wheel rotation base for the specified molecule
       void set_colour_wheel_rotation_base(float r);
+
+      coot::colour_holder base_colour_for_bonds;
+
+      //! set the base colour - to be used as a base for colour wheel rotation
+      void set_base_colour_for_bonds(float r, float g, float b);
 
       std::set<int> no_bonds_to_these_atom_indices;
 

@@ -555,6 +555,9 @@ public:
    //! set the colour wheel rotation base for the specified molecule (in degrees)
    void set_colour_wheel_rotation_base(int imol, float r);
 
+   //! set the base colour - to be used as a base for colour wheel rotation
+   void set_base_colour_for_bonds(int imol, float r, float g, float b);
+
    //! add a atom selection cid for atoms and bonds not to be drawn
    void add_to_non_drawn_bonds(int imol, const std::string &atom_selection_cid);
 
