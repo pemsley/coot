@@ -25,9 +25,12 @@ _Moorhen displays a protein model, a blue 2Fo-Fc-style map and an Fo-Fc-style ma
 For me, the molecule spins too fast as the mouse moves, so I reduce the mouse sensitivity:
 
   - **Preferences** &rarr; "Mouse Sensitivity" &rarr; 0.4
-  - Click of the dialog to make the dialog disappear.
+  - Click off the dialog to make the dialog disappear.
 
 (0.4 is my personal preference, you might like it faster or slower.)
+
+  - Similarly, you can change the thickness of the map lines if you wish
+  - Use "[" and "]" on the keyboard to adjust the radius of the density.
 
 ## Let's Go!
 
@@ -47,7 +50,11 @@ _Moorhen expands the tab to display additional information_
 
 You will see a sequence viewer - let's use that to move around the structure. Click on a few letters (that represent the residues in the protein). Notice that the map density mesh is redrawn around the new centre.
 
-See the black rectangle? Use left-mouse click and drag to move around the sequence. You can resize the rectangle to display more residue letters, but if you make it too wide it will not display any.
+See the black rectangle?
+
+  - Use left-mouse click and drag to move around the sequence.
+  
+You can resize the rectangle to display more residue letters, but if you make it too wide it will not display any.
 
   - Click on the **Ligands** tab
 
@@ -75,7 +82,7 @@ You will see that there are several interesting red spots.
 
 _Moorhen will put residue A180 at the centre of the screen_
 
-Take a look at region... (You can slide the drawer closed for a better look).
+Take a look at the region... (You can slide the drawer closed for a better look).
 
 Hmmm... the carbonyl oxygen atoms are a bit close... Are there any other Ramachandran outliers in the area?
 
@@ -261,7 +268,7 @@ _Moorhen imports the LZA ligand_
 
 OK, fine. Now let's undisplay it:
 
-  - In the drawer, the bottom card show now be the card for the newly imported ligand ("#3 Mol LZA"). Click on the eye icon to undisplay the ligand
+  - In the drawer, the bottom card should now be the card for the newly imported ligand ("#3 Mol LZA"). Click on the eye icon to undisplay the ligand
 
 _Moorhen changes the icon to an uncrossed eye and the ligand disappears_
 
@@ -291,7 +298,8 @@ _Moorhen updates the maps so that there are no difference maps peaks left on the
 
 ## Add a Water
 
- - Navigate to a water peak using Shift-Alt Left-Mouse, drag the view to the water blob without a water atom that's close to the ligand.
+  - Navigate to a water peak using Shift-Alt Left-Mouse to drag the view to the water blob.
+  - You can also use the arrow-keys to pan the view
 
 Let's add a water here
 
@@ -300,7 +308,9 @@ Let's add a water here
 
   _Moorhen adds a water at the centre of the screen_
 
-  There are several water peaks in the map similar to this. At some stage, when you add a water, you will see a the contours of negative density over part or all the water peak. What does that mean?
+There are several water peaks in the map similar to this.
+
+At some stage, when you add a water, you will see a the contours of negative density over part or all the water peak. What does that mean?
 
   ## More Validation Tools
 
@@ -314,7 +324,7 @@ _Moorhen displays interactive validation graphs._
 
  - Click on the validation bars to navigate to interesting parts of the structure and make some fixes.
 
-You should be able to collect about 1800 Moorhen points. 
+You should be able to collect about 1800 Moorhen points. Maybe more!
 
 ## Make a Pretty Picture
 
