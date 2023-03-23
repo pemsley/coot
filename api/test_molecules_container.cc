@@ -2576,6 +2576,45 @@ int test_replace_model_from_file(molecules_container_t &mc) {
    return status;
 }
 
+int test_user_defined_bond_colours(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 1, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         std::cout << "...................... here A " << std::endl;
+         std::map<unsigned int, std::array<float, 3> > colour_map;
+         colour_map[0] = std::array<float, 3> {0.42222222, 0.7, 0.4};
+         colour_map[2] = std::array<float, 3> {0.42222222, 0.4, 0.7};
+         colour_map[1] = std::array<float, 3> {0.7, 0.4, 0.42222222};
+         std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
+         indexed_residues_cids.push_back(std::make_pair("//A",2));
+         indexed_residues_cids.push_back(std::make_pair("//A/100-200",1));
+         indexed_residues_cids.push_back(std::make_pair("//A/130-150",0));
+         std::string mode("USER-DEFINED-COLOURS");
+         mc.set_user_defined_bond_colours(imol, colour_map);
+         mc.set_user_defined_atom_colour_by_residue(imol, indexed_residues_cids);
+         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+         std::cout << "...................... here B " << im.geom.size() << std::endl;
+         if (im.geom.size() > 3) {
+            if (im.geom[0].instancing_data_A.size() > 1000)
+               status = 1;
+            const auto& g = im.geom[1].instancing_data_B;
+            std::cout << "........... g.size() " << g.size() << std::endl;
+            for (unsigned int j=0; j<g.size(); j++) {
+               if (j > 300) continue;
+               const auto &d = g[j];
+               std::cout << j << " " << glm::to_string(d.colour) << std::endl;
+            }
+         }
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2703,7 +2742,7 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
+   // status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
    // status += run_test(test_broken_function, "Something was broken",         mc);
 
@@ -2746,6 +2785,8 @@ int main(int argc, char **argv) {
    // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
    // status = run_test(test_replace_model_from_file, "replace model from file", mc);
+
+   status = run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

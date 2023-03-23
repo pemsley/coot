@@ -57,18 +57,18 @@ namespace coot {
 
    static std::string b_factor_bonds_scale_handle_name;
 
-   enum bond_colour_t { COLOUR_BY_CHAIN=0,
-                        COLOUR_BY_CHAIN_C_ONLY=20,
-                        COLOUR_BY_CHAIN_GOODSELL=21,
-                        COLOUR_BY_ATOM_TYPE=1,
-                        COLOUR_BY_SEC_STRUCT=2,
-                        DISULFIDE_COLOUR=3,
-                        COLOUR_BY_MOLECULE=4,
-                        COLOUR_BY_RAINBOW=5,
-                        COLOUR_BY_OCCUPANCY=6,
-                        COLOUR_BY_B_FACTOR=7,
-                        COLOUR_BY_USER_DEFINED_COLOURS=8,
-                        COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN=9 };
+   enum coords_bond_colour_t { COLOUR_BY_CHAIN=0,
+      COLOUR_BY_CHAIN_C_ONLY=20,
+      COLOUR_BY_CHAIN_GOODSELL=21,
+      COLOUR_BY_ATOM_TYPE=1,
+      COLOUR_BY_SEC_STRUCT=2,
+      DISULFIDE_COLOUR=3,
+      COLOUR_BY_MOLECULE=4,
+      COLOUR_BY_RAINBOW=5,
+      COLOUR_BY_OCCUPANCY=6,
+      COLOUR_BY_B_FACTOR=7,
+      COLOUR_BY_USER_DEFINED_COLOURS=8,
+      COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN=9 };
 
    enum hydrophobic_side_chain_t {
                                   HYDROPHOBIC_TYPE_MAIN_CHAIN,

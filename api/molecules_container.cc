@@ -1562,7 +1562,7 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                               int smoothness_factor) {
    bool draw_hydrogen_atoms_flag = true; // pass this
 
-   auto tp_0 = std::chrono::high_resolution_clock::now();
+   // auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
@@ -1574,6 +1574,29 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    }
    return im;
 }
+
+//! user-defined colour-index to colour
+void
+molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_user_defined_bond_colours(colour_map);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! user-defined atom selection to colour index
+void
+molecules_container_t::set_user_defined_atom_colour_by_residue(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_user_defined_atom_colour_by_residue(indexed_residues_cids);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
 
 
 

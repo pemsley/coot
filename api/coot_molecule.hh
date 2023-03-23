@@ -35,19 +35,19 @@
 namespace coot {
 
    // give this a type
-   enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
-          COLOUR_BY_CHAIN_BONDS=3,
-          CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
-          BONDS_NO_HYDROGENS=15,
-          CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
-          CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
-          CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
-          COLOUR_BY_MOLECULE_BONDS=8,
-          COLOUR_BY_RAINBOW_BONDS=9,
-          COLOUR_BY_B_FACTOR_BONDS=10,
-          COLOUR_BY_OCCUPANCY_BONDS=11,
-          COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
-          COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
+   enum api_bond_colour_t { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
+      COLOUR_BY_CHAIN_BONDS=3,
+      CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+      BONDS_NO_HYDROGENS=15,
+      CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+      CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+      CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
+      COLOUR_BY_MOLECULE_BONDS=8,
+      COLOUR_BY_RAINBOW_BONDS=9,
+      COLOUR_BY_B_FACTOR_BONDS=10,
+      COLOUR_BY_OCCUPANCY_BONDS=11,
+      COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
+      COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
 
    class molecule_t {
 
@@ -102,7 +102,8 @@ namespace coot {
       std::map<residue_spec_t, int> current_rotamer_map;
 
       // private
-      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p, std::set<int> &no_bonds_to_these_atoms,
+      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p,
+                     const std::set<int> &no_bonds_to_these_atoms,
                      bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
 
 #if defined __has_builtin
@@ -456,6 +457,15 @@ namespace coot {
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
+
+      // adding colours using the functions below add into user_defined_colours
+      std::vector<coot::colour_holder> user_defined_bond_colours;
+
+      //! user-defined colour-index to colour
+      void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
+
+      //! user-defined atom selection to colour index
+      void set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids);
 
       //! set the colour wheel rotation base for the specified molecule
       void set_colour_wheel_rotation_base(float r);

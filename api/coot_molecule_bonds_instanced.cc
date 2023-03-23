@@ -356,7 +356,15 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       n_slices = 32;
    }
 
+   if (smoothness_factor == 4) {
+      num_subdivisions = 4;
+      n_slices = 64;
+   }
+
+
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+   std::cout << "---------------  in get_bonds_mesh_instanced() A mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+   std::cout << "---------------  in get_bonds_mesh_instanced() B mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
 
    std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is not passed.
 
@@ -372,6 +380,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
    }
 
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
+
+      // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
 
       // we don't make rotamer dodecs in this function
       makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
@@ -406,10 +416,37 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
    if (mode == "VDW_BALLS" || mode == "VDW-BALLS") {
 
       // we don't make rotamer dodecs in this function
+      // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
       makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
       make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
 
+   }
+
+   if (mode == "USER-DEFINED-COLOURS") {
+
+      std::cout << "---------------  in get_bonds_mesh_instanced() C mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      bool force_rebond = true;
+      bool do_rotamer_markup = false; // pass this
+      // don't do rotamer dodecs
+      int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+      // as above
+      if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
+         std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
+         return m;
+      }
+      std::cout << "---------------  in get_bonds_mesh_instanced() D mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      make_colour_by_chain_bonds(geom, no_bonds_to_these_atoms, true, false, draw_hydrogen_atoms_flag,
+                                 draw_missing_residue_loops_flag, do_rotamer_markup, nullptr, force_rebond);
+      bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
+      std::cout << "---------------  in get_bonds_mesh_instanced() E mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type,
+                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type, atom_radius,
+                                                         bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+      make_graphical_bonds_cis_peptides(m.markup, bonds_box);
    }
 
    return m;

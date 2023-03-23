@@ -564,8 +564,14 @@ public:
    //! clear the set of non-drawn atoms (so that they can be displayed again)
    void clear_non_drawn_bonds(int imol);
 
-   //! Add a colour rule
-   //!
+   //! user-defined colour-index to colour
+   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
+
+   //! user-defined atom selection to colour index
+   void set_user_defined_atom_colour_by_residue(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids);
+
+   //! Add a colour rule for M2T representations
+   //
    void add_colour_rule(int imol, const std::string &selection_cid, const std::string &colour);
 
    //! add multiple colour rules, combined like the following "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007"
