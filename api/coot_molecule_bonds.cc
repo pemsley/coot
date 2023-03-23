@@ -270,8 +270,9 @@ coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p,
 
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
       makebonds(geom_p, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
-   if (bonds_box_type == coot::CA_BONDS)
-      make_ca_bonds();
+   // make_ca_bonds() hasn't been written yet.
+   // if (bonds_box_type == coot::CA_BONDS)
+   //    make_ca_bonds();
    if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS || bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
       // Baah, we have to use the static in graphics_info_t here as it
       // is not a per-molecule property.

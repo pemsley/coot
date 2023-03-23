@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <atomic>
+#include <array>
 
 #include <clipper/core/xmap.h>
 #include "coot-utils/atom-selection-container.hh"
