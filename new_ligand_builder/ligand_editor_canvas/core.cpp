@@ -54,6 +54,9 @@ void WidgetCoreData::undo_edition() {
         this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
         this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
         update_status("");
+        // this is done elsewhere
+        // auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+        // gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
     } else {
         //g_debug("Nothing to be undone. Stack size: %zu Stack pos: %i",this->state_stack->size(),this->state_stack_pos);
         update_status("Nothing to be undone.");
@@ -122,5 +125,8 @@ void WidgetCoreData::finalize_edition() {
             //g_debug("Stack size after trim: %zu",this->state_stack->size());
         }
         this->state_stack->push_back(std::move(this->state_before_edition));
+
+        auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
     }
 }

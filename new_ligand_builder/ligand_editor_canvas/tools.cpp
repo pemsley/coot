@@ -286,16 +286,133 @@ void ActiveTool::insert_structure(int x, int y) {
     check_variant(Variant::StructureInsertion);
     g_warning("TODO: Implement ActiveTool::insert_structure");
     auto click_result = this->widget_data->resolve_click(x, y);
+    using Structure = StructureInsertion::Structure;
+    auto structure_kind = this->structure_insertion.get_structure();
     if(click_result.has_value()) {
-        try{
+        try {
+            this->widget_data->begin_edition();
             auto [bond_or_atom,molecule_idx] = click_result.value();
+            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+            RDKit::MolOps::Kekulize(*rdkit_mol.get());
+
+            auto append_carbon = [&](unsigned int target_idx, RDKit::Bond::BondType bond_type = RDKit::Bond::SINGLE) -> unsigned int {
+                RDKit::Atom* new_carbon = new RDKit::Atom(6);
+                auto new_carbon_idx = rdkit_mol->addAtom(new_carbon,false,true);
+                rdkit_mol->addBond(target_idx,new_carbon_idx,bond_type);
+                return new_carbon_idx;
+            };
+
+            auto append_carbon_chain = [&](unsigned int chain_start_idx, std::size_t atom_count) -> unsigned int {
+                unsigned int current_atom = chain_start_idx;
+                for(std::size_t i = 0; i < atom_count; i++) {
+                    current_atom = append_carbon(current_atom);
+                }
+                return current_atom;
+            };
+
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                
+                auto first_carbon = append_carbon(atom.idx);
+                switch (structure_kind) {
+                    case Structure::CycloPropaneRing: {
+                        auto third_carbon = append_carbon_chain(first_carbon,2);
+                        rdkit_mol->addBond(first_carbon,third_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloButaneRing: {
+                        auto last_carbon = append_carbon_chain(first_carbon,3);
+                        rdkit_mol->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloPentaneRing: {
+                        auto last_carbon = append_carbon_chain(first_carbon,4);
+                        rdkit_mol->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloHexaneRing: {
+                        auto last_carbon = append_carbon_chain(first_carbon,5);
+                        rdkit_mol->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::BenzeneRing: {
+                        auto second_carbon = append_carbon(first_carbon);
+                        auto third_carbon = append_carbon(second_carbon,RDKit::Bond::DOUBLE);
+                        auto fourth_carbon = append_carbon(third_carbon);
+                        auto fifth_carbon = append_carbon(fourth_carbon,RDKit::Bond::DOUBLE);
+                        auto sixth_carbon = append_carbon(fifth_carbon);
+                        rdkit_mol->addBond(first_carbon,sixth_carbon,RDKit::Bond::DOUBLE);
+                        break;
+                    }
+                    case Structure::CycloHeptaneRing: {
+                        auto last_carbon = append_carbon_chain(first_carbon,6);
+                        rdkit_mol->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloOctaneRing: {
+                        auto last_carbon = append_carbon_chain(first_carbon,7);
+                        rdkit_mol->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                }
+                this->widget_data->update_status("Carbon ring has been appended to the atom.");
+
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                auto last_carbon = bond.second_atom_idx;
+                auto first_carbon = bond.first_atom_idx;
+                switch (structure_kind) {
+                    case Structure::CycloPropaneRing: {
+                        auto second_carbon = append_carbon(first_carbon);
+                        rdkit_mol->addBond(second_carbon,last_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloButaneRing: {
+                        auto fourth_carbon = append_carbon_chain(first_carbon,2);
+                        rdkit_mol->addBond(last_carbon,fourth_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloPentaneRing: {
+                        auto fifth_carbon = append_carbon_chain(first_carbon,3);
+                        rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloHexaneRing: {
+                        auto sixth_carbon = append_carbon_chain(first_carbon,4);
+                        rdkit_mol->addBond(last_carbon,sixth_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::BenzeneRing: {
+                        auto second_carbon = append_carbon(first_carbon,RDKit::Bond::DOUBLE);
+                        auto third_carbon = append_carbon(second_carbon);
+                        auto fourth_carbon = append_carbon(third_carbon,RDKit::Bond::DOUBLE);
+                        auto fifth_carbon = append_carbon(fourth_carbon);
+                        rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::DOUBLE);
+                        break;
+                    }
+                    case Structure::CycloHeptaneRing: {
+                        auto seventh_carbon = append_carbon_chain(first_carbon,5);
+                        rdkit_mol->addBond(last_carbon,seventh_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                    case Structure::CycloOctaneRing: {
+                        auto eigth_carbon = append_carbon_chain(first_carbon,6);
+                        rdkit_mol->addBond(last_carbon,eigth_carbon,RDKit::Bond::SINGLE);
+                        break;
+                    }
+                }
+
+                this->widget_data->update_status("Carbon ring has been added, adjacent to the bond.");
             }
+            RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            canvas_mol.lower_from_rdkit();
+            this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            std::string status_msg = "Coud not insert structure: "; status_msg += e.what();
+            this->widget_data->update_status(status_msg.c_str());
+            this->widget_data->rollback_current_edition();
         }
     } else {
         // Nothing has been clicked on.
