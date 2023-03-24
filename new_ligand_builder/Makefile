@@ -9,7 +9,7 @@ CXXFLAGS= \
    -I$(COOT_DIR)/include/coot \
    -I/usr/include/rdkit \
    `pkg-config --cflags gtk4` \
-   -ggdb -O2 -march=native -std=c++17
+   -ggdb -O2 -march=native -std=c++20
 # `pkg-config --cflags epoxy` 
 # `pkg-config --cflags clipper` 
 
