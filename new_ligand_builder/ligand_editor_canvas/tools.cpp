@@ -67,6 +67,10 @@ StructureInsertion::StructureInsertion(StructureInsertion::Structure st) noexcep
 
 }
 
+StructureInsertion::Structure StructureInsertion::get_structure() const noexcept {
+    return this->structure;
+}
+
 
 CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
     switch (this->mode) {

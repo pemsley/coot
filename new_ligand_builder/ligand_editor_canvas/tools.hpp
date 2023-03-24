@@ -72,7 +72,6 @@ class StructureInsertion {
         CycloOctaneRing,
         // todo:
         // "env residues"
-        // "key"
 
     };
     private:
@@ -80,6 +79,8 @@ class StructureInsertion {
 
     public:
     StructureInsertion(Structure) noexcept;
+
+    Structure get_structure() const noexcept;
 
 };
 
