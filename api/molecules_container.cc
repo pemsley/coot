@@ -616,6 +616,24 @@ molecules_container_t::read_mtz(const std::string &file_name,
    return imol;
 }
 
+int
+molecules_container_t::replace_molecule_by_mtz_from_file(int imol,
+                                                         const std::string &file_name, const std::string &f, const std::string &phi,
+                                                         const std::string &weight, bool use_weight) {
+
+   int status = 0;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Xmap<float> &xmap = molecules[imol].xmap;
+      status = coot::util::map_fill_from_mtz(&xmap, file_name, f, phi, weight, use_weight, map_sampling_rate);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+}
+
+
+
 #include "coot-utils/cmtz-interface.hh"
 #include "coot-utils/mtz-column-auto-read.hh"
 

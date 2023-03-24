@@ -1309,20 +1309,20 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
    bool debug_colour_table = false;
 
-   std::cout << "................... in make_colour_table() A " << bonds_box_type << std::endl;
+   // std::cout << "................... in make_colour_table() A " << bonds_box_type << std::endl;
 
    std::vector<glm::vec4> colour_table;
    if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS ||
        bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
 
-      std::cout << "................... in make_colour_table() HERE B " << bonds_box_type << std::endl;
-      
+      // std::cout << "................... in make_colour_table() HERE B " << bonds_box_type << std::endl;
+
       colour_table.resize(user_defined_bond_colours.size());
       for (unsigned int i=0; i<user_defined_bond_colours.size(); i++) {
          colour_table[i] = colour_holder_to_glm(user_defined_bond_colours[i]);
       }
    } else {
-      std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
+      // std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
       colour_table = std::vector<glm::vec4>(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
       for (int icol=0; icol<bonds_box.num_colours; icol++) {
          if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
