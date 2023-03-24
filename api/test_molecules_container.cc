@@ -2615,6 +2615,16 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
    return status;
 }
 
+int test_replace_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.replace_molecule_by_mtz_from_file(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false);
+   status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2786,7 +2796,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_replace_model_from_file, "replace model from file", mc);
 
-   status = run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
+   // status = run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
+
+   status = run_test(test_replace_map, "replace map from mtz", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
