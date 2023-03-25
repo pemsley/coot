@@ -638,9 +638,9 @@ molecules_container_t::read_mtz(const std::string &file_name,
 }
 
 int
-molecules_container_t::replace_molecule_by_mtz_from_file(int imol,
-                                                         const std::string &file_name, const std::string &f, const std::string &phi,
-                                                         const std::string &weight, bool use_weight) {
+molecules_container_t::replace_map_by_mtz_from_file(int imol,
+                                                    const std::string &file_name, const std::string &f, const std::string &phi,
+                                                    const std::string &weight, bool use_weight) {
 
    int status = 0;
    if (is_valid_map_molecule(imol)) {

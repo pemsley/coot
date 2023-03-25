@@ -694,8 +694,8 @@ public:
                 bool use_weight, bool is_a_difference_map);
 
    //! replace map
-   int replace_molecule_by_mtz_from_file(int imol, const std::string &file_name, const std::string &f, const std::string &phi,
-                                         const std::string &weight, bool use_weight);
+   int replace_map_by_mtz_from_file(int imol, const std::string &file_name, const std::string &f, const std::string &phi,
+                                    const std::string &weight, bool use_weight);
 
    //! Read the given mtz file.
    //! @return a vector of the maps created from reading the file

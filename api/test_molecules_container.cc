@@ -2620,7 +2620,7 @@ int test_replace_map(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
-   mc.replace_molecule_by_mtz_from_file(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false);
+   mc.replace_map_by_mtz_from_file(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false);
    status = 1;
    return status;
 }
