@@ -572,6 +572,27 @@ molecules_container_t::get_monomer_and_position_at(const std::string &comp_id, i
 }
 
 
+//! return the group for the give list of residue names
+std::vector<std::string>
+molecules_container_t::get_groups_for_monomers(const std::vector<std::string> &residue_names) const {
+
+   std::vector<std::string> v;
+   std::vector<std::string>::const_iterator it;
+   for (it=residue_names.begin(); it!=residue_names.end(); ++it) {
+      v.push_back(geom.get_group(*it));
+   }
+   return v;
+}
+
+//! return the group for the give residue name
+std::string
+molecules_container_t::get_group_for_monomer(const std::string &residue_name) const {
+
+   std::string s = geom.get_group(residue_name);
+   return s;
+}
+
+
 // 20221030-PE nice to have one day
 // int
 // molecules_container_t::get_monomer_molecule_by_network(const std::string &text) {

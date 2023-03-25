@@ -2625,6 +2625,26 @@ int test_replace_map(molecules_container_t &mc) {
    return status;
 }
 
+int test_residue_name_group(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.get_monomer("BGC");
+
+   std::string g1 = mc.get_group_for_monomer("PHE");
+   std::string g2 = mc.get_group_for_monomer("BGC");
+
+   std::cout << "g1: " << g1 << std::endl;
+   std::cout << "g2: " << g2 << std::endl;
+
+   if (g1 == "peptide")
+      if (g2 == "pyranose")
+         status = 1;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2798,7 +2818,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
 
-   status = run_test(test_replace_map, "replace map from mtz", mc);
+   // status = run_test(test_replace_map, "replace map from mtz", mc);
+
+   status = run_test(test_residue_name_group, "residue name group", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

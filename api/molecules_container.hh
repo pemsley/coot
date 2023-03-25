@@ -483,6 +483,12 @@ public:
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
+   //! return the group for the give list of residue names
+   std::vector<std::string> get_groups_for_monomers(const std::vector<std::string> &residue_names) const;
+
+   //! return the group for the give residue name
+   std::string get_group_for_monomer(const std::string &residue_name) const;
+
    //! write the coordinate to the give file name
    //! @return 1 on success and 0 on failure
    int write_coordinates(int imol, const std::string &file_name) const;
