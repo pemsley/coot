@@ -167,6 +167,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
                                               const clipper::Cell &cell_for_fobs,
                                               clipper::Xmap<float> *xmap_2fofc_p,
                                               clipper::Xmap<float> *xmap_fofc_p) {
+   bool show_timings = false; // pass this?
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -358,7 +359,6 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       printf(" $$\n");
    }
 
-   bool show_timings = true;
    if (show_timings) {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
