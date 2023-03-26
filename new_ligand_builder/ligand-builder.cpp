@@ -1,11 +1,13 @@
 #include "ligand-builder.hpp"
 #include "gtk/gtktypebuiltins.h"
 #include "ligand_editor_canvas.hpp"
+#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <gtk/gtk.h>
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
+#include <rdkit/GraphMol/FileParsers/FileParsers.h>
 
 using namespace coot::ligand_editor;
 /// Structure holding the state of the editor
@@ -106,7 +108,40 @@ void LigandBuilderState::file_save_as() {
 }
 
 void LigandBuilderState::file_open() {
-    g_warning("TODO: Implement void LigandBuilderState::file_open()");
+    auto* open_dialog = gtk_file_dialog_new();
+    gtk_file_dialog_open(open_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
+        GError** e = NULL;
+        GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(source_object), res, e);
+        LigandBuilderState* self = (LigandBuilderState*) user_data;
+        if(file) {
+            //g_info("I have a file");
+            const char* path = g_file_get_path(file);
+            try {
+                RDKit::RWMol* mol = RDKit::MolFileToMol(std::string(path),true,false,false);
+                if(!mol) {
+                    throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
+                }
+                g_info("MolFile Import: Molecule constructed.");
+                self->append_molecule(mol);
+            } catch(std::exception& e) {
+                g_warning("SMILES Import error: %s",e.what());
+                auto* message = gtk_message_dialog_new(
+                    GTK_WINDOW(source_object), 
+                    GTK_DIALOG_DESTROY_WITH_PARENT, 
+                    GTK_MESSAGE_ERROR, 
+                    GTK_BUTTONS_CLOSE, 
+                    "Error: Molecule could not be loaded.\n%s", 
+                    e.what()
+                );
+            }
+            g_object_unref(file);
+        }
+        if(e) {
+            g_info("Open File: No file was given.");
+            g_object_unref(*e);
+        }
+    }, this);
+
 }
 
 void LigandBuilderState::file_export(ExportMode mode) {
@@ -137,4 +172,5 @@ void LigandBuilderState::edit_redo() {
 
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win) {
     global_instance = new LigandBuilderState(canvas,win);
+    g_info("Global instance of LigandBuilderState has been initialized at: %p",global_instance);
 }
