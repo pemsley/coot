@@ -347,3 +347,16 @@ void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
+
+const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
+    if(self->rdkit_molecules->size() > index) {
+        const auto& vec = *self->rdkit_molecules.get();
+        return vec[index].get();
+    } else {
+        return nullptr;
+    }
+}
+
+unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept {
+    return self->rdkit_molecules->size();
+}

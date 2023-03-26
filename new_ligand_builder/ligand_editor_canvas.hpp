@@ -23,4 +23,10 @@ float coot_ligand_editor_get_scale(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept;
 
+/// Returns the pointer to the molecule with the given index or nullptr when index is out of range.
+///
+/// Canvas owns the returned pointer
+const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
+unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept;
+
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP

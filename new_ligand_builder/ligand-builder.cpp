@@ -100,11 +100,44 @@ void LigandBuilderState::file_new() {
 }
 
 void LigandBuilderState::file_save() {
-    g_warning("TODO: Implement void LigandBuilderState::file_save()");
+    g_warning("TODO: Finish implementing void LigandBuilderState::file_save()");
+    file_save_as();
+
 }
 
 void LigandBuilderState::file_save_as() {
-    g_warning("TODO: Implement void LigandBuilderState::file_save_as()");
+    g_warning("TODO: Finish mplementing void LigandBuilderState::file_save_as()");
+    auto* save_dialog = gtk_file_dialog_new();
+    gtk_file_dialog_save(save_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
+        GError** e = NULL;
+        GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
+        LigandBuilderState* self = (LigandBuilderState*) user_data;
+        if(file) {
+            //g_info("I have a file");
+            const char* path = g_file_get_path(file);
+            try {
+                /// todo: Add support for multiple molecules
+                const auto* mol = coot_ligand_editor_get_rdkit_molecule(self->canvas, 0);
+                RDKit::MolToMolFile(*mol,std::string(path));
+                g_info("MolFile Save: Molecule file saved.");
+            } catch(std::exception& e) {
+                g_warning("MolFile Save error: %s",e.what());
+                auto* message = gtk_message_dialog_new(
+                    GTK_WINDOW(source_object), 
+                    GTK_DIALOG_DESTROY_WITH_PARENT, 
+                    GTK_MESSAGE_ERROR, 
+                    GTK_BUTTONS_CLOSE, 
+                    "Error: Molecule could not be saved to file.\n%s", 
+                    e.what()
+                );
+            }
+            g_object_unref(file);
+        }
+        if(e) {
+            g_info("Save File: No file was given.");
+            g_object_unref(*e);
+        }
+    }, this);
 }
 
 void LigandBuilderState::file_open() {
@@ -124,7 +157,7 @@ void LigandBuilderState::file_open() {
                 g_info("MolFile Import: Molecule constructed.");
                 self->append_molecule(mol);
             } catch(std::exception& e) {
-                g_warning("SMILES Import error: %s",e.what());
+                g_warning("MolFile Import error: %s",e.what());
                 auto* message = gtk_message_dialog_new(
                     GTK_WINDOW(source_object), 
                     GTK_DIALOG_DESTROY_WITH_PARENT, 
