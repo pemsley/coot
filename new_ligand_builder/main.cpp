@@ -7,7 +7,7 @@
 
 
 
-void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
+void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel* status_label) {
     using namespace coot::ligand_editor_canvas;
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
@@ -254,12 +254,11 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas) {
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
 
-    GtkWidget* status_label = gtk_label_new("");
-    gtk_widget_set_margin_start(status_label, 10);
-    gtk_widget_set_margin_end(status_label, 10);
-    gtk_widget_set_halign(status_label, GTK_ALIGN_START);
+    gtk_widget_set_margin_start(GTK_WIDGET(status_label), 10);
+    gtk_widget_set_margin_end(GTK_WIDGET(status_label), 10);
+    gtk_widget_set_halign(GTK_WIDGET(status_label), GTK_ALIGN_START);
 
-    gtk_box_append(GTK_BOX(mainbox),status_label);
+    gtk_box_append(GTK_BOX(mainbox),GTK_WIDGET(status_label));
     g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
         gtk_label_set_text(GTK_LABEL(user_data), status_text);
     }), status_label);
@@ -384,10 +383,11 @@ int main() {
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
         gtk_window_set_application(GTK_WINDOW(win),app);
         auto* canvas = coot_ligand_editor_canvas_new();
-        coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win));
+        GtkWidget* status_label = gtk_label_new("");
+        coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
         gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas,GTK_WINDOW(win))));
         gtk_application_add_window(app,GTK_WINDOW(win));
-        build_main_window(GTK_WINDOW(win),canvas);
+        build_main_window(GTK_WINDOW(win),canvas,GTK_LABEL(status_label));
         gtk_window_present(GTK_WINDOW(win));
 
     }),NULL);

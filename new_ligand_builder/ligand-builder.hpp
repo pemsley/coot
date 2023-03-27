@@ -22,13 +22,17 @@ class LigandBuilderState {
     CootLigandEditorCanvas* canvas;
     /// Owned by glib/gtk
     GtkWindow* main_window;
+    /// Owned by glib/gtk
+    GtkLabel* status_label;
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
     void append_molecule(RDKit::RWMol* molecule_ptr);
 
+    void update_status(const char* new_status) noexcept;
+
     public:
-    LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window) noexcept;
+    LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
     
     // FILE
     void load_from_smiles();
@@ -51,7 +55,7 @@ class LigandBuilderState {
 /// Could by used by Coot as well.
 inline LigandBuilderState* global_instance;
 
-void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win);
+void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 
 } // namespace coot::ligand_editor
 

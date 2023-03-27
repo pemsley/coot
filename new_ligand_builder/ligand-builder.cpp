@@ -12,9 +12,16 @@
 using namespace coot::ligand_editor;
 /// Structure holding the state of the editor
 
-LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win) noexcept {
+LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->canvas = canvas_widget;
     this->main_window = win;
+    this->status_label = status_label;
+}
+
+void LigandBuilderState::update_status(const char* new_status) noexcept {
+    if(this->status_label) {
+        gtk_label_set_text(this->status_label, new_status);
+    }
 }
 
 void LigandBuilderState::append_molecule(RDKit::RWMol* molecule_ptr) {
@@ -120,6 +127,7 @@ void LigandBuilderState::file_save_as() {
                 const auto* mol = coot_ligand_editor_get_rdkit_molecule(self->canvas, 0);
                 RDKit::MolToMolFile(*mol,std::string(path));
                 g_info("MolFile Save: Molecule file saved.");
+                self->update_status("File saved.");
             } catch(std::exception& e) {
                 g_warning("MolFile Save error: %s",e.what());
                 auto* message = gtk_message_dialog_new(
@@ -203,7 +211,7 @@ void LigandBuilderState::edit_redo() {
     coot_ligand_editor_redo_edition(this->canvas);
 }
 
-void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win) {
-    global_instance = new LigandBuilderState(canvas,win);
+void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
+    global_instance = new LigandBuilderState(canvas,win,status_label);
     g_info("Global instance of LigandBuilderState has been initialized at: %p",global_instance);
 }
