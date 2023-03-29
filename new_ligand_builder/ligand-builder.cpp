@@ -109,16 +109,37 @@ void LigandBuilderState::file_new() {
 }
 
 void LigandBuilderState::file_save() {
-    g_warning("TODO: Finish implementing void LigandBuilderState::file_save()");
     if(this->current_filesave_filename.has_value() && this->current_filesave_molecule.has_value()) {
-
+        save_file(this->current_filesave_molecule.value(), this->current_filesave_filename->c_str());
     } else {
         file_save_as();
     }
 
 }
 
-void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) {
+void LigandBuilderState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
+    try {
+        const auto* mol = coot_ligand_editor_get_rdkit_molecule(this->canvas, idx);
+        RDKit::MolToMolFile(*mol,std::string(filename));
+        g_info("MolFile Save: Molecule file saved.");
+        this->update_status("File saved.");
+        this->current_filesave_filename = std::string(filename);
+        this->current_filesave_molecule = idx;
+    } catch(std::exception& e) {
+        g_warning("MolFile Save error: %s",e.what());
+        auto* message = gtk_message_dialog_new(
+            parent, 
+            GTK_DIALOG_DESTROY_WITH_PARENT, 
+            GTK_MESSAGE_ERROR, 
+            GTK_BUTTONS_CLOSE, 
+            "Error: Molecule could not be saved to file.\n%s", 
+            e.what()
+        );
+        gtk_widget_show(message);
+    }
+}
+
+void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcept{
     auto* save_dialog = gtk_file_dialog_new();
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.
@@ -131,25 +152,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) {
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
-            try {
-                const auto* mol = coot_ligand_editor_get_rdkit_molecule(self->canvas, molecule_idx);
-                RDKit::MolToMolFile(*mol,std::string(path));
-                g_info("MolFile Save: Molecule file saved.");
-                self->update_status("File saved.");
-                self->current_filesave_filename = std::string(path);
-                self->current_filesave_molecule = molecule_idx;
-            } catch(std::exception& e) {
-                g_warning("MolFile Save error: %s",e.what());
-                auto* message = gtk_message_dialog_new(
-                    GTK_WINDOW(source_object), 
-                    GTK_DIALOG_DESTROY_WITH_PARENT, 
-                    GTK_MESSAGE_ERROR, 
-                    GTK_BUTTONS_CLOSE, 
-                    "Error: Molecule could not be saved to file.\n%s", 
-                    e.what()
-                );
-                gtk_widget_show(message);
-            }
+            self->save_file(molecule_idx, path,GTK_WINDOW(source_object));
             g_object_unref(file);
         }
         if(e) {
@@ -160,7 +163,6 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) {
 }
 
 void LigandBuilderState::file_save_as() {
-    g_warning("TODO: Finish mplementing void LigandBuilderState::file_save_as()");
     auto mol_count = coot_ligand_editor_get_molecule_count(this->canvas);
     if(mol_count == 1) {
         run_file_save_dialog(1);

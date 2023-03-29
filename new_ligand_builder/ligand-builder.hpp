@@ -34,7 +34,8 @@ class LigandBuilderState {
 
     void update_status(const char* new_status) noexcept;
 
-    void run_file_save_dialog(unsigned int molecule_idx);
+    void save_file(unsigned int idx, const char* filename, GtkWindow* parent = nullptr) noexcept;
+    void run_file_save_dialog(unsigned int molecule_idx) noexcept;
 
     public:
     LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
