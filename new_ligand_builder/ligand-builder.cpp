@@ -1,4 +1,5 @@
 #include "ligand-builder.hpp"
+#include "glibconfig.h"
 #include "gtk/gtktypebuiltins.h"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
@@ -8,6 +9,7 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
+#include <string>
 
 using namespace coot::ligand_editor;
 /// Structure holding the state of the editor
@@ -108,26 +110,34 @@ void LigandBuilderState::file_new() {
 
 void LigandBuilderState::file_save() {
     g_warning("TODO: Finish implementing void LigandBuilderState::file_save()");
-    file_save_as();
+    if(this->current_filesave_filename.has_value() && this->current_filesave_molecule.has_value()) {
+
+    } else {
+        file_save_as();
+    }
 
 }
 
-void LigandBuilderState::file_save_as() {
-    g_warning("TODO: Finish mplementing void LigandBuilderState::file_save_as()");
+void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) {
     auto* save_dialog = gtk_file_dialog_new();
+    // This isn't the best practice but it tremendously simplifies things
+    // by saving us from unnecessary boilerplate.
+    g_object_set_data(G_OBJECT(save_dialog), "ligand_builder_instance", this);
     gtk_file_dialog_save(save_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
         GError** e = NULL;
         GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
-        LigandBuilderState* self = (LigandBuilderState*) user_data;
+        unsigned int molecule_idx = GPOINTER_TO_UINT(user_data);
+        LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
             try {
-                /// todo: Add support for multiple molecules
-                const auto* mol = coot_ligand_editor_get_rdkit_molecule(self->canvas, 0);
+                const auto* mol = coot_ligand_editor_get_rdkit_molecule(self->canvas, molecule_idx);
                 RDKit::MolToMolFile(*mol,std::string(path));
                 g_info("MolFile Save: Molecule file saved.");
                 self->update_status("File saved.");
+                self->current_filesave_filename = std::string(path);
+                self->current_filesave_molecule = molecule_idx;
             } catch(std::exception& e) {
                 g_warning("MolFile Save error: %s",e.what());
                 auto* message = gtk_message_dialog_new(
@@ -138,6 +148,7 @@ void LigandBuilderState::file_save_as() {
                     "Error: Molecule could not be saved to file.\n%s", 
                     e.what()
                 );
+                gtk_widget_show(message);
             }
             g_object_unref(file);
         }
@@ -145,7 +156,75 @@ void LigandBuilderState::file_save_as() {
             g_info("Save File: No file was given.");
             g_object_unref(*e);
         }
-    }, this);
+    }, GUINT_TO_POINTER(molecule_idx));
+}
+
+void LigandBuilderState::file_save_as() {
+    g_warning("TODO: Finish mplementing void LigandBuilderState::file_save_as()");
+    auto mol_count = coot_ligand_editor_get_molecule_count(this->canvas);
+    if(mol_count == 1) {
+        run_file_save_dialog(1);
+    } else if(mol_count == 0) {
+        update_status("Nothing to be saved!");
+    } else {
+        auto* mol_chooser_window = gtk_window_new();
+        g_object_set_data(G_OBJECT(mol_chooser_window), "ligand_builder_instance", this);
+        g_object_set_data(G_OBJECT(mol_chooser_window),"chosen_molecule",GINT_TO_POINTER(-1));
+        gtk_window_set_transient_for(GTK_WINDOW(mol_chooser_window), this->main_window);
+        auto* mol_chooser_box = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+        gtk_window_set_child(GTK_WINDOW(mol_chooser_window), mol_chooser_box);
+        auto* mol_chooser_label = gtk_label_new("Choose molecule to be written to a file.");
+        gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_label);
+        auto* mol_chooser_list_box = gtk_list_box_new();
+        gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_list_box);
+
+        for(unsigned int i = 0; i < mol_count; i++) {
+            auto label_str = std::to_string(i);
+            auto* label = gtk_label_new(label_str.c_str());
+            gtk_list_box_append(GTK_LIST_BOX(mol_chooser_list_box),label);
+        }
+
+        g_signal_connect(mol_chooser_list_box, "row-activated", G_CALLBACK(+[](GtkListBox* self, GtkListBoxRow* row, gpointer user_data){
+            auto idx = gtk_list_box_row_get_index(row);
+            GtkWindow* window = GTK_WINDOW(user_data);
+            g_object_set_data(G_OBJECT(window),"chosen_molecule",GINT_TO_POINTER(idx));
+        }), mol_chooser_window);
+
+        auto* mol_chooser_button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,10);
+        gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_button_box);
+        auto* cancel_button =  gtk_button_new_with_label("Cancel");
+        auto* ok_button =  gtk_button_new_with_label("Ok");
+        gtk_box_append(GTK_BOX(mol_chooser_button_box), cancel_button);
+        gtk_box_append(GTK_BOX(mol_chooser_button_box), ok_button);
+
+        g_signal_connect(G_OBJECT(cancel_button), "clicked", G_CALLBACK(+[](GtkButton* button, gpointer userdata){
+            GtkWindow* window = GTK_WINDOW(userdata);
+            gtk_window_destroy(window);
+        }), mol_chooser_window);
+
+        g_signal_connect(G_OBJECT(ok_button), "clicked", G_CALLBACK(+[](GtkButton* button, gpointer userdata){
+            GtkWindow* window = GTK_WINDOW(userdata);
+            int chosen_molecule = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "chosen_molecule"));
+            LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(window), "ligand_builder_instance");
+            if(chosen_molecule == -1) {
+                auto* message = gtk_message_dialog_new(
+                    window, 
+                    GTK_DIALOG_DESTROY_WITH_PARENT, 
+                    GTK_MESSAGE_ERROR, 
+                    GTK_BUTTONS_CLOSE, 
+                    "Nothing was chosen!", 
+                    NULL
+                );
+                gtk_widget_show(message);
+                g_info("Nothing was chosen.");
+            } else {
+                self->run_file_save_dialog(chosen_molecule);
+                gtk_window_destroy(window);
+            }
+        }), mol_chooser_window);
+
+        gtk_window_present(GTK_WINDOW(mol_chooser_window));
+    }
 }
 
 void LigandBuilderState::file_open() {

@@ -116,7 +116,8 @@ static void on_hover (
     for(auto& molecule: *self->molecules) {
         molecule.clear_highlights();
     }
-    try {
+    auto maybe_something_clicked = self->resolve_click(x, y);
+    if(maybe_something_clicked.has_value()) {
         auto [bond_or_atom,molecule_idx] = self->resolve_click(x, y).value();
         auto& target = (*self->molecules)[molecule_idx];
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
@@ -126,9 +127,6 @@ static void on_hover (
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
             target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
         }
-
-    } catch (std::exception& e) {
-        // Nothing was hovered on
     }
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
