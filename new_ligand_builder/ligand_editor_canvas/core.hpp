@@ -81,6 +81,9 @@ struct WidgetCoreData {
     /// and resets the state to the current snapshot.
     void rollback_current_edition();
 
+    /// Checks if we're currently inside an edition operation
+    bool is_in_edition();
+
     /// Snapshots the current state and opens new edition.
     ///
     /// This function must be called if one wishes

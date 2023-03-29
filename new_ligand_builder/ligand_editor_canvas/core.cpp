@@ -98,6 +98,9 @@ void WidgetCoreData::redo_edition() {
     }
 }
 
+bool WidgetCoreData::is_in_edition() {
+    return this->state_before_edition.get() != nullptr;
+}
 
 void WidgetCoreData::rollback_current_edition() {
     if(this->state_before_edition) {

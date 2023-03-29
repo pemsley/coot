@@ -139,7 +139,7 @@ void LigandBuilderState::save_file(unsigned int idx, const char* filename, GtkWi
     }
 }
 
-void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcept{
+void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     auto* save_dialog = gtk_file_dialog_new();
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.

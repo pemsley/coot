@@ -34,6 +34,7 @@ class LigandBuilderState {
 
     void update_status(const char* new_status) noexcept;
 
+    /// The core logic of saving files
     void save_file(unsigned int idx, const char* filename, GtkWindow* parent = nullptr) noexcept;
     void run_file_save_dialog(unsigned int molecule_idx) noexcept;
 
