@@ -245,6 +245,8 @@ void LigandBuilderState::file_open() {
                 }
                 g_info("MolFile Import: Molecule constructed.");
                 self->append_molecule(mol);
+                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+                self->current_filesave_filename = std::string(path);
             } catch(std::exception& e) {
                 g_warning("MolFile Import error: %s",e.what());
                 auto* message = gtk_message_dialog_new(
