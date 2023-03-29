@@ -75,6 +75,7 @@ class CanvasMolecule {
     static const float BOND_LINE_SEPARATION;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
+    static BondGeometry bond_geometry_from_rdkit(RDKit::Bond::BondDir);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;

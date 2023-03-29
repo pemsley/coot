@@ -306,6 +306,10 @@ CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondT
     }
 }
 
+CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bond::BondDir) {
+    throw std::runtime_error("todo: bond_geometry_from_rdkit");
+}
+
 RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondType ty) noexcept {
     switch (ty) {
         case BondType::Single:{
