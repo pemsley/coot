@@ -170,6 +170,7 @@ void LigandBuilderState::file_save_as() {
         update_status("Nothing to be saved!");
     } else {
         auto* mol_chooser_window = gtk_window_new();
+        gtk_window_set_title(GTK_WINDOW(mol_chooser_window), "Molecule chooser");
         g_object_set_data(G_OBJECT(mol_chooser_window), "ligand_builder_instance", this);
         g_object_set_data(G_OBJECT(mol_chooser_window),"chosen_molecule",GINT_TO_POINTER(-1));
         gtk_window_set_transient_for(GTK_WINDOW(mol_chooser_window), this->main_window);
