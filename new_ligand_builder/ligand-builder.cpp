@@ -165,7 +165,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcep
 void LigandBuilderState::file_save_as() {
     auto mol_count = coot_ligand_editor_get_molecule_count(this->canvas);
     if(mol_count == 1) {
-        run_file_save_dialog(1);
+        run_file_save_dialog(0);
     } else if(mol_count == 0) {
         update_status("Nothing to be saved!");
     } else {
