@@ -57,6 +57,8 @@ class CanvasMolecule {
     struct Bond {
         BondType type;
         BondGeometry geometry;
+        // For aromatic bonds
+        std::optional<bool> bond_drawing_direction;
         float first_atom_x;
         float first_atom_y;
         unsigned int first_atom_idx;

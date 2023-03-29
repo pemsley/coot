@@ -195,8 +195,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
         g_warning_once("TODO: Implement drawing different bond types correctly.");
         if(bond.type == BondType::Double) {
-            // todo: store the information about what the boolean should be
-            draw_side_bond_line(false);
+            bool direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : false;
+            draw_side_bond_line(direction);
         } else if(bond.type == BondType::Triple) {
             // "to the left"
             draw_side_bond_line(false);
@@ -271,7 +271,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             }
         } else {
             // Todo: handle NH4+, SO2 and such...
-            g_warning_once("TODO: Implement drawing atoms correctly");
+            g_warning_once("TODO: Implement handling NH4+, SO2 and such.");
             render_white_background();
             process_highlight();
             render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);
