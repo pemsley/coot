@@ -117,6 +117,11 @@ ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
     this->structure_insertion = insertion;
 }
 
+ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
+    this->variant = ActiveTool::Variant::GeometryModifier;
+    this->geometry_modifier = modifier;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }

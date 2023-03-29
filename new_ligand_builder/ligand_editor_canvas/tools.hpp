@@ -111,6 +111,9 @@ class MoveTool {
     MoveTool() noexcept;
 };
 
+class GeometryModifier {
+
+};
 
 class ActiveTool {
     public:
@@ -142,6 +145,8 @@ class ActiveTool {
         DeleteTool delete_tool;
         /// Valid for Variant::MoveTool
         MoveTool move_tool;
+        /// Valid for Variant::GeometryModifier
+        GeometryModifier geometry_modifier;
     };
     Variant variant;
     /// Non-owning pointer
@@ -159,6 +164,7 @@ class ActiveTool {
     ActiveTool(ChargeModifier) noexcept;
     ActiveTool(MoveTool) noexcept;
     ActiveTool(StructureInsertion insertion) noexcept;
+    ActiveTool(GeometryModifier modifier) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
