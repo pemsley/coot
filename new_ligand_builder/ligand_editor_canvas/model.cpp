@@ -17,6 +17,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <cctype>
 
 using namespace coot::ligand_editor_canvas;
 
@@ -228,6 +229,22 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_fill(cr);
         };
 
+        auto process_appendix = [&](const std::string& symbol, const std::optional<std::string>& appendix) -> std::string {
+            std::string ret = symbol;
+            if(appendix.has_value()) {
+                for(auto i = appendix.value().begin(); i != appendix.value().end(); i++) {
+                    if(std::isdigit(*i)) {
+                        ret += "<span size=\"large\">";
+                        ret.push_back(*i);
+                        ret += "</span>";
+                    } else {
+                        ret.push_back(*i);
+                    }
+                }
+            }
+            return ret;
+        };
+
         auto render_text = [&](const std::string& t, AtomColor color,bool bold = false){
             auto [r,g,b] = atom_color_to_rgb(color);
             std::string color_str = atom_color_to_html(color);
@@ -240,15 +257,24 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         
-        if (atom.symbol == "C" || atom.symbol == "H") {
+        if (atom.symbol == "H") {
             process_highlight();
-            // Ignore drawing Carbon and hydrogen now.
-            // This should probably be computed at lowering time in the future.
-            g_warning_once("TODO: Implement drawing atoms correctly");
+            // Ignore Hydrogen.
+
+        } else if(atom.symbol == "C") {
+            if(atom.appendix.has_value()) {
+                render_white_background();
+                process_highlight();
+                render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);
+            } else {
+                process_highlight();
+            }
         } else {
+            // Todo: handle NH2, NH3, NH4+, SO2 and such...
+            g_warning_once("TODO: Implement drawing atoms correctly");
             render_white_background();
             process_highlight();
-            render_text(atom.symbol,atom.color,atom.highlighted);
+            render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);
         }
     }
     cairo_destroy(cr);
@@ -377,14 +403,23 @@ void CanvasMolecule::lower_from_rdkit() {
         canvas_atom.x = plane_point.x;
         canvas_atom.y = plane_point.y;
 
+        auto surrounding_hydrogen_count = rdkit_atom->getTotalNumHs(false);
+        auto surrounding_non_hydrogen_count = 0;
+
         for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
             // Seems weird but we have to do it that way.
             const auto* bond_ptr = (*this->rdkit_molecule)[bond];
+            auto first_atom_idx = bond_ptr->getBeginAtomIdx();
+            auto second_atom_idx = bond_ptr->getEndAtomIdx();
+            auto the_other_atom_idx = first_atom_idx == atom_idx ? second_atom_idx : first_atom_idx;
+            const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
+            if(the_other_atom->getSymbol() != "H") {
+                surrounding_non_hydrogen_count++;
+            }
+
             // We don't want to have duplicate bonds of atoms that we have already processed
             // so we skip them.
-            auto first_atom_idx = bond_ptr->getBeginAtomIdx();
-            auto second_atom_idx = bond_ptr->getEndAtomIdx();;
             if(processed_atoms_indices.find(first_atom_idx) != processed_atoms_indices.end() 
             || processed_atoms_indices.find(second_atom_idx) != processed_atoms_indices.end()) {
                 continue;
@@ -406,6 +441,17 @@ void CanvasMolecule::lower_from_rdkit() {
             canvas_bond.geometry = BondGeometry::Flat;
 
             this->bonds.push_back(std::move(canvas_bond));
+        }
+
+        bool terminus = surrounding_non_hydrogen_count < 2;
+        if(canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
+            //todo: oxygens I guess?
+            if(surrounding_hydrogen_count > 0) {
+                canvas_atom.appendix = "H";
+                if(surrounding_hydrogen_count > 1) {
+                    canvas_atom.appendix.value() += std::to_string(surrounding_hydrogen_count);
+                }
+            }
         }
 
         this->atoms.push_back(std::move(canvas_atom));

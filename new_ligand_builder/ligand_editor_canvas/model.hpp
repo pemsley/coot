@@ -29,6 +29,9 @@ class CanvasMolecule {
     
     struct Atom {
         std::string symbol;
+        /// Appendix is set when we draw groups.
+        /// For CH4, the appendix would be "H4"
+        std::optional<std::string> appendix;
         AtomColor color;
         /// Position on canvas (x axis)
         float x;
