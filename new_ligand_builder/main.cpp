@@ -48,6 +48,10 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     }), canvas);
     gtk_box_append(GTK_BOX(top_toolbar), triple_bond_button);
     GtkWidget* stereo_out_modifier_button = gtk_button_new_with_label("Stereo Out Tool");
+    g_signal_connect(stereo_out_modifier_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(GeometryModifier()));
+    }), canvas);
     gtk_box_append(GTK_BOX(top_toolbar), stereo_out_modifier_button);
     GtkWidget* charge_modifier_button = gtk_button_new_with_label("Charge Tool");
     g_signal_connect(charge_modifier_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){

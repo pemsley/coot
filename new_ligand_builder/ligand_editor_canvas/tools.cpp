@@ -177,7 +177,6 @@ void ActiveTool::insert_atom(int x, int y) {
 void ActiveTool::alter_bond(int x, int y) {
     check_variant(Variant::BondModifier);
     BondModifier& mod = this->bond_modifier;
-    g_warning("TODO: Implement ActiveTool::alter_bond");
     
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
@@ -223,6 +222,42 @@ void ActiveTool::alter_bond(int x, int y) {
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = std::string("Could not alter bond: ") + e.what();
+            this->widget_data->update_status(msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    }
+}
+
+void ActiveTool::alter_geometry(int x, int y) {
+    check_variant(Variant::GeometryModifier);
+    GeometryModifier& mod = this->geometry_modifier;
+    g_warning("TODO: Implement ActiveTool::alter_geometry");
+    
+    auto click_result = this->widget_data->resolve_click(x, y);
+    if(click_result.has_value()) {
+        try{
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+                g_warning("The GeometryModifier tool does not operate on atoms. Nothing to do.");
+                //auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            } else {
+                this->widget_data->begin_edition();
+                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+                auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+                // todo: implement
+                
+                this->widget_data->update_status("Geometry of bond has been altered.");
+                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+                canvas_mol.lower_from_rdkit();
+                this->widget_data->finalize_edition();
+            }
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string msg = std::string("Could not alter bond geometry: ") + e.what();
             this->widget_data->update_status(msg.c_str());
             this->widget_data->rollback_current_edition();
         }
@@ -290,7 +325,6 @@ void ActiveTool::delete_at(int x, int y) {
 
 void ActiveTool::insert_structure(int x, int y) {
     check_variant(Variant::StructureInsertion);
-    g_warning("TODO: Implement ActiveTool::insert_structure");
     auto click_result = this->widget_data->resolve_click(x, y);
     using Structure = StructureInsertion::Structure;
     auto structure_kind = this->structure_insertion.get_structure();

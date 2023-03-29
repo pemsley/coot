@@ -193,7 +193,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::GeometryModifier:{
-            
+            self->active_tool->alter_geometry((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::DeleteHydrogens:{

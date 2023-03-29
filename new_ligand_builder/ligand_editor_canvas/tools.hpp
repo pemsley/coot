@@ -198,6 +198,9 @@ class ActiveTool {
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport.
     bool is_in_move() const;
+    /// Valid for Variant::GeometryModifier.
+    /// Changes geometry of the bond found at the given coordinates.
+    void alter_geometry(int x, int y);
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///
