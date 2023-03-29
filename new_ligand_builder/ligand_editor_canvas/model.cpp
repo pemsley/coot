@@ -398,6 +398,8 @@ void CanvasMolecule::lower_from_rdkit() {
 
             canvas_bond.highlighted = false;
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
+            // todo: add support for geometry
+            canvas_bond.geometry = BondGeometry::Flat;
 
             this->bonds.push_back(std::move(canvas_bond));
         }

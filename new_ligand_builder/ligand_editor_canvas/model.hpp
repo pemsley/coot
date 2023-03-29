@@ -43,9 +43,17 @@ class CanvasMolecule {
         Double,
         Triple
     };
+    enum class BondGeometry: unsigned char {
+        Flat,
+        DashedTowardsFirst,
+        DashedTowardsSecond,
+        WedgeTowardsFirst,
+        WedgeTowardsSecond
+    };
     // todo: geometry support
     struct Bond {
         BondType type;
+        BondGeometry geometry;
         float first_atom_x;
         float first_atom_y;
         unsigned int first_atom_idx;
