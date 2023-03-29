@@ -270,7 +270,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 process_highlight();
             }
         } else {
-            // Todo: handle NH2, NH3, NH4+, SO2 and such...
+            // Todo: handle NH4+, SO2 and such...
             g_warning_once("TODO: Implement drawing atoms correctly");
             render_white_background();
             process_highlight();
