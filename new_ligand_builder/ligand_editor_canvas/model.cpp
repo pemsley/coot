@@ -1,5 +1,6 @@
 #include "model.hpp"
 #include "cairo.h"
+#include <numeric>
 #include <optional>
 #include <stdexcept>
 #include <algorithm>
@@ -464,23 +465,46 @@ void CanvasMolecule::lower_from_rdkit() {
     // Make sure that double bonds are aligned properly
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
+        float ring_center_x = 0.f;
+        float ring_center_y = 0.f;
+        for(int atom_idx: ring) {
+            ring_center_x += this->atoms.at(atom_idx).x;
+            ring_center_y += this->atoms.at(atom_idx).y;
+        }
+        ring_center_x /= ring.size();
+        ring_center_y /= ring.size();
+
         int i = 0;
         int j = 1;
+        // Go over every bond
         while(j!=ring.size()) {
             int atom_one_idx = ring[i];
             int atom_two_idx = ring[j];
-            auto bond_iter = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
+            // Find iterator pointing to the bond
+            auto bond = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
                 return bond.first_atom_idx == atom_one_idx && bond.second_atom_idx == atom_two_idx;
             });
-            if(bond_iter == this->bonds.end()) {
+            if(bond == this->bonds.end()) {
                 // Search with first and second atom swapped places
-                bond_iter = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
+                bond = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
                     return bond.first_atom_idx == atom_two_idx && bond.second_atom_idx == atom_one_idx;
                 });
-                if(bond_iter == this->bonds.end()) {
+                if(bond == this->bonds.end()) {
                     throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
                 }
             }
+            if(bond->type == BondType::Single) {
+                i++;
+                j++;
+                continue;
+            }
+            bool sign_of_x_offset_from_center = ((bond->first_atom_x + bond->second_atom_x) / 2.f - ring_center_x) > 0.f;
+            bool x_requirement = bond->second_atom_x > bond->first_atom_x == sign_of_x_offset_from_center;
+            bool sign_of_y_offset_from_center = ((bond->first_atom_y + bond->second_atom_y) / 2.f - ring_center_y) > 0.f;
+            bool y_requirement = bond->second_atom_y <= bond->first_atom_y != sign_of_y_offset_from_center;
+            bool bond_direction = x_requirement && y_requirement;
+            g_debug("DeltaX: %f DeltaY: %f CX: %f CY: %f SignXO: %i SignYO: %i DIR: %i",bond->second_atom_x - bond->first_atom_x,bond->second_atom_y - bond->first_atom_y,ring_center_x,ring_center_y,sign_of_x_offset_from_center,sign_of_y_offset_from_center,bond_direction);
+            bond->bond_drawing_direction = bond_direction;
             i++;
             j++;
         }
