@@ -503,7 +503,20 @@ void CanvasMolecule::lower_from_rdkit() {
                 // negative y on screen is actually "higher" so we need to flip the sign
                 bool y_requirement = bond->second_atom_y <= bond->first_atom_y != sign_of_x_offset_from_center;
                 bool bond_direction = x_requirement && y_requirement;
-                g_debug("Bond: %i->%i DeltaX: %f DeltaY: %f CX: %f CY: %f XO: %f SignXO: %i YO: %f SignYO: %i ReqX: %i ReqY: %i DIR: %i",bond->first_atom_idx,bond->second_atom_idx,bond->second_atom_x - bond->first_atom_x,bond->first_atom_y - bond->second_atom_y,ring_center_x,ring_center_y,x_offset_from_center,sign_of_x_offset_from_center,y_offset_from_center,sign_of_y_offset_from_center,x_requirement,y_requirement,bond_direction);
+                // g_debug(
+                //     "Bond: %i->%i DeltaX: %f DeltaY: %f CX: %f CY: %f XO: %f SignXO: %i YO: %f SignYO: %i ReqX: %i ReqY: %i DIR: %i",
+                //     bond->first_atom_idx,
+                //     bond->second_atom_idx,
+                //     bond->second_atom_x - bond->first_atom_x,
+                //     bond->first_atom_y - bond->second_atom_y,
+                //     ring_center_x,ring_center_y,
+                //     x_offset_from_center,
+                //     sign_of_x_offset_from_center,
+                //     y_offset_from_center,
+                //     sign_of_y_offset_from_center,
+                //     x_requirement,
+                //     y_requirement,bond_direction
+                // );
                 bond->bond_drawing_direction = bond_direction;
             }
             i++;
