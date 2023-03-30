@@ -461,6 +461,33 @@ void CanvasMolecule::lower_from_rdkit() {
     std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
         return lhs.idx < rhs.idx;
     });
+    // Make sure that double bonds are aligned properly
+    const auto& rings = this->rdkit_molecule->getRingInfo();
+    for(const auto& ring: rings->atomRings()) {
+        int i = 0;
+        int j = 1;
+        while(j!=ring.size()) {
+            int atom_one_idx = ring[i];
+            int atom_two_idx = ring[j];
+            auto l_bond_iter = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
+                return bond.first_atom_idx == atom_one_idx && bond.second_atom_idx == atom_two_idx;
+            });
+            if(l_bond_iter != this->bonds.end()) {
+                l_bond_iter->bond_drawing_direction = true;
+            } else {
+                auto r_bond_iter = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
+                    return bond.first_atom_idx == atom_two_idx && bond.second_atom_idx == atom_one_idx;
+                });
+                if(r_bond_iter == this->bonds.end()) {
+                    throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
+                }
+                r_bond_iter->bond_drawing_direction = false;
+            }
+            i++;
+            j++;
+        }
+
+    }
     // Reverse kekulization on the original molecule after lowering.
     RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
     

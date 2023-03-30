@@ -51,7 +51,9 @@ class CanvasMolecule {
         DashedTowardsFirst,
         DashedTowardsSecond,
         WedgeTowardsFirst,
-        WedgeTowardsSecond
+        WedgeTowardsSecond,
+        /// Wavy
+        Unspecified
     };
     // todo: geometry support
     struct Bond {
