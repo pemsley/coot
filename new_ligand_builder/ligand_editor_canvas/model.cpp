@@ -493,7 +493,7 @@ void CanvasMolecule::lower_from_rdkit() {
                     throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
                 }
             }
-            if(bond->type == BondType::Single) {
+            if(bond->type != BondType::Double) {
                 i++;
                 j++;
                 continue;
