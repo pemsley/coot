@@ -477,7 +477,7 @@ void CanvasMolecule::lower_from_rdkit() {
         int i = 0;
         int j = 1;
         // Go over every bond
-        while(j!=ring.size()) {
+        while(i!=ring.size()) {
             int atom_one_idx = ring[i];
             int atom_two_idx = ring[j];
             // Find iterator pointing to the bond
@@ -493,20 +493,26 @@ void CanvasMolecule::lower_from_rdkit() {
                     throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
                 }
             }
-            if(bond->type != BondType::Double) {
-                i++;
-                j++;
-                continue;
+            if(bond->type == BondType::Double) {
+                float x_offset_from_center = (bond->first_atom_x + bond->second_atom_x) / 2.f - ring_center_x;
+                // negative y on screen is actually "higher" so we need to flip the sign
+                float y_offset_from_center = ring_center_y - (bond->first_atom_y + bond->second_atom_y) / 2.f;
+                bool sign_of_x_offset_from_center = x_offset_from_center > 0.f;
+                bool sign_of_y_offset_from_center = y_offset_from_center > 0.f;
+                bool x_requirement = bond->second_atom_x > bond->first_atom_x == sign_of_y_offset_from_center;
+                // negative y on screen is actually "higher" so we need to flip the sign
+                bool y_requirement = bond->second_atom_y <= bond->first_atom_y != sign_of_x_offset_from_center;
+                bool bond_direction = x_requirement && y_requirement;
+                g_debug("Bond: %i->%i DeltaX: %f DeltaY: %f CX: %f CY: %f XO: %f SignXO: %i YO: %f SignYO: %i ReqX: %i ReqY: %i DIR: %i",bond->first_atom_idx,bond->second_atom_idx,bond->second_atom_x - bond->first_atom_x,bond->first_atom_y - bond->second_atom_y,ring_center_x,ring_center_y,x_offset_from_center,sign_of_x_offset_from_center,y_offset_from_center,sign_of_y_offset_from_center,x_requirement,y_requirement,bond_direction);
+                bond->bond_drawing_direction = bond_direction;
             }
-            bool sign_of_x_offset_from_center = ((bond->first_atom_x + bond->second_atom_x) / 2.f - ring_center_x) > 0.f;
-            bool x_requirement = bond->second_atom_x > bond->first_atom_x == sign_of_x_offset_from_center;
-            bool sign_of_y_offset_from_center = ((bond->first_atom_y + bond->second_atom_y) / 2.f - ring_center_y) > 0.f;
-            bool y_requirement = bond->second_atom_y <= bond->first_atom_y != sign_of_y_offset_from_center;
-            bool bond_direction = x_requirement && y_requirement;
-            g_debug("DeltaX: %f DeltaY: %f CX: %f CY: %f SignXO: %i SignYO: %i DIR: %i",bond->second_atom_x - bond->first_atom_x,bond->second_atom_y - bond->first_atom_y,ring_center_x,ring_center_y,sign_of_x_offset_from_center,sign_of_y_offset_from_center,bond_direction);
-            bond->bond_drawing_direction = bond_direction;
             i++;
             j++;
+            // Process the last bond
+            if(j==ring.size()) {
+                // Loop j to point to the first atom in the ring
+                j = 0;
+            }
         }
 
     }
@@ -516,10 +522,12 @@ void CanvasMolecule::lower_from_rdkit() {
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx) {
+    //g_debug("Highlighted atom with idx=%i",atom_idx);
     this->atoms.at(atom_idx).highlighted = true;
 }
 
 void CanvasMolecule::highlight_bond(int atom_a, int atom_b) {
+    //g_debug("Highlighted bond between atoms with indices %i and %i",atom_a,atom_b);
     auto target = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
         return bond.first_atom_idx == atom_a && bond.second_atom_idx == atom_b;
     });
