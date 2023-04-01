@@ -687,6 +687,9 @@ namespace coot {
       float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
+      float fit_to_map_by_random_jiggle_using_atom_selection(const std::string &cid, const clipper::Xmap<float> &xmap, float map_rmsd,
+                                        int n_trials, float translation_scale_factor);
+
       int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
 
       //! @return the success status

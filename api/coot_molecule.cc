@@ -3403,6 +3403,7 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
 
    mmdb::Residue *residue_p = cid_to_residue(cid);
    if (residue_p) {
+      atom_sel.delete_atom_selection();
       clipper::Coord_orth offset(0.0, 0.0, 0.2);
       set_offset(offset, residue_p); // modify reference
       mmdb::Atom **residue_atoms = 0;
@@ -3434,9 +3435,12 @@ coot::molecule_t::add_alternative_conformation(const std::string &cid) {
          }
       }
 
-      for (unsigned int j=0; j<new_atoms.size(); j++) {
+      for (unsigned int j=0; j<new_atoms.size(); j++)
          residue_p->AddAtom(new_atoms[j]);
-      }
+
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      save_info.new_modification("add-alt-conf");
 
    } else {
       std::cout << "Residue " << cid << " not found in molecule" << std::endl;

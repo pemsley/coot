@@ -696,6 +696,26 @@ coot::molecule_t::fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, co
    return v;
 }
 
+float
+coot::molecule_t:: fit_to_map_by_random_jiggle_using_atom_selection(const std::string &cid, const clipper::Xmap<float> &xmap, float map_rmsd,
+                                                                 int n_trials, float translation_scale_factor) {
+
+   float v = -1001.0;
+   if (is_valid_model_molecule()) {
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      bool use_biased_density_scoring = true;
+      std::vector<mmdb::Chain *> chains; // empty - apply RTop to atoms of selection
+      v = fit_to_map_by_random_jiggle(atoms, n_atoms, xmap, map_rmsd, n_trials, translation_scale_factor, use_biased_density_scoring, chains);
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+   return v;
+}
+
+
+
 
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
