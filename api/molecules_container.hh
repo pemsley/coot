@@ -1150,8 +1150,8 @@ public:
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle(int imol, const coot::residue_spec_t &res_spec, int n_trials, float translation_scale_factor);
 
-   //! "Jiggle-Fit Ligand" with a different interface
-   //! as above, if n_trials is 0, then a sensible default value will be used.
+   //! "Jiggle-Fit Ligand" with a different interface - one that can use any atom selection (instead of just a ligand).
+   //! As above, if n_trials is 0, then a sensible default value will be used.
    //! if translation_scale_factor is negative then a sensible default value will be used.
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);

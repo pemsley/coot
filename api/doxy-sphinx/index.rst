@@ -76,6 +76,19 @@ Superposition
 .. doxygenfile:: superpose-results.hh
       :project: libcootapi
 
+
+3D lines
+========
+
+.. doxygenfile:: generic-3d-lines.hh
+      :project: libcootapi
+
+Coordinates
+===========
+
+.. doxygenfile:: coords/Cartesian.h
+      :project: libcootapi
+
 Symmetry
 ========
 

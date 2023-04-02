@@ -1529,3 +1529,55 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    return m;
 }
 
+
+
+generic_3d_lines_bonds_box_t
+coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const {
+
+   // 20230327-PE when you make the libcootapi version, just export this function
+   // and make a simple_mesh_t from the bonds_box_env.
+   //
+   auto make_bonds_box_env = [] (const coot::residue_spec_t &spec,
+                                 atom_selection_container_t atom_sel,
+                                 coot::protein_geometry &geom) {
+      graphical_bonds_container bonds_box_env;
+      float environment_min_distance = 0.0f;
+      float environment_max_distance = 3.6f;
+      bool draw_bonds_to_hydrogens_flag = true;
+
+      mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
+
+      if (residue_p) {
+
+         mmdb::PPAtom residue_atoms;
+         int nResidueAtoms;
+         residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+         if (nResidueAtoms == 0) {
+            std::cout << " something broken in atom residue selection in ";
+            std::cout << "make_environment_bonds_box: got " << nResidueAtoms
+                      << " atoms " << std::endl;
+         } else {
+
+            bool residue_is_water_flag = false;
+            std::string residue_name = residue_p->GetResName();
+            if (residue_name == "HOH" || residue_name == "WAT")
+               residue_is_water_flag = 1;
+            coot::protein_geometry geomt;
+            Bond_lines_container bonds(atom_sel,residue_atoms, nResidueAtoms,
+                                       &geom,
+                                       residue_is_water_flag,
+                                       draw_bonds_to_hydrogens_flag,
+                                       environment_min_distance,
+                                       environment_max_distance);
+            bonds_box_env = bonds.make_graphical_bonds();
+         }
+      } else {
+         std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
+      }
+      return bonds_box_env;
+   };
+
+   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, geom);
+   return generic_3d_lines_bonds_box_t(bonds_box_env);
+
+}

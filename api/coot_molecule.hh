@@ -33,6 +33,8 @@
 
 #include "instancing.hh"
 
+#include "generic-3d-lines.hh"
+
 namespace coot {
 
    // give this a type
@@ -559,12 +561,15 @@ namespace coot {
       std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule() const;
 
       //! @return the instanced mesh for the specified ligand
-      coot::instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom,
-                                                     unsigned int num_subdivisions) const;
+      instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom,
+                                               unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
-      coot::instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
-                                                       unsigned int num_subdivisions) const;
+      instanced_mesh_t all_molecule_contact_dots(const coot::protein_geometry &geom,
+                                                 unsigned int num_subdivisions) const;
+
+      generic_3d_lines_bonds_box_t
+      make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const;
 
       // ------------------------ model-changing functions
 
