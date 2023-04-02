@@ -1467,6 +1467,8 @@ def coot_toolbar_button(button_label, cb_function,
     # main body
     #
     found_button = False
+    tll = toolbar_label_list()
+    print("debug:: in coot_toolbar_button: toolbar_label_list() returned", tll)
     for f in toolbar_label_list():
         print("#### debug coot_toolbar_button", f)
     for f in toolbar_label_list():
@@ -1597,7 +1599,13 @@ def toolbar_label_list():
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
     button_label_ls = []
-    for toolbar_child in coot_main_toolbar.get_children():
+    # for toolbar_child in coot_main_toolbar.get_children():
+    n = coot_main_toolbar.get_n_items()
+    print("debug:: coot_main_toolbar has",n,"items")
+    box = coot_main_toolbar.get_nth_item(0)
+    n = box.get_n_items()
+    for idx in range(n):
+        toolbar_child = coot_main_toolbar.get_nth_item(idx)
         ls = []
         try:
             label = toolbar_child.get_label()
@@ -6166,7 +6174,7 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
     # "auto" button
-    auto_update_checkbutton = Gtk.CheckButton("Auto Update")
+    auto_update_checkbutton = Gtk.CheckButton(label="Auto Update")
 
     window.set_default_size(370,100)
     window.set_child(vbox)
@@ -6181,6 +6189,12 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     vbox.append(hbox_buttons)
     hbox_buttons.append(cancel_button)
     hbox_buttons.append(    ok_button)
+
+    for b in [cancel_button, ok_button]:
+        b.set_margin_top(4)
+        b.set_margin_bottom(4)
+        b.set_margin_start(6)
+        b.set_margin_end(6)
 
     # button callbacks:
     ok_button.connect("clicked", on_ok_clicked)

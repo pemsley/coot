@@ -116,8 +116,9 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
    bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
-   std::cout << "on_glarea_drag_update_secondary shift is pressed " << shift_is_pressed
-             << " control_is_pressed " << control_is_pressed << std::endl;
+   if (true)
+      std::cout << "on_glarea_drag_update_secondary shift is pressed " << shift_is_pressed
+                << " control_is_pressed " << control_is_pressed << std::endl;
 
    if (shift_is_pressed) {
       do_view_zoom(drag_delta_x, drag_delta_y);
@@ -125,11 +126,16 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       if (control_is_pressed) {
          do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_x);
       } else {
+
+#if 0 // this is right-mouse!
          if (last_restraints_size() > 0) {
             move_atom_pull_target_position(x, y);
          } else {
             do_view_rotation(drag_delta_x, drag_delta_y);
          }
+#endif
+
+         do_view_rotation(drag_delta_x, drag_delta_y);
       }
    }
 

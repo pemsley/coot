@@ -8164,7 +8164,7 @@ molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id
 
 
 std::vector<coot::model_view_atom_tree_chain_t>
-molecule_class_info_t::model_view_residue_tree_labels() const {
+molecule_class_info_t::model_view_residue_tree_labels(bool include_water_residue_flag) const {
 
    std::vector<coot::model_view_atom_tree_chain_t> v;
 
@@ -8194,15 +8194,20 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
                      label += residue_p->GetInsCode();
                      label += " ";
                      label += residue_p->name;
+                     bool is_water_flag = false; // gets reset in this loop
                      if (coot::util::is_standard_residue_name(res_name)) { // amino acid and rna and dna polymer
                      } else {
-                     if (res_name == "HOH" || res_name == "DOD")
+                        if (res_name == "HOH" || res_name == "DOD") {
                         label = std::string("<i>") + label + std::string("</i>");
-                     else
-                        label = std::string("<b>") + label + std::string("</b>");
+                        is_water_flag = true;
+                        } else {
+                           label = std::string("<b>") + label + std::string("</b>");
+                        }
                      }
-                     coot::model_view_atom_tree_item_info_t res(label, residue_p);
-                     v.back().add_residue(res);
+                     if (! is_water_flag || include_water_residue_flag) {
+                        coot::model_view_atom_tree_item_info_t res(label, residue_p);
+                        v.back().add_residue(res);
+                     }
                   }
                }
             }

@@ -256,7 +256,16 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
       need_renderer = false;
    }
 
-   std::vector<coot::model_view_atom_tree_chain_t> residue_chains = molecules[imol].model_view_residue_tree_labels();
+   bool show_waters_flag = false;
+   GtkWidget *show_waters_check_button = widget_from_builder("go_to_atom_show_waters_togglebutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(show_waters_check_button)))
+      show_waters_flag = true;
+   std::cout << "............... Getting new residues_chains!() " << std::endl;
+   std::vector<coot::model_view_atom_tree_chain_t> residue_chains = molecules[imol].model_view_residue_tree_labels(show_waters_flag);
+   std::cout << "............... Got new residues_chains!() " << residue_chains[0].tree_residue.size() << std::endl;
+
+   // 20230402-PE actually, I won't use visibility. I will get a new list of residues
+   // GtkTreeStore *tree_store = gtk_tree_store_new (3, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_BOOLEAN);
    GtkTreeStore *tree_store = gtk_tree_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
    GtkTreeIter   toplevel, child;
 
@@ -286,7 +295,6 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *d
          gtk_tree_store_set(tree_store, &child,
                             CHAIN_COL, lab.c_str(),
                             RESIDUE_COL, res_spec_ptr,
-                            VISIBILITY_COL, TRUE,
                             -1);
       }
    }
@@ -421,7 +429,12 @@ graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
 								 GtkWidget *gtktree,
 								 GtkWidget *atom_list) {
 
-   std::string button_string;
+   std::cout << "fill_go_to_atom_residue_tree_and_atom_list_gtk2 called! " << std::endl;
+   raise (SIGABRT);
+
+   // 20230402-PE --- who calls this function these days?
+
+   // needed?
    graphics_info_t g;
 
    // std::cout << "fill_go_to_atom_residue_tree_and_atom_list_gtk2()!! " << std::endl;
@@ -435,8 +448,11 @@ graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
 // 							  (GBoxedCopyFunc)residue_button_info_copy,
 // 							  (GBoxedFreeFunc)residue_button_info_free);
 
-      std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
-	 molecules[imol].model_view_residue_tree_labels();
+      bool show_waters_flag = false;
+      GtkWidget *show_waters_check_button = widget_from_builder("go_to_atom_show_waters_togglebutton");
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(show_waters_check_button)))
+         show_waters_flag = true;
+      std::vector<coot::model_view_atom_tree_chain_t> residue_chains = molecules[imol].model_view_residue_tree_labels(show_waters_flag);
 
       // so, clear the current tree:
       GtkTreeView *tv = NULL;

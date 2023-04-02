@@ -5700,7 +5700,7 @@ Do you want to continue?
           </object>
         </child>
         <child>
-            <object class="GtkCheckButton" id="on_go_to_atom_show_waters_togglebutton">
+            <object class="GtkCheckButton" id="go_to_atom_show_waters_togglebutton">
                <signal name="toggled" handler="on_go_to_atom_show_waters_togglebutton_toggled" swapped="no"/>
                <property name="label" translatable="yes">Show Waters</property>
                <property name="margin-top">6</property>

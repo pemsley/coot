@@ -2046,7 +2046,7 @@ public:        //                      public
    model_view_residue_button_labels() const;
 
    std::vector<coot::model_view_atom_tree_chain_t>
-   model_view_residue_tree_labels() const;
+   model_view_residue_tree_labels(bool include_water_residue_flag) const;
 
    std::vector<coot::model_view_atom_button_info_t>
    model_view_atom_button_labels(const std::string &chain_id,

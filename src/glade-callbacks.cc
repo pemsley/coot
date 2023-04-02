@@ -49,6 +49,7 @@
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
 
+#include "graphics-info.h"
 #include "widget-from-builder.hh"
 
 void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
@@ -1297,7 +1298,6 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
   goto_previous_atom_maybe_new(window);
 }
 
-
 extern "C" G_MODULE_EXPORT
 void
 on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
@@ -1305,6 +1305,9 @@ on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
 
    std::cout << "on_go_to_atom_show_waters check button toggled" << std::endl;
 
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("goto_atom_window");
+   g.fill_go_to_atom_window_residue_and_atom_lists_gtk4(dialog);
 }
 
 
@@ -2081,8 +2084,6 @@ on_model_refine_dialog_refine_params_button_clicked
    // gtk_widget_show(widget);
 }
 
-#include "graphics-info.h"
-
 extern "C" G_MODULE_EXPORT
 void
 on_refinement_and_regularization_vbox_close_button_clicked(GtkButton       *button,
@@ -2402,13 +2403,9 @@ extern "C" G_MODULE_EXPORT
 void
 on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
-  GtkWidget *dialog;
-  GtkWidget *toolbutton;
-  dialog = wrapped_create_coot_references_dialog();
-  toolbutton = widget_from_builder("coot_references_buccaneer_toolbutton");
+  GtkWidget *toolbutton = widget_from_builder("coot_references_buccaneer_toolbutton");
   fill_references_notebook(GTK_BUTTON(toolbutton), COOT_REFERENCE_BUCCANEER);
 
 }
@@ -2417,8 +2414,7 @@ on_fast_sss_dialog_citation_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_environment_distances1_activate     (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    //  GtkWidget *widget = create_environment_distance_dialog();
    GtkWidget *widget = widget_from_builder("environment_distance_dialog");
@@ -5251,6 +5247,8 @@ on_single_map_properties_absolute_radiobutton_toggled (GtkToggleButton *togglebu
 }
 
 void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
+
+   if (! graphics_info_t::is_valid_map_molecule(imol)) return;
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
