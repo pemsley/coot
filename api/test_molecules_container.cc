@@ -1520,16 +1520,18 @@ int test_jiggle_fit(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+
 
    if (mc.is_valid_model_molecule(imol)) {
       mc.imol_refinement_map = imol_map;
       coot::atom_spec_t atom_spec("A", 61, "", " CZ ","");
+      coot::residue_spec_t residue_spec("A", 61, "");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
-         mc.fit_to_map_by_random_jiggle_using_cid(imol, "//A/61", 9110, -1);
+         mc.fit_to_map_by_random_jiggle(imol, residue_spec, 9110, -1);
          // you can test that the density for the CZ has improved when that function is available.
          // or maybe "density_fit_for_residue()" ?
          // or maybe "density_correlation_for_residue()" ?
@@ -1538,13 +1540,57 @@ int test_jiggle_fit(molecules_container_t &mc) {
          coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
          double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
          double d = std::sqrt(dd);
-         // std::cout << "test_jiggle_fit d " << d << std::endl;
+         std::cout << "test_jiggle_fit d " << d << std::endl;
          if (d > 0.4)
             status = true;
+      } else {
+         std::cout << "ERROR: test_jiggle_fit() missing atom " << atom_spec << std::endl;
       }
+   } else {
+      std::cout << "ERROR: test_jiggle_fit() invalid model molecule " << imol << std::endl;
    }
    mc.close_molecule(imol);
    mc.close_molecule(imol_map);
+
+
+   if (status == 1) {
+
+      status = 0;
+      std::cout << "Second jiggle-fit test: using atom selection ------------------------------" << std::endl;
+      imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+      int imol_start = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+      int imol_other = mc.read_pdb("weird-orientation.pdb");
+      if (mc.is_valid_model_molecule(imol_other)) {
+         // now test that we stared with bad fit to density
+         coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_start, imol_map);
+         coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_other, imol_map);
+         // fit!
+         int imol_blur = mc.sharpen_blur_map(imol_map, 100, false);
+         mc.imol_refinement_map = imol_blur;
+         mc.fit_to_map_by_random_jiggle_using_cid(imol_other, "//A", 10100, 1);
+         // now test that we have good fit to density.
+         coot::validation_information_t vi_2 = mc.density_correlation_analysis(imol_other, imol_map);
+
+         coot::stats::single s_0 = vi_0.get_stats();
+         coot::stats::single s_1 = vi_1.get_stats();
+         coot::stats::single s_2 = vi_2.get_stats();
+
+         // 20230402-PE These results are disappointing - they are not as good as doing it interactively.
+         // I wonder what the difference is.
+
+         std::cout << "orig:     " << std::fixed << s_0.mean() << " " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
+         std::cout << "pre-fit:  " << std::fixed << s_1.mean() << " " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
+         std::cout << "post-fit: " << std::fixed << s_2.mean() << " " << std::fixed << std::sqrt(s_2.variance()) << std::endl;
+
+         float d1 = s_0.mean() - s_2.mean();
+         float d2 = s_2.mean() - s_1.mean();
+
+         if (d2 > d1) // we got most of the way there
+            status = 1;
+
+         mc.write_coordinates(imol_other, "jiggled.pdb");
+      }
+   }
    return status;
 }
 
@@ -2772,6 +2818,8 @@ int main(int argc, char **argv) {
    }
 
 
+   status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+
    // status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
    // status += run_test(test_broken_function, "Something was broken",         mc);
@@ -2820,7 +2868,8 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_replace_map, "replace map from mtz", mc);
 
-   status = run_test(test_residue_name_group, "residue name group", mc);
+   // status = run_test(test_residue_name_group, "residue name group", mc);
+
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

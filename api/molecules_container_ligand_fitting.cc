@@ -155,11 +155,15 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t spec = residue_cid_to_residue_spec(imol, cid);
-      clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
-      float rmsd = molecules[imol_refinement_map].get_map_rmsd_approx();
-      status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, translation_scale_factor);
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
+         float rmsd = molecules[imol_refinement_map].get_map_rmsd_approx();
+         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, translation_scale_factor);
+      } else {
+         std::cout << "ERROR:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
+      }
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "ERROR:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
 

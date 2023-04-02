@@ -706,6 +706,7 @@ coot::molecule_t:: fit_to_map_by_random_jiggle_using_atom_selection(const std::s
       int n_atoms;
       int selHnd = atom_sel.mol->NewSelection(); // d
       atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, atoms, n_atoms);
       bool use_biased_density_scoring = true;
       std::vector<mmdb::Chain *> chains; // empty - apply RTop to atoms of selection
       v = fit_to_map_by_random_jiggle(atoms, n_atoms, xmap, map_rmsd, n_trials, translation_scale_factor, use_biased_density_scoring, chains);

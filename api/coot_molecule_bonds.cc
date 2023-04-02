@@ -1528,3 +1528,4 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
    return m;
 }
+

@@ -2,6 +2,7 @@
 #define VALIDATION_INFORMATION_HH
 
 #include <vector>
+#include "analysis/stats.hh"
 #include "residue-validation-information.hh"
 
 namespace coot {
@@ -78,6 +79,22 @@ namespace coot {
          } else {
             min_max.max = max;
          }
+      }
+
+      stats::single get_stats() const {
+         // 20230402-PE this function is in-line only because it is inconvenient at the moment to add
+         // a new source file to the repo
+
+         stats::single s;
+
+         for (unsigned int i=0; i<cviv.size(); i++) {
+            const auto &cvi = cviv[i];
+            for (unsigned int j=0; j<cvi.rviv.size(); j++) {
+               const auto &rvi = cvi.rviv[j];
+               s.add(rvi.function_value);
+            }
+         }
+         return s;
       }
    };
 
