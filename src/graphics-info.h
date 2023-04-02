@@ -1721,7 +1721,7 @@ public:
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
 
-   static void fill_go_to_atom_window_residue_and_atom_lists_gtk4(GtkWidget *dialog);
+   static void fill_go_to_atom_window_residue_and_atom_lists_gtk4();
    static void fill_go_to_atom_window_gtk3(GtkWidget *widget);
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
@@ -1735,9 +1735,12 @@ public:
 
    static void clear_atom_list(GtkWidget *atom_gtklist);
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
-   static void fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
-							       GtkWidget *gtktree,
-							       GtkWidget *atom_list);
+
+   // goodbye gtk2
+   // static void fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
+   // GtkWidget *gtktree,
+   // GtkWidget *atom_list);
+
    void fill_go_to_atom_option_menu(GtkWidget *option_menu);
 
 

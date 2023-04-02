@@ -1306,8 +1306,7 @@ on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
    std::cout << "on_go_to_atom_show_waters check button toggled" << std::endl;
 
    graphics_info_t g;
-   GtkWidget *dialog = widget_from_builder("goto_atom_window");
-   g.fill_go_to_atom_window_residue_and_atom_lists_gtk4(dialog);
+   g.fill_go_to_atom_window_residue_and_atom_lists_gtk4();
 }
 
 
