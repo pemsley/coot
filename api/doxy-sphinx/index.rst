@@ -83,8 +83,8 @@ Superposition
 .. doxygenfile:: generic-3d-lines.hh
       :project: libcootapi
 
-Coordinates
-===========
+Cartesian Coordinates
+====================
 
 .. doxygenfile:: coords/Cartesian.h
       :project: libcootapi

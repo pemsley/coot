@@ -1139,39 +1139,3 @@ symm_trans_t::as_mat44(mmdb::mat44 *mat, mmdb::Manager *mol) {
 }
 
 
-
-atom_selection_container_t read_standard_residues() {
-
-   std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
-   atom_selection_container_t standard_residues_asc;
-   
-   const char *filename = getenv(standard_env_dir.c_str());
-   if (! filename) {
-
-      std::string standard_file_name = PKGDATADIR;
-      standard_file_name += "/";
-      standard_file_name += "standard-residues.pdb";
-
-      struct stat buf;
-      int status = stat(standard_file_name.c_str(), &buf);  
-      if (status != 0) { // standard-residues file was not found in
-			 // default location either...
-	 std::cout << "WARNING: environment variable for standard residues ";
-	 std::cout << standard_env_dir << "\n";
-	 std::cout << "         is not set.";
-	 std::cout << " Mutations will not be possible\n";
-	 // mark as not read then:
-	 standard_residues_asc.read_success = 0;
-	 // std::cout << "DEBUG:: standard_residues_asc marked as
-	 // empty" << std::endl;
-      } else { 
-	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
-      }
-   } else { 
-      standard_residues_asc = get_atom_selection(filename, true, false, false);
-   }
-
-   return standard_residues_asc;
-}
-

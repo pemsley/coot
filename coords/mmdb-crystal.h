@@ -73,8 +73,6 @@ namespace coot {
 
 std::ostream & operator<<(std::ostream &s, const coot::coot_mat44 &m);
 
-atom_selection_container_t read_standard_residues();
-
 //! A class for symmetry operators
 class symm_trans_t { 
 

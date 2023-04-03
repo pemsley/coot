@@ -42,14 +42,20 @@ namespace coot {
 
       // inlines (of disaproved of funtions). 
       //
+      //! get x (disapproved)
       float get_x() const { return x_;};
+      //! get y (disapproved)
       float get_y() const { return y_;};
+      //! get z (disapproved)
       float get_z() const { return z_;};
    
       // actually, I don't like the gets part of the variable name. Make const ref also.
 
+      //! get x
       const float &x() const { return x_;};
+      //! get y
       const float &y() const { return y_;};
+      //! get z
       const float &z() const { return z_;};
 
       Cartesian(float xi, float yi, float zi) { x_ = xi; y_ = yi; z_ = zi; }
@@ -173,12 +179,13 @@ namespace coot {
    std::ostream&  operator<<(std::ostream&, Cartesian pt);
    std::ofstream& operator<<(std::ofstream&, Cartesian pt);
 
-        
+   //! Cartesian pair
    class CartesianPair { 
 
       Cartesian start, finish;
 
    public:
+      //! constructor
       CartesianPair(const Cartesian &start_, const Cartesian &finish_);
       CartesianPair(void);
       void extentsBox(Cartesian centre, float dist) { 
@@ -193,17 +200,17 @@ namespace coot {
       friend std::ostream&  operator<<(std::ostream&,  CartesianPair);
       friend std::ofstream& operator<<(std::ofstream&, CartesianPair);
 
-      // We don't approve of get functions, but the alternative is that
-      // Cartesian, CartesianPair and Bond_lines get merged - and I 
-      // don't want to do that.
-      // 
+      //! get the start Cartesian
       const Cartesian &getStart()  const { return start; }
+      //! get the end Cartesian
       const Cartesian &getFinish() const { return finish;}
+      //! get the length of the vector between the coordinates
       float amplitude() const;
    };
    std::ostream&  operator<<(std::ostream&,  CartesianPair);
    std::ofstream& operator<<(std::ofstream&, CartesianPair);
 
+   //! this should be a boolean
    short int is_an_in_triangle(surface_face_data face,  const Cartesian &b,
 			       const Cartesian &c); 
    // declared as friends above, now declare for real

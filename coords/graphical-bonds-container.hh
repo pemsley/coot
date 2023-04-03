@@ -290,7 +290,7 @@ class graphical_bonds_container {
       rotamer_markups = NULL;
    }
 
-   graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
+   explicit graphical_bonds_container(const std::vector<graphics_line_t> &a) {
 
       std::cout << "constructing a graphical_bonds_container from a vector " 
 		<< "of size " << a.size() << std::endl;
@@ -311,6 +311,8 @@ class graphical_bonds_container {
       n_zero_occ_spots = 0;
       deuterium_spots_ptr = NULL;
       n_deuterium_spots = 0;
+      bad_CA_CA_dist_spots_ptr = NULL;
+      n_bad_CA_CA_dist_spots = 0;
       atom_centres_colour_ = NULL;
       atom_centres_ = NULL; 
       n_atom_centres_ = 0;
@@ -320,6 +322,8 @@ class graphical_bonds_container {
       n_consolidated_atom_centres = 0;
       n_cis_peptide_markups = 0;
       cis_peptide_markups = NULL;
+      n_rotamer_markups = 0;
+      rotamer_markups = NULL;
    }
       
    void add_colour(const std::vector<graphics_line_t> &a);
