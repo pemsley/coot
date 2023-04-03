@@ -4121,17 +4121,18 @@ coot::util::create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
                                                    bool invert_seletion) {
 
    if (invert_seletion)
-      return coot::util::create_mmdbmanager_from_inverted_atom_selection(orig_mol,
-                                                                         SelectionHandle);
+      return coot::util::create_mmdbmanager_from_inverted_atom_selection(orig_mol, SelectionHandle);
    else
-      return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol,
-                                                                         SelectionHandle);
+      return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol, SelectionHandle);
 }
 
 // ignore atom index transfer
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
-                                                            int SelectionHandle) { 
+                                                            int SelectionHandle) {
+
+   std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
+
    mmdb::Manager *atoms_mol = new mmdb::Manager;
 
    mmdb::PPAtom atoms;
@@ -4433,6 +4434,8 @@ coot::util::transfer_links(mmdb::Manager *mol_orig, mmdb::Manager *mol_new) {
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
+
+   std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
 
    // The idea here is that we want to have a selection that is
    // logical NOT of the SelectionHandle selection.

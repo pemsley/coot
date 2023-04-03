@@ -96,6 +96,31 @@ coot::make_mols_from_atom_selection_string(mmdb::Manager *mol,
    return std::pair<coot::minimol::molecule, coot::minimol::molecule> (masked_mol, range_mol);
 }
 
+std::pair<coot::minimol::molecule, coot::minimol::molecule>
+coot::make_mols_from_atom_selection(mmdb::Manager *mol,
+                                    int udd_atom_selection_fitting_atoms,
+                                    bool fill_masking_molecule_flag) {
+
+   // the caller is control of the atom selection, we don't delete it here.
+
+   mmdb::PPAtom atom_selection = NULL;
+   int n_selected_atoms;
+   mol->GetSelIndex(udd_atom_selection_fitting_atoms, atom_selection, n_selected_atoms);
+
+   mmdb::Manager *mol_from_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, udd_atom_selection_fitting_atoms, false);
+   // atom selection in mol gets inverted by this function:
+   mmdb::Manager *mol_from_non_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, udd_atom_selection_fitting_atoms, true);
+
+   coot::minimol::molecule range_mol  = coot::minimol::molecule(mol_from_selected);
+   coot::minimol::molecule masked_mol = coot::minimol::molecule(mol_from_non_selected);
+   delete mol_from_selected;
+   delete mol_from_non_selected;
+   return std::pair<coot::minimol::molecule, coot::minimol::molecule> (masked_mol, range_mol);
+}
+
+
 
 coot::ligand::ligand() {
 

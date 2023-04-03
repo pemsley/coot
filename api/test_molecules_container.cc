@@ -2514,6 +2514,20 @@ int test_rigid_body_fit(molecules_container_t &mc) {
    std::string multi_cids = "//A/20-22||//A/60-66";
    status = mc.rigid_body_fit(imol, multi_cids, imol_map);
 
+   if (status == 1) {
+      int imol_lig = mc.read_pdb("misplaced-moorhen-tutorial-1-ligand.pdb");
+      coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_lig, imol_map);
+      status = mc.rigid_body_fit(imol_lig, "//A/301", imol_map);
+      coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_lig, imol_map);
+      coot::stats::single s_0 = vi_0.get_stats();
+      coot::stats::single s_1 = vi_1.get_stats();
+      // std::cout << "orig:      " << std::fixed << s_0.mean() << " " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
+      // std::cout << "post-fit:  " << std::fixed << s_1.mean() << " " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
+      if (s_0.mean() < 0.6)
+         if (s_1.mean() > 0.8)
+            status = 1;
+   }
+
    mc.close_molecule(imol);
    mc.close_molecule(imol_map);
    return status;
@@ -2691,6 +2705,36 @@ int test_residue_name_group(molecules_container_t &mc) {
    return status;
 }
 
+int test_alt_conf_and_rotamer(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         mc.imol_refinement_map = imol_map;
+         mc.add_alternative_conformation(imol, "//A/125"); // THR
+         mc.write_coordinates(imol, "alt-conf.pdb");
+         // core-function should throw an exception (which is caught in the below function)
+         // because there are not alt-confs for the atoms of the neighbouring residues (hence
+         // atom selection fails).
+         mc.auto_fit_rotamer(imol, "A", 125, "", "A", imol_map);
+         mc.write_coordinates(imol, "alt-conf-and-rotamer.pdb");
+         mc.refine_residues_using_atom_cid(imol, "//A/125", "TRIPLE");
+         mc.write_coordinates(imol, "alt-conf-and-rotamer-and-refine.pdb");
+
+         if (false) // add the correct test here.
+            status = 1;
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2818,7 +2862,11 @@ int main(int argc, char **argv) {
    }
 
 
-   status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+   // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
+
+   status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
+
+   // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
    // status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
@@ -2847,8 +2895,6 @@ int main(int argc, char **argv) {
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-
-   // status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 

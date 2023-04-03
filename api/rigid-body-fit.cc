@@ -47,57 +47,25 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
    // and
    // make a minimol that is the atoms that are not in the atom selection
 
-   minimol::molecule mol_without_moving_atoms;
-   minimol::molecule mol_for_moving_atoms;
-
-   // fill these
-   mmdb::PResidue *SelResidues = 0;
-   int nSelResidues = 0;
-   mol->GetSelIndex(udd_atom_selection_fitting_atoms, SelResidues, nSelResidues);
-
-   std::vector<residue_spec_t> moving_residue_specs;
-   for (int ir=0; ir<nSelResidues; ir++) {
-      mmdb::Residue *residue_p = SelResidues[ir];
-      const std::string &chain_id(residue_p->GetChainID());
-      int frag_idx = mol_for_moving_atoms.fragment_for_chain(chain_id);
-      minimol::fragment &frag = mol_for_moving_atoms.fragments[frag_idx];
-      minimol::residue residue(residue_p);
-      moving_residue_specs.push_back(residue_spec_t(residue_p));
-      // std::cout << "adding residue " << residue << std::endl;
-      frag.addresidue(residue, false);
+   if (true) { // debugging
+      mmdb::PAtom *atoms = NULL;
+      int n_atoms;
+      mol->GetSelIndex(udd_atom_selection_fitting_atoms, atoms, n_atoms);
+      std::cout << "----------- debug:: in rigid_body_fit() we selected " << n_atoms << " atoms " << std::endl;
    }
 
-   mmdb::Manager *mol_fixed = new mmdb::Manager;
+   bool fill_masking_molecule_flag = true;
+   coot::ligand lig;
+   std::pair<coot::minimol::molecule, coot::minimol::molecule> p = coot::make_mols_from_atom_selection(mol,
+                                                                                                       udd_atom_selection_fitting_atoms,
+                                                                                                       fill_masking_molecule_flag);
+   const minimol::molecule &mol_without_moving_atoms = p.first;
+   const minimol::molecule &mol_for_moving_atoms     = p.second;
 
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   mmdb::Model *model_fixed_p = new mmdb::Model;
-   mol_fixed->AddModel(model_fixed_p);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         mmdb::Chain *chain_fixed_p = new mmdb::Chain;
-         chain_fixed_p->SetChainID(chain_p->GetChainID());
-         int n_res = chain_p->GetNumberOfResidues();
-         for (int ires=0; ires<n_res; ires++) {
-            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            if (residue_p) {
-               residue_spec_t spec_this(residue_p);
-               if (std::find(moving_residue_specs.begin(),
-                             moving_residue_specs.end(),
-                             spec_this) == moving_residue_specs.end()) {
-                  mmdb::Residue *r = util::deep_copy_this_residue(residue_p);
-                  chain_fixed_p->AddResidue(r);
-               }
-            }
-         }
-      }
-   }
-   mol_fixed->FinishStructEdit();
-   util::pdbcleanup_serial_residue_numbers(mol_fixed);
-   
    minimol::molecule moved_atoms_mol = rigid_body_fit_inner(mol_without_moving_atoms, mol_for_moving_atoms, xmap);
+
+   mol_without_moving_atoms.write_file("mol_without_moving_atoms.pdb", true);
+   mol_for_moving_atoms.write_file("mol_for_moving_atoms.pdb", true);
 
    // now transfer the new positions of the atoms in moved_atoms_mol into mol
 

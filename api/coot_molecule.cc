@@ -845,8 +845,9 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
    bool debug = false;
    float add_alt_conf_new_atoms_occupancy = 0.5; // was a static in graphics_info_t
 
-   // make_backup();// 20221016-PE why was this here? Ah, for interactive use/intermdiate atoms
-                    // let's remove it for now
+   // make_backup(); // Is replace_coords() the right place for make_backup()?
+                     // Perhaps the calling function should make the backup?
+                     // Let's presume so.
 
    if (false) {
       std::cout << "DEBUG:: --------------- replace_coords replacing "
@@ -1524,7 +1525,9 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             mmdb::Residue *next_res = coot::util::next_residue(res);
             mmdb::Manager *mol = atom_sel.mol;
             coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-                             &xmap_in); // use a pointer for the map
+                             &xmap_in); // use a const pointer for the map
+            std::cout << "------------ done making a backrub" << std::endl;
+            std::cout << "------------ calling br.search()" << std::endl;
             std::pair<coot::minimol::molecule,float> m = br.search(restraints);
             std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
             score = m.second;
@@ -3515,9 +3518,18 @@ coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::X
       // we make it and delete it. the atom_sel selection is not touched.
       int udd_atom_selection = atom_sel.mol->NewSelection(); // d
 
-      for (const auto &cid : v)
-         atom_sel.mol->Select(udd_atom_selection, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+      for (const auto &cid : v) {
+         atom_sel.mol->Select(udd_atom_selection, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+         if (true) { // debugging the selection
+            mmdb::PAtom *atoms = NULL;
+            int n_atoms;
+            atom_sel.mol->GetSelIndex(udd_atom_selection, atoms, n_atoms);
+            std::cout << "----------- debug:: in rigid_body_fit() we selected " << n_atoms << " atoms " << std::endl;
+            std::cout << "----------- after selection " << cid << " n_atoms " << n_atoms << std::endl;
+         }
+      }
 
+      make_backup();
       // update the atoms of atom-sel.mol
       coot::api::rigid_body_fit(atom_sel.mol, udd_atom_selection, xmap);
       status = 1;
