@@ -363,8 +363,6 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
-   std::cout << "---------------  in get_bonds_mesh_instanced() A mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
-   std::cout << "---------------  in get_bonds_mesh_instanced() B mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
 
    std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is not passed.
 
