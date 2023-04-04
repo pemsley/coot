@@ -167,6 +167,10 @@
           <attribute name="action">app.renumber_residues_action</attribute>
         </item>
         <item>
+          <attribute name="label">Renumber Waters</attribute>
+          <attribute name="action">app.renumber_waters_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Residue Info...</attribute>
           <attribute name="action">app.residue_info_action</attribute>
         </item>

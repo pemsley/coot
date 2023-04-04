@@ -629,6 +629,17 @@ renumber_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+renumber_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      renumber_waters(imol);
+   }
+}
+
+void
 residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
@@ -649,6 +660,18 @@ edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);
 }
+
+void
+exchange_chain_ids_for_seg_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      exchange_chain_ids_for_seg_ids(imol);
+   }
+}
+
 
 #include "c-interface-preferences.h"
 void
@@ -975,6 +998,25 @@ other_modelling_tools_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void
+whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      auto &m = g.molecules[imol];
+      coot::residue_spec_t rs(pp.second.second);
+      std::string rn = m.get_residue_name(rs);
+      std::string s = rs.format() + std::string(" ") + rn;
+      add_status_bar_text(s.c_str());
+   }
+}
+
+
+
 
 
 void
@@ -1183,18 +1225,26 @@ void rigid_body_fit_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      rigid_body_refine_by_atom_selection(imol, "/");
+      graphics_draw();
+   }
 }
 
 void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.superose_ligand_gui()");
 }
 
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
-
+   move_reference_chain_to_symm_chain_position();
 }
 
 
@@ -2098,6 +2148,7 @@ create_actions(GtkApplication *application) {
    add_action(      "edit_replace_fragment_action",       edit_replace_fragment_action);
    add_action(       "edit_replace_residue_action",        edit_replace_residue_action);
    add_action(          "renumber_residues_action",           renumber_residues_action);
+   add_action(            "renumber_waters_action",             renumber_waters_action);
    add_action(               "residue_info_action",                residue_info_action);
    add_action(            "edit_restraints_action",             edit_restraints_action);
    add_action(           "show_preferences_action",            show_preferences_action);
@@ -2105,6 +2156,7 @@ create_actions(GtkApplication *application) {
    add_action(    "show_shader_preferences_action",     show_shader_preferences_action);
    add_action(    "fix_nomenclature_errors_action",     fix_nomenclature_errors_action);
    add_action(  "invert_this_chiral_centre_action",    invert_this_chiral_centre_action);
+   add_action("exchange_chain_ids_for_seg_ids_action", exchange_chain_ids_for_seg_ids_action);
 
    // Calculate
 
@@ -2180,6 +2232,7 @@ create_actions(GtkApplication *application) {
    add_action(              "superpose_ligands_action",               superpose_ligands_action);
    add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
    add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
+   add_action(                     "whats_this_action",                      whats_this_action);
 
    add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 
