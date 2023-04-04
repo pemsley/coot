@@ -131,6 +131,10 @@
           <attribute name="action">app.copy_molecule_fragment_action</attribute>
         </item>
         <item>
+          <attribute name="label">Exchange Chain-IDs for Seg-IDs</attribute>
+          <attribute name="action">app.exchange_chain_ids_for_seg_ids_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Fix Nomenclature Errors...</attribute>
           <attribute name="action">app.fix_nomenclature_errors_action</attribute>
         </item>
@@ -471,8 +475,16 @@
           <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
         </item>
         <item>
+          <attribute name="label">Superpose Ligand</attribute>
+          <attribute name="action">app.superpose_ligands_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Symm Shift Reference Chain Here</attribute>
           <attribute name="action">app.symm_shift_reference_chain_here_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">What's This?</attribute>
+          <attribute name="action">app.whats_this_action</attribute>
         </item>
     </submenu>
 

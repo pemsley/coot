@@ -1011,7 +1011,7 @@ whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       coot::residue_spec_t rs(pp.second.second);
       std::string rn = m.get_residue_name(rs);
       std::string s = rs.format() + std::string(" ") + rn;
-      add_status_bar_text(s.c_str());
+      add_status_bar_text(s);
    }
 }
 
@@ -1238,7 +1238,7 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    safe_python_command("import coot_gui");
-   safe_python_command("coot_gui.superose_ligand_gui()");
+   safe_python_command("coot_gui.superpose_ligand_gui()");
 }
 
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,

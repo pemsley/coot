@@ -419,7 +419,7 @@ int merge_fragments(int imol);
 //! \}
 
 /*  ------------------------------------------------------------------------ */
-/*                         merge fragments                                   */
+/*                         delete items                                      */
 /*  ------------------------------------------------------------------------ */
 //! \name Delete Items
 //! \{
@@ -1149,6 +1149,21 @@ PyObject *water_chain_from_shelx_ins_py(int imol);
 /*! \brief return the chain id of the water chain. Raw interface */
 PyObject *water_chain_py(int imol);
 #endif
+
+//! \}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  intrface utils                                          */
+/*  ----------------------------------------------------------------------- */
+//! \name Interface Utils
+//! \{
+
+/*! \brief Put text s into the status bar.
+
+  use this to put info for the user in the statusbar (less intrusive
+  than popup). */
+void add_status_bar_text(const std::string &s);
 
 //! \}
 

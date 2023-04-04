@@ -937,12 +937,6 @@ void set_model_toolbar_docked_position(int state);
 int suck_model_fit_dialog();
 int suck_model_fit_dialog_bl();
 
-/*! \brief Put text s into the status bar.
-
-  use this to put info for the user in the statusbar (less intrusive
-  than popup). */
-void add_status_bar_text(const char *s);
-
 /*! \brief model-fit-refine dialog stays on top */
 void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
