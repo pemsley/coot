@@ -17,6 +17,12 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
+Display Manager - bond and colour selector is broken ::: 1
+
+Display Manager - "Delete Model" button doesn't delete the "combobox" (as I called it) in the Display Manager ::: 0.5
+
+Validate -> Ramachandran Plot ::: 10
+
 Make a "framework" program for validation for Jakub - make a list of generic residue validation blocks.
 
 Does the show_updating_maps_chooser() work? In refinement branch even?
