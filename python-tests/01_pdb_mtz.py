@@ -1633,8 +1633,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         #self.failUnless(len(ls) == 153 or \  # new dictionary
         #                len(ls) == 63)       # old dicionary
         #                len(ls) == 47)       # ccp4 8 dicionary
-        self.failUnless(len(ls) > 45,
-                        "   found %s matching names: %s" %(len(ls), ls))
+        self.failUnless(len(ls) > 45, "   found %s matching names: %s" %(len(ls), ls))
 
 
     def test33_0(self):
