@@ -418,6 +418,21 @@ void import_bild(const std::string &file_name);
 int merge_fragments(int imol);
 //! \}
 
+/*  ------------------------------------------------------------------------ */
+/*                         merge fragments                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Delete Items
+//! \{
+//! \brief Delete Items
+
+/*! \brief delete the chain  */
+void delete_chain(int imol, const std::string  &chain_id);
+
+/*! \brief delete the side chains in the chain  */
+void delete_sidechains_for_chain(int imol, const std::string &chain_id);
+
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */

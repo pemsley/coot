@@ -5230,12 +5230,6 @@ int delete_hydrogens(int imol);
    @return number of waters deleted. */
 int delete_waters(int imol);
 
-/*! \brief delete the chain  */
-void delete_chain(int imol, const char *chain_id);
-
-/*! \brief delete the side chains in the chain  */
-void delete_sidechains_for_chain(int imol, const char *chain_id);
-
 void post_delete_item_dialog();
 
 

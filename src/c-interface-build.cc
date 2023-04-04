@@ -891,7 +891,7 @@ int delete_waters(int imol) {
    return n_deleted;
 }
 
-void delete_chain(int imol, const char *chain_id_in) {
+void delete_chain(int imol, const std::string &chain_id_in) {
 
    std::string chain_id(chain_id_in);
    graphics_info_t g;
@@ -926,7 +926,7 @@ void delete_chain(int imol, const char *chain_id_in) {
 }
 
 /*! \brief delete the chain  */
-void delete_sidechains_for_chain(int imol, const char *chain_id_in) {
+void delete_sidechains_for_chain(int imol, const std::string &chain_id_in) {
 
    std::string chain_id(chain_id_in);
    if (is_valid_model_molecule(imol)) {

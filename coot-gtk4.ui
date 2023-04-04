@@ -917,7 +917,12 @@
       <item>
         <attribute name="label" translatable="yes">Side-chains in Residue Range</attribute>
         <attribute name="action">app.delete_item</attribute>
-        <attribute name="target">side-chain-residue=range</attribute>
+        <attribute name="target">side-chain-residue-range</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Side-chains in Chain</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">side-chains-in-chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Residue</attribute>

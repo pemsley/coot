@@ -2029,6 +2029,9 @@ delete_item(GSimpleAction *simple_action,
             // use old-style "setup"
             std::cout << "delete side-chain-residue-range needs fixing" << std::endl;
          }
+         if (par == "side-chains-in-chain") {
+            delete_sidechains_for_chain(imol, atom_spec.chain_id);
+         }
          if (par == "water") {
             auto &m = g.molecules[imol];
             m.delete_water(atom_spec);
@@ -2085,23 +2088,23 @@ create_actions(GtkApplication *application) {
 
    // Edit
 
-   add_action(              "make_link_action",               make_link_action); // add header link
-   add_action(       "change_chain_ids_action",        change_chain_ids_action);
-   add_action(          "copy_molecule_action",           copy_molecule_action);
-   add_action( "copy_molecule_fragment_action",  copy_molecule_fragment_action);
-   add_action(        "merge_molecules_action",         merge_molecules_action);
-   add_action(     "move_molecule_here_action",      move_molecule_here_action);
-   add_action(        "mutate_molecule_action",         mutate_molecule_action);
-   add_action(  "edit_replace_fragment_action",   edit_replace_fragment_action);
-   add_action(   "edit_replace_residue_action",    edit_replace_residue_action);
-   add_action(      "renumber_residues_action",       renumber_residues_action);
-   add_action(           "residue_info_action",            residue_info_action);
-   add_action(        "edit_restraints_action",         edit_restraints_action);
-   add_action(       "show_preferences_action",        show_preferences_action);
-   add_action(   "merge_solvent_chains_action",    merge_solvent_chains_action);
-   add_action("show_shader_preferences_action", show_shader_preferences_action);
-   add_action("fix_nomenclature_errors_action", fix_nomenclature_errors_action);
-   add_action("invert_this_chiral_centre_action", invert_this_chiral_centre_action);
+   add_action(                  "make_link_action",                   make_link_action); // add header link
+   add_action(           "change_chain_ids_action",            change_chain_ids_action);
+   add_action(              "copy_molecule_action",               copy_molecule_action);
+   add_action(     "copy_molecule_fragment_action",      copy_molecule_fragment_action);
+   add_action(            "merge_molecules_action",             merge_molecules_action);
+   add_action(         "move_molecule_here_action",          move_molecule_here_action);
+   add_action(            "mutate_molecule_action",             mutate_molecule_action);
+   add_action(      "edit_replace_fragment_action",       edit_replace_fragment_action);
+   add_action(       "edit_replace_residue_action",        edit_replace_residue_action);
+   add_action(          "renumber_residues_action",           renumber_residues_action);
+   add_action(               "residue_info_action",                residue_info_action);
+   add_action(            "edit_restraints_action",             edit_restraints_action);
+   add_action(           "show_preferences_action",            show_preferences_action);
+   add_action(       "merge_solvent_chains_action",        merge_solvent_chains_action);
+   add_action(    "show_shader_preferences_action",     show_shader_preferences_action);
+   add_action(    "fix_nomenclature_errors_action",     fix_nomenclature_errors_action);
+   add_action(  "invert_this_chiral_centre_action",    invert_this_chiral_centre_action);
 
    // Calculate
 
