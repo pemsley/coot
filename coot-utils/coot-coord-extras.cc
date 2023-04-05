@@ -189,7 +189,7 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
                }
 
 
-               if (residue_has_deuterium_atoms) {
+               if (has_deuterium_atoms) {
                   // same again, but change the dictionary atom names on the fly
 
                   std::string dict_atom_name_1 = dict.bond_restraint[ibr].atom_id_1_4c();
