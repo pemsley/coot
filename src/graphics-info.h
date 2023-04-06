@@ -29,8 +29,12 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
+#include "validation-graphs.hh"
+#include "validation-graph-widget.hh"
 // need gtk things
 #include <gtk/gtk.h>
+#include <map>
+#include <memory>
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -5014,7 +5018,25 @@ string   static std::string sessionid;
                             << s << "() not much more insight \n";
       }
    }
+   /// Should be called when a model gets added or deleted.
+   /// Updates the GtkListStore for the validation graph model combobox
+   static void refresh_validation_graph_model_list();
+   /// List of label strings (col 0) and model indices (int) (col 1)
+   static GtkListStore* validation_graph_model_list;
+   private:
+   /// -1 if none
+   static int active_validation_graph_model_idx;
+   static std::string active_validation_graph_chain_id;
+   typedef std::map<coot::validation_graph_type,GtkWidget*> validation_graph_map_t;
+   static validation_graph_map_t validation_graph_widgets;
+   typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
+   static validation_data_map_t validation_graph_data;
+   public:
+   static void update_active_validation_graph_model(int new_model_idx);
+   static void change_validation_graph_chain(const std::string& chain_id);
 
+   static void create_validation_graph(coot::validation_graph_type type);
+   static void destroy_validation_graph(coot::validation_graph_type type);
 };
 
 

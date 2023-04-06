@@ -4216,10 +4216,6 @@ void do_ramachandran_plot(int imol);
   plot.  */
 void set_kleywegt_plot_n_diffs(int n_diffs);
 
-
-/*  the the menu */
-void add_on_rama_choices();
-
 /*! \brief set the contour levels for the ramachandran plot, default
   values are 0.02 (prefered) 0.002 (allowed) */
 void set_ramachandran_plot_contour_levels(float level_prefered, float level_allowed);
@@ -4276,9 +4272,6 @@ void sequence_view_old_style(int imol);
 
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
-
-/* this is a widget function, it shouldn't be here */
-void add_on_sequence_view_choices();
 
 /* \} */
 

@@ -692,6 +692,10 @@
       <attribute name="label">Validate</attribute>
       <section>
         <item>
+          <attribute name="label">Validation graphs</attribute>
+          <attribute name="action">app.show_validation_graphs_dialog</attribute>
+        </item>
+        <item>
           <attribute name="label">Alignment vs Reference PIR</attribute>
           <attribute name="action">app.alignment_vs_pir_action</attribute>
         </item>
@@ -712,28 +716,8 @@
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
         <item>
-          <attribute name="label">Density fit analysis...</attribute>
-          <attribute name="action">app.density_fit_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Difference Map Peaks...</attribute>
-          <attribute name="action">app.difference_map_peaks_item_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Geometry analysis...</attribute>
-          <attribute name="action">app.geometry_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">GLN and ASN B-factor Outliers...</attribute>
-          <attribute name="action">app.gln_and_asn_b_factor_outlier_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Incorrect Chiral Volumes...</attribute>
-          <attribute name="action">app.chiral_volumes_item_action</attribute>
         </item>
         <!-- restore this one day -->
         <!-- <item> -->
@@ -741,44 +725,12 @@
         <!--   <attribute name="action">app.on_undo_symmetry_view1_action</attribute> -->
         <!-- </item> -->
         <item>
-          <attribute name="label">NCS Differences...</attribute>
-          <attribute name="action">app.ncs_differences_item_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Overlaps, Peptides, CBeta, Rama &amp; Rota Outliers</attribute>
           <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
         </item>
         <item>
-          <attribute name="label">Peptide Flips from Difference Map...</attribute>
-          <attribute name="action">app.peptide_flips_from_diff_map_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Peptide omega analysis...</attribute>
-          <attribute name="action">app.peptide_omega_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Pukka Puckers...</attribute>
-          <attribute name="action">app.pukka_puckers_item_action</attribute>
-        </item>
-        <item>
           <attribute name="label">Refmac Log Validation</attribute>
           <attribute name="action">app.refmac_log_validation_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Ramachandran Plot...</attribute>
-          <attribute name="action">app.ramachandran_plot_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Rotamer analysis...</attribute>
-          <attribute name="action">app.rotamer_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Temp. fact. analysis...</attribute>
-          <attribute name="action">app.temp_factor_analysis_item_action</attribute>
-        </item>
-        <item>
-          <attribute name="label">Temp. fact. variance analysis...</attribute>
-          <attribute name="action">app.temp_factor_variance_analysis_item_action</attribute>
         </item>
         <item>
           <attribute name="label">Unmodelled blobs...</attribute>
@@ -6426,7 +6378,7 @@ Do you want to continue?
                 <property name="visible">True</property>
                 <property name="transition-type">GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP</property>
                 <property name="transition-duration">350</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <child>
                   <object class="GtkOverlay" id="python_scripting_overlay">
                     <child>
@@ -6460,9 +6412,29 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+            <child type="overlay">
+              <object class="GtkFrame" id="validation_graph_frame">
+                <property name="halign">fill</property>
+                <property name="valign">end</property>
+                <property name="hexpand">True</property>
+                <property name="visible">False</property>
+                <property name="can-focus">True</property>
+                <property name="height-request">200</property>
+                <!-- <property name="scrollable">True</property> -->
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <child>
+                      <object class="GtkBox" id="validation_graph_box">
+                        <property name="orientation">vertical</property>
+                        
+                      </object>
+                    </child>
+                  </object>
+                </child>
+>              </object>
+            </child>
           </object>
         </child>
-
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
@@ -6614,6 +6586,162 @@ Do you want to continue?
     <child>
       <object class="GtkStatusbar" id="main_window_statusbar">
         <signal name="text-pushed" handler="on_main_window_statusbar_text_pushed" swapped="no"/>
+      </object>
+    </child>
+  </object>
+  <object class="GtkDialog" id="validation_graph_dialog">
+    <property name="title">Validation graphs</property>
+    <property name="hide-on-close">True</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Validation Graphs</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child>
+          <!-- <object class="GtkScrolledWindow"> -->
+            <!-- <child> -->
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Model: </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="validation_graph_model_combobox">
+                    <property name="hexpand">True</property>
+                    <signal name="changed" swapped="no" handler="on_validation_graph_model_combobox_changed" />
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            <!-- </child> -->
+          <!-- </object> -->
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Chain: </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="validation_graph_chain_id_selector">
+                <property name="hexpand">True</property>
+                <signal name="changed" swapped="no" handler="on_validation_graph_chain_id_combobox_changed" />
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Graph types</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkGrid">
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Density fit</property>
+                <signal name="toggled" handler="on_density_fit_graph_toggled"></signal>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Temp Factor</property>
+                <signal name="toggled" handler="on_temp_factor_graph_toggled"></signal>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Rama</property>
+                <signal name="toggled" handler="on_rama_graph_toggled"></signal>
+                <layout>
+                  <property name="row">2</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Rota</property>
+                <signal name="toggled" handler="on_rota_graph_toggled"></signal>
+                <layout>
+                  <property name="row">3</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Omega</property>
+                <signal name="toggled" handler="on_omega_graph_toggled"></signal>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">Geometry</property>
+                <signal name="toggled" handler="on_geometry_graph_toggled"></signal>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="label">NCS</property>
+                <signal name="toggled" handler="on_ncs_graph_toggled"></signal>
+                <layout>
+                  <property name="row">2</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </object>

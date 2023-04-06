@@ -1442,10 +1442,7 @@ sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
 
-   // 20220628-PE this is different now?
-
-   // add_on_sequence_view_choices()
-   std::cout << "add on sequence_view options here " << std::endl;
+   g_warning("todo: after the removal of dynamic menus, this has to be reworked");
 }
 
 void
@@ -1519,113 +1516,10 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
-
-void
-density_fit_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for density fit" << std::endl;
+void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G_GNUC_UNUSED GVariant *parameter, G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget* di = widget_from_builder("validation_graph_dialog");
+   gtk_widget_show(di);
 }
-
-
-void
-difference_map_peaks_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for difference map peaks fit" << std::endl;
-}
-
-void
-geometry_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for geometry analysis" << std::endl;
-}
-
-void
-gln_and_asn_b_factor_outlier_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                         G_GNUC_UNUSED GVariant *parameter,
-                                         G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for GLN ASN" << std::endl;
-}
-
-void
-chiral_volumes_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for chiral volumes" << std::endl;
-}
-
-void
-ncs_differences_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                            G_GNUC_UNUSED GVariant *parameter,
-                            G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for ncs differences" << std::endl;
-}
-
-
-void
-peptide_flips_from_diff_map_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for peptide flips from difference map" << std::endl;
-}
-
-void
-peptide_omega_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                   G_GNUC_UNUSED GVariant *parameter,
-                                   G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for omega analysis " << std::endl;
-}
-
-void
-pukka_puckers_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                          G_GNUC_UNUSED GVariant *parameter,
-                          G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for Pukka Puckers" << std::endl;
-}
-
-void
-ramachandran_plot_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                              G_GNUC_UNUSED GVariant *parameter,
-                              G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for ramachandran plot" << std::endl;
-}
-
-void
-rotamer_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                             G_GNUC_UNUSED GVariant *parameter,
-                             G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for rotamer analysis" << std::endl;
-}
-
-void
-temp_factor_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for temperature factor analysis" << std::endl;
-}
-
-void
-temp_factor_variance_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                          G_GNUC_UNUSED GVariant *parameter,
-                                          G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for temperature factor variance analysis" << std::endl;
-}
-
 
 void alignment_vs_pir_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
@@ -2283,21 +2177,8 @@ create_actions(GtkApplication *application) {
 
    add_action(                  "unmodelled_blobs_action",                   unmodelled_blobs_action);
    add_action(               "check_delete_waters_action",                check_delete_waters_action);
-   add_action(         "density_fit_analysis_item_action",          density_fit_analysis_item_action);
-   add_action(         "difference_map_peaks_item_action",          difference_map_peaks_item_action);
-   add_action(            "geometry_analysis_item_action",             geometry_analysis_item_action);
-   add_action(               "chiral_volumes_item_action",                chiral_volumes_item_action);
-   add_action(              "ncs_differences_item_action",               ncs_differences_item_action);
-   add_action(                "pukka_puckers_item_action",                 pukka_puckers_item_action);
-   add_action(            "ramachandran_plot_item_action",             ramachandran_plot_item_action);
-   add_action(             "rotamer_analysis_item_action",              rotamer_analysis_item_action);
-   add_action(         "temp_factor_analysis_item_action",          temp_factor_analysis_item_action);
-   add_action(       "peptide_omega_analysis_item_action",        peptide_omega_analysis_item_action);
-   add_action(  "peptide_flips_from_diff_map_item_action",   peptide_flips_from_diff_map_item_action);
-   add_action( "gln_and_asn_b_factor_outlier_item_action",  gln_and_asn_b_factor_outlier_item_action);
-   add_action("temp_factor_variance_analysis_item_action", temp_factor_variance_analysis_item_action);
 
-
+   add_action(          "show_validation_graphs_dialog",           show_validation_graphs_dialog);
    add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
    add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
    add_action(             "validation_outliers_action",              validation_outliers_action);
