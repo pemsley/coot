@@ -148,7 +148,8 @@ export COOT_STANDARD_RESIDUES
 # export COOT_REFMAC_LIB_DIR
 export COOT_PYTHON_DIR
 # export PYTHONPATH
-export PYTHONHOME
+# This is likely no longer necessary and it breaks python when using python installed in the system
+# export PYTHONHOME
 export COOT_SCHEME_DIR
 export COOT_REF_STRUCTS
 export COOT_RESOURCES_FILE

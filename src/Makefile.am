@@ -76,6 +76,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
+	$(top_builddir)/test-validation/libcoot-validation-graphs.la      	\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
@@ -514,8 +515,6 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
-	dynamic-menus.hh         \
-	dynamic-menus.cc         \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
@@ -724,6 +723,9 @@ libcootsumo_la_SOURCES = \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
+	validation-graphs.cc	 \
+	validation-graph-widget.hh	 \
+	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \

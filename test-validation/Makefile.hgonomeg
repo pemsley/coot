@@ -2,15 +2,15 @@
 # to find clipper.pc, you will need to do something like
 # export PKG_CONFIG_PATH=$COOT_DIR/lib/pkgconfig
 
-COOT_DIR=$(HOME)/autobuild/Linux-penelope-gtk4
+COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix
 
 CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
    `pkg-config --cflags gtk4` `pkg-config --cflags epoxy`  `pkg-config --cflags clipper` \
-   -g -O0 -march=native -std=gnu++11
+   -ggdb -O2 -march=native -std=c++11
 
-LDLIBS=-fuse-ld=gold \
+LDLIBS=-fuse-ld=mold \
        -L$(COOT_DIR)/lib -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 \
        `pkg-config --libs gtk4`  \
        `pkg-config --libs epoxy` \
@@ -25,6 +25,7 @@ HEADERS = \
     validation-graph-widget.hh
 
 SOURCES = \
+    residue-validation-information.cc \
     validation-information.cc \
     validation-graph-widget.cc \
     gtk4-test-validation-graph.cc 
@@ -36,4 +37,3 @@ OBJS := $(patsubst %.cc,%.o,$(SOURCES))
 
 gtk4-test-validation-graph: $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)
-

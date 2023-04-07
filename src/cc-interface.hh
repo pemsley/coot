@@ -418,6 +418,21 @@ void import_bild(const std::string &file_name);
 int merge_fragments(int imol);
 //! \}
 
+/*  ------------------------------------------------------------------------ */
+/*                         delete items                                      */
+/*  ------------------------------------------------------------------------ */
+//! \name Delete Items
+//! \{
+//! \brief Delete Items
+
+/*! \brief delete the chain  */
+void delete_chain(int imol, const std::string  &chain_id);
+
+/*! \brief delete the side chains in the chain  */
+void delete_sidechains_for_chain(int imol, const std::string &chain_id);
+
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
@@ -1134,6 +1149,21 @@ PyObject *water_chain_from_shelx_ins_py(int imol);
 /*! \brief return the chain id of the water chain. Raw interface */
 PyObject *water_chain_py(int imol);
 #endif
+
+//! \}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  intrface utils                                          */
+/*  ----------------------------------------------------------------------- */
+//! \name Interface Utils
+//! \{
+
+/*! \brief Put text s into the status bar.
+
+  use this to put info for the user in the statusbar (less intrusive
+  than popup). */
+void add_status_bar_text(const std::string &s);
 
 //! \}
 

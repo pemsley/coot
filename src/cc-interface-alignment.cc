@@ -15,6 +15,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "cc-interface.hh" // 20230404-PE for add_status_bar_text()
 // --------------------------------------------
 
 #include "cc-interface-alignment.hh"

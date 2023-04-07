@@ -435,6 +435,7 @@ python-tests/Makefile
 lidia-core/Makefile
 lbg/Makefile
 doc/Makefile
+test-validation/Makefile
 src/Makefile
 src/coot
 python/coot_load_modules.py

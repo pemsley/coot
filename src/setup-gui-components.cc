@@ -1,13 +1,21 @@
-#include "setup-gui-components.hh"
-
+#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
+#include "setup-gui-components.hh"
+#include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
 // No other files should ever need it.
 inline GMenuModel* menu_model_from_builder(const std::string& m_name) {
    GMenuModel *m = G_MENU_MODEL(graphics_info_t::get_gobject_from_builder(m_name));
+   return m;
+}
+
+// this function is both defined and implemented here.
+// No other files should ever need it.
+inline GMenu* menu_from_builder(const std::string& m_name) {
+   GMenu *m = G_MENU(graphics_info_t::get_gobject_from_builder(m_name));
    return m;
 }
 
@@ -90,6 +98,12 @@ void setup_accession_code_frame() {
       handle_get_accession_code(frame, GTK_WIDGET(entry));
    }),frame);
    setup_generic_hide_on_escape_controller(entry,frame);
+}
+
+void setup_validation_graph_dialog() {
+   GtkWidget* model_combobox = widget_from_builder("validation_graph_model_combobox");
+   gtk_combo_box_set_model(GTK_COMBO_BOX(model_combobox),GTK_TREE_MODEL(graphics_info_t::validation_graph_model_list));
+   gtk_combo_box_set_id_column(GTK_COMBO_BOX(model_combobox),0);
 }
 
 void setup_get_monomer() {
@@ -197,6 +211,7 @@ void setup_python_scripting_entry() {
 void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
+   setup_validation_graph_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
