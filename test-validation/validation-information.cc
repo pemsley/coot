@@ -2,7 +2,8 @@
 
 
 unsigned int coot::validation_information_t::get_index_for_chain(const std::string &chain_id) {
-    for (unsigned int i=0; i<cviv.size(); i++) {
+
+   for (unsigned int i=0; i<cviv.size(); i++) {
     if (chain_id == cviv[i].chain_id)
         return i;
     }

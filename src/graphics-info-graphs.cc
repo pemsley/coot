@@ -161,18 +161,18 @@ void graphics_info_t::change_validation_graph_chain(const std::string& chain_id)
 // }
 
 void insert_validation_graph(GtkWidget* graph) {
-	GtkWidget* target_box = widget_from_builder("validation_graph_box");
-	if(! gtk_widget_get_first_child(target_box)) {
-		// Empty validation_graph_box means that we need to make the validation_graph_frame visible first
-		GtkWidget* frame = widget_from_builder("validation_graph_frame");
-		gtk_widget_set_visible(frame, TRUE);
-	}
-	//g_debug("Inserting %p to the validation graph box.",graph);
-	gtk_box_append(GTK_BOX(target_box), graph);
+   GtkWidget* target_box = widget_from_builder("validation_graph_box");
+   if(! gtk_widget_get_first_child(target_box)) {
+      // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
+      GtkWidget* frame = widget_from_builder("validation_graph_frame");
+      gtk_widget_set_visible(frame, TRUE);
+   }
+   //g_debug("Inserting %p to the validation graph box.",graph);
+   gtk_box_append(GTK_BOX(target_box), graph);
 }
 
 void remove_validation_graph(GtkWidget* graph) {
-	bool removed = false;
+
 	GtkWidget* target_box = widget_from_builder("validation_graph_box");
 	//g_debug("Removing %p from the validation graph box.",graph);
 	gtk_box_remove(GTK_BOX(target_box), graph);
@@ -183,33 +183,90 @@ void remove_validation_graph(GtkWidget* graph) {
 	}
 }
 
+#include "test-validation/validation-information.hh"
+#include "test-validation/validation-graph-widget.hh"
+
+CootValidationGraph *create_validation_graph_type_density_fit_analysis(int imol) {
+
+   graphics_info_t g;  // remove this
+
+   CootValidationGraph *gr = nullptr; // set this and return it.
+
+   int imol_map = g.Imol_Refinement_Map();
+   if (! g.is_valid_model_molecule(imol))   return nullptr;
+   if (! g.is_valid_map_molecule(imol_map)) return nullptr;
+
+   coot::validation_information_t r;
+   r.name = "Density fit analysis";
+
+   const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol; // this can be removed when in place
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               coot::residue_spec_t res_spec(residue_p);
+               mmdb::PAtom *residue_atoms=0;
+               int n_residue_atoms;
+               residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+               double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
+               std::string l = "Chain ID: "+ res_spec.chain_id + "     Residue number: "+ std::to_string(res_spec.res_no);
+               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+               const std::string &chain_id = res_spec.chain_id;
+               int this_resno = res_spec.res_no;
+               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+               coot::residue_validation_information_t rvi(res_spec, atom_spec, residue_density_score, l);
+               r.add_residue_validation_information(rvi, chain_id);
+               gr = coot_validation_graph_new();
+            }
+         }
+      }
+   }
+
+   return gr;
+
+}
+
 void graphics_info_t::create_validation_graph(coot::validation_graph_type type) {
-	// 1. instantiate the validation graph
-	GtkWidget* this_will_be_the_graph = gtk_label_new((coot::validation_graph_type_to_human_name(type)+" TODO: Graph Widget").c_str());
-	// 2. store the graph in std::map
-	validation_graph_widgets[type] = this_will_be_the_graph;
-	if(active_validation_graph_model_idx != -1) {
-		// 3. Compute data
-		g_debug("todo: compute data for %s",coot::validation_graph_type_to_human_name(type).c_str());
-		// 4. Store the data in std::maps
-		// the number is a dummy for now
-		validation_graph_data[type] = std::make_shared<int>(7);
-		// 5. Set the data for the graph
-		g_warning("todo: Finish implementing \"graphics_info_t::create_validation_graph()\"");
-	} else {
-		g_warning("graphics_info_t::create_validation_graph(): There is no active validation graph model. An empty graph was created.");
-	}
-	// 6. Show the graph
-	insert_validation_graph(this_will_be_the_graph);
+
+   // 1. instantiate the validation graph
+   // GtkWidget* this_is_the_graph = gtk_label_new((coot::validation_graph_type_to_human_name(type)+" TODO: Graph Widget").c_str());
+   // 2. store the graph in std::map
+
+   int imol = 0; // for now
+   GtkWidget *this_is_the_graph = GTK_WIDGET(create_validation_graph_type_density_fit_analysis(imol));
+
+   validation_graph_widgets[type] = this_is_the_graph;
+   if (active_validation_graph_model_idx != -1) {
+      // 3. Compute data
+      g_debug("todo: compute data for %s",coot::validation_graph_type_to_human_name(type).c_str());
+      // 4. Store the data in std::maps
+      // the number is a dummy for now
+      validation_graph_data[type] = std::make_shared<int>(7);
+      // 5. Set the data for the graph
+      g_warning("todo: Finish implementing \"graphics_info_t::create_validation_graph()\"");
+   } else {
+      g_warning("graphics_info_t::create_validation_graph(): There is no active validation graph model. An empty graph was created.");
+   }
+   // 6. Show the graph
+   insert_validation_graph(this_is_the_graph);
+
 }
 
 void graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
-	// 1. Remove the graph and its' data from std::maps
-	auto* widget = validation_graph_widgets[type];
-	validation_graph_widgets.erase(type);
-	validation_graph_data.erase(type);
-	// 2. Destroy the graph widget
-	remove_validation_graph(widget);
+   // 1. Remove the graph and its' data from std::maps
+   auto* widget = validation_graph_widgets[type];
+   validation_graph_widgets.erase(type);
+   validation_graph_data.erase(type);
+   // 2. Destroy the graph widget
+   remove_validation_graph(widget);
 }
 
 // Validation stuff	    //

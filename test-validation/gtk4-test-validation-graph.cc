@@ -295,6 +295,7 @@ GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
 }
 
 GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
+
    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
    gtk_widget_set_margin_bottom(vbox,10);
    gtk_widget_set_margin_top(vbox,10);
@@ -318,7 +319,7 @@ GtkWidget* build_graph_stack(graphs_shipment_t* graphs) {
    GtkWidget* target_label = gtk_label_new("");
    GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
 
-   for(auto el : graphs->compacted_graphs) {
+   for(auto &el : graphs->compacted_graphs) {
       gtk_box_append(GTK_BOX(vbox_inner),GTK_WIDGET(el.second));
       coot_validation_graph_set_single_chain_mode(el.second, "A");
       g_signal_connect(el.second,"residue-clicked",
