@@ -8065,7 +8065,7 @@ Bond_lines_container::add_atom_centres(int imol,
       bool have_dict_for_this_type = false;
       std::map<std::string, bool>::const_iterator it = have_at_least_minimal_dictionary.find(res_type);
       if (geom) {
-         if (it == have_at_least_minimal_dictionary.end()) {
+         if (it == have_at_least_minimal_dictionary.end()) { // no hit in the cache
             bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
             have_at_least_minimal_dictionary[res_type] = s;
             have_dict_for_this_type = s;
