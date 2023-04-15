@@ -296,7 +296,7 @@ class molecules_container_t {
       make_backups_flag = true;
       interrupt_long_term_job = false;
       mmdb::InitMatType();
-      debug();
+      // debug();
    }
 
    void debug() const;
