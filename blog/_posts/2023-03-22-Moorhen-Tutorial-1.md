@@ -22,19 +22,20 @@ _Moorhen displays a protein model, a blue 2Fo-Fc-style map and an Fo-Fc-style ma
  - Use Left-Mouse click and drag to rotate the view.
  - Use scroll-wheel scroll to zoom in and out
 
-For me, the molecule spins too fast as the mouse moves, so I reduce the mouse sensitivity:
+You can change the speed that moving the mouse spins the view:
 
-  - **Preferences** &rarr; "Mouse Sensitivity" &rarr; 0.4
-  - Click off the dialog to make the dialog disappear.
+  - **Preferences** &rarr; "Mouse Sensitivity" &rarr; 0.4 (# for example)
+  - Click off the Preferences dialog to make the dialog disappear.
 
-(0.4 is my personal preference, you might like it faster or slower.)
 
-  - Similarly, you can change the thickness of the map lines if you wish
+  - Similarly, you can change the thickness of the map lines if you wish.
   - Use "[" and "]" on the keyboard to adjust the radius of the density.
+  - Ctrl middle-mouse scroll to change the contour level (one step at at time seems good to me).
 
 ## Let's Go!
 
-Our job is to fix and amend the protein model in a way that is consistent with the data. Let's first look at the Ramachandran plot:
+Our job is to fix and amend the protein model in a way that is consistent with the data. Let's first look
+at the Ramachandran plot:
 
 ## Maps and Models
 
@@ -44,17 +45,20 @@ _Moorhen display a drawer with "Models and Maps", "Validation Tools" and "Consol
 
   - Click on the **Models and Maps** tab
 
-_Moorhen expands the tab to display additional information_
+_Moorhen expands the tab to display additional information_.
+
+Initially the background of the drawer is semi-transparent,
 
   - Put your cursor over the drawer to make it opaque.
 
 You will see a sequence viewer - let's use that to move around the structure. Click on a few letters (that represent the residues in the protein). Notice that the map density mesh is redrawn around the new centre.
 
-See the black rectangle?
+See the grey rectangle over the sequence numbers?
 
-  - Use left-mouse click and drag to move around the sequence.
-  
-You can resize the rectangle to display more residue letters, but if you make it too wide it will not display any.
+  - Move your cursor inside the box and use left-mouse click and drag to move around the sequence.
+
+You can resize the rectangle to display more residue letters (by clicking and dragging on
+the _edge_ of the box), but if you make it too wide it will not display any.
 
   - Click on the **Ligands** tab
 
@@ -62,9 +66,10 @@ Notice that there are "No ligands." We will add one later.
 
 For higher-end computers we can use a smoother representation of the bonds and atoms.
 
- - [Optional] Click on the gear icon and change the "Smoothness" to **Nice**.
+ - [Optional] Click on the gear icon, click on the "Bond Settings" and change the "Smoothness" to **Nice**.
 
 Below the card for the protein, you will see the cards for the maps (the 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green). You can use the sliders there to adjust the contour level. It's a bit high at the moment, so click or slide the slider for the 2Fo-Fc map so that it's about 0.443 or thereabouts. Set the difference map to a level of around 0.534.
+(I find that clicking (click and release) on the slider to be monre convenient than trying to "slide" the slider using click and drag).
 
   - You can also use Ctrl scroll-wheel scroll to change the contour level
 
@@ -193,7 +198,7 @@ This will add around 100 waters. And as above, the maps and the R-factors will u
 ## Contact Dots and Clashes
 
   - Use the sequence viewer to navigate to residue A194.
-  
+
 What this? It's a flipped peptide - let's flip it back to where it should be. But having done that, what do you notice? Let's use Moorhen's clash analysis:
 
   - In the model molecule card for the tutorial structure you will see a box labelled **Cont.** - click it.
@@ -344,7 +349,7 @@ To navigate to the ligand:
   - Adjust the sliders to make the ligand more clearly visible
   - **OK**
 
-There is no "in application" screen capture - you will have to do it using your operation system tool.
+Use keyboard "S" to activate the "in application" screen capture.
 
 
 ## Export Your Molecule
