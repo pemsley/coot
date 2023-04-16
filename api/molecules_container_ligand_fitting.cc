@@ -69,7 +69,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
                   wlig.install_ligand(ligand_mol);
                }
-                  
+
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
                wlig.import_map_from(xmap);
                short int mask_waters_flag = true;

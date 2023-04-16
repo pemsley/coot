@@ -2581,31 +2581,57 @@ int test_read_file(molecules_container_t &mc) {
 
 int test_set_rotamer(molecules_container_t &mc) {
 
+   // Actually this is a test for change to next rotamer
+
    starting_test(__FUNCTION__);
    int status = 0;
+   int status_1 = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec_CB("A", 270, "", " CB ","");
-   coot::atom_spec_t atom_spec_OG("A", 270, "", " OG ","");
+   coot::atom_spec_t atom_spec_CG("A", 270, "", " CG ","");
    mmdb::Atom *at_start_CB = mc.get_atom(imol, atom_spec_CB);
-   mmdb::Atom *at_start_OG = mc.get_atom(imol, atom_spec_OG);
-   if (at_start_OG) {
+   mmdb::Atom *at_start_CG = mc.get_atom(imol, atom_spec_CG);
+   if (at_start_CG) {
+      // std::cout << "debug:: " << __FUNCTION__ << " got at_start_CG " << std::endl;
       if (at_start_CB) {
+         // std::cout << "debug:: " << __FUNCTION__ << " got at_start_CB " << std::endl;
          coot::Cartesian atom_pos_start_CB = atom_to_cartesian(at_start_CB);
-         coot::Cartesian atom_pos_start_OG = atom_to_cartesian(at_start_OG);
-         mc.change_to_next_rotamer(imol, "//A/270");
+         coot::Cartesian atom_pos_start_CG = atom_to_cartesian(at_start_CG);
+         mc.change_to_next_rotamer(imol, "//A/270", "");
          coot::Cartesian atom_pos_done_CB = atom_to_cartesian(at_start_CB);
-         coot::Cartesian atom_pos_done_OG = atom_to_cartesian(at_start_OG);
+         coot::Cartesian atom_pos_done_CG = atom_to_cartesian(at_start_CG);
          double dd_CB = coot::Cartesian::lengthsq(atom_pos_start_CB, atom_pos_done_CB);
-         double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_OG, atom_pos_done_OG);
+         double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_CG, atom_pos_done_CG);
          double d_CB = std::sqrt(dd_CB);
-         double d_OG = std::sqrt(dd_OG);
-         std::cout << "d_CB " << d_CB << " d_OG " << d_OG << std::endl;
-         if (d_OG > 0.3)
+         double d_CG = std::sqrt(dd_OG);
+         std::cout << "d_CB " << d_CB << " d_CG " << d_CG << std::endl;
+         if (d_CG > 0.3)
             if (d_CB < 0.1)
-               status = 1;
+               status_1 = 1;
+
+         if (status_1) {
+
+            int status_2 = 0;
+            mc.change_to_previous_rotamer(imol, "//A/270", "");
+            mc.change_to_previous_rotamer(imol, "//A/270", "");
+            coot::Cartesian atom_pos_done_CB = atom_to_cartesian(at_start_CB);
+            coot::Cartesian atom_pos_done_CG = atom_to_cartesian(at_start_CG);
+            double dd_CB = coot::Cartesian::lengthsq(atom_pos_start_CB, atom_pos_done_CB);
+            double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_CG, atom_pos_done_CG);
+            double d_CB = std::sqrt(dd_CB);
+            double d_CG = std::sqrt(dd_OG);
+            std::cout << "d_CB " << d_CB << " d_CG " << d_CG << std::endl;
+            if (d_CG > 0.3)
+               if (d_CB < 0.1)
+                  status_2 = 1;
+
+            if (status_2 == 1) status = 1; // all gooe
+
+         }
       }
    }
+
    return status;
 }
 
@@ -2839,8 +2865,8 @@ int main(int argc, char **argv) {
       status += run_test(test_side_chain_180,        "side-chain 180",           mc);
       status += run_test(test_peptide_omega,         "peptide omega",            mc);
       status += run_test(test_undo_and_redo,         "undo and redo",            mc);
-      status += run_test(test_merge_molecules,       "merge molecules",          mc);
       status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
+      status += run_test(test_merge_molecules,       "merge molecules",          mc);
       status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
@@ -2861,10 +2887,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   // status += run_test(test_undo_and_redo, "undo and redo", mc);
 
    // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
 
-   status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
+   // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
@@ -2902,7 +2929,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
-   // status = run_test(test_set_rotamer, "set rotamer ", mc);
+   status = run_test(test_set_rotamer, "set rotamer ", mc);
 
    // Note to self:
    //

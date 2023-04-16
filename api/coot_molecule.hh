@@ -700,8 +700,30 @@ namespace coot {
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
 
+      class rotamer_change_info_t {
+         public:
+         int rank;
+         std::string name;
+         int status;
+         rotamer_change_info_t(int rank, std::string name, int status) : rank(rank), name(name), status(status) {}
+         rotamer_change_info_t() : rank(-1), name(""), status(0) {}
+      };
+
       //! change rotamers
-      int change_to_next_rotamer(const coot::residue_spec_t &res_spec, const coot::protein_geometry &pg);
+      rotamer_change_info_t change_to_next_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf, const coot::protein_geometry &pg);
+
+      rotamer_change_info_t change_to_previous_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf, const coot::protein_geometry &pg);
+
+      rotamer_change_info_t change_to_first_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf, const coot::protein_geometry &pg);
+
+      // rotamer_change_direction is  1 for increase rotamer index
+      // rotamer_change_direction is -1 for decrease rotamer index
+      // rotamer_change_direction is  0 for change to 0th
+      // index cycling is handled by the function
+      //
+      rotamer_change_info_t change_rotamer_number(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
+                                           int rotamer_change_direction,
+                                           const coot::protein_geometry &pg);
 
       // ----------------------- merge molecules
 

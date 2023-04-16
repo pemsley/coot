@@ -204,8 +204,9 @@ molecules_container_t::read_standard_residues() {
          // std::cout << "------------------ read_standard_residues() C " << std::endl;
          atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
          // std::cout << "------------------ read_standard_residues() D " << std::endl;
-         standard_residues_asc = t_asc; // Here's the problem
 #if 0
+         // standard_residues_asc = t_asc; // Here's the problem
+#else
          standard_residues_asc.mol              = t_asc.mol;
          standard_residues_asc.n_selected_atoms = t_asc.n_selected_atoms;
          standard_residues_asc.read_success     = t_asc.read_success;
@@ -1735,18 +1736,44 @@ molecules_container_t::auto_fit_rotamer(int imol,
    return status;
 }
 
-int
-molecules_container_t::change_to_next_rotamer(int imol, const std::string &residue_cid)  {
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_next_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
 
-   int status = 0;
+   coot::molecule_t::rotamer_change_info_t rci;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
-      status = molecules[imol].change_to_next_rotamer(res_spec, geom);
+      rci = molecules[imol].change_to_next_rotamer(res_spec, alt_conf, geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   return rci;
+}
 
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_previous_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
+
+   coot::molecule_t::rotamer_change_info_t rci;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      rci = molecules[imol].change_to_previous_rotamer(res_spec, alt_conf, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return rci;
+}
+
+
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
+
+   coot::molecule_t::rotamer_change_info_t rci;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      rci = molecules[imol].change_to_first_rotamer(res_spec, alt_conf, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return rci;
 }
 
 

@@ -761,8 +761,15 @@ public:
 
    //! change to the next rotamer (rotamer cycling is implicit if needed)
    //!
-   //! @return the success status (0 for fail, 1 for success).
-   int change_to_next_rotamer(int imol, const std::string &residue_cid);
+   //! @return the change information.
+   coot::molecule_t::rotamer_change_info_t change_to_next_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
+   //! change to the next rotamer (rotamer cycling is implicit if needed)
+   //!
+   //! @return the change information.
+   coot::molecule_t::rotamer_change_info_t change_to_previous_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
+
+   //! change to the first (0th) rotamer
+   coot::molecule_t::rotamer_change_info_t change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
 
    //! delete item
    //!
