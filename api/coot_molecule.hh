@@ -709,10 +709,12 @@ namespace coot {
          int rank;
          //! new rotamer name
          std::string name;
+         //! Richardson probability
+         float richardson_probability;
          //! status: did the change take place?
          int status;
-         rotamer_change_info_t(int rank, const std::string &name, int status) : rank(rank), name(name), status(status) {}
-         rotamer_change_info_t() : rank(-1), name(""), status(0) {}
+         rotamer_change_info_t(int rank, const std::string &name, float rp, int status) : rank(rank), name(name), richardson_probability(rp), status(status) {}
+         rotamer_change_info_t() : rank(-1), name(""), richardson_probability(-1), status(0) {}
       };
 
       //! change rotamers

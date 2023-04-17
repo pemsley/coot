@@ -176,6 +176,7 @@ int
 coot::molecule_t::undo() {
 
    make_backup();
+   // save_info.new_modification("undo");
    int status = 0;
    std::string cwd = coot::util::current_working_dir();
    int prev_mod_index = save_info.get_previous_modification_index();
@@ -1519,9 +1520,11 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
       coot::dictionary_residue_restraints_t restraints = p.second;
 
       if (p.first) {
+
+         make_backup();
+
          try {
 
-            make_backup();
             mmdb::Residue *prev_res = coot::util::previous_residue(res);
             mmdb::Residue *next_res = coot::util::next_residue(res);
             mmdb::Manager *mol = atom_sel.mol;
@@ -1542,15 +1545,13 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             atom_sel.mol->FinishStructEdit();
          }
          catch (const std::runtime_error &rte) {
-            std::cout << "WARNING:: thrown " << rte.what() << std::endl;
+            std::cout << "WARNING:: in backrub_rotamer(): thrown " << rte.what() << " with status " << status << std::endl;
          }
+         // if we make a backup, then we also make a new modification
+         save_info.new_modification("backrub_rotamer()");
       } else {
          std::cout << " No restraints found for " << monomer_type << std::endl;
       }
-   }
-   if (status) {
-      // write_coordinates("post_backrub_rotamer.pdb");
-      save_info.new_modification("backrub_rotamer()");
    }
    return std::pair<bool,float> (status, score);
 }
@@ -3640,6 +3641,7 @@ coot::molecule_t::change_rotamer_number(const coot::residue_spec_t &res_spec, co
             rci.status = i_done;
             rci.rank = rotamer_number;
             rci.name = rotamers[rotamer_number].rotamer_name();
+            rci.richardson_probability = rotamers[rotamer_number].Probability_rich();
          }
       } else {
          std::cout << "WARNING:: change_rotamer_number() Failed to get monomer restraints for " << res_type << std::endl;

@@ -518,7 +518,7 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
    coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): success " << r.success << " with "
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name << " success " << r.success << " with "
              << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
              << r.monomer_idx << std::endl;
 
