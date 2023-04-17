@@ -2740,26 +2740,59 @@ int test_alt_conf_and_rotamer(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
-      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      coot::atom_spec_t atom_spec("A", 131, "", " O  ", "A");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          mc.imol_refinement_map = imol_map;
-         mc.add_alternative_conformation(imol, "//A/125"); // THR
-         mc.write_coordinates(imol, "alt-conf.pdb");
-         // core-function should throw an exception (which is caught in the below function)
-         // because there are not alt-confs for the atoms of the neighbouring residues (hence
-         // atom selection fails).
-         mc.auto_fit_rotamer(imol, "A", 125, "", "A", imol_map);
-         mc.write_coordinates(imol, "alt-conf-and-rotamer.pdb");
-         mc.refine_residues_using_atom_cid(imol, "//A/125", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
          mc.write_coordinates(imol, "alt-conf-and-rotamer-and-refine.pdb");
-
-         if (false) // add the correct test here.
-            status = 1;
+         status = 1;
       }
    }
    return status;
 }
+
+int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("mol-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   std::cout << "........... test_alt_conf_and_rotamer_v2() imol_map " << imol_map << std::endl;
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec_A("A", 131, "", " NE2","A");
+      coot::atom_spec_t atom_spec_B("A", 131, "", " NE2","B");
+      mmdb::Atom *at_A = mc.get_atom(imol, atom_spec_A);
+      mmdb::Atom *at_B = mc.get_atom(imol, atom_spec_B);
+      if (at_A) {
+         coot::Cartesian atom_pos_start_A = atom_to_cartesian(at_A);
+         coot::Cartesian atom_pos_start_B = atom_to_cartesian(at_B);
+         mc.imol_refinement_map = imol_map;
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         coot::Cartesian atom_pos_done_A = atom_to_cartesian(at_A);
+         coot::Cartesian atom_pos_done_B = atom_to_cartesian(at_B);
+         mc.write_coordinates(imol, "alt-conf-and-rotamer.pdb");
+         double dd_1 = coot::Cartesian::lengthsq(atom_pos_done_A, atom_pos_done_B);
+         std::cout << "dd_1 " << dd_1 << std::endl;
+         if (dd_1 > 9.0)
+            status = 1;
+      } else {
+         std::cout << "In test_alt_conf_and_rotamer_v2() No atom found " << atom_spec_A << std::endl;
+      }
+
+      
+   }
+
+   std::cout << "done test_alt_conf_and_rotamer_v2()" << std::endl;
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -2929,7 +2962,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
-   status = run_test(test_set_rotamer, "set rotamer ", mc);
+   // status = run_test(test_set_rotamer, "set rotamer ", mc);
+
+   status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
 
    // Note to self:
    //

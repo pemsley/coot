@@ -351,7 +351,8 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib /usr/local/Cellar/libpng/1.6.39/lib)
 target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DCMAKE_BUILD_TYPE=Debug -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
+# set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DCMAKE_BUILD_TYPE=Debug -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
 
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
@@ -364,7 +365,7 @@ target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_s
   ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm
   ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include
 )
-set_target_properties(test-molecules-container PROPERTIES COMPILE_FLAGS "-DCMAKE_BUILD_TYPE=Debug -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
+set_target_properties(test-molecules-container PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
 
 # target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
 
@@ -398,10 +399,6 @@ FILE(COPY ${coot_src}/data/metal/metal-S-distance.table DESTINATION data/coot/da
 
 # install(TARGETS mini-rsr-web DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.wasm
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.worker.js
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.js
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.data
-              ${CMAKE_CURRENT_BINARY_DIR}/coot_env_web.js
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coot_env_web.js
               DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
 

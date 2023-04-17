@@ -200,21 +200,44 @@ molecules_container_t::read_standard_residues() {
       } else {
          // stat success:
 
-         // unresolved (linking related?) startup bug here:
-         // std::cout << "------------------ read_standard_residues() C " << std::endl;
-         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
-         // std::cout << "------------------ read_standard_residues() D " << std::endl;
 #if 0
+         // unresolved (linking related?) startup bug here:
+         std::cout << "------------------ read_standard_residues() C map_sampling_rate " << map_sampling_rate << std::endl;
+         std::cout << "------------------ read_standard_residues() C " << std::endl;
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
+         std::cout << "------------------ read_standard_residues() D map_sampling_rate " << map_sampling_rate << std::endl;
+         // std::cout << "------------------ read_standard_residues() D " << std::endl;
          // standard_residues_asc = t_asc; // Here's the problem
 #else
-         standard_residues_asc.mol              = t_asc.mol;
-         standard_residues_asc.n_selected_atoms = t_asc.n_selected_atoms;
-         standard_residues_asc.read_success     = t_asc.read_success;
-         standard_residues_asc.SelectionHandle  = t_asc.SelectionHandle;
+
+         mmdb::ERROR_CODE err;
+         mmdb::Manager *mol = new mmdb::Manager;
+         err = mol->ReadCoorFile(standard_file_name.c_str());
+         if (err) {
+            std::cout << "There was an error reading " << standard_file_name << ". \n";
+            std::cout << "ERROR " << err << " READ: " << mmdb::GetErrorDescription(err) << std::endl;
+            delete mol;
+         } else {
+
+            mmdb::PPAtom atom_selection = 0;
+            int n_selected_atoms = 0;
+            int SelHnd = mol->NewSelection(); // d
+            mol->SelectAtoms(SelHnd, 1, "*",
+                             mmdb::ANY_RES, "*",
+                             mmdb::ANY_RES, "*",
+                             "*","*","!H","*", mmdb::SKEY_NEW);
+            standard_residues_asc.mol              = mol;
+            standard_residues_asc.n_selected_atoms = n_selected_atoms;
+            standard_residues_asc.atom_selection   = atom_selection;
+            standard_residues_asc.read_success     = 1;
+            standard_residues_asc.SelectionHandle  = SelHnd;
+
+         }
 #endif
          // std::cout << "------------------ read_standard_residues() E " << std::endl;
       }
    } else {
+      std::cout << "------------------ read_standard_residues() F " << std::endl;
       standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
    }
    // std::cout << "------------------ read_standard_residues() done " << std::endl;
@@ -625,6 +648,11 @@ molecules_container_t::read_mtz(const std::string &file_name,
 
    std::string name_in = file_name + std::string(" ") + std::string(f) + std::string(" ") + std::string(phi);
    coot::molecule_t m(name_in, imol_in_hope);
+
+   // 20230417-PE hack!
+   // map_sampling_rate = 1.8; // because init problems. Compiler config related?
+   // std::cout << "........... read_mtz() map_sampling_rate " << map_sampling_rate << std::endl;
+
    bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, map_sampling_rate);
    if (is_a_difference_map)
       m.set_map_is_difference_map(true);
@@ -2262,16 +2290,19 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode) {
 
+   // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
+   // << std::endl;
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
          status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode);
       } else {
-         std::cout << "Not a valid map molecule " << imol_refinement_map << std::endl;
+         std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
    } else {
-      std::cout << "Not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid model molecule " << imol << std::endl;
    }
    return status;
 }

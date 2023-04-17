@@ -307,6 +307,7 @@ public:
    explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
       if (! verbose) geom.set_verbose(false);
       init();
+      std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
    }
 
    //! the refinement map - direct access. When refinement is performed, this is the map
