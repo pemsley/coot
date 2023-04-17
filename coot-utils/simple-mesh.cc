@@ -4,6 +4,15 @@
 #include "simple-mesh.hh"
 #include "oct.hh"
 
+void
+coot::simple_mesh_t::clear() {
+
+   name = "";
+   vertices.clear();
+   triangles.clear();
+
+}
+
 std::string
 coot::simple_mesh_t::vandt() const {
 
