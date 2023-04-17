@@ -648,6 +648,7 @@ namespace coot {
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
 
+      //! a moved atom
       class moved_atom_t {
       public:
          std::string atom_name;
@@ -660,6 +661,7 @@ namespace coot {
             atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(idx) {}
       };
 
+      //! a moved residue - which contains a vector of atoms
       class moved_residue_t {
       public:
          std::string chain_id;
@@ -700,12 +702,16 @@ namespace coot {
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
 
+      //! a container class for information about changing rotamers
       class rotamer_change_info_t {
          public:
+         //! the rank of the new rotamer
          int rank;
+         //! new rotamer name
          std::string name;
+         //! status: did the change take place?
          int status;
-         rotamer_change_info_t(int rank, std::string name, int status) : rank(rank), name(name), status(status) {}
+         rotamer_change_info_t(int rank, const std::string &name, int status) : rank(rank), name(name), status(status) {}
          rotamer_change_info_t() : rank(-1), name(""), status(0) {}
       };
 

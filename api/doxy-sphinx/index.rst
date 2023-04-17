@@ -76,6 +76,12 @@ Superposition
 .. doxygenfile:: superpose-results.hh
       :project: libcootapi
 
+Molecule Internals
+==================
+
+.. doxygenfile:: coot_molecule.hh
+      :project: libcootapi
+
 
 3D lines
 ========
