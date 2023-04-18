@@ -3570,7 +3570,8 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
          for (int w = grid.min().w(); w < grid.max().w(); w++) {
             ix.set_coord(clipper::Coord_grid(u, v, w)); // don't copy this. using set_coord() is slow
             float f = input_xmap[ix];
-            if (f != 11111111111111111111111111111111111110.0) {
+            // if (f != 11111111111111111111111111111111111110.0) {
+            if (true) {
                clipper::Coord_grid cg = ix.coord() - offset;
                xmap.set_data(cg, f);
                if (true)

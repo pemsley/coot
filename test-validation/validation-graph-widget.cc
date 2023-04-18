@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 //typedef std::map<graphene_rect_t,const coot::residue_validation_information_t*, GrapheneRectCompare> coord_cache_t;
 typedef std::vector<std::pair<graphene_rect_t,const coot::residue_validation_information_t*>> coord_cache_t;
@@ -22,26 +23,26 @@ struct _CootValidationGraph {
 };
 
 /// Basis for max bar height
-const int CHAIN_HEIGHT = 250;
+const int CHAIN_HEIGHT = 40; // 250;
 /// Used for allocating space for axes and labels.
 /// Fractions of this value can be used as a basis for computing other constants
 /// in order to achieve desired layout proportions.
-const int CHAIN_SPACING = 70;
-const int RESIDUE_WIDTH = 9;
+const int CHAIN_SPACING = 50; // 70;
+const int RESIDUE_WIDTH = 8; // 9
 /// Breathing space for residue rectangle's borders
-const int RESIDUE_SPACING = 3;
+const int RESIDUE_SPACING = 1; // 3;
 /// For drawing the main title
-const int TITLE_HEIGHT = 30;
+const int TITLE_HEIGHT = 20; // 30;
 /// Space between the y-axis and the left-most bar in the graph
 const int GRAPH_Y_AXIS_SEPARATION = 10;
 /// Space reserved for the y-axis and its' labels. Axis is drawn at this X offset.
-const int AXIS_MARGIN = 25;
+const int AXIS_MARGIN = 30; // was 25;
 /// Space left between the last residue bar and the right edge of the graph
 const int RIGHT_SIDE_MARGIN = 10;
 const double AXIS_LINE_WIDTH = 2;
 const float RESIDUE_BORDER_WIDTH = 1;
 const int MARKER_LENGTH = 3;
-const unsigned int VERTICAL_MARKER_COUNT = 12;
+const unsigned int VERTICAL_MARKER_COUNT = 4; // was 12;
 const unsigned int HORIZONTAL_MARKER_INTERVAL = 10;
 
 // COMPUTED VALUES:
@@ -189,12 +190,14 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     self->coordinate_cache->clear();
+
+    std::cout << "debug:: in coot_validation_graph_snapshot() self is " << self << std::endl;
     
     // attribute_color is used for drawing labels and axes
     GdkRGBA residue_color, border_color, attribute_color;
 
     gdk_rgba_parse (&residue_color, "#008000");
-    gdk_rgba_parse (&border_color, "#002000");
+    gdk_rgba_parse (&border_color,  "#002000");
 
     // gdk_rgba_parse (&attribute_color, "#ffffff");
     // Gtk 4.10 ?
@@ -213,7 +216,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
     // This does not respect GTK theming
     // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
     PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-    std::string title_markup = "<span size=\"large\" weight=\"bold\">" + self->_vi->name + "</span>";
+    std::string name = self->_vi->name;
+    std::string title_markup = std::string("<span size=\"large\" weight=\"bold\">") + name + std::string("</span>");
     pango_layout_set_markup(pango_layout,title_markup.c_str(),-1);
     int layout_width, layout_height;
     pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
@@ -322,13 +326,13 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
-                auto green_to_red = [&](double bar_proportion){
+                auto green_to_red = [&] (double bar_proportion) {
                     border_color_computed.red = 0.6 * bar_proportion;
                     border_color_computed.green = (1.f - bar_proportion) * residue_color.green;
-                    //border_color_computed.blue = std::pow(0.9 * bar_proportion,5);
-                    residue_color_computed.red = bar_proportion;
-                    residue_color_computed.green = (1.f - std::pow(bar_proportion,3)) * residue_color.green;
-                    //residue_color_computed.blue = std::pow(bar_proportion,5);
+                    border_color_computed.blue = 0; // std::pow(0.9 * bar_proportion,5);
+                    residue_color_computed.red   = 1.0 - 0.5 * bar_proportion;
+                    residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
+                    residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
 
                 };
                 auto red_to_green = [&](double bar_proportion){
@@ -436,7 +440,7 @@ static void on_left_click (
   gpointer user_data
 ) {
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(user_data);
-    //g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
+    g_debug("On click at widget: %p, at x: %f, y: %f",self,x,y);
     coord_cache_t::const_iterator clicked = residue_from_coords(self,x,y);
     if(self->coordinate_cache->cend() != clicked) {
         const auto* residue_ptr = clicked->second;

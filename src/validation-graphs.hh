@@ -5,13 +5,14 @@
 #include <gtk/gtk.h>
 #include <type_traits>
 #include <string>
-namespace coot {
 
+namespace coot {
 
     enum class validation_graph_type : unsigned char {
         rota,
         temp_factor,
         density_fit,
+        density_correlation,
         rama,
         omega,
         geometry,

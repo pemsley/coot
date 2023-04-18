@@ -90,6 +90,10 @@
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
 
+#ifdef DO_GEOMETRY_GRAPHS
+#include "test-validation"
+#endif
+
 #include "history_list.hh"
 
 // 20220406-PE Temporarily remove GOOCANVAS-dependent functions
@@ -107,9 +111,11 @@
 #ifdef DO_RAMA_PLOT
 #include "rama_plot.hh"
 #endif
-#ifdef DO_GEOMETRY_GRAPHS
-#include "geometry-graphs.hh"
-#endif
+// #ifdef DO_GEOMETRY_GRAPHS
+// #include "geometry-graphs.hh"
+// #endif
+
+#include "test-validation/validation-information.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -571,6 +577,7 @@ class graphics_info_t {
    static int find_ligand_map_mol_;
    static std::vector<std::pair<int, bool> > *find_ligand_ligand_mols_; // contain a molecule number
                                                                         // and flag for is_wiggly?
+   // 20230417-PE I don't want this to be a pointer these days. Change it
    static coot::protein_geometry* geom_p;
 
    static coot::rotamer_probability_tables rot_prob_tables;
@@ -5023,20 +5030,31 @@ string   static std::string sessionid;
    static void refresh_validation_graph_model_list();
    /// List of label strings (col 0) and model indices (int) (col 1)
    static GtkListStore* validation_graph_model_list;
-   private:
+
+   // 20230415-PE This should not be needed - because we should always be able to read the active imol
+   // from the widget in any callback. But for now it is needed in on_validation_graph_checkbutton_toggled()
+   // in the glade-callbacks.cc - so let's make it public.
+   //
    /// -1 if none
    static int active_validation_graph_model_idx;
+
+   private:
    static std::string active_validation_graph_chain_id;
    typedef std::map<coot::validation_graph_type,GtkWidget*> validation_graph_map_t;
    static validation_graph_map_t validation_graph_widgets;
-   typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
+   // typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
+   typedef std::map<coot::validation_graph_type,std::shared_ptr<coot::validation_information_t> > validation_data_map_t;
    static validation_data_map_t validation_graph_data;
    public:
    static void update_active_validation_graph_model(int new_model_idx);
    static void change_validation_graph_chain(const std::string& chain_id);
 
-   static void create_validation_graph(coot::validation_graph_type type);
+   static void create_validation_graph(int imol, coot::validation_graph_type type);
    static void destroy_validation_graph(coot::validation_graph_type type);
+
+   // 20230417-PE functions to fill the validation information for the new valiadtionn graphs
+   coot::validation_information_t get_validation_data_for_geometry_analysis(int imol);
+
 };
 
 

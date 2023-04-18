@@ -6640,8 +6640,10 @@ Do you want to continue?
           <!-- </object> -->
         </child>
         <child>
+          <!-- 20230417-PE implementing chain selection is tricky - let's not do that at the moment -->
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
+            <property name="visible">False</property>
             <child>
               <object class="GtkLabel">
                 <property name="label">Chain: </property>
@@ -6682,7 +6684,7 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="label">Temp Factor</property>
+                <property name="label">Temp. Factor</property>
                 <signal name="toggled" handler="on_temp_factor_graph_toggled"></signal>
                 <layout>
                   <property name="row">1</property>
@@ -6692,7 +6694,7 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="label">Rama</property>
+                <property name="label">Ramachandran Plot</property>
                 <signal name="toggled" handler="on_rama_graph_toggled"></signal>
                 <layout>
                   <property name="row">2</property>
@@ -6702,7 +6704,7 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="label">Rota</property>
+                <property name="label">Rotamer</property>
                 <signal name="toggled" handler="on_rota_graph_toggled"></signal>
                 <layout>
                   <property name="row">3</property>
@@ -6712,7 +6714,7 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="label">Omega</property>
+                <property name="label">Peptide Omega</property>
                 <signal name="toggled" handler="on_omega_graph_toggled"></signal>
                 <layout>
                   <property name="row">0</property>
@@ -6732,10 +6734,20 @@ Do you want to continue?
             </child>
             <child>
               <object class="GtkCheckButton">
+                <property name="label">Density Correlation</property>
+                <signal name="toggled" handler="on_density_correlation_graph_toggled"></signal>
+                <layout>
+                  <property name="row">2</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
                 <property name="label">NCS</property>
                 <signal name="toggled" handler="on_ncs_graph_toggled"></signal>
                 <layout>
-                  <property name="row">2</property>
+                  <property name="row">3</property>
                   <property name="column">1</property>
                 </layout>
               </object>

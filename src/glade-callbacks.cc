@@ -11742,7 +11742,6 @@ on_simple_refmac_filechooser_dialog_response (GtkDialog       *dialog,
    GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
                                             G_FILE_QUERY_INFO_NONE, NULL, &error);
    const char *file_name = g_file_info_get_name(file_info);
-   
 
    if (response_id == GTK_RESPONSE_CLOSE) {
       std::cout << "on_simple_refmac_filechooserdialog_response() Close\n";
@@ -11951,7 +11950,6 @@ on_cif_dictionary_filechooser_dialog_response(GtkDialog       *dialog,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       const char *file_name = g_file_info_get_name(file_info);
 
-      
       if (file_name) {
          read_cif_dictionary(file_name);
       }
@@ -11975,13 +11973,17 @@ on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
 }
 
 extern "C" G_MODULE_EXPORT
-void 
+void
 on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data) {
+   std::cout << "----------------- A ------" << std::endl;
    GtkTreeIter iter;
    if (gtk_combo_box_get_active_iter(self,&iter)) {
+      std::cout << "----------------- B ------" << std::endl;
       int new_active_model;
       gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
       graphics_info_t::update_active_validation_graph_model(new_active_model);
+      // std::cout << "----------------- C ------ " << graphics_info_t::active_validation_graph_model_idx << std::endl;
+
    } else {
       g_warning("Could not get active iter in validation graph model ComboBox");
    }
@@ -11997,7 +11999,10 @@ on_validation_graph_chain_id_combobox_changed(GtkComboBoxText* self, gpointer us
 void
 on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
    if (gtk_check_button_get_active(self)) {
-      graphics_info_t::create_validation_graph(graph_type);
+      graphics_info_t g;
+      // read imol from the widget, but now now, let's use active_validation_graph_model_idx
+      int imol = g.active_validation_graph_model_idx;
+      graphics_info_t::create_validation_graph(imol, graph_type);
    } else {
       graphics_info_t::destroy_validation_graph(graph_type);
    }
@@ -12043,6 +12048,12 @@ extern "C" G_MODULE_EXPORT
 void
 on_ncs_graph_toggled(GtkCheckButton* self, gpointer user_data) {
    on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::ncs);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
+   on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_correlation);
 }
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS

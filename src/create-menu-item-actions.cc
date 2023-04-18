@@ -1517,7 +1517,33 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G_GNUC_UNUSED GVariant *parameter, G_GNUC_UNUSED gpointer user_data) {
+
+   // 20230415-PE a common motif
    GtkWidget* di = widget_from_builder("validation_graph_dialog");
+   GtkWidget *main_window = graphics_info_t::get_main_window();
+   gtk_window_set_transient_for(GTK_WINDOW(di), GTK_WINDOW(main_window));
+
+   auto get_first_model_molecule = [] () {
+      graphics_info_t g;
+      int imol = -1;
+      int n_mol = g.molecules.size();
+      for (int ii=0; ii<n_mol; ii++) {
+         if (is_valid_model_molecule(ii))
+            return ii;
+      }
+      return imol;
+   };
+
+   graphics_info_t g;
+   GtkWidget* model_combobox = widget_from_builder("validation_graph_model_combobox");
+
+   int imol = g.active_validation_graph_model_idx;
+   if (! g.is_valid_model_molecule(imol))
+      imol = get_first_model_molecule();
+
+   std::cout << "--------- in show_validation_graphs_dialog() " << model_combobox << " " << imol << std::endl;
+   gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), imol);
+
    gtk_widget_show(di);
 }
 

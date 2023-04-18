@@ -71,7 +71,7 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
          double residue_density_score =
             coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
          //std::string l = res_spec.label();
-         std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
+         std::string l = "Chain ID: " + res_spec.chain_id + "     Residue number: " + std::to_string(res_spec.res_no);
          std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
          const std::string &chain_id = res_spec.chain_id;
          int this_resno = res_spec.res_no;
@@ -246,6 +246,7 @@ struct graphs_shipment_t {
 };
 
 GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
+
    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
    gtk_widget_set_margin_bottom(vbox,10);
    gtk_widget_set_margin_top(vbox,10);
@@ -274,13 +275,23 @@ GtkWidget* build_graph_vbox(CootValidationGraph* validation_graph) {
    GtkWidget* target_label = gtk_label_new("");
    gtk_box_append(GTK_BOX(vbox),target_label);
 
-   g_signal_connect(validation_graph,"residue-clicked",
-      G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
-         GtkLabel* label = GTK_LABEL(userdata);
-         gtk_label_set_text(label,residue->label.c_str());
-         g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
-      }),
-   target_label);
+   auto callback = +[] (CootValidationGraph* self, const coot::residue_validation_information_t  *residue_vip, gpointer userdata) {
+
+      std::cout << "residue-clicked handler" << std::endl;
+      GtkLabel* label = GTK_LABEL(userdata);
+      gtk_label_set_text(label,residue_vip->label.c_str());
+      g_debug("Inside 'residue-clicked' handler: %s",residue_vip->label.c_str());
+   };
+
+   // g_signal_connect(validation_graph,"residue-clicked",
+   //    G_CALLBACK(+[](CootValidationGraph* self, const coot::residue_validation_information_t* residue, gpointer userdata){
+   //       GtkLabel* label = GTK_LABEL(userdata);
+   //       gtk_label_set_text(label,residue->label.c_str());
+   //       g_debug("Inside 'residue-clicked' handler: %s",residue->label.c_str());
+   //    }),
+   // target_label);
+
+   g_signal_connect(validation_graph, "residue-clicked", G_CALLBACK(callback), target_label);
 
    GtkWidget* scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.1f, 5.f, 0.1f);
    gtk_box_append(GTK_BOX(vbox), scale);
