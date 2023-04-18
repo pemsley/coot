@@ -129,11 +129,11 @@ void attach_css_style_class_to_overlays() {
 
    GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
    GtkWidget* to_skip = widget_from_builder("main_window_graphics_hbox");
-   for(GtkWidget* child = gtk_widget_get_first_child(overlay); 
+   for (GtkWidget* child = gtk_widget_get_first_child(overlay);
        child != nullptr; 
        child = gtk_widget_get_next_sibling(child)) {
-      if(child != to_skip) 
-         set_transparency_on_widget(child);
+       if (child != to_skip)
+          set_transparency_on_widget(child);
    }
 }
 
