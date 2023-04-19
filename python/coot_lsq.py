@@ -29,11 +29,11 @@ def lsq_match_type_symbol(match_type_in):
      match_type_in = match_type_in
   else:
      if (match_type_in in ["CA","ca","Ca"]):
-        match_type_in = 0
+        match_type_in = 2
      elif (match_type_in in ["Main","main","mainchain","Mainchain"]):
         match_type_in = 1
      elif (match_type_in in ["ALL","all","All"]):
-        match_type_in = 2
+        match_type_in = 0
      else:
         match_type_in = -1   # unknown
   return match_type_in
