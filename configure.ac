@@ -321,10 +321,22 @@ fi
 
 echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
-AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
+AC_ARG_ENABLE(lidia-only, [  --enable-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
  lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
+
+AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only (not coot) ],
+[case "${enableval}" in
+  yes) libcootapi_only=true ;;
+  no)  libcootapi_only=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[libcootapi_only=false])
+AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
+
+echo testingA libcootapi_only is $libcootapi_only
+echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
+echo testingB lidia_only is $lidia_only
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
