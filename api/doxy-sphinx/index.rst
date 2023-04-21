@@ -95,6 +95,12 @@ Cartesian Coordinates
 .. doxygenfile:: coords/Cartesian.h
       :project: libcootapi
 
+Statistics Container
+====================
+
+.. doxygenfile:: analysis/stats.hh
+      :project: libcootapi
+
 Symmetry
 ========
 
