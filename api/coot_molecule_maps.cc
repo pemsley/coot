@@ -326,7 +326,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       return glm::vec3(co.x(), co.y(), co.z());
    };
 
-   coot::simple_mesh_t m;
+   coot::simple_mesh_t m; // initially status is good (1).
 
    clipper::Coord_orth p(position.x(), position.y(), position.z());
    update_map_triangles(radius, p, contour_level);
@@ -395,6 +395,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       std::cout << "WARNING:: in get_map_contours_mesh() bad alloc. " << std::endl;
       std::cout << "WARNING:: " << ba.what() << std::endl;
       m.clear();
+      m.status = 0;
    }
 
    return m;

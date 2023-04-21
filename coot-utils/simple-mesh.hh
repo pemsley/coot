@@ -11,15 +11,20 @@ namespace coot {
    //! The basic mesh for transfering mesh geometry and colours
    class simple_mesh_t {
    public:
+      //! check this status before using a `simple_mesh_t`. 1 is good, 0 is bad (0 is set when when we get a bad_alloc)
+      int status;
+      //! vertices
       std::vector<api::vnc_vertex> vertices;
+      //! vertex index triples
       std::vector<g_triangle> triangles;
+      //! mesh name
       std::string name;
       //! constructor (for vectors)
-      simple_mesh_t() {}
+      simple_mesh_t() : status(1) {}
       //! constructor with name
-      explicit simple_mesh_t(const std::string &name_in) : name(name_in) {}
+      explicit simple_mesh_t(const std::string &name_in) : status(1), name(name_in) {}
       simple_mesh_t(const std::vector<api::vnc_vertex> &vertices_in,
-                    const std::vector<g_triangle> &triangles_in) : vertices(vertices_in), triangles(triangles_in) {}
+                    const std::vector<g_triangle> &triangles_in) : status(1), vertices(vertices_in), triangles(triangles_in) {}
       void translate(const glm::vec3 &t);
       // 20221101-PE blender uses colours/materials for faces. So let's store those too.
       // Now each face (each g_triangle) can have a colour_index (default is -1 (unset)).
