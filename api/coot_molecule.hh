@@ -573,6 +573,17 @@ namespace coot {
       generic_3d_lines_bonds_box_t
       make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const;
 
+      //! we pass the imol because we use that to look up the residue type in the dictionary
+      //! annoyingly, we pass a non-const pointer to the protein-geometry because that is what
+      //! is passed in the Bond_lines_container. Think about changin that one day.
+      simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid,
+                                             const bool draw_hydrogen_atoms_flag,
+                                             coot::protein_geometry *geom_p);
+      // which call this function:
+      simple::molecule_t get_simple_molecule(int imol, mmdb::Residue *residue_p,
+                                             bool draw_hydrogen_atoms_flag,
+                                             coot::protein_geometry *geom_p);
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);

@@ -1013,8 +1013,12 @@ public:
 
    //! Recently (20230202) the smoothness factor has been added as an extra argument
    //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
-   //! @return the instanced mesh for the specified molecule
+   //! @return the instanced mesh for the specified molecule.
    coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+
+   //! @return a `simple::molecule_t` for the specified residue.
+   //! this function is not const because we pass a pointer to the protein_geometry geom.
+   coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
@@ -1259,6 +1263,23 @@ public:
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale);
+   
+   //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
+   //! An atom is a list:
+   //!
+   //! 0: atom-name
+   //!
+   //! 1: atom-element
+   //!
+   //! 2: position (a list of 3 floats)
+   //!
+   //! 3: formal charge (an integer)
+   //1
+   //! 4: aromaticity flag (boolean)
+   //1
+   //! make a "proper" simple  molecule python class one day.
+   PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
+
 #endif
 
 };

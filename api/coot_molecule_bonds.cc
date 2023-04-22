@@ -911,8 +911,8 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
          // glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
          if (false)
-            std::cout << "making bond between " << glm::to_string(pos_1) << " " << glm::to_string(pos_2) << " width " << bond_radius_this
-                      << std::endl;
+            std::cout << "making bond between " << glm::to_string(pos_1) << " " << glm::to_string(pos_2)
+                      << " width " << bond_radius_this << std::endl;
          cylinder cc(std::make_pair(pos_1, pos_2), bond_radius_this, bond_radius_this, bl, col, n_slices, n_stacks);
          cc.set_unstubby_rounded_cap_factor(1.0);
 
@@ -1580,4 +1580,62 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
    graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, geom);
    return generic_3d_lines_bonds_box_t(bonds_box_env);
 
+}
+
+
+coot::simple::molecule_t
+coot::molecule_t::get_simple_molecule(int imol, const std::string &residue_cid, bool draw_bonds_to_hydrogens_flag,
+                                      coot::protein_geometry *geom_p) {
+
+   coot::simple::molecule_t sm;
+   mmdb::Residue *residue_p = cid_to_residue(residue_cid);
+   if (residue_p) {
+      sm = get_simple_molecule(imol, residue_p, draw_bonds_to_hydrogens_flag, geom_p);
+   }
+   return sm;
+}
+
+
+coot::simple::molecule_t
+coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool draw_hydrogen_atoms_flag,
+                                      coot::protein_geometry *geom_p) {
+
+   auto make_simple_molecule = [this] (const graphical_bonds_container &gbc) {
+      bool against_a_dark_background = true;
+      std::vector<glm::vec4> colour_table = this->make_colour_table(against_a_dark_background);
+      coot::simple::molecule_t sm;
+      for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
+         glm::vec4 col = colour_table[icol];
+         for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
+            const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+            int fc = 0;
+            bool arom = false;
+            sm.add_atom(simple::atom_t(at_info.atom_p->GetAtomName(), at_info.atom_p->element, at_info.position, fc, arom));
+         }
+      }
+
+      for (int icol=0; icol<gbc.num_colours; icol++) {
+         glm::vec4 col = colour_table[icol];
+         graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
+         for (int j=0; j<ll.num_lines; j++) {
+            bool thin = ll.thin_lines_flag; // do something with this?
+            simple::bond_t::bond_type_t bt = simple::bond_t::SINGLE_BOND;
+            sm.add_bond(simple::bond_t(ll.pair_list[j].atom_index_1, ll.pair_list[j].atom_index_2, bt));
+         }
+      }
+      return sm;
+   };
+
+   coot::simple::molecule_t sm;
+
+   std::set<int> no_bonds_to_these_atoms; // empty
+   mmdb::Manager *new_mol = util::create_mmdbmanager_from_residue(residue_p);
+   atom_selection_container_t atom_sel = make_asc(new_mol);
+   Bond_lines_container bonds(geom_p, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol, draw_hydrogen_atoms_flag, false, true, false, false);
+   bonds_box = bonds.make_graphical_bonds();
+   sm = make_simple_molecule(bonds_box);
+   atom_sel.clear_up();
+
+   return sm;
 }

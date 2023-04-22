@@ -4159,3 +4159,16 @@ molecules_container_t::get_data_set_file_name(int imol) const {
 
    return r;
 }
+
+
+coot::simple::molecule_t
+molecules_container_t::get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag) {
+
+   coot::simple::molecule_t sm;
+   if (is_valid_model_molecule(imol)) {
+      sm = molecules[imol].get_simple_molecule(imol, residue_cid, draw_hydrogen_atoms_flag, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return sm;
+}

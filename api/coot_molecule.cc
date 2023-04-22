@@ -3698,3 +3698,4 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
    }
    return i_done;
 }
+
