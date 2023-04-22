@@ -20,7 +20,7 @@ molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
 json.hpp 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
 add-terminal-residue.hh  interfaces.hh                                                     \
 atom-pull.hh             rigid-body-fit.hh		                                   \
-phi-psi-prob.hh          saved-strand-info.hh
+phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 

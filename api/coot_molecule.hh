@@ -35,6 +35,8 @@
 
 #include "generic-3d-lines.hh"
 
+#include "coot-simple-molecule.hh"
+
 namespace coot {
 
    // give this a type
@@ -105,21 +107,21 @@ namespace coot {
       std::map<residue_spec_t, int> current_rotamer_map;
 
       // private
-      void makebonds(coot::protein_geometry *geom, coot::rotamer_probability_tables *rotamer_tables_p,
+      void makebonds(protein_geometry *geom, rotamer_probability_tables *rotamer_tables_p,
                      const std::set<int> &no_bonds_to_these_atoms,
                      bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
 
 #if defined __has_builtin
 #if __has_builtin (__builtin_FUNCTION)
-      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
-      void make_bonds_type_checked(coot::protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
+      void make_bonds_type_checked(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
+      void make_bonds_type_checked(protein_geometry *geom, const std::set<int> &no_bonds_to_these_atom_indices, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = __builtin_FUNCTION());
 #else
-      void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
+      void make_bonds_type_checked(protein_geometry *geom, const char *s = 0);
+      void make_bonds_type_checked(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
 #endif
 #else // repeat above
-      void make_bonds_type_checked(coot::protein_geometry *geom, const char *s = 0);
-      void make_bonds_type_checked(coot::protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
+      void make_bonds_type_checked(protein_geometry *geom, const char *s = 0);
+      void make_bonds_type_checked(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
 #endif
 
       int bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()
@@ -128,30 +130,30 @@ namespace coot {
 
       // this is the bond dictionary also mode.
       // 20221011-PE force_rebonding arg is not currently used.
-      void make_colour_by_chain_bonds(coot::protein_geometry *geom,
+      void make_colour_by_chain_bonds(protein_geometry *geom,
                                       const std::set<int> &no_bonds_to_these_atoms,
                                       bool change_c_only_flag,
                                       bool goodsell_mode,
                                       bool draw_hydrogen_atoms_flag,
                                       bool draw_missing_loops_flag,
                                       bool do_rota_markup=false,
-                                      coot::rotamer_probability_tables *rotamer_tables_p = nullptr,
+                                      rotamer_probability_tables *rotamer_tables_p = nullptr,
                                       bool force_rebonding=true);
       void make_ca_bonds();
       // just a copy of the version in src
       float bonds_colour_map_rotation;
       std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
       glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, int bonds_box_type) const;
-      coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
-      coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
+      colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
+      colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
       bool use_bespoke_grey_colour_for_carbon_atoms;
-      coot::colour_t bespoke_carbon_atoms_colour;
+      colour_t bespoke_carbon_atoms_colour;
 
-      void update_map_triangles(float radius, coot::Cartesian centre, float contour_level);
+      void update_map_triangles(float radius, Cartesian centre, float contour_level);
 
       short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
       short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
-      coot::ghost_molecule_display_t map_ghost_info;
+      ghost_molecule_display_t map_ghost_info;
 
       bool xmap_is_diff_map;
       bool has_xmap() const { return is_valid_map_molecule(); }
@@ -171,8 +173,8 @@ namespace coot {
 
       void clear_draw_vecs();
       void clear_diff_map_draw_vecs();
-      std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
-      std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
+      std::vector<density_contour_triangles_container_t> draw_vector_sets;
+      std::vector<density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
       // This function no longer does a backup or updates the save_info!
@@ -188,7 +190,7 @@ namespace coot {
                                                 short int force_sum_1_flag);
 
       // return -1 on failure
-      int full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const;
+      int full_atom_spec_to_atom_index(const atom_spec_t &atom_spec) const;
       // return -1 on no atom found.
       int full_atom_spec_to_atom_index(const std::string &chain,
                                        int resno,
@@ -205,7 +207,7 @@ namespace coot {
       std::string save_time_string;
       void restore_from_backup(int mod_index, const std::string &cwd);
 
-      std::vector<coot::atom_spec_t> fixed_atom_specs;
+      std::vector<atom_spec_t> fixed_atom_specs;
 
       std::pair<int, mmdb::Residue *>
       find_serial_number_for_insert(int seqnum_for_new,
@@ -217,11 +219,11 @@ namespace coot {
       void remove_TER_internal(mmdb::Residue *res_p);
       void remove_TER_on_last_residue(mmdb::Chain *chain_p);
       std::pair<bool, std::string> unused_chain_id() const;
-      int append_to_molecule(const coot::minimol::molecule &water_mol);
+      int append_to_molecule(const minimol::molecule &water_mol);
 
-      glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch) const;
+      glm::vec4 colour_holder_to_glm(const colour_holder &ch) const;
 
-      std::pair<bool, coot::Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
+      std::pair<bool, Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
 
       //! modify the im
       void setup_cylinder_clashes(instanced_mesh_t &im, const atom_overlaps_dots_container_t &c,
@@ -247,7 +249,7 @@ namespace coot {
       void update_symmetry();
       bool show_symmetry;
 
-      void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+      void delete_any_link_containing_residue(const residue_spec_t &res_spec);
       void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
       bool sanity_check_atoms(mmdb::Manager *mol) const; // sfcalc_genmap crashes after merge of ligand.
@@ -268,7 +270,7 @@ namespace coot {
                                         bool use_biased_density_scoring,
                                         std::vector<mmdb::Chain *> chains_for_moving);
 
-      coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
+      minimol::molecule rigid_body_fit(const minimol::molecule &mol_in,
                                              const clipper::Xmap<float> &xmap,
                                              float map_sigma) const;
 
@@ -368,7 +370,7 @@ namespace coot {
       int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                         const clipper::HKL_data<clipper::data32::Flag> &free,
                         clipper::Xmap<float> *xmap_p);
-      coot::util::sfcalc_genmap_stats_t
+      util::sfcalc_genmap_stats_t
       sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                         const clipper::HKL_data<clipper::data32::Flag> &free,
                                         clipper::Xmap<float> *xmap_2fofc_p,
@@ -412,29 +414,29 @@ namespace coot {
       unsigned int get_number_of_atoms() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
-      std::pair<bool, coot::residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
-      std::pair<bool, coot::atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
-      std::vector<std::string> get_residue_names_with_no_dictionary(const coot::protein_geometry &geom) const;
-      int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
+      std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
+      std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
+      std::vector<std::string> get_residue_names_with_no_dictionary(const protein_geometry &geom) const;
+      int insert_waters_into_molecule(const minimol::molecule &water_mol);
 
       // ----------------------- model utils
 
       // public
-      void make_bonds(protein_geometry *geom, coot::rotamer_probability_tables *rot_prob_tables_p,
+      void make_bonds(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p,
                       bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found
-      mmdb::Residue *get_residue(const coot::residue_spec_t &residue_spec) const;
+      mmdb::Residue *get_residue(const residue_spec_t &residue_spec) const;
 
       bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
-      std::vector<coot::atom_spec_t> get_fixed_atoms() const;
+      std::vector<atom_spec_t> get_fixed_atoms() const;
 
       std::vector<std::string> chains_in_model() const;
-      std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(const std::string &chain_id) const;
+      std::vector<std::pair<residue_spec_t, std::string> > get_single_letter_codes_for_chain(const std::string &chain_id) const;
 
       residue_spec_t get_residue_closest_to(mmdb::Manager *mol, const clipper::Coord_orth &co) const;
 
@@ -442,27 +444,27 @@ namespace coot {
 
       // ----------------------- model bonds
 
-      simple_mesh_t get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
+      simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,
                                    bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
                                    int smoothness_factor,
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
 
-      instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, coot::protein_geometry *geom,
+      instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
                                                 bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
       instanced_mesh_t get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &selection_cid,
-                                                              coot::protein_geometry *geom,
+                                                              protein_geometry *geom,
                                                               bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
 
       // adding colours using the functions below add into user_defined_colours
-      std::vector<coot::colour_holder> user_defined_bond_colours;
+      std::vector<colour_holder> user_defined_bond_colours;
 
       //! user-defined colour-index to colour
       void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
@@ -473,7 +475,7 @@ namespace coot {
       //! set the colour wheel rotation base for the specified molecule
       void set_colour_wheel_rotation_base(float r);
 
-      coot::colour_holder base_colour_for_bonds;
+      colour_holder base_colour_for_bonds;
 
       //! set the base colour - to be used as a base for colour wheel rotation
       void set_base_colour_for_bonds(float r, float g, float b);
@@ -527,14 +529,14 @@ namespace coot {
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                        float box_radius, float grid_scale) const;
 
-      simple_mesh_t get_chemical_features_mesh(const std::string &cid, const coot::protein_geometry &geom) const;
+      simple_mesh_t get_chemical_features_mesh(const std::string &cid, const protein_geometry &geom) const;
 
       bool hydrogen_atom_should_be_drawn() const { return false; } // 20221018-PE for now.
       void set_use_bespoke_carbon_atom_colour(bool state) {
          use_bespoke_grey_colour_for_carbon_atoms = state;
          // make_bonds_type_checked("set_use_bespoke_carbon_atom_colour");
       }
-      void set_bespoke_carbon_atom_colour(const coot::colour_t &col) {
+      void set_bespoke_carbon_atom_colour(const colour_t &col) {
          bespoke_carbon_atoms_colour = col;
          // make_bonds_type_checked("set_bespoke_carbon_atom_colour");
       }
@@ -543,7 +545,7 @@ namespace coot {
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
 
-      symmetry_info_t get_symmetry(float symmetry_search_radius, const coot::Cartesian &symm_centre) const;
+      symmetry_info_t get_symmetry(float symmetry_search_radius, const Cartesian &symm_centre) const;
 
       // ----------------------- model analysis functions
 
@@ -558,10 +560,10 @@ namespace coot {
                                                                const std::string &chain_id,
                                                                bool mark_cis_peptides_as_bad_flag) const;
 
-      std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule() const;
+      std::vector<residue_spec_t> get_non_standard_residues_in_molecule() const;
 
       //! @return the instanced mesh for the specified ligand
-      instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const coot::protein_geometry &geom,
+      instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const protein_geometry &geom,
                                                unsigned int num_subdivisions) const;
 
       //! @return the instanced mesh for the specified molecule
