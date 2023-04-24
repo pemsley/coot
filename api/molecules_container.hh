@@ -1274,7 +1274,7 @@ public:
    //! 2: position (a list of 3 floats)
    //!
    //! 3: formal charge (an integer)
-   //1
+   //!
    //! 4: aromaticity flag (boolean)
    //1
    //! make a "proper" simple  molecule python class one day.

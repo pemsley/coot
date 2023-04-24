@@ -3352,6 +3352,7 @@ molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
                clipper::Coord_orth pt = big_blobs[i].first;
                coot::molecule_t::interesting_place_t ip("Unmodelled Blob", pt, l);
                ip.set_feature_value(big_blobs[i].second);
+               v.push_back(ip);
             }
          }
       }
