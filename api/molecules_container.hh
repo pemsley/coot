@@ -1020,6 +1020,10 @@ public:
    //! this function is not const because we pass a pointer to the protein_geometry geom.
    coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
+   //! @return a vector of lines for non-bonded contacts and hydrogen bonds
+   generic_3d_lines_bonds_box_t
+   make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
+
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
 
