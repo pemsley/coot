@@ -4180,6 +4180,8 @@ molecules_container_t::get_simple_molecule(int imol, const std::string &residue_
 generic_3d_lines_bonds_box_t
 molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec) {
 
+   // this function is non-const because the Bonds_lines function needs a mutable protein_geometry
+
    generic_3d_lines_bonds_box_t bonds_box;
    if (is_valid_model_molecule(imol)) {
       bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, geom);

@@ -398,6 +398,11 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       m.status = 0;
    }
 
+   catch (...) {
+      std::cout << "WARNING:: in get_map_contours_mesh() caught something else!" << std::endl;
+      m.clear();
+      m.status = 0;
+   }
    return m;
 }
 
