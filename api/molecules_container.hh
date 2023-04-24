@@ -27,6 +27,7 @@
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "saved-strand-info.hh"
+#include "svg-store-key.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -193,24 +194,7 @@ class molecules_container_t {
    //! read the standard protein, RNA, and DNA dictionaries.
    void read_standard_residues();
 
-   // 20230215-PE The key to this map *should* contain the imol, so have it's own class ideally (with a less-than operator).
-   // However, it won't be a problem frequently. Let's see how long it is before someone complains.
-   // (It's the multi-LIG problem).
-   //
-   // class svg_store_key_t {
-   //    public:
-   //     int imol;
-   //     std::string comp_id;
-   //   opertor<(const svg_store_key_t &other) {
-   //      if (imol<other.imol)
-   //         return true;
-   //      else
-   //         if (comp_id < other.comp_id)
-   //            return true;
-   //      return false;
-   //   }
-   // };
-   std::map<std::string, std::string> ligand_svg_store;
+   std::map<svg_store_key_t, std::string> ligand_svg_store;
 
    atom_selection_container_t standard_residues_asc;
 

@@ -2393,14 +2393,22 @@ int test_svg(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+
+   mc.import_cif_dictionary("ATP.cif", imol_1);
+   mc.import_cif_dictionary("ATP.cif", imol_2);
    bool dark_bg = false;
-   std::string s = mc.get_svg_for_residue_type(0, "ATP", dark_bg);
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", dark_bg);
 
    if (s.length() > 0) {
-      std::ofstream f("ATP.svg");
-      f << s;
-      f.close();
+
+      if (true) {
+         std::ofstream f("ATP.svg");
+         f << s;
+         f.close();
+      }
+
       status = 1;
    }
    return status;
