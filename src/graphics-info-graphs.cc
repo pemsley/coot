@@ -281,12 +281,13 @@ get_validation_data_for_density_correlation_analysis(int imol) {
 
    graphics_info_t g;  // remove this when added to the class
 
-   coot::validation_information_t r;
-   r.name = "Density correlation analysis";
+   coot::validation_information_t vi;
+   vi.name = "Density correlation analysis";
+   vi.type = coot::graph_data_type::Correlation;
 
    int imol_map = g.Imol_Refinement_Map();
-   if (! g.is_valid_model_molecule(imol))   return r;
-   if (! g.is_valid_map_molecule(imol_map)) return r;
+   if (! g.is_valid_model_molecule(imol))   return vi;
+   if (! g.is_valid_map_molecule(imol_map)) return vi;
 
    const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
 
@@ -317,11 +318,11 @@ get_validation_data_for_density_correlation_analysis(int imol) {
       coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
       std::string label = "Correl: ";
       coot::residue_validation_information_t rvi(res_spec, atom_spec, correl, label);
-      r.add_residue_validation_information(rvi, r_spec.chain_id);
+      vi.add_residue_validation_information(rvi, r_spec.chain_id);
 
    }
-   r.set_min_max();
-   return r;
+   vi.set_min_max();
+   return vi;
 }
 
 
@@ -332,6 +333,7 @@ get_validation_data_for_ramachandran_analysis(int imol) {
 
    coot::validation_information_t vi;
    vi.name = "Ramachandran analysis";
+   vi.type = coot::graph_data_type::Probability;
 
    graphics_info_t g;
    if (! g.is_valid_model_molecule(imol)) return vi;
@@ -361,6 +363,7 @@ get_validation_data_for_rotamer_analysis(int imol) {
 
    coot::validation_information_t vi;
    vi.name = "Rotamer analysis";
+   vi.type = coot::graph_data_type::Probability;
 
    graphics_info_t g;
    if (! g.is_valid_model_molecule(imol)) return vi;
@@ -430,6 +433,7 @@ get_validation_data_for_peptide_omega_analysis(int imol) {
 
    coot::validation_information_t vi;
    vi.name = "Peptide Omega analysis";
+   vi.type = coot::graph_data_type::UNSET; // should it have a type?
 
    graphics_info_t g;
    const coot::protein_geometry &geom = *g.Geom_p();
@@ -474,6 +478,8 @@ get_validation_data_for_temperature_factor_analysis(int imol) {
 
    coot::validation_information_t vi;
    vi.name = "Temperature Factor analysis";
+   vi.type = coot::graph_data_type::UNSET; // should it have a type?
+
 
    graphics_info_t g;
    if (! g.is_valid_model_molecule(imol)) return vi;
@@ -504,7 +510,8 @@ coot::validation_information_t
 graphics_info_t::get_validation_data_for_geometry_analysis(int imol) {
 
    coot::validation_information_t vi;
-   vi.name = "Geometry analysis";
+   vi.name = "Geometry Distortion analysis";
+   vi.type = coot::graph_data_type::Distortion;
 
    if (! is_valid_model_molecule(imol)) return vi;
 
@@ -514,17 +521,31 @@ graphics_info_t::get_validation_data_for_geometry_analysis(int imol) {
 
    for (const auto &chain : gd) {
       coot::chain_validation_information_t cvi(chain.chain_id);
-      for (const auto &res : chain.geometry_distortion) {
-         coot::residue_spec_t res_spec = res.residue_spec;
-         coot::atom_spec_t   atom_spec; // not set (yet) - what is it used for?
+      std::map<coot::residue_spec_t, double> residue_distortion_sum_map;
+      // we have a vector of restraints - what restraints are they, I wonder.
+      for (const auto &rest : chain.geometry_distortion) {
+         std::map<coot::residue_spec_t, double>::iterator it = residue_distortion_sum_map.find(rest.residue_spec);
+         if (it == residue_distortion_sum_map.end()) {
+            residue_distortion_sum_map[rest.residue_spec] = rest.distortion_score;
+         } else {
+            it->second += rest.distortion_score;
+         }
+      }
+
+      std::map<coot::residue_spec_t, double>::iterator it;
+      for (it=residue_distortion_sum_map.begin(); it != residue_distortion_sum_map.end(); ++it) {
+         coot::atom_spec_t atom_spec; // not set (yet) - what is it used for?
+         auto res_spec = it->first;
          res_spec.int_user_data = imol;
          std::string label = "Label";
-         coot::residue_validation_information_t rvi(res_spec, atom_spec, res.distortion_score, label);
+         double distortion_sum = it->second;
+         coot::residue_validation_information_t rvi(res_spec, atom_spec, distortion_sum, label);
          cvi.add_residue_validation_information(rvi);
       }
       vi.cviv.push_back(cvi);
    }
-   vi.set_min_max();
+   // vi.set_min_max(); // this is auto-scaling, we don't want that.
+   vi.min_max = coot::validation_information_min_max_t(0.0, 200.0);
    return vi;
 }
 

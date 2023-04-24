@@ -120,7 +120,7 @@ double compute_amplitude(coot::graph_data_type type, const std::vector<coot::res
     using ty = coot::graph_data_type;
     switch (type) {
         case ty::Distortion: {
-            return 100.f;
+            return 300.f;
         }
         case ty::Probability:
         case ty::LogProbability: {
@@ -191,13 +191,11 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     self->coordinate_cache->clear();
 
-    std::cout << "debug:: in coot_validation_graph_snapshot() self is " << self << std::endl;
-    
     // attribute_color is used for drawing labels and axes
     GdkRGBA residue_color, border_color, attribute_color;
 
     gdk_rgba_parse (&residue_color, "#008000");
-    gdk_rgba_parse (&border_color,  "#002000");
+    gdk_rgba_parse (&border_color,  "#202020");
 
     // gdk_rgba_parse (&attribute_color, "#ffffff");
     // Gtk 4.10 ?
@@ -327,9 +325,9 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
                 auto green_to_red = [&] (double bar_proportion) {
-                    border_color_computed.red = 0.6 * bar_proportion;
-                    border_color_computed.green = (1.f - bar_proportion) * residue_color.green;
-                    border_color_computed.blue = 0; // std::pow(0.9 * bar_proportion,5);
+                    // border_color_computed.red = 0.6 * bar_proportion;
+                    // border_color_computed.green = (1.f - bar_proportion) * residue_color.green;
+                    // border_color_computed.blue = 0; // std::pow(0.9 * bar_proportion,5);
                     residue_color_computed.red   = 1.0 - 0.5 * bar_proportion;
                     residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
                     residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
@@ -337,9 +335,10 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 };
                 auto red_to_green = [&](double bar_proportion){
                     // dirty trick
-                    green_to_red(1-bar_proportion);
+                    green_to_red(1.0 - bar_proportion);
                 };
                 switch (self->_vi->type) {
+                    case coot::graph_data_type::Distortion:
                     case coot::graph_data_type::LogProbability:
                     case coot::graph_data_type::Probability: {
                         red_to_green(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type));

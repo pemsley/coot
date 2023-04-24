@@ -90,9 +90,9 @@
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
 
-#ifdef DO_GEOMETRY_GRAPHS
-#include "test-validation"
-#endif
+// #ifdef DO_GEOMETRY_GRAPHS
+// #include "test-validation"
+// #endif
 
 #include "history_list.hh"
 
