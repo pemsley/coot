@@ -383,7 +383,7 @@ on_glarea_motion_leave(GtkEventControllerMotion *controller,
    // std::cout << "Motion leave" << std::endl;
 }
 
-void setup_gestures(GtkWidget *glarea) {
+void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
 
    // std::cout << "========== start setting up GTK4 style event controlllers" << std::endl;
 
@@ -615,7 +615,6 @@ new_startup_application_activate(GtkApplication *application,
 
    g_idle_add(+[](gpointer user_data) -> gboolean {
 
-
       application_activate_data* activate_data = (application_activate_data*) user_data;
 
       GtkWindow* splash_screen = GTK_WINDOW(activate_data->splash_screen);
@@ -708,7 +707,7 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
       gtk_widget_show(app_window);
 
-      setup_gestures(gl_area);
+      setup_gestures_for_opengl_widget_in_main_window(gl_area);
 
       create_actions(application);
       setup_gui_components();

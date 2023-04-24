@@ -1770,6 +1770,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
       new_coords_mol_in_display_control_widget(); // uses draw_it
    }
    graphics_info_t::refresh_validation_graph_model_list();
+   graphics_info_t::refresh_ramachandran_plot_model_list();
 }
 
 void

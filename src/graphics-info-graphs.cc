@@ -86,37 +86,37 @@
 
 void graphics_info_t::refresh_validation_graph_model_list() {
 
-	g_debug("refresh_validation_graph_model_list() called.");
+   g_debug("refresh_validation_graph_model_list() called.");
 
-        std::cout << "----------------------- refresh_validation_graph_model_list --------- " << std::endl;
+   std::cout << "----------------------- refresh_validation_graph_model_list --------- " << std::endl;
 
-	gtk_tree_model_foreach(
-		GTK_TREE_MODEL(validation_graph_model_list),
-		+[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
-			GtkListStore* list = GTK_LIST_STORE(model);
-			return ! gtk_list_store_remove(list,iter);
-		},
-		NULL
-	);
+   gtk_tree_model_foreach(
+                          GTK_TREE_MODEL(validation_graph_model_list),
+                          +[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
+                             GtkListStore* list = GTK_LIST_STORE(model);
+                             return ! gtk_list_store_remove(list,iter);
+                          },
+                          NULL
+                          );
    int idx_active = -1; // use this to set active_validation_graph_model_idx
-	for(int i=0; i<graphics_info_t::n_molecules(); i++) {
-		if (graphics_info_t::molecules[i].has_model()) {
-			std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
-			GtkTreeIter iter;
+   for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+         std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+         GtkTreeIter iter;
          std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
-			gtk_list_store_append(validation_graph_model_list, &iter);
-			gtk_list_store_set(validation_graph_model_list, &iter, 0, label.c_str(), 1, i, -1);
+         gtk_list_store_append(validation_graph_model_list, &iter);
+         gtk_list_store_set(validation_graph_model_list, &iter, 0, label.c_str(), 1, i, -1);
          if (idx_active  == -1)
             idx_active = i;
-		}
-	}
+      }
+   }
    if (idx_active != -1)
       active_validation_graph_model_idx = idx_active;
 
-	// g_warning("refresh_validation_graph_model_list(): todo: Check if the active model ID is still on the list and react appropriately");
-	// if (model is no longer on the list) {
-	// 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
-	// }
+   // g_warning("refresh_validation_graph_model_list(): todo: Check if the active model ID is still on the list and react appropriately");
+   // if (model is no longer on the list) {
+   // 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
+   // }
    if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
       std::cout << "Destroy graphs for model " << active_validation_graph_model_idx << " here..." << std::endl;
       // destroy_validation_graph(coot::validation_graph_type type);
@@ -142,6 +142,33 @@ void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
 void graphics_info_t::change_validation_graph_chain(const std::string& chain_id) {
 	g_debug("Todo: change_validation_graph_chain");
 }
+
+
+void graphics_info_t::refresh_ramachandran_plot_model_list() {
+
+   std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
+
+   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list),
+                          +[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
+                             GtkListStore* list = GTK_LIST_STORE(model);
+                             return ! gtk_list_store_remove(list,iter);
+                          },
+                          NULL
+                          );
+
+   for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+         std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+         GtkTreeIter iter;
+         std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
+         gtk_list_store_append(ramachandran_plot_model_list, &iter);
+         gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
+      }
+   }
+
+   std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
+}
+
 
 // void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
 // 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");

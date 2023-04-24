@@ -4,6 +4,8 @@
 #include "gl-rama-plot.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
+
+
 void
 gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
 
@@ -389,6 +391,8 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
                      int glarea_heigth_at_hud_start,
                      int glarea_width, int glarea_height) {
 
+   // std::cout << "------------------- gl_rama_plot_t::draw() -- start ---" << std::endl;
+
    // draw() needs to:
    //
    //  1: draw the box outline
@@ -435,6 +439,10 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    // glDisable(GL_DEPTH_TEST); // interesting.
    // glDisable(GL_BLEND);
 
+   GLenum err;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() --start-- error " << err << std::endl;
+
    glDisable(GL_BLEND);
 
    glm::vec2 offset_position_natural(0.1, 0.1);
@@ -443,7 +451,9 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    glm::vec2 munged_scales = p_s.second;
 
    if (true) {
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
       texture_for_global_distribution_non_gly_pro.Bind(0);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
       // munged_position_offset = glm::vec2(0,0);
       // munged_scales = glm::vec2(1,1);
 
@@ -458,7 +468,10 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
       hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10.0,10.0));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
-      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
+
+      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p); // is this a special texture? Seems not.
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
    }
 
    glEnable(GL_BLEND);
@@ -473,12 +486,14 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    // std::cout << "munged_scales " << glm::to_string(munged_scales) << " munged_offsets "
    // << glm::to_string(munged_position_offset) << std::endl;
-   GLenum err;
 
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_scales_correction(munged_scales);
+
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() C error " << err << std::endl;
    texture_for_other_normal.Bind(0);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
@@ -487,6 +502,7 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    texture_for_pro_normal.Bind(0);
    hud_tmesh_for_pro_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+
    hud_tmesh_for_pro_normal.set_window_resize_scales_correction(munged_scales);
    hud_tmesh_for_pro_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() F error " << err << std::endl;

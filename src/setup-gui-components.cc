@@ -101,9 +101,19 @@ void setup_accession_code_frame() {
 }
 
 void setup_validation_graph_dialog() {
-   GtkWidget* model_combobox = widget_from_builder("validation_graph_model_combobox");
+
+   GtkWidget *model_combobox = widget_from_builder("validation_graph_model_combobox");
    gtk_combo_box_set_model(GTK_COMBO_BOX(model_combobox),GTK_TREE_MODEL(graphics_info_t::validation_graph_model_list));
    gtk_combo_box_set_id_column(GTK_COMBO_BOX(model_combobox),0);
+
+}
+
+void setup_ramachandran_plot_chooser_dialog() {
+
+   GtkWidget *model_combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
+   gtk_combo_box_set_model(GTK_COMBO_BOX(model_combobox), GTK_TREE_MODEL(graphics_info_t::ramachandran_plot_model_list));
+   gtk_combo_box_set_id_column(GTK_COMBO_BOX(model_combobox),0);
+
 }
 
 void setup_get_monomer() {
@@ -212,6 +222,7 @@ void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_validation_graph_dialog();
+   setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
