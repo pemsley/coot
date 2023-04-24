@@ -5913,10 +5913,11 @@ Do you want to continue?
 
 
             <child>
-              <object class="GtkPaned" id="main_window_graphics_pane">
-                <property name="position">4</property>
+              <object class="GtkPaned" id="main_window_graphics_rama_vs_graphics_pane">
+                <property name="position">6</property>
+                <property name="orientation">horizontal</property>
                 <child>
-                  <object class="GtkScrolledWindow"  id="ramachdran_plots_scrolled_window">
+                  <object class="GtkScrolledWindow" id="ramachdran_plots_scrolled_window">
                     <child>
                       <object class="GtkBox" id="ramachandran_plots_vbox">
                         <property name="orientation">vertical</property>
@@ -5927,9 +5928,45 @@ Do you want to continue?
 
                 <!-- container for the GTKGLArea -->
                 <child>
-                  <object class="GtkBox" id="main_window_graphics_hbox">
-                    <property name="orientation">horizontal</property>
-                    <!-- This is where the GTKGLArea is placed at runtime -->
+                  <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
+                    <!-- <property name="position">40</property> -->
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox" id="main_window_graphics_hbox">
+                        <!-- This is where the GTKGLArea is placed at runtime -->
+                      </object>
+                    </child>
+
+                  <child>
+                    <object class="GtkFrame" id="main_window_validation_graph_frame">
+                      <!-- <property name="halign">fill</property> -->
+                      <!-- <property name="valign">end</property> -->
+                      <property name="hexpand">True</property>
+                      <property name="vexpand">True</property>
+                      <property name="visible">True</property>
+                      <property name="margin-bottom">5</property>
+                      <property name="margin-end">5</property>
+                      <property name="margin-start">5</property>
+                      <property name="margin-top">5</property>
+
+                      <child>
+                        <object class="GtkScrolledWindow">
+                          <property name="hexpand">True</property>
+                          <property name="vexpand">True</property>
+                          <child>
+                            <object class="GtkBox" id="main_window_validation_graph_box">
+                              <property name="orientation">vertical</property>
+                              <property name="hexpand">True</property>
+                              <property name="vexpand">True</property>
+                              <property name="spacing">5</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+
+                    </object>
+                  </child>
+
                   </object>
                 </child>
 
@@ -5938,7 +5975,7 @@ Do you want to continue?
 
             <child type="overlay">
               <object class="GtkFrame" id="get_monomer_frame">
-              <property name="halign">center</property>
+                <property name="halign">center</property>
                 <property name="valign">start</property>
                 <property name="visible">False</property>
                 <property name="can_focus">True</property>
@@ -6435,6 +6472,9 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <!-- this frame and box is no longer used because we use a GtkPaned now. -->
+            <!-- Now main_window_validation_graph_box and main_window_validation_graph_frame. -->
             <child type="overlay">
               <object class="GtkFrame" id="validation_graph_frame">
                 <property name="halign">fill</property>

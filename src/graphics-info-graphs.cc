@@ -202,24 +202,27 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 // }
 
 void insert_validation_graph(GtkWidget* graph) {
-   GtkWidget* target_box = widget_from_builder("validation_graph_box");
+
+   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
    if(! gtk_widget_get_first_child(target_box)) {
       // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
-      GtkWidget* frame = widget_from_builder("validation_graph_frame");
+      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
       gtk_widget_set_visible(frame, TRUE);
    }
    //g_debug("Inserting %p to the validation graph box.",graph);
    gtk_box_append(GTK_BOX(target_box), graph);
+
 }
 
 void remove_validation_graph(GtkWidget* graph) {
 
-   GtkWidget* target_box = widget_from_builder("validation_graph_box");
+   // 20230424-PE we move this to the box in the paned in the main window
+   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
    //g_debug("Removing %p from the validation graph box.",graph);
    gtk_box_remove(GTK_BOX(target_box), graph);
    if(! gtk_widget_get_first_child(target_box)) {
       // If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
-      GtkWidget* frame = widget_from_builder("validation_graph_frame");
+      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
       gtk_widget_set_visible(frame, FALSE);
    }
 }

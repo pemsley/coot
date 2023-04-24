@@ -16,7 +16,7 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 
    graphics_info_t g;
    if (!g.rama_plot_boxes.empty()) {
-      GtkWidget *paned = widget_from_builder("main_window_graphics_pane");
+      GtkWidget *paned = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
       int position = gtk_paned_get_position(GTK_PANED(paned));
       if (position < 10) {
          gtk_paned_set_position(GTK_PANED(paned), 400);
