@@ -83,6 +83,12 @@ Molecule Internals
       :project: libcootapi
 
 
+Hydrogen Bonds
+==============
+
+.. doxygenfile:: moorhen-h-bonds.hh
+      :project: libcootapi
+
 3D lines
 ========
 
