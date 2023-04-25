@@ -200,20 +200,44 @@ molecules_container_t::read_standard_residues() {
       } else {
          // stat success:
 
-         // unresolved (linking related?) startup bug here:
-         // std::cout << "------------------ read_standard_residues() C " << std::endl;
-         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
-         // std::cout << "------------------ read_standard_residues() D " << std::endl;
-         standard_residues_asc = t_asc; // Here's the problem
 #if 0
-         standard_residues_asc.mol              = t_asc.mol;
-         standard_residues_asc.n_selected_atoms = t_asc.n_selected_atoms;
-         standard_residues_asc.read_success     = t_asc.read_success;
-         standard_residues_asc.SelectionHandle  = t_asc.SelectionHandle;
+         // unresolved (linking related?) startup bug here:
+         std::cout << "------------------ read_standard_residues() C map_sampling_rate " << map_sampling_rate << std::endl;
+         std::cout << "------------------ read_standard_residues() C " << std::endl;
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
+         std::cout << "------------------ read_standard_residues() D map_sampling_rate " << map_sampling_rate << std::endl;
+         // std::cout << "------------------ read_standard_residues() D " << std::endl;
+         // standard_residues_asc = t_asc; // Here's the problem
+#else
+
+         mmdb::ERROR_CODE err;
+         mmdb::Manager *mol = new mmdb::Manager;
+         err = mol->ReadCoorFile(standard_file_name.c_str());
+         if (err) {
+            std::cout << "There was an error reading " << standard_file_name << ". \n";
+            std::cout << "ERROR " << err << " READ: " << mmdb::GetErrorDescription(err) << std::endl;
+            delete mol;
+         } else {
+
+            mmdb::PPAtom atom_selection = 0;
+            int n_selected_atoms = 0;
+            int SelHnd = mol->NewSelection(); // d
+            mol->SelectAtoms(SelHnd, 1, "*",
+                             mmdb::ANY_RES, "*",
+                             mmdb::ANY_RES, "*",
+                             "*","*","!H","*", mmdb::SKEY_NEW);
+            standard_residues_asc.mol              = mol;
+            standard_residues_asc.n_selected_atoms = n_selected_atoms;
+            standard_residues_asc.atom_selection   = atom_selection;
+            standard_residues_asc.read_success     = 1;
+            standard_residues_asc.SelectionHandle  = SelHnd;
+
+         }
 #endif
          // std::cout << "------------------ read_standard_residues() E " << std::endl;
       }
    } else {
+      std::cout << "------------------ read_standard_residues() F " << std::endl;
       standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
    }
    // std::cout << "------------------ read_standard_residues() done " << std::endl;
@@ -517,7 +541,7 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
    coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): success " << r.success << " with "
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name << " success " << r.success << " with "
              << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
              << r.monomer_idx << std::endl;
 
@@ -624,6 +648,11 @@ molecules_container_t::read_mtz(const std::string &file_name,
 
    std::string name_in = file_name + std::string(" ") + std::string(f) + std::string(" ") + std::string(phi);
    coot::molecule_t m(name_in, imol_in_hope);
+
+   // 20230417-PE hack!
+   // map_sampling_rate = 1.8; // because init problems. Compiler config related?
+   // std::cout << "........... read_mtz() map_sampling_rate " << map_sampling_rate << std::endl;
+
    bool status = coot::util::map_fill_from_mtz(&m.xmap, file_name, f, phi, weight, use_weight, map_sampling_rate);
    if (is_a_difference_map)
       m.set_map_is_difference_map(true);
@@ -1735,18 +1764,44 @@ molecules_container_t::auto_fit_rotamer(int imol,
    return status;
 }
 
-int
-molecules_container_t::change_to_next_rotamer(int imol, const std::string &residue_cid)  {
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_next_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
 
-   int status = 0;
+   coot::molecule_t::rotamer_change_info_t rci;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
-      status = molecules[imol].change_to_next_rotamer(res_spec, geom);
+      rci = molecules[imol].change_to_next_rotamer(res_spec, alt_conf, geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+   return rci;
+}
 
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_previous_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
+
+   coot::molecule_t::rotamer_change_info_t rci;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      rci = molecules[imol].change_to_previous_rotamer(res_spec, alt_conf, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return rci;
+}
+
+
+coot::molecule_t::rotamer_change_info_t
+molecules_container_t::change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf)  {
+
+   coot::molecule_t::rotamer_change_info_t rci;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      rci = molecules[imol].change_to_first_rotamer(res_spec, alt_conf, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return rci;
 }
 
 
@@ -2235,16 +2290,19 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode) {
 
+   // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
+   // << std::endl;
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
          status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode);
       } else {
-         std::cout << "Not a valid map molecule " << imol_refinement_map << std::endl;
+         std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
    } else {
-      std::cout << "Not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid model molecule " << imol << std::endl;
    }
    return status;
 }
@@ -3294,6 +3352,7 @@ molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
                clipper::Coord_orth pt = big_blobs[i].first;
                coot::molecule_t::interesting_place_t ip("Unmodelled Blob", pt, l);
                ip.set_feature_value(big_blobs[i].second);
+               v.push_back(ip);
             }
          }
       }
@@ -4101,3 +4160,35 @@ molecules_container_t::get_data_set_file_name(int imol) const {
 
    return r;
 }
+
+
+coot::simple::molecule_t
+molecules_container_t::get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag) {
+
+   coot::simple::molecule_t sm;
+   if (is_valid_model_molecule(imol)) {
+      sm = molecules[imol].get_simple_molecule(imol, residue_cid, draw_hydrogen_atoms_flag, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return sm;
+}
+
+
+
+//! @return a vector of lines for non-bonded contacts and hydrogen bonds
+generic_3d_lines_bonds_box_t
+molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec) {
+
+   // this function is non-const because the Bonds_lines function needs a mutable protein_geometry
+
+   generic_3d_lines_bonds_box_t bonds_box;
+   if (is_valid_model_molecule(imol)) {
+      bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return bonds_box;
+
+}
+

@@ -173,4 +173,48 @@ molecules_container_t::get_pythonic_gaussian_surface_mesh(int imol, float sigma,
    return simple_mesh_to_pythonic_mesh(mesh, MULTI_COLOUR);
 }
 
+PyObject *
+molecules_container_t::get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag) {
+
+   PyObject *r = PyList_New(2);
+
+   coot::simple::molecule_t sm = get_simple_molecule(imol, cid, include_hydrogen_atoms_flag);
+
+   unsigned int n_atoms = sm.atoms.size();
+   unsigned int n_bonds = sm.bonds.size();
+   PyObject *atom_list = PyList_New(n_atoms);
+   PyObject *bond_list = PyList_New(n_bonds);
+
+   for (unsigned int i=0; i<sm.atoms.size(); i++) {
+      const auto &atom = sm.atoms[i];
+      PyObject *atom_parts_list = PyList_New(5);
+      PyObject *pos_py = PyList_New(3);
+      PyList_SetItem(pos_py, 0, PyFloat_FromDouble(atom.position.x()));
+      PyList_SetItem(pos_py, 1, PyFloat_FromDouble(atom.position.y()));
+      PyList_SetItem(pos_py, 2, PyFloat_FromDouble(atom.position.z()));
+      PyList_SetItem(atom_parts_list, 0, PyUnicode_FromString(atom.name.c_str()));
+      PyList_SetItem(atom_parts_list, 1, PyUnicode_FromString(atom.element.c_str()));
+      PyList_SetItem(atom_parts_list, 2, pos_py);
+      PyList_SetItem(atom_parts_list, 3, PyLong_FromLong(atom.formal_charge));
+      PyList_SetItem(atom_parts_list, 4, PyBool_FromLong(atom.aromatic));
+      PyList_SetItem(atom_list, i, atom_parts_list);
+   }
+
+   for (unsigned int i=0; i<sm.bonds.size(); i++) {
+      const auto &bond = sm.bonds[i];
+      PyObject *bond_py = PyList_New(3);
+      PyList_SetItem(bond_py, 0, PyLong_FromLong(bond.atom_index_1));
+      PyList_SetItem(bond_py, 1, PyLong_FromLong(bond.atom_index_2));
+      PyList_SetItem(bond_py, 2, PyLong_FromLong(bond.bond_type));
+      PyList_SetItem(bond_list, i, bond_py);
+   }
+   
+   PyList_SetItem(r, 0, atom_list);
+   PyList_SetItem(r, 1, bond_list);
+   return r;
+}
+
+
 #endif // SWIG
+
+

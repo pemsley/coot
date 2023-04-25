@@ -62,7 +62,9 @@ namespace coot {
          unsigned int idx = get_index_for_chain(chain_id);
          cviv[idx].add_residue_validation_information(rvi);
       }
+      //! return true of there are no data
       bool empty() const { return cviv.empty(); }
+      //! set the min and max for the graph - internal use.
       void set_min_max() {
          unsigned int n = 0;
          double min =  9999999999999;
@@ -81,6 +83,7 @@ namespace coot {
          }
       }
 
+      //! get the stats for the data in this validation container
       stats::single get_stats() const {
          // 20230402-PE this function is in-line only because it is inconvenient at the moment to add
          // a new source file to the repo

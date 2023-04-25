@@ -326,7 +326,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       return glm::vec3(co.x(), co.y(), co.z());
    };
 
-   coot::simple_mesh_t m;
+   coot::simple_mesh_t m; // initially status is good (1).
 
    clipper::Coord_orth p(position.x(), position.y(), position.z());
    update_map_triangles(radius, p, contour_level);
@@ -340,38 +340,17 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
    if (xmap_is_diff_map)
       map_colour = coot::colour_holder(0.4, 0.8, 0.4);
 
-   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
-   glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
-   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
-      const coot::density_contour_triangles_container_t &tri_con(*it);
-      unsigned int idx_base = vertices.size();
-      for (unsigned int i=0; i<tri_con.points.size(); i++) {
-         glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-         glm::vec3 normal = coord_orth_to_glm(- tri_con.normals[i]); // reverse normal.
-         coot::api::vnc_vertex vert(pos, normal, col);
-         vertices.push_back(vert);
-      }
-      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-         g_triangle tri(tri_con.point_indices[i].pointID[0],
-                        tri_con.point_indices[i].pointID[1],
-                        tri_con.point_indices[i].pointID[2]);
-         tri.rebase(idx_base);
-         triangles.push_back(tri);
+   try {
 
-         // removed map triangle centres block here.
-
-      }
-   }
-
-   if (xmap_is_diff_map) {
-      glm::vec4 diff_map_col = glm::vec4(0.8, 0.4, 0.4, 1.0f);
-      for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+      glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
          unsigned int idx_base = vertices.size();
          for (unsigned int i=0; i<tri_con.points.size(); i++) {
             glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-            glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]); // non-reverse normal!
-            coot::api::vnc_vertex vert(pos, normal, diff_map_col);
+            glm::vec3 normal = coord_orth_to_glm(- tri_con.normals[i]); // reverse normal.
+            coot::api::vnc_vertex vert(pos, normal, col);
             vertices.push_back(vert);
          }
          for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
@@ -386,8 +365,44 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
          }
       }
 
+      if (xmap_is_diff_map) {
+         glm::vec4 diff_map_col = glm::vec4(0.8, 0.4, 0.4, 1.0f);
+         for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
+            const coot::density_contour_triangles_container_t &tri_con(*it);
+            unsigned int idx_base = vertices.size();
+            for (unsigned int i=0; i<tri_con.points.size(); i++) {
+               glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+               glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]); // non-reverse normal!
+               coot::api::vnc_vertex vert(pos, normal, diff_map_col);
+               vertices.push_back(vert);
+            }
+            for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+               g_triangle tri(tri_con.point_indices[i].pointID[0],
+                              tri_con.point_indices[i].pointID[1],
+                              tri_con.point_indices[i].pointID[2]);
+               tri.rebase(idx_base);
+               triangles.push_back(tri);
+
+               // removed map triangle centres block here.
+
+            }
+         }
+
+      }
    }
 
+   catch (const std::bad_alloc &ba) {
+      std::cout << "WARNING:: in get_map_contours_mesh() bad alloc. " << std::endl;
+      std::cout << "WARNING:: " << ba.what() << std::endl;
+      m.clear();
+      m.status = 0;
+   }
+
+   catch (...) {
+      std::cout << "WARNING:: in get_map_contours_mesh() caught something else!" << std::endl;
+      m.clear();
+      m.status = 0;
+   }
    return m;
 }
 

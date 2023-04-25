@@ -111,17 +111,17 @@ namespace coot {
 						    mmdb::Atom *at_2, // H on residue
 						    const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
 						    const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const;
-      
+
    public:
       h_bonds() {}
-      
+
       std::vector<h_bond>
       get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const protein_geometry &geom);
 
       std::vector<h_bond>
       get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 				const protein_geometry &geom,
-				mmdb::realtype max_dist =3.9);
+				mmdb::realtype max_dist=3.9);
 
       // Check that some (formally, at least one) of the atoms have a defined HB status
       // (energy_lib_atom hb_t).
@@ -132,8 +132,8 @@ namespace coot {
       check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom); 
       
       // return the udd handle (donor, acceptors and HB hydrogens, that is)
-      int  mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, mmdb::Manager *mol,
-				     const protein_geometry &geom);
+      int mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, mmdb::Manager *mol,
+                                    const protein_geometry &geom);
       
       class atom_sorter {
 	 mmdb::Atom *at;

@@ -76,6 +76,18 @@ Superposition
 .. doxygenfile:: superpose-results.hh
       :project: libcootapi
 
+Molecule Internals
+==================
+
+.. doxygenfile:: coot_molecule.hh
+      :project: libcootapi
+
+
+Hydrogen Bonds
+==============
+
+.. doxygenfile:: moorhen-h-bonds.hh
+      :project: libcootapi
 
 3D lines
 ========
@@ -87,6 +99,12 @@ Cartesian Coordinates
 ====================
 
 .. doxygenfile:: coords/Cartesian.h
+      :project: libcootapi
+
+Statistics Container
+====================
+
+.. doxygenfile:: analysis/stats.hh
       :project: libcootapi
 
 Symmetry

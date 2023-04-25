@@ -69,7 +69,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
                   wlig.install_ligand(ligand_mol);
                }
-                  
+
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
                wlig.import_map_from(xmap);
                short int mask_waters_flag = true;
@@ -176,9 +176,10 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 #include "lidia-core/svg-molecule.hh"
 
 
+#include "svg-store-key.hh"
+
 //! This is a ligand function, not really a ligand-fitting function.
 //!
-//! But more importantly than that, it doesn't work yet.
 std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
                                                 bool dark_bg_flag) {
@@ -187,7 +188,8 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   std::map<std::string, std::string>::const_iterator it = ligand_svg_store.find(comp_id);
+   svg_store_key_t key(imol, comp_id);
+   std::map<svg_store_key_t, std::string>::const_iterator it = ligand_svg_store.find(key);
    if (it != ligand_svg_store.end()) {
 
       return it->second;
@@ -210,7 +212,7 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
             RDKit::WedgeMolBonds(mol, &conf);
             svg.import_rdkit_mol(&mol, iconf);
             s = svg.render_to_svg_string(dark_bg_flag);
-            ligand_svg_store[comp_id] = s;
+            ligand_svg_store[key] = s;
          }
          catch (const Invar::Invariant &e) {
             std::cout << "error " << e.what() << std::endl;

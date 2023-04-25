@@ -1,0 +1,51 @@
+
+Tue 28 Feb 15:54:45 GMT 2023
+
+   From 8th Feb
+   add hydrogens atoms, auto-fit rotamer -> messes up bonding  ::: 2
+
+
+Thu 23 Mar 15:45:49 GMT 2023
+
+    - sequence mismatches ::: 2
+
+    - B-factor this vs average/sd B-factor environment ::: 2
+
+Fri  7 Apr 03:52:28 BST 2023
+
+   - make an interface to gaussian surface that allows me to specify the atom selection
+     (e.g "all atoms", or "not ligand")  ::: 2
+
+
+Tue 18 Apr 23:04:19 BST 2023
+
+   o Add Bond-by-distance (normal/basic coot bonding)  ::: 4
+
+Mon 24 Apr 23:06:48 BST 2023
+
+   B602 ZN is normal atom size in 4puc (so it looks tiny compared to the water atoms) ::: 1
+
+Mon 24 Apr 23:13:58 BST 2023
+
+   Filo ligand indexing problem:
+   
+   https://app.pumble.com/workspace/640ef18548ea1715f1efcfd7/6410560e58fdda5cb73d0199?message=6446c12b9d80c05aa5a8ff56
+
+   ::: 2
+
+Mon 24 Apr 23:16:03 BST 2023
+
+   Make the GM restraints drawable - use generic-3d lines?
+
+   ::: 1
+
+Mon 24 Apr 23:32:59 BST 2023
+
+   for the agenda: middle-mouse for panning.
+
+
+--- Done Items ---
+
+   o add a status flag to simple_mesh_t - used for "did we run out of memory/bad alloc"? (say) ::: 1
+* Done.
+

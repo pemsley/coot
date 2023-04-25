@@ -2393,14 +2393,22 @@ int test_svg(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+
+   mc.import_cif_dictionary("ATP.cif", imol_1);
+   mc.import_cif_dictionary("ATP.cif", imol_2);
    bool dark_bg = false;
-   std::string s = mc.get_svg_for_residue_type(0, "ATP", dark_bg);
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", dark_bg);
 
    if (s.length() > 0) {
-      std::ofstream f("ATP.svg");
-      f << s;
-      f.close();
+
+      if (true) {
+         std::ofstream f("ATP.svg");
+         f << s;
+         f.close();
+      }
+
       status = 1;
    }
    return status;
@@ -2581,31 +2589,57 @@ int test_read_file(molecules_container_t &mc) {
 
 int test_set_rotamer(molecules_container_t &mc) {
 
+   // Actually this is a test for change to next rotamer
+
    starting_test(__FUNCTION__);
    int status = 0;
+   int status_1 = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec_CB("A", 270, "", " CB ","");
-   coot::atom_spec_t atom_spec_OG("A", 270, "", " OG ","");
+   coot::atom_spec_t atom_spec_CG("A", 270, "", " CG ","");
    mmdb::Atom *at_start_CB = mc.get_atom(imol, atom_spec_CB);
-   mmdb::Atom *at_start_OG = mc.get_atom(imol, atom_spec_OG);
-   if (at_start_OG) {
+   mmdb::Atom *at_start_CG = mc.get_atom(imol, atom_spec_CG);
+   if (at_start_CG) {
+      // std::cout << "debug:: " << __FUNCTION__ << " got at_start_CG " << std::endl;
       if (at_start_CB) {
+         // std::cout << "debug:: " << __FUNCTION__ << " got at_start_CB " << std::endl;
          coot::Cartesian atom_pos_start_CB = atom_to_cartesian(at_start_CB);
-         coot::Cartesian atom_pos_start_OG = atom_to_cartesian(at_start_OG);
-         mc.change_to_next_rotamer(imol, "//A/270");
+         coot::Cartesian atom_pos_start_CG = atom_to_cartesian(at_start_CG);
+         mc.change_to_next_rotamer(imol, "//A/270", "");
          coot::Cartesian atom_pos_done_CB = atom_to_cartesian(at_start_CB);
-         coot::Cartesian atom_pos_done_OG = atom_to_cartesian(at_start_OG);
+         coot::Cartesian atom_pos_done_CG = atom_to_cartesian(at_start_CG);
          double dd_CB = coot::Cartesian::lengthsq(atom_pos_start_CB, atom_pos_done_CB);
-         double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_OG, atom_pos_done_OG);
+         double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_CG, atom_pos_done_CG);
          double d_CB = std::sqrt(dd_CB);
-         double d_OG = std::sqrt(dd_OG);
-         std::cout << "d_CB " << d_CB << " d_OG " << d_OG << std::endl;
-         if (d_OG > 0.3)
+         double d_CG = std::sqrt(dd_OG);
+         std::cout << "d_CB " << d_CB << " d_CG " << d_CG << std::endl;
+         if (d_CG > 0.3)
             if (d_CB < 0.1)
-               status = 1;
+               status_1 = 1;
+
+         if (status_1) {
+
+            int status_2 = 0;
+            mc.change_to_previous_rotamer(imol, "//A/270", "");
+            mc.change_to_previous_rotamer(imol, "//A/270", "");
+            coot::Cartesian atom_pos_done_CB = atom_to_cartesian(at_start_CB);
+            coot::Cartesian atom_pos_done_CG = atom_to_cartesian(at_start_CG);
+            double dd_CB = coot::Cartesian::lengthsq(atom_pos_start_CB, atom_pos_done_CB);
+            double dd_OG = coot::Cartesian::lengthsq(atom_pos_start_CG, atom_pos_done_CG);
+            double d_CB = std::sqrt(dd_CB);
+            double d_CG = std::sqrt(dd_OG);
+            std::cout << "d_CB " << d_CB << " d_CG " << d_CG << std::endl;
+            if (d_CG > 0.3)
+               if (d_CB < 0.1)
+                  status_2 = 1;
+
+            if (status_2 == 1) status = 1; // all gooe
+
+         }
       }
    }
+
    return status;
 }
 
@@ -2714,23 +2748,83 @@ int test_alt_conf_and_rotamer(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
-      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      coot::atom_spec_t atom_spec("A", 131, "", " O  ", "A");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          mc.imol_refinement_map = imol_map;
-         mc.add_alternative_conformation(imol, "//A/125"); // THR
-         mc.write_coordinates(imol, "alt-conf.pdb");
-         // core-function should throw an exception (which is caught in the below function)
-         // because there are not alt-confs for the atoms of the neighbouring residues (hence
-         // atom selection fails).
-         mc.auto_fit_rotamer(imol, "A", 125, "", "A", imol_map);
-         mc.write_coordinates(imol, "alt-conf-and-rotamer.pdb");
-         mc.refine_residues_using_atom_cid(imol, "//A/125", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
          mc.write_coordinates(imol, "alt-conf-and-rotamer-and-refine.pdb");
-
-         if (false) // add the correct test here.
-            status = 1;
+         status = 1;
       }
+   }
+   return status;
+}
+
+int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("mol-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   std::cout << "........... test_alt_conf_and_rotamer_v2() imol_map " << imol_map << std::endl;
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec_A("A", 131, "", " NE2","A");
+      coot::atom_spec_t atom_spec_B("A", 131, "", " NE2","B");
+      mmdb::Atom *at_A = mc.get_atom(imol, atom_spec_A);
+      mmdb::Atom *at_B = mc.get_atom(imol, atom_spec_B);
+      if (at_A) {
+         coot::Cartesian atom_pos_start_A = atom_to_cartesian(at_A);
+         coot::Cartesian atom_pos_start_B = atom_to_cartesian(at_B);
+         mc.imol_refinement_map = imol_map;
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         mc.change_to_next_rotamer(imol, "//A/131", "A");
+         coot::Cartesian atom_pos_done_A = atom_to_cartesian(at_A);
+         coot::Cartesian atom_pos_done_B = atom_to_cartesian(at_B);
+         mc.write_coordinates(imol, "alt-conf-and-rotamer.pdb");
+         double dd_1 = coot::Cartesian::lengthsq(atom_pos_done_A, atom_pos_done_B);
+         std::cout << "dd_1 " << dd_1 << std::endl;
+         if (dd_1 > 9.0)
+            status = 1;
+      } else {
+         std::cout << "In test_alt_conf_and_rotamer_v2() No atom found " << atom_spec_A << std::endl;
+      }
+
+      
+   }
+
+   std::cout << "done test_alt_conf_and_rotamer_v2()" << std::endl;
+   return status;
+}
+
+
+int test_moorhen_h_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.add_hydrogen_atoms(imol); // no hydrogen bonds found without hydrogens in the model
+   const std::string &cid_str = "//A/270";
+   std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str);
+
+   std::cout << "INFO:: in test_moorhen_h_bonds() we got " << h_bonds.size() << " H-bonds" << std::endl;
+   for (unsigned int i=0; i<h_bonds.size(); i++) {
+      std::cout << " "
+                << h_bonds[i].donor.chain    << " " << h_bonds[i].donor.res_no    << " " << h_bonds[i].donor.name
+                << h_bonds[i].acceptor.chain << " " << h_bonds[i].acceptor.res_no << " " << h_bonds[i].acceptor.name
+                << std::endl;
+   }
+
+   // test one.
+   if (h_bonds.size() == 3) {
+      if (h_bonds[2].acceptor.name == " OD1")
+         if (h_bonds[2].donor.name == " N  ")
+            status = 1;
    }
    return status;
 }
@@ -2839,8 +2933,8 @@ int main(int argc, char **argv) {
       status += run_test(test_side_chain_180,        "side-chain 180",           mc);
       status += run_test(test_peptide_omega,         "peptide omega",            mc);
       status += run_test(test_undo_and_redo,         "undo and redo",            mc);
-      status += run_test(test_merge_molecules,       "merge molecules",          mc);
       status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
+      status += run_test(test_merge_molecules,       "merge molecules",          mc);
       status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
@@ -2861,10 +2955,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   // status += run_test(test_undo_and_redo, "undo and redo", mc);
 
    // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
 
-   status = run_test(test_rigid_body_fit, "rigid-body fit", mc);
+   // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
@@ -2903,6 +2998,10 @@ int main(int argc, char **argv) {
    // status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
 
    // status = run_test(test_set_rotamer, "set rotamer ", mc);
+
+   // status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+
+   status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
    // Note to self:
    //

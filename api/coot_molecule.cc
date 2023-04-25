@@ -176,6 +176,7 @@ int
 coot::molecule_t::undo() {
 
    make_backup();
+   // save_info.new_modification("undo");
    int status = 0;
    std::string cwd = coot::util::current_working_dir();
    int prev_mod_index = save_info.get_previous_modification_index();
@@ -387,6 +388,7 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
    int history_filename_vec_size = history_filename_vec.size();
    if (save_info.modification_index == history_filename_vec_size) {
       history_filename_vec.push_back(file);
+      std::cout << "debug:: in save_history_file_name() added to history vec" << file << " " << history_filename_vec.size() << std::endl;
    } else {
       // we have gone back in history.
       //
@@ -1518,9 +1520,11 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
       coot::dictionary_residue_restraints_t restraints = p.second;
 
       if (p.first) {
+
+         make_backup();
+
          try {
 
-            make_backup();
             mmdb::Residue *prev_res = coot::util::previous_residue(res);
             mmdb::Residue *next_res = coot::util::next_residue(res);
             mmdb::Manager *mol = atom_sel.mol;
@@ -1541,15 +1545,13 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             atom_sel.mol->FinishStructEdit();
          }
          catch (const std::runtime_error &rte) {
-            std::cout << "WARNING:: thrown " << rte.what() << std::endl;
+            std::cout << "WARNING:: in backrub_rotamer(): thrown " << rte.what() << " with status " << status << std::endl;
          }
+         // if we make a backup, then we also make a new modification
+         save_info.new_modification("backrub_rotamer()");
       } else {
          std::cout << " No restraints found for " << monomer_type << std::endl;
       }
-   }
-   if (status) {
-      write_coordinates("post_backrub_rotamer.pdb");
-      save_info.new_modification("backrub_rotamer()");
    }
    return std::pair<bool,float> (status, score);
 }
@@ -2238,6 +2240,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
 int
 coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &new_res_type) {
 
+   make_backup();
    atom_sel.delete_atom_selection();
    mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
    int status = coot::util::mutate(residue_p, new_res_type);
@@ -2247,6 +2250,7 @@ coot::molecule_t::mutate(const coot::residue_spec_t &spec, const std::string &ne
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol); // regen the atom indices
+   save_info.new_modification("mutate() " + new_res_type);
    return status;
 
 }
@@ -3554,7 +3558,7 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
    mmdb::realtype a[6];
    mmdb::realtype vol;
    int orthcode;
-   atom_sel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);   
+   atom_sel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    Cell cell(a[0], a[1], a[2], clipper::Util::d2rad(a[3]), clipper::Util::d2rad(a[4]), clipper::Util::d2rad(a[5]));
    return symmetry_info_t(symm_trans_boxes, cell);
 }
@@ -3563,11 +3567,38 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
 // should the be in coot_molecule_rotamers?
 
 #include "ligand/richardson-rotamer.hh"
+
 //
 //! change rotamers
-int
-coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const coot::protein_geometry &pg) {
+coot::molecule_t::rotamer_change_info_t
+coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
+                                         const coot::protein_geometry &pg) {
+   return change_rotamer_number(res_spec, alt_conf, 1, pg);
+}
 
+//
+//! change rotamers
+coot::molecule_t::rotamer_change_info_t
+coot::molecule_t::change_to_previous_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
+                                         const coot::protein_geometry &pg) {
+   return change_rotamer_number(res_spec, alt_conf, -1, pg);
+}
+//
+//! change rotamers
+coot::molecule_t::rotamer_change_info_t
+coot::molecule_t::change_to_first_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
+                                         const coot::protein_geometry &pg) {
+   return change_rotamer_number(res_spec, alt_conf, 0, pg);
+}
+
+//
+//! change rotamers
+coot::molecule_t::rotamer_change_info_t
+coot::molecule_t::change_rotamer_number(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
+                                           int rotamer_change_direction,
+                                           const coot::protein_geometry &pg) {
+
+   coot::molecule_t::rotamer_change_info_t rci; // initially "fail" values
    int i_done = 0;
    mmdb::Residue *residue_p = util::get_residue(res_spec, atom_sel.mol);
    if (residue_p) {
@@ -3577,36 +3608,52 @@ coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, c
          current_rotamer = it->second;
       }
 
-      std::string alt_conf = ""; // fixme?
       coot::richardson_rotamer d(residue_p, alt_conf, atom_sel.mol, 0.01, 0);
       std::string res_type = residue_p->GetResName();
-      if (res_type == "GLY") return 0;
-      if (res_type == "ALA") return 0;
+      if (res_type == "GLY") return rci;
+      if (res_type == "ALA") return rci;
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
          pg.get_monomer_restraints(res_type, imol_no);
 
       if (p.first) {
-         int rotamer_number = current_rotamer + 1;
          float prob_cut = 0.01;
          std::vector<simple_rotamer> rotamers = d.get_rotamers(res_type, prob_cut);
+         int rotamer_number = 0;
+         if (rotamer_change_direction == 1)
+            rotamer_number = current_rotamer + 1;
+         if (rotamer_change_direction == -1)
+            rotamer_number = current_rotamer - 1;
          int n_rotamers = rotamers.size();
          if (rotamer_number >= n_rotamers)
             rotamer_number = 0;
+         if (rotamer_number < 0)
+            rotamer_number = n_rotamers - 1;
+         if (rotamer_number < 0) // protection
+            return rci;
 
          coot::dictionary_residue_restraints_t rest = p.second;
          mmdb::Residue *moving_res = d.GetResidue(rest, rotamer_number);
          if (moving_res) {
+            make_backup();
             i_done = set_residue_to_rotamer_move_atoms(residue_p, moving_res);
             delete moving_res; // or moving_res->chain?
             current_rotamer_map[res_spec] = rotamer_number;
+            rci.status = i_done;
+            rci.rank = rotamer_number;
+            rci.name = rotamers[rotamer_number].rotamer_name();
+            rci.richardson_probability = rotamers[rotamer_number].Probability_rich();
          }
+      } else {
+         std::cout << "WARNING:: change_rotamer_number() Failed to get monomer restraints for " << res_type << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: change_rotamer_number no residue found" << res_spec << std::endl;
    }
    if (! i_done)
-      std::cout << "WARNING:: change_to_next_rotamer(): set rotamer number failed" << std::endl;
+      std::cout << "WARNING:: change_rotamer_number(): set rotamer number failed" << std::endl;
 
-   save_info.new_modification("change_to_next_rotamer()");
-   return i_done;
+   save_info.new_modification("change_rotamer_number()");
+   return rci;
 
 }
 
@@ -3651,3 +3698,4 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
    }
    return i_done;
 }
+

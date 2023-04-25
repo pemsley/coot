@@ -27,6 +27,8 @@
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "saved-strand-info.hh"
+#include "svg-store-key.hh"
+#include "moorhen-h-bonds.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -193,24 +195,7 @@ class molecules_container_t {
    //! read the standard protein, RNA, and DNA dictionaries.
    void read_standard_residues();
 
-   // 20230215-PE The key to this map *should* contain the imol, so have it's own class ideally (with a less-than operator).
-   // However, it won't be a problem frequently. Let's see how long it is before someone complains.
-   // (It's the multi-LIG problem).
-   //
-   // class svg_store_key_t {
-   //    public:
-   //     int imol;
-   //     std::string comp_id;
-   //   opertor<(const svg_store_key_t &other) {
-   //      if (imol<other.imol)
-   //         return true;
-   //      else
-   //         if (comp_id < other.comp_id)
-   //            return true;
-   //      return false;
-   //   }
-   // };
-   std::map<std::string, std::string> ligand_svg_store;
+   std::map<svg_store_key_t, std::string> ligand_svg_store;
 
    atom_selection_container_t standard_residues_asc;
 
@@ -296,7 +281,7 @@ class molecules_container_t {
       make_backups_flag = true;
       interrupt_long_term_job = false;
       mmdb::InitMatType();
-      debug();
+      // debug();
    }
 
    void debug() const;
@@ -307,6 +292,7 @@ public:
    explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
       if (! verbose) geom.set_verbose(false);
       init();
+      std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
    }
 
    //! the refinement map - direct access. When refinement is performed, this is the map
@@ -761,8 +747,15 @@ public:
 
    //! change to the next rotamer (rotamer cycling is implicit if needed)
    //!
-   //! @return the success status (0 for fail, 1 for success).
-   int change_to_next_rotamer(int imol, const std::string &residue_cid);
+   //! @return the change information.
+   coot::molecule_t::rotamer_change_info_t change_to_next_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
+   //! change to the next rotamer (rotamer cycling is implicit if needed)
+   //!
+   //! @return the change information.
+   coot::molecule_t::rotamer_change_info_t change_to_previous_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
+
+   //! change to the first (0th) rotamer
+   coot::molecule_t::rotamer_change_info_t change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
 
    //! delete item
    //!
@@ -1005,8 +998,19 @@ public:
 
    //! Recently (20230202) the smoothness factor has been added as an extra argument
    //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
-   //! @return the instanced mesh for the specified molecule
+   //! @return the instanced mesh for the specified molecule.
    coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
+
+   //! @return a `simple::molecule_t` for the specified residue.
+   //! this function is not const because we pass a pointer to the protein_geometry geom.
+   coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
+
+   //! @return a vector of lines for non-bonded contacts and hydrogen bonds
+   generic_3d_lines_bonds_box_t
+   make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
+
+   //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
+   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str) const;
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
@@ -1251,6 +1255,23 @@ public:
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale);
+   
+   //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
+   //! An atom is a list:
+   //!
+   //! 0: atom-name
+   //!
+   //! 1: atom-element
+   //!
+   //! 2: position (a list of 3 floats)
+   //!
+   //! 3: formal charge (an integer)
+   //!
+   //! 4: aromaticity flag (boolean)
+   //1
+   //! make a "proper" simple  molecule python class one day.
+   PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
+
 #endif
 
 };

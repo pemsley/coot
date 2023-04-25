@@ -306,7 +306,6 @@ findligand_bin_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-        $(top_builddir)/cootaneer/libcootaneer.la          \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
@@ -330,7 +329,6 @@ findwaters_bin_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
-        $(top_builddir)/cootaneer/libcootaneer.la          \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \

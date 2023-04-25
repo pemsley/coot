@@ -337,6 +337,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules_container_ligand_fitting.cc
             ${coot_src}/api/molecules_container_mmrrcc.cc
             ${coot_src}/api/molecules_container_superpose.cc
+            ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/rigid-body-fit.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/api/phi-psi-prob.cc
@@ -351,6 +352,7 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib /usr/local/Cellar/libpng/1.6.39/lib)
 target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
 
+# set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DCMAKE_BUILD_TYPE=Debug -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
 set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
 
 
@@ -398,10 +400,6 @@ FILE(COPY ${coot_src}/data/metal/metal-S-distance.table DESTINATION data/coot/da
 
 # install(TARGETS mini-rsr-web DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.wasm
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.worker.js
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.js
-              ${CMAKE_CURRENT_BINARY_DIR}/mini-rsr-web.data
-              ${CMAKE_CURRENT_BINARY_DIR}/coot_env_web.js
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coot_env_web.js
               DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
 

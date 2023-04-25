@@ -13,7 +13,7 @@ class generic_3d_lines_bonds_box_t {
 public:
    //! a vector of line position pairs
    std::vector<std::vector<coot::CartesianPair> > line_segments;
-   generic_3d_lines_bonds_box_t();
+   generic_3d_lines_bonds_box_t() {};
    //! the bonds gnerator makes a graphical_bonds_container and libcootapi
    //! uses that to convert to this simple container
    explicit generic_3d_lines_bonds_box_t(const graphical_bonds_container &gbc) {
