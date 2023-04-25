@@ -1,12 +1,12 @@
 
-ylim=105
-xlim=105
+ylim=120 # was 105
+xlim=480 # was 105
 
 prediction_text_x_placement = 68
 prediction_text_y_placement = 18
 
-legend_x = 70
-legend_y = 15
+legend_x = 340
+legend_y = 10
 
 
 source('arrow.r')
@@ -105,8 +105,8 @@ do_plot = function() {
 
     ## the columns are time(days) n-items-todo n-items-done
 
-    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="GTK4 Coot-1.0 Development Progress",
+    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
+               main="GTK4 Coot-1.0 Development Progress\n(ignoring Validation Graphs, Rama Plots & Ligand Builder and SeqView)",
                xlab="Real Days since records began (6 Aug 2022)",
                ylab="Scope & Work Done (Days)")
 
@@ -135,8 +135,11 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-betterArrow(13, 36, 21, 30, 0.2, col='grey30', code=2)
-text(8, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
+betterArrow(48, 36, 21, 30, 0.2, col='grey30', code=2)
+text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
+
+betterArrow(55, 25, 45, 16, 0.2, col='grey30', code=2)
+text(89, 25., labels="Moorhen", col='grey30', cex=1.0)
 
 
 # text(43, 9., labels="Illness", col='grey', cex=1.0)
