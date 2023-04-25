@@ -35,23 +35,19 @@ molecules_container_t::get_h_bonds(int imol, const std::string &cid_str) const {
       if (atom_in) { // can be null (strange).
 
          m_at.serial = atom_in->serNum;
-         m_at.x = atom_in->x;
-         m_at.y = atom_in->y;
-         m_at.z = atom_in->z;
-         m_at.charge = atom_in->charge;
-         m_at.occ = atom_in->occupancy;
-         m_at.b_iso = atom_in->tempFactor;
+         m_at.x       =             atom_in->x;
+         m_at.y       =             atom_in->y;
+         m_at.z       =             atom_in->z;
+         m_at.charge  =             atom_in->charge;
+         m_at.occ     =             atom_in->occupancy;
+         m_at.b_iso   =             atom_in->tempFactor;
          m_at.element = std::string(atom_in->element);
-         m_at.name = std::string(atom_in->name);
-         m_at.model = atom_in->GetModelNum();
-         m_at.chain = std::string(atom_in->GetChainID());
-         m_at.res_no = atom_in->GetSeqNum();
+         m_at.name    = std::string(atom_in->name);
+         m_at.model   =             atom_in->GetModelNum();
+         m_at.chain   = std::string(atom_in->GetChainID());
+         m_at.res_no  =             atom_in->GetSeqNum();
+         m_at.altLoc  = std::string(atom_in->altLoc);
          m_at.residue_name = std::string(atom_in->GetResidue()->name);
-         m_at.altLoc = std::string(atom_in->altLoc);
-         m_at.charge = atom_in->charge;
-         m_at.occ = atom_in->occupancy;
-         m_at.b_iso = atom_in->tempFactor;
-         m_at.element = std::string(atom_in->element);
       }
    };
 

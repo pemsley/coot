@@ -2808,7 +2808,7 @@ int test_moorhen_h_bonds(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   mc.add_hydrogen_atoms(imol);
+   mc.add_hydrogen_atoms(imol); // no hydrogen bonds found without hydrogens in the model
    const std::string &cid_str = "//A/270";
    std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str);
 
