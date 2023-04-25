@@ -28,6 +28,7 @@
 #include "instancing.hh"
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
+#include "moorhen-h-bonds.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -1007,6 +1008,9 @@ public:
    //! @return a vector of lines for non-bonded contacts and hydrogen bonds
    generic_3d_lines_bonds_box_t
    make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
+
+   //! @return a vector hydrogen bonds around the specified residue (typically a ligand)
+   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str) const;
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

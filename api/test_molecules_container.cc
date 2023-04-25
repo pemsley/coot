@@ -2802,6 +2802,33 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
 }
 
 
+int test_moorhen_h_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.add_hydrogen_atoms(imol);
+   const std::string &cid_str = "//A/270";
+   std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str);
+
+   std::cout << "INFO:: in test_moorhen_h_bonds() we got " << h_bonds.size() << " H-bonds" << std::endl;
+   for (unsigned int i=0; i<h_bonds.size(); i++) {
+      std::cout << " "
+                << h_bonds[i].donor.chain    << " " << h_bonds[i].donor.res_no    << " " << h_bonds[i].donor.name
+                << h_bonds[i].acceptor.chain << " " << h_bonds[i].acceptor.res_no << " " << h_bonds[i].acceptor.name
+                << std::endl;
+   }
+
+   // test one.
+   if (h_bonds.size() == 3) {
+      if (h_bonds[2].acceptor.name == " OD1")
+         if (h_bonds[2].donor.name == " N  ")
+            status = 1;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2972,7 +2999,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_set_rotamer, "set rotamer ", mc);
 
-   status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+   // status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+
+   status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
    // Note to self:
    //
