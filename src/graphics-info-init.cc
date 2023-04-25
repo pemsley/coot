@@ -462,5 +462,7 @@ graphics_info_t::init() {
       validation_graph_model_list = gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_INT);
       active_validation_graph_model_idx = -1;
 
+      ramachandran_plot_model_list = gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_INT);
+
    }
 

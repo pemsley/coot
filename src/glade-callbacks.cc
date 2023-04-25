@@ -11965,27 +11965,24 @@ on_cif_dictionary_filechooser_dialog_response(GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT
 gboolean
 on_keyboard_mutate_dialog_delete_event(GtkWidget       *widget,
-                                                           GdkEvent        *event,
-                                                           gpointer         user_data) {
+                                       GdkEvent        *event,
+                                       gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data) {
-   std::cout << "----------------- A ------" << std::endl;
+
    GtkTreeIter iter;
-   if (gtk_combo_box_get_active_iter(self,&iter)) {
-      std::cout << "----------------- B ------" << std::endl;
+   if (gtk_combo_box_get_active_iter(self, &iter)) {
       int new_active_model;
       gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
       graphics_info_t::update_active_validation_graph_model(new_active_model);
-      // std::cout << "----------------- C ------ " << graphics_info_t::active_validation_graph_model_idx << std::endl;
-
    } else {
-      g_warning("Could not get active iter in validation graph model ComboBox");
+      g_warning("on_validation_graph_model_combobox_changed(): Could not get active iter in validation graph model ComboBox");
    }
 }
 
@@ -12055,6 +12052,33 @@ void
 on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
    on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_correlation);
 }
+
+#include "gtkglarea-rama-plot.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
+                                                        gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
+   GtkWidget *combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
+   int imol = 0; //get imol from the combobox
+   // imol = combobox_get_imol(GTK_COMBO_BOX(combobox)); // using Jakub-style comboboxes
+   show_opengl_ramachandran_plot(imol);
+   gtk_widget_hide(dialog);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_ramachandran_plot_molecule_chooser_cancel_button_clicked (GtkButton       *button,
+                                                             gpointer         user_data) {
+   GtkWidget *w = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
+   gtk_widget_hide(w);
+
+}
+
+
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT

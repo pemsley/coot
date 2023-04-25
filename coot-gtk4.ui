@@ -696,6 +696,10 @@
           <attribute name="action">app.show_validation_graphs_dialog</attribute>
         </item>
         <item>
+          <attribute name="label">Ramachandran Plot</attribute>
+          <attribute name="action">app.ramachandran_plot_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Alignment vs Reference PIR</attribute>
           <attribute name="action">app.alignment_vs_pir_action</attribute>
         </item>
@@ -5906,16 +5910,72 @@ Do you want to continue?
           <object class="GtkOverlay" id="main_window_graphics_overlay">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <!-- container for the GTKGLArea -->
+
+
             <child>
-              <object class="GtkBox" id="main_window_graphics_hbox">
+              <object class="GtkPaned" id="main_window_graphics_rama_vs_graphics_pane">
+                <property name="position">6</property>
                 <property name="orientation">horizontal</property>
-                <!-- This is where the GTKGLArea is placed at runtime -->
+                <child>
+                  <object class="GtkScrolledWindow" id="ramachdran_plots_scrolled_window">
+                    <child>
+                      <object class="GtkBox" id="ramachandran_plots_vbox">
+                        <property name="orientation">vertical</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <!-- container for the GTKGLArea -->
+                <child>
+                  <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
+                    <!-- <property name="position">40</property> -->
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox" id="main_window_graphics_hbox">
+                        <!-- This is where the GTKGLArea is placed at runtime -->
+                      </object>
+                    </child>
+
+                  <child>
+                    <object class="GtkFrame" id="main_window_validation_graph_frame">
+                      <!-- <property name="halign">fill</property> -->
+                      <!-- <property name="valign">end</property> -->
+                      <property name="hexpand">True</property>
+                      <property name="vexpand">True</property>
+                      <property name="visible">True</property>
+                      <property name="margin-bottom">5</property>
+                      <property name="margin-end">5</property>
+                      <property name="margin-start">5</property>
+                      <property name="margin-top">5</property>
+
+                      <child>
+                        <object class="GtkScrolledWindow">
+                          <property name="hexpand">True</property>
+                          <property name="vexpand">True</property>
+                          <child>
+                            <object class="GtkBox" id="main_window_validation_graph_box">
+                              <property name="orientation">vertical</property>
+                              <property name="hexpand">True</property>
+                              <property name="vexpand">True</property>
+                              <property name="spacing">5</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+
+                    </object>
+                  </child>
+
+                  </object>
+                </child>
+
               </object>
             </child>
+
             <child type="overlay">
               <object class="GtkFrame" id="get_monomer_frame">
-              <property name="halign">center</property>
+                <property name="halign">center</property>
                 <property name="valign">start</property>
                 <property name="visible">False</property>
                 <property name="can_focus">True</property>
@@ -6412,6 +6472,9 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <!-- this frame and box is no longer used because we use a GtkPaned now. -->
+            <!-- Now main_window_validation_graph_box and main_window_validation_graph_frame. -->
             <child type="overlay">
               <object class="GtkFrame" id="validation_graph_frame">
                 <property name="halign">fill</property>
@@ -6431,7 +6494,7 @@ Do you want to continue?
                     </child>
                   </object>
                 </child>
->              </object>
+              </object>
             </child>
           </object>
         </child>
@@ -6589,6 +6652,89 @@ Do you want to continue?
       </object>
     </child>
   </object>
+
+
+  <object class="GtkDialog" id="ramachandran_plot_molecule_chooser_dialog">
+    <property name="title">Ramachandran Plot</property>
+    <property name="hide-on-close">True</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Ramachandran Plot</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Model: </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="ramachandran_plot_molecule_chooser_model_combobox">
+                <property name="hexpand">True</property>
+                <child>
+                  <object class="GtkCellRendererText"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="action">
+          <object class="GtkBox">
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkButton" id="ramachandran_plot_molecule_chooser_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_ramachandran_plot_molecule_chooser_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-top">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="ramachandran_plot_molecule_chooser_ok_button">
+                <property name="label" translatable="yes">  Show Plot  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_ramachandran_plot_molecule_chooser_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-top">4</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </object>
+
   <object class="GtkDialog" id="validation_graph_dialog">
     <property name="title">Validation graphs</property>
     <property name="hide-on-close">True</property>

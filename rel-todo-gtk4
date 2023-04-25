@@ -23,11 +23,19 @@ Display Manager - "Delete Model" button doesn't delete the "combobox" (as I call
 
 Validate -> Ramachandran Plot ::: 10
 
-Make a "framework" program for validation for Jakub - make a list of generic residue validation blocks.
+Sun 23 Apr 21:33:42 BST 2023
 
-Does the show_updating_maps_chooser() work? In refinement branch even?
+   void HUDTextureMesh::setup_buffers() { ...
+   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
-Enable splash screen: 1
+   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
+
+
+Fix the Pan/Ctrl-drag function ::: 1.0
+
+Does the show_updating_maps_chooser() work? In refinement branch even? ::: 1
+
+Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
@@ -40,8 +48,6 @@ Enable the command line (e.g. --pdb and others) ::: 2
 I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
-
-Fix the Ctrl-drag function ::: 0.5
 
 Fix the Map Parameters dialog widgets ::: 2
 
@@ -225,4 +231,7 @@ Add "Repeat previous zone" to refinement menu items. ::: 0.4
 * Done.
 
 Make the validation balls and dodecs less bright. ::: 0.3
+* Done.
+
+Make a "framework" program for validation for Jakub - make a list of generic residue validation blocks. ::: 4
 * Done.

@@ -396,7 +396,7 @@ HUDMesh::draw(Shader *shader_p) { // in this case draw() is draw_instanced() ---
 
    if (false)
       std::cout << "debug:: HUDMesh::draw() --- start --- n_instances: " << n_instances
-                << " vao " << vao << std::endl;
+                << " name " << name << " vao " << vao << std::endl;
 
    if (this_mesh_is_closed) return;
 

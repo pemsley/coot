@@ -981,15 +981,20 @@ public:
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
    static void graphics_draw() {
+
       // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
-      if (! glareas.empty()) {
-         for (unsigned int i=0; i<glareas.size(); i++) {
-            GtkWidget *glarea = glareas[i];
-            gtk_widget_queue_draw(glarea);
-            if (make_movie_flag)
-               dump_a_movie_image();
+      if (true) {
+         if (! glareas.empty()) {
+            for (unsigned int i=0; i<glareas.size(); i++) {
+               GtkWidget *glarea = glareas[i];
+               gtk_widget_queue_draw(glarea);
+               if (make_movie_flag)
+                  dump_a_movie_image();
+            }
          }
       }
+      if (! smooth_scroll_on_going) // 20230423-PE exclude other animations too?
+         draw_rama_plots(); // the widgeted rama plots, not the in-window one.
    }
 
    // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
@@ -5025,11 +5030,17 @@ string   static std::string sessionid;
                             << s << "() not much more insight \n";
       }
    }
+
+
+   /// List of label strings (col 0) and model indices (int) (col 1)
+   static GtkListStore* validation_graph_model_list;
    /// Should be called when a model gets added or deleted.
    /// Updates the GtkListStore for the validation graph model combobox
    static void refresh_validation_graph_model_list();
-   /// List of label strings (col 0) and model indices (int) (col 1)
-   static GtkListStore* validation_graph_model_list;
+   // 20230420-PE and just like the above, let's have a model that we can use for the Ramachandran plot molecule chooser
+   static GtkListStore* ramachandran_plot_model_list;
+   // like the above, this should be called when a model gets added or deleted.
+   static void refresh_ramachandran_plot_model_list();
 
    // 20230415-PE This should not be needed - because we should always be able to read the active imol
    // from the widget in any callback. But for now it is needed in on_validation_graph_checkbutton_toggled()
@@ -5054,6 +5065,24 @@ string   static std::string sessionid;
 
    // 20230417-PE functions to fill the validation information for the new valiadtionn graphs
    coot::validation_information_t get_validation_data_for_geometry_analysis(int imol);
+
+
+   // 20230419-PE ----- a holder for the OpenGL-based Ramachandran Plots
+   // each rama plot is held in a GtkBox - and that box has a "Close" button
+   // which destroys the plot - and removes it from this vector
+   //
+   class widgeted_rama_plot_t {
+   public:
+      int imol;
+      gl_rama_plot_t rama;
+      GtkWidget *gtk_gl_area;
+      GtkWidget *close_button;
+      GtkWidget *box;
+      widgeted_rama_plot_t(int imol, const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button, GtkWidget *box) :
+         imol(imol), rama(rama), gtk_gl_area(gtk_gl_area), close_button(button), box(box) {}
+   };
+   static std::vector<widgeted_rama_plot_t> rama_plot_boxes;
+   static void draw_rama_plots(); // draw the rama plots in the above vector
 
 };
 

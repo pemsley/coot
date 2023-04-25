@@ -9366,7 +9366,9 @@ coot::util::copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain 
 
 // add or delete residues and atoms as needed.
 void
-coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_chain, mmdb::Manager *orig_mol, mmdb::Chain *modified_chain,
+coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_chain,
+                                                         mmdb::Manager *orig_mol,
+                                                         mmdb::Chain *modified_chain,
                                                          bool do_finishstructedit) {
 
    // say I have copied a chain and then changed it by trimming or addition of residues, I want
@@ -9381,21 +9383,24 @@ coot::util::replace_chain_contents_with_atoms_from_chain(mmdb::Chain *orig_from_
 
 
 
-
 float
 coot::get_position_hash(mmdb::Manager *mol) {
 
    // terrible but fast and tells me what I want.
 
    float h = 0.0;
+   if (! mol) {
+      std::cout << "WARNING:: get_position_hash() called with null mol " << std::endl;
+      return h;
+   }
 
-   unsigned int atom_count = 0;
-   float x_prev = 0.0;
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
+      unsigned int atom_count = 0;
       for (int ichain=0; ichain<n_chains; ichain++) {
+         float x_prev = 0.0;
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
          int n_res = chain_p->GetNumberOfResidues();
          for (int ires=0; ires<n_res; ires++) {

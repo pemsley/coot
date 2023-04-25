@@ -581,6 +581,8 @@ libcootsumo_la_SOURCES = \
 	graphics-ligand-mesh-molecule.hh \
 	gl-matrix.cc 		 \
 	graphics-info.h 	 \
+	gtkglarea-rama-plot.cc   \
+	gtkglarea-rama-plot.hh   \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
 	gtk-widget-conversion-utils.h  \
