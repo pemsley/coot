@@ -1016,8 +1016,9 @@ public:
    generic_3d_lines_bonds_box_t
    make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
 
+   //! `mcdonald_and_thornton_mode` turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
-   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str) const;
+   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

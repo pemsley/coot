@@ -2807,9 +2807,13 @@ int test_moorhen_h_bonds(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   // if mcdonald_and_thornton is true, then we need to add hydrogen atoms.
+   // if mcdonald_and_thornton is false then we don't need hydrogen atoms - if there are hydrogen atoms
+   // then no H-bonds will be made.
+   bool mcdonald_and_thornton = true;
    mc.add_hydrogen_atoms(imol); // no hydrogen bonds found without hydrogens in the model
    const std::string &cid_str = "//A/270";
-   std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str);
+   std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str, mcdonald_and_thornton);
 
    std::cout << "INFO:: in test_moorhen_h_bonds() we got " << h_bonds.size() << " H-bonds" << std::endl;
    for (unsigned int i=0; i<h_bonds.size(); i++) {
@@ -3044,9 +3048,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
 
-   // status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+   status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
-   status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
+   // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
    // Note to self:
    //
