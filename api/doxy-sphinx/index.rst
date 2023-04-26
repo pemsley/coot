@@ -95,6 +95,12 @@ Hydrogen Bonds
 .. doxygenfile:: generic-3d-lines.hh
       :project: libcootapi
 
+Colour
+======
+
+.. doxygenfile:: coot-colour.hh
+      :project: libcootapi
+
 Cartesian Coordinates
 ====================
 

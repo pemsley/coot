@@ -2692,7 +2692,6 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          mc.set_user_defined_bond_colours(imol, colour_map);
          mc.set_user_defined_atom_colour_by_residue(imol, indexed_residues_cids);
          coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
-         std::cout << "...................... here B " << im.geom.size() << std::endl;
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
                status = 1;
@@ -2825,6 +2824,50 @@ int test_moorhen_h_bonds(molecules_container_t &mc) {
       if (h_bonds[2].acceptor.name == " OD1")
          if (h_bonds[2].donor.name == " N  ")
             status = 1;
+   }
+   return status;
+}
+
+int test_bespoke_carbon_colour(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.get_monomer("LZA");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::colour_t col(0.0999, 0.0888, 0.0777);
+      mc.set_use_bespoke_carbon_atom_colour(imol, true);
+      mc.set_bespoke_carbon_atom_colour(imol, col);
+      std::string mode("VDW-BALLS");
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+
+      std::cout << "There are " << im.geom.size() << " geoms " << std::endl;
+      for (unsigned int ig=0; ig<im.geom.size(); ig++) {
+         const auto &g = im.geom[ig];
+         std::cout << "geom[" << ig << "] info: "
+                   << " n-vertices: "   << g.vertices.size()
+                   << " n-triangles: "  << g.triangles.size()
+                   << " instancing-A: " << g.instancing_data_A.size()
+                   << " instancing-B: " << g.instancing_data_B.size()
+                   << std::endl;
+      }
+
+      const auto &g = im.geom[0];
+      for (unsigned int j=0; j<g.instancing_data_A.size(); j++) {
+         const auto &idA = g.instancing_data_A[j];
+         std::cout << "object-indx: " << j << " col: " << glm::to_string(idA.colour) << std::endl;
+         if (close_float(static_cast<float>(idA.colour.r), 0.0999f))
+            if (close_float(static_cast<float>(idA.colour.g), 0.0888f))
+               if (close_float(static_cast<float>(idA.colour.b), 0.0777f)) {
+                  status = 1;
+                  break;
+               }
+      }
    }
    return status;
 }
@@ -3001,7 +3044,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
 
-   status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+   // status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+
+   status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
    // Note to self:
    //

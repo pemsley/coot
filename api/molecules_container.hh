@@ -26,6 +26,7 @@
 #include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
+#include "coot-colour.hh" // put this in utils
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
@@ -486,7 +487,7 @@ public:
 
    //! get the bonds mesh.
    //!
-   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
+   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
    //!
    //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
    //! When the background is dark, the colours should (as a rule) be bright and pastelly.
@@ -579,6 +580,12 @@ public:
 
    //! print the colour rules
    void print_colour_rules(int imol) const;
+
+   //! use bespoke carbon atom colour
+   void set_use_bespoke_carbon_atom_colour(int imol, bool state);
+
+   //! set bespoke carbon atom colour
+   void set_bespoke_carbon_atom_colour(int imol, const coot::colour_t &col);
 
    //! Update float parameter for MoleculesToTriangles molecular mesh
    void M2T_updateFloatParameter(int imol, const std::string &param_name, float value);

@@ -1603,6 +1603,10 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
 
    coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
+
+      set_use_bespoke_carbon_atom_colour(imol, true);
+      coot::colour_t col(0.0999, 0.0888, 0.0777);
+      set_bespoke_carbon_atom_colour(imol, col);
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
                                                     smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {
@@ -4190,5 +4194,27 @@ molecules_container_t::make_exportable_environment_bond_box(int imol, coot::resi
    }
    return bonds_box;
 
+}
+
+
+//! use bespoke carbon atom colour
+void
+molecules_container_t::set_use_bespoke_carbon_atom_colour(int imol, bool state) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_use_bespoke_carbon_atom_colour(state);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! set bespoke carbon atom colour
+void
+molecules_container_t::set_bespoke_carbon_atom_colour(int imol, const coot::colour_t &col) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_bespoke_carbon_atom_colour(col);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
 }
 
