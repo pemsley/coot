@@ -632,6 +632,9 @@ public:
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
 
+   //! @return the number of hydrogen atoms in the specified model, or -1 on error
+   int get_number_of_hydrogen_atoms(int imol) const;
+
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
    //! @return vector of single letter codes - in a pair with the given residue spec

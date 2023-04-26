@@ -129,6 +129,16 @@ molecules_container_t::get_number_of_atoms(int imol) const {
    return n;
 }
 
+int
+molecules_container_t::get_number_of_hydrogen_atoms(int imol) const {
+
+   int n = -1;
+   if (is_valid_model_molecule(imol)) {
+      n = molecules[imol].get_number_of_hydrogen_atoms();
+   }
+   return n;
+}
+
 void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
    draw_missing_residue_loops_flag = state;

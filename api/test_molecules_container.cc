@@ -2876,6 +2876,21 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
    return status;
 }
 
+int test_number_of_hydrogen_atoms(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+     mc.add_hydrogen_atoms(imol);
+     int n_hydrogen_atoms = mc.get_number_of_hydrogen_atoms(imol);
+     if (n_hydrogen_atoms > 100)
+       status = 1;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3048,7 +3063,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
 
-   status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+   // status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+
+   status = run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
