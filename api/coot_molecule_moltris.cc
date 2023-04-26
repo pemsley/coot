@@ -328,35 +328,45 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    coot::simple_mesh_t mesh;
 
-   auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
-   // auto chain_cs = ColorScheme::colorChainsScheme();
-   auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-   if (! colour_rules.empty())
-      chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-   auto ele_cs   = ColorScheme::colorByElementScheme();
-   auto ss_cs    = ColorScheme::colorBySecondaryScheme();
-   auto bf_cs    = ColorScheme::colorBFactorScheme();
-   auto this_cs  = chain_cs; // default
-   if (colour_scheme == "Chains")    this_cs = chain_cs;
-   if (colour_scheme == "Element")   this_cs = ele_cs;
-   if (colour_scheme == "BFactor")   this_cs = bf_cs;
-   if (colour_scheme == "Secondary") this_cs = ss_cs;
-   if (colour_scheme == "RampChains") {
-      mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
-   } else {
-      std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-         MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-      mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
 
-      if (false) {
-         for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-            const auto &vertex = mesh.vertices[i];
-            std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+   try {
+
+      auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
+      // auto chain_cs = ColorScheme::colorChainsScheme();
+      auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+      if (! colour_rules.empty())
+         chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+      auto ele_cs   = ColorScheme::colorByElementScheme();
+      auto ss_cs    = ColorScheme::colorBySecondaryScheme();
+      auto bf_cs    = ColorScheme::colorBFactorScheme();
+      auto this_cs  = chain_cs; // default
+      if (colour_scheme == "Chains")    this_cs = chain_cs;
+      if (colour_scheme == "Element")   this_cs = ele_cs;
+      if (colour_scheme == "BFactor")   this_cs = bf_cs;
+      if (colour_scheme == "Secondary") this_cs = ss_cs;
+      if (colour_scheme == "RampChains") {
+         mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
+      } else {
+         std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+            MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+         mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+         if (false) {
+            for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+               const auto &vertex = mesh.vertices[i];
+               std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+            }
          }
       }
-   }
 
-   mesh.fill_colour_map(); // for blendering
+      mesh.fill_colour_map(); // for blendering
+   }
+   catch (const std::out_of_range &oor) {
+      std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+   }
+   catch (...) {
+      std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
+   }
 
    return mesh;
 }

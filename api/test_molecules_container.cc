@@ -3065,7 +3065,9 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
-   status = run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
+   // status = run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
+
+   status += run_test(test_molecular_representation, "molecular representation mesh", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
