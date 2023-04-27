@@ -199,8 +199,10 @@ void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
 						   gpointer         user_data);
 
-void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
-						short int is_map_molecule);
+void display_control_add_delete_molecule_button(int imol,
+                                                GtkWidget *hbox_for_molecule,
+                                                GtkWidget *vbox_for_molecules,
+						bool is_map_molecule);
 
 void
 on_display_control_delete_molecule_button_clicked   (GtkButton       *button,

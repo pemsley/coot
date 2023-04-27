@@ -523,7 +523,7 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    g_object_set_data(G_OBJECT(hbox),  "active_toggle_button",  active_checkbutton);
 
    // 6: "Delete" map button
-   display_control_add_delete_molecule_button(imol, hbox, false);
+   display_control_add_delete_molecule_button(imol, hbox, display_control_molecule_vbox, false);
 
    // connect signals to display and active
    g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
@@ -535,23 +535,30 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
 
 }
 
-void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
-						short int is_map_molecule) {
+void display_control_add_delete_molecule_button(int imol,
+                                                GtkWidget *hbox32,
+                                                GtkWidget *vbox_for_molecules,
+						bool is_map_molecule) {
 
    if (! hbox32) {
       std::cout << "ERROR:: in display_control_add_delete_molecule_button() null hbox32" << std::endl;
       return;
    }
-      
 
-   std::string delete_button_name = "delete_molecule_";
-   delete_button_name += coot::util::int_to_string(imol);
    std::string button_string = "Delete Model";
    if (is_map_molecule)
       button_string = "Delete Map";
    GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
    gtk_widget_show(delete_button);
-   gtk_box_append (GTK_BOX (hbox32), delete_button);
+
+   // used in callback on_display_control_mol_active_button_toggled()
+   // GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   // GtkWidget *vbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_this_molecule"));
+
+   g_object_set_data(G_OBJECT(delete_button), "hbox_for_this_molecule", hbox32); // bad name
+   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules",     vbox_for_molecules);
+
+   gtk_box_append(GTK_BOX (hbox32), delete_button);
    gtk_widget_set_margin_start (delete_button, 2);
    gtk_widget_set_margin_end   (delete_button, 2);
    gtk_widget_set_margin_top   (delete_button, 1);
@@ -809,7 +816,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_box_append(GTK_BOX(hbox), properties_button);
 
    // 6: "Delete" map button
-   display_control_add_delete_molecule_button(imol, hbox, true);
+   display_control_add_delete_molecule_button(imol, hbox, display_map_vbox, true);
 
    // connect signals to display, scroll and properties
    g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
@@ -936,10 +943,20 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 
    int imol = GPOINTER_TO_INT(user_data);
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
 		<< "on_display_control_delete_molecule_button_clicked"
 		<< std::endl;
+
+   // these are set in ...
+   GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   GtkWidget *hbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "hbox_for_this_molecule"));
+
+   std::cout << "here are the widgets! " << vbox_for_molecules << " " << hbox_for_this_molecule << std::endl;
+   if (vbox_for_molecules) {
+      gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+   }
+
    close_molecule(imol);
 }
 

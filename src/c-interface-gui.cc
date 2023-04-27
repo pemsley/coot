@@ -3861,10 +3861,9 @@ void close_molecule(int imol) {
    // 4) Try to use the "Delete model" button in the display manager
    //    -> Fail (i.e. nothing happens) without this line
    //
-   g.delete_molecule_from_from_display_manager(imol, was_map);
+   // g.delete_molecule_from_from_display_manager(imol, was_map);
 
-   if (is_valid_model_molecule(imol) ||
-       is_valid_map_molecule(imol)) {
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       g.delete_pointers_to_map_in_other_molecules(imol);
       g.molecules[imol].close_yourself();
       // and close the graphics ligand view if it was a residue of this molecule

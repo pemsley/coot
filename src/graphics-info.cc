@@ -2102,6 +2102,7 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 #endif
 }
 
+// Not used.
 void
 graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
 
@@ -2109,23 +2110,23 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
    //
    GtkWidget *dc_window = display_control_window();
    //
-   if (dc_window) { // is being displayed
+   if (dc_window) {
       std::string display_frame_name = "display_mol_frame_";
       if (was_map)
          display_frame_name = "display_map_frame_";
       display_frame_name += int_to_string(imol);
-      // GtkWidget *display_frame = lookup_widget(dc_window, display_frame_name.c_str());
+
       GtkWidget *display_frame = 0;
       std::cout << "FIXME in delete_molecule_from_from_display_manager()  correctly set the display_frame " << std::endl;
       if (display_frame) {
+         // 20230426-PE We don't destroy widgets any more. Instead we remove
+         // widgets from their container, using gtk_box_remove().
+         //
          // gtk_widget_destroy(display_frame);
-         gtk_widget_hide(display_frame); // Hmm...
+
       }
-   } else {
-      // std::cout << "close: display_control_window is not active" << std::endl;
    }
 }
-
 
 
 

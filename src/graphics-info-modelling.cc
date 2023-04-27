@@ -5481,8 +5481,9 @@ graphics_info_t::delete_residue_range(int imol,
       }
       delete_residues_from_geometry_graphs(imol, res_specs);
 
-      if (! is_valid_model_molecule(imol))
-	 delete_molecule_from_from_display_manager(imol, false);
+      // 20230426-PE GTK4: delete_molecule_from_from_display_manager() no longer works
+      // if (! is_valid_model_molecule(imol))
+      // delete_molecule_from_from_display_manager(imol, false);
 
       if (delete_item_widget) { // what is this?
 	 // GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget, "delete_item_keep_active_checkbutton");
