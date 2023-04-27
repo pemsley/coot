@@ -10029,6 +10029,52 @@ on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
    fill_chi_angles_vbox(vbox);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_mask_map_by_atom_selection_cancel_button_clicked(GtkButton *button,
+                                                    gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("mask_map_by_atom_selection_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_mask_map_by_atom_selection_ok_button_clicked(GtkButton *button,
+                                                gpointer         user_data) {
+
+   graphics_info_t g;
+   std::cout << "OK!" << std::endl;
+   GtkWidget *dialog         = widget_from_builder("mask_map_by_atom_selection_dialog");
+   GtkWidget *checkbutton    = widget_from_builder("mask_map_by_atom_selection_invert_checkbutton");
+   GtkWidget *entry_1        = widget_from_builder("mask_map_by_atom_selection_atom_selection_entry");
+   GtkWidget *entry_2        = widget_from_builder("mask_map_by_atom_selection_radius_entry");
+   GtkWidget *model_combobox = widget_from_builder("mask_map_by_atom_selection_model_combobox");
+   GtkWidget *map_combobox   = widget_from_builder("mask_map_by_atom_selection_map_combobox");
+
+   std::string sel_string    = gtk_editable_get_text(GTK_EDITABLE(entry_1));
+   std::string radius_string = gtk_editable_get_text(GTK_EDITABLE(entry_2));
+   bool invert_flag = false;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) invert_flag = true;
+
+   int imol_model   = g.combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+   int imol_for_map = g.combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+
+   // 20230427-PE maybe the radius should be in the function call?
+   if (! radius_string.empty()) {
+      try {
+         float radius = coot::util::string_to_float(radius_string);
+         g.map_mask_atom_radius = radius;
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   }
+
+   mask_map_by_atom_selection(imol_for_map, imol_model, sel_string.c_str(), invert_flag);
+   gtk_widget_set_visible(dialog, FALSE);
+}
+
 #if (GTK_MAJOR_VERSION >= 4)
 // is this new or ancient - haha! I don't know
 #else

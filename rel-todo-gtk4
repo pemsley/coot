@@ -26,9 +26,9 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
-Fix the Map Parameters dialog widgets ::: 2
-
 New dialog for map masking ::: 1
+
+Fix the Map Parameters dialog widgets ::: 2
 
 Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
@@ -238,6 +238,6 @@ Does the show_updating_maps_chooser() work? In refinement branch even? ::: 1
 * Don't know about refinement branch, but it works here now.
 
 GUI: Unmodelled blobs dialog and the resulting blobs dialog. ::: 0.5
-
+* Done. Nice.
 
 

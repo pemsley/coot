@@ -74,7 +74,7 @@
 GtkWidget *wrapped_create_unmodelled_blobs_dialog() { 
 
    graphics_info_t g;
-   GtkWidget *dialog        = widget_from_builder("unmodelled_blobs_dialog");
+   GtkWidget *dialog         = widget_from_builder("unmodelled_blobs_dialog");
    GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
    GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
 

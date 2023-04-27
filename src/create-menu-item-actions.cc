@@ -819,6 +819,48 @@ mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
+   // 20230427-PE surprisingly similar to wrapped_create_unmodelled_blobs_dialog()
+
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("mask_map_by_atom_selection_dialog");
+   GtkWidget *model_combobox = widget_from_builder("mask_map_by_atom_selection_model_combobox");
+   GtkWidget *map_combobox   = widget_from_builder("mask_map_by_atom_selection_map_combobox");
+   
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto model_list = get_model_molecule_vector();
+   auto   map_list = get_map_molecule_vector();
+   if (! model_list.empty()) imol_mol_active = model_list[0];
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+   
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
 }
 
 void
@@ -1639,12 +1681,13 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
- void
+void
 unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1655,6 +1698,7 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1668,7 +1712,8 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *dialog = widget_from_builder("about_dialog");
    if (dialog) {
-      gtk_widget_show(dialog);
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    }
 }
 

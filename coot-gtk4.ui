@@ -7271,7 +7271,7 @@ density (too big to be waters):
      Coot found no unexplained blobs
 
 
-</property>
+                </property>
                 <property name="justify">center</property>
               </object>
             </child>
@@ -7282,6 +7282,164 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
+
+  <object class="GtkDialog" id="mask_map_by_atom_selection_dialog">
+    <property name="title" translatable="yes">Coot: Mask Map by Atom Selection</property>
+    <child>
+      <object class="GtkBox" id="mask-map-by-atom-selection-dialog-vbox">
+        <property name="orientation">vertical</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+
+        <child>
+          <object class="GtkFrame">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Select Map:</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="mask_map_by_atom_selection_map_combobox">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+        <child>
+          <object class="GtkFrame">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Select Model:</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="mask_map_by_atom_selection_model_combobox">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="mask_map_by_atom_selection_atom_selection_hbox">>
+          <property name="margin-top">6</property>
+          <property name="margin-bottom">6</property>
+          <property name="margin-start">10</property>
+          <property name="margin-end">10</property>
+          <child>
+            <object class="GtkLabel">
+              <property name="label" translatable="yes">Atom Selection: </property>
+              <property name="justify">center</property>
+            </object>
+          </child>
+
+          <child>
+            <object class="GtkEntry" id="mask_map_by_atom_selection_atom_selection_entry">
+              <property name="can-focus">1</property>
+              <property name="placeholder-text">//A/10-20</property>
+            </object>
+          </child>
+          </object>
+        </child>
+        
+        <child>
+          <object class="GtkBox">>
+          <property name="margin-top">6</property>
+          <property name="margin-bottom">6</property>
+          <property name="margin-start">10</property>
+          <property name="margin-end">10</property>
+          <child>
+            <object class="GtkLabel">
+              <property name="label" translatable="yes">Radius around atoms: </property>
+              <property name="justify">center</property>
+            </object>
+          </child>
+
+          <child>
+            <object class="GtkEntry" id="mask_map_by_atom_selection_radius_entry">
+              <property name="can-focus">1</property>
+              <property name="placeholder-text">default</property>
+            </object>
+          </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkCheckButton" id="mask_map_by_atom_selection_invert_checkbutton">
+            <property name="label" translatable="yes">Invert Masking?</property>
+          </object>
+        </child>
+        
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+            <child>
+              <object class="GtkButton" id="mask_map_by_atom_selection_cancel_button">
+                <property name="label">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">10</property>
+                <signal name="clicked" handler="on_mask_map_by_atom_selection_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="mask_map_by_atom_selection_ok_button">
+                <property name="label" translatable="yes">Mask Map</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <signal name="clicked" handler="on_mask_map_by_atom_selection_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+      </object>
+    </child>
+  </object>>
 
   <object class="GtkDialog" id="lsq_plane_dialog">
     <property name="title" translatable="yes">LSQ Plane </property>
