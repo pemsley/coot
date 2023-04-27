@@ -111,7 +111,20 @@ void show_opengl_ramachandran_plot(int imol) {
       int w = allocation.width;
       int h = allocation.height;
 
-      std::cout << "Rama click! " << x << " " << y << " width " << w << " height " << h << std::endl;
+      // std::cout << "Rama click! " << x << " " << y << " width " << w << " height " << h << std::endl;
+
+      // Find the right rama plot and get the mouse-over hit, and if it was a residue, go there.
+      graphics_info_t g;
+      for (unsigned int i=0; i<g.rama_plot_boxes.size(); i++) {
+         const auto &rama_box = g.rama_plot_boxes[i];
+         if (rama_box.matches_gl_area(gl_area)) {
+            auto rama_plot_hit = rama_box.rama.get_mouse_over_hit(x, y, w, h);
+            if (rama_plot_hit.residue_was_clicked) {
+               int imol = rama_box.imol;
+               g.go_to_residue(imol, rama_plot_hit.residue_spec);
+            }
+         }
+      }
    };
 
    graphics_info_t g;

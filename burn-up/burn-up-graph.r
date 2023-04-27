@@ -106,7 +106,7 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
-               main="GTK4 Coot-1.0 Development Progress\n(ignoring Validation Graphs, Rama Plots & Ligand Builder and SeqView)",
+               main="GTK4 Coot-1.0 Development Progress\n(ignoring Validation Graphs & Ligand Builder and SeqView)",
                xlab="Real Days since records began (6 Aug 2022)",
                ylab="Scope & Work Done (Days)")
 

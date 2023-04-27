@@ -200,6 +200,10 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 		     g_signal_connect (G_OBJECT(button), "clicked", 
 				       G_CALLBACK(on_big_blob_button_clicked),
 				       c);
+                     gtk_widget_set_margin_start (button, 6);
+                     gtk_widget_set_margin_end   (button, 6);
+                     gtk_widget_set_margin_top   (button, 2);
+                     gtk_widget_set_margin_bottom(button, 2);
 		     gtk_widget_show(button);
 		     gtk_box_append(GTK_BOX(vbox), button);
 		  }

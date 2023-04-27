@@ -1460,7 +1460,7 @@ def interesting_residues_gui(imol, title, interesting_residues):
 #
 def coot_toolbar_button(button_label, cb_function,
                         icon_name=False, tooltip=False,
-                        toggle_button=False, use_button=False):
+                        toggle_button_flag=False, use_button_flag=False):
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
 
@@ -1472,19 +1472,23 @@ def coot_toolbar_button(button_label, cb_function,
     for f in toolbar_label_list():
         print("#### debug coot_toolbar_button", f)
     for f in toolbar_label_list():
-        if button_label in f:
-            found_button = f[1]
+        if f: # it might be None (i.e. currently all the icons don't have labels!)
+            if button_label in f:
+                found_button = f[1]
     if found_button:
         # here we only try to add a new icon, we cannot overwrite the callback function!
         toolbutton = found_button
     else:
-        if toggle_button:
-            toolbutton = Gtk.ToggleToolButton()
+        if toggle_button_flag:
+            toolbutton = Gtk.ToggleButton()
             toolbutton.set_label(button_label)
         else:
-            toolbutton = Gtk.ToolButton(icon_widget=None, label=button_label)
-        coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
-        toolbutton.set_is_important(True)              # to display the text,
+            toolbutton = Gtk.Button(label=button_label) # how do we set the icon?
+        print("This is the coot_main_toolbar:")
+        print(coot_main_toolbar)
+        print(dir(coot_main_toolbar))
+        coot_main_toolbar.append(toolbutton)       # insert at the end
+        # toolbutton.set_is_important(True)          # to display the text. 20230427-PE Not in gtk4
         # otherwise only icon
 
         def cb_wrapper(widget, callback_function):
@@ -1498,7 +1502,7 @@ def coot_toolbar_button(button_label, cb_function,
                     args = callback_function[1:]
                 # pass the widget/button as well? Maybe the cb function can
                 # make use of it
-                if use_button:
+                if use_button_flag:
                     args.append(widget)
                 if callable(function):
                     print("DEBUG:: in cb_wrapper() was callable", function, "with args", *args)
@@ -1590,12 +1594,29 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
 
     return toolitem
 
+def toolbar_label_list():
+
+    button_label_ls = []
+    coot_main_toolbar = coot_gui_api.main_toolbar()
+    print("coot_main_toolbar", coot_main_toolbar)
+    child = coot_main_toolbar.get_first_child()
+    print("coot_main_toolbar first child ", child)
+
+    while child is not None:
+        print("child:", child)
+        label = child.get_label()
+        print("child label:", label)
+        button_label_ls.append(label)
+        child = child.get_next_sibling()
+
+    print("returning", button_label_ls)
+    return button_label_ls
 
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available
 #
-def toolbar_label_list():
+def toolbar_label_list_old():
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
     button_label_ls = []
@@ -6127,7 +6148,17 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     label_for_diff_map = Gtk.Label(label=diff_map_chooser_label)
     label_for_model    = Gtk.Label(label=model_chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox.set_margin_top(6)
+    vbox.set_margin_bottom(6)
+    vbox.set_margin_start(12)
+    vbox.set_margin_end(12)
+    label_for_model.set_margin_top(4)
+    label_for_map.set_margin_top(4)
+    label_for_diff_map.set_margin_top(4)
+
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_buttons.set_homogeneous(True)
+    hbox_buttons.set_hexpand(False)
 
     # 20220326-PE
     # combobox_model    = Gtk.combo_box_new_text()
@@ -6175,6 +6206,8 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
 
     # "auto" button
     auto_update_checkbutton = Gtk.CheckButton(label="Auto Update")
+    auto_update_checkbutton.set_margin_top(4)
+    auto_update_checkbutton.set_margin_bottom(4)
 
     window.set_default_size(370,100)
     window.set_child(vbox)
@@ -6228,7 +6261,7 @@ def show_updating_maps_chooser():
                 print("================================= calculate_maps_and_stats_py()", imol, imol_map, imol_diff_map)
                 coot.calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
             menu_bar_callback_func = generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map)
-            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button=True)
+            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button_flag=True)
             coot_toolbar_button("Shiftfield B", shiftfield_func)
 
     model_map_diff_map_molecule_chooser_gui(ok_button_function)

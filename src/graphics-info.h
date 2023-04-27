@@ -5080,6 +5080,7 @@ string   static std::string sessionid;
       GtkWidget *box;
       widgeted_rama_plot_t(int imol, const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button, GtkWidget *box) :
          imol(imol), rama(rama), gtk_gl_area(gtk_gl_area), close_button(button), box(box) {}
+      bool matches_gl_area(GtkWidget *w) const { return (w == gtk_gl_area); }
    };
    static std::vector<widgeted_rama_plot_t> rama_plot_boxes;
    static void draw_rama_plots(); // draw the rama plots in the above vector

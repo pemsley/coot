@@ -17,10 +17,6 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
-Display Manager - bond and colour selector is broken ::: 1
-
-Display Manager - "Delete Model" button doesn't delete the "combobox" (as I called it) in the Display Manager ::: 0.5
-
 Validate -> Ramachandran Plot ::: 10
 
 Sun 23 Apr 21:33:42 BST 2023
@@ -30,10 +26,9 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
+Fix the Map Parameters dialog widgets ::: 2
 
-Fix the Pan/Ctrl-drag function ::: 1.0
-
-Does the show_updating_maps_chooser() work? In refinement branch even? ::: 1
+New dialog for map masking ::: 1
 
 Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
@@ -45,17 +40,9 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
-
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
-Fix the Map Parameters dialog widgets ::: 2
-
 Fix "Edit Chi Angles" button ::: 1
-
-New dialog for map masking ::: 1
-
-GUI: Unmodelled blobs dialog and the resulting blobs dialog. ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
@@ -71,8 +58,6 @@ clean out coot_gui usage from coot_utils ::: 2
 
 Fix "Rotamers" button ::: 1
 
-Make a new Map masking dialog ::: 1
-
 Get R/RC overlay dialog working  ::: 1
 
 Get the "Map..." Button working. ::: 1
@@ -81,8 +66,6 @@ In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 
 
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
 (pressing "G" on the keyboard is not intuitive). ::: 2
-
-Do some more experimenting with validation graphs ::: 5
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
@@ -235,3 +218,26 @@ Make the validation balls and dodecs less bright. ::: 0.3
 
 Make a "framework" program for validation for Jakub - make a list of generic residue validation blocks. ::: 4
 * Done.
+
+Display Manager - "Delete Model" button doesn't delete the "combobox" (as I called it) in the Display Manager ::: 1
+* Done.
+
+Display Manager - bond and colour selector is broken ::: 1
+* Done.
+
+I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
+* Done.
+
+Do some more experimenting with validation graphs ::: 5
+* Done.
+
+Fix the Pan/Ctrl-drag function ::: 1.0
+* Seems to be done - I don't know how.
+
+Does the show_updating_maps_chooser() work? In refinement branch even? ::: 1
+* Don't know about refinement branch, but it works here now.
+
+GUI: Unmodelled blobs dialog and the resulting blobs dialog. ::: 0.5
+
+
+
