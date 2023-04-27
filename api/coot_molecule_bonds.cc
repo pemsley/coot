@@ -1104,22 +1104,26 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
 
       if (colour_index >= 50) {
 
-         float ii_f = colour_index - 50;
-         ii_f += 1.2 * static_cast<float>(imol_no);
-         if (against_a_dark_background) {
-            rgb[0] = base_colour_for_bonds.red   + 0.2;
-            rgb[1] = base_colour_for_bonds.green + 0.2;
-            rgb[2] = base_colour_for_bonds.blue  + 0.3;
+         if (use_bespoke_grey_colour_for_carbon_atoms) {
+            rgb = bespoke_carbon_atoms_colour;
          } else {
-            rgb[0] = base_colour_for_bonds.red;
-            rgb[1] = base_colour_for_bonds.green;
-            rgb[2] = base_colour_for_bonds.blue;
-         }
-         float ra = ii_f*79.0/360.0;
-         ra += rotation_size;
-         while (ra > 1.0) ra -= 1.0;
-         if (ra > 0) {
-            rgb.rotate(ra);
+            float ii_f = colour_index - 50;
+            ii_f += 1.2 * static_cast<float>(imol_no);
+            if (against_a_dark_background) {
+               rgb[0] = base_colour_for_bonds.red   + 0.2;
+               rgb[1] = base_colour_for_bonds.green + 0.2;
+               rgb[2] = base_colour_for_bonds.blue  + 0.3;
+            } else {
+               rgb[0] = base_colour_for_bonds.red;
+               rgb[1] = base_colour_for_bonds.green;
+               rgb[2] = base_colour_for_bonds.blue;
+            }
+            float ra = ii_f*79.0/360.0;
+            ra += rotation_size;
+            while (ra > 1.0) ra -= 1.0;
+            if (ra > 0) {
+               rgb.rotate(ra);
+            }
          }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
@@ -1307,7 +1311,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
    bool is_intermediate_atoms_molecule = false; // make a class member
 
-   bool debug_colour_table = false;
+   bool debug_colour_table = true;
 
    // std::cout << "................... in make_colour_table() A " << bonds_box_type << std::endl;
 

@@ -412,6 +412,7 @@ namespace coot {
       bool is_valid_model_molecule() const;
       bool is_valid_map_molecule() const;
       unsigned int get_number_of_atoms() const;
+      int get_number_of_hydrogen_atoms() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;

@@ -26,6 +26,7 @@
 #include "coot-utils/simple-mesh.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
+#include "coot-colour.hh" // put this in utils
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
@@ -486,7 +487,7 @@ public:
 
    //! get the bonds mesh.
    //!
-   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
+   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
    //!
    //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
    //! When the background is dark, the colours should (as a rule) be bright and pastelly.
@@ -580,6 +581,12 @@ public:
    //! print the colour rules
    void print_colour_rules(int imol) const;
 
+   //! use bespoke carbon atom colour
+   void set_use_bespoke_carbon_atom_colour(int imol, bool state);
+
+   //! set bespoke carbon atom colour
+   void set_bespoke_carbon_atom_colour(int imol, const coot::colour_t &col);
+
    //! Update float parameter for MoleculesToTriangles molecular mesh
    void M2T_updateFloatParameter(int imol, const std::string &param_name, float value);
 
@@ -624,6 +631,9 @@ public:
 
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
+
+   //! @return the number of hydrogen atoms in the specified model, or -1 on error
+   int get_number_of_hydrogen_atoms(int imol) const;
 
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
@@ -1009,8 +1019,9 @@ public:
    generic_3d_lines_bonds_box_t
    make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
 
+   //! `mcdonald_and_thornton_mode` turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
-   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str) const;
+   std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

@@ -5,7 +5,7 @@
 
 
 std::vector<moorhen::h_bond>
-molecules_container_t::get_h_bonds(int imol, const std::string &cid_str) const {
+molecules_container_t::get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton) const {
 
    mmdb::realtype max_dist = 3.8; // pass this
 
@@ -51,7 +51,12 @@ molecules_container_t::get_h_bonds(int imol, const std::string &cid_str) const {
       }
    };
 
-   std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, mol, geom, max_dist);
+   std::vector<coot::h_bond> hbonds;
+
+   if (mcdonald_and_thornton)
+      hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, mol, geom, max_dist);
+   else
+      hbonds = hb.get(SelHnd_lig, SelHnd_all, mol, geom);
 
    for(unsigned ib=0;ib<hbonds.size();ib++) {
 
