@@ -2104,28 +2104,29 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
 // Not used.
 void
-graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
+graphics_info_t::delete_molecule_from_display_manager(int imol, bool was_map) {
 
-   // delete from display manager combo box
-   //
-   GtkWidget *dc_window = display_control_window();
-   //
-   if (dc_window) {
-      std::string display_frame_name = "display_mol_frame_";
-      if (was_map)
-         display_frame_name = "display_map_frame_";
-      display_frame_name += int_to_string(imol);
+   if (! use_graphics_interface_flag) return;
 
-      GtkWidget *display_frame = 0;
-      std::cout << "FIXME in delete_molecule_from_from_display_manager()  correctly set the display_frame " << std::endl;
-      if (display_frame) {
-         // 20230426-PE We don't destroy widgets any more. Instead we remove
-         // widgets from their container, using gtk_box_remove().
-         //
-         // gtk_widget_destroy(display_frame);
+   // 20230427-PE these should be "display_control_model_vbox" and "display_control_map_vbox"
+   //             to be more clear.
+   GtkWidget *vbox_for_molecules = widget_from_builder("display_molecule_vbox");
+   if (was_map)
+      vbox_for_molecules = widget_from_builder("display_map_vbox");
 
+   for (GtkWidget* child = gtk_widget_get_first_child(vbox_for_molecules);
+       child != nullptr;
+       child = gtk_widget_get_next_sibling(child)) {
+
+      // child is the molecule hbox
+      int imol_for_child = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(child), "imol"));
+
+      if (imol_for_child == imol) {
+         gtk_box_remove(GTK_BOX(vbox_for_molecules), child);
+         break; // (child is no longer valid - so calling gtk_widget_get_next_sibling() is an error
       }
    }
+
 }
 
 

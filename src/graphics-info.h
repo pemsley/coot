@@ -3888,7 +3888,7 @@ public:
 
    GtkWidget *wrapped_create_display_control_window();
 
-   void delete_molecule_from_from_display_manager(int imol, bool was_map_flag);
+   void delete_molecule_from_display_manager(int imol, bool was_map_flag);
 
    // -------- undo move: suggested by Frank von Delft -----
    void undo_last_move();

@@ -745,8 +745,10 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
 
 	 g.update_go_to_atom_window_on_changed_mol(imol);
 
-	 if (! is_valid_model_molecule(imol))
-	    g.delete_molecule_from_from_display_manager(imol, false);
+	 if (! is_valid_model_molecule(imol)) {
+
+	    g.delete_molecule_from_display_manager(imol, false);
+         }
 
 	 graphics_draw();
       } else {
@@ -913,7 +915,7 @@ void delete_chain(int imol, const std::string &chain_id_in) {
       }
 #endif
       if (! is_valid_model_molecule(imol))
-	 g.delete_molecule_from_from_display_manager(imol, false);
+	 g.delete_molecule_from_display_manager(imol, false);
 
       std::string cmd = "delete-chain";
       std::vector<coot::command_arg_t> args;
@@ -2046,7 +2048,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 	 update_go_to_atom_window_on_changed_mol(imol);
       }
       if (! is_valid_model_molecule(imol))
-	 g.delete_molecule_from_from_display_manager(imol, false);
+	 g.delete_molecule_from_display_manager(imol, false);
    }
    graphics_draw();
    std::string cmd = "delete-residue-range";
