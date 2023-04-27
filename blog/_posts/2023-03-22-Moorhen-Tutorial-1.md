@@ -30,7 +30,7 @@ You can change the speed that moving the mouse spins the view:
 
   - Similarly, you can change the thickness of the map lines if you wish.
   - Use "[" and "]" on the keyboard to adjust the radius of the density.
-  - Ctrl middle-mouse scroll to change the contour level (one step at at time seems good to me).
+  - Ctrl middle-mouse scroll to change the contour level (one step at time seems good to me).
 
 ## Let's Go!
 
@@ -68,7 +68,7 @@ For higher-end computers we can use a smoother representation of the bonds and a
 
  - [Optional] Click on the gear icon, click on the "Bond Settings" and change the "Smoothness" to **Nice**.
 
-Below the card for the protein, you will see the cards for the maps (the 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green). You can use the sliders there to adjust the contour level. It's a bit high at the moment, so click or slide the slider for the 2Fo-Fc map so that it's about 0.443 or thereabouts. Set the difference map to a level of around 0.534.
+Below the card for the protein, you will see the cards for the maps (the 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green). You can use the sliders there to adjust the contour level. It's a bit high at the moment, so click or slide the slider for the 2Fo-Fc map so that the level is about 0.443 or thereabouts. Set the difference map to a level of around 0.534.
 (I find that clicking (click and release) on the slider to be monre convenient than trying to "slide" the slider using click and drag).
 
   - You can also use Ctrl scroll-wheel scroll to change the contour level
@@ -91,7 +91,10 @@ Take a look at the region... (You can slide the drawer closed for a better look)
 
 Hmmm... the carbonyl oxygen atoms are a bit close... Are there any other Ramachandran outliers in the area?
 
-  - In the drawer, click on **Models and maps**,
+   - To measure the distance between atoms, hold M and click on an atom, then (with "M" still pressed) click
+     on another atom.
+
+   - In the drawer, click on **Models and maps**,
    - then click on the **Rama** box for this protein model.
 
 _Moorhen displays Ramachandran balls that represent the probability of those phi, psi angles for that residue_
@@ -181,6 +184,8 @@ Flipping a peptide to the correct orientation generally gives you 15-20 Moorhen 
 Have a look around... At the end of the helix, residues A198 has an orange Ramachandran ball and a green difference map peak along the peptide. Let's flip that too while we are here.
 
   - Click the "Flip Peptide" button and pick the "C" atom of A197.
+    You can use the key-bding "Shift Q" to flip the peptide when you hover of an atom of the residue and see golden balls.
+    
 
 _As before, the Rama balls update, the maps update (the green blob disappears), the R-factor updates and we get more Moorhen points._
 
@@ -253,7 +258,7 @@ _Moorhen displays rotamer dodecamers coloured by rotamer probability_
 Then click on atom in A187.
  - If the side-chain doesn't lie flat in its density, you can use the target button "Refine Residues" adn then click on the atom in A187 to give it a bit of Real Space Refinement that will sort of the fitting.
 
-_On improvement of the rotamer probability, Moorhen will change the colour or the dodecamer to be more green_
+_On improvement of the rotamer probability, Moorhen will change the colour of the dodecahedron to be more green_
 
 Can you find a negative difference map peak close to residue A141? Again examine. What do we need to do? Let's fix the rotamer then using "Auto-fit Rotamer" as before.
 
@@ -303,7 +308,8 @@ _Moorhen updates the maps so that there are no difference maps peaks left on the
 
 ## Add a Water
 
-  - Navigate to a water peak using Shift-Alt Left-Mouse to drag the view to the water blob.
+  - Navigate to a water peak using middle-mouse click and drag (or Shift-Alt Left-Mouse on a PC) to drag
+    the view to the water blob.
   - You can also use the arrow-keys to pan the view
 
 Let's add a water here
