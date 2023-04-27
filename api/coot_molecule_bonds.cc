@@ -1311,7 +1311,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
    bool is_intermediate_atoms_molecule = false; // make a class member
 
-   bool debug_colour_table = true;
+   bool debug_colour_table = false;
 
    // std::cout << "................... in make_colour_table() A " << bonds_box_type << std::endl;
 
