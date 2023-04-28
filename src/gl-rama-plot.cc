@@ -7,14 +7,14 @@
 
 
 void
-gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
+gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    if (mol) {
       float position_hash_now = coot::get_position_hash(mol);
       // std::cout << "comparing hashes " << position_hash_now << " " << position_hash << std::endl;
       if (position_hash_now != position_hash) {
-         phi_psi_map = generate_phi_psis(imol, mol);
+         phi_psi_map = generate_phi_psis(imol, residue_selection, mol);
          update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
          position_hash = position_hash_now;
       }
@@ -212,7 +212,29 @@ gl_rama_plot_t::generate_pseudo_phi_psis() {
 
 
 std::map<coot::residue_spec_t, rama_plot::phi_psi_t>
-gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
+gl_rama_plot_t::generate_phi_psis(int imol, const std::string &residue_selection, mmdb::Manager *mol) {
+
+   auto residues_are_in_selection = [] (mmdb::Residue *residue_prev,
+                                        mmdb::Residue *residue_this,
+                                        mmdb::Residue *residue_next,
+                                        mmdb::PResidue *SelResidues,
+                                        int nSelResidues) {
+
+      unsigned int found_count = 0;
+      for (int i=0; i<nSelResidues; i++) {
+         if (SelResidues[i] == residue_prev) found_count++;
+         if (SelResidues[i] == residue_this) found_count++;
+         if (SelResidues[i] == residue_next) found_count++;
+      }
+      return (found_count > 2);
+   };
+
+   // 20230428-PE residue selection will be "//" or "//A" typically.
+   int nSelResidues = 0;
+   mmdb::PResidue *SelResidues = nullptr;
+   int SelHnd = mol->NewSelection(); // d
+   mol->Select(SelHnd, mmdb::STYPE_RESIDUE, residue_selection.c_str(), mmdb::SKEY_NEW);
+   mol->GetSelIndex(SelHnd, SelResidues, nSelResidues);
 
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> r;
    int n_models = mol->GetNumberOfModels();
@@ -232,12 +254,15 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
 		  mmdb::Residue *res_next = coot::util::next_residue(residue_p);
 		  if (res_prev && residue_p && res_next) {
 		     try {
-			// rama_plot::phi_psi_t constructor can throw an error
-			// (e.g. bonding atoms too far apart).
-			coot::residue_spec_t spec(residue_p);
-			rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
-                        pp.imol = imol;
-                        r[spec] = pp;
+
+                        if (residues_are_in_selection(res_prev, residue_p, res_next, SelResidues, nSelResidues)) {
+                           // rama_plot::phi_psi_t constructor can throw an error
+                           // (e.g. bonding atoms too far apart).
+                           coot::residue_spec_t spec(residue_p);
+                           rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
+                           pp.imol = imol;
+                           r[spec] = pp;
+                        }
 		     }
 		     catch (const std::runtime_error &rte) {
 			// nothing too bad, just don't add that residue
@@ -249,6 +274,8 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
 	 }
       }
    }
+
+   mol->DeleteSelection(SelHnd);
 
    if (false) {
       // add in some fake points for testing

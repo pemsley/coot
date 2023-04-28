@@ -18,6 +18,7 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
    if (!g.rama_plot_boxes.empty()) {
       GtkWidget *paned = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
       int position = gtk_paned_get_position(GTK_PANED(paned));
+      std::cout << ":::::::::::: in gtkgl_rama_realize() the paned had position " << position << std::endl;
       if (position < 10) {
          gtk_paned_set_position(GTK_PANED(paned), 400);
          std::cout << ":::::::::::: gtk_paned_set_position 400 here " << std::endl;
@@ -29,20 +30,18 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 
    bool done = false;
    for (unsigned int i=0; i<g.rama_plot_boxes.size(); i++) {
-      std::cout << ":::: comparing: " << g.rama_plot_boxes[i].gtk_gl_area << " " << gtk_gl_area << std::endl;
-      if (g.rama_plot_boxes[i].gtk_gl_area == gtk_gl_area) {
-
-         std::cout << ":::: comparing: found match " << gtk_gl_area << " for box index " << i << std::endl;
+      auto &rama_box = g.rama_plot_boxes[i];
+      if (rama_box.gtk_gl_area == gtk_gl_area) {
 
          // Dangerous for main window code
-         GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
+         // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
          gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
 
-         g.rama_plot_boxes[i].rama.setup_buffers(0.9);
+         rama_box.rama.setup_buffers(0.9);
          int imol = g.rama_plot_boxes[i].imol;
+         const std::string residue_selection = rama_box.residue_selection;
          auto &m = graphics_info_t::molecules[imol];
-         g.rama_plot_boxes[i].rama.setup_from(i, m.atom_sel.mol);
-         std::cout << "--------------------------- gtkgl_rama_realize() setup done for " << std::endl;
+         g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection);
          done = true;
       }
    }
@@ -52,8 +51,6 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
                 << " with " << g.rama_plot_boxes.size() << " rama-boxs " << std::endl;
    }
 
-   std::cout << "--------------------------- done gtkgl_rama_realize()" << std::endl;
-      
 }
 
 void
@@ -68,16 +65,15 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
    graphics_info_t g;
    for (unsigned int i=0; i<g.rama_plot_boxes.size(); i++) {
       if (g.rama_plot_boxes[i].gtk_gl_area == gtk_gl_area) {
+
          // Dangerous for main window code
-         GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
+         // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
          gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
 
          GtkAllocation allocation;
          gtk_widget_get_allocation(GTK_WIDGET(gtk_gl_area), &allocation);
          int w = allocation.width;
          int h = allocation.height;
-
-         std::cout << "--------------------------- gtkgl_rama_on_glarea_render()" << std::endl;
 
          g.rama_plot_boxes[i].rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
                                         &g.shader_for_rama_plot_phi_phis_markers, // instanced
@@ -94,7 +90,7 @@ gtkgl_rama_on_glarea_resize(GtkWidget *gl_area, gint width, gint height) {
 }
 
 
-void show_opengl_ramachandran_plot(int imol) {
+void show_opengl_ramachandran_plot(int imol, const std::string &residue_selection) {
 
    // find a better name for this function?
 
@@ -135,9 +131,17 @@ void show_opengl_ramachandran_plot(int imol) {
       GtkWidget *box_for_this_plot = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
       GtkWidget *gl_area = gtk_gl_area_new();
       GtkWidget *close_button = gtk_button_new_with_label("Close");
+      GtkWidget *box_for_selection = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+      GtkWidget *selection_label = gtk_label_new("Selection: ");
+      GtkWidget *selection_entry = gtk_entry_new();
+      gtk_editable_set_text(GTK_EDITABLE(selection_entry), residue_selection.c_str());
+      gtk_widget_set_margin_start(selection_label, 6);
+      gtk_widget_set_margin_start(box_for_this_plot, 6);
+      gtk_widget_set_margin_start(close_button, 6);
+      gtk_widget_set_margin_end(close_button, 6);
 
       gl_rama_plot_t rama;
-      graphics_info_t::widgeted_rama_plot_t wr(imol, rama, gl_area, close_button, box_for_this_plot);
+      graphics_info_t::widgeted_rama_plot_t wr(imol, residue_selection, rama, gl_area, close_button, box_for_this_plot);
       g.rama_plot_boxes.push_back(wr);
 
       gtk_widget_set_size_request(gl_area, 400, 400);
@@ -156,17 +160,26 @@ void show_opengl_ramachandran_plot(int imol) {
       gtk_widget_add_controller(GTK_WIDGET(gl_area), GTK_EVENT_CONTROLLER(click_controller));
       g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_rama_glarea_click), gl_area);
 
+      auto selection_entry_activate_callback = +[] (GtkWidget *entry, gpointer user_data) {
+         std::string entry_string = gtk_editable_get_text(GTK_EDITABLE(entry));
+         std::cout << "Now do something with " << entry_string << std::endl;
+      };
+
+      g_signal_connect(G_OBJECT(selection_entry), "activate", G_CALLBACK(selection_entry_activate_callback), selection_entry);
+
       auto close_callback = +[] (GtkWidget *close_button, gpointer user_data) {
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
-         // gtk_widget_unrealize(close_button);
-         // gtk_widget_unrealize(box_for_this_plot);
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
       };
 
       g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(close_callback), box_for_this_plot);
 
+      gtk_box_append(GTK_BOX(box_for_selection), selection_label);
+      gtk_box_append(GTK_BOX(box_for_selection), selection_entry);
+
       gtk_box_append(GTK_BOX(box_for_this_plot), gl_area);
+      gtk_box_append(GTK_BOX(box_for_this_plot), box_for_selection);
       gtk_box_append(GTK_BOX(box_for_this_plot), close_button);
       gtk_box_append(GTK_BOX(box_for_all_plots), box_for_this_plot);
 

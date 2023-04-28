@@ -5914,7 +5914,7 @@ Do you want to continue?
 
             <child>
               <object class="GtkPaned" id="main_window_graphics_rama_vs_graphics_pane">
-                <property name="position">0</property>
+                <property name="position">1</property>
                 <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkScrolledWindow" id="ramachdran_plots_scrolled_window">
@@ -6655,7 +6655,7 @@ Do you want to continue?
 
 
   <object class="GtkDialog" id="ramachandran_plot_molecule_chooser_dialog">
-    <property name="title">Ramachandran Plot</property>
+    <property name="title">Coot: Ramachandran Plot</property>
     <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox">
@@ -6670,6 +6670,7 @@ Do you want to continue?
             <property name="label">Ramachandran Plot</property>
           </object>
         </child>
+
         <child>
           <object class="GtkSeparator">
             <property name="margin-top">5</property>
@@ -6680,16 +6681,25 @@ Do you want to continue?
         </child>
 
         <child>
-          <object class="GtkBox">
-            <property name="orientation">horizontal</property>
+          <object class="GtkGrid">
+
             <child>
               <object class="GtkLabel">
                 <property name="label">Model: </property>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">0</property>
+                </layout>
               </object>
             </child>
+
             <child>
               <object class="GtkComboBox" id="ramachandran_plot_molecule_chooser_model_combobox">
                 <property name="hexpand">True</property>
+                <layout>
+                  <property name="row">0</property>
+                  <property name="column">1</property>
+                </layout>
                 <child>
                   <object class="GtkCellRendererText"/>
                   <attributes>
@@ -6698,6 +6708,38 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Residue Selection: </property>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">0</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry" id="ramachandran_plot_molecule_chooser_residue_selection_entry">
+                <property name="can-focus">1</property>
+                <property name="max-width-chars">20</property>
+                <property name="text">//</property>
+                <layout>
+                  <property name="row">1</property>
+                  <property name="column">1</property>
+                </layout>
+              </object>
+            </child>
+
+          </object>
+        </child> <!-- end of grid -->
+
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">8</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
           </object>
         </child>
 
@@ -12548,7 +12590,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="unmodelled_blobs_dialog">
-    <property name="title" translatable="yes">Find Unmodelled Blobs of density</property>
+    <property name="title" translatable="yes">Coot: Find Unmodelled Blobs of density</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox68">

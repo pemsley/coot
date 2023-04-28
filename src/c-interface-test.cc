@@ -1427,7 +1427,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       if (is_valid_model_molecule(imol)) {
             molecule_class_info_t &m = g.molecules[imol];
             gl_rama_plot_t rama;
-            rama.setup_from(imol, m.atom_sel.mol);
+            rama.setup_from(imol, m.atom_sel.mol, "//");
       }
    }
 

@@ -58,7 +58,8 @@ class gl_rama_plot_t {
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> phi_psi_map;
    clipper::Ramachandran::TYPE current_background_type;
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_pseudo_phi_psis();
-   std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_phi_psis(int imol, mmdb::Manager *mol_in);
+   std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_phi_psis(int imol, const std::string &residue_selection,
+                                                                          mmdb::Manager *mol_in);
    bool draw_outliers_only_flag; 
    void init(); // rama things
    HUDTextureMesh hud_tmesh_for_other_normal;
@@ -105,7 +106,7 @@ public:
       hud_tmesh_for_global_distribution_pro("hud_tmesh_for_global_distribution_pro"),
       hud_tmesh_for_global_distribution_gly("hud_tmesh_for_global_distribution_gly") { init(); }
    void setup_buffers(float rama_plot_scale); // setup OpenGL things - must be done after OpenGL realize()
-   void setup_from(int imol, mmdb::Manager *mol);
+   void setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection);
    void update_phi_psis_on_moved_atoms();
    // void background_to_type(GtkWidget *canvas, clipper::Ramachandran::TYPE); // don't change it if we are already there of course.
    void draw(Shader *shader_for_axes_and_tick,

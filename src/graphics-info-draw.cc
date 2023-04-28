@@ -2948,7 +2948,8 @@ graphics_info_t::draw_hud_ramachandran_plot() {
       if (draw_gl_ramachandran_plot_user_control_flag) {
          if (moving_atoms_asc) {
             if (moving_atoms_asc->n_selected_atoms > 0) {
-               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol); // checks to see if an update is acutally needed.
+               std::string residue_selection = "//";
+               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection); // checks to see if an update is acutally needed.
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
                                  &shader_for_rama_plot_phi_phis_markers, // instanced
                                  &shader_for_hud_image_texture, w, h, w, h); // background texture (not text!), uses window_resize_position_correction
