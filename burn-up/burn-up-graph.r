@@ -87,8 +87,8 @@ predict = function(x_pos, y_pos) {
 
         ## (x-values), (y-values)
 
-        ## lines(c(0, now_day), c(0, done_end*0.5),  col='#202020', lty=2)
-        ## lines(c(0, now_day), c(scope_start*0.5, scope_end*.5), col='#202020', lty=2)
+        lines(c(0, now_day), c(0, menu_item_done_end*0.5),  col='#202020', lty=2)
+        lines(c(0, now_day), c(menu_item_scope_start*0.5, menu_item_scope_end*.5), col='#202020', lty=2)
 
    }
 }

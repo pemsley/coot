@@ -1483,8 +1483,7 @@ int handle_read_emdb_data(const std::string &dir_name) {
    return status;
 }
 
-
-void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
+void set_contour_by_sigma_step_by_mol(int imol, float f, short int state) {
 
    if (imol < graphics_info_t::n_molecules()) {
       if (imol >= 0) {

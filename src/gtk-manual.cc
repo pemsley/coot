@@ -962,16 +962,17 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 
 #include "single-map-properties-dialog.hh"
 
+void set_transient_for_main_window(GtkWidget *dialog);
+
 void
-on_display_control_map_properties_button_clicked   (GtkButton       *button,
-						   gpointer         user_data) {
+on_display_control_map_properties_button_clicked(GtkButton       *button,
+                                                 gpointer         user_data) {
 
-/* Remove (comment out) archaic use of casting int * for user data. */
-  int imol = GPOINTER_TO_INT(user_data);
-  // GtkWidget *window = create_single_map_properties_dialog();
-//   GtkWidget *patch_frame = lookup_widget(window,
-// 					 "single_map_colour_button_frame");
+   int imol = GPOINTER_TO_INT(user_data);
 
+   // GtkWidget *window = create_single_mmdb:: Atom *atp_properties_dialog();
+   //   GtkWidget *patch_frame = lookup_widget(window,
+   // 					 "single_map_colour_button_frame");
 
   // GtkWidget *single_map_properties_colour_button = lookup_widget(window, "single_map_properties_colour_button");
   // GtkWidget *label = lookup_widget(window, "label114");
@@ -988,8 +989,9 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 //   gtk_rc_style_unref (rc_style);
 
 
-  GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
-  gtk_widget_show(dialog);
+   GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 

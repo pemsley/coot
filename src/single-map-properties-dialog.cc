@@ -82,7 +82,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    std::string spgr_text_string;
    std::string reso_text_string;
 
-   std::string title = "Properties for Map " + std::to_string(imol);
+   std::string title = "Coot: Properties for Map " + std::to_string(imol);
    gtk_window_set_title(GTK_WINDOW(dialog), title.c_str());
 
    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
@@ -114,7 +114,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    // And now the map rendering style: transparent surface or standard lines:
    GtkWidget *rb_1  = widget_from_builder("display_map_style_as_lines_radiobutton");
    GtkWidget *rb_2  = widget_from_builder("display_map_style_surface_radiobutton");
-   GtkWidget *scale = widget_from_builder("map_opacity_hscale");
+   GtkWidget *map_opacity_scale = widget_from_builder("map_opacity_hscale");
 
    g_object_set_data(G_OBJECT(rb_1), "imol", GINT_TO_POINTER(imol));
 
@@ -129,8 +129,8 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       gtk_check_button_set_active(GTK_CHECK_BUTTON(rb_1), TRUE);
    }
 
-   g_object_set_data(G_OBJECT(scale), "imol", GINT_TO_POINTER(imol));
-   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+   g_object_set_data(G_OBJECT(map_opacity_scale), "imol", GINT_TO_POINTER(imol));
+   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(map_opacity_scale));
    float op = m.density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
 

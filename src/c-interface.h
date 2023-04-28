@@ -1280,7 +1280,7 @@ void set_last_map_sigma_step(float f);
    set the contour level step of molecule number imol to f and
    variable state (setting state to 0 turns off contouring by sigma
    level)  */
-void set_contour_by_sigma_step_by_mol(float f, short int state, int imol);
+void set_contour_by_sigma_step_by_mol(int imol, float f, short int state);
 
 /*! \brief return the resolution of the data for molecule number imol.
    Return negative number on error, otherwise resolution in A (eg. 2.0) */

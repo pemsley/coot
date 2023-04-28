@@ -17,18 +17,49 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
-Validate -> Ramachandran Plot ::: 10
-
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
    // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
-   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-New dialog for map masking ::: 1
+   Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
 
 Fix the Map Parameters dialog widgets ::: 2
+
+Key-binding for "clear all atom labels" ::: 0.25
+
+Key-bindings in general ::: 1
+
+Fix "Edit Chi Angles" button ::: 1
+
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
+* It works on the PC.
+
+Restart the refinement on button-release when dragging an atom ::: 1
+
+Coot Points in updating maps ::: 4
+
+coot_gui.smiles_gui() - is this a thing now? ::: 1
+
+Fix "Rotamers" button ::: 1
+It just needs a bit of adjustment of the margins.
+
+Get the "Map..." Button working. ::: 1
+
+In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
+
+Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
+(pressing "G" on the keyboard is not intuitive). ::: 2
+
+Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
+
+Curlew: ::: 4
+
+Can you make the rotamer dialog be an overlay? Not important. ::: 1
+
+Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
+
+Map Skeletonization ::: 2
 
 Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
@@ -41,37 +72,6 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 Enable the command line (e.g. --pdb and others) ::: 2
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
-
-Fix "Edit Chi Angles" button ::: 1
-
-Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
-* It works on the PC.
-
-Restart the refinement on button-release when dragging an atom ::: 1
-
-Key-binding for "clear all atom labels" ::: 0.25
-
-coot_gui.smiles_gui() - is this a thing now? ::: 1
-
-clean out coot_gui usage from coot_utils ::: 2
-* Done, I think. Needs checking.
-
-Fix "Rotamers" button ::: 1
-
-Get R/RC overlay dialog working  ::: 1
-
-Get the "Map..." Button working. ::: 1
-
-In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
-
-Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
-(pressing "G" on the keyboard is not intuitive). ::: 2
-
-Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
-
-Can you make the rotamer dialog be an overlay? Not important.
-
-Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 6
 
@@ -87,7 +87,7 @@ Dotted Surface ::: 1
 
 HOLE ::: 2
 
-Views ::: 1
+Views ::: 2
 
 RCrane - Make this a Module ::: 2
 
@@ -120,6 +120,8 @@ Low Priority: How can I make a flatpak for Coot?
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
+Rework the namespace of the python modules to be more cannonical ::: 4
+
 "Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
 and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
 would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
@@ -128,12 +130,11 @@ it looks like the sea.  Or use texture background while Refmac is running.
 
 ---- "Do they need to work?" items -----
 
-Map Skeletonization
 User-defined menus in Python - connected via coot_main_menumodel.
+
 Comboboxes with entries for old molecule, or duplicated entries.
+
 CA Baton Mode
-Interactive (clickable) validation graphs
-"Fancy" Graphics mode
 
 --- Done Items ---
 
@@ -240,4 +241,15 @@ Does the show_updating_maps_chooser() work? In refinement branch even? ::: 1
 GUI: Unmodelled blobs dialog and the resulting blobs dialog. ::: 0.5
 * Done. Nice.
 
+New dialog for map masking ::: 0.5
+* Done. Nice.
+
+Get R/RC overlay dialog working  ::: 1
+* Done. Nice.
+
+clean out coot_gui usage from coot_utils ::: 2
+* Done.
+
+Validate -> Ramachandran Plot ::: 10
+* Good enough.
 

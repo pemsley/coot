@@ -677,11 +677,9 @@ on_anisotropic_atoms1_activate         (GMenuItem     *menuitem,
 
 /* Set Limit Radiobuttons */
    if (get_show_limit_aniso() == 1) {
-      button = GTK_BUTTON(widget_from_builder(
-					"limit_display_radius_yes_radiobutton"));
+      button = GTK_BUTTON(widget_from_builder("limit_display_radius_yes_radiobutton"));
    } else {
-      button = GTK_BUTTON(widget_from_builder(
-					"limit_display_radius_no_radiobutton"));
+      button = GTK_BUTTON(widget_from_builder("limit_display_radius_no_radiobutton"));
    }
    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
 
@@ -5182,12 +5180,28 @@ on_add_terminal_residue_finds_none_ok_button_clicked (GtkButton       *button,
   gtk_widget_hide(w);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_single_map_properties_contour_level_entry_activate(GtkWidget *entry, gpointer user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   std::string s = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(s);
+      set_contour_by_sigma_step_by_mol(imol, f, 1);
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "ERROR in on_single_map_properties_contour_level_entry_activate() failed to comprehend " << s << std::endl;
+   }
+
+}
+
 
 extern "C" G_MODULE_EXPORT
 void
 on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
-                                                             gpointer         user_data)
-{
+                                         gpointer         user_data) {
+
    GtkWidget *window = widget_from_builder("single_map_properties_dialog");
    GtkWidget *entry  = widget_from_builder("single_map_sigma_step_entry");
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
@@ -5197,12 +5211,12 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
    if (gtk_toggle_button_get_active(togglebutton)) {
       if (text) {
          v = atof(text);
-         set_contour_by_sigma_step_by_mol(v, 1, imol);
+         set_contour_by_sigma_step_by_mol(imol, v, 1);
          gtk_widget_set_sensitive(entry, TRUE);
       }
    } else {
       /* 0.0 is ignored. */
-      set_contour_by_sigma_step_by_mol(0.0, 0, imol);
+      set_contour_by_sigma_step_by_mol(imol, 0.0, 0);
       gtk_widget_set_sensitive(entry, FALSE);
    }
 }
@@ -5211,19 +5225,19 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
 extern "C" G_MODULE_EXPORT
 void
 on_single_map_properties_absolute_radiobutton_toggled (GtkToggleButton *togglebutton,
-                                                                           gpointer         user_data)
-{
+                                                       gpointer         user_data) {
+
    std::cout << "Absolute button toggled" << std::endl;
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton), "imol"));
    if (gtk_toggle_button_get_active(togglebutton)) {
       GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "contour_level_entry"));
       const char *text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
       float f = coot::util::string_to_float(text);
-      set_contour_by_sigma_step_by_mol(f, 1, imol);
+      // set_contour_by_sigma_step_by_mol(imol, f, 1);
    }
-
 }
 
+extern "C" G_MODULE_EXPORT
 void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
 
    if (! graphics_info_t::is_valid_map_molecule(imol)) return;
@@ -8490,12 +8504,13 @@ on_single_map_properties_contour_level_apply_button_clicked (GtkButton       *bu
 
 extern "C" G_MODULE_EXPORT
 void
-on_display_map_style_as_lines_radiobutton_toggled (GtkToggleButton *togglebutton,
-                                                                       gpointer         user_data) {
+on_display_map_style_as_lines_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer        user_data) {
 
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton), "imol"));
+   
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
    std::cout << "on_display_map_style_as_lines_radiobutton_toggled() imol " << imol << std::endl;
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_draw_map_standard_lines(imol, 1);
       set_draw_solid_density_surface(imol, 0);
    } else {
@@ -8506,8 +8521,8 @@ on_display_map_style_as_lines_radiobutton_toggled (GtkToggleButton *togglebutton
 
 extern "C" G_MODULE_EXPORT
 void
-on_display_map_style_surface_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                     gpointer         user_data) {
+on_display_map_style_surface_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer         user_data) {
 
    // we don't need to do anything because it's all handled by the other callback
 }
@@ -10396,20 +10411,19 @@ on_displayed_map_style_as_lines_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_opacity_hscale_value_changed (GtkRange        *range,
-                                                         gpointer         user_data) {
+on_map_opacity_hscale_value_changed(GtkRange        *range,
+                                    gpointer         user_data) {
 
-  GtkAdjustment *adjustment;
-  float fvalue;
+
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(range), "imol"));
+   std::cout << "on_map_opacity_hscale_value_changed() " << imol << " " << range << std::endl;
 
-  adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
-  fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
+  GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+  float fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
   if (fvalue > 0.99)
     fvalue = 1.0;
 
   set_solid_density_surface_opacity(imol, fvalue);
-
 }
 
 
