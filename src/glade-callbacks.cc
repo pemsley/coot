@@ -5224,17 +5224,10 @@ on_single_map_sigma_checkbutton_toggled (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_absolute_radiobutton_toggled (GtkToggleButton *togglebutton,
+on_single_map_properties_absolute_radiobutton_toggled (GtkCheckButton *checkbutton,
                                                        gpointer         user_data) {
 
-   std::cout << "Absolute button toggled" << std::endl;
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton), "imol"));
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "contour_level_entry"));
-      const char *text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
-      float f = coot::util::string_to_float(text);
-      // set_contour_by_sigma_step_by_mol(imol, f, 1);
-   }
+   std::cout << "Absolute button toggled - doing nothing" << std::endl;
 }
 
 extern "C" G_MODULE_EXPORT
@@ -8466,9 +8459,8 @@ on_display_control_all_models_togglebutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_contour_level_apply_button_clicked (GtkButton       *button,
-                                                                                 gpointer         user_data)
-{
+on_single_map_properties_contour_level_apply_button_clicked(GtkButton       *apply_button,
+                                                            gpointer         user_data) {
 
    //single_map_properties_apply_contour_level_to_map(w); /* check now
    //							  made here
@@ -8476,28 +8468,27 @@ on_single_map_properties_contour_level_apply_button_clicked (GtkButton       *bu
    //							  map
    //							  molecule. */
 
-   int imol    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
-   GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "contour_level_entry"));
-   GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "single_map_properties_absolute_radiobutton"));
+   int imol    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(apply_button), "imol"));
+   GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(apply_button), "contour_level_entry"));
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(apply_button), "single_map_properties_absolute_radiobutton"));
 
    std::cout << "imol: " << imol << std::endl;
    std::cout << "entry " << entry << std::endl;
-   std::cout << "togglebutton " << togglebutton << std::endl;
+   std::cout << "checkbutton " << checkbutton << std::endl;
 
    if (is_valid_map_molecule(imol)) {
       std::string t = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
       try {
          float f = coot::util::string_to_float(t);
-         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-            set_contour_level_in_sigma(imol, f);
-         } else {
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
             set_contour_level_absolute(imol, f);
+         } else {
+            set_contour_level_in_sigma(imol, f);
          }
       }
       catch (const std::runtime_error &rte) {
          std::cout << "Failed to interpret " << t << std::endl;
       }
-      
    }
    
 }

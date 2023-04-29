@@ -48,20 +48,29 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                                  return GTK_WIDGET(gtk_builder_get_object(builder, wid.c_str()));
                               };
 
-   auto set_contour_sigma_button_and_entry = [widget_from_builder, imol] (float contour_rmsd_step,
-                                                                          bool contour_by_rmsd_flag) {
+   auto setup_contour_buttons_and_entry = [widget_from_builder, imol] (float contour_level, bool contour_by_rmsd_flag) {
 
                                                 GtkWidget *cl_apply_button = widget_from_builder("single_map_properties_contour_level_apply_button");
                                                 GtkWidget *cl_entry        = widget_from_builder("single_map_properties_contour_level_entry");
-                                                GtkWidget *level_type_radiobutton = widget_from_builder("single_map_properties_absolute_radiobutton");
+                                                GtkWidget *level_type_absolute_radiobutton = widget_from_builder("single_map_properties_absolute_radiobutton");
+                                                GtkWidget *level_type_rmsd_radiobutton     = widget_from_builder("single_map_properties_rmsd_radiobutton");
+
+                                                // we can't set radiobuttons to active false! (makes sense)
                                                 if (contour_by_rmsd_flag)
-                                                   gtk_check_button_set_active(GTK_CHECK_BUTTON(level_type_radiobutton), FALSE);
-                                                g_object_set_data(G_OBJECT(level_type_radiobutton), "contour_level_entry", cl_entry);
-                                                std::string entry_text = coot::util::float_to_string_using_dec_pl(contour_rmsd_step, 2);
+                                                   gtk_check_button_set_active(GTK_CHECK_BUTTON(level_type_rmsd_radiobutton), TRUE);
+
+                                                g_object_set_data(G_OBJECT(level_type_absolute_radiobutton), "contour_level_entry", cl_entry);
+                                                std::string entry_text = coot::util::float_to_string_using_dec_pl(contour_level, 3);
                                                 gtk_editable_set_text(GTK_EDITABLE(cl_entry), entry_text.c_str());
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "imol", GINT_TO_POINTER(imol));
                                                 g_object_set_data(G_OBJECT(cl_apply_button), "contour_level_entry", cl_entry);
-                                                g_object_set_data(G_OBJECT(cl_apply_button), "single_map_properties_absolute_radiobutton", level_type_radiobutton);
+                                                g_object_set_data(G_OBJECT(cl_apply_button), "single_map_properties_absolute_radiobutton", level_type_absolute_radiobutton);
+
+                                             };
+
+   // 20230429-PE my brain is melting with boredom in this dialog - just get rid of sigma step size for now.
+   //
+   auto setup_step_size_widget = [widget_from_builder] (int imol) {
 
                                                 GtkWidget *step_size_is_in_rmsd_checkbutton = widget_from_builder("single_map_properties_step_in_rmsd_checkbutton");
                                                 GtkWidget *step_size_entry = widget_from_builder("single_map_properties_step_size_entry");
@@ -72,7 +81,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                                                 g_object_set_data(G_OBJECT(step_size_entry), "step_size_checkbutton", step_size_is_in_rmsd_checkbutton);
                                                 g_object_set_data(G_OBJECT(step_size_is_in_rmsd_checkbutton), "step_size_checkbutton", step_size_entry);
 
-                                             };
+   };
 
    GtkWidget *cell_text = widget_from_builder("single_map_properties_cell_label");
    GtkWidget *spgr_text = widget_from_builder("single_map_properties_symmetry_label");
@@ -111,6 +120,8 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
    gtk_label_set_text(GTK_LABEL(spgr_text), spgr_text_string.c_str());
    gtk_label_set_text(GTK_LABEL(reso_text), reso_text_string.c_str());
 
+   // return;  OK
+
    // And now the map rendering style: transparent surface or standard lines:
    GtkWidget *rb_1  = widget_from_builder("display_map_style_as_lines_radiobutton");
    GtkWidget *rb_2  = widget_from_builder("display_map_style_surface_radiobutton");
@@ -129,18 +140,28 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       gtk_check_button_set_active(GTK_CHECK_BUTTON(rb_1), TRUE);
    }
 
+   // return; OK
+
    g_object_set_data(G_OBJECT(map_opacity_scale), "imol", GINT_TO_POINTER(imol));
    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(map_opacity_scale));
    float op = m.density_surface_opacity;
    gtk_adjustment_set_value(adjustment, 100.0*op);
 
-   GtkWidget *map_contour_frame = widget_from_builder("single_map_properties_map_histogram_frame");
-   GtkWidget *alignment = widget_from_builder("alignment_for_map_density_histogram");
+
+   // resurect this one day
+   // GtkWidget *map_contour_frame = widget_from_builder("single_map_properties_map_histogram_frame");
+   // GtkWidget *alignment = widget_from_builder("alignment_for_map_density_histogram");
    // fill_map_histogram_widget(imol, alignment);
    
-   set_contour_sigma_button_and_entry(m.contour_sigma_step, m.contour_by_sigma_flag);
+   // return; OK
 
+   float contour_level = m.contour_level;
+   if (m.contour_by_sigma_flag)
+      contour_level = contour_level / m.map_sigma();
 
+   setup_contour_buttons_and_entry(contour_level, m.contour_by_sigma_flag);
+
+   // resurect this one day
    /*  and now the skeleton buttons */
    // GtkWidget *frame = lookup_widget(dialog, "single_map_skeleton_frame");
    // set_on_off_single_map_skeleton_radio_buttons(frame, imol);
@@ -241,27 +262,31 @@ GtkWidget *wrapped_create_single_map_properties_dialog_gtk3(int imol) {
 
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_dialog_close_gtkbuilder_callback (GtkDialog *dialog,
-                                                           gpointer   user_data) {
+on_single_map_properties_dialog_close(GtkDialog *dialog,
+                                      gpointer   user_data) {
 
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_dialog_response_gtkbuilder_callback (GtkDialog *dialog,
-                                                              gint       response_id,
-                                                              gpointer   user_data) {
-   gtk_widget_hide(GTK_WIDGET(dialog)); // hmm.
+on_single_map_properties_dialog_response(GtkDialog *dialog,
+                                         gint       response_id,
+                                         gpointer   user_data) {
+
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 #include "gtk-manual.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 
+
+// where is the widget for this?
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_ok_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                                                gpointer         user_data) {
+on_single_map_properties_ok_button_clicked(GtkButton       *button,
+                                           gpointer         user_data) {
 
    GtkWidget *window = widget_from_builder("single_map_properties_dialog");
 

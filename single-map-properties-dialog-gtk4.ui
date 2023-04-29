@@ -9,8 +9,8 @@
   </object>
   <object class="GtkDialog" id="single_map_properties_dialog">
     <property name="title" translatable="yes">Test Multiple Use Dialog</property>
-    <signal name="close" handler="on_single_map_properties_dialog_close_gtkbuilder_callback" swapped="no"/>
-    <signal name="response" handler="on_single_map_properties_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <signal name="close" handler="on_single_map_properties_dialog_close" swapped="no"/>
+    <signal name="response" handler="on_single_map_properties_dialog_response" swapped="no"/>
     <child internal-child="content_area">
       <object class="GtkBox">
         <property name="visible">1</property>
@@ -132,9 +132,9 @@
                             </child>
                             <child>
                               <object class="GtkEntry" id="single_map_properties_contour_level_entry">
-                                <property name="width_request">70</property>
+                                <property name="width_request">20</property>
                                 <property name="focusable">1</property>
-                                <property name="width_chars">6</property>
+                                <property name="width_chars">2</property>
                                 <signal name="activate" handler="on_single_map_properties_contour_level_entry_activate" swapped="no"/>
                               </object>
                             </child>
@@ -148,6 +148,7 @@
                                 <property name="label" translatable="yes">Apply</property>
                                 <property name="focusable">1</property>
                                 <property name="receives_default">1</property>
+                                <signal name="clicked" handler="on_single_map_properties_contour_level_apply_button_clicked" swapped="no"/>
                               </object>
                             </child>
                           </object>
@@ -158,12 +159,14 @@
                               <object class="GtkCheckButton" id="single_map_properties_absolute_radiobutton">
                                 <property name="label" translatable="yes">Absolute</property>
                                 <property name="active">True</property>
+                                <signal name="toggled" handler="on_single_map_properties_absolute_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="single_map_properties_sigma_radiobutton">
+                              <object class="GtkCheckButton" id="single_map_properties_rmsd_radiobutton">
                                 <property name="label" translatable="yes">r.m.s.d.</property>
                                 <property name="group">single_map_properties_absolute_radiobutton</property>
+                                <property name="active">False</property>
                               </object>
                             </child>
                           </object>
@@ -197,40 +200,42 @@
                 <!--     </child> -->
                 <!--   </object> -->
                 <!-- </child> -->
-                <child>
-                  <object class="GtkFrame">
-                    <property name="margin_top">4</property>
-                    <property name="margin_start">4</property>
-                    <property name="child">
-                      <object class="GtkBox">
-                        <child>
-                          <object class="GtkCheckButton" id="single_map_properties_step_in_rmsd_checkbutton">
-                            <property name="label" translatable="yes">Use r.m.s.d.</property>
-                            <property name="focusable">1</property>
-                            <property name="active">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">   Scroll-wheel level-change step size </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="single_map_properties_step_size_entry">
-                            <property name="width_request">40</property>
-                            <property name="focusable">1</property>
-                            <property name="max_width_chars">12</property>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Step Size</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+
+                <!-- <child> -->
+                <!--   <object class="GtkFrame"> -->
+                <!--     <property name="margin_top">4</property> -->
+                <!--     <property name="margin_start">4</property> -->
+                <!--     <property name="child"> -->
+                <!--       <object class="GtkBox"> -->
+                <!--         <child> -->
+                <!--           <object class="GtkCheckButton" id="single_map_properties_step_in_rmsd_checkbutton"> -->
+                <!--             <property name="label" translatable="yes">Use r.m.s.d.</property> -->
+                <!--             <property name="focusable">1</property> -->
+                <!--             <property name="active">1</property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--         <child> -->
+                <!--           <object class="GtkLabel"> -->
+                <!--             <property name="label" translatable="yes">   Scroll-wheel level-change step size </property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--         <child> -->
+                <!--           <object class="GtkEntry" id="single_map_properties_step_size_entry"> -->
+                <!--             <property name="width_request">40</property> -->
+                <!--             <property name="focusable">1</property> -->
+                <!--             <property name="max_width_chars">12</property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--       </object> -->
+                <!--     </property> -->
+                <!--     <child type="label"> -->
+                <!--       <object class="GtkLabel"> -->
+                <!--         <property name="label" translatable="yes">Step Size</property> -->
+                <!--       </object> -->
+                <!--     </child> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
               </object>
             </property>
             <child type="label">
@@ -397,13 +402,13 @@
                 <child>
                   <object class="GtkCheckButton" id="single_map_skeleton_on_radiobutton">
                     <property name="label" translatable="yes">On</property>
-                    <property name="group">single_map_properties_absolute_radiobutton</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="single_map_skeleton_off_radiobutton">
                     <property name="label" translatable="yes">Off</property>
                     <property name="active">1</property>
+                    <property name="group">single_map_skeleton_on_radiobutton</property>
                   </object>
                 </child>
               </object>

@@ -1347,13 +1347,10 @@ void set_scrollable_map(int imol) {
 
    graphics_info_t g;
    if (is_valid_map_molecule(imol)) {
-      int imap = 0; // ignored
-      g.set_Scrollable_Map(imol, imap); // in graphics-info.h
+      g.set_scrollable_map(imol); // in graphics-info.h
    } else {
-      std::cout << "WARNING:: " << imol << " is not a valid molecule"
-   << " in set_scrollable_map\n";
+      std::cout << "WARNING:: " << imol << " is not a valid molecule" << " in set_scrollable_map\n";
    }
-
 }
 
 int

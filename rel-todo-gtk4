@@ -24,7 +24,7 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
 
-Fix the Map Parameters dialog widgets ::: 2
+Fix the Map Parameters dialog widgets ::: 4
 
 Key-binding for "clear all atom labels" ::: 0.25
 

@@ -1586,9 +1586,7 @@ public:
 
    static short int do_scroll_by_wheel_mouse_flag;
    //
-   void set_Scrollable_Map(int imol, int imap) {
-      scroll_wheel_map = imol;
-   }
+   void set_scrollable_map(int imol) { scroll_wheel_map = imol; }
 
    // Transfered from molecule_class_info, because they are a parameter
    // of the *graphis* at the moment, not each molecule (there is no
