@@ -707,6 +707,7 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
       gtk_widget_show(app_window);
 
+      gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
       setup_gestures_for_opengl_widget_in_main_window(gl_area);
 
       create_actions(application);

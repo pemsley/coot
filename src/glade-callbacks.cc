@@ -2061,8 +2061,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_model_refine_dialog_refine_params_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    // 20211026-PE I don't think that this is used. Call back is in glade-callbacks-main-window.cc
    // GtkWidget *widget = wrapped_create_refine_params_dialog();
@@ -2073,7 +2072,7 @@ on_model_refine_dialog_refine_params_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_refinement_and_regularization_vbox_close_button_clicked(GtkButton       *button,
-                                                                               gpointer         user_data) {
+                                                           gpointer         user_data) {
 
    GtkWidget *frame = widget_from_builder("refinement_and_regularization_parameters_frame");
    gtk_widget_set_visible(frame,FALSE);
@@ -2207,61 +2206,6 @@ on_accept_reject_refinement_dialog_destroy
   /* clear_atom_pull_restraint_on_accept_reject_destroy(); */
 
   clear_up_moving_atoms();
-}
-
-
-/* accept_reject_refinement_docked_accept_button */
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_refinement_docked_accept_button_clicked (GtkButton       *button,
-							  gpointer         user_data)
-{
-  GtkWidget *window = widget_from_builder(
-				    "accept_reject_dialog_frame_docked");
-  accept_regularizement();
-  if (accept_reject_dialog_docked_show_state() == 1) {
-    gtk_widget_set_sensitive(window, FALSE);
-    set_accept_reject_dialog(NULL);
-    clear_up_moving_atoms();
-    GtkWidget *p = main_window();
-    gtk_widget_grab_focus(p);
-  } else {
-    gtk_widget_hide(window);
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_refinement_docked_reject_button_clicked (GtkButton       *button,
-							  gpointer         user_data)
-{
-   GtkWidget *window = widget_from_builder(
-                                     "accept_reject_dialog_frame_docked");
-   /* we only hide the widget, I guess we may have to clean up as well */
-   /* done below in hide callback */
-   if (accept_reject_dialog_docked_show_state() == 1) {
-      gtk_widget_set_sensitive(window, FALSE);
-      set_accept_reject_dialog(NULL);
-      clear_up_moving_atoms();
-      GtkWidget *p = main_window();
-      gtk_widget_grab_focus(p);
-   } else {
-      gtk_widget_hide(window);
-   }
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_dialog_frame_docked_hide
-                                        (GtkWidget       *widget,
-                                        gpointer         user_data)
-{
-  set_accept_reject_dialog(NULL);
-  clear_up_moving_atoms();
-  GtkWidget *p = main_window();
-  gtk_widget_grab_focus(p);
 }
 
 

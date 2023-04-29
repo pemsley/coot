@@ -269,21 +269,20 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *frame    = widget_from_builder("get_monomer_frame");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
       gtk_widget_set_visible(no_entry_frame, FALSE); // each time "get_monomer" is shown
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
-   
    gtk_widget_grab_focus(entry);
-
    gtk_widget_show(frame);
 }
 
 
 void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
-                                                 int        response) {
+                                                        int        response) {
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
@@ -1297,7 +1296,8 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
-   gtk_widget_show(show_symm_window);
+   if (show_symm_window)
+      gtk_widget_show(show_symm_window);
 }
 
 

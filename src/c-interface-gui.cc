@@ -3982,8 +3982,6 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
    // GtkWidget *show_symm_window = create_show_symmetry_window();
    GtkWidget *show_symm_window = widget_from_builder("show_symmetry_window");
-   GtkWidget *checkbutton;
-   GtkButton *button;
 
    /* Colour Merge */
    GtkAdjustment *adjustment;
@@ -4007,13 +4005,14 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
 /* The Show Symmetry RadioButtons */
 
+   GtkButton *button = nullptr;
    if (get_show_symmetry() == 1) {
       button = GTK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
    } else {
       button = GTK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
    }
 
-   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
 
 /* Show Symmetry as Calphas checkbutton */
 
@@ -4062,14 +4061,13 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     //  The Expanded Atoms Label checkbutton
 
     // checkbutton = lookup_widget(show_symm_window, "show_symmetry_expanded_labels_checkbutton");
-    checkbutton = widget_from_builder("show_symmetry_expanded_labels_checkbutton");
+    GtkWidget *checkbutton = widget_from_builder("show_symmetry_expanded_labels_checkbutton");
 
-    if (graphics_info_t::symmetry_atom_labels_expanded_flag) {
+    if (graphics_info_t::symmetry_atom_labels_expanded_flag)
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-    }
 
     // GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
-    GtkWidget *colour_button = widget_from_builder("symmetry_colorbutton");
+    GtkWidget *colour_button = widget_from_builder("symmetry_colorbutton"); // a GtkButton
     if (colour_button) {
        GdkRGBA bg_colour;
        bg_colour.red   = (guint)(graphics_info_t::symmetry_colour[0] * 65535);

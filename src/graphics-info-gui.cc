@@ -5216,18 +5216,26 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
                          return w;
                       };
 
-   GtkWidget *f    = widget_from_builder("main_window_meshes_frame");
-   GtkWidget *vbox = widget_from_builder("main_window_meshes_vbox");
-   gtk_widget_show(f);
+   GtkWidget *frame = widget_from_builder("main_window_meshes_frame");
+   GtkWidget *vbox  = widget_from_builder("main_window_meshes_vbox");
+      gtk_widget_show(frame);
+
    unsigned int n_mesh = 0;
    for (unsigned int i=0; i<molecules.size(); i++)
       n_mesh += molecules[i].meshes.size();
 
-   if (n_mesh == 0)
-      gtk_widget_hide(f);
+   if (frame) {
+      if (n_mesh == 0) {
+         gtk_widget_hide(frame);
+      } else {
+         gtk_widget_show(frame);
+      }
+   }
 
    std::cout << "DEBUG:: update_main_window_molecular_representation_widgets() n_mesh " << n_mesh << std::endl;
-   
+
+   if (!vbox) return;
+
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
       for (unsigned int j=0; j<molecules[imol].meshes.size(); j++) {
          const auto &mesh = molecules[imol].meshes[j];
@@ -5248,11 +5256,7 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
             g_object_set_data(G_OBJECT(w), "mesh_idx", GINT_TO_POINTER(j));
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
             g_signal_connect(G_OBJECT(w), "toggled", G_CALLBACK(main_window_meshes_togglebutton_toggled), nullptr);
-#if (GTK_MAJOR_VERSION == 4)
             gtk_box_append(GTK_BOX(vbox), w);
-#else
-            gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
-#endif
             gtk_widget_show(w);
          }
       }

@@ -23,7 +23,7 @@
 
 #ifdef USE_PYTHON
 // Prefered:
-void add_key_binding_gtk3_py(PyObject *key_py, int ctrl_key, PyObject *func, const std::string &description) {
+void add_key_binding_gtk4_py(PyObject *key_py, int ctrl_key, PyObject *func, const std::string &description) {
 
    int key = 0;
 

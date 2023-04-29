@@ -411,15 +411,15 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
 
-   if (false)
+   if (true)
+      std::cout << "on_glarea_key_controller_key_pressed() keyval: " << keyval << std::endl;
+
+   if (true)
       std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
 
-   if (false)
-      std::cout << "keyval: " << keyval << std::endl;
-
    if (keyval == 113)
-      load_tutorial_model_and_data_ec();
+      load_tutorial_model_and_data_ec(); // ec: event-controller
 
    keyboard_key_t kbk(keyval, control_is_pressed);
    add_key_to_history(kbk);
@@ -428,7 +428,7 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = key_bindings_map.find(kbk);
    if (it != key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     if (false)
+     if (true)
         std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      handled = kb.run();

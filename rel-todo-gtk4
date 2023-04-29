@@ -17,18 +17,12 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
-Get the "Map..." Button working. ::: 1
-
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
    // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
    Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-Key-binding for "clear all atom labels" ::: 0.25
-
-Key-bindings in general ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
 
@@ -37,13 +31,17 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 
 Restart the refinement on button-release when dragging an atom ::: 1
 
+"All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+
 Coot Points in updating maps ::: 4
 
-Start up from Saved state.
+Start up from Saved state. ::: 1
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
 
 coot_gui.smiles_gui() - is this a thing now? ::: 1
+Not without --enhanced-ligand-gui it isn't
+Note that biscu-it needs to be ported to python 3.
 
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
 (pressing "G" on the keyboard is not intuitive). ::: 2
@@ -51,8 +49,6 @@ Consider using double-click to do go to blob.  Where does "label atom" go then? 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
 Curlew: ::: 4
-
-Can you make the rotamer dialog be an overlay? Not important. ::: 1
 
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
@@ -223,9 +219,6 @@ Display Manager - "Delete Model" button doesn't delete the "combobox" (as I call
 Display Manager - bond and colour selector is broken ::: 1
 * Done.
 
-I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
-* Done.
-
 Do some more experimenting with validation graphs ::: 5
 * Done.
 
@@ -259,3 +252,16 @@ In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 
 Fix "Rotamers" button ::: 1
 It just needs a bit of adjustment of the margins.
 * Looks fine.
+
+Get the "Map..." Button working. ::: 0.5
+
+Can you make the rotamer dialog be an overlay? Not important. ::: 0
+* No go to do this yet.
+
+I think that one of the new buttons steals the focus from the graphics on startup now. ::: 0.5
+* Done.
+
+Key-binding for "clear all atom labels" ::: 0.25
+
+Key-bindings in general ::: 1
+May need revisiting.
