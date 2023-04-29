@@ -905,18 +905,8 @@ graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpo
 void
 graphics_info_t::show_select_map_dialog() {
 
-   if (gui_from_gtkbuilder()) {
-      show_select_map_dialog_gtkbuilder();
-   } else {
-      show_select_map_dialog_old_style();
-   }
+   show_select_map_dialog_gtkbuilder();
 
-}
-
-void
-graphics_info_t::show_select_map_dialog_old_style() {
-
-   // 20220311-PE internals removed. Who calls this?
 }
 
 void
@@ -962,26 +952,9 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
          std::cout << "ERROR:: show_select_map_dialog_gtkbuilder() failed to get estimate button" << std::endl;
       }
 
-#if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "in show_select_map_dialog_gtkbuilder() - I never liked gtk_dialog_run() FIXME" << std::endl;
-#else
-      gint resp = gtk_dialog_run(GTK_DIALOG(dialog));
-      if (resp == GTK_RESPONSE_DELETE_EVENT) {
-          if (imol_map == -1) {
-              // unset refinement map if it has not been set previously
-              set_refinement_map(-1);
-          }
-      }
-      if (resp == GTK_RESPONSE_OK) {
-         if (weight_entry) {
-            std::string t = gtk_editable_get_text(GTK_EDITABLE(weight_entry));
-            float f = coot::util::string_to_float(t);
-            geometry_vs_map_weight = f;
-         }
-      }
-#endif
+      set_transient_for_main_window(dialog);
+      gtk_widget_show(dialog);
 
-      gtk_widget_hide(dialog);
 
    }
 }
@@ -5117,7 +5090,6 @@ graphics_info_t::get_pointer_position_frac() const {
 
    double xf = x/x_max;
    double yf = y/y_max;
-
    return std::pair<double, double> (xf, yf);
 }
 

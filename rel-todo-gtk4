@@ -17,14 +17,14 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
+Get the "Map..." Button working. ::: 1
+
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
    // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
    Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-Fix the Map Parameters dialog widgets ::: 4
 
 Key-binding for "clear all atom labels" ::: 0.25
 
@@ -39,14 +39,11 @@ Restart the refinement on button-release when dragging an atom ::: 1
 
 Coot Points in updating maps ::: 4
 
+Start up from Saved state.
+
+Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+
 coot_gui.smiles_gui() - is this a thing now? ::: 1
-
-Fix "Rotamers" button ::: 1
-It just needs a bit of adjustment of the margins.
-
-Get the "Map..." Button working. ::: 1
-
-In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
 
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
 (pressing "G" on the keyboard is not intuitive). ::: 2
@@ -253,3 +250,12 @@ clean out coot_gui usage from coot_utils ::: 2
 Validate -> Ramachandran Plot ::: 10
 * Good enough.
 
+Fix the Map Parameters dialog widgets ::: 5
+* Good enough.
+
+In the Display Manager, The "Delete Map" button doesn't delete the map row. ::: 1
+* It does now.
+
+Fix "Rotamers" button ::: 1
+It just needs a bit of adjustment of the margins.
+* Looks fine.

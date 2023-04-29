@@ -4533,17 +4533,19 @@ on_workflow_cancel_button_clicked      (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_select_map_for_fitting_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_select_map_for_fitting_button_clicked(GtkButton       *button,
+                                         gpointer         user_data) {
 
-  // this doesn't do anything because gtk_dialog_run() is used
+   GtkWidget *dialog       = widget_from_builder( "select_fitting_map_dialog");
+   GtkWidget *weight_entry = widget_from_builder("select_fitting_map_dialog_weight_entry");
 
-//  GtkWidget *widget = widget_from_builder(
-//				    "select_fitting_map_dialog");
-
- // gtk_widget_hide(widget);
+   if (weight_entry) {
+      std::string t = gtk_editable_get_text(GTK_EDITABLE(weight_entry));
+      float f = coot::util::string_to_float(t);
+      graphics_info_t g;
+      g.geometry_vs_map_weight = f;
+   }
+   gtk_widget_hide(dialog);
 
 }
 

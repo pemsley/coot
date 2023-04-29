@@ -10896,19 +10896,12 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
       </object>
     </child>
   </object>
+
   <object class="GtkDialog" id="select_fitting_map_dialog">
     <property name="title" translatable="yes">Select Map for Fitting</property>
     <child>
       <object class="GtkBox" id="dialog-vbox32">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="select_map_for_fitting_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_select_map_for_fitting_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame77">
             <child>
@@ -10918,10 +10911,16 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   <object class="GtkLabel" id="label128">
                     <property name="label" translatable="yes">Choose a Map:</property>
                     <property name="justify">center</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkComboBox" id="select_map_for_fitting_combobox">
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                   </object>
                 </child>
                 <child>
@@ -10947,6 +10946,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         <property name="label" translatable="yes">Estimate</property>
                         <property name="can-focus">1</property>
                         <property name="receives-default">1</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <signal name="clicked" handler="on_select_fitting_map_dialog_estimate_button_clicked" swapped="no"/>
                       </object>
                     </child>
@@ -10954,6 +10957,26 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkButton" id="select_map_for_fitting_button">
+            <property name="label" translatable="yes">  OK  </property>
+            <property name="can-focus">1</property>
+            <property name="use-underline">1</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <signal name="clicked" handler="on_select_map_for_fitting_button_clicked" swapped="no"/>
           </object>
         </child>
       </object>
