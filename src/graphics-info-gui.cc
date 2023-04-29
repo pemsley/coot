@@ -5130,7 +5130,10 @@ graphics_info_t::add_molecular_representation(int imol,
                                               const std::string &style) {
 
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
-   gtk_widget_show(w);
+   if (w)
+      gtk_widget_show(w);
+   else
+      std::cout << "widget main_window_meshes_frame was not found" << std::endl;
 
    attach_buffers();
 

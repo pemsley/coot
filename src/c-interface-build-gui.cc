@@ -1490,7 +1490,6 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
 
    GtkWidget *failed_to_get_monomer_frame = widget_from_builder("get_monomer_no_entry_frame");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry_widget));
-   GtkWidget *vbox = widget_from_builder("get_monomer_vbox");
 
    if (! failed_to_get_monomer_frame) return;
 
@@ -1505,7 +1504,6 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
       int imol = get_monomer(text_s);
 
       if (is_valid_model_molecule(imol)) {
-         gtk_widget_hide(vbox);
       } else {
          gtk_widget_show(failed_to_get_monomer_frame);
       }
@@ -1518,14 +1516,6 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
       if (! is_valid_model_molecule(imol)) {
          info_dialog("WARNING:: Failed to import molecule");
       }
-
-      // get_monomer_dialog no longer exists
-      //
-      // GtkWidget *window = widget_from_builder("get_monomer_dialog");
-      // if (window)
-      //    gtk_widget_hide(window);
-
-      gtk_widget_hide(vbox);
    }
 }
 

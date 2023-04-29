@@ -189,7 +189,6 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       GtkWidget *strength_entry  = widget_from_builder("map_properties_dialog_specularity_strength_entry");
       GtkWidget *shininess_entry = widget_from_builder("map_properties_dialog_specularity_shininess_entry");
 
-      molecule_class_info_t &m = graphics_info_t::molecules[imol];
       float specular_strength = m.material_for_maps.specular_strength;
       float shininess = m.material_for_maps.shininess;
 
@@ -210,7 +209,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                 << " m.material_for_maps.do_specularity " << m.material_for_maps.do_specularity << std::endl;
 
       if (m.material_for_maps.do_specularity) {
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(specularity_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(specularity_checkbutton), TRUE);
       }
    }
 
@@ -224,7 +223,6 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       GtkWidget *scale_entry = widget_from_builder("map_properties_dialog_fresnel_scale_entry");
       GtkWidget *power_entry = widget_from_builder("map_properties_dialog_fresnel_power_entry");
 
-      molecule_class_info_t &m = graphics_info_t::molecules[imol];
       float bias  = m.fresnel_settings.bias;
       float scale = m.fresnel_settings.scale;
       float power = m.fresnel_settings.power;
@@ -247,7 +245,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
       gtk_editable_set_text(GTK_EDITABLE(power_entry), coot::util::float_to_string_using_dec_pl(power, 1).c_str());
 
       if (m.fresnel_settings.state)
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fresnel_checkbutton), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(fresnel_checkbutton), TRUE);
    }
 
 }
@@ -371,3 +369,32 @@ void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
       g_signal_connect(G_OBJECT(colour_chooser_dialog), "response", callback, GINT_TO_POINTER(imol));
    }
 }
+
+
+
+void handle_map_properties_specularity_change(int imol, GtkWidget *checkbutton) {
+
+   if (! is_valid_map_molecule(imol)) return;
+
+   molecule_class_info_t &m = graphics_info_t::molecules[imol];
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
+      std::cout << "Turn on specularity " << std::endl;
+      GtkWidget *strength_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton),  "strength_entry"));
+      GtkWidget *shininess_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "shininess_entry"));
+      std::string strength_entry_text  = gtk_editable_get_text(GTK_EDITABLE(strength_entry));
+      std::string shininess_entry_text = gtk_editable_get_text(GTK_EDITABLE(shininess_entry));
+      float f1 = coot::util::string_to_float(strength_entry_text);
+      float f2 = coot::util::string_to_float(shininess_entry_text);
+      m.material_for_maps.specular_strength = f1;
+      m.material_for_maps.shininess         = f2;
+      m.material_for_maps.turn_specularity_on(true);
+      std::cout << "in handle_map_properties_specularity_change() imol: " << imol << " do: " <<  m.material_for_maps.do_specularity
+                << " strength " << m.material_for_maps.specular_strength << " shiny " << m.material_for_maps.shininess << std::endl;
+   } else {
+      std::cout << "Turn off specularity " << std::endl;
+      m.material_for_maps.turn_specularity_on(false);
+   }
+   graphics_draw();
+}
+

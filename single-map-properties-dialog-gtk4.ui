@@ -291,6 +291,7 @@
                   <object class="GtkCheckButton" id="map_properties_dialog_specularity_state_checkbutton">
                     <property name="label" translatable="yes">On   </property>
                     <property name="focusable">1</property>
+                    <signal name="toggled" handler="on_map_properties_dialog_specularity_state_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -305,6 +306,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_specularity_strength_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -319,6 +321,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">6</property>
+                    <signal name="activate" handler="on_map_properties_dialog_specularity_shininess_entry_activate" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -342,6 +345,7 @@
                     <property name="label" translatable="yes">On   </property>
                     <property name="name">map_properties_dialog_fresnel_state_checkbutton</property>
                     <property name="focusable">1</property>
+                    <signal name="toggled" handler="on_map_properties_dialog_fresnel_state_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -356,6 +360,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_bias_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -370,6 +375,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_scale_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -384,6 +390,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">4</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_power_entry_activate" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -396,35 +403,36 @@
             </child>
           </object>
         </child>
-        <child>
-          <object class="GtkFrame" id="single_map_properties_skeleton_frame">
-            <property name="visible">1</property>
-            <property name="margin_start">4</property>
-            <property name="margin_top">4</property>
-            <property name="child">
-              <object class="GtkBox">
-                <child>
-                  <object class="GtkCheckButton" id="single_map_skeleton_on_radiobutton">
-                    <property name="label" translatable="yes">On</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="single_map_skeleton_off_radiobutton">
-                    <property name="label" translatable="yes">Off</property>
-                    <property name="active">1</property>
-                    <property name="group">single_map_skeleton_on_radiobutton</property>
-                  </object>
-                </child>
-              </object>
-            </property>
-            <child type="label">
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">&lt;b&gt; Skeleton &lt;/b&gt;</property>
-                <property name="use_markup">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
+        <!--  I don't want to fix the skeleton callbacks now -->
+        <!-- <child> -->
+        <!--   <object class="GtkFrame" id="single_map_properties_skeleton_frame"> -->
+        <!--     <property name="visible">1</property> -->
+        <!--     <property name="margin_start">4</property> -->
+        <!--     <property name="margin_top">4</property> -->
+        <!--     <property name="child"> -->
+        <!--       <object class="GtkBox"> -->
+        <!--         <child> -->
+        <!--           <object class="GtkCheckButton" id="single_map_skeleton_on_radiobutton"> -->
+        <!--             <property name="label" translatable="yes">On</property> -->
+        <!--           </object> -->
+        <!--         </child> -->
+        <!--         <child> -->
+        <!--           <object class="GtkCheckButton" id="single_map_skeleton_off_radiobutton"> -->
+        <!--             <property name="label" translatable="yes">Off</property> -->
+        <!--             <property name="active">1</property> -->
+        <!--             <property name="group">single_map_skeleton_on_radiobutton</property> -->
+        <!--           </object> -->
+        <!--         </child> -->
+        <!--       </object> -->
+        <!--     </property> -->
+        <!--     <child type="label"> -->
+        <!--       <object class="GtkLabel"> -->
+        <!--         <property name="label" translatable="yes">&lt;b&gt; Skeleton &lt;/b&gt;</property> -->
+        <!--         <property name="use_markup">1</property> -->
+        <!--       </object> -->
+        <!--     </child> -->
+        <!--   </object> -->
+        <!-- </child> -->
         <child>
           <object class="GtkSeparator"/>
         </child>

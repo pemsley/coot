@@ -5227,20 +5227,22 @@ void
 on_single_map_properties_absolute_radiobutton_toggled (GtkCheckButton *checkbutton,
                                                        gpointer         user_data) {
 
-   std::cout << "Absolute button toggled - doing nothing" << std::endl;
+   // std::cout << "Absolute button toggled - doing nothing" << std::endl;
 }
 
 extern "C" G_MODULE_EXPORT
-void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
+void handle_map_properties_fresnel_change(int imol, GtkWidget *checkbutton) {
 
+   std::cout << "Here 0 in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
    if (! graphics_info_t::is_valid_map_molecule(imol)) return;
+   std::cout << "Here A in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-      std::cout << "Here B in handle_map_properties_fresnel_change() " << togglebutton << std::endl;
-      GtkWidget *bias_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton),  "bias_entry"));
-      GtkWidget *scale_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "scale_entry"));
-      GtkWidget *power_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "power_entry"));
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
+      std::cout << "Here B in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
+      GtkWidget *bias_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton),  "bias_entry"));
+      GtkWidget *scale_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "scale_entry"));
+      GtkWidget *power_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "power_entry"));
       std::string  bias_entry_text  = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(bias_entry)));
       std::string scale_entry_text  = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(scale_entry)));
       std::string power_entry_text  = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(power_entry)));
@@ -5260,66 +5262,45 @@ void handle_map_properties_fresnel_change(int imol, GtkWidget *togglebutton) {
    graphics_draw();
 }
 
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_map_properties_dialog_fresnel_bias_entry_key_press_event (GtkWidget       *widget,
-                                                                                 GdkEventKey     *event,
-                                                                                 gpointer         user_data)
-{
-
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
-      handle_map_properties_fresnel_change(imol, togglebutton);
-   }
-   return FALSE;
-}
-#endif
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_map_properties_dialog_fresnel_scale_entry_key_press_event (GtkWidget       *widget,
-                                                              GdkEventKey     *event,
-                                                              gpointer         user_data)
-{
-
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
-      handle_map_properties_fresnel_change(imol, togglebutton);
-   }
-   return FALSE;
-}
-#endif
-
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_map_properties_dialog_fresnel_power_entry_key_press_event (GtkWidget       *widget,
-                                                                                  GdkEventKey     *event,
-                                                                                  gpointer         user_data)
-{
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "fresnel_checkbutton"));
-      handle_map_properties_fresnel_change(imol, togglebutton);
-   }
-   return FALSE;
-}
-#endif
-
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_properties_dialog_fresnel_state_checkbutton_toggled (GtkToggleButton *togglebutton,
-                                                            gpointer         user_data)
-{
+on_map_properties_dialog_fresnel_state_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                           gpointer         user_data) {
 
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton), "imol"));
-   handle_map_properties_fresnel_change(imol, GTK_WIDGET(togglebutton));
+   std::cout << "Toggled! " << std::endl;
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
+   handle_map_properties_fresnel_change(imol, GTK_WIDGET(checkbutton));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_properties_dialog_fresnel_bias_entry_activate(GtkEntry* self, gpointer user_data) {
+
+   std::cout << "bias entry key press activate" << std::endl;
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "fresnel_checkbutton"));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
+   handle_map_properties_fresnel_change(imol, checkbutton);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_properties_dialog_fresnel_scale_entry_activate(GtkEntry* self, gpointer user_data) {
+
+   std::cout << "scale entry key press activate" << std::endl;
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "fresnel_checkbutton"));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
+   handle_map_properties_fresnel_change(imol, checkbutton);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_properties_dialog_fresnel_power_entry_activate(GtkEntry* self, gpointer user_data) {
+
+   std::cout << "popwer entry key press activate" << std::endl;
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "fresnel_checkbutton"));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
+   handle_map_properties_fresnel_change(imol, checkbutton);
 }
 
 
@@ -7080,10 +7061,9 @@ on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled(GtkToggleButt
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_b_factor_entry_active_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_check_waters_b_factor_entry_active_checkbutton_toggled(GtkToggleButton *togglebutton,
+                                                          gpointer         user_data) {
+
    // GtkWidget *hbox = widget_from_builder("check_waters_b_factor_hbox");
    GtkWidget *hbox = widget_from_builder("check_waters_b_factor_hbox");
    if (gtk_toggle_button_get_active(togglebutton))
@@ -11860,14 +11840,16 @@ on_residue_type_chooser_entry_key_press_event
 #endif
 
 
-void handle_map_properties_specularity_change(int imol, GtkWidget *togglebutton) {
+void handle_map_properties_specularity_change(int imol, GtkWidget *checkbutton) {
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-      std::cout << "Turn on specularity " << std::endl;
-      GtkWidget *strength_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton),  "strength_entry"));
-      GtkWidget *shininess_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "shininess_entry"));
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
+      // std::cout << "Turn on specularity " << std::endl;
+      GtkWidget *strength_entry  = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton),  "strength_entry"));
+      GtkWidget *shininess_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "shininess_entry"));
+      if (! strength_entry)  return;
+      if (! shininess_entry) return;
       std::string strength_entry_text  = gtk_editable_get_text(GTK_EDITABLE(strength_entry));
       std::string shininess_entry_text = gtk_editable_get_text(GTK_EDITABLE(shininess_entry));
       float f1 = coot::util::string_to_float(strength_entry_text);
@@ -11878,80 +11860,32 @@ void handle_map_properties_specularity_change(int imol, GtkWidget *togglebutton)
       std::cout << "in handle_map_properties_specularity_change() imol: " << imol << " do: " <<  m.material_for_maps.do_specularity
                 << " strength " << m.material_for_maps.specular_strength << " shiny " << m.material_for_maps.shininess << std::endl;
    } else {
-      std::cout << "Turn off specularity " << std::endl;
+      // std::cout << "Turn off specularity " << std::endl;
       m.material_for_maps.turn_specularity_on(false);
    }
    graphics_draw();
 }
 
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT
-gboolean
-on_map_properties_dialog_specularity_strength_entry_key_press_event (GtkWidget       *widget,
-                                                                     GdkEventKey     *event,
-                                                                     gpointer         user_data)
-{
+void
+on_map_properties_dialog_specularity_strength_entry_activate(GtkEntry* self, gpointer user_data) {
 
-   std::cout << "strength entry key press callback" << std::endl;
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      // the g_object_set_data() for these is done in fill_single_map_properties_dialog_gtk3()
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "specularity_checkbutton"));
-      std::cout << "call handle_map_properties_specularity_change() " << std::endl;
-      handle_map_properties_specularity_change(imol, togglebutton);
-   }
-   return FALSE; // otherwise the text can't edited!
+   std::cout << "strength entry key press activate" << std::endl;
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "specularity_checkbutton"));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
+   handle_map_properties_specularity_change(imol, checkbutton);
 }
-#endif
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_map_properties_dialog_specularity_shininess_entry_key_press_event (GtkWidget       *widget,
-                                                                      GdkEventKey     *event,
-                                                                      gpointer         user_data) {
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      GtkWidget *togglebutton = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), "specularity_checkbutton"));
-      handle_map_properties_specularity_change(imol, togglebutton);
-   }
-   return FALSE;
-}
-#endif
-
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_properties_dialog_specularity_state_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_map_properties_dialog_specularity_shininess_entry_activate(GtkEntry* self, gpointer user_data) {
 
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton), "imol"));
-   handle_map_properties_specularity_change(imol, GTK_WIDGET(togglebutton));
+   std::cout << "shininess entry key press activate" << std::endl;
+   GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "specularity_checkbutton"));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(self), "imol"));
+   handle_map_properties_specularity_change(imol, checkbutton);
 }
 
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_single_map_properties_step_size_entry_key_press_event (GtkWidget       *widget,
-                                                                              GdkEventKey     *event,
-                                                                              gpointer         user_data)
-{
-   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "imol"));
-      std::string t = gtk_editable_get_text(GTK_EDITABLE(widget));
-      try {
-         float f = coot::util::string_to_float(t);
-      }
-      catch (const std::runtime_error &rte) {
-         std::cout << "WARNING:: " << rte.what() << std::endl;
-      }
-   }
-   return FALSE;
-}
-#endif
 
 
 extern "C" G_MODULE_EXPORT
@@ -12165,3 +12099,15 @@ on_keyboard_mutate_entry_key_release_event(GtkWidget       *widget,
    return FALSE;
 }
 #endif
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                               gpointer         user_data) {
+
+   // was it set?
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
+   handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
+
+}
