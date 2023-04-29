@@ -990,6 +990,7 @@ on_display_control_map_properties_button_clicked(GtkButton       *button,
 
 
    GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
+   std::cout << "debug:: in on_display_control_map_properties_button_clicked() dialog is " << dialog << std::endl;
    set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 

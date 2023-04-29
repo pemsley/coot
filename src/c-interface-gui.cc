@@ -4244,47 +4244,11 @@ void set_map_hexcolour(int imol, const char *hex_colour) {
 
 // 20220602-PE don't call this function
 #if 0
-void my_delete_menu_items(GtkWidget *widget, void *data) {
+void my_delete_menu_items(GtkWidget *widget, void *user_data) {
    gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 #endif
 
-void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
-
-   if (is_valid_map_molecule(imol)) {
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME color
-      // #if GTK_MAJOR_VERSION >=4 || GTK_DISABLE_DEPRECATED
-      // GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Map Colour Selection", GTK_WINDOW(parent_window));
-      // GdkRGBA map_colour = get_map_colour(imol);
-      // struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      // map_colour_data->imol = imol;
-      // GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
-      // gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
-      // gtk_widget_show(colour_chooser_dialog);
-#else
-      GtkWidget *color_selection_dialog = gtk_color_selection_dialog_new("Map Colour Selection");
-      GdkRGBA map_colour = get_map_colour(imol);
-      struct map_colour_data_type *map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      map_colour_data->imol = imol;
-      map_colour_data->color_selection = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog)));
-      GtkColorSelection *color_selection = GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog)));
-      g_signal_connect(G_OBJECT(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_selection_dialog))),
-                       "color_changed", G_CALLBACK(on_map_color_changed), map_colour_data);
-      GdkRGBA *map_colour_p = new GdkRGBA;
-      *map_colour_p = map_colour;
-      GdkColor map_gdk_color;      /* old style used by the Color Selection  */
-      map_gdk_color.red   = map_colour.red;
-      map_gdk_color.green = map_colour.green;
-      map_gdk_color.blue  = map_colour.blue;
-      gtk_color_selection_set_current_color(color_selection, &map_gdk_color);
-      gtk_widget_show(color_selection_dialog);
-      g_signal_connect(color_selection_dialog, "response", G_CALLBACK(on_map_color_selection_dialog_response), map_colour_p);
-      g_object_set_data(G_OBJECT(color_selection_dialog), "imol", GINT_TO_POINTER(imol));
-#endif
-   }
-}
 
 
 // where is this called from?

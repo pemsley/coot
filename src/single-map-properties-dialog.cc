@@ -55,6 +55,7 @@ void fill_single_map_properties_dialog_gtk3(std::pair<GtkWidget *, GtkBuilder *>
                                                 GtkWidget *level_type_absolute_radiobutton = widget_from_builder("single_map_properties_absolute_radiobutton");
                                                 GtkWidget *level_type_rmsd_radiobutton     = widget_from_builder("single_map_properties_rmsd_radiobutton");
 
+
                                                 // we can't set radiobuttons to active false! (makes sense)
                                                 if (contour_by_rmsd_flag)
                                                    gtk_check_button_set_active(GTK_CHECK_BUTTON(level_type_rmsd_radiobutton), TRUE);
@@ -303,26 +304,70 @@ on_single_map_properties_ok_button_clicked(GtkButton       *button,
 /* Not sure that this exists any more... */
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_cancel_button_clicked_gtkbuilder_callback (GtkButton       *button,
-						gpointer         user_data)
-{
-  GtkWidget *window = widget_from_builder("single_map_properties_dialog");
-  gtk_widget_hide(window);
+on_single_map_properties_cancel_button_clicked(GtkButton       *button,
+                                               gpointer         user_data) {
+
+   // gtk_widget_set_visible(window, FALSE);
 
 }
 
 // This function is currently in c-interface-gui.cc - should it be there?
+// I think not.
 void show_map_colour_selector_with_parent(int imol, GtkWidget *parent);
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_single_map_properties_colour_button_clicked_gtkbuilder_callback (GtkButton       *button,
-                                                                    gpointer         user_data) {
+on_single_map_properties_colour_button_clicked(GtkButton       *button,
+                                               gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
    // std::cout << ":::::::: on_single_map_properties_colour_button_clicked_gtkbuilder_callback() " << imol << std::endl;
-   GtkWidget *parent = GTK_WIDGET(user_data); // set in glade.
-   show_map_colour_selector_with_parent(imol, parent);
+   GtkWidget *parent = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "parent"));
+   if (parent)
+      show_map_colour_selector_with_parent(imol, parent);
 }
 
+
+
+
+void on_colour_chooser_dialog_response(GtkDialog *dialog,
+                                       int response) {
+
+   if (response == GTK_RESPONSE_OK) {
+      GdkRGBA color;
+      gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(dialog), &color);
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
+      if (is_valid_map_molecule(imol)) {
+         graphics_info_t g;
+         g.molecules[imol].set_map_colour(color);
+         // std::cout << "set map colour to " << color.red << " " << color.green << " " << color.blue << std::endl;
+         graphics_draw();
+      }
+   }
+   gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
+void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
+
+   if (is_valid_map_molecule(imol)) {
+
+      std::string label = std::string("Coot: Map ") + std::to_string(imol) + std::string(" Colour Selection");
+      std::cout << "label: " << label << std::endl;
+
+      // GtkWidget *dialog = gtk_color_dialog_new(); 20230429-PE in 4.10, but not in 4.4 - sadge
+      // gtk_color_chooser_dialog_new is/will be deprecated.
+      GtkWidget *colour_chooser_dialog = gtk_color_chooser_dialog_new("Test", GTK_WINDOW(parent_window));
+
+      g_object_set_data(G_OBJECT(colour_chooser_dialog), "imol", GINT_TO_POINTER(imol));
+
+      // I don't see this having and effect
+      GdkRGBA map_colour = get_map_colour(imol);
+      GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
+      gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
+
+      gtk_widget_show(colour_chooser_dialog);
+      GCallback callback = G_CALLBACK(on_colour_chooser_dialog_response);
+      g_signal_connect(G_OBJECT(colour_chooser_dialog), "response", callback, GINT_TO_POINTER(imol));
+   }
+}

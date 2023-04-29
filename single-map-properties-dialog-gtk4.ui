@@ -7,8 +7,11 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+
   <object class="GtkDialog" id="single_map_properties_dialog">
     <property name="title" translatable="yes">Test Multiple Use Dialog</property>
+    <property name="default-width">200</property>
+    <!-- <property name="default-height">200</property> -->
     <signal name="close" handler="on_single_map_properties_dialog_close" swapped="no"/>
     <signal name="response" handler="on_single_map_properties_dialog_response" swapped="no"/>
     <child internal-child="content_area">
@@ -265,6 +268,7 @@
                     <property name="margin-bottom">4</property>
                     <property name="focusable">1</property>
                     <property name="receives_default">1</property>
+                    <signal name="clicked" handler="on_single_map_properties_colour_button_clicked" swapped="no"/>
                   </object>
                 </child>
               </object>
