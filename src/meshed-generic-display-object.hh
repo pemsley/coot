@@ -9,6 +9,11 @@
 
 // How many ways of specifying a colour does an application need?
 // At least 3, it turns out.
+
+#include "generic-vertex.hh"
+#include "coot-utils/g_triangle.hh"
+#include "Material.hh"
+
 #include "Mesh.hh"
 #include "utils/colour-holder.hh"
 #include "coot-utils/arc-info.hh"
@@ -118,7 +123,9 @@ public:
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() { imol = UNDEFINED; wireframe_mode = false; }
    explicit meshed_generic_display_object(const std::string &name_in) {
-      imol = UNDEFINED; mesh.name = name_in; wireframe_mode = false; }
+      imol = UNDEFINED;
+      mesh.name = name_in;
+      wireframe_mode = false; }
    explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) {
       imol = UNDEFINED; wireframe_mode = false; }
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
@@ -131,11 +138,16 @@ public:
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
    bool is_intermediate_atoms_object() const { return imol == INTERMEDIATE_ATOMS; }
    Mesh mesh;
+
    bool wireframe_mode;
    void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    void attach_to_molecule(int imol_in) { imol = imol_in; }
-   void clear() { mesh.clear(); imol = UNDEFINED; }
-   void close_yourself() { clear(); mesh.close(); }
+   void clear() {
+      mesh.clear();
+      imol = UNDEFINED; }
+   void close_yourself() { clear();
+      mesh.close();
+   }
    void add(const sphere_t &sphere) {
       std::cout << "FIXME:: meshed-generic-display-object add a sphere here " << sphere.centre.format() << std::endl;
    }

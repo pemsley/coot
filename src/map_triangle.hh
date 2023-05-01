@@ -2,7 +2,7 @@
 #define MAP_TRIANGLE_HH
 
 #include "glm/glm.hpp"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 class map_triangle_t : public g_triangle {
 public:

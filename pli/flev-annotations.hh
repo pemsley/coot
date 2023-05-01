@@ -160,13 +160,14 @@ namespace coot {
    // 
    class fle_ligand_bond_t {
    public:
-      enum { H_BOND_DONOR_MAINCHAIN,
-	     H_BOND_DONOR_SIDECHAIN,
-	     H_BOND_ACCEPTOR_MAINCHAIN, 
-	     H_BOND_ACCEPTOR_SIDECHAIN,
-	     METAL_CONTACT_BOND,
-	     BOND_COVALENT,
-	     BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
+      enum ligand_bond_t {
+         H_BOND_DONOR_MAINCHAIN,
+         H_BOND_DONOR_SIDECHAIN,
+         H_BOND_ACCEPTOR_MAINCHAIN,
+         H_BOND_ACCEPTOR_SIDECHAIN,
+         METAL_CONTACT_BOND,
+         BOND_COVALENT,
+         BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
       atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
@@ -178,60 +179,60 @@ namespace coot {
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
       fle_ligand_bond_t(const atom_spec_t &ligand_atom_spec_in,
-			const atom_spec_t &interacting_residue_atom_spec_in,
-			int bond_type_in,
-			double bl_in,
-			bool is_water) {
-	 ligand_atom_spec = ligand_atom_spec_in;
-	 interacting_residue_atom_spec = interacting_residue_atom_spec_in;
-	 res_spec = residue_spec_t(interacting_residue_atom_spec_in);
-	 bond_type = bond_type_in;
-	 bond_length = bl_in;
-	 is_H_bond_to_water = is_water;
+                        const atom_spec_t &interacting_residue_atom_spec_in,
+                        int bond_type_in,
+                        double bl_in,
+                        bool is_water) {
+         ligand_atom_spec = ligand_atom_spec_in;
+         interacting_residue_atom_spec = interacting_residue_atom_spec_in;
+         res_spec = residue_spec_t(interacting_residue_atom_spec_in);
+         bond_type = bond_type_in;
+         bond_length = bl_in;
+         is_H_bond_to_water = is_water;
       }
       static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
-	 int r_bond_type = BOND_OTHER;
+         int r_bond_type = BOND_OTHER;
 
-	 mmdb::Atom *ligand_atom = at_donor;
-	 mmdb::Atom *residue_atom = at_acceptor;
+         mmdb::Atom *ligand_atom = at_donor;
+         mmdb::Atom *residue_atom = at_acceptor;
 
-	 if (at_donor) {
-	    if (at_acceptor) {
+         if (at_donor) {
+            if (at_acceptor) {
 
-	       if (! ligand_atom_is_donor_flag)
-		  std::swap(ligand_atom, residue_atom);
+               if (! ligand_atom_is_donor_flag)
+                  std::swap(ligand_atom, residue_atom);
 
-	       if (is_a_metal(residue_atom->residue)) {
-		  r_bond_type = METAL_CONTACT_BOND;
-	       } else { 
+               if (is_a_metal(residue_atom->residue)) {
+                  r_bond_type = METAL_CONTACT_BOND;
+               } else {
 
-		  if (ligand_atom_is_donor_flag) { 
-		     if (coot::is_main_chain_p(residue_atom))
-			r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
-		     else
-			r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
-	       
-		  } else {
-		     if (coot::is_main_chain_p(residue_atom))
-			r_bond_type = H_BOND_DONOR_MAINCHAIN;
-		     else
-			r_bond_type = H_BOND_DONOR_SIDECHAIN;
-		  }
-	       }
-	    }
-	 }
-	 return r_bond_type;
+                  if (ligand_atom_is_donor_flag) {
+                     if (coot::is_main_chain_p(residue_atom))
+                        r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
+                     else
+                        r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
+
+                  } else {
+                     if (coot::is_main_chain_p(residue_atom))
+                        r_bond_type = H_BOND_DONOR_MAINCHAIN;
+                     else
+                        r_bond_type = H_BOND_DONOR_SIDECHAIN;
+                  }
+               }
+            }
+         }
+         return r_bond_type;
       }
       bool operator==(const fle_ligand_bond_t &in) const {
-	 bool status = false;
-	 if (in.bond_type == bond_type) {
-	    if (in.ligand_atom_spec == ligand_atom_spec) {
-	       if (in.interacting_residue_atom_spec == interacting_residue_atom_spec) {
-		  status = true;
-	       }
-	    }
-	 }
-	 return status;
+         bool status = false;
+         if (in.bond_type == bond_type) {
+            if (in.ligand_atom_spec == ligand_atom_spec) {
+               if (in.interacting_residue_atom_spec == interacting_residue_atom_spec) {
+                  status = true;
+               }
+            }
+         }
+         return status;
       }
    };
    std::ostream& operator<<(std::ostream &s, fle_ligand_bond_t flb);

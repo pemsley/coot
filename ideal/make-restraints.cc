@@ -429,7 +429,9 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
    bool console_output_for_restraints_generation_timings = false;
 
-   float pseudo_bond_esd = 0.2; // 0.05 was too tight
+   float pseudo_bond_esd = 0.1; // 0.05 was too tight (why?)
+                                // 0.20 was too loose
+
    unsigned int n_helical_restraints = 0;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -1017,7 +1019,8 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    } 
 
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "INFO:: from_res_vec() created " << size() << " monomer restraints " << std::endl;
+      std::cout << "INFO:: make_monomer_restraints_from_res_vec() of size " << residues_vec.size() << " created " << size()
+                << " monomer restraints " << std::endl;
       sum.report(do_residue_internal_torsions);
    }
    return iret;
@@ -2095,6 +2098,9 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 		  std::pair<bool, float> d = closest_approach(SelResidue[ii], SelResidue[jj]);
 		  if (d.first) {
 		     if (d.second < dist_crit) {
+                        if (false)
+                           std::cout << "####################### find_link_type_compli() called from " << __FUNCTION__  << "()"
+                                     << std::endl;
 			std::pair<std::string, bool> l =
 			   find_link_type_complicado(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {

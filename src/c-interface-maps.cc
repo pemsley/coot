@@ -334,6 +334,16 @@ void show_select_map_dialog() {
    add_to_history_simple("show-select-map-dialog");
 }
 
+int read_mtz(const char *mtz_file_name,
+             const char *f_col, const char *phi_col,
+             const char *weight,
+             int use_weights, int is_diff_map) {
+
+   return make_and_draw_map(mtz_file_name, f_col, phi_col, weight, use_weights, is_diff_map);
+
+}
+
+
 // return the new molecule number
 int make_and_draw_map(const char* mtz_file_name,
          const char *f_col, const char *phi_col,
@@ -669,7 +679,7 @@ std::vector<int> auto_read_make_and_draw_maps(const char *mtz_file_name) {
    return imol_vec;
 }
 
-std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name) {
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &mtz_file_name) {
 
    std::vector<int> imol_vec;
    int imol1 = -1;
@@ -700,7 +710,28 @@ std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name
    return imol_vec;
 }
 
-std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_file_name) {
+
+   auto read_mtz_local = [mtz_file_name] (const std::string &f, const std::string &phi, bool is_diff) {
+      
+	 int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
+								   f.c_str(),
+								   phi.c_str(),
+								   "",
+								   0,       //    use_weights
+								   is_diff, // is_diff_map,
+								   0,     //   short int have_refmac_params,
+								   "",    //   const char *fobs_col,
+								   "",    //   const char *sigfobs_col,
+								   "",    //   const char *r_free_col,
+								   0,     //   short int sensible_f_free_col,
+								   0,     //   short int is_anomalous_flag,
+								   0,     //   short int use_reso_limits,
+								   0,     //   float low_reso_limit,
+								   0);    //   float high_reso_limit
+
+         return imol;
+   };
 
    int imol1 = -1;
    int imol2 = -1;
@@ -708,13 +739,15 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
 
-   // built-ins
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",     "PHWT",      false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",  "PHDELWT",   true ));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT", "PH2FOFCWT", false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",  "PHFOFCWT",  true ));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",     "PHIDM",     false));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",     "PHAN",      true));
+   // Built-ins
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT",      "PH2FOFCWT", false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",       "PHDELWT",   true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",       "PHFOFCWT",  true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",          "PHWT",      false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-Flate","PHI_early-late", true));
 
    for (unsigned int i=0; i<g.user_defined_auto_mtz_pairs.size(); i++)
       auto_mtz_pairs.push_back(g.user_defined_auto_mtz_pairs[i]);
@@ -723,57 +756,37 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name
 
    for (unsigned int i=0; i<auto_mtz_pairs.size(); i++) {
       const coot::mtz_column_trials_info_t &b = auto_mtz_pairs[i];
-      if (valid_labels(mtz_file_name, b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
-    int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name,
-      b.f_col.c_str(),
-      b.phi_col.c_str(),
-      "",
-      0,  //    use_weights
-      b.is_diff_map,   // is_diff_map,
-      0,     //   short int have_refmac_params,
-      "",    //   const char *fobs_col,
-      "",    //   const char *sigfobs_col,
-      "",    //   const char *r_free_col,
-      0,     //   short int sensible_f_free_col,
-      0,     //   short int is_anomalous_flag,
-      0,     //   short int use_reso_limits,
-      0,     //   float low_reso_limit,
-      0);    //   float high_reso_limit
-    if (is_valid_map_molecule(imol))
-       imols.push_back(imol);
+      if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
+         int imol = read_mtz_local(b.f_col.c_str(), b.phi_col.c_str(), b.is_diff_map);
+	 if (is_valid_map_molecule(imol))
+	    imols.push_back(imol);
       }
    }
 
+   // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
    coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+   if (r.f_cols.size() == 1) {
+      if (r.phi_cols.size() == 1) {
+         int imol = read_mtz_local(r.f_cols[0].column_label, r.phi_cols[0].column_label, false);
+         imols.push_back(imol);
+      }
+   }
+
    for (unsigned int i=0; i<r.f_cols.size(); i++) {
       std::string s = r.f_cols[i].column_label;
       std::string::size_type idx = s.find(".F_phi.F");
       if (idx != std::string::npos) {
-         std::string prefix = s.substr(0, idx);
-         std::string trial_phi_col = prefix + ".F_phi.phi";
-         for (unsigned int j=0; j<r.phi_cols.size(); j++) {
-            if (r.phi_cols[j].column_label == trial_phi_col) {
-               std::string f_col   = r.f_cols[i].column_label;
-               std::string phi_col = r.phi_cols[j].column_label;
-               int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name,
-                                                                         f_col.c_str(),
-                                                                         phi_col.c_str(),
-                                                                         "",
-                                                                         0,     //   use_weights
-                                                                         0,     //   is_diff_map,
-                                                                         0,     //   short int have_refmac_params,
-                                                                         "",    //   const char *fobs_col,
-                                                                         "",    //   const char *sigfobs_col,
-                                                                         "",    //   const char *r_free_col,
-                                                                         0,     //   short int sensible_f_free_col,
-                                                                         0,     //   short int is_anomalous_flag,
-                                                                         0,     //   short int use_reso_limits,
-                                                                         0,     //   float low_reso_limit,
-                                                                         0);    //   float high_reso_limit
+	 std::string prefix = s.substr(0, idx);
+	 std::string trial_phi_col = prefix + ".F_phi.phi";
+	 for (unsigned int j=0; j<r.phi_cols.size(); j++) {
+	    if (r.phi_cols[j].column_label == trial_phi_col) {
+	       std::string f_col   = r.f_cols[i].column_label;
+	       std::string phi_col = r.phi_cols[j].column_label;
+               int imol = read_mtz_local(f_col, phi_col, false);
                if (is_valid_map_molecule(imol))
                   imols.push_back(imol);
-            }
-         }
+	    }
+	 }
       }
    }
 

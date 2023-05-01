@@ -43,14 +43,21 @@
 
 namespace coot {
 
-   // return a molecule of atoms (first) used to mask the map
-   // (i.e. those not in the selection) and (second) a molecule of
-   // atoms in the selection [strange but true]
+   //! @return a molecule of atoms (first) used to mask the map
+   //! (i.e. those not in the selection) and (second) a molecule of
+   //! atoms in the selection [strange but true]
    //
    std::pair<minimol::molecule, minimol::molecule>
       make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,
 					   bool fill_masking_molecule_flag);
+
+   //! As above, but send the UDD for the atom selection (type mmdb::STYPE_ATOM).
+   //! Note, unlike above however, the caller is control of the atom selection, we don't delete it here.
+   std::pair<minimol::molecule, minimol::molecule>
+   make_mols_from_atom_selection(mmdb::Manager *mol,
+                                 int udd_atom_selection_fitting_atoms,
+                                 bool fill_masking_molecule_flag);
 
    class ligand {
    public:

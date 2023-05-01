@@ -104,7 +104,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	    // now, do the names in ring_atom_names match the names in torsion_restraint_atom_names?
 	    // if yes, this is a ring torsion, so reject it (otherwise add it of course)
 
-	    if (0) { 
+	    if (false) {
 	       // debug
 	       std::cout << "ring " << iring << " atom names    : ";
 	       for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++)
@@ -375,7 +375,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 	    // now, do the names in ring_atom_names match the names in torsion_restraint_atom_names?
 	    // if yes, this is a ring torsion, so reject it (otherwise add it of course)
 
-	    if (0) { 
+	    if (false) {
 	       // debug
 	       std::cout << "ring " << iring << " atom names    : ";
 	       for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++)

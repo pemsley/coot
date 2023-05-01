@@ -142,6 +142,11 @@ if [ -z "$GI_TYPELIB_PATH" ] ; then
     fi
 fi
 
+if [ $systype = Darwin ] ; then
+    # faster
+    export GDK_RENDERING=image
+fi
+
 export SYMINFO
 export COOT_PREFIX
 export COOT_STANDARD_RESIDUES

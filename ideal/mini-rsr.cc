@@ -55,7 +55,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "simple-restraint.hh"
 #include "crankshaft.hh"

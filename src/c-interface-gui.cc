@@ -79,7 +79,7 @@
 #include "cc-interface-scripting.hh"
 #include "cmtz-interface.hh"
 #include "cmtz-interface-gui.hh"
-#include "coords/mmdb.h"  // for centre of molecule
+#include "coords/mmdb.hh"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
 #include "c-interface-gui.hh"
@@ -176,15 +176,6 @@ add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection, // maybe
 
 }
 
-
-#if (GTK_MAJOR_VERSION >= 4)
-// delete this function - an optionmenu? no.
-#else
-void
-fill_option_menu_with_coordinates_options_for_dictionary(GtkWidget *option_menu) {
-
-}
-#endif
 
 void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos) {
 
@@ -1451,7 +1442,7 @@ float get_positive_float_from_entry(GtkEntry *w) {
 }
 
 // return TRUE if we don't want the window destroyed.
-gboolean
+int
 coot_checked_exit(int retval) {
 
    graphics_info_t g;
@@ -2166,7 +2157,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
-   auto python_network_get = [] (const std::string text, int n) {
+   auto python_network_get = [] (const std::string &text, int n) {
 
                                 std::string python_command;
                                 if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
@@ -2656,6 +2647,10 @@ void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
 /*! \brief hide the vertical modelling toolbar in the GTK2 version */
 void hide_modelling_toolbar() {
 
+   std::cout << "WARNING:: hide_modelling_toolbar() don't call this function as model_fit_refine dialog no longer exists"
+             << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
       // GtkWidget *handle_box = lookup_widget(graphics_info_t::get_main_window(),
@@ -2670,17 +2665,23 @@ void hide_modelling_toolbar() {
 	w = gtk_widget_get_parent(handle_box);
       }
       if (!w) {
-	 std::cout << "failed to lookup toolbar" << std::endl;
+	 std::cout << "ERROR:: in hide_modelling_toolbar() failed to lookup toolbar" << std::endl;
       } else {
 	 graphics_info_t::model_toolbar_show_hide_state = 0;
 	 gtk_widget_hide(w);
       }
    }
+#endif
 }
 
 /*! \brief show the vertical modelling toolbar in the GTK2 version
   (the toolbar is shown by default) */
 void show_modelling_toolbar() {
+
+   std::cout << "WARNING:: show_modelling_toolbar() don't call this function as model_fit_refine dialog no longer exists"
+             << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
       GtkWidget *handle_box = widget_from_builder("model_fit_refine_toolbar_handlebox");
@@ -2693,12 +2694,13 @@ void show_modelling_toolbar() {
       }
 
       if (!w) {
-	 std::cout << "failed to lookup toolbar" << std::endl;
+	 std::cout << "ERROR:: in show_modelling_toolbar() failed to lookup toolbar" << std::endl;
       } else {
 	 graphics_info_t::model_toolbar_show_hide_state = 1;
 	 gtk_widget_show(w);
       }
    }
+#endif
 }
 
 
@@ -2857,6 +2859,7 @@ update_toolbar_icons_menu(int toolbar_index) {
 
 // functions for the modelling toolbar style
 void set_model_toolbar_style(int istate) {
+
    graphics_info_t::model_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *menuitem;
@@ -3400,7 +3403,7 @@ void set_main_toolbar_style(int istate) {
       } else if (istate == 2) {
           gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
       } else {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
+         std::cout << "ERROR:: no toolbar in set_main_toolbar_style()" << std::endl;
       }
 #endif
    }
@@ -5348,8 +5351,8 @@ void nsv(int imol) {
 		  gtk_widget_show(widget);
 	       } else {
 #if (GTK_MAJOR_VERSION < 4)
-                  GdkWindow *w = gtk_widget_get_window(widget);
-		  gdk_window_raise(w);
+                  GdkWindow *ww = gtk_widget_get_window(widget);
+		  gdk_window_raise(ww);
 #endif
 	       }
 	    }
@@ -6015,11 +6018,12 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
    if (!file_name.empty()) {
 
 #ifndef WINDOWS_MINGW
-      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      // std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/curlew-extensions/Coot-1/";
 #else
        std::string url_prefix = "https://bernhardcl.github.io/coot/";
 #endif
-      url_prefix += "extensions";
+      url_prefix += "scripts";
       url_prefix += "/";
       url_prefix += file_name;
 
@@ -6043,7 +6047,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                // I want a function that returns preferences_dir
                std::string home_directory = coot::get_home_dir();
                if (!home_directory.empty()) {
-                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
                   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                   std::cout << "debug:: attempting to copy " << dl_fn << " as " << preferences_file_name << std::endl;
                   int status = coot::copy_file(dl_fn, preferences_file_name); // it returns a bool actually
@@ -6084,7 +6088,7 @@ curlew_uninstall_extension_file(const std::string &file_name) {
    std::string home = coot::get_home_dir();
    if (!home.empty()) {
       std::string home_directory(home);
-      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
       std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
       std::string renamed_file_name = preferences_file_name + "_uninstalled";
       if (coot::file_exists(preferences_file_name)) {
@@ -6178,7 +6182,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			      // I want a function that returns preferences_dir
                               std::string home_directory = coot::get_home_dir();
                               if (!home_directory.empty()) {
-				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
 				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
                                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
 #ifndef WINDOWS_MINGW

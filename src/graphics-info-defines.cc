@@ -1640,6 +1640,7 @@ graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) {
 	 in_auto_fit_define = 0;
 	 pick_pending_flag = 0;
 	 normal_cursor();
+         run_post_manipulation_hook(naii.imol, MOVINGATOMS);
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_auto_fit_rotamer_togglebutton");
       }
    } 

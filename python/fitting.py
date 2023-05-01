@@ -219,11 +219,13 @@ def interruptible_fit_protein(imol, func):
     if specs:
         # lets make a backup before we start
         coot.make_backup(imol)
-        
-        # multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator() # FIXME later
-        multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop",
-                                                       "stop_interruptible_fit_protein()"
-                                                       , "gtk-stop")
+
+        if False:
+           # 20230501-PE old stuff commented out on gtk3 branch merge
+           # multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator()
+           # multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
+           pass
+
         multi_refine_spec_list = specs
         def idle_func():
             global multi_refine_spec_list

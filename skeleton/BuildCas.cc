@@ -2824,7 +2824,7 @@ BuildCas::prebuilt_exclusion_score(coot::Cartesian trial_point) const {
       min_dist = 9.9; 
    }
 
-   float score; 
+   float score;
 
    if (min_dist < dist_crit) { 
       score = 0;

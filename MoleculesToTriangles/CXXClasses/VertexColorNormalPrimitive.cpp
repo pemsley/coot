@@ -12,7 +12,7 @@
 
 // #include <GL/gl.h>
 
-#include <epoxy/gl.h>
+// #include <epoxy/gl.h>
 
 
 void VertexColorNormalPrimitive::renderWithRenderer(std::shared_ptr<Renderer> renderer)  {

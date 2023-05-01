@@ -949,6 +949,7 @@ coot::geometry_graphs::delete_block(const std::string &chain_id, int resno) {
 void
 coot::geometry_graphs::density_fit_rescale_button_callback(GtkButton *button, gpointer user_data) {
 
+#ifdef DO_GEOMETRY_GRAPHS
    coot::geometry_graphs *graph = static_cast<coot::geometry_graphs *>(user_data);
    GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "rescale_entry"));
    const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -963,6 +964,7 @@ coot::geometry_graphs::density_fit_rescale_button_callback(GtkButton *button, gp
                                 g.Imol_Refinement_Map());
       graph->update_residue_blocks(block_set);
    }
+#endif
 };
 
 void

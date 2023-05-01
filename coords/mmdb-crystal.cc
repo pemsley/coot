@@ -42,7 +42,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
-#include "mmdb.h"
+#include "mmdb.hh"
 #include "mmdb-crystal.h"
 #include "utils/coot-utils.hh" // for Upper
 
@@ -190,11 +190,18 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
 
 molecule_extents_t::~molecule_extents_t() {
 
+   // these comments were added because I was passing a molecule_extents_t by value to the operator<< !
+
    for (int i=0; i<6; i++) {
+      // std::cout << "molecule_extents_t deconstructor deleting atom " << i << " " << extents_selection[i] << std::endl;
       delete extents_selection[i];
+      extents_selection[i] = nullptr;
    }
+   // std::cout << "molecule_extents_t deconstructor deleting the container " << std::endl;
    delete [] extents_selection;
-} 
+   extents_selection = nullptr;
+   // std::cout << "molecule_extents_t deconstructor done " << std::endl;
+}
 
 coot::Cartesian
 molecule_extents_t::get_front() const {
@@ -254,14 +261,14 @@ molecule_extents_t::get_bottom() const {
 
 
 
-std::ostream& operator<<(std::ostream &s, molecule_extents_t e) {
+std::ostream& operator<<(std::ostream &s, const molecule_extents_t &e) {
 
-   s << "front:  " << e.front << std::endl;
-   s << "back :  " << e.back  << std::endl;
-   s << "left :  " << e.left  << std::endl;
-   s << "right:  " << e.right << std::endl;
-   s << "top  :  " << e.top   << std::endl;
-   s << "bottom: " << e.bottom  << std::endl;
+   s << "front:  " << e.get_front()   << std::endl;
+   s << "back :  " << e.get_back()    << std::endl;
+   s << "left :  " << e.get_left()    << std::endl;
+   s << "right:  " << e.get_right()   << std::endl;
+   s << "top  :  " << e.get_top()     << std::endl;
+   s << "bottom: " << e.get_bottom()  << std::endl;
 
    return s;
 }
@@ -346,6 +353,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 	 if (a[i]< min_cell)
 	    min_cell = a[i];
       ishift = shift_search_size + int((expansion_size_)/min_cell);
+
 //       std::cout << "old ishift " << ishift << " "
 // 		<< expansion_size_ << "/" << min_cell << std::endl;
       // a shift of 2 finds the missing symmetry molecule
@@ -382,7 +390,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 		  //
 		  // shift extents close to origin,
 		  symm_trans_t s_t(ii, x_shift, y_shift, z_shift);
-		  
+
 		  // Now add the transformation to get from close
 		  // to the origin to point
 		  s_t.add_shift(point_unit_cell[0],
@@ -405,16 +413,19 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 			s_t.symm_as_string = AtomSel.mol->GetSymOp(ii);
 			// coords needs a atom_unit_cell_shift (back
 			// to origin) applied to them before s_t is applied
+                        s_t.fill_mat(AtomSel.mol);
 			std::pair<symm_trans_t, Cell_Translation> p(s_t, atom_sel_cell_trans);
 			symm_trans.push_back(p);
 // 		     } else {
-// 			s_t.symm_as_string = AtomSel.mol->GetSymOp(ii);
-// 			std::cout << "DEBUG:: rejecting " << s_t << " "
-// 				  << "atom_sel_cell_trans " << atom_sel_cell_trans << " "
-// 				  << "point_unit_cell" << " " << point_unit_cell[0] << " "
-// 				  << point_unit_cell[1] << " "
-// 				  << point_unit_cell[2] << " "
-// 				  << std::endl;
+ 			s_t.symm_as_string = AtomSel.mol->GetSymOp(ii);
+#if 0
+ 			std::cout << "DEBUG:: in which_boxes() rejecting " << s_t << " "
+ 				  << "atom_sel_cell_trans " << atom_sel_cell_trans << " "
+ 				  << "point_unit_cell" << " " << point_unit_cell[0] << " "
+ 				  << point_unit_cell[1] << " "
+ 				  << point_unit_cell[2] << " "
+ 				  << std::endl;
+#endif
 		     } 
 		  }
 	       }
@@ -961,7 +972,7 @@ symm_trans_t::is_identity() {
 
 //
 std::string
-symm_trans_t::str(short int expanded_flag) const {
+symm_trans_t::str(bool expanded_flag) const {
 
    //
    std::string b; 
@@ -1106,8 +1117,8 @@ int set_mmdb_cell_and_symm(atom_selection_container_t asc,
    if (cell_spgr.first.size() == 6) { 
       std::vector<float> a = cell_spgr.first; // short name
       asc.mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      asc.mol->SetSpaceGroup((char *)cell_spgr.second.c_str());
-      std::cout << "successfully set cell and symmetry" << std::endl;
+      asc.mol->SetSpaceGroup(cell_spgr.second.c_str());
+      std::cout << "INFO:: successfully set cell and symmetry" << std::endl;
       istat = 1;
    } else { 
       std::cout << "WARNING:: failure to set cell on this molecule" << std::endl;
@@ -1116,39 +1127,15 @@ int set_mmdb_cell_and_symm(atom_selection_container_t asc,
 }
 
 
+//! fill mat
+void
+symm_trans_t::as_mat44(mmdb::mat44 *mat, mmdb::Manager *mol) {
 
-atom_selection_container_t read_standard_residues() {
+   int err = mol->GetTMatrix(*mat, symm_no, x_shift_, y_shift_, z_shift_);
 
-   std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
-   atom_selection_container_t standard_residues_asc;
-   
-   const char *filename = getenv(standard_env_dir.c_str());
-   if (! filename) {
-
-      std::string standard_file_name = PKGDATADIR;
-      standard_file_name += "/";
-      standard_file_name += "standard-residues.pdb";
-
-      struct stat buf;
-      int status = stat(standard_file_name.c_str(), &buf);  
-      if (status != 0) { // standard-residues file was not found in
-			 // default location either...
-	 std::cout << "WARNING: environment variable for standard residues ";
-	 std::cout << standard_env_dir << "\n";
-	 std::cout << "         is not set.";
-	 std::cout << " Mutations will not be possible\n";
-	 // mark as not read then:
-	 standard_residues_asc.read_success = 0;
-	 // std::cout << "DEBUG:: standard_residues_asc marked as
-	 // empty" << std::endl;
-      } else { 
-	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
-      }
-   } else { 
-      standard_residues_asc = get_atom_selection(filename, true, false, false);
+   if (err) {
+      std::cout << "symm_trans_t::as_mat44() failed " << std::endl;
    }
-
-   return standard_residues_asc;
 }
+
 

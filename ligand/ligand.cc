@@ -66,7 +66,7 @@
 #include "utils/coot-utils.hh"
 
 #include "coords/mmdb-extras.h"   // 220403
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -95,6 +95,31 @@ coot::make_mols_from_atom_selection_string(mmdb::Manager *mol,
    mol->DeleteSelection(SelHnd);
    return std::pair<coot::minimol::molecule, coot::minimol::molecule> (masked_mol, range_mol);
 }
+
+std::pair<coot::minimol::molecule, coot::minimol::molecule>
+coot::make_mols_from_atom_selection(mmdb::Manager *mol,
+                                    int udd_atom_selection_fitting_atoms,
+                                    bool fill_masking_molecule_flag) {
+
+   // the caller is control of the atom selection, we don't delete it here.
+
+   mmdb::PPAtom atom_selection = NULL;
+   int n_selected_atoms;
+   mol->GetSelIndex(udd_atom_selection_fitting_atoms, atom_selection, n_selected_atoms);
+
+   mmdb::Manager *mol_from_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, udd_atom_selection_fitting_atoms, false);
+   // atom selection in mol gets inverted by this function:
+   mmdb::Manager *mol_from_non_selected =
+      coot::util::create_mmdbmanager_from_atom_selection(mol, udd_atom_selection_fitting_atoms, true);
+
+   coot::minimol::molecule range_mol  = coot::minimol::molecule(mol_from_selected);
+   coot::minimol::molecule masked_mol = coot::minimol::molecule(mol_from_non_selected);
+   delete mol_from_selected;
+   delete mol_from_non_selected;
+   return std::pair<coot::minimol::molecule, coot::minimol::molecule> (masked_mol, range_mol);
+}
+
 
 
 coot::ligand::ligand() {
@@ -1772,7 +1797,7 @@ coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 // Externally accessible routine.
 //
 // Go down the cluster list, starting at biggest cluster fitting ligands
-// until the cluter number is max_placements.
+// until the cluster number is max_placements.
 //
 void
 coot::ligand::fit_ligands_to_clusters(int max_n_clusters) {
@@ -1903,35 +1928,37 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                                         bool debug,
                                                         std::vector<std::pair<minimol::molecule, ligand_score_card> > &results) {
 
-                                   if (!do_size_match_test || cluster_ligand_size_match(cluster, ligand, grid_vol)) {
-                                      if (debug)
-                                         std::cout << "ligand " << ilig << " passes the size match test " << "for cluster number "
-                                                   << iclust << std::endl;
+      if (!do_size_match_test || cluster_ligand_size_match(cluster, ligand, grid_vol)) {
+         if (debug)
+            std::cout << "ligand " << ilig << " passes the size match test " << "for cluster number "
+                      << iclust << std::endl;
 
-                                      int n_rot = origin_rotations.size();
-                                      int n_eigen_oris = 3;
-                                      if (dont_test_rotations) {
-                                         n_rot = 1;  // the first one is the identity matrix
-                                         n_eigen_oris = 1;
-                                      }
+         int n_rot = origin_rotations.size();
+         int n_eigen_oris = 3;
+         if (dont_test_rotations) {
+            n_rot = 1;  // the first one is the identity matrix
+            n_eigen_oris = 1;
+         }
 
-                                      for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
-                                         for (int ior=0; ior<n_rot; ior++) {
-                                            std::pair<minimol::molecule, ligand_score_card> scored_ligand =
-                                               fit_ligand_copy(ilig, cluster, ligand,
-                                                               initial_ligand_eigenvector,
-                                                               initial_ligand_model_centre,
-                                                               eigen_orientations[i_eigen_ori],
-                                                               std::cref(xmap_masked),
-                                                               std::cref(xmap_pristine),
-                                                               rotation_component, gradient_scale);
-                                            get_results_lock();
-                                            results.push_back(scored_ligand);
-                                            release_results_lock();
-                                         }
-                                      }
-                                   }
-                                };
+         for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
+            for (int ior=0; ior<n_rot; ior++) {
+               std::pair<minimol::molecule, ligand_score_card> scored_ligand =
+                  fit_ligand_copy(ilig, cluster, ligand,
+                                  initial_ligand_eigenvector,
+                                  initial_ligand_model_centre,
+                                  eigen_orientations[i_eigen_ori],
+                                  std::cref(xmap_masked),
+                                  std::cref(xmap_pristine),
+                                  rotation_component, gradient_scale);
+               get_results_lock();
+               results.push_back(scored_ligand);
+               release_results_lock();
+            }
+         }
+      } else {
+         // std::cout << "-------------- fails size test match" << std::endl;
+      }
+   };
 
    float vol = xmap_pristine.cell().volume();
    float ngrid = xmap_pristine.grid_sampling().nu() * xmap_pristine.grid_sampling().nv() * xmap_pristine.grid_sampling().nw();
@@ -1942,6 +1969,11 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    unsigned int n_ligands = initial_ligand.size();
    std::cout << "INFO:: fitting " << n_ligands << " ligands into cluster " << iclust << std::endl;
+
+   // 20221119-PE if we are fitting ligand "right here" then we don't want to do a size match.
+   //             But is this the right test for "fitting ligand right here?"
+   if (iclust == 0)
+      do_size_match_test = false;
 
    std::vector<std::pair<minimol::molecule, ligand_score_card> > big_vector_of_results;
 
@@ -1960,6 +1992,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
       for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
          const unsigned int &ilig = ligand_indices[jj];
          const minimol::molecule &ligand = initial_ligand[ilig];
+         // std::cout << "   thread ilig " << ilig << " iclust " << iclust << std::endl;
          threads.push_back(std::thread(fit_ligand_to_cluster,
                                        ilig, iclust,
                                        std::cref(cluster[iclust]),
@@ -1978,8 +2011,10 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                        debug,
                                        std::ref(big_vector_of_results)));
       }
-      for (unsigned int ilig=0; ilig<ligand_indices.size(); ilig++)
+      for (unsigned int ilig=0; ilig<ligand_indices.size(); ilig++) {
          threads[ilig].join();
+         // debugging: std::cout << "  ilig " << ilig << " joined" << std::endl;
+      }
    }
 
    if (write_orientation_solutions) {
@@ -1989,7 +2024,11 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
       //
       // old-function: write_orientation_solution(iclust, ilig, i_eigen_ori, ior, fitted_ligand_vec[ilig][iclust]);
    }
-   
+
+   if (false)
+      std::cout << "::::::::::::: final_ligand " << iclust
+                << " big_vector_of_results size " << big_vector_of_results.size()
+                << std::endl;
    final_ligand[iclust] = big_vector_of_results;
 
    sort_final_ligand(iclust);

@@ -780,7 +780,7 @@ void save_preferences() {
     directory = tmp_directory;
   }
 
-  directory += "/.coot-preferences/";
+  directory += "/.coot/";
 
   int status = make_directory_maybe(directory.c_str());
   if (status != 0) {

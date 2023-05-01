@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <gtk/gtk.h>
 
 namespace coot {
 
@@ -119,6 +120,7 @@ namespace coot {
 
 }
 
+// 20220723-PE perhaps I should elide this whole file?
 void
 my_combo_box_text_add_items(GtkComboBox *combobox,
 			    const std::vector<coot::mtz_type_label> &labels,

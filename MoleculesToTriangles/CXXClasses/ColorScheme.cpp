@@ -38,6 +38,8 @@ std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 
 std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
+   // std::cout << "#######  colorRampChainsScheme() !!" << std::endl;
+
    std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     
@@ -45,9 +47,11 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
+        // std::cout << "colorRampChainsScheme() selectionString " << selectionString << std::endl;
         auto colorRule = std::shared_ptr<AtomPropertyRampColorRule>(new AtomPropertyRampColorRule());
         colorRule->setRampType(AtomPropertyRampColorRule::ResidueNumber);
         colorRule->setCompoundSelection(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)));
+        // std::cout << "colorRampChainsScheme() selectionString " << colorRule << std::endl;
         result->addRule(colorRule);
     }
     return result;
@@ -57,7 +61,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
    // std::cout << "#######  colorChainsScheme() !" << std::endl;
 
-   std::shared_ptr<ColorScheme> result(new ColorScheme());
+    std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {
                                 //    "RED","GREEN","BLUE","CYAN","MAGENTA","YELLOW","WHITE"
                                 "Salmon", "Sandy Brown",
@@ -73,13 +77,28 @@ std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
         // std::cout << "### " << selectionString << " " << colorNames[i%nColorNames] << std::endl;
+        std::string c =   colorNames[i%nColorNames];
         auto colorRule =
-           SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)),
-                                                        colorNames[i%nColorNames]);
+           SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), c);
         result->addRule(colorRule);
     }
     return result;
 }
+
+// static
+std::shared_ptr<ColorScheme> ColorScheme::colorChainsSchemeWithColourRules(const std::vector<std::pair<std::string, std::string> > &colour_rules) {
+
+   std::shared_ptr<ColorScheme> result(new ColorScheme());
+   std::vector<std::pair<std::string, std::string> >::const_iterator it;
+   for (it=colour_rules.begin(); it!=colour_rules.end(); ++it) {
+      const std::string &selectionString = it->first;
+      const std::string &colorName       = it->second;
+      auto colorRule = SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(selectionString)), colorName);
+      result->addRule(colorRule);
+   }
+   return result;
+}
+
 
 std::shared_ptr<ColorScheme> ColorScheme::colorBFactorScheme(){
     std::shared_ptr<ColorScheme> result(new ColorScheme());

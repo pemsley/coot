@@ -36,7 +36,7 @@
 
 #include "c-interface-ligands.hh"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"

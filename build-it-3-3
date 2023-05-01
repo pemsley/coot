@@ -1185,7 +1185,7 @@ case $dist_name in
 
     debian)
       # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
-      dep_list='libncurses5-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python flex bison m4'
+      dep_list='libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python flex bison m4 cmake'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 

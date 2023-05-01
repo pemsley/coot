@@ -5322,7 +5322,7 @@ def auto_assign_sequence_from_map():
     coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
     coot.mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
     fitting.backrub_rotamers_for_chain(imol, ch_id)
-    coot.refine_residues(imol, fragment_residues)
+    coot.refine_residues(imol, fragment_residues)  # 20230501-PE should this be refine_residues_py()?
 
 
 # ;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.

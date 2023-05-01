@@ -46,8 +46,10 @@
 #ifndef C_INTERFACE_H
 #define C_INTERFACE_H
 
-// Python is no longer conditionally compiled
+// Python conditionally compiled test is needed for WebAssembly build
+#ifdef USE_PYTHON
 #include "Python.h"
+#endif
 
 /*
   The following extern stuff here because we want to return the
@@ -521,7 +523,7 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag);
 #endif	/* __cplusplus */
 /*! \brief set the molecule name of the imol-th molecule */
 void set_molecule_name(int imol, const char *new_name);
-gboolean coot_checked_exit(int retval);
+int coot_checked_exit(int retval);
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
 void coot_real_exit(int retval);
@@ -1472,6 +1474,14 @@ int make_and_draw_map(const char *mtz_file_name,
 		      const char *f_col, const char *phi_col,
 		      const char *weight,
 		      int use_weights, int is_diff_map);
+
+/*! \brief the function is a synonym of the above function - which now has an archaic-style
+            name
+*/
+int read_mtz(const char *mtz_file_name,
+             const char *f_col, const char *phi_col,
+             const char *weight,
+             int use_weights, int is_diff_map);
 
 /*! \brief as the above function, execpt set refmac parameters too
 
@@ -2469,12 +2479,15 @@ void set_use_stroke_characters(int state);
 /* section Rotation Centre */
 /*! \name  Rotation Centre */
 /* \{ */
+
+/* 20220723-PE I agree with my comments from earlier - these should not be here */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
-/*! \brief set rotoation centre marker size */
-void set_rotation_centre_size(float f); /* and redraw (maybe) */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size();
+
+/*! \brief set rotoation centre marker size */
+void set_rotation_centre_size(float f); /* and redraw (maybe) */
 
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
@@ -2656,6 +2669,7 @@ gchar *get_text_for_skeleton_box_size_entry();
 /* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeleton_box_size_from_widget(const char *txt);
 
+
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
 void set_skeleton_box_size(float f);
 
@@ -2745,6 +2759,7 @@ given "x,y,z ; -x,y+1/2,-z" */
 /* char * */
 /* spacegroup_from_operators(const char *symm_operators_in_clipper_format);  */
 
+// 20220723-PE MOVE-ME!
 void
 graphics_store_phs_filename(const gchar *phs_filename);
 
@@ -2837,6 +2852,7 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3,
 						     short int make_the_move_flag);
 
+// MOVE-ME!
 int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *t2,
 						   const gchar *txt);
@@ -3083,6 +3099,17 @@ void set_merge_molecules_ligand_spec_scm(SCM ligand_spec_scm);
 #endif
 
 #ifdef USE_PYTHON
+
+
+/*! \brief merge molecules
+
+@return a pair, the first item of which is a status (1 is good) the second is
+a list of merge-infos (one for each of the items in add_molecules). If the
+molecule of an add_molecule item is just one residue, return a spec for the
+new residue, if it is many residues return a chain id.
+
+the first argument is a list of molecule numbers and the second is the target
+   molecule into which the others should be merged  */
 PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 void set_merge_molecules_ligand_spec_py(PyObject *ligand_spec_py);
 #endif /* PYTHON */
@@ -7202,7 +7229,7 @@ void run_update_self_maybe(); /* called when --update-self given at command line
 /*                    keyboarding mode                                      */
 /*  ----------------------------------------------------------------------- */
 void show_go_to_residue_keyboarding_mode_window();
-void    handle_go_to_residue_keyboarding_mode(const gchar *text);
+void handle_go_to_residue_keyboarding_mode(const char *text); /* should this be here? */
 
 /*  ----------------------------------------------------------------------- */
 /*                    graphics ligand view                                  */

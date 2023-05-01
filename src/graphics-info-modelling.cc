@@ -62,7 +62,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "coords/Cartesian.h"
@@ -660,7 +660,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
 	       // int id = gtk_timeout_add(15, cb, NULL);
 
                int timeout_ms = 15;
-               timeout_ms = 30; // 20220503-PE try this value
+               timeout_ms =  30; // 20220503-PE try this value
+               timeout_ms = 120; // 20221227-PE try this value - Lucrezia crash
 	       int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
@@ -1086,8 +1087,7 @@ graphics_info_t::refine_residues_vec(int imol,
    bool use_map_flag = true;
 
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \""
-		<< alt_conf << "\"" << std::endl;
+      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
 
@@ -1344,10 +1344,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
    all_atom_pulls_off();
    particles_have_been_shown_already_for_this_round_flag = false;
-   if (glareas[0])
-      wait_for_hooray_refinement_tick_id =
-         gtk_widget_add_tick_callback(glareas[0],
-                                      wait_for_hooray_refinement_tick_func, 0, 0);
+   if (use_graphics_interface_flag)
+      if (glareas[0])
+         wait_for_hooray_refinement_tick_id =
+            gtk_widget_add_tick_callback(glareas[0], wait_for_hooray_refinement_tick_func, 0, 0);
+   //
    // elsewhere do this:
    // gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
 
@@ -1545,7 +1546,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    if (! icheck_atoms.first) {
 
 	       // Oops. Just give us a dialog and don't start the refinement
-	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
+	       info_dialog_refinement_non_matching_atoms(icheck_atoms.second); // protected
 
 	    } else {
 
@@ -1555,7 +1556,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       atom_selection_container_t local_moving_atoms_asc =
 		  make_moving_atoms_asc(residues_mol_and_res_vec.first, residues);
-	       make_moving_atoms_graphics_object(imol, local_moving_atoms_asc);
+
+               make_moving_atoms_graphics_object(imol, local_moving_atoms_asc);
 
                int n_cis = coot::util::count_cis_peptides(local_moving_atoms_asc.mol);
                moving_atoms_n_cis_peptides = n_cis;
@@ -1714,7 +1716,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
    if (false) { // debug atoms in other molecule
       std::set<int>::const_iterator it;
-      for(it=atom_set.begin(); it!=atom_set.end(); it++) {
+      for (it=atom_set.begin(); it!=atom_set.end(); ++it) {
 	 int idx = *it;
 	 mmdb::Atom *at = imol_asc.atom_selection[idx];
 	 coot::atom_spec_t as(at);
@@ -1751,13 +1753,14 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 
+   draw_it_for_moving_atoms_restraints_graphics_object = true; // hack          
+
    if (moving_atoms_asc) {
       if (last_restraints) {
-
          if (draw_it_for_moving_atoms_restraints_graphics_object) {
-
             moving_atoms_extra_restraints_representation.clear();
             for (int i=0; i<last_restraints->size(); i++) {
+               // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
                const coot::simple_restraint &rest = last_restraints->at(i);
                if (rest.restraint_type == coot::BOND_RESTRAINT ||
                    rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
@@ -1793,6 +1796,9 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
          }
       }
    }
+
+   // now call the new graphics function:
+   make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
 }
 
 // static
@@ -1800,6 +1806,8 @@ void
 graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
 
    std::cout << "FIXME in draw_moving_atoms_restraints_graphics_object() " << std::endl;
+
+   // 20221221-PE now I have draw_extra_distance_restraints();
 
 #if 0
 
@@ -2053,10 +2061,12 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       if (! alt_conf.empty())
 	 use_alt_conf = std::pair<bool, std::string> (true, alt_conf);
 
-      std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
-                << "\"" << alt_conf << "\"" << std::endl;
-      std::cout << "----------------- in create_mmdbmanager_from_res_vector() use_alt_conf is "
-                << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
+      if (false) { // debug
+         std::cout << "----------------- in create_mmdbmanager_from_res_vector() alt_conf is "
+                   << "\"" << alt_conf << "\"" << std::endl;
+         std::cout << "----------------- in create_mmdbmanager_from_res_vector() use_alt_conf is "
+                   << use_alt_conf.first << "\"" << use_alt_conf.second << "\"" << std::endl;
+      }
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
 	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in, use_alt_conf);
@@ -2334,6 +2344,8 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
 coot::refinement_results_t
 graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1, int i_atom_no_2) {
 
+   // 20230111-PE is this function used?
+
    // What are we going to do here:
    //
    // How do we get the atom selection (the set of atoms that will be
@@ -2401,7 +2413,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
 		<< "\" and \"" << chain_id_2 << "\"" << std::endl;
       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
    } else {
-      flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+      // flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) {
@@ -2488,6 +2500,7 @@ graphics_info_t::refinement_results_to_scm(const coot::refinement_results_t &rr)
 #ifdef USE_PYTHON
 PyObject *
 graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) const {
+
    PyObject *r = Py_False;
 
    if (rr.found_restraints_flag) {
@@ -2522,74 +2535,6 @@ graphics_info_t::refinement_results_to_py(const coot::refinement_results_t &rr) 
 #endif
 
 
-
-void
-graphics_info_t::flash_selection(int imol,
-				 int resno_1,
-				 std::string ins_code_1,
-				 int resno_2,
-				 std::string ins_code_2,
-				 std::string altconf,
-				 std::string chain_id_1) {
-
-   // std::cout << "----------------- flash_selection() " << std::endl;
-
-   // First make an atom selection of the residues selected to regularize.
-   //
-   int selHnd = molecules[imol].atom_sel.mol->NewSelection();
-   int nSelAtoms;
-   mmdb::PPAtom SelAtom;
-   const char *chn  = chain_id_1.c_str();
-   const char *ins1 = ins_code_1.c_str();
-   const char *ins2 = ins_code_2.c_str();
-
-   molecules[imol].atom_sel.mol->SelectAtoms(selHnd, 0,
-					     chn,
-					     resno_1, ins1,
-					     resno_2, ins2,
-					     "*",      // RNames
-					     "*","*",  // ANames, Elements
-					     "*" );    // Alternate locations.
-
-   molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
-
-   return;
-
-   if (glareas[0]) {
-      if (nSelAtoms) {
-	 // now we can make an atom_selection_container_t with our new
-	 // atom selection that we will use to find bonds.
-
-	 atom_selection_container_t asc;
-	 asc.mol = molecules[imol].atom_sel.mol;
-	 asc.atom_selection = SelAtom;
-	 asc.n_selected_atoms = nSelAtoms;
-
-	 int fld = 0;
-	 Bond_lines_container bonds(asc, fld); // don't flash disulfides
-
-	 graphical_bonds_container empty_box;
-	 graphical_bonds_container regular_box = bonds.make_graphical_bonds();
-
-	 int flash_length = residue_selection_flash_frames_number;
-
-	 // std::cout << "--------------- flash_length " << flash_length << std::endl;
-
-	 for (int iflash=0; iflash<flash_length; iflash++) {
-	    regularize_object_bonds_box = regular_box;
-	    for (int i=0; i<flash_length; i++)
-	       graphics_draw();
-	    regularize_object_bonds_box = empty_box;
-	    for (int i=0; i<flash_length; i++)
-	       graphics_draw();
-	 }
-
-	 regularize_object_bonds_box = empty_box;
-	 molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
-	 graphics_draw();
-      }
-   }
-}
 
 // static
 void
@@ -2775,6 +2720,8 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_like_flag) {
 
+   // 20230111-PE is this function used? Try deleting it one rainy day.
+
    if (false)
       std::cout << "DEBUG:: ================ refine_residue_range: "
 		<< imol << " " << chain_id_1
@@ -2835,7 +2782,7 @@ graphics_info_t::refine_residue_range(int imol,
 	       }
 	    }
 	    if (!simple_water) {
-	       flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
+	       // flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
 	       long t0 = 0; // glutGet(GLUT_ELAPSED_TIME);
 	       rr = copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
 					altconf, chain_id_1);
@@ -3136,8 +3083,8 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 		   << moving_atoms_asc->UDDOldAtomIndexHandle << std::endl;
       graphics_draw();
       if (! refinement_immediate_replacement_flag) {
-	 coot::refinement_results_t dummy;
 	 if (use_graphics_interface_flag) {
+            coot::refinement_results_t dummy;
 	    do_accept_reject_dialog("Rigid Body Fit", dummy); // constructed ref res
 	 }
       }

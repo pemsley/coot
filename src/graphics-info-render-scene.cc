@@ -108,7 +108,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    int ssao_blur_size = graphics_info_t::ssao_blur_size;
 
-   if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
+   if (di.displayed_image_type == SHOW_AO_SCENE) {
 
       // std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
 
@@ -151,6 +151,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          di.framebuffer_for_ssao_gbuffer.bind();
          glClearColor(0.0, 0.0, 0.0, 1.0);
          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
          bool do_orthographic_projection = ! perspective_projection_flag;
          glm::mat4 projection_matrix = di.get_projection_matrix(do_orthographic_projection, w, h);
          glm::mat4 view_matrix       = di.get_view_matrix();
@@ -271,19 +272,28 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          } else {
 
-            render_to_shadow_map();
+            render_to_shadow_map(); // needed?
 
             {
+
                glViewport(0,0, width, height);
                di.framebuffer_for_effects.bind();
-               // di.attach_buffers(); // hack
+
+               // are these needed if the background image is drawn?
                glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+               if (draw_background_image_flag) {
+                  // 20220929-PE meh. I don't understand where this draw call should go in "Fancy" mode.
+
+                  texture_for_background_image.Bind(0);
+                  tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
+               }
+         
                glEnable(GL_DEPTH_TEST);
                glDepthFunc(GL_LESS);
                glDisable(GL_BLEND);
                bool draw_shadows = true;
-
                // std::cout << "show_just_shadows " << show_just_shadows << std::endl;
 
                // maybe doing the shadows separately is the right approach, in fact.
@@ -306,7 +316,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                                            draw_shadows,
                                            shadow_strength,
                                            show_just_shadows);
+
                render_3d_scene_with_shadows(); // no longer does a glClear()
+
             }
 
 
@@ -363,7 +375,6 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
             draw_molecules_atom_labels();
             draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
-
             if (show_fps_flag)
                draw_hud_fps();
 
@@ -431,7 +442,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    int ssao_blur_size = graphics_info_t::ssao_blur_size;
 
-   if (di.displayed_image_type == graphics_info_t::SHOW_AO_SCENE) {
+   if (di.displayed_image_type == SHOW_AO_SCENE) {
 
       // std::cout << "DEBUG:: render_scene_with_depth_blur() ------------------------------- " << std::endl;
 
@@ -694,38 +705,50 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 gboolean
 graphics_info_t::render_scene() {
 
+   // make this a member data
+   // bool draw_background_image = true;
+
    auto render_scene_basic = [] () {
 
-                              // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
-                              // auto tp_0 = std::chrono::high_resolution_clock::now();
+      // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
+      // auto tp_0 = std::chrono::high_resolution_clock::now();
 
-                              GtkAllocation allocation;
-                              auto gl_area = graphics_info_t::glareas[0];
-                              gtk_widget_get_allocation(gl_area, &allocation);
-                              int width = allocation.width;
-                              int height = allocation.height;
-                              // auto tp_1 = std::chrono::high_resolution_clock::now();
-                              // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-                              // std::cout << "Timings for window allocation " << d10 << " microseconds" << std::endl;  // 0
-                              int sf = 1;
+      GtkAllocation allocation;
+      auto gl_area = graphics_info_t::glareas[0];
+      gtk_widget_get_allocation(gl_area, &allocation);
+      int width = allocation.width;
+      int height = allocation.height;
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // std::cout << "Timings for window allocation " << d10 << " microseconds" << std::endl;  // 0
+      int sf = 1;
+
+      sf = framebuffer_scale;
+
 #ifdef __APPLE__
-                              sf = 2;
+      sf = 2;
 #endif
-                              // std::cout << "DEBUG:: in render_scene_basic() width is " << width << " and sf is " << sf << std::endl;
-                              glViewport(0, 0, sf * width, sf * height);
-                              attach_buffers(); // just GTK things
-                              glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
-                              glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                              glDisable(GL_BLEND);
-                              glEnable(GL_DEPTH_TEST);
-                              glDepthFunc(GL_LESS);
-                              graphics_info_t g;
-                              g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
-                              draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
-                              render_3d_scene(GTK_GL_AREA(gl_area));
-                              if (show_fps_flag)
-                                 draw_hud_fps();
-                   };
+      glViewport(0, 0, sf * width, sf * height);
+      attach_buffers(); // just GTK things
+      glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      glDisable(GL_BLEND);
+      glEnable(GL_DEPTH_TEST);
+      glDepthFunc(GL_LESS);
+      graphics_info_t g;
+
+      if (draw_background_image_flag) {
+         // std::cout << "basic render: draw background image " << std::endl;
+         texture_for_background_image.Bind(0);
+         tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
+      }
+      
+      g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
+      draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
+      render_3d_scene(GTK_GL_AREA(gl_area));
+      if (show_fps_flag)
+         draw_hud_fps();
+   };
 
 
    // crow variable conversion

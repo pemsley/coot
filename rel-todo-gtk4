@@ -63,6 +63,8 @@ Full-fat render path - i.e. framebuffer need to be set up correctly (at the righ
 
 Curlew: ::: 4
 
+rename draw-2.cc as tick-function.cc or some such
+
 Get rid of "Other Modelling Tools" ::: 1
 
 Double-click to recentre (G: go to blob) ::: 1

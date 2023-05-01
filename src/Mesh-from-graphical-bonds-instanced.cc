@@ -27,8 +27,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext.hpp>
 
-#include "cylinder.hh"
-#include "oct.hh"
+#include "coot-utils/cylinder.hh"
+#include "coot-utils/oct.hh"
 
 #include "coords/Bond_lines.h"
 
@@ -371,13 +371,25 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
                           };
 
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    // ----------------------- setup the vertices and triangles ----------------------
 
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
    cylinder c(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
 
    is_instanced = false;
-   import(c.vertices, c.triangles);
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   import(converted_vertices, c.triangles);
 
    if (false) // looks fine
       for (unsigned int i=0; i<c.vertices.size(); i++)
@@ -397,7 +409,7 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
    std::vector<glm::mat4> instanced_matrices;
    std::vector<glm::vec4> instanced_colours;
 
-   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into thg gbc)
+   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into the gbc)
    for (int icol=0; icol<gbc.num_colours; icol++) {
       glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
