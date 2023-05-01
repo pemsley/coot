@@ -126,8 +126,8 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
 	       if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) {
 		  residue_atoms[iat_1]->GetUDData(udd_atom_index_handle, index_1);
 		  residue_atoms[iat_2]->GetUDData(udd_atom_index_handle, index_2);
-		  bonded_atom_indices[index_1].push_back(index_2);
-		  bonded_atom_indices[index_2].push_back(index_1);
+		  bonded_atom_indices[index_1].insert(index_2);
+		  bonded_atom_indices[index_2].insert(index_1);
 		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 
 		  add(BOND_RESTRAINT, index_1, index_2,
@@ -135,6 +135,8 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
 		      mod_bond.new_value_dist,
 		      mod_bond.new_value_dist_esd,
 		      1.2);  // junk value
+		  bonded_atom_indices[index_1].insert(index_2);
+		  bonded_atom_indices[index_2].insert(index_1);
 	       }
 	    }
 	 }
@@ -147,25 +149,27 @@ coot::restraints_container_t::mod_bond_change(const coot::chem_mod_bond &mod_bon
 					      mmdb::PResidue residue_p) {
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
-	 const coot::simple_restraint &rest = restraints_vec[i];
-	 if (atom[restraints_vec[i].atom_index_1]->residue == residue_p) {
-	    if (atom[restraints_vec[i].atom_index_2]->residue == residue_p) {
-	       std::string name_1 = atom[rest.atom_index_1]->name;
-	       std::string name_2 = atom[rest.atom_index_2]->name;
-	       if (name_1 == mod_bond.atom_id_1) {
-		  if (name_2 == mod_bond.atom_id_2) {
-		     restraints_vec[i].target_value = mod_bond.new_value_dist;
-		     restraints_vec[i].sigma = mod_bond.new_value_dist_esd;
+      {
+	 simple_restraint &rest = restraints_vec[i]; // rest may be modified
+	 if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	    if (atom[rest.atom_index_1]->residue == residue_p) {
+	       if (atom[rest.atom_index_2]->residue == residue_p) {
+		  std::string name_1 = atom[rest.atom_index_1]->name;
+		  std::string name_2 = atom[rest.atom_index_2]->name;
+		  if (name_1 == mod_bond.atom_id_1) {
+		     if (name_2 == mod_bond.atom_id_2) {
+			rest.target_value = mod_bond.new_value_dist;
+			rest.sigma = mod_bond.new_value_dist_esd;
 
-		     if (0) 
-			std::cout << "DEBUG:: mod_bond_change() changed bond "
-				  << coot::atom_spec_t(atom[restraints_vec[i].atom_index_1])
-				  << " to " 
-				  << coot::atom_spec_t(atom[restraints_vec[i].atom_index_2])
-				  << " dist " <<  mod_bond.new_value_dist
-				  << " esd " <<  mod_bond.new_value_dist_esd
-				  << std::endl;
+			if (false)
+			   std::cout << "DEBUG:: mod_bond_change() changed bond "
+				     << coot::atom_spec_t(atom[rest.atom_index_1])
+				     << " to " 
+				     << coot::atom_spec_t(atom[rest.atom_index_2])
+				     << " dist " <<  mod_bond.new_value_dist
+				     << " esd " <<  mod_bond.new_value_dist_esd
+				     << std::endl;
+		     }
 		  }
 	       }
 	    }
@@ -202,7 +206,6 @@ coot::restraints_container_t::mod_bond_delete(const coot::chem_mod_bond &mod_bon
 	 }
       }
    }
-
 }
 
 void
@@ -246,21 +249,29 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
 		     if (((alt_1 == alt_2) && (alt_1 == alt_3)) ||
 			 ((alt_1 == ""   ) && (alt_2 == alt_3)) ||
 			 ((alt_2 == ""   ) && (alt_1 == alt_3)) ||
-			 ((alt_3 == ""   ) && (alt_1 == alt_2)))
-			{
+			 ((alt_3 == ""   ) && (alt_1 == alt_2))) {
 			   
 			   residue_atoms[iat_1]->GetUDData(udd_atom_index_handle, index_1);
 			   residue_atoms[iat_2]->GetUDData(udd_atom_index_handle, index_2);
 			   residue_atoms[iat_3]->GetUDData(udd_atom_index_handle, index_3);
 			   std::vector<bool> fixed_flags =
 			      make_fixed_flags(index_1, index_2, index_3);
-			   
+			   bool is_single_Hydrogen_atom_angle_restraint = false;
+			   unsigned int nH = 0;
+			   if (is_hydrogen(residue_atoms[iat_1])) nH++;
+			   if (is_hydrogen(residue_atoms[iat_3])) nH++;
+			   if (nH == 1) is_single_Hydrogen_atom_angle_restraint = true;
+
 			   add(ANGLE_RESTRAINT, index_1, index_2, index_3,
 			       fixed_flags,
 			       mod_angle.new_value_angle,
 			       mod_angle.new_value_angle_esd,
-			       1.2);  // junk value
-			}
+			       is_single_Hydrogen_atom_angle_restraint);  // junk value
+
+			   bonded_atom_indices[index_1].insert(index_3);
+			   bonded_atom_indices[index_3].insert(index_1);
+
+		     }
 		  }
 	       }
 	    }
@@ -275,28 +286,30 @@ coot::restraints_container_t::mod_angle_change(const coot::chem_mod_angle &mod_a
 					       mmdb::PResidue residue_p) {
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) {
-	 const coot::simple_restraint &rest = restraints_vec[i];
-	 if (atom[restraints_vec[i].atom_index_1]->residue == residue_p) {
-	    if (atom[restraints_vec[i].atom_index_2]->residue == residue_p) {
-	       std::string name_1 = atom[rest.atom_index_1]->name;
-	       std::string name_2 = atom[rest.atom_index_2]->name;
-	       std::string name_3 = atom[rest.atom_index_3]->name;
-	       if (name_1 == mod_angle.atom_id_1) {
-		  if (name_2 == mod_angle.atom_id_2) {
-		     if (name_3 == mod_angle.atom_id_3) {
-			restraints_vec[i].target_value = mod_angle.new_value_angle;
-			restraints_vec[i].sigma = mod_angle.new_value_angle_esd;
-			if (0) 
-			   std::cout << "DEBUG:: mod_angle_change() changed angle "
-				     << coot::atom_spec_t(atom[restraints_vec[i].atom_index_1])
-				     << " to " 
-				     << coot::atom_spec_t(atom[restraints_vec[i].atom_index_2])
-				     << " to " 
-				     << coot::atom_spec_t(atom[restraints_vec[i].atom_index_3])
-				     << " angle " <<  mod_angle.new_value_angle
-				     << " esd " <<  mod_angle.new_value_angle_esd
-				     << std::endl;
+      {
+	 simple_restraint &rest = restraints_vec[i];
+	 if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	    if (atom[restraints_vec[i].atom_index_1]->residue == residue_p) {
+	       if (atom[restraints_vec[i].atom_index_2]->residue == residue_p) {
+		  std::string name_1 = atom[rest.atom_index_1]->name;
+		  std::string name_2 = atom[rest.atom_index_2]->name;
+		  std::string name_3 = atom[rest.atom_index_3]->name;
+		  if (name_1 == mod_angle.atom_id_1) {
+		     if (name_2 == mod_angle.atom_id_2) {
+			if (name_3 == mod_angle.atom_id_3) {
+			   restraints_vec[i].target_value = mod_angle.new_value_angle;
+			   restraints_vec[i].sigma = mod_angle.new_value_angle_esd;
+			   if (0) 
+			      std::cout << "DEBUG:: mod_angle_change() changed angle "
+					<< coot::atom_spec_t(atom[restraints_vec[i].atom_index_1])
+					<< " to " 
+					<< coot::atom_spec_t(atom[restraints_vec[i].atom_index_2])
+					<< " to " 
+					<< coot::atom_spec_t(atom[restraints_vec[i].atom_index_3])
+					<< " angle " <<  mod_angle.new_value_angle
+					<< " esd " <<  mod_angle.new_value_angle_esd
+					<< std::endl;
+			}
 		     }
 		  }
 	       }

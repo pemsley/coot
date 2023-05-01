@@ -10,7 +10,7 @@
 struct entry_info_t coot_entry_to_val(GtkEntry *entry) { 
 
   struct entry_info_t ei;
-  const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+  const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   ei.float_is_set = 0;
   ei.val_as_float = 0;
   ei.val = 0;

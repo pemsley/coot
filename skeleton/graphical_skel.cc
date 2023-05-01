@@ -105,7 +105,8 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
   graphical_bonds_container gbonds;
   for ( int i = 1; i <= toplevel; i++ ) {
      // in this box, that is.
-     // cout << "At skeleton level " << i << " there are " << cp_vec[i].size() << " points \n";
+     // cout << "At skeleton level " << i << " there are " << cp_vec[i].size()
+     // < " points \n";
      gbonds.add_colour(cp_vec[i]);  
   }
   return gbonds;

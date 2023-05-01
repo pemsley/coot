@@ -20,6 +20,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -135,7 +136,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
    int imol_2 = -1;
    
    for (unsigned int i=0; i<interfaces_description_length; i++) {
-      SCM interface_scm = scm_list_ref(interfaces_description_scm, SCM_MAKINUM(i));
+      SCM interface_scm = scm_list_ref(interfaces_description_scm, scm_from_int(i));
       SCM interface_length_scm = scm_length(interface_scm);
       int interface_length = scm_to_int(interface_length_scm);
       // interfaces contain a molecule pair pair.  a molecule pair is
@@ -143,10 +144,10 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
       // and the second is the molecule record.
       if (interface_length == 6) {
 
-	 SCM interface_area_scm    = scm_list_ref(interface_scm, SCM_MAKINUM(2));
-	 SCM interface_solv_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(3));
-	 SCM interface_pvalue_scm  = scm_list_ref(interface_scm, SCM_MAKINUM(4));
-	 SCM interface_stab_en_scm = scm_list_ref(interface_scm, SCM_MAKINUM(5));
+	 SCM interface_area_scm    = scm_list_ref(interface_scm, scm_from_int(2));
+	 SCM interface_solv_en_scm = scm_list_ref(interface_scm, scm_from_int(3));
+	 SCM interface_pvalue_scm  = scm_list_ref(interface_scm, scm_from_int(4));
+	 SCM interface_stab_en_scm = scm_list_ref(interface_scm, scm_from_int(5));
 
 	 double interface_area    = -9999.9;
 	 double interface_solv_en = -9999.9;
@@ -178,27 +179,27 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 		      << std::endl;
 
 	 
-	 SCM molecule_pair_pair = scm_list_ref(interface_scm, SCM_MAKINUM(0));
+	 SCM molecule_pair_pair = scm_list_ref(interface_scm, scm_from_int(0));
 	 SCM molecule_pair_pair_length_scm = scm_length(molecule_pair_pair);
 	 int molecule_pair_pair_length = scm_to_int(molecule_pair_pair_length_scm);
 
 	 if (molecule_pair_pair_length == 2) {
 	    // 2 molecules in an interface (good) :-)
 
-	    SCM molecule_pair_1 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(0));
-	    SCM molecule_pair_2 =  scm_list_ref(molecule_pair_pair, SCM_MAKINUM(1));
+	    SCM molecule_pair_1 =  scm_list_ref(molecule_pair_pair, scm_from_int(0));
+	    SCM molecule_pair_2 =  scm_list_ref(molecule_pair_pair, scm_from_int(1));
 
-	    SCM molecule_number_and_symop_1_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(0));
-	    SCM molecule_number_and_symop_2_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(0));
+	    SCM molecule_number_and_symop_1_scm = scm_list_ref(molecule_pair_1, scm_from_int(0));
+	    SCM molecule_number_and_symop_2_scm = scm_list_ref(molecule_pair_2, scm_from_int(0));
 
-	    SCM molecule_number_1_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(0));
-	    SCM molecule_number_2_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(0));
+	    SCM molecule_number_1_scm = scm_list_ref(molecule_number_and_symop_1_scm, scm_from_int(0));
+	    SCM molecule_number_2_scm = scm_list_ref(molecule_number_and_symop_2_scm, scm_from_int(0));
 
-	    SCM molecule_1_symop_scm = scm_list_ref(molecule_number_and_symop_1_scm, SCM_MAKINUM(1));
-	    SCM molecule_2_symop_scm = scm_list_ref(molecule_number_and_symop_2_scm, SCM_MAKINUM(1));
+	    SCM molecule_1_symop_scm = scm_list_ref(molecule_number_and_symop_1_scm, scm_from_int(1));
+	    SCM molecule_2_symop_scm = scm_list_ref(molecule_number_and_symop_2_scm, scm_from_int(1));
 
-	    SCM molecule_1_record_scm = scm_list_ref(molecule_pair_1, SCM_MAKINUM(1));
-	    SCM molecule_2_record_scm = scm_list_ref(molecule_pair_2, SCM_MAKINUM(1));
+	    SCM molecule_1_record_scm = scm_list_ref(molecule_pair_1, scm_from_int(1));
+	    SCM molecule_2_record_scm = scm_list_ref(molecule_pair_2, scm_from_int(1));
 	    
 	    SCM mol_1_residue_records = pisa_molecule_record_residues(molecule_1_record_scm);
 	    SCM mol_2_residue_records = pisa_molecule_record_residues(molecule_2_record_scm);
@@ -209,12 +210,12 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	    imol_1 = scm_to_int(molecule_number_1_scm);
 	    imol_2 = scm_to_int(molecule_number_2_scm);
 
-	    SCM bonds_info_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	    SCM bonds_info_scm = scm_list_ref(interface_scm, scm_from_int(1));
 	    if (scm_is_true(scm_list_p(bonds_info_scm))) {
 	       SCM bonds_info_length_scm = scm_length(bonds_info_scm);
 	       int bonds_info_length = scm_to_int(bonds_info_length_scm);
 	       for (int ibond=0; ibond<bonds_info_length; ibond++) {
-		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ibond));
+		  SCM pisa_bond_scm = scm_list_ref(bonds_info_scm, scm_from_int(ibond));
 		  add_pisa_interface_bond_scm(imol_1, imol_2, pisa_bond_scm, i);
 	       }
 	    }
@@ -243,7 +244,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 						  mol_2_residue_specs);
 
 	       
-	       SCM bonds_scm = scm_list_ref(interface_scm, SCM_MAKINUM(1));
+	       SCM bonds_scm = scm_list_ref(interface_scm, scm_from_int(1));
 
 	       coot::pisa_interface_bond_info_t pibi =
 		  coot::get_pisa_interface_bond_info_scm(bonds_scm);
@@ -279,7 +280,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
    if (pisa_treeview_info.size() > 0)
       coot::pisa_interfaces_gui(pisa_treeview_info);
       
-   return SCM_MAKINUM(-1);
+   return scm_from_int(-1);
 }
 #endif /* USE_GUILE */
 
@@ -337,35 +338,35 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
           double interface_stab_en = -9999.9;
 
           PyObject *tmp;
-          tmp = PyFloat_FromString(interface_area_py, NULL);
+          tmp = PyFloat_FromString(interface_area_py);
           if (tmp)
               interface_area = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_area_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_area_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 	 
-          tmp = PyFloat_FromString(interface_solv_en_py, NULL);
+          tmp = PyFloat_FromString(interface_solv_en_py);
           if (tmp)
               interface_solv_en = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_solv_en_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_solv_en_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 	 
-          tmp = PyFloat_FromString(interface_pvalue_py, NULL);
+          tmp = PyFloat_FromString(interface_pvalue_py);
           if (tmp)
               interface_pvalue = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_pvalue_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_pvalue_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 
-          tmp = PyFloat_FromString(interface_stab_en_py, NULL);
+          tmp = PyFloat_FromString(interface_stab_en_py);
           if (tmp)
               interface_stab_en = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_stab_en_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_stab_en_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 
@@ -392,8 +393,8 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
               PyObject *mol_1_chain_id_py = PyDict_GetItemString(molecule_1_dictionary_py, "chain_id");
               PyObject *mol_2_chain_id_py = PyDict_GetItemString(molecule_2_dictionary_py, "chain_id");
 	    
-              imol_1 = PyInt_AsLong(molecule_number_1_py);
-              imol_2 = PyInt_AsLong(molecule_number_2_py);
+              imol_1 = PyLong_AsLong(molecule_number_1_py);
+              imol_2 = PyLong_AsLong(molecule_number_2_py);
             
               PyObject *bonds_info_py = PyList_GetItem(interface_py, 1);
               if (PyList_Check(bonds_info_py)) {
@@ -406,16 +407,16 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
 
               try { 
 
-                  std::string chain_id_1 = PyString_AsString(mol_1_chain_id_py);
-                  std::string chain_id_2 = PyString_AsString(mol_2_chain_id_py);
+                std::string chain_id_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(mol_1_chain_id_py));
+                std::string chain_id_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(mol_2_chain_id_py));
 	    
                   std::string symop_1 = "---"; // unset
                   std::string symop_2 = "---"; // unset
 
-                  if (PyString_Check(molecule_1_symop_py))
-                      symop_1 = PyString_AsString(molecule_1_symop_py);
-                  if (PyString_AsString(molecule_2_symop_py))
-                      symop_2 = PyString_AsString(molecule_2_symop_py);
+                  if (PyUnicode_Check(molecule_1_symop_py))
+                    symop_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(molecule_1_symop_py));
+                  if (PyUnicode_Check(molecule_2_symop_py))
+                    symop_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(molecule_2_symop_py));
 
                   std::vector<coot::residue_spec_t> mol_1_residue_specs = 
                       residue_records_list_py_to_residue_specs(mol_1_residue_records, chain_id_1);
@@ -462,7 +463,7 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
    if (pisa_treeview_info.size() > 0)
        coot::pisa_interfaces_gui(pisa_treeview_info);
       
-   return PyInt_FromLong(-1);
+   return PyLong_FromLong(-1);
 }
 #endif /* USE_PYTHON */
 
@@ -491,11 +492,11 @@ coot::get_pisa_interface_bond_info_scm(SCM bonds_info_scm) {
    SCM bonds_info_length_scm = scm_length(bonds_info_scm);
    int bonds_info_length = scm_to_int(bonds_info_length_scm);
    for (int ib=0; ib<bonds_info_length; ib++) {
-      SCM bond_info_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ib));
+      SCM bond_info_scm = scm_list_ref(bonds_info_scm, scm_from_int(ib));
       SCM bond_info_scm_length_scm = scm_length(bond_info_scm);
       int bond_info_scm_length = scm_to_int(bond_info_scm_length_scm);
       if (bond_info_scm_length == 3) {
-	 SCM bond_type_scm = scm_list_ref(bond_info_scm, SCM_MAKINUM(0));
+	 SCM bond_type_scm = scm_list_ref(bond_info_scm, scm_from_int(0));
 	 std::string bond_str = scm_to_locale_string(scm_symbol_to_string(bond_type_scm));
 	 // 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds
 	 if (bond_str == "h-bonds") { 
@@ -527,7 +528,7 @@ coot::get_pisa_interface_bond_info_py(PyObject *bonds_info_py) {
        int bond_info_py_length = PyObject_Length(bond_info_py);
        if (bond_info_py_length == 3) {
            PyObject *bond_type_py = PyList_GetItem(bond_info_py, 0);
-           std::string bond_str = PyString_AsString(bond_type_py);
+           std::string bond_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bond_type_py));
            // 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds
            if (bond_str == "h-bonds") { 
                pibi.n_h_bonds++;
@@ -563,13 +564,13 @@ residue_records_list_scm_to_residue_specs(SCM mol_1_residues, const std::string 
       SCM record_type_descriptor_func = scm_variable_ref(scm_c_lookup("record-type-descriptor"));
       SCM record_accessor_func = scm_variable_ref(scm_c_lookup("record-accessor"));
       // 
-      SCM symbol_seq_num_scm = scm_str2symbol("seq-num");
+      SCM symbol_seq_num_scm = scm_string_to_symbol(scm_from_locale_string("seq-num"));
       // 
-      SCM symbol_ins_code_scm = scm_str2symbol("ins-code");
+      SCM symbol_ins_code_scm = scm_string_to_symbol(scm_from_locale_string("ins-code"));
       // 
       
       for (int ires=0; ires<residues_length; ires++) {
-	 SCM residue_record_scm = scm_list_ref(mol_1_residues, SCM_MAKINUM(ires));
+	 SCM residue_record_scm = scm_list_ref(mol_1_residues, scm_from_int(ires));
 	 SCM rec_type_scm = scm_call_1(record_type_descriptor_func, residue_record_scm);
 	 SCM get_seq_num_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_seq_num_scm);
 	 SCM get_ins_code_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_ins_code_scm);
@@ -609,16 +610,17 @@ residue_records_list_py_to_residue_specs(PyObject *mol_1_residues, const std::st
           PyObject *ins_code_py = PyDict_GetItemString(PyList_GetItem(mol_1_residues, ires), "ins_code");
 
 	 try { 
-	    std::string seq_num_string = PyString_AsString(seq_num_py);
+           std::string seq_num_string = PyBytes_AS_STRING(PyUnicode_AsUTF8String(seq_num_py));
 	    int seq_num = coot::util::string_to_int(seq_num_string);
-	    std::string ins_code = PyString_AsString(ins_code_py);
+	    std::string ins_code = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
 	    
 	    coot::residue_spec_t rs(chain_id, seq_num, ins_code);
 	    r.push_back(rs);
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING bad seq-num from pisa interfaces xml "
-		      << PyString_AsString(display_python(seq_num_py)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(seq_num_py)))
+                      << std::endl;
 	 }
       }
    }
@@ -636,7 +638,7 @@ SCM symbol_value_from_record(SCM record_1, const std::string &symbol) {
    SCM rec_type_scm = scm_call_1(record_type_descriptor_func, record_1);
 
    SCM record_accessor_func = scm_variable_ref(scm_c_lookup("record-accessor"));
-   SCM symbol_residues_scm = scm_str2symbol(symbol.c_str());
+   SCM symbol_residues_scm = scm_string_to_symbol(scm_from_locale_string(symbol.c_str()));
    SCM get_residues_func = scm_call_2(record_accessor_func, rec_type_scm, symbol_residues_scm);
 
    SCM record_residues_scm = scm_call_1(get_residues_func, record_1);
@@ -725,28 +727,28 @@ void add_pisa_interface_bond_scm(int imol_1, int imol_2, SCM pisa_bond_scm,
       SCM pisa_bond_length_scm = scm_length(pisa_bond_scm);
       int pisa_bond_length = scm_to_int(pisa_bond_length_scm);
       if (pisa_bond_length == 3) {
-	 SCM bond_type_scm = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(0));
-	 SCM atom_spec_1 = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(1));
-	 SCM atom_spec_2 = scm_list_ref(pisa_bond_scm, SCM_MAKINUM(2));
+	 SCM bond_type_scm = scm_list_ref(pisa_bond_scm, scm_from_int(0));
+	 SCM atom_spec_1 = scm_list_ref(pisa_bond_scm, scm_from_int(1));
+	 SCM atom_spec_2 = scm_list_ref(pisa_bond_scm, scm_from_int(2));
 	 int generic_object_number = -1;
-	 string bond_type = "";
+         std::string bond_type = "";
 	 std::string colour = "grey";
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("h-bonds")))) { 
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("h-bonds"))))) { 
 	    bond_type = "h-bond";
 	    generic_object_number = h_bonds_generic_objects_number;
 	    colour = "orange";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("salt-bridges")))) {
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("salt-bridges"))))) {
 	    bond_type = "salt-bridge";
 	    generic_object_number = salt_bridges_generic_objects_number;
 	    colour = "green";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("cov-bonds")))) {
+	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("cov-bonds"))))) {
 	    bond_type = "cov-bond";
 	    generic_object_number = cov_bonds_generic_objects_number;
 	    colour = "red";
 	 }
-	 if (scm_is_true(scm_eq_p(bond_type_scm, scm_str2symbol("ss-bonds")))) {
+         if (scm_is_true(scm_eq_p(bond_type_scm, scm_string_to_symbol(scm_from_locale_string("ss-bonds"))))) {
 	    bond_type = "ss-bond";
 	    generic_object_number = ss_bonds_generic_objects_number;
 	    colour = "yellow";
@@ -820,25 +822,28 @@ void add_pisa_interface_bond_py(int imol_1, int imol_2, PyObject *pisa_bond_py,
 	 PyObject *atom_spec_1 = PyList_GetItem(pisa_bond_py, 1);
 	 PyObject *atom_spec_2 = PyList_GetItem(pisa_bond_py, 2);
 	 int generic_object_number = -1;
-	 string bond_type = "";
+         std::string bond_type = "";
 	 std::string colour = "grey";
          std::string tmp;
-	 if (strcmp(PyString_AsString(bond_type_py), "h-bonds") == 0) { 
+
+         // surely this can't be the way to compare python strings?
+         
+	 if (strcmp(myPyString_AsString(bond_type_py), "h-bonds") == 0) { 
 	    bond_type = "h-bond";
 	    generic_object_number = h_bonds_generic_objects_number;
 	    colour = "orange";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "salt-bridges") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "salt-bridges") == 0) {
 	    bond_type = "salt-bridge";
 	    generic_object_number = salt_bridges_generic_objects_number;
 	    colour = "green";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "cov-bonds") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "cov-bonds") == 0) {
 	    bond_type = "cov-bond";
 	    generic_object_number = cov_bonds_generic_objects_number;
 	    colour = "red";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "ss-bonds") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "ss-bonds") == 0) {
 	    bond_type = "ss-bond";
 	    generic_object_number = ss_bonds_generic_objects_number;
 	    colour = "yellow";
@@ -945,6 +950,8 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 	    centre_1 = c_1.second;
 	 if (c_2.first)
 	    centre_2 = c_2.second;
+
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
 	 coot::dots_representation_info_t d1(frag_mol_1, frag_mol_2);
 	 coot::dots_representation_info_t d2(frag_mol_2, frag_mol_1);

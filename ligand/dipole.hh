@@ -22,7 +22,6 @@
 #ifndef HAVE_DIPOLE_HH
 #define HAVE_DIPOLE_HH
 
-#include <iostream>
 #include <fstream>
 #include "geometry/protein-geometry.hh"
 

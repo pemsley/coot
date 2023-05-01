@@ -10,14 +10,14 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:export-ydpi="30"
-   inkscape:export-xdpi="30"
-   inkscape:export-filename="/home/paule/Projects/coot/trunk/pixmaps/add-peptide-1.png"
+   inkscape:export-ydpi="31.677475"
+   inkscape:export-xdpi="31.677475"
+   inkscape:export-filename="/home/paule/Projects/coot/git/coot-gtk3/coot/pixmaps/add-peptide-1.png"
    width="48"
    height="48"
    id="svg2280"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="add-peptide-1.svg"
    version="1.1">
   <defs
@@ -136,17 +136,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.9240541"
-     inkscape:cx="-23.563072"
-     inkscape:cy="-1.5448276"
+     inkscape:zoom="7.8481082"
+     inkscape:cx="13.973065"
+     inkscape:cy="25.353081"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="822"
-     inkscape:window-height="633"
-     inkscape:window-x="325"
-     inkscape:window-y="207"
+     inkscape:window-width="1210"
+     inkscape:window-height="902"
+     inkscape:window-x="1384"
+     inkscape:window-y="276"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata4">
@@ -156,7 +156,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -236,14 +236,14 @@
     <g
        transform="matrix(4.2119638,0,0,4.2119638,4.2119638,-27.1851)"
        id="g2179"
-       style="fill:#142575;fill-opacity:1;stroke:none">
+       style="fill:#b3b3b3;fill-opacity:1;stroke:none">
       <rect
          y="-1"
          x="1.2881188"
          height="5.6123762"
          width="1.0361387"
          id="rect1417"
-         style="fill-rule:nonzero" />
+         style="fill-rule:nonzero;fill:#b3b3b3;fill-opacity:1" />
       <rect
          transform="matrix(0,1,-1,0,0,0)"
          y="-4.6123762"
@@ -251,7 +251,7 @@
          height="5.6123762"
          width="1.0361387"
          id="rect2177"
-         style="fill-rule:nonzero" />
+         style="fill-rule:nonzero;fill:#b3b3b3;fill-opacity:1" />
     </g>
   </g>
 </svg>

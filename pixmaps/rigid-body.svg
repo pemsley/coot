@@ -13,7 +13,7 @@
    height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="rigid-body.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/rigid-body.png"
@@ -44,17 +44,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.924054"
-     inkscape:cx="-1.6654035"
-     inkscape:cy="42.268423"
+     inkscape:zoom="7.848108"
+     inkscape:cx="14.224267"
+     inkscape:cy="24.80799"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="1149"
      inkscape:window-height="902"
-     inkscape:window-x="26"
-     inkscape:window-y="32"
+     inkscape:window-x="1062"
+     inkscape:window-y="143"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -79,9 +79,10 @@
      id="layer1"
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     transform="translate(0,32)">
+     transform="translate(0,32)"
+     style="opacity:1">
     <path
-       style="fill:none;stroke:#122f5d;stroke-width:3.77893901px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#e1e54e;stroke-width:3.77893901px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 19.104104,13.545826 8.386428,5.2290112 15.859923,-13.785527 0.3368404,-24.42566"
        id="path2168" />
     <path
@@ -91,21 +92,22 @@
        sodipodi:nodetypes="czzczczzzczz" />
     <g
        id="g3282"
-       transform="matrix(2.5958213,0,0,2.8620765,-3.956562,-34.891517)">
+       transform="matrix(2.5958213,0,0,2.8620765,-3.956562,-34.891517)"
+       style="">
       <path
          id="path2292"
          d="m 5.5,3.8920792 5.008911,0.027723 0,0"
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:none;stroke:#afafaf;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cc"
          id="path2296"
          d="M 10.437129,3.8787128 C 10.187624,4.4070957 10.56565,3.7715696 9.5985147,5.0584159"
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:none;stroke:#a7a7a7;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="cc"
          id="path3254"
          d="M 10.5,3.6797031 C 10.250495,3.1513202 10.628521,3.7868463 9.6613857,2.5"
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:none;stroke:#a2a2a2;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <path
        style="fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.61256546"

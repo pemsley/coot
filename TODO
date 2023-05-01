@@ -1327,13 +1327,15 @@ Think about:
 
    Release 0.9, Facelift-release [May 2015]
 
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
+
    o Tom T CSHL 2015: When finding a helix [at high resolution], you
      expect the density down the middle to be low.  Hmm... this is not
      true at high resolution, so what is the radial distribution of
      density as a function of resolution?  Analyse structures of the PDB?
 
    o Tom T CSHL 2015: extend this fragment - rama based addition of residues
-
 
    o enum-type the bonds in the geometry dictionary.
 

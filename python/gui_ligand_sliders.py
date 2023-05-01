@@ -5,14 +5,14 @@ cache_ligand_metrics = False
 #
 def mtz_file_name2refinement_column_labels(file_name):
 
-    columns = get_mtz_columns(file_name)
+    columns = coot.get_mtz_columns(file_name)
     read_success = columns.read_success
 
     if (not read_success == 1):
 
         # unhappy path
-        print "Failed to read columms from file %s for map molecule %s" \
-              %(file_name, imol_map())
+        print("Failed to read columms from file %s for map molecule %s" \
+              %(file_name, imol_map()))
 
     else:
         
@@ -25,11 +25,11 @@ def mtz_file_name2refinement_column_labels(file_name):
         l2 = sigf_cols.size()
         l3 = rfree_cols.size()
 
-        if (not all(map(lambda x: x > 0, [l1, l2 ,l3]))):
+        if (not all([x > 0 for x in [l1, l2 ,l3]])):
 
             # unhappy path
-            print "Failed to find columns of the necessary types from %s: %s %s %s!" \
-                  %(file_name, l1, l2, l3)
+            print("Failed to find columns of the necessary types from %s: %s %s %s!" \
+                  %(file_name, l1, l2, l3))
             return False, False, False
             
         else:
@@ -48,7 +48,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 
     global cache_ligand_metrics
 
-    m = get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
+    m = ligand_check.get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                refmac_input_mtz_file_name,
                                fp_col, sigfp_col, rfree_col, refmac_dir)
 
@@ -62,7 +62,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 
         if (not isinstance(m, list)):
             # unhappy path
-            print "BL WARNING:: no ligand metrics found."
+            print("WARNING:: no ligand metrics found.")
         else:
             # happy path ;-)
             diff_d = 0.05
@@ -77,26 +77,26 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
             #
             if (isinstance(mwz, list)):
                 mogul_out_file_name = mwz[1]
-                mogul_markup(imol, chain_id, res_no, ins_code,
+                coot.mogul_markup(imol, chain_id, res_no, ins_code,
                              mogul_out_file_name)
                 mwz = mwz[0]
 
-            percentile_d = get_ligand_percentile("density_correlation", d, high_id_good)
-            percentile_diff_d = get_ligand_percentile("coot_diff_map_correlation", diff_d, low_is_good)
-            percentile_mwz = get_ligand_percentile("mogul_z_worst", mwz, low_is_good)
-            percentile_bc = get_ligand_percentile("bumps_1", bc, low_is_good)
+            percentile_d = coot.get_ligand_percentile("density_correlation", d, high_id_good)
+            percentile_diff_d = coot.get_ligand_percentile("coot_diff_map_correlation", diff_d, low_is_good)
+            percentile_mwz = coot.get_ligand_percentile("mogul_z_worst", mwz, low_is_good)
+            percentile_bc = coot.get_ligand_percentile("bumps_1", bc, low_is_good)
 
             if (percentile_d < 0):
                 # just an example, but means we do not have ligands-2016.db
                 txt = "BL INFO:: we dont have ligands-2016.db, so \n" + \
                       "percentiles are no available and graph meaningless!"
-                info_dialog(txt)
+                coot.info_dialog(txt)
             input_to_sliders = [["Direct map density correl.", percentile_d, d],
                                 [" Diff map density correl.", percentile_diff_d, diff_d],
                                 ["            Mogul Z-worst", percentile_mwz, mwz],
                                 ["             Bad contacts", percentile_bc, bc]]
 
-            ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
+            ligand_validation_sliders.ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
                 
             
         
@@ -104,36 +104,36 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 #if (use_gui_qm != 2):
 # disable for now since I cannot run mogul and test it in real...
 if (0):
-    menu = coot_menubar_menu("Ligand")
+    menu = coot_gui.coot_menubar_menu("Ligand")
 
     def ligand_metric_slider_func():
         
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
 
-        if (not valid_map_molecule_qm(imol_map)):
-            add_status_bar_text("No valid refinement map molecule")
+        if (not coot_utils.valid_map_molecule_qm(imol_map)):
+            coot.add_status_bar_text("No valid refinement map molecule")
         else:
             l = refmac_parameters(imol_map)
             if l:
                 refmac_input_mtz_file_name = l[0]
             else:
-                refmac_input_mtz_file_name = mtz_file_name(imol_map)
-            refmac_dir = get_directory("coot-refmac")
+                refmac_input_coot.mtz_file_name = mtz_file_name(imol_map)
+            refmac_dir = coot_utils.get_directory("coot-refmac")
 
             f_col_label, sigf_col_label, r_free_col_label = \
                          mtz_file_name2refinement_column_labels(refmac_input_mtz_file_name)
-            print "    f_col_label:", f_col_label
-            print " sigf-col-label:", sigf_col_label
-            print "rfree-col-label:", r_free_col_label
+            print("    f_col_label:", f_col_label)
+            print(" sigf-col-label:", sigf_col_label)
+            print("rfree-col-label:", r_free_col_label)
 
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
-                ligand_validation_metrics_gui_list_wrapper_pre(
+                ligand_validation_sliders.ligand_validation_metrics_gui_list_wrapper_pre(
                     aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                     refmac_input_mtz_file_name,
                     f_col_label, sigf_col_label, r_free_col_label,
                     refmac_dir)
-        
+
     add_simple_coot_menu_menuitem(
         menu, "Ligand Metric Sliders",
         lambda func: ligand_metric_slider_func())

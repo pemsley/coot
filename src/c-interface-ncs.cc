@@ -23,6 +23,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -37,12 +38,6 @@
 
  
 #include "globjects.h" //includes gtk/gtk.h
-
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // functions are built by glade.
 
 #include <vector>
 #include <string>
@@ -61,6 +56,8 @@
 
 #include "guile-fixups.h"
 
+#include "widget-from-builder.hh"
+
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
@@ -77,8 +74,10 @@ int add_strict_ncs_matrix(int imol,
 			  float m11, float m12, float m13, 
 			  float m21, float m22, float m23, 
 			  float m31, float m32, float m33, 
-			  float t1,  float t2,  float t3)
-{
+			  float t1,  float t2,  float t3) {
+
+   std::cout << "--------------------------- add_strict_ncs_matrix " << imol
+                << " " << this_chain_id << " " << target_chain_id << " " << std::endl;
 
    int istat = 0;
    if (is_valid_model_molecule(imol)) {
@@ -113,6 +112,9 @@ int add_strict_ncs_matrix(int imol,
       std::string tch = target_chain_id;
       std::string chain_id = this_chain_id;
 
+      std::cout << "--------------------------- calling molecule's add_strict_ncs_matrix " << imol
+                << " " << chain_id << " " << tch << " " << std::endl;
+
       graphics_info_t::molecules[imol].add_strict_ncs_matrix(chain_id, tch, cm44);
 
       graphics_draw();
@@ -131,20 +133,19 @@ int add_strict_ncs_from_mtrix_from_self_file(int imol) {
 }
 
 
-
 GtkWidget *wrapped_create_ncs_maps_dialog() {
 
-   GtkWidget *dialog = create_ncs_maps_dialog();
+   // GtkWidget *dialog = create_ncs_maps_dialog();
+   GtkWidget *dialog = widget_from_builder("ncs_maps_dialog");
    short int diff_maps_only_flag = 0;
    int ifound;
 
    // Maps: 
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog,
-							"ncs_maps_maps",
-							diff_maps_only_flag);
+   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "ncs_maps_maps", diff_maps_only_flag);
    if (ifound == 0) {
       std::cout << "Error: you must have a difference map to analyse!" << std::endl;
-      GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");
+      // GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");
+      GtkWidget *none_frame = widget_from_builder("no_maps_frame");
       gtk_widget_show(none_frame);
    }
 
@@ -154,7 +155,8 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
 							 have_ncs_flag);
    if (ifound == 0) {
       std::cout << "You must have molecules with NCS to use this function\n";
-      GtkWidget *none_frame = lookup_widget(dialog, "no_models_frame");
+      // GtkWidget *none_frame = lookup_widget(dialog, "no_models_frame");
+      GtkWidget *none_frame = widget_from_builder("no_models_frame");
       gtk_widget_show(none_frame);
    }
 
@@ -263,7 +265,7 @@ void ncs_update_ghosts(int imol) {
 
 GtkWidget *wrapped_create_ncs_control_dialog() {
 
-   GtkWidget *w = create_ncs_control_dialog();
+   GtkWidget *w = widget_from_builder("ncs_control_dialog");
 
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++)
       if (is_valid_model_molecule(imol))
@@ -390,7 +392,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
 						g.swap_difference_map_colours,
-						g.molecules[imol_map].map_sigma());
+						g.molecules[imol_map].get_contour_level());
 	    nmaps++;
 	 }
 
@@ -412,10 +414,12 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 		  }
 	       } else {
 		  imol = graphics_info_t::create_molecule();
-	       } 
-	       g.molecules[imol].new_map(xmaps[i].first, name);
+	       }
+
+	       bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	       g.molecules[imol].install_new_map(xmaps[i].first, name, is_em_flag);
 	       if (g.molecules[imol_map].is_difference_map_p())
-		  g.molecules[imol].set_map_is_difference_map();
+		  g.molecules[imol].set_map_is_difference_map(true);
 	       nmaps++;
 	    } 
 	 }
@@ -450,9 +454,11 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
 	 std::string map_str = "ncs_maps_maps_radiobutton_";
 	 map_str += graphics_info_t::int_to_string(imol);
-	 map_button = lookup_widget(dialog, map_str.c_str());
+	 // map_button = lookup_widget(dialog, map_str.c_str());
+	 map_button = 0; // 20220309-PE FIXME set the map_button correctly in make_dynamically_transformed_ncs_maps_by_widget()
+         std::cout << "in make_dynamically_transformed_ncs_maps_by_widget() set the map_button correctly" << std::endl;
 	 if (map_button) {
-	    if (GTK_TOGGLE_BUTTON(map_button)->active) { 
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(map_button))) { 
 	       imol_map = imol;
 	       found_active_button_for_map = 1;
 	       break;
@@ -471,9 +477,11 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
 	 if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	    std::string coords_str = "ncs_maps_models_radiobutton_";
 	    coords_str += graphics_info_t::int_to_string(imol);
-	    coords_button = lookup_widget(dialog, coords_str.c_str());
+	    // coords_button = lookup_widget(dialog, coords_str.c_str());
+	    coords_button = 0; // 20220309-PE FIXME set the coords_button correctly in make_dynamically_transformed_ncs_maps_by_widget()
+            std::cout << "in make_dynamically_transformed_ncs_maps_by_widget() set the coords_button correctly" << std::endl;
 	    if (coords_button) {
-	       if (GTK_TOGGLE_BUTTON(coords_button)->active) {
+	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(coords_button))) {
 		  imol_coords = imol;
 		  found_active_button_for_coords = 1;
 	       }
@@ -555,14 +563,14 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 						  cd.residue_info[iresinf].target_resno,
 						  cd.residue_info[iresinf].target_inscode);
 		  SCM res_l = SCM_EOL;
-		  res_l = scm_cons(scm_double2num(cd.residue_info[iresinf].mean_diff), res_l);
+		  res_l = scm_cons(scm_from_double(cd.residue_info[iresinf].mean_diff), res_l);
 //		  res_l = scm_cons(scm_cdr(scm_residue(target_res)), res_l);
 //		  res_l = scm_cons(scm_cdr(scm_residue(this_res)), res_l);
 		  l_residue_data = scm_cons(res_l, l_residue_data);
 	       }
 	       r = scm_cons(l_residue_data, SCM_EOL);
-	       r = scm_cons(scm_makfrom0str(diffs.target_chain_id.c_str()), r);
-	       r = scm_cons(scm_makfrom0str(cd.peer_chain_id.c_str()), r);
+	       r = scm_cons(scm_from_locale_string(diffs.target_chain_id.c_str()), r);
+	       r = scm_cons(scm_from_locale_string(cd.peer_chain_id.c_str()), r);
 	    }
 	 }
       }
@@ -620,8 +628,8 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 		  PyList_Append(l_residue_data, res_l);
 		  Py_XDECREF(res_l);
 	       }
-	       PyList_Append(r, PyString_FromString(cd.peer_chain_id.c_str()));
-	       PyList_Append(r, PyString_FromString(diffs.target_chain_id.c_str()));
+	       PyList_Append(r, myPyString_FromString(cd.peer_chain_id.c_str()));
+	       PyList_Append(r, myPyString_FromString(diffs.target_chain_id.c_str()));
 	       PyList_Append(r, l_residue_data);
 	       Py_XDECREF(l_residue_data);
 	    }
@@ -707,9 +715,9 @@ SCM ncs_ghosts_scm(int imol) {
 	 SCM rtop_scm = SCM_BOOL_F;
 	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p())
 	    rtop_scm = rtop_to_scm(ncs_ghosts[ighost].rtop);
-	 SCM target_chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].target_chain_id.c_str());
-	 SCM chain_id_scm = scm_makfrom0str(ncs_ghosts[ighost].chain_id.c_str());
-	 SCM name_scm = scm_makfrom0str(ncs_ghosts[ighost].name.c_str());
+	 SCM target_chain_id_scm = scm_from_locale_string(ncs_ghosts[ighost].target_chain_id.c_str());
+	 SCM chain_id_scm = scm_from_locale_string(ncs_ghosts[ighost].chain_id.c_str());
+	 SCM name_scm = scm_from_locale_string(ncs_ghosts[ighost].name.c_str());
 	 
 	 ghost_scm = scm_cons(display_it_flag_scm, ghost_scm);
 	 ghost_scm = scm_cons(rtop_scm,            ghost_scm);
@@ -746,9 +754,9 @@ PyObject *ncs_ghosts_py(int imol) {
        if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p()) {
 	 rtop_py = rtop_to_python(ncs_ghosts[ighost].rtop);
        }
-       PyObject *target_chain_id_py = PyString_FromString(ncs_ghosts[ighost].target_chain_id.c_str());
-       PyObject *chain_id_py = PyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
-       PyObject *name_py = PyString_FromString(ncs_ghosts[ighost].name.c_str());
+       PyObject *target_chain_id_py = myPyString_FromString(ncs_ghosts[ighost].target_chain_id.c_str());
+       PyObject *chain_id_py = myPyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
+       PyObject *name_py = myPyString_FromString(ncs_ghosts[ighost].name.c_str());
 
        PyList_SetItem(ghost_py, 0, name_py);
        PyList_SetItem(ghost_py, 1, chain_id_py);
@@ -768,20 +776,14 @@ PyObject *ncs_ghosts_py(int imol) {
 
 
 // This should be  in c-interface-ncs-gui.cc
-void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data) {
+void validation_graph_ncs_diffs_mol_selector_activate (GMenuItem     *menuitem,
+                                                       gpointer         user_data) {
    
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-#ifdef HAVE_GSL
    graphics_info_t g;
+#ifdef HAVE_GOOCANVAS
    g.ncs_diffs_from_mol(imol);
-#else
-   printf("not compiled with GSL - remake\n");
-#endif /* HAVE_GSL */
-#else    
-   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
-#endif /* HAVE_GTK_CANVAS */
+#endif
 
 }
 
@@ -819,6 +821,11 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 
    if (is_valid_model_molecule(imol)) {
 
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       short int forward_flag = 1; // emulate previous behaviour.  Not
 				  // sure that this is what is needed.
       coot::util::quaternion q(graphics_info_t::quat[0],
@@ -849,6 +856,7 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 	 graphics_info_t::quat[3] = vq.q3;
       }
       graphics_draw();
+#endif
    } 
 }
 
@@ -863,6 +871,11 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
    if (is_valid_model_molecule(imol)) {
       
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       coot::util::quaternion q(graphics_info_t::quat[0],
 			       graphics_info_t::quat[1],
 			       graphics_info_t::quat[2],
@@ -906,6 +919,7 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
       }
       graphics_draw();
+#endif
    } 
 }
 

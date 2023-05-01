@@ -43,28 +43,24 @@ namespace coot {
       float float_user_data;
       std::string string_user_data;
       int model_number;
-      atom_spec_t() {
-	 chain_id = "unset";
+      atom_spec_t() : chain_id("unset") {
 	 res_no = mmdb::MinInt4;
-	 ins_code = "";
 	 model_number = -1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,
 		  const std::string &insertion_code_in,
 		  const std::string &atom_name_in,
-		  const std::string &alt_conf_in) {
-	 chain_id = chain_in;
+		  const std::string &alt_conf_in) : chain_id(chain_in), ins_code(insertion_code_in), atom_name(atom_name_in), alt_conf(alt_conf_in) {
 	 res_no = resno_in;
-	 ins_code = insertion_code_in;
-	 atom_name = atom_name_in;
-	 alt_conf = alt_conf_in;
 	 model_number = 1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(mmdb::Atom *at) {
+      explicit atom_spec_t(mmdb::Atom *at) {
 	 if (at) { 
 	    chain_id       = at->GetChainID();
 	    res_no         = at->GetSeqNum();
@@ -77,9 +73,9 @@ namespace coot {
 	    res_no = mmdb::MinInt4;
 	    ins_code = "";
 	    model_number = -1;
-	    int_user_data = -1;
 	 }
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
+         float_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(mmdb::Atom *at, const std::string &user_data_string) {
@@ -90,6 +86,8 @@ namespace coot {
 	 atom_name = at->name;
 	 alt_conf = at->altLoc;
 	 string_user_data = user_data_string;
+         float_user_data = -1;
+         int_user_data = -1;
       }
 
       bool empty() const {
@@ -124,7 +122,9 @@ namespace coot {
 
       std::string label(const std::string &residue_name) const;
 
-      
+      // A 65 CA
+      std::string simple_label(const std::string &residue_name="") const;
+
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
@@ -146,7 +146,7 @@ namespace coot {
       bool operator !=(const atom_spec_t &matcher) const {
 	 return ! operator==(matcher);
       }
-#endif 
+#endif
 
 #ifndef SWIG
       // we need this if atom_spec_t are used in a std::map.
@@ -181,6 +181,28 @@ namespace coot {
 	 return false;
       }
 #endif // SWIG
+
+      // like operator==() but we don't test the model
+      bool is_same(const atom_spec_t &matcher) const {
+	 bool r = false;
+	 if (matcher.chain_id == chain_id) {
+	    if (matcher.res_no == res_no) {
+	       if (matcher.ins_code == ins_code) {
+		  if (matcher.atom_name == atom_name) {
+		     if (matcher.alt_conf == alt_conf) {
+			r = true;
+		     }
+		  }
+	       }
+	    }
+	 }
+	 return r;
+      }
+
+      // return null on failure to find atom in mol
+      // (this is the inside out version of the function in molecule_class_info_t)
+      mmdb::Atom *get_atom(mmdb::Manager *mol) const;
+      
       
 #ifndef SWIG
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
@@ -204,37 +226,29 @@ namespace coot {
       int res_no;
       std::string ins_code;
       int int_user_data;
-      residue_spec_t(int r) {
-	 res_no = r;
-	 chain_id = "";
-	 ins_code = "";
+      explicit residue_spec_t(int r) : res_no(r) {
+         model_number = -1;
 	 int_user_data = -1;
       }
-      residue_spec_t(const std::string &chain_in, int r) {
+      residue_spec_t(const std::string &chain_in, int r) : chain_id(chain_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = "";
 	 int_user_data = -1;
       }
       residue_spec_t(int model_number_in,
 		     const std::string &chain_in, int r,
-		     const std::string &ins_code_in) {
+		     const std::string &ins_code_in) : chain_id(chain_in), ins_code(ins_code_in) {
 	 model_number = model_number_in;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r,
-		     const std::string &ins_code_in) {
+		     const std::string &ins_code_in) : chain_id(chain_in), ins_code(ins_code_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
-	 chain_id = chain_in;
-	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
-      residue_spec_t(mmdb::Residue *res) {
+      explicit residue_spec_t(mmdb::Residue *res) {
 	 if (! res) {
 	    chain_id = "";
 	    model_number = mmdb::MinInt4;
@@ -248,19 +262,15 @@ namespace coot {
 	 }
 	 int_user_data = -1;
       } 
-      residue_spec_t(const atom_spec_t &atom_spec) { 
-	 model_number = mmdb::MinInt4;
-         chain_id = atom_spec.chain_id;
+      explicit residue_spec_t(const atom_spec_t &atom_spec) : chain_id(atom_spec.chain_id), ins_code(atom_spec.ins_code) { 
+	 model_number = atom_spec.model_number;
          res_no = atom_spec.res_no;
-         ins_code = atom_spec.ins_code;
 	 int_user_data = -1;
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
 	 model_number = mmdb::MinInt4;
 	 res_no = mmdb::MinInt4;
-	 chain_id = "";
-	 ins_code = "";
 	 int_user_data = -1;
       }
       bool unset_p() const {
@@ -321,7 +331,7 @@ namespace coot {
 	    else
 	       return 1;
 	 } 
-	 return 0;
+	 // return 0; we can't here
       }
 #endif // SWIG
 
@@ -335,6 +345,9 @@ namespace coot {
       std::string label() const;
 
       std::string label(const std::string &residue_name) const;
+
+      // return null on failure to find residue in mol
+      mmdb::Residue *get_residue(mmdb::Manager *mol) const;
 
       // return an atom selection handle for the selection in the mol
       // that matches the spec.  Caller is responsible for deleting

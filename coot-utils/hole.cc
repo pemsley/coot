@@ -31,9 +31,9 @@
 
 
 coot::hole::hole(mmdb::Manager *mol_in, 
-		 const clipper::Coord_orth &from_pt_in,
-		 const clipper::Coord_orth &to_pt_in,
-		 const coot::protein_geometry &geom) {
+                 const clipper::Coord_orth &from_pt_in,
+                 const clipper::Coord_orth &to_pt_in,
+                 const coot::protein_geometry &geom) {
 
    mol = mol_in;
    from_pt = from_pt_in;
@@ -60,43 +60,43 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
       mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::Residue *residue_p;
-	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    std::string residue_name = residue_p->GetResName();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
+         chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::Residue *residue_p;
+         mmdb::Atom *at;
+         for (int ires=0; ires<nres; ires++) { 
+            residue_p = chain_p->GetResidue(ires);
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            std::string residue_name = residue_p->GetResName();
+            for (int iat=0; iat<n_atoms; iat++) {
+               at = residue_p->GetAtom(iat);
 
-	       std::string atom_name = at->name;
+               std::string atom_name = at->name;
 
-	       // try cache first
-	       std::pair<std::string, std::string> p(atom_name, residue_name);
+               // try cache first
+               std::pair<std::string, std::string> p(atom_name, residue_name);
 
-	       if (cached_radii.find(p) != cached_radii.end()) {
-		  radius = it->second;
-	       } else {
-		  radius = geom.get_vdw_radius(atom_name, residue_name, imol, use_vdwH_flag);
-	       }
-	       if (radius > 0) {
-		  at->PutUDData(radius_handle, radius);
-	       } else {
-		  std::string ele = at->element;
-		  // make a reasonable default
-		  mmdb::realtype radius = 1.7;
- 		  if (ele == " N")
- 		     radius = 1.55;
- 		  if (ele == " 0")
- 		     radius = 1.52;
- 		  if (ele == " H")
- 		     radius = 1.2;
-		  at->PutUDData(radius_handle, radius); 
-	       }
-	    }
-	 }
+               if (cached_radii.find(p) != cached_radii.end()) {
+                  radius = it->second;
+               } else {
+                  radius = geom.get_vdw_radius(atom_name, residue_name, imol, use_vdwH_flag);
+               }
+               if (radius > 0) {
+                  at->PutUDData(radius_handle, radius);
+               } else {
+                  std::string ele = at->element;
+                  // make a reasonable default
+                  mmdb::realtype radius = 1.7;
+                   if (ele == " N")
+                      radius = 1.55;
+                   if (ele == " 0")
+                      radius = 1.52;
+                   if (ele == " H")
+                      radius = 1.2;
+                  at->PutUDData(radius_handle, radius); 
+               }
+            }
+         }
       }
    }
 }
@@ -109,46 +109,46 @@ coot::hole::debug_atom_radii() const {
       mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::Residue *residue_p;
-	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    std::string residue_name = residue_p->GetResName();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       mmdb::realtype radius;
-	       at->GetUDData(radius_handle, radius);
-	       std::cout << "   " << coot::atom_spec_t(at) << " with radius " << radius<< std::endl;
-	    }
-	 }
+         chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::Residue *residue_p;
+         mmdb::Atom *at;
+         for (int ires=0; ires<nres; ires++) { 
+            residue_p = chain_p->GetResidue(ires);
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            std::string residue_name = residue_p->GetResName();
+            for (int iat=0; iat<n_atoms; iat++) {
+               at = residue_p->GetAtom(iat);
+               mmdb::realtype radius;
+               at->GetUDData(radius_handle, radius);
+               std::cout << "   " << coot::atom_spec_t(at) << " with radius " << radius<< std::endl;
+            }
+         }
       }
    }
 } 
 
 void 
 coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
-				double radius_prev) const {
+                                double radius_prev) const {
 
    // what protein atoms are within radius_prev of pt?
 
    mol->SelectAtoms(selhnd, 0, "*",
-		    mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
-		    "!HOH", // residue names
-		    "*", // atom names
-		    "H,C,O,N,S", // elements
-		    "*", "*", "*", // altlocs, segments, charges
-		    -1, -1, // occupancy (no limits)
-		    pt.x(), pt.y(), pt.z(), radius_prev, mmdb::SKEY_NEW);
+                    mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                    "!HOH", // residue names
+                    "*", // atom names
+                    "H,C,O,N,S", // elements
+                    "*", "*", "*", // altlocs, segments, charges
+                    -1, -1, // occupancy (no limits)
+                    pt.x(), pt.y(), pt.z(), radius_prev, mmdb::SKEY_NEW);
 
    if (0) {
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::cout << "in make_atom_selection() selected " << n_selected_atoms
-		<< " atoms in sphere selection around  " << pt.format() << std::endl;
+                << " atoms in sphere selection around  " << pt.format() << std::endl;
    }
 }
 
@@ -196,12 +196,12 @@ coot::hole::generate() {
       double dist_diff = clipper::Coord_orth::length(pt_linear, pt);
 
       if (0)
-	 std::cout << "dist_diff: " << dist_diff << " " << pt_linear.format()
-		   << " " << pt.format() << " frag: " << frag.format() << " l:"
-		   << l.format() << " i_step: " << istep << std::endl;
+         std::cout << "dist_diff: " << dist_diff << " " << pt_linear.format()
+                   << " " << pt.format() << " frag: " << frag.format() << " l:"
+                   << l.format() << " i_step: " << istep << std::endl;
 
       if (dist_diff > 7)
-	 pt = pt_linear;
+         pt = pt_linear;
       
 
       int selhnd = mol->NewSelection();
@@ -214,23 +214,23 @@ coot::hole::generate() {
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       while ((n_selected_atoms == 0) && (i_round < n_rounds)) { 
-	 mol->DeleteSelection(selhnd);// not sure if needed
-	 selhnd = mol->NewSelection();
-	 make_atom_selection(selhnd, pt, radius_prev*(i_round+1+0.2)*(i_round+1+0.2));
-	 i_round++;
+         mol->DeleteSelection(selhnd);// not sure if needed
+         selhnd = mol->NewSelection();
+         make_atom_selection(selhnd, pt, radius_prev*(i_round+1+0.2)*(i_round+1+0.2));
+         i_round++;
       }
 
       
       std::pair<clipper::Coord_orth, double> new_pt = optimize_point(pt, selhnd);
       probe_path.push_back(new_pt);
       if (false) { 
-	 double d = sqrt(l.lengthsq());
-	 std::cout << "istep: " << istep << " l: " << d
-		   << " ss: " << new_pt.second << "        "
-		   << new_pt.first.x() << " "
-		   << new_pt.first.y() << " "
-		   << new_pt.first.z() << " "
-		   << std::endl;
+         double d = sqrt(l.lengthsq());
+         std::cout << "istep: " << istep << " l: " << d
+                   << " ss: " << new_pt.second << "        "
+                   << new_pt.first.x() << " "
+                   << new_pt.first.y() << " "
+                   << new_pt.first.z() << " "
+                   << std::endl;
       }
       mol->DeleteSelection(selhnd);
       // next round
@@ -274,7 +274,7 @@ coot::hole::optimize_point(const clipper::Coord_orth &pt, int selhnd) {
       clipper::Coord_orth y_rand(d1, d2, d3);
       clipper::Coord_orth y_hat_rand(y_rand.unit());
       clipper::Coord_orth y_prime_rand =
-	 y_hat_rand - (clipper::Coord_orth::dot(v_hat, y_hat_rand)) * v_hat;
+         y_hat_rand - (clipper::Coord_orth::dot(v_hat, y_hat_rand)) * v_hat;
       
       clipper::Coord_orth trial_pt = current_pt + D_max * y_prime_rand;
 
@@ -282,18 +282,18 @@ coot::hole::optimize_point(const clipper::Coord_orth &pt, int selhnd) {
       // 
       double ss = sphere_size(trial_pt, selhnd);
       if (ss > current_ss) {
-	    current_pt = trial_pt;
-	    current_ss = ss;
-// 	    std::cout << "   updated current_ss to " << current_ss
-// 		      << " for start point " << pt.format() << " and trial point "
-// 		      << trial_pt.format() << "\n";
-	    move_count = 0; // reset
-	    if (ss > biggest_allowed_distance_to_protein) {
-	       // std::cout << "breaking..." << std::endl;
-	       break; // that's enough, the point has escaped presumably
-	    }
+            current_pt = trial_pt;
+            current_ss = ss;
+//             std::cout << "   updated current_ss to " << current_ss
+//                       << " for start point " << pt.format() << " and trial point "
+//                       << trial_pt.format() << "\n";
+            move_count = 0; // reset
+            if (ss > biggest_allowed_distance_to_protein) {
+               // std::cout << "breaking..." << std::endl;
+               break; // that's enough, the point has escaped presumably
+            }
       } else {
-	 move_count++;
+         move_count++;
       }
    }
    return std::pair<clipper::Coord_orth, double> (current_pt, current_ss);
@@ -317,15 +317,15 @@ coot::hole::sphere_size(const clipper::Coord_orth &pt, int selhnd) const {
 
    for (int iat=0; iat<n_selected_atoms; iat++) {
       clipper::Coord_orth atom_pos(atom_selection[iat]->x,
-				   atom_selection[iat]->y,
-				   atom_selection[iat]->z);
+                                   atom_selection[iat]->y,
+                                   atom_selection[iat]->z);
       double r_1 = clipper::Coord_orth::length(atom_pos, pt);
       atom_selection[iat]->GetUDData(radius_handle, atom_vdw_radius);
       double r = r_1 - atom_vdw_radius;
       if (r < largest_possible_sphere) {
-	 largest_possible_sphere = r;
-	 if (! was_set)
-	    was_set = 1;
+         largest_possible_sphere = r;
+         if (! was_set)
+            was_set = 1;
       }
    }
    
@@ -357,60 +357,60 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 
       for (unsigned int i=0; i<probe_path.size(); i++) {
 
-	 unsigned int max_upstream_check_limit = i-5;
-	 unsigned int max_downstream_check_limit = i+5;
+         unsigned int max_upstream_check_limit = i-5;
+         unsigned int max_downstream_check_limit = i+5;
 
-	 if (max_downstream_check_limit>=probe_path.size())
-	    max_downstream_check_limit=probe_path.size()-1;
+         if (max_downstream_check_limit>=probe_path.size())
+            max_downstream_check_limit=probe_path.size()-1;
 
-	 render_stream << probe_path[i].first.x() << " "
-		       << probe_path[i].first.y() << " "
-		       << probe_path[i].first.z() << " \"red\"\n";
-	 
-	 std::string colour = "blue";
+         render_stream << probe_path[i].first.x() << " "
+                       << probe_path[i].first.y() << " "
+                       << probe_path[i].first.z() << " \"red\"\n";
+         
+         std::string colour = "blue";
 
-	 if (probe_path[i].second < 2.1)
-	    colour = "blue";
-	 if (probe_path[i].second < 1.9)
-	    colour = "cyan";
-	 if (probe_path[i].second < 1.7)
-	    colour = "green";
-	 if (probe_path[i].second < 1.5)
-	    colour = "greentint";
-	 if (probe_path[i].second < 1.3)
-	    colour = "sea";
-	 if (probe_path[i].second < 1.1)
-	    colour = "yellow";
-	 if (probe_path[i].second < 0.9)
-	    colour = "yelllowtint";
-	 if (probe_path[i].second < 0.7)
-	    colour = "orange";
-	 if (probe_path[i].second < 0.5)
-	    colour = "red";
-	 if (probe_path[i].second < 0.3)
-	    colour = "hotpink";
-	 
+         if (probe_path[i].second < 2.1)
+            colour = "blue";
+         if (probe_path[i].second < 1.9)
+            colour = "cyan";
+         if (probe_path[i].second < 1.7)
+            colour = "green";
+         if (probe_path[i].second < 1.5)
+            colour = "greentint";
+         if (probe_path[i].second < 1.3)
+            colour = "sea";
+         if (probe_path[i].second < 1.1)
+            colour = "yellow";
+         if (probe_path[i].second < 0.9)
+            colour = "yelllowtint";
+         if (probe_path[i].second < 0.7)
+            colour = "orange";
+         if (probe_path[i].second < 0.5)
+            colour = "red";
+         if (probe_path[i].second < 0.3)
+            colour = "hotpink";
+         
 
-	 for (unsigned int itheta=0; itheta<n_theta_points; itheta++) {
-	    double theta = inv_n_theta * double(itheta);
-	    if (coot::util::even_p(i))
-	       theta += inv_n_theta * 0.5;
+         for (unsigned int itheta=0; itheta<n_theta_points; itheta++) {
+            double theta = inv_n_theta * double(itheta);
+            if (coot::util::even_p(i))
+               theta += inv_n_theta * 0.5;
 
-	    // now let's rotate unit_plane_vect around the circle.
-	    clipper::Coord_orth pos(probe_path[i].second * unit_plane_vect);
-	    clipper::Coord_orth circle_point =
-	       coot::util::rotate_around_vector(v_hat,
-						pos,
-						clipper::Coord_orth(0,0,0),
-						theta);
-	    clipper::Coord_orth surface_point = probe_path[i].first + circle_point;
+            // now let's rotate unit_plane_vect around the circle.
+            clipper::Coord_orth pos(probe_path[i].second * unit_plane_vect);
+            clipper::Coord_orth circle_point =
+               coot::util::rotate_around_vector(v_hat,
+                                                pos,
+                                                clipper::Coord_orth(0,0,0),
+                                                theta);
+            clipper::Coord_orth surface_point = probe_path[i].first + circle_point;
 
-	    render_stream << surface_point.x() << " "
-			  << surface_point.y() << " "
-			  << surface_point.z() << " "
-			  << "\"" << colour << "\""
-			  << "\n";
-	 }
+            render_stream << surface_point.x() << " "
+                          << surface_point.y() << " "
+                          << surface_point.z() << " "
+                          << "\"" << colour << "\""
+                          << "\n";
+         }
       }
    }
 
@@ -418,16 +418,16 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 
 void
 coot::hole::write_probe_path_using_spheres(const std::vector<coot::hole_surface_point_t> &surface_points,
-					   const std::string &file_name) const {
+                                           const std::string &file_name) const {
 
    std::ofstream render_stream(file_name.c_str());
    if (!render_stream) {
       std::cout << "failed to open " << file_name << std::endl;
    } else {
       for (unsigned int i=0; i<surface_points.size(); i++) { 
-	 render_stream << surface_points[i].position.format() << " "
-		       << surface_points[i].normal.format() << " "
-		       << surface_points[i].colour << "\n";
+         render_stream << surface_points[i].position.format() << " "
+                       << surface_points[i].normal.format() << " "
+                       << surface_points[i].colour << "\n";
       }
    } 
 }
@@ -453,9 +453,9 @@ coot::hole::get_surface_points(const std::vector<std::pair<clipper::Coord_orth, 
       const double &r = probe_path[i].second;
 
       if (max_upstream_check_limit<0)
-	 max_upstream_check_limit = 0;
+         max_upstream_check_limit = 0;
       if (max_downstream_check_limit>=int(probe_path.size()))
-	 max_downstream_check_limit=probe_path.size()-1;
+         max_downstream_check_limit=probe_path.size()-1;
 
       coot::colour_holder vertex_colour = probe_size_to_colour(probe_path[i].second);
       // std::cout << "         " << vertex_colour << std::endl;
@@ -467,58 +467,58 @@ coot::hole::get_surface_points(const std::vector<std::pair<clipper::Coord_orth, 
       bool check_ends = 0;
       double dot_prod_multiplier = 1;
       if (i == 0) {
-	 check_ends = 1;
+         check_ends = 1;
       }
       if (i == (probe_path.size() -1)) {
-	 check_ends = 1;
-	 dot_prod_multiplier = -1;
+         check_ends = 1;
+         dot_prod_multiplier = -1;
       }
-	    
+            
       for (double theta=0; theta<M_PI; theta+=theta_step) {
-	 double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
-	 for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	    if (even) { // even
-	       clipper::Coord_orth origin_based_sphere_point(r*cos(phi)*sin_theta,
-							     r*sin(phi)*sin_theta,
-							     r*cos_theta);
-	       clipper::Coord_orth surface_point = this_centre + origin_based_sphere_point;
-	       clipper::Coord_orth normal(origin_based_sphere_point.unit());
-	       bool reject = 0;
-	       for (int iprev=max_upstream_check_limit; iprev<=max_downstream_check_limit; iprev++) {
-		  if (iprev != int(i)) {
+         double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+         double sin_theta = sin(theta);
+         double cos_theta = cos(theta);
+         for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+            if (even) { // even
+               clipper::Coord_orth origin_based_sphere_point(r*cos(phi)*sin_theta,
+                                                             r*sin(phi)*sin_theta,
+                                                             r*cos_theta);
+               clipper::Coord_orth surface_point = this_centre + origin_based_sphere_point;
+               clipper::Coord_orth normal(origin_based_sphere_point.unit());
+               bool reject = 0;
+               for (int iprev=max_upstream_check_limit; iprev<=max_downstream_check_limit; iprev++) {
+                  if (iprev != int(i)) {
 
-		     clipper::Coord_orth diff = probe_path[iprev].first - surface_point;
-		     double d_sqrd = diff.lengthsq();
-		     double probe_prev_sqrd = probe_path[iprev].second * probe_path[iprev].second;
-		     if (d_sqrd < probe_prev_sqrd) {
-			reject = 1;
-			break;
-		     }
-		  }
-	       }
-	       if (! reject) {
+                     clipper::Coord_orth diff = probe_path[iprev].first - surface_point;
+                     double d_sqrd = diff.lengthsq();
+                     double probe_prev_sqrd = probe_path[iprev].second * probe_path[iprev].second;
+                     if (d_sqrd < probe_prev_sqrd) {
+                        reject = 1;
+                        break;
+                     }
+                  }
+               }
+               if (! reject) {
 
-		  bool do_it = 1;
-		     
-		  // turn off do_it so that we have open cups at the end points.
-		  // 
-		  if (check_ends == 1) {
-		     double dp = clipper::Coord_orth::dot(v_hat, origin_based_sphere_point);
-		     if (dp * dot_prod_multiplier < 0)
-			do_it = 0;
-		  }
-		     
-		  if (do_it) { 
-		     coot::hole_surface_point_t sp(surface_point, normal, vertex_colour);
-		     surface_points.push_back(sp);
-		  }
-	       }
-	    }
-	    // next round
-	    even = 1 - even;
-	 }
+                  bool do_it = 1;
+                     
+                  // turn off do_it so that we have open cups at the end points.
+                  // 
+                  if (check_ends == 1) {
+                     double dp = clipper::Coord_orth::dot(v_hat, origin_based_sphere_point);
+                     if (dp * dot_prod_multiplier < 0)
+                        do_it = 0;
+                  }
+                     
+                  if (do_it) { 
+                     coot::hole_surface_point_t sp(surface_point, normal, vertex_colour);
+                     surface_points.push_back(sp);
+                  }
+               }
+            }
+            // next round
+            even = 1 - even;
+         }
       }
    }
    return surface_points;
@@ -540,13 +540,13 @@ coot::hole::get_min_and_max(const std::vector<std::pair<clipper::Coord_orth, dou
       min_pos = clipper::Coord_orth( 1e20,  1e20,  1e20);
       max_pos = clipper::Coord_orth(-1e20, -1e20, -1e20);
       for (unsigned int i=0; i<probe_path.size(); i++) {
-	 const clipper::Coord_orth &pt = probe_path[i].first;
-	 if (pt[0] < min_pos[0]) min_pos[0] = pt[0];
-	 if (pt[1] < min_pos[1]) min_pos[1] = pt[1];
-	 if (pt[2] < min_pos[2]) min_pos[2] = pt[2];
-	 if (pt[0] > max_pos[0]) max_pos[0] = pt[0];
-	 if (pt[1] > max_pos[1]) max_pos[1] = pt[1];
-	 if (pt[2] > max_pos[2]) max_pos[2] = pt[2];
+         const clipper::Coord_orth &pt = probe_path[i].first;
+         if (pt[0] < min_pos[0]) min_pos[0] = pt[0];
+         if (pt[1] < min_pos[1]) min_pos[1] = pt[1];
+         if (pt[2] < min_pos[2]) min_pos[2] = pt[2];
+         if (pt[0] > max_pos[0]) max_pos[0] = pt[0];
+         if (pt[1] > max_pos[1]) max_pos[1] = pt[1];
+         if (pt[2] > max_pos[2]) max_pos[2] = pt[2];
       }
       p = std::pair<clipper::Coord_orth, clipper::Coord_orth>(min_pos, max_pos);
    } 
@@ -555,21 +555,21 @@ coot::hole::get_min_and_max(const std::vector<std::pair<clipper::Coord_orth, dou
 
 clipper::Xmap<float>
 coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path,
-			const clipper::Xmap<float> &xmap_ref,
-			const std::string &file_name) const {
+                        const clipper::Xmap<float> &xmap_ref,
+                        const std::string &file_name) const {
 
    // get min_max coords of probe path
    //
    std::pair<clipper::Coord_orth, clipper::Coord_orth> min_max = get_min_and_max(probe_path);
    clipper::Coord_orth middle(0.5*(min_max.first[0]+ min_max.second[0]),
-			      0.5*(min_max.first[1]+ min_max.second[1]),
-			      0.5*(min_max.first[2]+ min_max.second[2]));
+                              0.5*(min_max.first[1]+ min_max.second[1]),
+                              0.5*(min_max.first[2]+ min_max.second[2]));
 
    float border = 50;
    clipper::Cell_descr cell_descr(min_max.second[0]-min_max.first[0] + border,
-				  min_max.second[1]-min_max.first[1] + border,
-				  min_max.second[2]-min_max.first[2] + border,
-				  M_PI_2, M_PI_2, M_PI_2);
+                                  min_max.second[1]-min_max.first[1] + border,
+                                  min_max.second[2]-min_max.first[2] + border,
+                                  M_PI_2, M_PI_2, M_PI_2);
    clipper::Cell cell(cell_descr);
 
    clipper::ftype sampling = 2.0;
@@ -583,7 +583,7 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
    // gr1: a grid range of the correct size (around the correct place, comg)
    clipper::Grid_range gr0(cell, grid, radius);
    clipper::Grid_range gr1(gr0.min() + middle.coord_frac(cell).coord_grid(grid),
-			   gr0.max() + middle.coord_frac(cell).coord_grid(grid));
+                           gr0.max() + middle.coord_frac(cell).coord_grid(grid));
 
    std::cout << "Here with cell "           << cell.format() << std::endl;
    std::cout << "Here with gr1 "            << gr1.format() << std::endl;
@@ -627,22 +627,22 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
 
 void
 coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
-			      clipper::Xmap<float> *xmap) const {
+                              clipper::Xmap<float> *xmap) const {
    
    clipper::Coord_frac cf = co.coord_frac(xmap->cell());
 
    clipper::Coord_frac box0(
-			    cf.u() - atom_radius/xmap->cell().descr().a(),
-			    cf.v() - atom_radius/xmap->cell().descr().b(),
-			    cf.w() - atom_radius/xmap->cell().descr().c());
+                            cf.u() - atom_radius/xmap->cell().descr().a(),
+                            cf.v() - atom_radius/xmap->cell().descr().b(),
+                            cf.w() - atom_radius/xmap->cell().descr().c());
 
    clipper::Coord_frac box1(
-			    cf.u() + atom_radius/xmap->cell().descr().a(),
-			    cf.v() + atom_radius/xmap->cell().descr().b(),
-			    cf.w() + atom_radius/xmap->cell().descr().c());
+                            cf.u() + atom_radius/xmap->cell().descr().a(),
+                            cf.v() + atom_radius/xmap->cell().descr().b(),
+                            cf.w() + atom_radius/xmap->cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(xmap->grid_sampling()),
-			  box1.coord_grid(xmap->grid_sampling()));
+                          box1.coord_grid(xmap->grid_sampling()));
 
    float atom_radius_sq = atom_radius * atom_radius;
    int nhit = 0;
@@ -651,24 +651,24 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
    clipper::Xmap_base::Map_reference_coord ix( *xmap, grid.min() ), iu, iv, iw;
    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
-	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-	    if ( (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq() < atom_radius_sq) {
+         for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+            if ( (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq() < atom_radius_sq) {
 
-	       float masked_map_val = 4.9;
+               float masked_map_val = 4.9;
 
-	       if (false)
-		  std::cout << "masked " << masked_map_val << " point at " 
-			    << iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()).format()
-			    << " centre point: " << co.format() << " " 
-			    << (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq()
-			    << "\n";
-	       
-	       (*xmap)[iw] = masked_map_val;
-	       nhit++;
-	    } else {
-	       nmiss++;
-	    }
-	 }
+               if (false)
+                  std::cout << "masked " << masked_map_val << " point at " 
+                            << iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()).format()
+                            << " centre point: " << co.format() << " " 
+                            << (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq()
+                            << "\n";
+               
+               (*xmap)[iw] = masked_map_val;
+               nhit++;
+            } else {
+               nmiss++;
+            }
+         }
       }
    }
    std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
@@ -678,18 +678,18 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 
 clipper::NXmap<float>
 coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path,
-			const std::string &file_name) const {
+                        const std::string &file_name) const {
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> min_max = get_min_and_max(probe_path);
    clipper::Coord_orth middle(0.5*(min_max.first[0]+ min_max.second[0]),
-			      0.5*(min_max.first[1]+ min_max.second[1]),
-			      0.5*(min_max.first[2]+ min_max.second[2]));
+                              0.5*(min_max.first[1]+ min_max.second[1]),
+                              0.5*(min_max.first[2]+ min_max.second[2]));
 
    float border = 200;
    clipper::Cell_descr cell_descr(min_max.second[0]-min_max.first[0] + border,
-				  min_max.second[1]-min_max.first[1] + border,
-				  min_max.second[2]-min_max.first[2] + border,
-				  M_PI_2, M_PI_2, M_PI_2);
+                                  min_max.second[1]-min_max.first[1] + border,
+                                  min_max.second[2]-min_max.first[2] + border,
+                                  M_PI_2, M_PI_2, M_PI_2);
    clipper::Cell cell(cell_descr);
 
    clipper::ftype sampling = 2.0;
@@ -703,18 +703,18 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
    // gr1: a grid range of the correct size (around the correct place, comg)
    clipper::Grid_range gr0(cell, grid, radius);
    clipper::Grid_range gr1(gr0.min() + middle.coord_frac(cell).coord_grid(grid),
-			   gr0.max() + middle.coord_frac(cell).coord_grid(grid));
+                           gr0.max() + middle.coord_frac(cell).coord_grid(grid));
 
    std::cout << "Here with NX min_max.first  "  << min_max.first.format() << std::endl;
    std::cout << "Here with NX min_max.second "  << min_max.second.format() << std::endl;
    std::cout << "Here with NX middle "           << middle.format() << std::endl;
    std::cout << "max - min                   = " << (min_max.second - min_max.first).format()
-	     << std::endl;
+             << std::endl;
    std::cout << "Here with NX cell           = " << cell.format() << std::endl;
    std::cout << "Here with NX gr0             min: "  << gr0.min().format() << " max: "
-	     << gr0.max().format() << std::endl;
+             << gr0.max().format() << std::endl;
    std::cout << "Here with NX gr1             min: "  << gr1.min().format() << " max: "
-	     << gr1.max().format() << std::endl;
+             << gr1.max().format() << std::endl;
 
    // init nxmap
    clipper::NXmap<float> nxmap(cell, grid, gr1);
@@ -763,8 +763,8 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
       clipper::Coord_map  cm = cf.coord_map(grid);
       clipper::Coord_grid cg = cm.coord_grid();
       if (false)
-	 std::cout << "info:: at " << cg.format() << " + " << offset.format()
-		   << " setting to 0"  << std::endl;
+         std::cout << "info:: at " << cg.format() << " + " << offset.format()
+                   << " setting to 0"  << std::endl;
       nxmap.set_data(cg+offset, 0);
    }
 

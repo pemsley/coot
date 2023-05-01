@@ -11,6 +11,7 @@ namespace std {
 
 %{
 #include <cstddef>
+#include <lidia-core/use-rdkit.hh>
 #include "pyrogen/restraints.hh"
 // #include "pyrogen/geometry-store.hh"
 // #include "pyrogen/geometry-store-interface.hh"

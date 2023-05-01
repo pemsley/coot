@@ -22,3 +22,5 @@ if Rscript burn-up-graph.r ; then
    :
 
 fi
+
+eog burn-up.png

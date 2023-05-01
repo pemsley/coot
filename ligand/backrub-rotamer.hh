@@ -26,12 +26,15 @@
 
 #include <clipper/core/xmap.h>
 #include "mini-mol/mini-mol.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 namespace coot {
 
    // not just for backrubbing.
-   float get_clash_score(const coot::minimol::molecule &a_rotamer,
-			 atom_selection_container_t asc);
+   // 20201030-PE now return the clashing waters too.
+        std::pair<float, std::vector<mmdb::Atom *> > get_clash_score(const minimol::molecule &a_rotamer,
+                         atom_selection_container_t asc, int water_interaction_mode);
 
    class backrub {
       mmdb::Residue *orig_this_residue;
@@ -46,7 +49,8 @@ namespace coot {
       minimol::fragment make_test_fragment(mmdb::Residue *r, double rotation_angle) const;
       std::string chain_id;
       float score_fragment(minimol::fragment &frag) const;
-      clipper::Xmap<float> xmap;
+      // clipper::Xmap<float> xmap;
+      const clipper::Xmap<float> *xmap_p;
       mmdb::Manager *stored_mol;
       minimol::residue
       make_residue_include_only(mmdb::Residue *orig_prev_residue,
@@ -56,8 +60,11 @@ namespace coot {
 
       // do a check of the residue numbers and chaid id so that "same
       // residue" clashes are not counted.
-      float get_clash_score(const coot::minimol::molecule &a_rotamer,
-			    mmdb::PPAtom sphere_atoms, int n_sphere_atoms) const;
+      // 20201030-PE now return the clashing waters too.
+      std::pair<float, std::vector<mmdb::Atom*> >
+      get_clash_score(const minimol::molecule &a_rotamer,
+		                mmdb::PPAtom sphere_atoms, int n_sphere_atoms,
+                     int water_interaction_mode) const;
 
       void rotate_individual_peptide(mmdb::Residue *r, double rotation_angle,
 				     minimol::fragment *f) const;
@@ -79,8 +86,9 @@ namespace coot {
       void apply_back_rotation(minimol::fragment *f,				   
 			       bool is_leading_peptide_flag,
 			       double best_back_rotation_angle) const;
-      
-      
+
+      std::vector<mmdb::Atom *> clashing_waters; // these are turned into waters_for_deletion
+
    public:
 
       // Throw an exception on failure to construct the backrub internals.
@@ -91,20 +99,26 @@ namespace coot {
 	      mmdb::Residue *next_r,
 	      const std::string &alt_conf_in,
 	      mmdb::Manager *mol_in,
-	      const clipper::Xmap<float> &xmap_in) {
-	 orig_this_residue = this_r;
-	 orig_prev_residue = prev_r;
-	 orig_next_residue = next_r;
-	 setup_this_and_prev_next_ca_positions();
-	 chain_id = chain_id_in;
-	 xmap = xmap_in;
-	 alt_conf = alt_conf_in;
-	 stored_mol = mol_in;
-      }
+	      const clipper::Xmap<float> *xmap_in_p) {
+            orig_this_residue = this_r;
+            orig_prev_residue = prev_r;
+            orig_next_residue = next_r;
+            setup_this_and_prev_next_ca_positions();
+            chain_id = chain_id_in;
+            xmap_p = xmap_in_p;
+            alt_conf = alt_conf_in;
+            stored_mol = mol_in;
+         }
 
       // throw an exception on failure to get a good search result.
       std::pair<coot::minimol::molecule, float> search(const dictionary_residue_restraints_t &rest);
+
+      // maybe we need to delete a water or two to get a good fit for the side chain?
+      std::vector<atom_spec_t> waters_for_deletion() const;
    };
+
+   void backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p,
+                        const coot::protein_geometry &pg);
 
 }
 

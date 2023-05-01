@@ -19,41 +19,40 @@
 #include "CXXCircleNode.h"
 #include "CXXTorusElement.h"
 
-void CXXNewHood::init(){
+void CXX_mot::CXXNewHood::init(){
 	theAtomI = 0;
 	theRadius = 0;
     theProbeRadius = 0;
 	theCentre = CXXCoord(0.,0.,0.);
-	// theCircles.resize(0);
 	theCircles.clear();
 }
 
-CXXNewHood::CXXNewHood(){
+CXX_mot::CXXNewHood::CXXNewHood(){
 	init();
 }
 
-CXXNewHood::CXXNewHood(mmdb::PAtom centralAtom, double radiusOfAtom1, double probeRadius) :
+CXX_mot::CXXNewHood::CXXNewHood(mmdb::PAtom centralAtom, double radiusOfAtom1, double probeRadius) :
 theAtomI(centralAtom), 
 theRadius(radiusOfAtom1+probeRadius), 
 theProbeRadius(probeRadius){
 	theCentre = CXXCoord(theAtomI->x, theAtomI->y, theAtomI->z);
 }
 
-void CXXNewHood::initWith(const CXXCircleNode &aNode, double probeRadius) {
+void CXX_mot::CXXNewHood::initWith(const CXXCircleNode &aNode, double probeRadius) {
     theAtomI= 0;
     theRadius = probeRadius;
     theProbeRadius = 0;
     theCentre = aNode.getCoord();
 }
 
-void CXXNewHood::initWith(const CXXBall *aBall){
+void CXX_mot::CXXNewHood::initWith(const CXXBall *aBall){
 	theBall = aBall;
 	theRadius = aBall->getRadius();
 	theProbeRadius = 0.;
 	theCentre = aBall->getCoord();
 };
 
-int CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
+int CXX_mot::CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
 	if (anAtomJ->serNum == theAtomI->serNum) {
 		//		std::cout << "Rejecting self " << anAtomJ->serNum << " " <<  theAtomI->serNum << endl;
 		return 0; //Worried this might not be unique
@@ -77,7 +76,7 @@ int CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
 	return result;
 }
 
-int CXXNewHood::addBall(const CXXBall &aBall){
+int CXX_mot::CXXNewHood::addBall(const CXXBall &aBall){
     if (!theCentre.isNearly(aBall.getCoord(), 0.0001)){
         CXXCoord separ = aBall.getCoord() - theCentre;
         double sumrad = theRadius + aBall.getRadius();
@@ -89,21 +88,21 @@ int CXXNewHood::addBall(const CXXBall &aBall){
     return 0;
 }
 
-int CXXNewHood::findSegments(){
-	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > theIntersections(2);
+int CXX_mot::CXXNewHood::findSegments(){
+	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > theIntersections(2);
     CXXCircleNode circleNode0;
     CXXCircleNode circleNode1;
     CXXCircleNode circleNode2;
     CXXCircleNode circleNode3;
 	//First cause circles to find their nodes
 	
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd;
 		 ++circleIter){
 		CXXCircle &circle1(*circleIter);
 		if (!circle1.getEaten()){
-			for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circle2Iter = circleIter;
+			for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circle2Iter = circleIter;
 				 circle2Iter != circlesEnd;
 				 ++circle2Iter){
 				CXXCircle &circle2(*circle2Iter);
@@ -160,7 +159,7 @@ int CXXNewHood::findSegments(){
 		}
     }
 	circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd;
 		 ++circleIter){
 		CXXCircle &circle1(*circleIter);
@@ -182,35 +181,35 @@ int CXXNewHood::findSegments(){
 	return 0;
 }
 
-const CXXCoord &CXXNewHood::getCentre() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXNewHood::getCentre() const{
 	return theCentre;
 }
 
-double CXXNewHood::getRadius() const{
+double CXX_mot::CXXNewHood::getRadius() const{
 	return theRadius;
 }
-int CXXNewHood::nCircles() const{
+int CXX_mot::CXXNewHood::nCircles() const{
 	return theCircles.size();
 }
-const mmdb::PAtom CXXNewHood::getAtomI() const {
+const mmdb::PAtom CXX_mot::CXXNewHood::getAtomI() const {
 	return theAtomI;
 }
 
-double CXXNewHood::getProbeRadius() const{
+double CXX_mot::CXXNewHood::getProbeRadius() const{
 	return theProbeRadius;
 }
 
 
-bool CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
+bool CXX_mot::CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
 	//Identify how many of the circles of this hood actually have active segments
 	//and hence surface elements to draw...no nodes means either no intersecting
 	//spheres, or no accessible surfce patches 
 
 	int nActiveCircles = 0;
-	const std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >& theCircles(aHood.getCircles());
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
+	const std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >& theCircles(aHood.getCircles());
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
 	bool result = (theCircles.size() == 0);
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd;
 		 ++circleIter){
 		const CXXCircle &theCircle(*circleIter);
@@ -223,7 +222,7 @@ bool CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
 	return !result;
 }
 
-void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta, const CXXSphereElement *unitSphereAtOrigin) const
+void CXX_mot::CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta, const CXXSphereElement *unitSphereAtOrigin) const
 {    
     const CXXNewHood &theNewHood(*this);
     
@@ -235,8 +234,8 @@ void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta
     
     //Use the patch edges to trim the triangles of the VDW sphere
 	
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd && vdwSphere.getNDrawnTriangles();
 		 ++circleIter){
 		const CXXCircle &theCircle(*circleIter);        
@@ -249,7 +248,7 @@ void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta
     
     //We collect the sphere vertices that have been generated in the trimming process
     //so that we can introduce them into the corresponding torus later
-    map<const CXXCircle *, vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >  > rawEdges;
+    map<const CXXCircle *, vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >  > rawEdges;
     if (vdwSphere.nFlatTriangles()) {
         for (unsigned iVertex = 0; iVertex < vdwSphere.nVertices(); iVertex++){
             if (vdwSphere.vertex(iVertex).doDraw()){
@@ -266,7 +265,7 @@ void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta
     //Create torus elements for each of the segments, and elaborate them with the additional vertices
     //that correspond to ragged edges from the sphere
 	circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd;
 		 ++circleIter){
 		const CXXCircle &theCircle(*circleIter);        
@@ -295,10 +294,10 @@ void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta
     aSurface->upLoadSphere(vdwSphere, getProbeRadius(), CXXSphereElement::Contact);        
 }
 
-void CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const {
+void CXX_mot::CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const {
     //Generate the equivalent hoods
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd;
 		 ++circleIter){
 		const CXXCircle &theCircle(*circleIter);
@@ -353,16 +352,16 @@ void CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX::CXXAlloc<CXXCirc
     }
 }
 
-void CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta, 
-										   std::map<const CXXBall*, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > &raggedEdges, 
+void CXX_mot::CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta, 
+										   std::map<const CXXBall*, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > &raggedEdges, 
 										   bool useEdges, int insideOrOutside) 
 {    
 	CXXSphereElement ballSphere;
 	theBall->initSphereElement(ballSphere, delta);
 	//Now use the circles identified in the above hood to trim the ball sphere element
 	int wasTrimmed = 0;
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
-	for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
+	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
 		 circleIter != circlesEnd && ballSphere.getNDrawnTriangles ();
 		 ++circleIter){
 		const CXXCircle &theCircle(*circleIter);		//our ball hood will contain circles that correspond to the initial edges of the
@@ -381,8 +380,8 @@ void CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta,
 		//We get here if this sphere was trimmed by intersection with other spheres...
 		//this is the point at which to distribute the corresponding loose ends amongst
 		//the probes that generated them
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
@@ -392,16 +391,16 @@ void CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta,
 		}	
 	}
 	else if (useEdges && wasTrimmed && ballSphere.getNDrawnTriangles()>0 ) {
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd && ballSphere.getNDrawnTriangles()>0;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
 			const CXXBall *ballJ(theCircle.getBallJ());
 			ballSphere.flagCutTriangles(theCircle);
-			std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > &ballsEdges(raggedEdges[ballJ]);
-			std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> >::iterator ballsEdgesEnd(ballsEdges.end());
-			for (std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> >::iterator ballsEdge = ballsEdges.begin();
+			std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > &ballsEdges(raggedEdges[ballJ]);
+			std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> >::iterator ballsEdgesEnd(ballsEdges.end());
+			for (std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> >::iterator ballsEdge = ballsEdges.begin();
 				 ballsEdge!= ballsEdges.end();
 				 ballsEdge++){
 				ballSphere.addVertex(CXXCircleNode(&theCircle, 0, *ballsEdge, 0));

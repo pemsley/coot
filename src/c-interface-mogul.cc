@@ -37,6 +37,8 @@
 
 #include "interface.h"
 
+#include "widget-from-builder.hh"
+
 void
 mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
 
@@ -94,8 +96,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 			      coot::arc_info_type angle_info(at_1, at_2, at_3);
 			      to_generic_object_add_arc(new_obj, hex_colour.c_str(),
 							radius, radius_inner,
-							angle_info.start,
-							angle_info.end,
+							angle_info.delta,
 							angle_info.start_point.x(),
 							angle_info.start_point.y(),
 							angle_info.start_point.z(),
@@ -192,6 +193,10 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
 void
 show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
+   // 20220405-PE 
+   std::cout << "INFO:: show_mogul_geometry_dialog() has been removed for now (GTK4 port)" << std::endl;
+
+#if 0
    if (graphics_info_t::use_graphics_interface_flag) { 
 #ifdef HAVE_GOOCANVAS
       GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue); // results table
@@ -200,6 +205,7 @@ show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
       } 
 #endif // HAVE_GOOCANVAS
    }
+#endif
 }
 
 GtkCellRenderer *
@@ -232,7 +238,10 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 GtkWidget
 *wrapped_create_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
-   GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
+   // GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
+   GtkWidget *w = widget_from_builder("mogul_geometry_results_table_dialog"); // results table
+
+   if (! w) return 0;
 
    if (residue) { 
 
@@ -242,9 +251,12 @@ GtkWidget
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       
-      GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
-      GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
-      GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+      // GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
+      // GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
+      // GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+      GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(widget_from_builder("mogul_bonds_treeview"));
+      GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(widget_from_builder("mogul_angles_treeview"));
+      GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(widget_from_builder("mogul_torsions_treeview"));
 
       coot::fill_mogul_bonds_tab(      mogul_bonds_treeview, w, m, residue);
       coot::fill_mogul_angles_tab(    mogul_angles_treeview, w, m, residue);

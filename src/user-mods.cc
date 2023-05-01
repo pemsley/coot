@@ -1,9 +1,11 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include <sstream>
 
@@ -252,7 +254,7 @@ coot::flips_container::user_mods() const {
       // (list atom_spec residue-type info-string set-string score)
       // 
       SCM flip_scm = SCM_EOL;
-      flip_scm = scm_cons(scm_double2num(flips[i].score), flip_scm);
+      flip_scm = scm_cons(scm_from_double(flips[i].score), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].set_string.c_str()), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].info_string.c_str()), flip_scm);
       flip_scm = scm_cons(scm_from_locale_string(flips[i].residue_type.c_str()), flip_scm);
@@ -293,9 +295,9 @@ coot::flips_container::user_mods_py() const {
       PyObject *flip_py = PyList_New(5);
       PyObject *atom_spec_py = atom_spec_to_py(flips[iflip].atom_spec);
       PyList_SetItem(flip_py, 0, atom_spec_py);
-      PyList_SetItem(flip_py, 1, PyString_FromString(flips[iflip].residue_type.c_str()));
-      PyList_SetItem(flip_py, 2, PyString_FromString(flips[iflip].info_string.c_str()));
-      PyList_SetItem(flip_py, 3, PyString_FromString(flips[iflip].set_string.c_str()));
+      PyList_SetItem(flip_py, 1, myPyString_FromString(flips[iflip].residue_type.c_str()));
+      PyList_SetItem(flip_py, 2, myPyString_FromString(flips[iflip].info_string.c_str()));
+      PyList_SetItem(flip_py, 3, myPyString_FromString(flips[iflip].set_string.c_str()));
       PyList_SetItem(flip_py, 4, PyFloat_FromDouble(flips[iflip].score));
       PyList_Append(flips_list, flip_py);
       Py_XDECREF(flip_py);
@@ -303,7 +305,7 @@ coot::flips_container::user_mods_py() const {
    // An adjustment is 2 items: first is a list of atom specs, second is a info-string
    for (unsigned int ina=0; ina<no_adjustments.size(); ina++) {
       PyObject *no_adjust_py = PyList_New(2);
-      PyObject *info_string_py = PyString_FromString(no_adjustments[ina].info_string().c_str());
+      PyObject *info_string_py = myPyString_FromString(no_adjustments[ina].info_string().c_str());
       PyObject *no_adjust_atom_spec_list_py = PyList_New(no_adjustments[ina].atom_specs.size());
       for (unsigned int ispec=0; ispec<no_adjustments[ina].atom_specs.size(); ispec++) {
 	 PyObject *atom_spec_py = atom_spec_to_py(no_adjustments[ina].atom_specs[ispec]);
@@ -319,3 +321,14 @@ coot::flips_container::user_mods_py() const {
    return r;
 }
 #endif // USE_PYTHON
+
+
+void
+coot::flips_container::flip::print() const {
+
+   std::cout << "flip " << atom_spec
+             << " " << set_string
+             << " " << info_string
+             << " " << residue_type
+             << " " << score << std::endl;
+}

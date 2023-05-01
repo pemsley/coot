@@ -20,9 +20,6 @@
  * 02110-1301, USA
  */
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
 
 #include <cstring> // otherwise strchr() problems when using clang/Mac,
                    // when including mmdb2/mmdb_manager.h at the top (or

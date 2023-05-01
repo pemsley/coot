@@ -15,12 +15,10 @@
 
 using namespace std;
 
-class CXXChargeTable;
-
-namespace CXXUtils{
+namespace CXXUtils_old {
 	
 	int assignUnitedAtomRadius(mmdb::PManager, int selHnd);
-	int assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable);
+	int assignCharge(mmdb::PManager theManager, int selHnd, CXX_mot::CXXChargeTable *theChargeTable);
 	int selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, mmdb::SELECTION_KEY selKeyRequest=mmdb::SKEY_NEW);
 	int unCharge(mmdb::PManager theManager,int selHnd);
 	void reformatAtomRadii();

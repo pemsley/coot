@@ -24,6 +24,8 @@
 // contains the c interface for the graphics, i.e. those 
 // needed in main.c, used by 
 
+#if 0 // 20220601-PE is there anything in this file worth keeping?
+
 #include <string>
 #include <vector>
 
@@ -34,14 +36,11 @@
 #define GRAPHICS_WINDOW_X_START_SIZE 500
 #define GRAPHICS_WINDOW_Y_START_SIZE 500
 
-GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero); 
 
-enum { IN_STEREO_MONO = 0, 
-       IN_STEREO_HARDWARE_STEREO=1, 
-       IN_STEREO_ZALMAN_RIGHT=5, 
-       IN_STEREO_ZALMAN_LEFT=6, 
-       IN_STEREO_SIDE_BY_SIDE_LEFT=10,
-       IN_STEREO_SIDE_BY_SIDE_RIGHT=11};
+// Gtk2
+GtkWidget* gl_extras(GtkWidget* window, short int try_hardware_stero);
+// Gtk3
+GtkWidget* gl_gtk3_widget(GtkWidget* window, short int try_hardware_stero);
 
 gint init(GtkWidget *widget); 
 gint init_gl_widget(GtkWidget *widget);
@@ -63,8 +62,11 @@ void init_molecule();
 gint draw(GtkWidget *widget, GdkEventExpose *event);
 gint expose(GtkWidget *widget, GdkEventExpose *event);
 gint draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag);
+void debug_eye_position(GtkWidget *widget);
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event);
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event);
+void stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag);
+coot::Cartesian eye_position();
 
 void do_drag_pan(gdouble x, gdouble y, GtkWidget *widget);
 void do_button_zoom(gdouble x, gdouble y);
@@ -95,16 +97,17 @@ void display_density_level_maybe();
 // colour helper function
 // double combine_colour(double v, int col_part_index); 
 
-std::vector<float> rotate_rgb(std::vector<float> &in_vals, 
-			      float amount); 
+std::vector<float> rotate_rgb(std::vector<float> &in_vals, float amount); 
+
 std::vector<float> convert_rgb_to_hsv(const std::vector<float> &rgb);
 std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
 
 //
 
+void setup_molecular_triangles();
 
 void setup_lighting(short int do_lighting_flag); 
-
+void show_lighting();
 
 void draw_surface_as_display_list();
 
@@ -123,9 +126,10 @@ void graphics_ligand_view();
 
 void draw_crosshairs_maybe();
 
-gint animate_idle_spin(GtkWidget *widget);
-gint animate_idle_rock(GtkWidget *widget);
-gint animate_idle_ligand_interactions(GtkWidget *widget);
+gint animate_idle_spin(gpointer user_data);
+gboolean animate_idle_rock(gpointer user_data);
+// gint animate_idle_ligand_interactions(GtkWidget *widget);
+gboolean animate_idle_ligand_interactions(gpointer data);
 
 
 void update_things_on_move_and_redraw(); 
@@ -137,5 +141,9 @@ void myWireCube(float size);
 void keypad_translate_xyz(short int axis, short int direction);
 
 void test_object();
+
+gint idle_contour_function(gpointer data);
+
+#endif
 
 #endif // GLOBJECTS_H

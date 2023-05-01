@@ -99,6 +99,8 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 
 }
 
+#include "python-3-interface.hh"
+
 //! \brief return a Python object for the radii of the atoms in the dictionary
 //
 PyObject *get_dictionary_radii() {
@@ -118,9 +120,9 @@ PyObject *get_dictionary_radii() {
       for (std::size_t j=0; j<ai.size(); j++) {
 	 const std::string &atom_name = ai[j].atom_id_4c;
 	 double r = g.Geom_p()->get_vdw_radius(atom_name, residue_name, imol_enc, use_vdwH_flag);
-	 PyDict_SetItem(atoms_dict_py, PyString_FromString(atom_name.c_str()), PyFloat_FromDouble(r));
+	 PyDict_SetItem(atoms_dict_py, myPyString_FromString(atom_name.c_str()), PyFloat_FromDouble(r));
       }
-      PyDict_SetItem(residue_dict_py, PyString_FromString(residue_name.c_str()), atoms_dict_py);
+      PyDict_SetItem(residue_dict_py, myPyString_FromString(residue_name.c_str()), atoms_dict_py);
    }
    r = residue_dict_py;
    return r;
@@ -128,4 +130,93 @@ PyObject *get_dictionary_radii() {
 
 
 
+// deliberately inside the Python test
+
+//! \brief return the continue-updating-refinement-atoms state
+//
+// 0 means off, 1 means on.
+int get_continue_updating_refinement_atoms_state() {
+
+   // bool to int
+   return graphics_info_t::continue_update_refinement_atoms_flag;
+
+}
+
 #endif // Python
+
+
+#ifdef USE_GUILE
+SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
+
+   SCM r = SCM_BOOL_F;
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   if (true) {
+
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance("//", "RampChainsScheme", "Ribbon");
+	 // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(graphics_info_t::molecules[imol].molrepinst);
+	 graphics_draw();
+      }
+   }
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+   return r;
+}
+#endif
+
+
+#include "coot-utils/coot-h-bonds.hh"
+#include "glarea_tick_function.hh"
+
+
+void set_draw_hydrogen_bonds(int state) {
+
+   graphics_info_t::mesh_for_hydrogen_bonds.set_draw_this_mesh(state);
+
+}
+
+
+void calculate_hydrogen_bonds(int imol) {
+
+   auto mmdb_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   if (is_valid_model_molecule(imol)) {
+      coot::h_bonds hbs;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int sel_1 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
+      int sel_2 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
+      const coot::protein_geometry &geom(*graphics_info_t::Geom_p());
+      std::vector<coot::h_bond> h_bonds = hbs.get(sel_1, sel_2, mol, geom);
+
+      std::cout << "INFO:: Found " << h_bonds.size() << " hydrogen bonds " << std::endl;
+
+      graphics_info_t::hydrogen_bonds_atom_position_pairs.clear();
+      for (unsigned int i=0; i<h_bonds.size(); i++) {
+         const coot::h_bond hb = h_bonds[i];
+         if (hb.has_hydrogen()) {
+            mmdb::Atom *at_1 = hb.hb_hydrogen;
+            mmdb::Atom *at_2 = hb.acceptor;
+            if (at_1 && at_2) {
+               glm::vec3 p_1 = mmdb_to_glm(at_1);
+               glm::vec3 p_2 = mmdb_to_glm(at_2);
+               graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p_2, p_1));
+            }
+
+         } else {
+            mmdb::Atom *at_1 = hb.donor;
+            mmdb::Atom *at_2 = hb.acceptor;
+            if (at_1 && at_2) {
+               glm::vec3 p_1 = mmdb_to_glm(at_1);
+               glm::vec3 p_2 = mmdb_to_glm(at_2);
+               graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p_2, p_1));
+            }
+         }
+      }
+
+      std::string label = "Hydrogen Bonds for Molecule  " + std::to_string(imol);
+      graphics_info_t::update_hydrogen_bond_mesh(label);
+
+   }
+}

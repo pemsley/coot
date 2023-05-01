@@ -21,10 +21,11 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include <iomanip> 
+#include <iomanip>
 #include "compat/coot-sysdep.h"
 
-#include "libgtkgraph/gtkgraph.h"
+// We don't use gtkgraph these days
+// #include "libgtkgraph/gtkgraph.h"
 
 #ifdef HAVE_GOOCANVAS
 #include "goograph/goograph.hh"
@@ -68,24 +69,31 @@ void hole(int imol, float start_x, float start_y, float start_z,
 
       int obj_path    = new_generic_object_number("Probe path");
       int obj_surface = new_generic_object_number("Probe surface");
-   
-      for (unsigned int i=0; i<probe_path.size(); i++) {
-	 to_generic_object_add_point(obj_path, "red", 3,
-				     probe_path[i].first.x(),
-				     probe_path[i].first.y(),
-				     probe_path[i].first.z());
-      }
+      unsigned int num_subdivisions = 2;
 
-      for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) { 
-	 to_generic_object_add_point(obj_surface,
-				     hole_path_and_surface.second[i].colour.hex().c_str(),
-				     1, // pixel
-				     hole_path_and_surface.second[i].position.x(),
-				     hole_path_and_surface.second[i].position.y(),
-				     hole_path_and_surface.second[i].position.z());
-      }
+      if (false)
+         for (unsigned int i=0; i<probe_path.size(); i++) {
+            to_generic_object_add_point(obj_path, "red", 3,
+                                        probe_path[i].first.x(),
+                                        probe_path[i].first.y(),
+                                        probe_path[i].first.z());
+         }
 
-      set_display_generic_object(obj_path,    1);
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      meshed_generic_display_object &surface_obj = g.generic_display_objects[obj_surface];
+
+      for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) {
+         std::string colour_name = hole_path_and_surface.second[i].colour.hex();
+         coot::colour_holder colour =
+            coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
+         const clipper::Coord_orth &pt = hole_path_and_surface.second[i].position;
+         surface_obj.add_point(colour, colour_name, 4, pt, num_subdivisions);
+      }
+      Material material;
+      // surface_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done 20210910-PE
+      surface_obj.mesh.setup(material); // fast return if already done
+
+      // set_display_generic_object(obj_path,    1);
       set_display_generic_object(obj_surface, 1);
 
       std::string text;
@@ -105,7 +113,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       std::ofstream radius_stream(file_name.c_str());
       if (! radius_stream) {
 	 std::cout << "WARNING:: failure to open " << file_name<< std::endl;
-      } else { 
+      } else {
 	 for (unsigned int i=0; i<n; i++) {
 	    double f = path_length * double(i)/double(n);
 	    radius_stream << f << "    "  << probe_path[i].second
@@ -136,8 +144,8 @@ void hole(int imol, float start_x, float start_y, float start_z,
 		 << hole_path_and_surface.second[i].colour.hex()
 		 << "\n";
 	    }
-	 } 
-      } 
+	 }
+      }
 
       std::pair<int, int> geom(160, 400);
       simple_text_dialog("Probe radius data", text, geom.first, geom.second);
@@ -149,7 +157,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       bool export_map = true;
       if (export_map) {
 	 int imol_map = imol_refinement_map();
-	 if (is_valid_map_molecule(imol_map)) { 
+	 if (is_valid_map_molecule(imol_map)) {
 	    const clipper::Xmap<float> &ref_map = g.molecules[imol_map].xmap;
 	    hole.carve_a_map(probe_path, ref_map, "hole.map");
 	 }
@@ -168,25 +176,34 @@ void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_ort
    show_hole_probe_radius_graph_goocanvas(hole_path, path_length);
 #else
    show_hole_probe_radius_graph_basic(hole_path, path_length);
-#endif    
+#endif
 }
 
 void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-   
+   // change this to goocanvas usage, because clang doesn't link libcoot-gtkgraph properly/in a way that I understand
+
+#if 0
    GtkWidget *d = gtk_dialog_new();
-   gtk_object_set_data(GTK_OBJECT(d), "probe_radius_graph", d);
+   g_object_set_data(G_OBJECT(d), "probe_radius_graph", d);
    gtk_window_set_title (GTK_WINDOW(d), "Probe Radius Graph");
    gtk_window_set_default_size(GTK_WINDOW(d), 600, 500);
-   GtkWidget *vbox = GTK_DIALOG(d)->vbox;
-   GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+   // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+   GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
+   GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					 GTK_WIDGET(vbox_inner));
+   // this is deprecated
+   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+   // GTK_WIDGET(vbox_inner));
+   // replace with:
+   gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
    gtk_widget_show(scrolled_window);
    gtk_widget_show(vbox_inner);
-      
+
+/* Replace by goograph GTK-FIXME
+
    GtkWidget *graph = gtk_graph_new(XY);
    gtk_graph_set_title(GTK_GRAPH(graph), "Probe Radius along Path", NULL);
    gtk_container_add(GTK_CONTAINER(vbox_inner), graph);
@@ -225,12 +242,14 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 			     3.5, 0.0);
    gtk_graph_axis_set_tick(GTK_GRAPH(graph), GTK_GRAPH_AXIS_INDEPENDANT, 5.0, 1.0);
    gtk_graph_trace_format_title(GTK_GRAPH(graph), trace, "Hole Radius");
+*/
+#endif
 }
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
 #ifdef HAVE_GOOCANVAS
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
       std::vector<std::pair<double, double> > data;
@@ -255,7 +274,7 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
       g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_LINE);
       g->show_dialog();
    }
-#endif // HAVE_GOOCANVAS   
+#endif // HAVE_GOOCANVAS
 }
 
 
@@ -263,6 +282,151 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
 void probe_radius_graph_close_callback( GtkWidget *button,
  					GtkWidget *dialog) {
 
-   gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 } 
 
+
+#ifdef USE_GUILE
+SCM model_composition_statistics_scm(int imol) {
+
+   SCM r = SCM_EOL;
+
+   /* 
+Model composition
+   Non-hydrogen atoms
+   Protein residues
+   Zinc ions (or other ligands) 
+
+RMS deviations
+   Bonds
+   Angles
+
+Validation
+   Number of C-beta deviation outliers
+   Atom overlap score [Clash score]
+   Good rotamers (%)
+   Ramachandran plot
+       Favoured
+       Outliers
+   */
+
+   if (is_valid_model_molecule(imol)) {
+      coot::model_composition_stats_t s = graphics_info_t::molecules[imol].get_model_composition_statistics();
+   }
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *model_composition_statistics_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+
+}
+#endif
+
+
+
+
+void import_bild(const std::string &file_name) {
+
+   class c_info_t {
+   public:
+      glm::vec3 start_point;
+      glm::vec3 end_point;
+      coot::colour_holder col;
+      float radius;
+      c_info_t(const float &x1, const float &y1, const float &z1,
+               const float &x2, const float &y2, const float &z2,
+               const float &w, const coot::colour_holder &col_in) {
+         start_point = glm::vec3(x1, y1, z1);
+         end_point   = glm::vec3(x2, y2, z2);
+         col = col_in;
+         radius = w;
+      }
+   };
+
+   Shader *shader_p = &graphics_info_t::shader_for_moleculestotriangles;
+
+   auto show_cylinders = [shader_p] (const std::vector<c_info_t> &cv) {
+                            meshed_generic_display_object m;
+                            for (auto ci : cv) {
+                               std::pair<glm::vec3, glm::vec3> pp(ci.start_point, ci.end_point);
+                               float h = glm::distance(ci.start_point, ci.end_point);
+                               m.add_cylinder(pp, ci.col, ci.radius, 16, true, true,
+                                              meshed_generic_display_object::FLAT_CAP,
+                                              meshed_generic_display_object::FLAT_CAP);
+                            }
+                            Material material;
+                            gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+                            //m.mesh.setup(shader_p, material);
+                            m.mesh.setup(material);
+                            graphics_info_t::generic_display_objects.push_back(m);
+                         };
+
+   if (coot::file_exists(file_name)) {
+      std::ifstream f(file_name.c_str());
+      if (f) {
+         std::vector<std::string> lines;
+         lines.reserve(4000);
+	 std::string line;
+	 while (std::getline(f, line)) {
+            lines.push_back(line);
+	 }
+         if (lines.size() > 1) {
+
+            std::vector<c_info_t> cylinder_infos;
+            coot::colour_holder current_colour;
+
+            for (auto line : lines) {
+               std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+               if (parts.size() == 4) {
+                  if (parts[0] == ".color") {
+                     try {
+                        float r = std::stof(parts[1]);
+                        float g = std::stof(parts[2]);
+                        float b = std::stof(parts[3]);
+                        current_colour = coot::colour_holder(r,g,b);
+                     }
+                     catch (const std::runtime_error &rte) {
+                        std::cout << "WARNING:: failed to read " << rte.what() << std::endl;
+                     }
+                  }
+               }
+               if (parts.size() == 8) {
+                  if (parts[0] == ".cylinder") {
+                     try {
+                        float x1 = std::stof(parts[1]);
+                        float y1 = std::stof(parts[2]);
+                        float z1 = std::stof(parts[3]);
+                        float x2 = std::stof(parts[4]);
+                        float y2 = std::stof(parts[5]);
+                        float z2 = std::stof(parts[6]);
+                        float w  = std::stof(parts[7]);
+                        cylinder_infos.push_back(c_info_t(x1, y1, z1, x2, y2, z2, w, current_colour));
+                     }
+                     catch (const std::runtime_error &rte) {
+                        std::cout << "WARNING:: failed to read " << rte.what() << std::endl;
+                     }
+                  }
+               }
+            }
+
+            if (! cylinder_infos.empty())
+               show_cylinders(cylinder_infos);
+
+         } else {
+            std::cout << "WARNING:: problematic bild file " << file_name << std::endl;
+         }
+      }
+   } else {
+      std::cout << "WARNING:: file not found " << file_name << std::endl;
+   }
+
+
+}

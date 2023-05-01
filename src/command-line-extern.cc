@@ -63,8 +63,9 @@ handle_command_line_data_argc_argv(int argc, char **argv) {
 
 
 extern "C"
-void 
+void
 handle_command_line_data(command_line_data cld) {
+
 
    // We *should* run scripts first and they can make setting that
    // affect the other command line options (e.g. column labels for
@@ -83,7 +84,7 @@ handle_command_line_data(command_line_data cld) {
    // store stuff there.
    // 
    for (unsigned int i=0; i< cld.script.size(); i++) {
-      graphics_info_t::command_line_scripts->push_back(cld.script[i]);
+      graphics_info_t::command_line_scripts.push_back(cld.script[i]);
    }
 
    // command line scripting (direct using -c)
@@ -107,23 +108,30 @@ handle_command_line_data(command_line_data cld) {
 
 
    if (cld.em_mode) {
-      graphics_info_t::box_radius = graphics_info_t::box_radius_em;
+      graphics_info_t::box_radius_xray = graphics_info_t::box_radius_em;
       // what else?
-   } 
+   }
 
    // coordinates
 
-   for (unsigned int i=0; i< cld.coords.size(); i++) { 
-      handle_read_draw_molecule(cld.coords[i].c_str()); 
-   }
+   for (unsigned int i=0; i< cld.coords.size(); i++) {
+      // don't slide around for 100 ligands
 
+      short int smooth_scroll_on_state_pre = graphics_info_t::smooth_scroll_on;
+      short int smooth_scroll_state_pre = graphics_info_t::smooth_scroll;
+      graphics_info_t::smooth_scroll_on = 0;
+      graphics_info_t::smooth_scroll    = 0;
+      handle_read_draw_molecule(cld.coords[i].c_str());
+      graphics_info_t::smooth_scroll_on = smooth_scroll_on_state_pre;
+      graphics_info_t::smooth_scroll    = smooth_scroll_state_pre;
+   }
 
    // datasets
 
-   for (unsigned int i=0; i< cld.datasets.size(); i++) { 
-      std::cout << "debug: manage_column_selector for file: " 
-	   << cld.datasets[i].c_str() << std::endl; 
-      manage_column_selector(cld.datasets[i].c_str()); 
+   for (unsigned int i=0; i< cld.datasets.size(); i++) {
+      std::cout << "debug: manage_column_selector for file: "
+	   << cld.datasets[i].c_str() << std::endl;
+      manage_column_selector(cld.datasets[i].c_str());
    }
 
    // auto-datasets
@@ -135,7 +143,12 @@ handle_command_line_data(command_line_data cld) {
    // maps
 
    for (unsigned int i=0; i< cld.maps.size(); i++) { 
-      handle_read_ccp4_map(cld.maps[i].c_str(), 0); // not difference map
+      handle_read_ccp4_map(cld.maps[i], 0); // not difference map
+   }
+
+   // emdb codes
+   for (unsigned int i=0; i< cld.emdb_codes.size(); i++) { 
+      handle_read_emdb_data(cld.emdb_codes[i]); // not difference map
    }
 
    // cif dictionaries
@@ -160,7 +173,7 @@ handle_command_line_data(command_line_data cld) {
    // title
    if (cld.title.length() > 0)
       set_main_window_title(cld.title.c_str());
-   
+
    // --no-guano used?
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;

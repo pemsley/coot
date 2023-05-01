@@ -20,7 +20,7 @@
 
   ;; (define *add-linked-residue-tree-correlation-cut-off* 0.45)
 
-  (set-refinement-geman-mcclure-alpha 4.2)
+  (set-refinement-geman-mcclure-alpha 0.2)
   (read-acedrg-pyranose-dictionaries)
 
   (if (defined? 'coot-main-menubar)
@@ -157,9 +157,9 @@
     
 (define (fit-protein-fit-function res-spec imol-map)
   (let ((imol     (list-ref res-spec 0))
-	(chain-id (list-ref res-spec 1))
-	(res-no   (list-ref res-spec 2))
-	(ins-code (list-ref res-spec 3)))
+        (chain-id (list-ref res-spec 1))
+        (res-no   (list-ref res-spec 2))
+        (ins-code (list-ref res-spec 3)))
 
     (let ((res-name  (residue-name imol chain-id res-no ins-code)))
       (if (string? res-name)
@@ -191,48 +191,42 @@
 	(chain-id (list-ref res-spec 1))
 	(res-no   (list-ref res-spec 2))
 	(ins-code (list-ref res-spec 3)))
-    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	  (current-rama-state (refine-ramachandran-angles-state)))
-      (set-dragged-refinement-steps-per-frame 400)
+    (let ((current-rama-state (refine-ramachandran-angles-state)))
       (let ((res-name (residue-name imol chain-id res-no ins-code)))
-	(if (string? res-name)
-	    (if (not (string=? res-name "HOH"))
-		(map (lambda (alt-conf)
-		       (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-		       (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-		       (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-		       (with-no-backups imol
-					(with-auto-accept
-					 (refine-auto-range imol chain-id res-no alt-conf)))
-		       (rotate-y-scene 10 0.3))
-		     (residue-alt-confs imol chain-id res-no ins-code))))))))
-    
+		  (if (string? res-name)
+				(if (not (string=? res-name "HOH"))
+					 (map (lambda (alt-conf)
+							  (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+							  (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+							  (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+							  (with-no-backups imol
+													 (with-auto-accept
+													  (refine-auto-range imol chain-id res-no alt-conf)))
+							  (rotate-y-scene 10 0.3))
+							(residue-alt-confs imol chain-id res-no ins-code))))))))
+
 
 (define (fit-protein-rama-fit-function res-spec imol-map)
   (let ((imol     (list-ref res-spec 0))
-	(chain-id (list-ref res-spec 1))
-	(res-no   (list-ref res-spec 2))
-	(ins-code (list-ref res-spec 3)))
-    (let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	  (current-rama-state (refine-ramachandran-angles-state)))
-      (set-dragged-refinement-steps-per-frame 400)
+		  (chain-id (list-ref res-spec 1))
+		  (res-no   (list-ref res-spec 2))
+		  (ins-code (list-ref res-spec 3)))
+    (let ((current-rama-state (refine-ramachandran-angles-state)))
       (let ((res-name (residue-name imol chain-id res-no ins-code)))
-	(if (string? res-name)
-	    (if (not (string=? res-name "HOH"))
-		(begin
-		  (map (lambda (alt-conf)
-			 (set-refine-ramachandran-angles 1)
-			 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
-			 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-			 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
-			  (with-no-backups imol
-					   (with-auto-accept
-					    (refine-auto-range imol chain-id res-no alt-conf)))
-			 (rotate-y-scene 10 0.3))
-		       (residue-alt-confs imol chain-id res-no ins-code))
-		  (set-refine-ramachandran-angles current-rama-state)
-		  (set-dragged-refinement-steps-per-frame current-steps/frame))))))))
-
+		  (if (string? res-name)
+				(if (not (string=? res-name "HOH"))
+					 (begin
+						(map (lambda (alt-conf)
+								 (set-refine-ramachandran-angles 1)
+								 (format #t "centering on ~s ~s ~s~%" chain-id res-no "CA")
+								 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+								 (rotate-y-scene 10 0.3) ; n-frames frame-interval(degrees)
+								 (with-no-backups imol
+														(with-auto-accept
+														 (refine-auto-range imol chain-id res-no alt-conf)))
+								 (rotate-y-scene 10 0.3))
+							  (residue-alt-confs imol chain-id res-no ins-code))
+						(set-refine-ramachandran-angles current-rama-state))))))))
     
 
 ;; func is a refinement function that takes 2 args, one a residue
@@ -426,20 +420,17 @@
 
   (let ((imol-map (imol-refinement-map)))
     (if (not (valid-map-molecule? imol-map))
-	(info-dialog "Oops, must set map to refine to")
-	(let ((current-steps/frame (dragged-refinement-steps-per-frame))
-	      (current-rama-state (refine-ramachandran-angles-state)))
-	  (let ((refine-func
-		 (lambda (chain-id res-no)
-		   (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
-		   (refine-auto-range imol chain-id res-no "")
-		   (accept-regularizement))))
-	    
-	    (set-dragged-refinement-steps-per-frame 400)
-	    (set-refine-ramachandran-angles 1)
-	    (stepped-refine-protein-with-refine-func imol refine-func 1)
-	    (set-refine-ramachandran-angles current-rama-state)
-	    (set-dragged-refinement-steps-per-frame current-steps/frame))))))
+		  (info-dialog "Oops, must set map to refine to")
+		  (let ((current-rama-state (refine-ramachandran-angles-state)))
+			 (let ((refine-func
+					  (lambda (chain-id res-no)
+						 (set-go-to-atom-chain-residue-atom-name chain-id res-no "CA")
+						 (refine-auto-range imol chain-id res-no "")
+						 (accept-regularizement))))
+
+				(set-refine-ramachandran-angles 1)
+				(stepped-refine-protein-with-refine-func imol refine-func 1)
+				(set-refine-ramachandran-angles current-rama-state))))))
 
 ;; 
 (define (stepped-refine-protein-with-refine-func imol refine-func . res-step)
@@ -647,13 +638,20 @@
 (define (refine-active-residue-triple)
   (refine-active-residue-generic 1))
 
+(define (refine-active-fragment)
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (refine-residues aa-imol residues)
+	 (format #t "WARNING:: residues not a list!~%")))))
 
 ;; For just one (this) residue, side-residue-offset is 0.
 ;; 
 (define (manual-refine-residues side-residue-offset)
 
   (let ((active-atom (active-residue)))
-    
+
     (if (not active-atom)
 	(format #t "No active atom~%")
 	(let ((imol      (list-ref active-atom 0))
@@ -667,7 +665,7 @@
 	    
 	    (if (= imol-map -1)
 		(info-dialog "Oops.  Must Select Map to fit to!")
-		
+
 		(refine-zone imol chain-id 
 			     (- res-no side-residue-offset)
 			     (+ res-no side-residue-offset)
@@ -676,17 +674,18 @@
 ;; Pepflip the active residue - needs a key binding.
 ;; 
 (define (pepflip-active-residue)
-  (let ((active-atom (active-residue)))
-    (if (not active-atom)
+  (let ((closest-atom (closest-atom-simple-scm)))
+    (if (not closest-atom)
 	(format #t "No active atom~%")
-	(let ((imol      (list-ref active-atom 0))
-	      (chain-id  (list-ref active-atom 1))
-	      (res-no    (list-ref active-atom 2))
-	      (ins-code  (list-ref active-atom 3))
-	      (atom-name (list-ref active-atom 4))
-	      (alt-conf  (list-ref active-atom 5)))
+	(let ((imol      (list-ref closest-atom 0))
+	      (chain-id  (list-ref closest-atom 1))
+	      (res-no    (list-ref closest-atom 2))
+	      (ins-code  (list-ref closest-atom 3))
+	      (atom-name (list-ref closest-atom 4))
+	      (alt-conf  (list-ref closest-atom 5)))
 
-	  (if (string=? atom-name " N ") (set! res-no (- res-no 1)))
+	  (if (string=? atom-name " N  ") (set! res-no (- res-no 1)))
+	  (if (string=? atom-name " H  ") (set! res-no (- res-no 1)))
 	  
 	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 
@@ -712,16 +711,39 @@
 		
 		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)))))))
 
-		  
-		  
+
+;; Backrub rotamers for chain. After alignment mutation we should run this.
+;;
+(define (backrub-rotamers-for-chain imol ch-id)
+
+  (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))
+  (make-backup imol)
+
+  (with-no-backups imol
+                   (let ((n-times 2))
+                     (let ((imol-map (imol-refinement-map)))
+                       (if (valid-map-molecule? imol-map)
+                           (let ((n-res (chain-n-residues ch-id imol)))
+                             (for-each (lambda (i-round)
+                                         (for-each
+                                          (lambda (serial-number)
+                                            (let ((res-name (resname-from-serial-number imol ch-id serial-number))
+                                                  (res-no   (seqnum-from-serial-number  imol ch-id serial-number))
+                                                  (ins-code (insertion-code-from-serial-number imol ch-id serial-number)))
+                                              (if ins-code ;; valid residue check :-)
+                                                  (if (not (string=? res-name "HOH"))
+                                                      ;; these arguments are backwards
+                                                      (auto-fit-best-rotamer res-no "" ins-code ch-id imol imol-map 1 0.1)))))
+                                          (range n-res)))
+                                       (range n-times))))))))
 
 ;; Restrain the atoms in imol (in give range selection) to
 ;; corresponding atoms in imol-ref.
-;; 
+;;
 ;; atom-sel-type is either 'all 'main-chain or 'ca
 ;; 
 (define (add-extra-restraints-to-other-molecule imol chain-id resno-range-start resno-range-end atom-sel-type imol-ref)
-  
+
   (for-each (lambda (res-no)
 
 	      'xx)

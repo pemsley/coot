@@ -37,7 +37,7 @@ AC_DEFUN([AM_SINGLE_FFTW2],
 [
 
 AC_ARG_WITH(fftw-prefix,
-	AC_HELP_STRING( [--with-fftw-prefix=PRFX], [Prefix where fftw2 has been installed] ),
+	AS_HELP_STRING([--with-fftw-prefix=PRFX],[Prefix where fftw2 has been installed ]),
 	[ with_fftw_prefix="$withval" ],
    	  with_fftw_prefix= )
 
@@ -62,10 +62,8 @@ LIBS="$FFTW2_LIBS $saved_LIBS"
 # But this causes problems with some linker configurations, e.g. Ubuntu 12.04.
 # To make sure that -lm (that should be already in $LIBS) is not discarded
 # by the linker as not needed we put a math function into the test below.
-AC_TRY_LINK([#include <fftw.h>
-#include <math.h>],
-            [float a; fftw_real *p = &a; return (int)sin(*fftw_version)], 
-            have_fftw=yes, have_fftw=no)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <fftw.h>
+#include <math.h>]], [[float a; fftw_real *p = &a; return (int)sin(*fftw_version)]])],[have_fftw=yes],[have_fftw=no])
 AC_MSG_RESULT($have_fftw)
 if test $have_fftw = yes; then
   FFTW2_CXXFLAGS="$FFTW2_CPPFLAGS $CPPFLAGS"
@@ -73,11 +71,8 @@ else
 
    FFTW2_LIBS="$fftw_lib_prefix -lsrfftw -lsfftw"
    LIBS="$FFTW2_LIBS $saved_LIBS"
-   AC_TRY_LINK([#include <sfftw.h>
-   #include <math.h>],
-            [float a; fftw_real *p = &a; return (int)sin(*fftw_version)], 
-            [AC_MSG_RESULT(yes)],
-            [AC_MSG_RESULT(no)
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <sfftw.h>
+   #include <math.h>]], [[float a; fftw_real *p = &a; return (int)sin(*fftw_version)]])],[AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)
             AC_MSG_ERROR([single-precision FFTW 2 library not found.])])
 
 fi

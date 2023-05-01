@@ -23,17 +23,15 @@
 #endif
 
 #include "compat/coot-sysdep.h"
-
+#define ENABLE_NLS // 20220126-PE Charles says this is needed to fix dcgettext() problems
+                   // when including libintl.h - move it up above graphics-info.h
+#include "graphics-info.h"
 
 #include <cstring>
-#define ENABLE_NLS // fix dcgettext() header problems on including
-		   // libintl.h (via RDKitBase.h etc (including boost
-		   // stuff).
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #endif
-#include "graphics-info.h"
 #include "lbg/lbg.hh"
 
 #include "lbg-interface.hh"
@@ -45,7 +43,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 			  double weight_for_3d_distances) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   
+
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       mmdb::Residue *residue_p =

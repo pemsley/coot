@@ -17,7 +17,7 @@
 
 
 (use-modules (oop goops) 
-	     (oop goops describe))
+             (oop goops describe))
 
 ;;; Allow the user to set these variables in their .mapview file if
 ;;; they want some server other than the default choice.  (These
@@ -29,7 +29,7 @@
 ;;; form which returns a file that had META tags.  Argh.
 
 (define pdbe-server "https://www.ebi.ac.uk")
-(define pdbe-pdb-file-dir "pdbe-srv/view/files")
+(define pdbe-pdb-file-dir "pdbe/entry-files/download")
 
 (define pdbe-file-name-tail "ent")
 
@@ -81,30 +81,35 @@
   (lambda (id url-string data-type . imol-coords-arg-list)
 
     (format #t "DEBUG:: in get-url-str: ~s ~s ~s~%" id url-string data-type)
-    (let ((coot-tmp-dir (get-directory "coot-download")))
+    (let ((coot-download-dir (get-directory "coot-download")))
 
       (cond 
        
        ((eq? data-type 'pdb)
-	(let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
-					    pdbe-file-name-tail)))
-	  (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
-	  (handle-read-draw-molecule pdb-file-name)))
+        (let ((pdb-file-name (string-append coot-download-dir "/" id ".pdb" "."
+                                            pdbe-file-name-tail)))
+          (check-dir-and-get-url coot-download-dir pdb-file-name url-string)
+          (handle-read-draw-molecule pdb-file-name)))
+
+       ((eq? data-type 'cif)
+        (let ((pdb-file-name (string-append coot-download-dir "/" id ".cif")))
+          (check-dir-and-get-url coot-download-dir pdb-file-name url-string)
+          (handle-read-draw-molecule pdb-file-name)))
 
        ((eq? data-type 'sfs)
-	(let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
+	(let ((sfs-file-name (string-append coot-download-dir "/" id ".cif"))
 	      (imol (get-ebi-pdb id)))
 	  
 	  (if (and (number? imol)
 		   (not (= imol -1)))
 	      (begin
-		(check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
+		(check-dir-and-get-url coot-download-dir sfs-file-name url-string)
 		(read-cif-data sfs-file-name (car imol-coords-arg-list))))))
 
        (else 
-	"unknown")))))
+        "unknown")))))
 
-	    
+
 
 (define get-ebi-pdb-and-sfs 
   (lambda (id)
@@ -133,23 +138,27 @@
 ;; 
 (define (get-ebi-pdb id)
 
-  ;; (format #t "======= id: ~s~%" id)
+  (format #t "debug:: get-ebi-pdb ======= id: ~s~%" id)
 
   (let* ((down-id (string-downcase id))
-	 (url-str (string-append
-		   pdbe-server
-		   "/"
-		   pdbe-pdb-file-dir
-		   "/"
-		   down-id ".ent")))
+         (pdb-url-str (string-append
+           pdbe-server "/" pdbe-pdb-file-dir "/" down-id ".ent"))
+         (cif-url-str (string-append
+           pdbe-server "/" pdbe-pdb-file-dir "/" down-id ".cif")))
     
-    (let ((url-status (get-url-str id url-str 'pdb)))
+    (let ((url-status (get-url-str id pdb-url-str 'pdb)))
 
       ;; e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
       ;;      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
 
+     (format #t "debug:: get-ebi-pdb ======= url-status ~s~%" url-status)
+
       (if (valid-model-molecule? url-status)
-	  (pdb-validate down-id url-status)))))
+         (pdb-validate down-id url-status)
+         (let ((url-status-cif (get-url-str id cif-url-str 'cif)))
+            (format #t "debug:: get-ebi-pdb ======= url-status-cif ~s~%" url-status-cif)
+            (if (valid-model-molecule? url-status-cif)
+               (pdb-validate down-id url-status-cif)))))))
 
 
 ;(ebi-get-pdb "1crn")
@@ -183,10 +192,11 @@
 
     (let* ((coot-tmp-dir (get-directory "coot-download"))
 	   (down-code (string-downcase accession-code))
-	   (pdb-file-name (append-dir-file coot-tmp-dir
-					   (string-append "pdb" down-code ".ent")))
-	   (mtz-file-name (append-dir-file coot-tmp-dir
-					   (string-append down-code "_map.mtz"))))
+	   (pdb-file-name (append-dir-file coot-tmp-dir (string-append "pdb" down-code ".ent")))
+	   (mtz-file-name (append-dir-file coot-tmp-dir (string-append down-code "_map.mtz"))))
+
+      (format #t "::::::::: pdb-file-name: ~s~%" pdb-file-name)
+      (format #t "::::::::: mtz-file-name: ~s~%" mtz-file-name)
 
       (if (not (file-exists? pdb-file-name))
 	  #f
@@ -209,8 +219,11 @@
 
 
   (define eds-site "https://www.ebi.ac.uk/pdbe/coordinates")
-  (define eds-core "some://thing") ;; for web pages
+  ;; https://www.ebi.ac.uk/pdbe/entry/pdb/6tje
+  ;; (define eds-core "some://thing") ;; for web pages
+  (define eds-core "https://www.ebi.ac.uk/pdbe/entry/pdb")
   (define eds-coords-site "https://www.ebi.ac.uk/pdbe/entry-files/download")
+  (define eds-entry-files "https://www.ebi.ac.uk/pdbe/entry-files")
   ;; now the map mtz files are like this:
   ;; https://www.ebi.ac.uk/pdbe/coordinates/files/zz/4zzn/4zzn_map.mtz
 
@@ -236,6 +249,11 @@
 	  (if (eq? #f coot-tmp-dir)
 	      (format #t "Can't make coot-download directory~%")
 
+              ;; 20220916-PE
+              ;; was: 760	12:13	wget https://www.ebi.ac.uk/pdbe/coordinates/files/ab/4abd/4abd_map.mtz
+              ;; now  759	12:12	wget https://www.ebi.ac.uk/pdbe/entry-files/4abd_map.mtz
+
+
 	      (let* ((down-id (string-downcase id))
 		     (target-pdb-file (string-append "pdb" down-id ".ent"))
 		     (target-cif-file (string-append down-id ".cif"))
@@ -246,8 +264,8 @@
                      (target-mtz-file (string-append down-id "_map.mtz"))
                      (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
                      ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
-                     (mtz-url (string-append eds-site "/files/" (mid-chars down-id) down-id "/" down-id "_map.mtz"))
-		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
+                     (mtz-url (string-append eds-entry-files "/" down-id "_map.mtz"))
+		     (eds-info-page (string-append eds-core "/" down-id)))
 
 		(print-var model-url)
 		(print-var mtz-url)
@@ -263,19 +281,19 @@
 		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
 		    (if bad-map-status
 			(let ((s  (string-append
-				   "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
+			           "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
 			  (info-dialog s))))
 
-		  (format #t "INFO:: read pdb model status: ~s~%" s1)
-		  (format #t "INFO:: read mtz data  status: ~s~%" s2)
+                  (format #t "INFO:: read pdb model status: ~s~%" s1)
+                  (format #t "INFO:: read mtz data  status: ~s~%" s2)
 
                   (if (= s1 0)
-		     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
+                     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
                         (if (not (valid-model-molecule? r-imol))
                            (let ((s1-cif (net-get-url model-cif-url dir-target-cif-file)))
-		              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
+                              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
                               (if (= s1-cif 0)
-		                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
+                                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
                                     r-imol))))))
 
                   (if (= s2 0)
@@ -309,11 +327,17 @@
 		 (url-scm (string-append stub ".scm")))
 
 	    (format #t "getting ~s~%" url-pdb)
-	    (net-get-url url-mtz mtz-file-name)
+	    (let ((status (net-get-url url-pdb pdb-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-pdb pdb-file-name status)))
 	    (format #t "getting ~s~%" url-mtz)
-	    (net-get-url url-pdb pdb-file-name)
+	    (let ((status (net-get-url url-mtz mtz-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-mtz mtz-file-name status)))
 	    (format #t "getting ~s~%" url-scm)
-	    (net-get-url url-scm scm-file-name)
+	    (let ((status (net-get-url url-scm scm-file-name)))
+	      (if (not (= status 0))
+		  (format #t "Failed to get ~s ~s status ~s ~%" url-scm scm-file-name status)))
 
 	    (read-pdb pdb-file-name)
 	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)

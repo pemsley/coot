@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -70,23 +71,23 @@ atom_spec_from_scm_expression(SCM expr) {
    int len_view = scm_to_int(len_expr);
    if (len_view == 5) {
 
-      SCM idx_scm = SCM_MAKINUM(0);
+      SCM idx_scm = scm_from_int(0);
       SCM chain_id_scm = scm_list_ref(expr, idx_scm);
       std::string chain_id = scm_to_locale_string(chain_id_scm);
 
-      idx_scm = SCM_MAKINUM(1);
+      idx_scm = scm_from_int(1);
       SCM resno_scm = scm_list_ref(expr, idx_scm);
       int resno = scm_to_int(resno_scm);
 
-      idx_scm = SCM_MAKINUM(2);
+      idx_scm = scm_from_int(2);
       SCM ins_code_scm = scm_list_ref(expr, idx_scm);
       std::string ins_code = scm_to_locale_string(ins_code_scm);
       
-      idx_scm = SCM_MAKINUM(3);
+      idx_scm = scm_from_int(3);
       SCM atom_name_scm = scm_list_ref(expr, idx_scm);
       std::string atom_name = scm_to_locale_string(atom_name_scm);
       
-      idx_scm = SCM_MAKINUM(4);
+      idx_scm = scm_from_int(4);
       SCM alt_conf_scm = scm_list_ref(expr, idx_scm);
       std::string alt_conf = scm_to_locale_string(alt_conf_scm);
 
@@ -121,22 +122,24 @@ atom_spec_from_python_expression(PyObject *expr) {
 	 if (len == 6) offset = 1;
       
 	 PyObject *chain_id_python = PyList_GetItem(expr, 0+offset);
-	 std::string chain_id = PyString_AsString(chain_id_python);
+	 std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_python));
 
 	 PyObject *resno_python = PyList_GetItem(expr, 1+offset);
-	 int resno = PyInt_AsLong(resno_python);
+	 int resno = PyLong_AsLong(resno_python);
 
 	 PyObject *ins_code_python = PyList_GetItem(expr, 2+offset);
-	 std::string ins_code = PyString_AsString(ins_code_python);
+	 std::string ins_code = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_python));
       
 	 PyObject *atom_name_python = PyList_GetItem(expr, 3+offset);
-	 std::string atom_name = PyString_AsString(atom_name_python);
+	 std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_name_python));
       
 	 PyObject *alt_conf_python = PyList_GetItem(expr, 4+offset);
-	 std::string alt_conf = PyString_AsString(alt_conf_python);
+	 std::string alt_conf = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_python));
 
-	 //       std::cout << "decoding spec :" << chain_id << ": " << resno << " :" << ins_code
-	 // 		<< ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+	 if (false)
+	    std::cout << "decoding spec chain-id :" << chain_id << " resno :" << resno << " :" << ins_code
+		      << ": :" << atom_name << ": :" << alt_conf << ":" << std::endl;
+
 	 atom_spec = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
 
 	 // currently atom_spec.int_user_data is -1 - use it to store the molecule
@@ -144,8 +147,8 @@ atom_spec_from_python_expression(PyObject *expr) {
 	 //
 	 if (len == 6) {
 	    PyObject *o = PyList_GetItem(expr, 0);
-	    if (PyInt_Check(o)) {
-	       long imol = PyInt_AsLong(o);
+	    if (PyLong_Check(o)) {
+	       long imol = PyLong_AsLong(o);
 	       atom_spec.int_user_data = imol;
 	    }
 	 }
@@ -308,7 +311,7 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
 								     graphics_info_t::alignment_wgap,
 								     graphics_info_t::alignment_wspace);
       if (p.first) {
-	 r = scm_makfrom0str(p.second.c_str());
+	 r = scm_from_locale_string(p.second.c_str());
       }
    }
    return r;
@@ -324,7 +327,7 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 								     graphics_info_t::alignment_wgap,
 								     graphics_info_t::alignment_wspace);
       if (p.first) {
-	 r = PyString_FromString(p.second.c_str());
+	 r = myPyString_FromString(p.second.c_str());
       }
    }
    if (PyBool_Check(r)) {
@@ -337,11 +340,10 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag) {
 
-   bool auto_fit = 0; // allow this to be a passed variable at some stage.
-   
    if (is_valid_model_molecule(imol)) {
       if (chain_id) { 
 	 graphics_info_t g;
+         bool auto_fit = false; // allow this to be a passed variable at some stage.
 	 g.mutate_chain(imol, std::string(chain_id), std::string(fasta_maybe), auto_fit, renumber_residues_flag);
 	 graphics_draw();
 	 g.update_go_to_atom_window_on_changed_mol(imol);
@@ -421,8 +423,8 @@ PyObject *align_to_closest_chain_py(std::string target_seq, float match_fraction
    std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
    if (is_valid_model_molecule(result.first)) {
       r = PyList_New(2);
-      PyList_SetItem(r, 0, PyInt_FromLong(result.first));
-      PyList_SetItem(r, 1, PyString_FromString(result.second.c_str()));
+      PyList_SetItem(r, 0, PyLong_FromLong(result.first));
+      PyList_SetItem(r, 1, myPyString_FromString(result.second.c_str()));
    }
 
    if (PyBool_Check(r)) {
@@ -438,8 +440,8 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction) {
    SCM r = SCM_BOOL_F;
    std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
    if (is_valid_model_molecule(result.first)) {
-      SCM a = SCM_MAKINUM(result.first);
-      SCM b = scm_makfrom0str(result.second.c_str());
+      SCM a = scm_from_int(result.first);
+      SCM b = scm_from_locale_string(result.second.c_str());
       r = scm_list_2(a,b);
    }
    return r;
@@ -458,7 +460,7 @@ SCM  nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, 
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
-	 r = residue_spec_to_scm(residue_p);
+	 r = residue_spec_to_scm(coot::residue_spec_t(residue_p));
       }
    }
    return r;
@@ -480,7 +482,7 @@ PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) 
 #endif /* USE_PYTHON */
 
 #ifdef USE_PYTHON
-PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code) { 
+PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -488,14 +490,34 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
-	 r = residue_spec_to_py(residue_p);
+         r = residue_spec_to_py(coot::residue_spec_t(residue_p));
       }
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif /* USE_PYTHON */
 
 
+
+void resolve_clashing_sidechains_by_deletion(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_deletion(geom_p);
+      graphics_draw();
+   }
+}
+
+void resolve_clashing_sidechains_by_rebuilding(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+      graphics_info_t g;
+      int imol_refinement_map = g.Imol_Refinement_Map();
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p, imol_refinement_map);
+      graphics_draw();
+   }
+}

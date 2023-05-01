@@ -79,12 +79,75 @@
 ;; and mtz file to make new molecules.
 ;;
 ;; 
-(define (run-refmac-by-filename pdb-in-filename pdb-out-filename mtz-in-filename mtz-out-filename extra-cif-lib-filename imol-refmac-count swap-map-colours-post-refmac? imol-mtz-molecule show-diff-map-flag phase-combine-flag phib-fom-pair force-n-cycles make-molecules-flag ccp4i-project-dir f-col sig-f-col . r-free-col) 
+(define (run-refmac-by-filename pdb-in-filename pdb-out-filename mtz-in-filename mtz-out-filename extra-cif-lib-filename imol-refmac-count swap-map-colours-post-refmac? imol-mtz-molecule show-diff-map-flag phase-combine-flag phib-fom-pair force-n-cycles make-molecules-flag ccp4i-project-dir f-col sig-f-col . r-free-col)
+
+  (define (refmac-is-finished?)
+    (file-exists? ".refmac-is-finished"))
+
+  (define (refmac-ran-OK?)
+    (if (file-exists? ".refmac-is-finished")
+        (call-with-input-file ".refmac-is-finished"
+          (lambda (port)
+            (let ((s (read-line port)))
+              (string=? s "status 0"))))
+        #f))
+
+  ;; needs to return true (for keep going) or false
+  (define (check-for-refmac-finished-then-do-stuff)
+    (if (refmac-is-finished?)
+        (begin
+          (if (refmac-ran-OK?)
+              (begin
+                (set-recentre-on-read-pdb 0)
+                (let* ((imol (read-pdb pdb-out-filename))
+                       (new-map-id (make-and-draw-map mtz-out-filename "FWT" "PHWT" "" 0 0)))
+                  (if (= swap-map-colours-post-refmac? 1)
+                      (swap-map-colours imol-mtz-molecule new-map-id))
+                  (if (= 1 show-diff-map-flag)
+                      (make-and-draw-map mtz-out-filename "DELFWT" "PHDELWT" "" 0 1)))))
+          #f)
+        #t))
+
+  (format #t "run-refmac-by-filename: swap-map-colours-post-refmac? ~s~%~!" swap-map-colours-post-refmac?)
+  (format #t "run-refmac-by-filename: imol-mtz-molecule ~s~%~!" imol-mtz-molecule)
+  (format #t "run-refmac-by-filename: extra-cif-lib-filename ~s~%~!" extra-cif-lib-filename)
+  (format #t "run-refmac-by-filename: show-diff-map-flag ~s~%~!" show-diff-map-flag)
+  (format #t "run-refmac-by-filename: force-n-cycles ~s~%~!" force-n-cycles)
+  (format #t "run-refmac-by-filename: phase-combine-flag ~s~%~!" phase-combine-flag)
+  (format #t "run-refmac-by-filename: make-molecules-flag ~s~%~!" make-molecules-flag)
+  (format #t "run-refmac-by-filename: f-col ~s~%~!" f-col)
+  (format #t "run-refmac-by-filename: sigf-col ~s~%~!" sig-f-col)
+  (format #t "run-refmac-by-filename: r-free-col ~s~%~!" r-free-col)
+
+  (if (file-exists? ".refmac-is-finished")
+      (delete-file ".refmac-is-finished"))
+
+  ;; (set! f-col        "FGMP18")
+  ;; (set! sig-f-col "SIGFGMP18")
+  ;; (set! r-free-col "FreeR_flag")
+  (let ((thunk (lambda()
+                 (run-refmac-by-filename-inner pdb-in-filename pdb-out-filename
+                                               mtz-in-filename mtz-out-filename
+                                               extra-cif-lib-filename imol-refmac-count
+                                               swap-map-colours-post-refmac? imol-mtz-molecule
+                                               show-diff-map-flag phase-combine-flag phib-fom-pair
+                                               force-n-cycles make-molecules-flag ccp4i-project-dir
+                                               f-col sig-f-col r-free-col)))
+        (thunk-hander (lambda (key . args)
+                        (format #t "error: in run-refmac-by-filename-inner: error in ~s with args ~s~%" key args))))
+
+    (call-with-new-thread thunk thunk-hander)
+
+    (let ((ms-step 1000)
+          (timeout-function-token #f))
+      (set! timeout-function-token (gtk-timeout-add ms-step (lambda() (check-for-refmac-finished-then-do-stuff)))))))
+
+
+(define (run-refmac-by-filename-inner pdb-in-filename pdb-out-filename mtz-in-filename mtz-out-filename extra-cif-lib-filename imol-refmac-count swap-map-colours-post-refmac? imol-mtz-molecule show-diff-map-flag phase-combine-flag phib-fom-pair force-n-cycles make-molecules-flag ccp4i-project-dir f-col sig-f-col . r-free-col) 
 
   (define local-format 
     (lambda args
-      (if (not (= make-molecules-flag 0))
-	  (apply format args))
+      (apply format args)))
       
       ;;  (this is pointless unless the ouptut filename is different
       ;;  for every time this is called)
@@ -93,7 +156,6 @@
       ;; (lambda (port)
       ;; (apply format port (cdr args))))
 
-      ))
 
 
     (local-format #t "got args: pdb-in-filename: ~s, pdb-out-filename: ~s, mtz-in-filename: ~s, mtz-out-filename: ~s, imol-refmac-count: ~s, show-diff-map-flag: ~s, phase-combine-flag: ~s, phib-fom-pair: ~s, force-n-cycles: ~s, f-col: ~s, sig-f-col: ~s, r-free-col: ~s~%"
@@ -104,34 +166,38 @@
 	    phib-fom-pair
 	    force-n-cycles
 	    f-col sig-f-col r-free-col)
-    (format #t "#### run-refmac-by-filename refmac-extra-params: ~s~%" 
-	    refmac-extra-params)
+    (format #t "#### run-refmac-by-filename refmac-extra-params: ~s~%" refmac-extra-params)
 
-	
+    ;; some additional argument jiggery-pokery: convert (("/crystal/thing/R-free")) to ("/crystal/thing/R-free")
+    (if (list? r-free-col)
+        (if (not (null? r-free-col))
+            (if (list? (car r-free-col))
+                (set! r-free-col (car r-free-col)))))
+
     (let* ((local-r-free-col (if (null? r-free-col) '() (car r-free-col)))
-		   ; need to check for f-col being a string or list
+           ;; need to check for f-col being a string or list
 	   (labin-string (if (and (string? f-col) (string=? f-col "")) ""
 				(apply string-append (append
 					   (if (= phase-combine-flag 3)
 						   (list "LABIN" " "
-								 "F+=" (strip-path (car f-col)) " "
-								 "SIGF+=" (strip-path (car sig-f-col)) " "
-								 "F-=" (strip-path (cdr f-col)) " "
-								 "SIGF-=" (strip-path (cdr sig-f-col)))
+                                                         "F+="    (strip-path (car f-col))     " "
+                                                         "SIGF+=" (strip-path (car sig-f-col)) " "
+                                                         "F-="    (strip-path (cdr f-col))     " "
+                                                         "SIGF-=" (strip-path (cdr sig-f-col)))
 						   (if (= (refmac-use-intensities-state) 1)
 							   (list "LABIN" " "
-									 "IP=" (strip-path f-col) " "
-									 "SIGIP=" (strip-path sig-f-col))
+                                                                 "IP="    (strip-path f-col) " "
+                                                                 "SIGIP=" (strip-path sig-f-col))
 							   (list "LABIN" " "
-									 "FP=" (strip-path f-col) " "
-									 "SIGFP=" (strip-path sig-f-col))))
+                                                                 "FP="    (strip-path f-col) " "
+                                                                 "SIGFP=" (strip-path sig-f-col))))
 					   (if (null? local-r-free-col)
 						   '()
 						   (list " FREE=" (strip-path local-r-free-col)))
 					   (if (= phase-combine-flag 1)
 						   ; we have Phi-FOM pair
-						   (list " - \nPHIB=" (strip-path (car phib-fom-pair)) " "
-								 "FOM=" (strip-path (cdr phib-fom-pair))) '())
+						   (list " - \nPHIB="   (strip-path (car phib-fom-pair)) " "
+                                                         "FOM="         (strip-path (cdr phib-fom-pair))) '())
 					   (if (= phase-combine-flag 2)
 						   (let ((hl-list (string->list-of-strings (car phib-fom-pair))))
 							 (list  " - \nHLA=" (strip-path (list-ref hl-list 0)) " "
@@ -139,77 +205,77 @@
 									"HLC=" (strip-path (list-ref hl-list 2)) " "
 									"HLD=" (strip-path (list-ref hl-list 3)))) '())))))
 
-	  (command-line-args
-	   (append
-	    (list 
-	     "XYZIN"  pdb-in-filename
-	     "XYZOUT" pdb-out-filename
-	     "HKLIN"  mtz-in-filename
-	     "HKLOUT" mtz-out-filename)
-	    (if (string=? extra-cif-lib-filename "")
-		(begin
-		  (local-format #t "Not Passing LIBIN to refmac LIBIN~%")
-		  (list)) ; nothing
-		(begin
-		  (local-format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
-		  (list "LIBIN" extra-cif-lib-filename)))))
-      
-	  (data-lines (let* ((std-lines
-			      (list 
-			       "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
-			       (if (= (get-refmac-refinement-method) 1)
+           (command-line-args
+            (append
+             (list 
+              "XYZIN"  pdb-in-filename
+              "XYZOUT" pdb-out-filename
+              "HKLIN"  mtz-in-filename
+              "HKLOUT" mtz-out-filename)
+             (if (string=? extra-cif-lib-filename "")
+                 (begin
+                   (local-format #t "Not Passing LIBIN to refmac LIBIN~%")
+                   (list)) ; nothing
+                 (begin
+                   (local-format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
+                   (list "LIBIN" extra-cif-lib-filename)))))
+           
+           (data-lines (let* ((std-lines
+                               (list 
+                                "MAKE HYDROGENS NO" ; Garib's suggestion 8 Sept 2003
+                                (if (= (get-refmac-refinement-method) 1)
 					; rigid body
-				   "REFInement TYPE RIGID"
-				   "")
-			       (if (number? force-n-cycles)
-					   (if (>= force-n-cycles 0)
-						   (string-append
-							(if (= (get-refmac-refinement-method) 1)
-								"RIGIDbody NCYCle "
-								"NCYCLES " )
-							(number->string force-n-cycles))
-						   "")
-					   "")
-			       (if (= (get-refmac-refinement-method) 2)
-				   "REFI TLSC 5"
-				   "")
-			       (if (= (refmac-use-twin-state) 1)
-				   "TWIN"
-				   "")
-			       (if (and (= phase-combine-flag 3) (string=? labin-string ""))
-				   "REFI SAD"
-				   "")
-;			       (if (= (refmac-use-sad-state) 1)
-;					; need to give some information for SAD atom FIXME
-;					; too tricky for now put in a fix one for now
-;					;(let((sad-atom-ls (get-sad-atom-info)))))
-;				   "ANOM FORM SE -8.0 4.0"
-;				   "")
-;			       (if (= (refmac-use-ncs-state) 1)
-;				   ""  ; needs some chains etc FIXME
-;				   "")
-			       ))
-			     (extra-params (get-refmac-extra-params))
-			     (extra-rigid-params (refmac-rigid-params))
-			     (noval (format #t "PE-DEBUG:: extra params ~s~%" extra-params))
-			     (extra-ncs-params   (refmac-ncs-params))
-			     (extra-sad-params   (refmac-sad-params))
-			     )
+                                    "REFInement TYPE RIGID"
+                                    "")
+                                (if (number? force-n-cycles)
+                                    (if (>= force-n-cycles 0)
+                                        (string-append
+                                         (if (= (get-refmac-refinement-method) 1)
+                                             "RIGIDbody NCYCle "
+                                             "NCYCLES " )
+                                         (number->string force-n-cycles))
+                                        "")
+                                    "")
+                                (if (= (get-refmac-refinement-method) 2)
+                                    "REFI TLSC 5"
+                                    "")
+                                (if (= (refmac-use-twin-state) 1)
+                                    "TWIN"
+                                    "")
+                                (if (and (= phase-combine-flag 3) (string=? labin-string ""))
+                                    "REFI SAD"
+                                    "")
+                                        ;			       (if (= (refmac-use-sad-state) 1)
+                                        ;					; need to give some information for SAD atom FIXME
+                                        ;					; too tricky for now put in a fix one for now
+                                        ;					;(let((sad-atom-ls (get-sad-atom-info)))))
+                                        ;				   "ANOM FORM SE -8.0 4.0"
+                                        ;				   "")
+                                        ;			       (if (= (refmac-use-ncs-state) 1)
+                                        ;				   ""  ; needs some chains etc FIXME
+                                        ;				   "")
+                                ))
+                              (extra-params (get-refmac-extra-params))
+                              (extra-rigid-params (refmac-rigid-params))
+                              (noval (format #t "PE-DEBUG:: extra params ~s~%" extra-params))
+                              (extra-ncs-params   (refmac-ncs-params))
+                              (extra-sad-params   (refmac-sad-params))
+                              )
 
-			(if (extra-params-include-weight? extra-params)
-			    (append std-lines
-				    extra-params
-				    extra-rigid-params
-				    extra-ncs-params
-				    extra-sad-params
-				    (list labin-string))
-			    (append std-lines
-				    (list "WEIGHT AUTO 5")
-				    extra-params
-				    extra-rigid-params
-				    extra-ncs-params
-				    extra-sad-params
-				    (list labin-string)))))
+                         (if (extra-params-include-weight? extra-params)
+                             (append std-lines
+                                     extra-params
+                                     extra-rigid-params
+                                     extra-ncs-params
+                                     extra-sad-params
+                                     (list labin-string))
+                             (append std-lines
+                                     (list "WEIGHT AUTO 5")
+                                     extra-params
+                                     extra-rigid-params
+                                     extra-ncs-params
+                                     extra-sad-params
+                                     (list labin-string)))))
 
 	  (nov (format #t "DEBUG:: run-refmac-by-filename refmac-extra-params: ~s~%" (get-refmac-extra-params)))
 	  
@@ -239,25 +305,19 @@
 
       ;; first check if refmac exists?
       (local-format #t "INFO:: now checking for refmac exe - [it should give status 1...]~%" )
-      (let ((test-refmac-status  (goosh-command refmac-exe '() (list "END")
-					   refmac-log-file-name #f)))
-
-	;; potentially a no-clobber problem here, I think.
-
-	(local-format #t "INFO:: test-refmac-status: ~s~%" test-refmac-status)
-
-	(if (not (number? test-refmac-status))
+      (let ((refmac-status (goosh-command refmac-exe '() (list "END") refmac-log-file-name #f)))
+        (format #t "##################### refmac status ~s~%\n" refmac-status)
+	(if (not (number? refmac-status))
 	    -3
-	    (if (not (= test-refmac-status 1))
-		
+	    (if (not (= refmac-status 1))
 		;; problem finding refmac executable
 		(begin 
 		  (local-format #t "refmac failed (no executable)")
 		  (local-format #t " - no new map and molecule available~%")
-		  test-refmac-status)
+		  refmac-status)
 
-		;; OK, we found the executable, this should be OK then...
-		(let* ((to-screen-flag (if (= make-molecules-flag 0)
+                ;; OK, we found the executable, this should be OK then...
+                (let* ((to-screen-flag (if (= make-molecules-flag 0)
 					   #f   ;; In a sub-thread, do it noiselessly.
 					   #t)) ;; As normal.
 		       (status (goosh-command refmac-exe 
@@ -265,109 +325,11 @@
 					      data-lines 
 					      refmac-log-file-name to-screen-flag))) ; to screen too
 
-		  (if (and (number? status) (= status 0)) ; refmac ran OK
-
-		      (if (= make-molecules-flag 0)
-
-			  (begin
-			    (list pdb-out-filename mtz-out-filename)) ;; threaded refmac return value
-
-			  (begin ;; normal/main thread
-			    
-			    ;; now let's read in those newly-created
-			    ;; coordinates and phases for a map:
-			    
-			    ;; first loggraph maybe.
-			    (if (file-exists? refmac-log-file-name)
-				(if (command-in-path? "loggraph")
-				    (run-concurrently "loggraph" refmac-log-file-name)))
-			    
-			    ;; 
-			    ;; 
-			    (let* ((r-free-bit (if (null? r-free-col)
-						   (list  "" 0)
-						   (list local-r-free-col 1)))
-				   (args 
-				    (append
-					; numbers: use-weights? is-diff-map? have-refmac-params?
-				     (list mtz-out-filename "FWT" "PHWT" "" 0 0 1 f-col sig-f-col)
-				     r-free-bit))
-				   (args-default
-				    (append
-					; numbers: use-weights? is-diff-map? have-refmac-params?
-				     (list mtz-out-filename "FWT" "PHWT" "" 0 0 1 "FP" "SIGFP")
-				     r-free-bit))
-				   (recentre-status (recentre-on-read-pdb))
-				   (novalue (set-recentre-on-read-pdb 0))
-				   (novalue2 (local-format #t "DEBUG:: recentre status: ~s~%" recentre-status))
-				   (imol
-				    (handle-read-draw-molecule pdb-out-filename))) ;; normal/old-style case
-			      
-			      (if recentre-status (set-recentre-on-read-pdb 1))
-			      (set-refmac-counter imol (+ imol-refmac-count 1))
-			      
-			      (let ((new-map-id
-				     (apply make-and-draw-map-with-refmac-params 
-					    (if (= phase-combine-flag 3) args-default args))))
-				
-				(if (= swap-map-colours-post-refmac? 1)
-				    (swap-map-colours imol-mtz-molecule new-map-id))
-
-				;; set new map as refinement map
-				(if (valid-map-molecule? new-map-id)
-				    (set-imol-refinement-map new-map-id))
-
-				(if (= (get-refmac-used-mtz-file-state) 1)
-				    (begin
-				      (set-stored-refmac-file-mtz-filename new-map-id mtz-in-filename)
-				      (if (and (> phase-combine-flag 0) (< phase-combine-flag 3))
-					  (begin
-					    (let ((phib "")
-						  (fom  "")
-						  (hla  "")
-						  (hlb  "")
-						  (hlc  "")
-						  (hld  ""))
-					      (if (= phase-combine-flag 1)
-						  (save-refmac-phase-params-to-map new-map-id
-										   (car phib-fom-pair)
-										   (cdr phib-fom-pair)
-										   hla hlb hlc hld))
-					      (if (= phase-combine-flag 2)
-						  (let ((hl-list (string->list-of-strings (car phib-fom-pair))))
-						    (save-refmac-phase-params-to-map new-map-id
-										     phib fom
-										     (list-ref hl-list 0)
-										     (list-ref hl-list 1)
-										     (list-ref hl-list 2)
-										     (list-ref hl-list 3))))))))))
-			      
-			      (if (= 1 show-diff-map-flag) ; flag was set
-				  (if (= phase-combine-flag 3)
-				      (begin
-					(let ((args (append (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
-								  "FP" "SIGFP") r-free-bit)) 
-					      (args-ano (append (list mtz-out-filename "FAN" "PHAN" "" 0 1 1
-								      "FP" "SIGFP") r-free-bit)))
-					
-					  (apply make-and-draw-map-with-refmac-params args)
-					  (apply make-and-draw-map-with-refmac-params args-ano)))
-					
-				      (begin
-					(let ((args (append
-						     (list mtz-out-filename "DELFWT" "PHDELWT" "" 0 1 1
-							   f-col sig-f-col)
-						     r-free-bit)))
-					  
-					  (apply make-and-draw-map-with-refmac-params args)))))
-
-
-			      (if (coot-has-pygtk?)
-				  (let ((s (string-append "read_refmac_log("
-							  (number->string imol) ", \""
-							  refmac-log-file-name "\")")))
-				    (run-python-command s)))))))))))))
-
+                  (call-with-output-file ".refmac-is-finished"
+                    (lambda (port)
+                      (format port "status ")
+                      (format port "~s" status)
+                      (newline port)))))))))
 
 ;; Return #t if the list of strings @var{params-list} contains a
 ;; string beginning with "WEIGHT".  If not return #f
@@ -376,16 +338,16 @@
 
   ;; This tests all words in the string.  We should more rigourously
   ;; test only the string either at the beginning or after "".
-  ;; 
+  ;;
   (define has-weight-word?
     (lambda (string-list)
-      
+
       (cond
        ((null? string-list) #f)
        ((string-ci=? (car string-list) "WEIGHT") #t)
-       (else 
+       (else
 	(has-weight-word? (cdr string-list))))))
-  
+
   ;;main body
   (if (not (list? params-list))
       #f
@@ -394,7 +356,7 @@
 	(cond
 	 ((null? params-list) #f)
 	 ((has-weight-word? (string->list-of-strings (car params-list))) #t)
-	 (else 
+	 (else
 	  (f (cdr params-list)))))))
 
 
@@ -411,26 +373,22 @@
 	refmac-extra-params
 
 	(let ((extras-file-name
-	       "refmac-extra-params")) 
-	  
+	       "refmac-extra-params"))
 	  (if (not (file-exists? extras-file-name))
 	      '()
-	      
 	      (call-with-input-file extras-file-name
 		(lambda (port)
-		  
-		  (let ((r-list 
+
+		  (let ((r-list
 			 (let f ((line-list '())
 				 (line (read-line port)))
-			   
 			   ; (format #t "line-list: ~s~%" line-list)
-			   
 			   (cond
 			    ((null? line) line-list)
 			    ((eof-object? line) line-list)
 			    (else (f (cons line line-list)
 				     (read-line port)))))))
-		    
+
 		    (reverse r-list)))))))))
 
 (define refmac-rigid-params
@@ -450,7 +408,7 @@
 		      (chain-ids imol-coords))
 	  ret)
 	'())))
-		
+
 
 (define refmac-ncs-params
   (lambda()
@@ -465,7 +423,7 @@
                         (ret-string ""))
                     (for-each (lambda (ncs-chain-set)
                                 (if (> (length ncs-chain-set) 1)
-                                    (let ((ret-string (string-append "NCSRestraints NCHAins " 
+                                    (let ((ret-string (string-append "NCSRestraints NCHAins "
                                                                      (number->string (length ncs-chain-set))
                                                                      " CHAIns ")))
                                       (for-each (lambda (ncs-chain-id)
@@ -477,7 +435,6 @@
                     ret-list)
                   '())))
         '())))
-	
 
 (define refmac-sad-params
   (lambda ()
@@ -502,11 +459,13 @@
 	  ret-list)
 	'())))
 
-;; this is not run as a sub-thread, no useful return value.
-;; 
+;; this is not run as a sub-thread,
+;;
+;; @return the output mtz file name or #f
+;;
 (define run-refmac-for-phases
   (lambda (imol mtz-file-name f-col sig-f-col)
-    
+
     (if (file-exists? mtz-file-name)
 	(if (valid-model-molecule? imol)
 	      (let ((coot-refmac-dir (get-directory "coot-refmac")))
@@ -516,38 +475,43 @@
 			   (pdb-in  (string-append stub ".pdb"))
 			   (pdb-out (string-append stub "-tmp.pdb"))
 			   (mtz-out (string-append stub ".mtz"))
-			   (cif-lib-filename "")
+                           (dr (dictionaries-read))
+			   (cif-lib-filename (if (null? dr) "" (car dr))) ;; first one is better than nothing?
 			   ; preserve the ncs and tls state
 			   (ncs-state (refmac-use-ncs-state))
 			   (tls-state (refmac-use-tls-state)))
 		      (write-pdb-file imol pdb-in)
 		      (set-refmac-use-ncs 0)
 		      (set-refmac-use-tls 0)
-		      (run-refmac-by-filename pdb-in pdb-out
-					      mtz-file-name mtz-out
-					      cif-lib-filename 0 0 -1
-					      1 0 '() 0 
-					      1 ;; let run-refmac-by-filename make molecules 
-					        ;; (this is not a sub-thread)
-					      "" 
-					      f-col sig-f-col)
+		      (run-refmac-by-filename-inner pdb-in pdb-out
+                                                    mtz-file-name mtz-out
+                                                    cif-lib-filename 0 0 -1
+                                                    1 0 '() 0
+                                                    1 ;; let run-refmac-by-filename make molecules
+                                                    ;; (this is not a sub-thread)
+                                                    ""
+                                                    f-col sig-f-col)
 		      ; reset the ncs and tls states
 		      (set-refmac-use-ncs ncs-state)
-		      (set-refmac-use-tls tls-state))))))))
-	
+		      (set-refmac-use-tls tls-state)
+                      mtz-out))))
+        #f)))
+
 
 (define refmac-for-phases-and-make-map
   (lambda (mtz-file-name f-col sig-f-col)
 
     (if (file-exists? mtz-file-name)
-	(molecule-chooser-gui 
-	 "  Choose a molecule from which to calculate Structure factors:  "  
+	(molecule-chooser-gui
+	 "  Choose a molecule from which to calculate Structure factors:  "
 	 ; a lambda function that accepts the choose imol as its arg:
 	 (lambda (imol)
-	   (run-refmac-for-phases imol mtz-file-name f-col sig-f-col))))))
+           (let ((mtz-out (run-refmac-for-phases imol mtz-file-name f-col sig-f-col)))
+             (if (string? mtz-out)
+                 (if (file-exists? mtz-out)
+                     (auto-read-make-and-draw-maps-from-mtz mtz-out)))))))))
 
 
-		    
 (define get-refmac-version
   (let ((cached-result #f))
 
@@ -568,7 +532,7 @@
 		      ;; (format #t "version parts: ~s~%" version-parts)
 		      (set! cached-result version-parts)
 		      cached-result))
-		   (else 
+		   (else
 		    (loop (read-line port))))))))))))
 
 	  

@@ -1,19 +1,19 @@
 /* src/molecule-class-info-refine.cc
- * 
+ *
  * Copyright 2010, 2011, 2012 by the University of Oxford
  * Copyright 2013 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -26,7 +26,7 @@
 #include <algorithm>
 
 // these are needed to compile molecule-compile-info.h:
-// 
+//
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
@@ -53,7 +53,7 @@ public:
    }
    std::pair<clipper::RTop_orth, float> rtop_and_weight() const {
       return std::pair<clipper::RTop_orth, float> (residue_rtop, weight);
-   } 
+   }
 };
 
 // return an index of the new restraint
@@ -87,6 +87,36 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 }
 
 int
+molecule_class_info_t::add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
+                                                         coot::atom_spec_t atom_2,
+                                                         double bond_dist, double esd) {
+   int r = -1; // unset
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
+   if (at_1) {
+      int atom_index = -1;
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_1.int_user_data = atom_index;
+   }
+   if (at_2) {
+      int atom_index = -1;
+      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_2.int_user_data = atom_index;
+   }
+   if (at_1 && at_2) {
+      coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond(atom_1, atom_2, bond_dist, esd);
+      extra_restraints.geman_mcclure_restraints.push_back(bond);
+      update_extra_restraints_representation();
+      r = extra_restraints.geman_mcclure_restraints.size() -1;
+   } else {
+      std::cout << "WARNING:: add_extra_geman_mcclure_restraint() oops: " << at_1 << " " << atom_1 << " "
+		<< at_2 << " " << atom_2 << std::endl;
+   }
+   return r;
+}
+
+
+int
 molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs) {
 
    int r = -1; // unset
@@ -117,13 +147,44 @@ molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_r
    return r;
 }
 
+int
+molecule_class_info_t::add_extra_geman_mcclure_restraints(const std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t> &bond_specs) {
+
+   int r = -1; // unset
+   for (unsigned int i=0; i<bond_specs.size(); i++) {
+      coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond_spec = bond_specs[i]; // gets modified by addition of atom indices
+      mmdb::Atom *at_1 = get_atom(bond_spec.atom_1);
+      mmdb::Atom *at_2 = get_atom(bond_spec.atom_2);
+      if (at_1) {
+	 int atom_index = -1;
+	 at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_1.int_user_data = atom_index;
+      }
+      if (at_2) {
+	 int atom_index = -1;
+	 at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_2.int_user_data = atom_index;
+      }
+      if (at_1 && at_2) {
+	 extra_restraints.geman_mcclure_restraints.push_back(bond_spec);
+	 r = extra_restraints.geman_mcclure_restraints.size() -1;
+      } else {
+	 std::cout << "WARNING:: add_extra_bond_restraint() oops: " << at_1 << " "
+		   << bond_spec.atom_1 << " " << at_2 << " " << bond_spec.atom_2 << std::endl;
+      }
+   }
+   update_extra_restraints_representation();
+   return r;
+}
+
+
 
 
 void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
 
    int n_bonds_pre = extra_restraints.bond_restraints.size();
    std::vector<coot::extra_restraints_t::extra_bond_restraint_t>::iterator it;
-   for (it=extra_restraints.bond_restraints.begin(); it != extra_restraints.bond_restraints.end(); it++) { 
+   for (it=extra_restraints.bond_restraints.begin(); it != extra_restraints.bond_restraints.end(); it++) {
       if (((it->atom_1 == atom_1) &&
 	   (it->atom_2 == atom_2)) ||
 	  ((it->atom_2 == atom_1) &&
@@ -136,6 +197,28 @@ void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1
    }
    int n_bonds_post = extra_restraints.bond_restraints.size();
    std::cout << "DEBUG:: pre: " << n_bonds_pre << " post " << n_bonds_post << std::endl;
+   update_extra_restraints_representation();
+}
+
+
+void
+molecule_class_info_t::remove_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
+
+   int n_bonds_pre = extra_restraints.geman_mcclure_restraints.size();
+   std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t>::iterator it;
+   for (it=extra_restraints.geman_mcclure_restraints.begin(); it != extra_restraints.geman_mcclure_restraints.end(); it++) {
+      if (((it->atom_1 == atom_1) &&
+	   (it->atom_2 == atom_2)) ||
+	  ((it->atom_2 == atom_1) &&
+	   (it->atom_1 == atom_2))) {
+	 extra_restraints.geman_mcclure_restraints.erase(it);
+	 std::cout << "deleted extra bond restraint " << atom_1 << " to " << atom_2 << std::endl;
+	 break; // this break was commented out, but it must not be, because the iterator
+	        // is no longer valid after we erase from a vector.
+      }
+   }
+   int n_bonds_post = extra_restraints.geman_mcclure_restraints.size();
+   std::cout << "DEBUG:: pre: GM bonds " << n_bonds_pre << " post " << n_bonds_post << std::endl;
    update_extra_restraints_representation();
 }
 
@@ -152,17 +235,65 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    update_extra_restraints_representation();
 }
 
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraint(coot::atom_spec_t &spec,
+							   const clipper::Coord_orth &pos,
+							   float weight) {
+   int r = -1;
+   mmdb::Atom *at = get_atom(spec);
+   if (at) {
+      int atom_index = -1;
+      at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      spec.int_user_data = atom_index;
+      coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+      std::cout << "debug:: adding target position restraint for " << spec << std::endl;
+      extra_restraints.target_position_restraints.push_back(tpr);
+      r = 1;
+   }
+   if (r == -1)
+      std::cout << "WARNING:: Failure to add_extra_target_position_restraint for " << spec << std::endl;
+   return r;
+}
+
+#ifdef HAVE_CXX11
+// extra target position restraints refine like pull atom restraints
+// but are stored differently (like other extra restraints)
+int
+molecule_class_info_t::add_extra_target_position_restraints(const std::vector<std::tuple<coot::atom_spec_t, const clipper::Coord_orth , float > > &etprs) {
+
+   int r = -1;
+   for (std::size_t i=0; i<etprs.size(); i++) {
+
+      coot::atom_spec_t spec         = std::get<0>(etprs[i]); // copy
+      const clipper::Coord_orth &pos = std::get<1>(etprs[i]);
+      float  weight                  = std::get<2>(etprs[i]);
+      mmdb::Atom *at = get_atom(spec);
+      if (at) {
+	 int atom_index = -1;
+	 at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 spec.int_user_data = atom_index;
+	 coot::extra_restraints_t::extra_target_position_restraint_t tpr(spec, pos, weight);
+	 extra_restraints.target_position_restraints.push_back(tpr);
+	 r = 1;
+      }
+   }
+   return r;
+}
+#endif
+
 void
 molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 						    coot::residue_spec_t spec_2) {
 
    std::vector<std::string> ap_1_names;
    std::vector<std::string> ap_2_names;
-   std::string alt_conf_1; // only a nutter would want to add parallel plane restraints 
+   std::string alt_conf_1; // only a nutter would want to add parallel plane restraints
    std::string alt_conf_2; // to a residue with an alt conf.
-   
+
    mmdb::Residue *r_1 = get_residue(spec_1);
-   mmdb::Residue *r_2 = get_residue(spec_1);
+   mmdb::Residue *r_2 = get_residue(spec_2);
 
    if (r_1) {
       if (r_2) {
@@ -173,11 +304,20 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 	 ap_1_names = nucelotide_residue_name_to_base_atom_names(rn_1);
 	 ap_2_names = nucelotide_residue_name_to_base_atom_names(rn_2);
 
+	 if (ap_1_names.empty()) ap_1_names = residue_name_to_plane_atom_names(rn_1);
+	 if (ap_2_names.empty()) ap_2_names = residue_name_to_plane_atom_names(rn_2);
+
+	 std::cout << "ap_2_names ";
+	 for (auto i: ap_2_names)
+	    std::cout << i << " ";
+	 std::cout << "" << std::endl;
+
+	 std::cout << "Adding parallel plane restraint " << spec_1 << " " << spec_2 << std::endl;
 	 coot::parallel_planes_t pp(spec_1, spec_2, ap_1_names, ap_2_names,
 				    alt_conf_1, alt_conf_2);
 
 	 extra_restraints.parallel_plane_restraints.push_back(pp);
-   
+
       } else {
 	 std::cout << "INFO:: missing residue 2 " << spec_2 << std::endl;
       }
@@ -186,13 +326,13 @@ molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
    }
 
    update_extra_restraints_representation_parallel_planes();
-} 
+}
 
 std::vector<std::string>
 molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::string &rn) const {
 
    std::vector<std::string> names;
-   
+
    if (rn == "A" || rn == "G" || rn == "DA" || rn == "DG") {
       names.push_back("N9"); names.push_back("C8");
       names.push_back("N7"); names.push_back("C8");
@@ -211,12 +351,41 @@ molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::str
    }
 
    return names;
-} 
+}
+
+
+std::vector<std::string>
+molecule_class_info_t::residue_name_to_plane_atom_names(const std::string &rn) const {
+
+   std::vector<std::string> names;
+
+   if (rn == "PHE" || rn == "TYR") {
+      names.push_back("CG");  names.push_back("CZ");
+      names.push_back("CD1"); names.push_back("CD2");
+      names.push_back("CE1"); names.push_back("CE2");
+   }
+   if (rn == "ARG") {
+      names.push_back("CD");  names.push_back("NE");
+      names.push_back("CZ");
+      names.push_back("NH1"); names.push_back("NH2");
+   }
+   if (rn == "TRP") {
+      names.push_back("CG");   names.push_back("CD1");
+      names.push_back("NE1");  names.push_back("CE2");
+      names.push_back("CD2");  names.push_back("CE3");
+      names.push_back("CZ2");  names.push_back("CH2");
+      names.push_back("CZ3");
+   }
+   return names;
+}
+
+
+
 
 void
 molecule_class_info_t::delete_extra_restraints_for_residue(const coot::residue_spec_t &rs) {
 
-   unsigned int pre_n = extra_restraints.bond_restraints.size(); 
+   unsigned int pre_n = extra_restraints.bond_restraints.size();
    extra_restraints.delete_restraints_for_residue(rs);
    unsigned int post_n = extra_restraints.bond_restraints.size();
    if (post_n != pre_n)
@@ -229,21 +398,21 @@ bool
 spec_pair_comparer(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &p1,
 		   const std::pair<coot::atom_spec_t, coot::atom_spec_t> &p2) {
 
-//    if (p1.first < p2.first) { 
+//    if (p1.first < p2.first) {
 //       return true;
-//    } else { 
-//       if (p2.first < p1.first) { 
+//    } else {
+//       if (p2.first < p1.first) {
 // 	 return false;
 //       } else {
 // 	 return (p1.second < p2.second);
 //       }
 //    }
-   
+
    if (p1.first < p2.first) {
       std::cout << "spec_pair_comparer A " << "[" << p1.first << " , " << p1.second << "]" << " < " "[" << p2.first << " , " << p2.second << "]" << std::endl;
       return true;
-   } else { 
-      if (p2.first < p1.first) { 
+   } else {
+      if (p2.first < p1.first) {
 	 std::cout << "spec_pair_comparer B " << "[" << p2.first << " , " << p2.second << "]" " < " "[" << p1.first << " , " << p1.second << "]" << std::endl;
 	 return false;
       } else {
@@ -342,7 +511,7 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
    extra_restraints.bond_restraints = ebrv_l;
 
    // remove_if and erase formulation.  Should work.  Crashes for some reason.
-   // 
+   //
    // extra_restraints.bond_restraints.erase(std::remove_if(extra_restraints.bond_restraints.begin(), extra_restraints.bond_restraints.end(), coot::extra_restraints_t::bond_eraser(dist_map, n_sigma)), extra_restraints.bond_restraints.end());
 
    unsigned int post_n = extra_restraints.bond_restraints.size();
@@ -356,7 +525,7 @@ molecule_class_info_t::set_extra_restraints_prosmart_sigma_limits(double limit_l
 
    extra_restraints_representation.prosmart_restraint_display_limit_low  = limit_low;
    extra_restraints_representation.prosmart_restraint_display_limit_high = limit_high;
-   
+
    // and redraw
 
    update_extra_restraints_representation();
@@ -394,9 +563,9 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
-   int selHnd = atom_sel.mol->NewSelection(); // d
+   int selHnd = atom_sel.mol->NewSelection(); // - check the deletion
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(), 
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(),
 			     mmdb::ANY_RES, "*", // start, insertion code
 			     mmdb::ANY_RES, "*", // end, insertion code
 			     "*", // residue name
@@ -405,6 +574,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+
    // atom_sel.mol->DeleteSelection(selHnd);
 }
 
@@ -414,9 +584,9 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 
    // clear what's already there - if anything
    extra_restraints.bond_restraints.clear();
-   
+
    int nSelAtoms;
-   mmdb::PPAtom SelAtom; 
+   mmdb::PPAtom SelAtom;
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
    // bonded_neighbours in this case, means bonded or angle-related
@@ -424,16 +594,16 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
    std::map<std::string, std::vector<std::pair<std::string, std::string> > > bonded_neighbours;
 
    // now find contacts:
-   // 
+   //
    mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   for (int i=0; i<4; i++) 
-      for (int j=0; j<4; j++) 
-	 my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++)
+      for (int j=0; j<4; j++)
+	 my_matt[i][j] = 0.0;
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
-   // 
+   //
    atom_sel.mol->SeekContacts(SelAtom,   nSelAtoms,
 			      SelAtom,   nSelAtoms,
 			      0.1, local_dist_max, // min, max distances
@@ -448,12 +618,12 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 	    mmdb::Atom *at_2 = SelAtom[pscontact[i].id2];
 	    std::string ele_1 = at_1->element;
 	    std::string ele_2 = at_2->element;
-	    if (ele_1 != " H" && ele_2 != " H") { 
+	    if (ele_1 != " H" && ele_2 != " H") {
 	       bool ignore_this = false; // set for bonded and angled atoms
 	       bool in_same_res = false;
 	       if (at_1->residue == at_2->residue)
 		  in_same_res = true;
-	    
+
 	       if (in_same_res) {
 		  std::string comp_id = at_1->residue->GetResName();
 		  std::string at_name_1 = at_1->GetAtomName();
@@ -474,14 +644,14 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		     bps = it->second;
 		  }
 
-		  for (unsigned int ipr=0; ipr<bps.size(); ipr++) { 
-		     if (at_name_1 == bps[ipr].first) { 
+		  for (unsigned int ipr=0; ipr<bps.size(); ipr++) {
+		     if (at_name_1 == bps[ipr].first) {
 			if (at_name_2 == bps[ipr].second) {
 			   ignore_this = true;
 			   break;
 			}
 		     }
-		     if (at_name_2 == bps[ipr].first) { 
+		     if (at_name_2 == bps[ipr].first) {
 			if (at_name_1 == bps[ipr].second) {
 			   ignore_this = true;
 			   break;
@@ -507,7 +677,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  clipper::Coord_orth p1 = coot::co(at_1);
 		  clipper::Coord_orth p2 = coot::co(at_2);
 		  double dist = sqrt((p1-p2).lengthsq());
-		  double esd  = 0.5;
+		  double esd  = 0.05;
 		  coot::atom_spec_t atom_spec_1(at_1);
 		  coot::atom_spec_t atom_spec_2(at_2);
 		  int idx_1 = -1;
@@ -516,10 +686,17 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  at_2->GetUDData(atom_sel.UDDAtomIndexHandle, idx_2);
 		  atom_spec_1.int_user_data = idx_1;
 		  atom_spec_2.int_user_data = idx_2;
-		  coot::extra_restraints_t::extra_bond_restraint_t br(atom_spec_1, atom_spec_2,
-								      dist, esd);
-		  extra_restraints.bond_restraints.push_back(br);
-	       } 
+		  coot::extra_restraints_t::extra_geman_mcclure_restraint_t gmr(atom_spec_1, atom_spec_2,
+										dist, esd);
+
+		  // 20191120-PE self restraints are GM restraints, not bond
+		  // restraints (previously bond restraints were GM only)
+		  //
+		  // extra_restraints.bond_restraints.push_back(br);
+
+		  extra_restraints.geman_mcclure_restraints.push_back(gmr);
+
+	       }
 	    }
 	 }
       }
@@ -532,7 +709,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
    // update_extra_restraints_representation();
    //
    update_extra_restraints_representation();
-       
+
    atom_sel.mol->DeleteSelection(selHnd);
 }
 
@@ -557,7 +734,7 @@ void
 molecule_class_info_t::clear_extra_restraints() {
    extra_restraints.clear();
    update_extra_restraints_representation();
-} 
+}
 
 // return an index of the new restraint
 int
@@ -611,7 +788,7 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
 
    // the central residue and it's upstream and downstream neighbours (if it has them)
    std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
-   
+
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
@@ -622,7 +799,7 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
 	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
 	    if (ifragres != 0) {
 	       int idx = ires+ifragres;
-	       if ((idx >=0) && (idx<nres)) { 
+	       if ((idx >=0) && (idx<nres)) {
 		  mmdb::Residue *r = chain_p->GetResidue(idx);
 		  if (r)
 		     v.push_back(r);
@@ -648,18 +825,18 @@ molecule_class_info_t::morph_fit_chain(const std::string &chain_id,
 
    // the central residue and it's upstream and downstream neighbours (if it has them)
    std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
-   
+
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
-      if (std::string(chain_p->GetChainID()) == chain_id) { 
+      if (std::string(chain_p->GetChainID()) == chain_id) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
 	    std::vector<mmdb::Residue *> v; // up and downstream neighbours
-	    
+
 	    for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
 	       if (ifragres != 0) {
 		  int idx = ires+ifragres;
-		  if ((idx >=0) && (idx<nres)) { 
+		  if ((idx >=0) && (idx<nres)) {
 		     mmdb::Residue *r = chain_p->GetResidue(idx);
 		     if (r)
 			v.push_back(r);
@@ -681,9 +858,9 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
 
    // fill this from specs:
    std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
-   for (unsigned int i=0; i<residue_specs.size(); i++) { 
+   for (unsigned int i=0; i<residue_specs.size(); i++) {
       mmdb::Residue *r = get_residue(residue_specs[i]);
-      if (r) { 
+      if (r) {
 	 std::vector<mmdb::Residue *> env_residues =
 	    coot::residues_near_residue(r, atom_sel.mol, transformation_average_radius);
 	 std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > p(r, env_residues);
@@ -727,7 +904,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
    // construct minimol fragments
    bool ignore_pseudo_zeros = coot::util::is_EM_map(xmap_in);
-   int n_bins = 40; 
+   int n_bins = 40;
    mean_and_variance<float> mv = map_density_distribution(xmap_in, n_bins, false, ignore_pseudo_zeros);
    float map_rmsd = sqrt(mv.variance);
 
@@ -735,11 +912,11 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
    std::map<mmdb::Residue *, morph_rtop_triple> rtop_map;
 
    for (unsigned int ires=0; ires<moving_residues.size(); ires++) {
-      
+
       std::vector<mmdb::Residue *> fragment_residues;
       mmdb::Residue *residue_p = moving_residues[ires].first;
       std::pair<bool, clipper::Coord_orth> local_centre = residue_centre(residue_p);
-      if (local_centre.first) { 
+      if (local_centre.first) {
 	 std::cout << "\rINFO:: Getting RTops for " << coot::residue_spec_t(residue_p);
 	 std::cout.flush();
 
@@ -755,36 +932,36 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    bool add_all_residue = true; // change this if the residue is an amino acid
 	    if (fragment_residues[ifr]->isAminoacid())
 	       add_all_residue = false; // because we want only the main_chain
-	    
+
 	    mmdb::PAtom *residue_atoms = 0;
 	    int n_residue_atoms;
 	    fragment_residues[ifr]->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 
-	       if (! add_all_residue) { 
+	       if (! add_all_residue) {
 		  if (coot::is_main_chain_p(residue_atoms[iat])) {
-		     fr.addatom(residue_atoms[iat]);
+		     fr.addatom(coot::minimol::atom(residue_atoms[iat]));
 		  }
 	       } else {
 		  // add all atoms of this residue
-		  fr.addatom(residue_atoms[iat]);
-	       } 
+		  fr.addatom(coot::minimol::atom(residue_atoms[iat]));
+	       }
 	    }
 	    f.addresidue(fr, false);
-	 } 
+	 }
 	 coot::minimol::molecule m(f);
-	 
+
 	 coot::minimol::molecule m_copy = m; // for debugging
-	 
+
 	 // returns the local rtop (relative to local centre) to move m into map.
 	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in, map_rmsd);
-	 if (rtop.first) { 
+	 if (rtop.first) {
 	    morph_rtop_triple rt(local_centre.second, rtop);
 	    rtop_map[residue_p] = rt;
-	    
+
 	    // debugging
 	    //
-	    if (false) { 
+	    if (false) {
 	       coot::rigid_body_fit(&m_copy, xmap_in, map_rmsd);
 	       std::string file_name = "morph-" + coot::util::int_to_string(ires);
 	       file_name += ".pdb";
@@ -812,7 +989,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
       std::map<mmdb::Residue *, morph_rtop_triple> simple_shifts;
       std::map<mmdb::Residue *, morph_rtop_triple> smooth_shifts;
-      
+
       for (it=rtop_map.begin(); it!=rtop_map.end(); it++) {
 	 mmdb::Residue *this_residue = it->first;
 	 if (it->second.valid) {
@@ -820,17 +997,17 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    // Morphing step is super-fast
 	    // std::cout << "\rINFO:: Morphing " << coot::residue_spec_t(this_residue);
 	    // std::cout.flush();
-	    
+
 	    std::vector<std::pair<clipper::RTop_orth, float> > rtops;
 	    // std::cout << "this residue:\n" << it->second.second.format() << std::endl;
 	    rtops.push_back(std::pair<clipper::RTop_orth,float>(it->second.rtop, 1));
  	    std::vector<mmdb::Residue *> neighb_residues =
  	       coot::residues_near_residue(this_residue, atom_sel.mol, transformation_average_radius);
 
-  	    for (unsigned int i_n_res=0; i_n_res<neighb_residues.size(); i_n_res++) { 
+  	    for (unsigned int i_n_res=0; i_n_res<neighb_residues.size(); i_n_res++) {
 	       std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it_for_neighb =
 		  rtop_map.find(neighb_residues[i_n_res]);
-	       if (it_for_neighb != rtop_map.end()) { 
+	       if (it_for_neighb != rtop_map.end()) {
 		  if (it_for_neighb->second.valid) {
 		     float weight = 0.1;
 		     float d_r = distance_between_residues(this_residue, neighb_residues[i_n_res]);
@@ -839,7 +1016,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 			if (weight > 1.0)
 			   weight = 1.0; // weight of central residue, shouldn't be more than that.
 			// std::cout << "distance " << d_r << " weight " << weight << std::endl;
-		     } 
+		     }
 		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.rtop, weight);
 		     rtops.push_back(p);
 		     if (0)
@@ -859,18 +1036,18 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    clipper::RTop_orth rtop = q.centroid_rtop(rtops, robust_filter);
 
 	    // debugging: save just to view them
-	    simple_shifts[this_residue] = it->second; 
+	    simple_shifts[this_residue] = it->second;
 	    smooth_shifts[this_residue] =
                   morph_rtop_triple(it->second.co, std::pair<bool, clipper::RTop_orth>(true, rtop));
-	    
+
 	 } else {
 	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;
-	 } 
+	 }
       }
 
       crunch_model_t crunch_model = morph_fit_crunch_analysis(smooth_shifts);
       morph_fit_uncrunch(&smooth_shifts, crunch_model); // alter smooth shifts
-      
+
       for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
 
 	 mmdb::Residue *this_residue = it->first;
@@ -890,7 +1067,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
       morph_show_shifts(simple_shifts, smooth_shifts);
       coot::util::standardize_peptide_C_N_distances(c_n_pairs);
-      
+
    }
    return success;
 }
@@ -900,7 +1077,7 @@ crunch_model_t
 molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &residue_shifts) const {
 
    // Fill centres
-   // 
+   //
    std::vector<clipper::Coord_orth> centres;
    std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
    for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
@@ -916,7 +1093,7 @@ molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *,
    }
 
    // get centre_pos from centres
-   // 
+   //
    clipper::Coord_orth sum_pos(0,0,0);
    for (unsigned int i=0; i<centres.size(); i++)
       sum_pos += centres[i];
@@ -924,7 +1101,7 @@ molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *,
    clipper::Coord_orth centre_pos(sum_pos[0]*d, sum_pos[1]*d, sum_pos[2]*d);
 
    // fill data
-   // 
+   //
    std::vector<std::pair<double, double> > data;
    for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
       mmdb::Residue *residue_p = it->first;
@@ -946,7 +1123,7 @@ molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *,
 
 
    coot::least_squares_fit lsq(data);
-   
+
    if (true) { // debug
       std::cout << "data: m " << lsq.m() <<  "  c: " << lsq.c() << std::endl;
       std::ofstream f("morph.tab");
@@ -1002,14 +1179,14 @@ molecule_class_info_t::morph_residue_atoms_by_average_rtops(mmdb::Residue *resid
 
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
-   if (rtops.size()) { 
+   if (rtops.size()) {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 clipper::Coord_orth sum_transformed_pts(0,0,0);
 	 double sum_weights = 0.0;
-	 for (unsigned int i_rtop=0; i_rtop<rtops.size(); i_rtop++) { 
+	 for (unsigned int i_rtop=0; i_rtop<rtops.size(); i_rtop++) {
 	    clipper::Coord_orth t_pt = pt.transform(rtops[i_rtop].first);
 	    double weight = rtops[i_rtop].second;
 	    sum_weights += weight;
@@ -1035,7 +1212,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<mmdb::Residue *, morph_r
 					 const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const {
 
    // write a file
-   
+
    std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
    std::ofstream f("morph-shifts.scm");
 
@@ -1067,7 +1244,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<mmdb::Residue *, morph_r
 	    clipper::Coord_orth tp_1   = ca_pos.transform(rtop_for_centre_i);
 	    clipper::Coord_orth tp_2   =   tp_1.transform(it->second.rtop);
 	    clipper::Coord_orth to_pos =   tp_2.transform(rtop_for_centre);
-	 
+
 	    s += "(to-generic-object-add-line  simple-shifts ";
 	    s += "\"";
 	    s += line_colour;
@@ -1122,7 +1299,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<mmdb::Residue *, morph_r
 	    clipper::Coord_orth tp_1   = ca_pos.transform(rtop_for_centre_i);
 	    clipper::Coord_orth tp_2   =   tp_1.transform(it->second.rtop);
 	    clipper::Coord_orth to_pos =   tp_2.transform(rtop_for_centre);
-	 
+
 	    s += "(to-generic-object-add-line  smooth-shifts ";
 	    s += "\"";
 	    s += line_colour;
@@ -1172,7 +1349,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 
    int imodel = 1;
    bool simple_move = false;
-   
+
    if (atom_sel.mol) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imodel);
       if (model_p) {
@@ -1197,8 +1374,8 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 
 	    // store the RTops for some residues (we also need the
 	    // local around which the rtop_orth is performed)
-	    // 
-	    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map; 
+	    //
+	    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
 
 	    std::cout << "INFO:: " << nhelix << " helices" << std::endl;
 	    std::cout << "INFO:: " << nsheet << " sheets"  << std::endl;
@@ -1207,7 +1384,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 	       helix_p = model_p->GetHelix(ih);
 	       if (helix_p) {
 
-		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
+		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment =
 		     morph_fit_by_secondary_structure_fragment(chain_p, chain_id,
 							       helix_p->initSeqNum, helix_p->endSeqNum,
 							       xmap_in, map_rmsd,
@@ -1228,17 +1405,17 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 	       int nstrand = sheet_p->nStrands;
 	       for (int istrand=0; istrand<nstrand; istrand++) {
 		  strand_p = sheet_p->strand[istrand];
-		  if (strand_p) { 
+		  if (strand_p) {
 		     std::cout << "---- handle strand ------ id: " << strand_p->sheetID << " # "
 			       << strand_p->strandNo << " " << strand_p->initChainID << " "
 			       << strand_p->initSeqNum << " "
 			       << strand_p->endChainID << " "
 			       << strand_p->endSeqNum
 			       << std::endl;
-		     
+
 		     if (std::string(strand_p->initChainID) == chain_id) {
 			if (std::string(strand_p->endChainID) == chain_id) {
-			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
+			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment =
 			      morph_fit_by_secondary_structure_fragment(chain_p, chain_id,
 									strand_p->initSeqNum, strand_p->endSeqNum,
 									xmap_in, map_rmsd,
@@ -1271,10 +1448,10 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 	       std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_ss =
 		  rtop_map.find(residue_p);
 	       if (it_ss != rtop_map.end()) {
-		  
+
 		  // OK this was a residue in a SSE.  We know how to move these atoms (i.e. use their own
 		  // RTop, not morphing). This block is what Israel Sanchez-Fernandez wanted.
-		  // 
+		  //
 		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
 		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -1287,7 +1464,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		     clipper::Coord_orth pt_4 = pt_3 + centre;
 		     coot::update_position(at_l, pt_4);
 		  }
-		  
+
 	       } else {
 
 		  // ------------------------------------------------------------------
@@ -1309,7 +1486,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		     }
 		  } else {
 		     this_residue_centre = residue_centres[residue_p];
-		  } 
+		  }
 
 		  // get the centre of the environment residues from
 		  // the cache (if not in the cache, add them to the
@@ -1328,9 +1505,9 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
 		     clipper::Coord_orth pt_atom = coot::co(at);
-		     // std::tuple<clipper::RTop_orth, clipper::Coord_orth, float> 
+		     // std::tuple<clipper::RTop_orth, clipper::Coord_orth, float>
 		     std::vector<atom_morph_info_t> rtops_for_atom;
-		     for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
+		     for (unsigned int ier=0; ier<env_residues.size(); ier++) {
 			std::map<mmdb::Residue *, clipper::Coord_orth>::const_iterator it;
 			it = residue_centres.find(env_residues[ier]);
 			if (it != residue_centres.end()) {
@@ -1341,10 +1518,10 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 			   double w = 1.0/d;
 			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_rtop =
 			      rtop_map.find(env_residues[ier]);
-			   if (it_rtop != rtop_map.end()) { 
+			   if (it_rtop != rtop_map.end()) {
 			      atom_morph_info_t t(it_rtop->second.second, pt_e_r, w);
 			      rtops_for_atom.push_back(t);
-			   } 
+			   }
 			}
 		     }
 
@@ -1353,7 +1530,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 			std::vector<std::pair<clipper::RTop_orth,float> > rtop_pairs_for_atom(rtops_for_atom.size());
 			for (unsigned int i=0; i<rtops_for_atom.size(); i++)
 			   rtop_pairs_for_atom[i] = rtops_for_atom[i].rtop_and_weight();
-			
+
 			coot::util::quaternion q(0,0,0,0);
 			bool robust_filter = true;
 			clipper::RTop_orth rtop_for_atom = q.centroid_rtop(rtop_pairs_for_atom, robust_filter);
@@ -1388,34 +1565,34 @@ molecule_class_info_t::morph_fit_by_secondary_structure_fragment(mmdb::Chain *ch
 								 float map_rmsd,
 								 bool simple_move) {
 
-   
+
    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
-   
+
    coot::minimol::fragment f(chain_id);
    std::vector<mmdb::Residue *> added_residues;
    for (int res_no=initSeqNum; res_no<=endSeqNum; res_no++) {
       mmdb::Residue *residue_p = chain_p->GetResidue(res_no, "");
-      if (residue_p) { 
+      if (residue_p) {
 	 f.addresidue(coot::minimol::residue(residue_p), false);
 	 added_residues.push_back(residue_p);
       } else {
 	 std::cout << "Null residue for " << chain_id << " " << res_no << std::endl;
-      } 
+      }
    }
 
    if (!added_residues.size()) {
-      std::cout << "no added residues for helix " << chain_id << " " 
+      std::cout << "no added residues for helix " << chain_id << " "
 		<< initSeqNum << " " << endSeqNum << std::endl;
    } else {
       coot::minimol::molecule m(f);
       std::pair<bool, clipper::Coord_orth> sse_centre = coot::centre_of_residues(added_residues);
-      if (sse_centre.first) { 
-		     
+      if (sse_centre.first) {
+
 	 // returns the local rtop (relative to local centre) to move m into map.
 	 //
 	 std::pair<bool, clipper::RTop_orth> rtop =
 	    coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in, map_rmsd);
-	 
+
 	 if (rtop.first) {
 	    if (0)
 	       std::cout << "Got and RTop for SSE " << chain_id << " "
@@ -1426,7 +1603,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_fragment(mmdb::Chain *ch
 	       rtop_map[added_residues[ires]] = p;
 	    }
 
-	    if (simple_move) { 
+	    if (simple_move) {
 	       // simple move the coordinates
 	       m.transform(rtop.second);
 	       clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
@@ -1439,7 +1616,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_fragment(mmdb::Chain *ch
       }
    }
    return rtop_map;
-} 
+}
 
 
 
@@ -1465,7 +1642,7 @@ coot::extra_restraints_representation_t::add_parallel_plane(const lsq_plane_info
       if (clipper::Coord_orth(offset_pt_2_b - pi_1.centre()).lengthsq() <
 	  clipper::Coord_orth(offset_pt_2_a - pi_1.centre()).lengthsq())
 	 op_2 = offset_pt_2_b;
-	 
+
       double f_top_1 = -(pi_2.a()*op_1.x() + pi_2.b()*op_1.y() + pi_2.c()*op_1.z() - pi_2.d());
       double f_top_2 = -(pi_1.a()*op_2.x() + pi_1.b()*op_2.y() + pi_1.c()*op_2.z() - pi_1.d());
       double f_bot   = pi_2.a() * pi_1.a() + pi_2.b() * pi_1.b() + pi_2.c() * pi_1.c();
@@ -1481,4 +1658,28 @@ coot::extra_restraints_representation_t::add_parallel_plane(const lsq_plane_info
       parallel_planes.push_back(eppr_1);
       parallel_planes.push_back(eppr_2);
 
+}
+
+
+#include "coot-utils/coot_shiftfield.h"
+
+void
+molecule_class_info_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                                      const clipper::HKL_data<clipper::data32::Flag> &free) {
+   if (atom_sel.mol) {
+      make_backup();
+      int n_cycles = 3;
+      coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
+   }
+
+}
+
+void
+molecule_class_info_t::shiftfield_xyz_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                                        const clipper::HKL_data<clipper::data32::Flag> &free) {
+
+   if (atom_sel.mol) {
+      make_backup();
+      coot::shift_field_xyz_refinement(fobs, free, atom_sel.mol, 2.0);
+   }
 }

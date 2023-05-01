@@ -1,13 +1,18 @@
 
-
 #ifndef MAP_POINT_CLUSTER_HH
 #define MAP_POINT_CLUSTER_HH
+
+#include <clipper/core/coords.h>
+#include <clipper/core/xmap.h>
 
 namespace coot {
 
    class map_point_cluster {
    public:
-      map_point_cluster() { score = 0.0;}; 
+      map_point_cluster() : std_dev(clipper::Coord_orth(0,0,0)),
+                            eigenvectors_and_centre(clipper::Mat33<double>::identity()) {
+         score = 0.0;
+      };
       std::vector<clipper::Coord_grid> map_grid;
       float score;
       // clipper::Coord_orth centre;

@@ -32,7 +32,7 @@ namespace cod {
    int hybridization_to_int(RDKit::Atom::HybridizationType h);
 
    // return the number of rings and the ringinfo string.
-   std::pair<int, std::string> make_ring_info_string(RDKit::Atom *atom_p);
+   std::pair<int, std::string> make_ring_info_string(const RDKit::Atom *atom_p);
 
    class atom_level_2_type {
       class atom_level_2_component_type {
@@ -44,19 +44,19 @@ namespace cod {
 	 std::vector<int> neighb_extra_elect; // same size as above needed
 	 std::string atom_name;
 	 int n_extra_elect;
-	 atom_level_2_component_type(RDKit::Atom *at, const RDKit::ROMol &rdkm);
+	 atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm);
 	 atom_level_2_component_type() {}
       };
       std::string str;
       std::string element;
-      std::vector<atom_level_2_component_type> components;
       int n_extra_elect;
    public:
 
       atom_level_2_type() {}
-      atom_level_2_type(const std::string &s) { str = s;} // read
-      atom_level_2_type(RDKit::Atom *p, const RDKit::ROMol &rdkm);
+      explicit atom_level_2_type(const std::string &s) : str(s) { n_extra_elect = 0; } // read
+      atom_level_2_type(const RDKit::Atom *p, const RDKit::ROMol &rdkm);
 
+      std::vector<atom_level_2_component_type> components;
       std::string string() const {return str; }
       std::string extra_electron_type() const;
       int n_extra_electrons() const;
@@ -95,8 +95,7 @@ namespace cod {
 	 level_4 = s2;
 	 hash_value = -1;
       }
-      atom_type_t(const std::vector<unsigned int> &degrees) {
-	 neighb_degrees = degrees;
+      explicit atom_type_t(const std::vector<unsigned int> &degrees) : neighb_degrees(degrees) {
 	 set_neighb_degrees_string();
       }
       std::string level_4;

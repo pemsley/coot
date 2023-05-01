@@ -70,9 +70,10 @@ void        add_pixmap_directory       (const gchar     *directory);
 /* This is used to create the pixmaps in the interface. */
 GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
+GtkWidget*  create_pixmap_gtk3_version (GtkWidget       *widget,
+                                        const gchar     *filename);
 
 
-#if (GTK_MAJOR_VERSION > 1)
 char* coot_revision(void);
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
@@ -101,7 +102,6 @@ GtkWidget* create_coot_references_dialog(void);
 GtkWidget* create_fast_ss_search_dialog(void);
 GtkWidget* create_baton_build_params_dialog(void);
 GtkWidget* create_pisa_interfaces_dialog(void);
-#endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
 

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXAlloc_included
-#define CXXAlloc_included
+#ifndef CXX_mot_CXXAlloc_included
+#define CXX_mot_CXXAlloc_included
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 #endif
 
 
-namespace CXX {
+namespace CXX_old {
 	inline void destruct(char*) {}
 	inline void destruct(wchar_t*) {}
 	template <typename T> inline void destruct(T* t) { t->~T(); }
@@ -59,8 +59,8 @@ namespace CXX {
         };
 		
 		CXXAlloc() throw() {};
-		CXXAlloc(const CXXAlloc& other) throw(){
-		};
+       // CXXAlloc(const CXXAlloc& other) throw() {
+       // };
 		template <class U> CXXAlloc(const CXXAlloc<U>&) throw(){};
 		~CXXAlloc() throw(){
 		};
@@ -70,10 +70,12 @@ namespace CXX {
 		
 		pointer allocate(size_type size, CXXAlloc<void>::const_pointer hint = 0) 
 		{
-			return static_cast<pointer>(::cxxmalloc(size*sizeof(T)));
+                   if (hint) {}
+                   return static_cast<pointer>(::cxxmalloc(size*sizeof(T)));
 		};
 		void deallocate(pointer p, size_type n) {
-			if (p) ::cxxfree(p);
+                   if (n) {}
+                   if (p) ::cxxfree(p);
 		};
 		size_type max_size() const throw(){
 			return size_t(-1) / sizeof(value_type);
@@ -83,7 +85,7 @@ namespace CXX {
 			::new(static_cast<void*>(p)) T(val);
 		}
 		void destroy(pointer p) {
-			CXX::destruct(p);
+			CXX_old::destruct(p);
 		};
     };
 

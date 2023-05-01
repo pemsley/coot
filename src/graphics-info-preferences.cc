@@ -39,7 +39,7 @@
 #include "c-interface-scm.hh"
 #include "coot-preferences.h"
 #include "utils/coot-utils.hh"
-
+#include "widget-from-builder.hh"
 
 // Return success status
 //
@@ -546,7 +546,7 @@ graphics_info_t::make_preferences_internal() {
   p.ivalue1 = on;
   ret.push_back(p);
 
-  on = graphics_info_t::smooth_scroll_steps;
+  on = graphics_info_t::smooth_scroll_n_steps;
   p.preference_type = PREFERENCES_SMOOTH_SCROLL_STEPS;
   p.ivalue1 = on;
   ret.push_back(p);
@@ -769,13 +769,13 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
     }
   GtkWidget *icons_tree = gtk_tree_view_new();
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(icons_tree), FALSE);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					icons_tree);
-  gtk_widget_ref(icons_tree);
+  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+  // icons_tree);
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), icons_tree);
+  // gtk_widget_ref(icons_tree);
   g_object_set_data_full(G_OBJECT(preferences),
                          tree_name,
-                         icons_tree,
-                         (GtkDestroyNotify) gtk_widget_unref);
+                         icons_tree, NULL);
 
   // maybe clear tree and model first?!
  
@@ -785,7 +785,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
   GtkTreeModel *model = GTK_TREE_MODEL(gtk_list_store_new(4, 
                         G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT));
   GtkTreeIter toplevel;
-  GdkPixbuf *icon;
+  GdkPixbuf *icon = 0;
   GtkCellRenderer *icon_renderer;
   GtkCellRenderer *button_renderer;
   GtkCellRenderer *text_renderer;
@@ -799,6 +799,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
   button_col = gtk_tree_view_column_new();
   icon_col = gtk_tree_view_column_new();
   text_col = gtk_tree_view_column_new();
+  GtkIconTheme *icon_theme = gtk_icon_theme_new();
 
   for (unsigned int i = 0; i < (*pall_items).size(); i++) {
       coot::preferences_icon_info_t item = (*pall_items)[i];
@@ -806,35 +807,47 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
 
     // for icons
     if (item.icon_filename != "") {
-      icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
-                                    GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-      if (icon == NULL) {
-        g_print("BL ERROR:: something went wrong, icon is NULL\n");
-        // try to read as filename (although then should be registered and
-        // read in already, but let's try
-        std::string splash_screen_pixmap_dir = PKGDATADIR;  
-        splash_screen_pixmap_dir += "/";
-        splash_screen_pixmap_dir += "pixmaps";
-        
-        // over-ridden by user?
-        char *s = getenv("COOT_PIXMAPS_DIR");
-        if (s) {
-          splash_screen_pixmap_dir = s;
-        }
+       //icon = gtk_widget_render_icon(icons_tree, item.icon_filename.c_str(),
+       // GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+       // icon = gtk_widget_render_icon_pixbuf(icons_tree,
+       //                                      item.icon_filename.c_str(),
+       //                                      GTK_ICON_SIZE_SMALL_TOOLBAR);
 
-        // now add the icon
-        std::string icon_path =
-          coot::util::append_dir_file(splash_screen_pixmap_dir,
-                                      item.icon_filename);
-        icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
-        if (error) {
-          g_warning ("Could not load icon: %s\n", error->message);
-          g_error_free(error);
-          error = NULL;
-        }
-      } 
+       
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+      // 20220528-PE FIXME icons
+       std::cout << "in fill_preferences_toolbar_icons() FIXME" << std::endl;
+#else
+       GtkIconLookupFlags icon_flags = GTK_ICON_LOOKUP_USE_BUILTIN;
+       icon = gtk_icon_theme_load_icon(icon_theme, item.icon_filename.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR, icon_flags, NULL);
+#endif
+       if (icon == NULL) {
+          g_print("ERROR:: in fill_preferences_toolbar_icons() something went wrong, icon is NULL\n");
+          // try to read as filename (although then should be registered and
+          // read in already, but let's try
+          std::string splash_screen_pixmap_dir = PKGDATADIR;  
+          splash_screen_pixmap_dir += "/";
+          splash_screen_pixmap_dir += "pixmaps";
+        
+          // over-ridden by user?
+          char *s = getenv("COOT_PIXMAPS_DIR");
+          if (s) {
+             splash_screen_pixmap_dir = s;
+          }
+
+          // now add the icon
+          std::string icon_path =
+             coot::util::append_dir_file(splash_screen_pixmap_dir,
+                                         item.icon_filename);
+          icon = gdk_pixbuf_new_from_file(icon_path.c_str(), &error);
+          if (error) {
+             g_warning ("Could not load icon: %s\n", error->message);
+             g_error_free(error);
+             error = NULL;
+          }
+       } 
     } else {
-      icon = NULL;
+       icon = NULL;
     }
     gtk_list_store_set(GTK_LIST_STORE(model), &toplevel,
 		       BUTTON_COL, "",
@@ -907,7 +920,8 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
       }
       coot::preferences_icon_info_t item = (*pall_items)[pos];
       widget_name = item.icon_widget;
-      icon_button = lookup_widget(graphics_info_t::glarea, widget_name.c_str());
+      // icon_button = lookup_widget(graphics_info_t::get_main_window(), widget_name.c_str());
+      icon_button = widget_from_builder(widget_name.c_str());
 
       if (icon_button) { 
 
@@ -1002,22 +1016,16 @@ graphics_info_t::update_main_toolbar_icons(GtkTreeModel *model) {
 std::string
 graphics_info_t::get_preferences_directory() const {
 
-   const char *home = getenv("HOME");
-   const char *coot_home = getenv("COOT_HOME");
+   std::string home = coot::get_home_dir();
    std::string pkgdatadir = coot::package_data_dir();
 
    std::string fn;
 
-   if (coot_home) {
-      fn = coot::util::append_dir_file(coot_home, ".coot-preferences");
+   if (!home.empty()) {
+      fn = coot::util::append_dir_file(home, ".coot");
    }
    if (fn.empty()) {
-      if (home) {
-         fn = coot::util::append_dir_file(home, ".coot-preferences");
-      }
-   }
-   if (fn.empty()) {
-      fn = coot::util::append_dir_file(pkgdatadir, ".coot-preferences");
+      fn = coot::util::append_dir_file(pkgdatadir, ".coot");
    }
 
    return fn;

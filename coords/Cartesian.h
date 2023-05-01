@@ -23,19 +23,12 @@
 #ifndef CARTESIAN_H
 #define CARTESIAN_H
 
-#include <iostream>
 #include <fstream>
-
-#ifndef HAVE_VECTOR
-#define HAVE_VECTOR
 #include <vector>
-#endif
 
 #include "clipper/core/coords.h"
 
 // #include "cos-sin.h"
-
-
 
 enum surface_face_data { NO_FACE = 0, X_FACE = 1, Y_FACE = 2, Z_FACE = 3 };
 
@@ -53,10 +46,11 @@ namespace coot {
       float get_y() const { return y_;};
       float get_z() const { return z_;};
    
-      // actually, I don't like the gets part of the variable name.
-      float x() const { return x_;};
-      float y() const { return y_;};
-      float z() const { return z_;};
+      // actually, I don't like the gets part of the variable name. Make const ref also.
+
+      const float &x() const { return x_;};
+      const float &y() const { return y_;};
+      const float &z() const { return z_;};
 
       Cartesian(float xi, float yi, float zi) { x_ = xi; y_ = yi; z_ = zi; }
       Cartesian();
@@ -93,7 +87,7 @@ namespace coot {
 	 y_ = in.y_;
 	 z_ = in.z_;
 	 return *this;
-      } 
+      }
    
       void unit_vector_yourself() {
 	 float length = (*this).amplitude();
@@ -159,6 +153,8 @@ namespace coot {
       static Cartesian CrossProduct(const Cartesian &Atom_1, 
 				    const Cartesian &Atom_2);
 
+      static float lengthsq(const Cartesian &c1, const Cartesian &c2);
+
       std::vector<Cartesian> third_points(const Cartesian &other) const;
 
    
@@ -202,6 +198,7 @@ namespace coot {
       // 
       const Cartesian &getStart()  const { return start; }
       const Cartesian &getFinish() const { return finish;}
+      float amplitude() const;
    };
    std::ostream&  operator<<(std::ostream&,  CartesianPair);
    std::ofstream& operator<<(std::ofstream&, CartesianPair);
@@ -218,9 +215,12 @@ namespace coot {
 
    public:
 
+      CartesianPairInfo() {
+	 data = 0;
+	 size = 0;
+      }
       CartesianPair *data;
       int size;
-      
    };
 
 

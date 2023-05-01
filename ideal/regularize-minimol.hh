@@ -24,8 +24,8 @@
 
 #ifdef HAVE_GSL
 
-#include "mini-mol/mini-mol.hh"
 #include "simple-restraint.hh"
+#include "mini-mol/mini-mol.hh"
 
 
 namespace coot {
@@ -33,6 +33,15 @@ namespace coot {
    minimol::molecule
    regularize_minimol_molecule(const minimol::molecule &molin,
 			       const protein_geometry &geom);
+
+   // update the coordinates of frag_in internal to this function
+   void refine_minimol_fragment(minimol::fragment &frag_in,
+                                const protein_geometry &geom,
+                                const clipper::Xmap<float> &xmap,
+                                float weight = 60.0,
+                                bool do_GM = false,
+                                float GM_distance_lim = 4.0f,
+                                float GM_alpha = 0.02f);
 
 }
 

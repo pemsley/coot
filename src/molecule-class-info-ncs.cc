@@ -56,10 +56,14 @@
 void
 molecule_class_info_t::update_ghosts() {
 
-   if (ncs_ghosts.size() > 0) {
-      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	 if (ncs_ghosts[ighost].display_it_flag) 
-	    ncs_ghosts[ighost].update_bonds(atom_sel.mol);
+   if (show_ghosts_flag) {
+
+      if (ncs_ghosts.size() > 0) {
+         for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+
+            if (ncs_ghosts[ighost].display_it_flag) 
+               ncs_ghosts[ighost].update_bonds(atom_sel.mol);
+         }
       }
    }
 }
@@ -76,7 +80,7 @@ molecule_class_info_t::delete_ghost_selections() {
    //
    // So, let's not delete selection if ghosts are not being used.  I
    // use the is_empty() test (which seems to return 0 even if ghosts
-   // where not turned on! - oh dear?) and so also use the displayed? 
+   // where not turned on! - oh dear?) and so also use the displayed?
    // flag.
    //
    // Which means of course that the SelectionHandles of the NCS
@@ -84,7 +88,7 @@ molecule_class_info_t::delete_ghost_selections() {
    // (and not only in this function - *any* function that changes the
    // atom selection at all is suspect (moving atom coords/bfacs/occ
    // is fine of course)).
-   // 
+   //
    // fill_ghost_info has a ncs_ghosts.resize(0), which is a potential
    // memory leak, but that's not as bad as a crash (which would
    // happen if we tried to DeleteSelection on SelectionHandles of out
@@ -92,20 +96,20 @@ molecule_class_info_t::delete_ghost_selections() {
    // removed all atom manipulation functions must be checked for
    // proper operation with NCS ghosts atom selection.
    //
-   // Question: why is is_empty() 0 for a not-turned-on ghost? 
+   // Question: why is is_empty() 0 for a not-turned-on ghost?
    // (e.g. RNASA).
    //
    // Hmmm... reflection: NCS code is complex and crash-prone.
 
 //    std::cout << "::::::::::::::::::::;; wwwwwoooooo!  ghosts! ::::::"
 //  	     << std::endl;
-   
+
    if (ncs_ghosts.size() > 0) {
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-// 	 std::cout << "Ghost " << ighost << " state "
-// 		   << ncs_ghosts[ighost].is_empty() << std::endl;
+         // 	 std::cout << "Ghost " << ighost << " state "
+         // 		   << ncs_ghosts[ighost].is_empty() << std::endl;
 	 if (! ncs_ghosts[ighost].is_empty()) {
-	    if (ncs_ghosts[ighost].display_it_flag) { 
+	    if (ncs_ghosts[ighost].display_it_flag) {
 	       atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
 	    }
 	 }
@@ -117,6 +121,13 @@ molecule_class_info_t::delete_ghost_selections() {
 void
 coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
+   if (false) {
+      std::cout << "ghost_molecule_display_t::update_bonds() " << std::endl;
+      std::cout << "ghost_molecule_display_t::update_bonds() rtop " << std::endl;
+      std::cout << rtop.format() << std::endl;
+   }
+
+
    atom_selection_container_t asc;
    asc.mol = mol;
 
@@ -125,10 +136,10 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    // Bond_lines_container constructor below, which is given an atom
    // selection, it may well point to atoms that have been removed.
    // And then distaster [Bush was re-elected today].
-   // 
+   //
    // (I guess that we don't need to regenerate the transformation
    // matrix)
-   // 
+   //
    // (Note: trash the current selection first)
    //
 
@@ -136,15 +147,15 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    SelectionHandle = mol->NewSelection();
    // std::cout << "ghost:: update_bonds new SelectionHandle: " << SelectionHandle << std::endl;
    int imod = 1;
-   // 
+   //
    mol->SelectAtoms(SelectionHandle, imod,
-		    chain_id.c_str(),
-		    mmdb::ANY_RES, "*",
-		    mmdb::ANY_RES, "*",
-		    "*", "*", "*", "*");
-   
+                    chain_id.c_str(),
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+
    asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection,
-			asc.n_selected_atoms);
+                        asc.n_selected_atoms);
    asc.SelectionHandle = SelectionHandle;
 
    //    std::cout << "update_bonds ghost selection selected "
@@ -155,7 +166,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    float max_dist = 1.85;
 
 //    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
-// 	     << " selected atoms" << std::endl;
+//              << " selected atoms" << std::endl;
 
    Bond_lines_container bonds(asc, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds();
@@ -171,17 +182,17 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 //    for (int i=0; i<bonds_box.num_colours; i++)
 //       ilines += bonds_box.bonds_[i].num_lines;
 //     std::cout << "updating ghost bonds...(which has " << bonds_box.num_colours
-// 	      << " colours and " << ilines << " lines)\n";
+//               << " colours and " << ilines << " lines)\n";
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-   
+
    for (int i=0; i<bonds_box.num_colours; i++) {
       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
 	 clipper::Coord_orth a(bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
-	 
+
 	 clipper::Coord_orth b(bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
 			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
@@ -189,11 +200,70 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 	 clipper::Coord_orth at = a.transform(rtop);
 	 clipper::Coord_orth bt = b.transform(rtop);
 
+         if (false)
+            std::cout << "ghost-bond-a " << a.format() << " ghost-bond-b" << b.format() << " "
+                      << "ghost-bond-at " << at.format() << " ghost-bond-bt" << bt.format() << " "
+                      << std::endl;
+
 	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
 			       Cartesian(bt.x(), bt.y(), bt.z()));
 	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1, -1);
       }
    }
+
+   auto cartesian_to_clipper = [] (const Cartesian &p) {
+                                  return clipper::Coord_orth(p.x(), p.y(), p.z());
+                               };
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &co) {
+                                  return Cartesian(co.x(), co.y(), co.z());
+                               };
+   
+   for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+      for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+         graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+         clipper::Coord_orth pos = cartesian_to_clipper(ai.position);
+         clipper::Coord_orth trans_pos = pos.transform(rtop);
+         ai.position = clipper_to_cartesian(trans_pos);
+      }
+   }
+
+   int bbt = coot::NORMAL_BONDS;
+   std::vector<glm::vec4> colour_table;
+   for (unsigned int i=0; i<15; i++) { colour_table.push_back(glm::vec4(0.4, 0.8, 0.2, 1.0)); }
+   graphics_info_t::attach_buffers();
+   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table);
+   if (false)
+      std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
+                << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
+}
+
+void
+molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
+                                       const glm::mat4 &mvp,
+                                       const glm::mat4 &model_rotation_matrix,
+                                       const std::map<unsigned int, lights_info_t> &lights,
+                                       const glm::vec3 &eye_position,
+                                       const glm::vec4 &background_colour) {
+
+   // std::cout << "draw_ncs_ghosts() " << std::endl;
+   if (show_ghosts_flag) {
+      for (auto &ghost : ncs_ghosts) {
+         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+      }
+   }
+
+}
+
+void
+coot::ghost_molecule_display_t::draw(Shader *shader_p,
+                                     const glm::mat4 &mvp,
+                                     const glm::mat4 &view_rotation_matrix,
+                                     const std::map<unsigned int, lights_info_t> &lights,
+                                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                     const glm::vec4 &background_colour) {
+
+   // std::cout << "ncs_ghosts::draw() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
+   mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, 1.0f, background_colour, false, true, false);
 }
 
 // public interface
@@ -211,8 +281,9 @@ int
 molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 				       float homology_lev) {
 
-   //nstd::cout << "DEBUG::   --------------- in fill_ghost_info ------- with homology_lev "
-   // << homology_lev << std::endl;
+   if (false)
+      std::cout << "DEBUG::   --------------- in fill_ghost_info ------- with homology_lev "
+                << homology_lev << std::endl;
 
    std::vector<std::string> chain_ids;
    std::vector<std::vector<std::pair<std::string, int> > > residue_types;
@@ -647,8 +718,8 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
          }
       }
       // now get the lowest common denominator
-      int resno_start = max(reference_resno_start, moving_resno_start);
-      int resno_end   = min(reference_resno_end, moving_resno_end);
+      int resno_start = std::max(reference_resno_start, moving_resno_start);
+      int resno_end   = std::min(reference_resno_end, moving_resno_end);
       coot::lsq_range_match_info_t matches(resno_start, resno_end,
       				   chain_id_reference,
       				   resno_start, resno_end,
@@ -955,7 +1026,7 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 					 const coot::ghost_molecule_display_t &ghost_info,
 					 int is_diff_map_flag,
 					 int swap_difference_map_colours_flag,
-					 float sigma_in) {
+					 float contour_level_in) {
 
    std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
 
@@ -970,10 +1041,11 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    map_ghost_info = ghost_info;
    
    // fill class variables
-   map_mean_ = 0.0;
-   map_sigma_ = sigma_in;
-   contour_level  = 0.2;
-   update_map();
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+   map_mean_  = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+   contour_level  = contour_level_in;
+   update_map(true);
 
    std::cout << "Done install_ghost_map" << std::endl;
 }
@@ -1420,6 +1492,9 @@ molecule_class_info_t::add_strict_ncs_matrix(const std::string &chain_id,
 					     const std::string &target_chain_id,
 					     const coot::coot_mat44 &m) {
 
+   // std::cout << "-------------------------------------------------------------- add_strict_ncs_matrix imol "
+   // << imol_no << " " << chain_id << " " << target_chain_id << std::endl;
+
 
    std::string name = "Strict NCS for Chain ";
    name += chain_id;
@@ -1438,26 +1513,50 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 
    bool debug = false;
 
-   if (debug)
+   if (debug) {
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
+      for (const auto &m : strict_ncs_matrices) {
+         std::cout << "NCS Matrix\n"
+                   << "[ " << m.m[0].v4[0] << " " << m.m[0].v4[1] << " " << m.m[0].v4[2] << " " << m.m[0].v4[3] << " ]\n"
+                   << "[ " << m.m[1].v4[0] << " " << m.m[1].v4[1] << " " << m.m[1].v4[2] << " " << m.m[1].v4[3] << " ]\n"
+                   << "[ " << m.m[2].v4[0] << " " << m.m[2].v4[1] << " " << m.m[2].v4[2] << " " << m.m[2].v4[3] << " ]\n"
+                   << "[ " << m.m[3].v4[0] << " " << m.m[3].v4[1] << " " << m.m[3].v4[2] << " " << m.m[3].v4[3] << " ]\n";
+      }
+   }
 
    // We need to convert from internal coot_mat44 to mmdb::mat44s, then do
    // similar things to update_symmetry()
 
    Cell_Translation c_t = extents.coord_to_unit_cell_translations(centre_point, atom_sel);
 
+   if (debug) {
+      std::cout << "cell translation " << c_t << std::endl;
+   }
+
+   // For real NCS, uses the unit cell
+   //
    std::vector<std::pair<int, symm_trans_t> > ncs_mat_indices =
       extents.which_strict_ncs(centre_point, atom_sel, strict_ncs_matrices, c_t);
 
-   std::vector<std::pair<coot::coot_mat44, symm_trans_t> > cmats;
-   for (unsigned int i=0; i<ncs_mat_indices.size(); i++)
-      cmats.push_back(std::pair<coot::coot_mat44, symm_trans_t> (strict_ncs_matrices[ncs_mat_indices[i].first], ncs_mat_indices[i].second));
-
-
-   // guarenteed to be at least one.
+   // guaranteed to be at least one.
    if (debug)
       std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
+
+   std::vector<std::pair<coot::coot_mat44, symm_trans_t> > cmats;
+   for (unsigned int i=0; i<ncs_mat_indices.size(); i++)
+      cmats.push_back(std::pair<coot::coot_mat44, symm_trans_t> (strict_ncs_matrices[ncs_mat_indices[i].first],
+                                                                 ncs_mat_indices[i].second));
+
+   if (debug) {
+      for (unsigned int i=0; i<cmats.size(); i++) {
+         const coot::coot_mat44 &m44 = cmats[i].first;
+         const symm_trans_t &st      = cmats[i].second;
+         std::cout << " cmat " << i <<  std::endl;
+         std::cout << m44;
+         std::cout << st;
+      }
+   }
 
    Bond_lines_container bonds;
    strict_ncs_bonds_box.clear();
@@ -1911,13 +2010,13 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 							     const std::string &current_chain,
 							     const std::string &next_ncs_chain) const { 
 
-
    clipper::Mat33<double> r = current_view_mat;
    bool apply_it = 0;
    clipper::Coord_orth t(0,0,0);
 
    unsigned int n_ghosts = ncs_ghosts.size();
-   if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
+
+   if ((n_ghosts > 0) && ncs_ghosts_have_rtops_flag)  {
 
       // If current_chain is not a target_chain_id
       //    { i.e. we were not sitting on an NCS master}
@@ -2008,6 +2107,8 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 	    apply_it = 1;
 	 }
       } 
+   } else {
+      std::cout << "WARNING:: no ghosts (with ncs)" << std::endl;
    }
    clipper::RTop_orth rtop(r, t);
    return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
@@ -2129,7 +2230,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation_backward(const clipper::Mat
    }
    clipper::RTop_orth rtop(r, t);
    if (! apply_it)
-      std::cout << "WARNING apply_it not set " << std::endl;
+      std::cout << "WARNING:: apply_ncs_to_view_orientation_backward() apply_it not set " << std::endl;
    return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
 }
 
@@ -2358,7 +2459,7 @@ molecule_class_info_t::ncs_ghost_chains() const {
 	    }
 	 }
 	 if (! found) {
-	    std::vector<string> v;
+	    std::vector<std::string> v;
 	    v.push_back(ncs_ghosts[ighost].chain_id);
 	    std::pair<std::string, std::vector<std::string> > group(master_chain, v);
 	    grouped_ghosts.push_back(group);
@@ -2471,7 +2572,6 @@ molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
 }
 
 
-
 // if we are are the centre of a given chain_id, how big a radius
 // do we need to encompass all atoms of that chain?
 // 
@@ -2493,13 +2593,11 @@ molecule_class_info_t::chain_centre_and_radius(const std::string &chain_id) cons
 	 if (chain_id_this == chain_id) {
 	    std::vector<clipper::Coord_orth> chain_atoms_positions;
 	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::Residue *residue_p;
-	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
 	       for (int iat=0; iat<n_atoms; iat++) {
-		  at = residue_p->GetAtom(iat);
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
 		  chain_atoms_positions.push_back(coot::co(at));
 	       }
 	    }
@@ -2566,12 +2664,12 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 			   if (parts[4] == "CHAINS:") {
 			      unsigned int n = parts.size();
 			      for (unsigned int ii=5; ii<n; ii++) {
-				 unsigned int l = parts[ii].length();
+				 unsigned int ll = parts[ii].length();
 				 if (l > 1) {
-				    std::string chain_id = parts[ii].substr(0,l-1);
+				    std::string chain_id = parts[ii].substr(0,ll-1);
 				    biomt_chain_ids.push_back(chain_id);
 				 } else {
-				    if (l == 1) {
+				    if (ll == 1) {
 				       // no comma
 				       std::string chain_id = parts[ii];
 				       biomt_chain_ids.push_back(chain_id);
@@ -2594,8 +2692,8 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	       
 		  try {
 		     int matrix_id = coot::util::string_to_int(parts[1]);
-		     int l = parts[0].length();
-		     char c = parts[0][l-1];
+		     int ll = parts[0].length();
+		     char c = parts[0][ll-1];
 		     int biomt_idx = c - 48;
 
 		     double x = coot::util::string_to_double(parts[2]);
@@ -2623,7 +2721,7 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
       //
       int matrix_id_max = 0;
       std::map<std::pair<int, int>, quad_d_t>::const_iterator it;
-      for (it=biomts.begin(); it!=biomts.end(); it++) {
+      for (it=biomts.begin(); it!=biomts.end(); ++it) {
 	 if (it->first.first > matrix_id_max)
 	    matrix_id_max = it->first.first;
       }
@@ -2667,8 +2765,9 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      std::cout << "in add_molecular_symmetry_matrices() made "
-		<< biomt_matrices.size() << " biomt matrices" << std::endl;
+      if (false)
+         std::cout << "in add_molecular_symmetry_matrices() made "
+                   << biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {

@@ -35,15 +35,17 @@ coot::minimol::molecule::molecule(mmdb::Manager *mol, bool udd_atom_index_to_use
 }
 
 
+// ele is an optiona arg (default " O")
 coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_list,
 				  const std::string& residue_type,
 				  std::string atom_name,
-				  std::string chain_id) {
+				  std::string chain_id,
+                                  const std::string &ele) {
 
    // Constructing a fragment from a chain_id sets residues_offset to 0
    // but doesn't add any residues
-   fragments.push_back(chain_id);
-   std::string element(" O");
+   fragments.push_back(fragment(chain_id));
+   std::string element = ele;
 
    // Each atom goes in its own residue (residue number offset by one
    // c.f. the atom vector index)
@@ -58,11 +60,43 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
 				atom_list[i].z(), std::string(""),
 				1.0,
 				30.0); // pass this? 20090201
+   }
+   have_cell = 0;
+   have_spacegroup = 0;
+}
+
+// ele is an optiona arg (default " O")
+coot::minimol::molecule::molecule(const std::vector<std::pair<clipper::Coord_orth, float>> &atom_list_with_estimated_b_factors,
+				  const std::string& residue_type,
+				  std::string atom_name,
+				  std::string chain_id,
+                                  const std::string &ele) {
+
+   // Constructing a fragment from a chain_id sets residues_offset to 0
+   // but doesn't add any residues
+   fragments.push_back(fragment(chain_id));
+   std::string element = ele;
+
+   // Each atom goes in its own residue (residue number offset by one
+   // c.f. the atom vector index)
+   //
+   for (unsigned int i=0; i<atom_list_with_estimated_b_factors.size(); i++) {
+      auto b_est = atom_list_with_estimated_b_factors[i].second;
+      fragments[0][i+1] = coot::minimol::residue(i+1); // atoms start at 0, residues at 1.
+      fragments[0][i+1].name = residue_type;  // not "WAT" says EJD - 030624
+      fragments[0][i+1].addatom(atom_name,
+				element,
+				atom_list_with_estimated_b_factors[i].first.x(),
+				atom_list_with_estimated_b_factors[i].first.y(),
+				atom_list_with_estimated_b_factors[i].first.z(), std::string(""),
+				1.0,
+				b_est); // pass this? 20090201
 				
    }
    have_cell = 0;
    have_spacegroup = 0;
 }
+
 
 coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
 
@@ -146,6 +180,19 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
    have_spacegroup = 0;
 } 
 
+mmdb::Atom *
+coot::minimol::atom::make_atom() const {
+
+   mmdb::Atom *at = 0;
+
+   at = new mmdb::Atom;
+   at->SetAtomName(name.c_str());
+   at->SetElementName(element.c_str());
+   at->SetCoordinates(pos.x(), pos.y(), pos.z(), occupancy, temperature_factor);
+
+   return at;
+}
+
 // This is like the coot utils function, but it is here because
 // coot-coord utils depends on minimol, so minimol can't depend on
 // coot-coord-utils.
@@ -224,11 +271,9 @@ coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_d
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 
-		  // int ifrag = fragment_for_chain(chain_p->GetChainID()); old
-		  int ifrag = ichain;
 		  std::string fragment_id = chain_p->GetChainID();
 		  fragments.push_back(coot::minimol::fragment(fragment_id));
-		  ifrag = fragments.size() -1;
+		  int ifrag = fragments.size() -1;
 	       
 		  if (chain_p == NULL) {  
 		     // This should not be necessary. It seem to be a
@@ -491,11 +536,21 @@ coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_fact
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
    mmdb::PManager newmol = pcmmdbmanager();
 
-   int ierr = newmol->WritePDBASCII((char *)pdb_filename.c_str());
+   int ierr = newmol->WritePDBASCII(pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
    delete newmol;
    return ierr;
 }
+
+int
+coot::minimol::molecule::write_cif_file(const std::string &cif_filename) const { // use mmdb to write.
+
+   mmdb::PManager newmol = pcmmdbmanager();
+   int ierr = newmol->WriteCIFASCII(cif_filename.c_str());
+   delete newmol;
+   return ierr;
+}
+
 
 // if chain_id is not amongst the set of chain ids that we have already,
 // then push back a new fragment and return its index.
@@ -580,6 +635,8 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
 mmdb::Residue *
 coot::minimol::residue::make_residue() const {
 
+   if (atoms.empty()) return 0;
+
    mmdb::Residue *residue_p = new mmdb::Residue();
    residue_p->SetResID(name.c_str(), seqnum, ins_code.c_str());
    
@@ -643,11 +700,46 @@ coot::minimol::residue::operator[](const std::string &atname) const {
 	 return atoms[i];
       } 
    }
-   std::cout << "ERROR!  DISASTER! Atom name lookup failed atom \"" 
+   std::cout << "ERROR!  DISASTER! in const operator[] Atom name lookup failed atom \"" 
 	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
 	     << seqnum << std::endl;
    return atoms[0]; 
 }
+
+// reference - when we want to move the atoms of this residue
+coot::minimol::atom&
+coot::minimol::residue::at(const std::string &atname) {
+
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atname) {
+	 return atoms[i];
+      }
+   }
+
+   // maybe throw a runtime error here?                         
+   
+   std::cout << "ERROR::  DISASTER! in operator[] Atom name lookup failed atom \""
+	     << atname << "\" amongst " << atoms.size() << " atoms: not found in residue "
+	     << seqnum << std::endl;
+   return atoms[0]; 
+}
+
+// more robust, but involves a copy:
+std::pair<bool, coot::minimol::atom>
+coot::minimol::residue::get_atom(const std::string &atom_name) const {
+
+   bool status = false;
+   atom at;
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      if (atoms[i].name == atom_name) {
+         at = atoms[i];
+         status = true;
+         break;
+      }
+   }
+   return std::make_pair(status, at);
+}
+
 
 // return a negative on a problem
 double
@@ -660,22 +752,21 @@ coot::minimol::residue::lsq_overlay_rmsd(const residue &r) const {
 
    unsigned int n_in = r.atoms.size();
    std::vector<clipper::Coord_orth> pos_in(n_in);
-   for (unsigned int iat=0; iat<r.n_atoms(); iat++) { 
+   for (unsigned int iat=0; iat<r.n_atoms(); iat++)
       pos_in[iat] = r[iat].pos;
-      unsigned int n_ref = atoms.size();
-      if (n_in == n_ref) {
-	 std::vector<clipper::Coord_orth> pos_ref(n_ref);
-	 for (unsigned int iat=0; iat<atoms.size(); iat++)
-	    pos_ref[iat] = atoms[iat].pos;
-	 // args: (source, target) i.e. apply to source to match to target
-	 clipper::RTop_orth rtop(pos_in, pos_ref);
-	 double sum = 0;
-	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	    double d_sq = (pos_ref[iat]-pos_in[iat].transform(rtop)).lengthsq();
-	    sum += d_sq;
-	 }
-	 rmsd = sqrt(sum/double(n_in));
+   unsigned int n_ref = atoms.size();
+   if (n_in == n_ref) {
+      std::vector<clipper::Coord_orth> pos_ref(n_ref);
+      for (unsigned int jat=0; jat<atoms.size(); jat++)
+         pos_ref[jat] = atoms[jat].pos;
+      // args: (source, target) i.e. apply to source to match to target
+      clipper::RTop_orth rtop(pos_in, pos_ref);
+      double sum = 0;
+      for (unsigned int jat=0; jat<atoms.size(); jat++) {
+         double d_sq = (pos_ref[jat]-pos_in[jat].transform(rtop)).lengthsq();
+         sum += d_sq;
       }
+      rmsd = sqrt(sum/double(n_in));
    }
    // std::cout << "returning rmsd: " << rmsd << std::endl;
    return rmsd;
@@ -690,7 +781,6 @@ coot::minimol::residue::write_file(const std::string &file_name) const {
    coot::minimol::molecule m;
    m.fragments.push_back(f);
    m.write_file(file_name, 10.0);
-      
 
 } 
 
@@ -757,7 +847,7 @@ coot::minimol::fragment::operator[](int i) {
 	 //
 	 residues = new_residues;
 	 residues_offset = new_offset;
-	 
+
       } else {
 	 // adding to C terminus;
 	 residues.resize(i+1-residues_offset);
@@ -1113,6 +1203,17 @@ coot::minimol::fragment::first_residue() const {
    return i;
 }
 
+void
+coot::minimol::fragment::delete_first_residue() {
+
+   if (residues.size() > 0)
+      residues.erase(residues.begin());
+
+   residues_offset++; // this is correct if seqnum of (now) residues[0] is seqnum of old residues[0]+1
+
+}
+
+
 
 void
 coot::minimol::fragment::transform(const clipper::RTop_orth &rtop) {
@@ -1141,7 +1242,18 @@ coot::minimol::molecule::transform(const clipper::RTop_orth &rtop, const clipper
    transform(shift_1);
    transform(rtop);
    transform(shift_2);
-} 
+}
+
+void
+coot::minimol::molecule::translate(const clipper::Coord_orth &t) {
+
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++)
+      for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++)
+         for (unsigned int iatom=0; iatom<fragments[ifrag][ires].atoms.size(); iatom++)
+            fragments[ifrag][ires][iatom].pos += t;
+
+}
+
 
 
 
@@ -1197,7 +1309,7 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
    if (res.seqnum == mmdb::MinInt4) 
       s << "residue is undefined! ";
    if (res.atoms.size() > 0) 
-      s << res.name << " contains " << res.atoms.size() << " atoms";
+      s << res.seqnum << " " << res.name << " contains " << res.atoms.size() << " atoms";
    return s;
 }
 
@@ -1303,7 +1415,18 @@ coot::minimol::fragment::n_filled_residues() const {
 	 ifr++;
    }
    return ifr;
-} 
+}
+
+void
+coot::minimol::fragment::write_file(const std::string &file_name) const {
+
+   coot::minimol::molecule m;
+   m.fragments.push_back(*this);
+   m.write_file(file_name, 10.0);
+
+}
+
+
 
 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 // FIXME

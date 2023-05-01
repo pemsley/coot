@@ -35,57 +35,54 @@
 namespace coot {
 
    namespace util { 
-   
+
       class phi_psi_t {
 
 	 //
 	 double phi_;
 	 double psi_;
 	 std::string lab;
-	 std::string ins_code;
 	 //    enum residue_type {ALA,GLY,SER,THR,ASP,GLU,ASN,GLN, 
 	 // 		      LEU,ILE,PHE,TYR,HIS,CYS,MET,TRP,
 	 // 		      ARG,LYS,PRO,VAL,CYH};
 	 std::string residue_name_;
 	 bool is_filled_;
-    bool is_pre_pro_;
+	 bool is_pre_pro_;
       
       public:
+	 // torsion angles in degrees
+	 phi_psi_t(double phi_in, double psi_in,
+		   const std::string &res_name,
+		   const std::string &residue_label,
+		   int resno,
+		   const std::string &ins_code_in,
+		   const std::string &chainid) : lab(residue_label), residue_name_(res_name), chain_id(chainid), ins_code(ins_code_in) {
+	    phi_ = phi_in;
+	    psi_ = psi_in;
+	    residue_number = resno;
+	    is_filled_ = 1;
+            is_pre_pro_ = false;
+	 }
 	 phi_psi_t(double a, double b,
 		   const std::string &res_name,
 		   const std::string &residue_label,
 		   int resno,
-		   const std::string ins_code_in,
-		   std::string chainid) {
+		   const std::string &ins_code_in,
+		   const std::string &chainid,
+		   bool is_pre_pro) : lab(residue_label), residue_name_(res_name), chain_id(chainid), ins_code(ins_code_in) {
 	    phi_ = a;
 	    psi_ = b;
-	    lab = residue_label;
-	    residue_name_ = res_name;
 	    residue_number = resno;
-	    ins_code = ins_code_in;
-	    chain_id = chainid;
 	    is_filled_ = 1;
+	    is_pre_pro_ = is_pre_pro;
 	 }
-    phi_psi_t(double a, double b,
-         const std::string &res_name,
-         const std::string &residue_label,
-         int resno,
-         const std::string ins_code_in,
-         std::string chainid,
-         bool is_pre_pro) {
-       phi_ = a;
-       psi_ = b;
-       lab = residue_label;
-       residue_name_ = res_name;
-       residue_number = resno;
-       ins_code = ins_code_in;
-       chain_id = chainid;
-       is_filled_ = 1;
-       is_pre_pro_ = is_pre_pro;
-    }
-    phi_psi_t() {
+
+	 phi_psi_t() {
+            phi_ = 0;
+            psi_ = 0;
 	    is_filled_ = 0;
-       is_pre_pro_ = 0;
+	    is_pre_pro_ = 0;
+            residue_number = -999;
 	 };
 	 // this can throw an exception (e.g. bonding atoms too far
 	 // apart).  Uses get_phi_psi() below
@@ -97,10 +94,11 @@ namespace coot {
 	 std::string residue_name() const { return residue_name_; }
 	 std::string chain_id;
 	 int residue_number;
+	 std::string ins_code;
 	 bool is_filled() const {
 	    return is_filled_;
 	 }
-    bool is_pre_pro() const { return is_pre_pro_; }
+	 bool is_pre_pro() const { return is_pre_pro_; }
 	 friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
       };
 
@@ -121,7 +119,7 @@ namespace coot {
 	    residue_this = r_2;
 	    residue_next = r_3;
 	 }
-	 phi_psi_with_residues_t(const phi_psi_t &pp) : phi_psi_t(pp) {
+	 explicit phi_psi_with_residues_t(const phi_psi_t &pp) : phi_psi_t(pp) {
 	    residue_prev = 0;
 	    residue_this = 0;
 	    residue_next = 0;
@@ -144,9 +142,7 @@ namespace coot {
 	 phi_psi_t first;
 	 phi_psi_t second;
 	 bool is_valid_pair_flag;
-	 phi_psi_pair_helper_t(const phi_psi_t &f, const phi_psi_t &s, bool valid_flag) {
-	    first = f;
-	    second = s;
+         phi_psi_pair_helper_t(const phi_psi_t &f, const phi_psi_t &s, bool valid_flag) : first(f), second(s) {
 	    is_valid_pair_flag = valid_flag;
 	 }
 	 phi_psi_pair_helper_t() {

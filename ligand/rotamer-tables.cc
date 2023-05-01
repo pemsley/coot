@@ -567,14 +567,15 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 std::vector<coot::rotamer_probability_info_t>
 coot::rotamer_probability_tables::probability_this_rotamer(mmdb::Residue *residue) const {
 
-   if (0) { // debugging
-      std::cout << "getting probability_this_rotamer for " << coot::residue_spec_t(residue) << " "
-		<< residue->GetResName() << std::endl;
+   if (false) { // debugging
+      std::cout << "probability_this_rotamer(): getting probability_this_rotamer for "
+		<< coot::residue_spec_t(residue) << " " << residue->GetResName() << std::endl;
    }
-   
+
    std::string resname (residue->GetResName());
    if (resname == "GLY" || resname == "ALA") {
-      coot::rotamer_probability_info_t pr(coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA, 1, resname);
+      coot::rotamer_probability_info_t pr(coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA,
+					  1, resname);
       std::vector<coot::rotamer_probability_info_t> v;
       v.push_back(pr);
       return v;
@@ -589,6 +590,14 @@ coot::rotamer_probability_tables::probability_this_rotamer(mmdb::Residue *residu
    // says that it has 2.  Molprobity probability tables say 1).
 
    int i_table = -1;
+
+   if (false) { // debug
+      std::cout << "probability_this_rotamer() tables.size() " << tables.size() << std::endl;
+      for (unsigned int itab=0; itab<tables.size(); itab++) {
+	 std::cout << "    " << tables[itab].residue_name << std::endl;
+      }
+   }
+
    for (unsigned int itab=0; itab<tables.size(); itab++) {
       if (tables[itab].residue_name == resname) {
 	 i_table = itab;

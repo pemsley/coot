@@ -26,6 +26,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -55,12 +56,6 @@
 #include "coords/mmdb.h"
 
 #include "globjects.h" //includes gtk/gtk.h
-
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
 
 #include "coords/mmdb-crystal.h"
 
@@ -134,14 +129,6 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
       if (istat) {
 	 g.update_go_to_atom_window_on_changed_mol(imol);
 	 graphics_draw();
-      }
-
-      if (delete_item_widget_is_being_shown()) {
-	 if (delete_item_widget_keep_active_on()) { 
-	    // dont destroy it
-	 } else {
-	    store_delete_item_widget_position(); // and destroy it.
-	 }
       }
    }
 
@@ -239,11 +226,12 @@ set_rotamer_check_clashes(int i) {
 // -99.9 in class function error
 // 
 float
-auto_fit_best_rotamer(int resno,
-		      const char *altloc,
-		      const char *insertion_code, 
-		      const char *chain_id, int imol_coords, int imol_map,
-		      int clash_flag, float lowest_probability) {
+auto_fit_best_rotamer(int imol_coords,
+                      const char *chain_id,
+                      int resno,
+                      const char *insertion_code,
+                      const char *altloc,
+                      int imol_map, int clash_flag, float lowest_probability) {
 
    float f = -999.9;
 
@@ -251,10 +239,11 @@ auto_fit_best_rotamer(int resno,
 
       std::string ins(insertion_code);
       std::string chain(chain_id);
+      graphics_info_t g;
       int mode = graphics_info_t::rotamer_search_mode;
       if (! is_valid_map_molecule(imol_map)) {
 	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
-	 graphics_info_t g;
+         imol_map = -1;
 	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
 									   resno, altloc, ins,
 									   chain, imol_map,
@@ -262,7 +251,6 @@ auto_fit_best_rotamer(int resno,
 									   lowest_probability,
 									   *g.Geom_p());
       } else {
-	 graphics_info_t g;
 	 f = g.molecules[imol_coords].auto_fit_best_rotamer(mode,
 							    resno, altloc, ins,
 							    chain, imol_map,
@@ -286,6 +274,7 @@ auto_fit_best_rotamer(int resno,
 	 }
 	 std::cout << "Fitting score for best rotamer: " << f << std::endl;
       }
+      g.run_post_manipulation_hook(imol_coords, 0);
       graphics_draw();
    }
    std::string cmd = "auto-fit-best-rotamer";
@@ -431,7 +420,7 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
 	 coot::richardson_rotamer d(res, alt_conf, mol, 0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
 	 std::cout << "INFO:: " << coot::residue_spec_t(res) << " " << prob << std::endl;
-	 r = scm_makfrom0str(prob.rotamer_name.c_str());
+	 r = scm_from_locale_string(prob.rotamer_name.c_str());
 #endif      
       }
    }
@@ -454,7 +443,7 @@ PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const c
 	 coot::richardson_rotamer d(res, alt_conf, graphics_info_t::molecules[imol].atom_sel.mol,
 				    0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
-	 r = PyString_FromString(prob.rotamer_name.c_str());
+	 r = myPyString_FromString(prob.rotamer_name.c_str());
 #endif      
       }
    }
@@ -564,18 +553,121 @@ void set_residue_type_chooser_stub_state(short int istat) {
    add_to_history_typed(cmd, args);
 }
 
+void handle_residue_type_chooser_entry_chose_type(const char *entry_text,
+                                                  short int stub_mode) {
+
+   // mutate_and_auto_fit
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      if (entry_text) {
+         std::string et(entry_text);
+         if (! et.empty()) {
+            char c = et[0];
+            c = std::toupper(c);
+            std::string res_type = coot::util::single_letter_to_3_letter_code(c);
+            if (coot::util::is_standard_amino_acid_name(res_type)) {
+               graphics_info_t g;
+               // set the imol and the atom index - bleugh (it's because we are
+               // using a function called from graphics-info-defines.cc - which
+               // uses an atom click. Sigh.
+               mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+               if (at) {
+                  int atom_index = -1;
+                  int UDDAtomIndexHandle = g.molecules[imol].atom_sel.UDDAtomIndexHandle;
+                  int status = at->GetUDData(UDDAtomIndexHandle, atom_index);
+                  if (status == mmdb::UDDATA_Ok) {
+                     g.mutate_auto_fit_residue_atom_index = atom_index;
+                     g.mutate_auto_fit_residue_imol = imol;
+                     coot::residue_spec_t res_spec = coot::residue_spec_t(coot::atom_spec_t(at));
+                     g.do_mutation(imol, res_spec, res_type, stub_mode);
+                  } else {
+                     std::cout << "UDData not OK " << std::endl;
+                  }
+               } else {
+                  std::cout << "No atom in molecule" << std::endl;
+               }
+            } else {
+               std::cout << "Non-standard residue " << c << " " << res_type << std::endl;
+            }
+         } else {
+            std::cout << "empty entry text" << std::endl;
+         }
+      } else {
+         std::cout << "No entry text" << std::endl;
+      }
+   } else {
+      std::cout << "No active atom" << std::endl;
+   }
+}
+
+
 
 void
 do_mutation(const char *type, short int stub_button_state_flag) {
    graphics_info_t g;
    // use g.mutate_residue_atom_index and g.mutate_residue_imol
-   g.do_mutation(type, stub_button_state_flag);
-   std::string cmd = "do-mutatation";
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec = coot::residue_spec_t(pp.second.second);
+      g.do_mutation(imol, res_spec, type, stub_button_state_flag);
+   }
+   std::string cmd = "do-mutation";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(type));
    args.push_back(stub_button_state_flag);
    add_to_history_typed(cmd, args);
 }
+
+void mutate_active_residue() {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      bool show_stub_flag = true;
+      GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
+      gtk_widget_show(widget);
+      g.in_mutate_auto_fit_define = 0;
+      g.residue_type_chooser_auto_fit_flag = 1;
+      g.pick_pending_flag = 0;
+   }
+}
+
+void
+mutate_active_residue_to_single_letter_code(const std::string &slc) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      std::string u_slc = coot::util::upcase(slc);
+      std::string res_type = coot::util::single_letter_to_3_letter_code(u_slc);
+      std::cout << "debug:: single_letter_to_3_letter_code(): scl: " << u_slc << " res_type: " << res_type << std::endl;
+      if (! res_type.empty()) {
+         graphics_info_t g;
+         int ires = atom_spec.res_no;
+         std::string ins_code = atom_spec.ins_code;
+         std::string chain_id = atom_spec.chain_id;
+         g.molecules[imol].mutate(ires, ins_code, std::string(chain_id), res_type);
+         g.update_geometry_graphs(imol);
+         graphics_draw();
+      }
+   }
+}
+
+// \brief show keyboard mutate dialog
+void show_keyboard_mutate_dialog() {
+
+   GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
+   gtk_widget_show(w);
+
+}
+
+
 
 // return success on residue type match
 // success: 1, failure: 0.
@@ -603,6 +695,8 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
 
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
+      graphics_info_t g;
+      g.update_geometry_graphs(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";
@@ -617,7 +711,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    return istate;
 }
 
-// return success status.  
+// return success status.
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type) {
    int istate = 0;
    graphics_info_t g;
@@ -626,7 +720,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
       istate = graphics_info_t::molecules[imol].mutate_base(r, res_type,
 							    g.convert_to_v2_atom_names_flag);
       graphics_draw();
-   } 
+   }
    std::string cmd = "mutate-base";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
@@ -635,9 +729,9 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    args.push_back(coot::util::single_quote(ins_code));
    args.push_back(coot::util::single_quote(res_type));
    add_to_history_typed(cmd, args);
-   
-   return istate; 
-} 
+
+   return istate;
+}
 
 
 
@@ -652,7 +746,7 @@ mutate_single_residue_by_serial_number(int ires_serial, const char *chain_id, in
 
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
    std::cout << "INFO:: mutate target_res_type :" << target_as_str << ":" << std::endl;
-      
+
    return mutate_internal(ires_serial, chain_id, imol, target_as_str);
 
 }
@@ -664,12 +758,11 @@ mutate_single_residue_by_serial_number(int ires_serial, const char *chain_id, in
 // the serial number is -1 (I don't know wny this happens but it does
 // in terminal residue addition).  So I will need new functionally
 // that does the residue at root by seqnum not serial_number.
-// 
-int mutate_single_residue_by_seqno(int ires, const char *inscode,
-				   const char *chain_id, 
-				   int imol, char target_res_type) { 
+//
+int mutate_single_residue_by_seqno(int imol, const char *chain_id, int ires, const char *inscode,
+				   char target_res_type) {
 
-   int status = -1; 
+   int status = -1;
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
 
    if (is_valid_model_molecule(imol)) {
@@ -679,6 +772,62 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
    }
    return status;
 }
+
+int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end,
+                         const std::string &target_sequence) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+
+      int delta_residue_range = res_no_end - res_no_start  + 1;
+      int target_sequence_length = target_sequence.length();
+      if (target_sequence_length == delta_residue_range) {
+         for (int ii=0; ii<target_sequence_length; ii++) {
+            int res_no = res_no_start + ii;
+            std::string ins_code;
+            char target_res_type = target_sequence[ii];
+            mutate_single_residue_by_seqno(imol, chain_id.c_str(), res_no, ins_code.c_str(), target_res_type);
+            status = 1;
+         }
+      } else {
+         // log this
+         std::cout << "WARNING:: in mutate_residue_range() mismatch sequence and range "
+                   << delta_residue_range << " " << target_sequence_length << std::endl;
+      }
+   }
+   return status;
+}
+
+int mutate_and_autofit_residue_range(int imol, const char *chain_id, int start_res_no, int stop_res_no,
+                                     const char *target_sequence) {
+
+  int status = 0;
+  if (is_valid_model_molecule(imol)) {
+     int imol_map = imol_refinement_map();
+     int delta_residue_range = stop_res_no - start_res_no  + 1;
+     int target_sequence_length = std::string(target_sequence).length();
+     if (target_sequence_length == delta_residue_range) {
+        int backup_mode = backup_state(imol);
+        if (backup_mode)
+           turn_off_backup(imol);
+        mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, std::string(target_sequence));
+        int clash_flag = true;
+        float lowest_probability = 0.3; // changed from 0.5
+        for (int ii=0; ii<target_sequence_length; ii++) {
+           int res_no = start_res_no + ii;
+           std::string ins_code;
+           std::string alt_conf;
+           auto_fit_best_rotamer(imol, chain_id, res_no, ins_code.c_str(), alt_conf.c_str(),
+                                 imol_map, clash_flag, lowest_probability);
+        }
+        if (backup_mode)
+           turn_on_backup(imol);
+     }
+  }
+  return status;
+}
+
+
 
 /* push the residues along a bit
 
@@ -982,7 +1131,7 @@ void setup_180_degree_flip(short int state) {
 // Fill amino acid residues
 void fill_partial_residues(int imol) {
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
       coot::util::missing_atom_info m_i_info =
@@ -1000,17 +1149,20 @@ void fill_partial_residues(int imol) {
 
 	 int refinement_replacement_state = refinement_immediate_replacement_state();
 	 set_refinement_immediate_replacement(1);
+
+         std::string alt_conf("");
+         std::vector<mmdb::Residue *> residues;
+
       	 for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
       	    int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
       	    std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
       	    std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
       	    std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
-      	    std::string altconf("");
-	    short int is_water = 0;
-      	    g.refine_residue_range(imol, chain_id, chain_id, resno, inscode, resno, inscode,
-				   altconf, is_water);
-	    accept_regularizement();
+            residues.push_back(m_i_info.residues_with_missing_atoms[i]);
       	 }
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+         c_accept_moving_atoms();
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
 	 if (backup_mode)
@@ -1025,10 +1177,10 @@ void fill_partial_residues(int imol) {
 
 void fill_partial_residue(int imol, const char *chain_id, int resno, const char* inscode) {
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
-      if (imol_map > -1) { 
+      if (imol_map > -1) {
 	 coot::residue_spec_t rs(chain_id, resno, inscode);
 	 g.molecules[imol].fill_partial_residue(rs, g.Geom_p(), imol_map);
 	 // post process...
@@ -1048,3 +1200,190 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
    }
 }
 
+// Fill amino acid residues, do backrub rotamer search for residues, but don't do refinement
+//
+void simple_fill_partial_residues(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (imol_map > -1) {
+	 coot::util::missing_atom_info m_i_info =
+	    g.molecules[imol].fill_partial_residues(g.Geom_p(), imol_map);
+	 graphics_draw();
+      } else {
+	 add_status_bar_text("Refinement map not set");
+      }
+   }
+}
+
+
+#include "c-interface-sequence.hh"
+#include "ligand/side-chain-densities.hh"
+
+std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
+
+   std::string guessed_sequence;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         coot::side_chain_densities scd;
+         scd.fill_residue_blocks(mol, chain_id, resno_start, resno_end, xmap);
+         guessed_sequence =
+            scd.guess_the_sequence(mol, chain_id, resno_start, resno_end, xmap);
+         // std::cout << "guessed sequence " << guessed_sequence << std::endl;
+      }
+   }
+   return guessed_sequence;
+}
+
+void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
+                                   const coot::fasta_multi &fam) {
+
+   // change the residue number if you can
+
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         std::cout << "here 1" << std::endl;
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         coot::side_chain_densities scd;
+         unsigned int n_sequences = fam.size();
+         std::cout << "here 2 with n_sequences " << n_sequences << std::endl;
+         if (n_sequences > 0) {
+            for (unsigned int idx=0; idx<n_sequences; idx++) {
+               std::string sequence = fam[idx].sequence;
+               const std::string &name = fam[idx].name;
+               std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
+                  scd.setup_test_sequence(mol, chain_id, resno_start, resno_end, xmap);
+               // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, name, sequence);
+               if (a_run_of_residues.first.empty()) {
+                  bool print_slider_results = true;
+                  scd.test_sequence(a_run_of_residues.second, xmap, name, sequence, print_slider_results);
+               } else {
+                  std::cout << "ERROR:: when generating a run of residues " << std::endl;
+                  std::cout << a_run_of_residues.first << std::endl;
+                  add_status_bar_text(a_run_of_residues.first.c_str());
+               }
+            }
+
+            bool only_probable = false; // just give me your best shot - I know that it might be wrong.
+            bool print_sequencing_solutions_flag = true;
+            coot::side_chain_densities::results_t new_sequence_result = scd.get_result(only_probable, print_sequencing_solutions_flag);
+            std::string new_sequence = new_sequence_result.sequence;
+            std::cout << "debug:: apply_fasta_multi_to_fragment(): get_result(): new_sequence " << new_sequence << std::endl;
+            int offset = new_sequence_result.offset;
+            if (! new_sequence.empty()) {
+               int sl = new_sequence.length();
+               int residue_count = resno_end - resno_start + 1;
+               std::cout << "DEBUG:: new_sequence length " << sl << " residue_count " << residue_count
+                         << " offset " << offset << std::endl;
+               if (sl == residue_count) {
+                  molecule_class_info_t &m = graphics_info_t::molecules[imol];
+                  m.make_backup_from_outside();
+                  bool backup_state = m.backups_state();
+                  m.turn_off_backup();
+                  int ires_serial_first = m.residue_serial_number(chain_id, resno_start, "");
+                  if (ires_serial_first != -1) {
+                     for (int ires=resno_start; ires<=resno_end; ires++) {
+                        int idx_offset = ires-resno_start;
+                        // need to convert ires to a serial number
+                        int ires_serial = ires_serial_first + idx_offset;
+                        char letter = new_sequence[idx_offset];
+                        std::string new_residue_type = coot::util::single_letter_to_3_letter_code(letter);
+                        m.mutate_single_multipart(ires_serial, chain_id, new_residue_type);
+                     }
+                     m.fill_partial_residues(graphics_info_t::Geom_p(), imol_map);
+                     m.backrub_rotamer_residue_range(chain_id, resno_start, resno_end, *graphics_info_t::Geom_p());
+                     // now, can I change the residue numbers?
+                     // residue-1 in the target (sequence) number scheme has offset 0
+                     int resno_offset = offset + 1 - resno_start;
+                     m.renumber_residue_range(chain_id, resno_start, resno_end, resno_offset);
+                  } else {
+                     std::cout << "WARNING:: apply_sequence_to_fragment() failed to find serial number of residue "
+                               << chain_id << " with res-no " << resno_start << std::endl;
+                  }
+                  if (backup_state)
+                     m.turn_on_backup();
+               } else {
+                  std::cout << "WARNING:: residue count (based on given resno start and end) does not match "
+                            << "new sequence length" << std::endl;
+               }
+            }
+            graphics_draw();
+         }
+      } else {
+         std::cout << "WARNING:: not a valid map " << imol_map << std::endl;
+      }
+
+   } else {
+      std::cout << "WARNING:: not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+void apply_sequence_to_fragment(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map,
+                                const std::string &multi_sequence_file_name) {
+
+   coot::fasta_multi fam(multi_sequence_file_name);
+   apply_fasta_multi_to_fragment(imol, chain_id, resno_start, resno_end, imol_map, fam);
+}
+
+
+void assign_sequence_to_active_fragment() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::atom_spec_t atom_spec = pp.second.second;
+      int imol_map = imol_refinement_map();
+      if (is_valid_model_molecule(imol)) {
+         if (is_valid_map_molecule(imol_map)) {
+            const molecule_class_info_t &m = graphics_info_t::molecules[imol];
+            mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+            coot::residue_spec_t residue_spec(atom_spec);
+            mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+            if (residue_p) {
+               float close_dist_max = 1.7;
+               // Yes, simple_residue_tree() is very slow: ~2 seconds for 1000 residues
+               // std::cout << "getting the residue tree ... " << std::endl;
+               std::vector<mmdb::Residue *> v = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+               // std::cout << "done getting the residue tree ... " << std::endl;
+               if (! v.empty()) {
+                  std::string chain_id = atom_spec.chain_id;
+                  int resno_low  =  10000000;
+                  int resno_high = -10000000;
+                  for (unsigned int i=0; i<v.size(); i++) {
+                     int resno = v[i]->GetSeqNum();
+                     // check that v[i] is in the same chain as the active atom
+                     if (v[i]->GetChain() == residue_p->GetChain()) {
+                        if (resno < resno_low)  resno_low  = resno;
+                        if (resno > resno_high) resno_high = resno;
+                     }
+                  }
+                  coot::fasta_multi fam;
+                  std::vector<std::pair<std::string, std::string> > sequence_info = m.sequence_info();
+                  for (auto seq : sequence_info) {
+                     coot::fasta f(seq.first, seq.second, coot::fasta::SIMPLE_STRING);
+                     fam.add(f);
+                  }
+                  std::cout << "debug:: calling apply_fasta_multi_to_fragment() " << chain_id
+                            << " " << resno_low << " " << resno_high << " with imol_map: " << imol_map << std::endl;
+                  apply_fasta_multi_to_fragment(imol, chain_id, resno_low, resno_high, imol_map, fam);
+               } else {
+                  std::cout << "empty v from simple_residue_tree() " << std::endl;
+               }
+            } else {
+               std::cout << "residue not found in molecules " << residue_spec << std::endl;
+            }
+         } else {
+            std::cout << "Not a valid map molecule " << imol_map << std::endl;
+         }
+      } else {
+         std::cout << "Not a valid model molecule " << imol << std::endl;
+      }
+   } else {
+      std::cout << "No active atom" << std::endl;
+   }
+}

@@ -29,6 +29,7 @@
 #include "compat/coot-sysdep.h"
 #include <gtk/gtk.h>
 #include "coot-setup-python.hh"
+#include "python-classes.hh"
 #include "coot-glue.hh"
 #include "c-interface.h"
 #include "c-interface-preferences.h"
@@ -47,177 +48,251 @@
 #include <glob.h>
 
 
-void setup_python(int argc, char **argv) {
-
+void setup_python_basic(int argc, char **argv) {
 
 #ifdef USE_PYTHON
-     //  (on Mac OS, call PyMac_Initialize() instead)
-     //http://www.python.org/doc/current/ext/embedding.html
+#ifdef USE_PYMAC_INIT
 
-#ifdef USE_PYMAC_INIT 
+  //  (on Mac OS, call PyMac_Initialize() instead)
+  //http://www.python.org/doc/current/ext/embedding.html
+  //
   PyMac_Initialize();
-#else  
-  Py_Initialize(); // otherwise it core dumps saying python
-  // interpreter not initialized (or something).
-  PySys_SetArgv(argc, argv);
-#endif     
 
-  init_coot(); // i.e. SWIG_init for python, best we do this before
-               // running .coot.py, eh?
-
-  
-  char *hds = getenv("HOME");
-  std::string home_directory;
-
-  if (hds)
-     home_directory = hds;
-
-  // I won't mess with this - not sure what it does.
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  // In Windows we should use COOT_HOME
-  char *win_home = getenv("COOT_HOME");
-  std::string pkgdirectory = PKGDATADIR;
-  if (win_home) {
-     home_directory = win_home;
-  } else {
-     // if there is no COOT_HOME, there may be a HOME, then use this
-     // usually for advanced users... (set already)
-     if (!hds) {
-        // BL says:: not sure if this is the right fallback place. But where/what else?
-        home_directory = pkgdirectory;
-     }
-  }
-#endif
-
-     short int use_graphics_flag = use_graphics_interface_state();
-
-     // First load coot.py, then load the standard startup files, 
-     // then load 0-coot.state.py
-
-     std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
-     
-     char *pydirectory_over = getenv("COOT_PYTHON_DIR");
-     if (pydirectory_over)
-	pydirectory = pydirectory_over;
-
-     int err = import_python_module("coot", 0);
-     if (err == -1) {
-	std::cout << "ERROR:: could not import coot.py" << std::endl;
-     } else {
-	std::cout << "INFO:: coot.py imported" << std::endl;
-
-	if (! use_graphics_flag) {
-	   safe_python_command("global use_gui_qm; use_gui_qm = False");
-	} else { 
-	   // we have gui
-	   // BL says:: lets initialize glue too but only if we have pygtk 
-	   // (and gtk2)
-
-#ifdef USE_PYGTK
-	   initcoot_python();
-	   std::cout << "INFO:: coot_python initialized" << std::endl;
-#   ifdef USE_GUILE_GTK
-	   safe_python_command("global use_gui_qm; use_gui_qm = 2");
-#   else
-	   safe_python_command("global use_gui_qm; use_gui_qm = 1");
-#   endif
 #else
-	   safe_python_command("global use_gui_qm; use_gui_qm = False");
-#endif // PYTGK
-	}
-	
-	std::string coot_load_modules_dot_py = "coot_load_modules.py";
-	std::string coot_py_file_name = graphics_info_t::add_dir_file(pydirectory, coot_load_modules_dot_py);
-	if (coot::file_exists(coot_py_file_name)) { 
-	   run_python_script(coot_py_file_name.c_str());
-	} else {
-	   std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
-		     << std::endl;
-	}
-     }
-     // try to load extra dir files (if exist) do before preferences (as for
-     // scheme version
-     try_load_python_extras_dir();
 
-     // we only want to run one state file if using both scripting
-     // languages.  Let that be the guile one.
-     //
-     try_load_dot_coot_py_and_preferences(home_directory);
-     
-#ifndef USE_GUILE
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   for (int i=0; i<argc; i++) {
+      wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
+      _argv[i] = arg;
+   }
+   Py_InitializeEx(0);
+   PySys_SetArgv(argc, _argv);
 
-     // we get here if there is no guile but there is python and the ifdef is only here so 
-     // that we don't run both state script.
+#endif // USE_PYMAC_INIT
 
-     command_line_data cld = parse_command_line(argc, argv);
-     handle_command_line_data(cld);
+   auto get_pythondir = [] () {
+                           std::string p = coot::prefix_dir();
+                           std::string dp   = coot::util::append_dir_dir(p,   "lib");
+                           std::string python_version = "python";
+                           python_version += coot::util::int_to_string(PY_MAJOR_VERSION);
+                           python_version += ".";
+                           python_version += coot::util::int_to_string(PY_MINOR_VERSION);
+                           std::string ddp  = coot::util::append_dir_dir(dp,  python_version);
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-packages");
+                           return dddp;
+                        };
+   auto get_pkgpythondir = [get_pythondir] () {
+                              std::string d = get_pythondir();
+                              std::string dp   = coot::util::append_dir_dir(d, "coot");
+                              return dp;
+                           };
 
-     // BL says::should this still be here?
-     run_state_file_maybe(); // run local 0-coot.state.py?
+   // std::string pkgpydirectory = PKGPYTHONDIR;
+   // std::string pydirectory = PYTHONDIR;
+   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
+   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
 
-     // run_update_self_maybe(); nope.  Not yet.
-     
-#endif // USE_GUILE - not both start-up scripts
+   std::string pkgpydirectory = get_pkgpythondir();
+   std::string    pydirectory = get_pythondir();
 
-#endif // USE_PYTHON  
+   if (false) {
+      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
+      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
+   }
+
+   PyObject *sys_path = PySys_GetObject("path");
+   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+   PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
+
+   // int err = PyRun_SimpleString("import coot");
+
+#endif // USE_PYTHON
 
 }
 
-void try_load_dot_coot_py_and_preferences(const std::string &home_directory) {
+void setup_python_coot_module() {
+
+  PyObject *coot = PyImport_ImportModule("coot");
+   if (! coot) {
+      std::cout << "ERROR:: setup_python_coot_module() Null coot" << std::endl;
+   }
+}
+
+void setup_python_with_coot_modules(int argc, char **argv) {
+#ifdef USE_PYTHON
+
+   auto get_pythondir = [] () {
+                           std::string p = coot::prefix_dir();
+                           std::string dp   = coot::util::append_dir_dir(p,   "lib");
+                           std::string python_version = "python";
+                           python_version += coot::util::int_to_string(PY_MAJOR_VERSION);
+                           python_version += ".";
+                           python_version += coot::util::int_to_string(PY_MINOR_VERSION);
+                           std::string ddp  = coot::util::append_dir_dir(dp,  python_version);
+                           std::string dddp = coot::util::append_dir_dir(ddp, "site-packages");
+                           return dddp;
+                        };
+   auto get_pkgpythondir = [get_pythondir] () {
+                              std::string d = get_pythondir();
+                              std::string dp   = coot::util::append_dir_dir(d, "coot");
+                              return dp;
+                           };
+
+   // std::string pkgpydirectory = PKGPYTHONDIR;
+   // std::string pydirectory = PYTHONDIR;
+   // use ${prefix}/lib/python3.9/site-package for PYTHONDIR
+   // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
+
+   std::string pkgpydirectory = get_pkgpythondir();
+   std::string pydirectory = get_pythondir();
+
+   g_debug("in setup_python()    pydirectory is %s ",pydirectory.c_str());
+   g_debug("in setup_python() pkgpydirectory is %s ",pkgpydirectory.c_str());
+
+   PyObject *sys_path = PySys_GetObject("path");
+   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
+
+   // int err = PyRun_SimpleString("import coot");
+
+   PyObject *sys = PyImport_ImportModule("sys");
+   if (! sys) {
+      std::cout << "ERROR:: setup_python() Null sys" << std::endl;
+   } else {
+      // std::cout << "sys imported" << std::endl;
+   }
+   PyObject *coot = PyImport_ImportModule("coot");
+
+   if (! coot) {
+      std::cout << "ERROR:: setup_python() Null coot" << std::endl;
+   } else {
+
+      if (true) {
+         initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                                    // this this is the module that wraps the glue to get
+                                    // the status-bar, menu-bar etc. i.e. coot_python_api
+         PyObject *io = PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
+
+         // std::cout << "@@@@@@@@@@@@@@ coot_utils was imported " << io << std::endl;
+         
+         // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
+         // idioms.
+         // PyImport_ImportModule("extensions");
+
+         // this should not be called if we are not starting the graphics. But for now, add
+         // it without that test
+         //
+         PyObject *gui_module = PyImport_ImportModule("coot_gui");
+         // std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
+      }
+   }
+
+   PyErr_PrintEx(0);
+
+   // Read the startup-scripts elsewhere. The function is just to
+   // read the standard coot python *modules*.
+
+   // std::string home_directory = coot::get_home_dir();
+   // try_load_dot_coot_py_and_python_scripts(home_directory);
+
+#endif // USE_PYTHON
+
+}
+
+void
+setup_python_classes() {
+#ifdef USE_PYTHON
+
+  init_pathology_data();
+
+#endif
+
+}
+
+void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) {
+
+   std::cout << "--------------- try_load_dot_coot_py_and_python_scripts from "
+             << home_directory << " " << graphics_info_t::run_startup_scripts_flag << std::endl;
 
    if (graphics_info_t::run_startup_scripts_flag) {
 
       short int use_graphics_flag = use_graphics_interface_state();
-   
+
       // load preferences file .coot_preferences.py
-      std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
+      // std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
+      //
+      // now coot startup scripts will be read from and written to the ~/.coot directory
+      // (if it is not a file already)
+      //
+      std::string startup_scripts_dir = graphics_info_t::add_dir_file(home_directory, ".coot");
       struct stat buff;
-      int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
-     
-      if (preferences_dir_status != 0) { 
-	 std::cout << "INFO:: preferences directory " << preferences_dir 
-		   << " does not exist. Won't read preferences." << std::endl;;
+      int preferences_dir_status = stat(startup_scripts_dir.c_str(), &buff);
+
+      if (preferences_dir_status != 0) {
+         std::cout << "INFO:: preferences directory " << startup_scripts_dir
+                   << " does not exist. Won't read preferences." << std::endl;;
       } else {
 	 // load all .py files
 	 glob_t myglob;
 	 int flags = 0;
 	 //std::string glob_patt = "/*.py";
-	 std::string glob_file = preferences_dir;
+	 std::string glob_file = startup_scripts_dir;
 	 glob_file += "/*.py";
 	 glob(glob_file.c_str(), flags, 0, &myglob);
-	 size_t count;
 	 // dont load the coot_toolbuttons.py if no graphics
 	 // same for key_bindings (and potentially others)
-	 std::vector<std::string> exclude_py_files;
-	 exclude_py_files.push_back("coot_toolbuttons.py");
-	 exclude_py_files.push_back("template_key_bindings.py");
-	 std::size_t found_substr;
+	 std::set<std::string> exclude_py_files;
+         if (! use_graphics_flag) {
+            exclude_py_files.insert("coot_toolbuttons.py");
+            exclude_py_files.insert("template_key_bindings.py");
+         }
 
-	 char **p;
-	 for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-	    char *preferences_file(*p);
-	    found_substr = std::string::npos;
-	    for (unsigned int i=0; i<exclude_py_files.size(); i++) {
-	       found_substr = ((std::string)preferences_file).find(exclude_py_files[i]);
-	       if (found_substr != std::string::npos)
-		  break;
-	    }
-	    char *found2 = strstr(preferences_file, "coot_preferences.py");
-	    if (((found_substr == std::string::npos) || (use_graphics_flag)) && 
-		((!found2) || (prefer_python()))) {
-	       if (false) // too verbose
-		  std::cout << "INFO:: loading preferences file " << preferences_file
-			    << std::endl;
-	       run_python_script(preferences_file); // run_python_script writes the file-name to
-	                                            // the terminal
-	    }
-	 }
-	 globfree(&myglob);
+         // make this split so that we can run curlew scripts after, and xenops scripts after that.
+         //
+         std::vector<std::string> basic_scripts;
+         std::vector<std::string> xenops_scripts;
+         std::vector<std::string> curlew_scripts;
+         std::string coot_preferences_py_script;
+
+         for (char **p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
+            std::string preferences_script(*p);
+            std::string psf = coot::util::file_name_non_directory(preferences_script);
+            if (exclude_py_files.find(psf) == exclude_py_files.end()) {
+               bool done = false;
+               if (preferences_script.length() > 6) {
+                  if (psf.substr(0,6) == "xenops") {
+                     done = true;
+                     xenops_scripts.push_back(preferences_script);
+                  }
+               }
+               if (psf.length() > 6) {
+                  if (preferences_script.substr(0,6) == "curlew") {
+                     done = true;
+                     curlew_scripts.push_back(preferences_script);
+                  }
+               }
+               if (! done)
+                  basic_scripts.push_back(preferences_script);
+               if (preferences_script == "coot_preferences.py")
+                  coot_preferences_py_script = preferences_script;
+            }
+         }
+         globfree(&myglob);
+
+         for(const auto &script_fn : basic_scripts)
+            run_python_script(script_fn.c_str()); // bleugh
+         if (! coot_preferences_py_script.empty())
+            run_python_script(coot_preferences_py_script.c_str());
+         for(const auto &script_fn : curlew_scripts)
+            run_python_script(script_fn.c_str());
+         for(const auto &script_fn : xenops_scripts) {
+            run_python_script(script_fn.c_str());
+         }
       }
 
       // update the preferences
       make_preferences_internal();
 
+#if 0
       // load personal coot file .coot.py
       std::string filename = ".coot.py";
       if (! home_directory.empty()) {
@@ -227,5 +302,6 @@ void try_load_dot_coot_py_and_preferences(const std::string &home_directory) {
 	    run_python_script(coot_py_file_name.c_str());
 	 }
       }
+#endif
    }
 }

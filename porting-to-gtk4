@@ -1,0 +1,92 @@
+
+Compile with GTK4.
+   Fix box packing, 
+       widget raising,
+       colour picker usage,
+       mouse and keyboard event controllers
+       GtkTable to GtkGrid
+
+Rework the ui glade file so that it works with GTK4
+   Remove no-longer-used attribute (including GtkAdjustment)
+   Convert GtkMenu to GtkPopoverMenu
+           Replace GtkMenuItems (there are ~200 of these in Coot, including the Python and guile modules)
+           GtkMenuBar to GtkPopoverMenuBar
+           GtkToolbar to GtkBox
+
+Bring guile widgets into action again using guile-gnome
+
+-----
+
+removed key-press-event handlers:
+
+                    <signal name="key-press-event" handler="on_entry1_key_press_event_gtkbuilder_callback" swapped="no"/>
+                                <signal name="key-press-event" handler="on_go_to_atom_atom_name_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                                <signal name="key-press-event" handler="on_go_to_atom_residue_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                                <signal name="key-press-event" handler="on_go_to_atom_chain_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+        <signal name="key-press-event" handler="on_keyboard_go_to_residue_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+            <signal name="key-press-event" handler="on_keyboard_mutate_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                    <signal name="key-press-event" handler="on_libcheck_monomer_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+                            <signal name="key-press-event" handler="on_monomer_search_entry_key_press_event_gtkbuilder_callback" swapped="no"/>
+
+removed key-release-event handlers:
+
+        <signal name="key-release-event" handler="on_keyboard_go_to_residue_entry_key_release_event_gtkbuilder_callback" swapped="no"/>
+            <signal name="key-release-event" handler="on_keyboard_mutate_entry_key_release_event_gtkbuilder_callback" swapped="no"/>
+                        <signal name="key-release-event" handler="on_mutate_molecule_sequence_text_key_release_event_gtkbuilder_callback" swapped="no"/>
+
+removed configure-event handlers
+
+    <signal name="configure-event" handler="on_accept_reject_refinement_dialog_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_delete_item_dialog_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_display_control_window_glade_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_dynarama_window_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_goto_atom_window_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_window1_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_model_refine_dialog_configure_event_gtkbuilder_callback" swapped="no"/>
+    <signal name="configure-event" handler="on_rotate_translate_obj_dialog_configure_event_gtkbuilder_callback" swapped="no"/>
+
+removed pixbufs convert to file property
+
+    <property name="pixbuf">pixmaps/refmac.svg</property>
+    <property name="pixbuf">pixmaps/anchor.png</property>
+    <property name="pixbuf">pixmaps/rigid-body.png</property>
+    <property name="pixbuf">pixmaps/refine.png</property>
+    <property name="pixbuf">pixmaps/auto-fit-rotamer.png</property>
+    <property name="pixbuf">pixmaps/rotamers.png</property>
+    <property name="pixbuf">pixmaps/edit-chi.png</property>
+    <property name="pixbuf">pixmaps/torsion-general.png</property>
+    <property name="pixbuf">pixmaps/flip-peptide.png</property>
+    <property name="pixbuf">pixmaps/side-chain-180.png</property>
+    <property name="pixbuf">pixmaps/edit-backbone.png</property>
+    <property name="pixbuf">pixmaps/mutate-auto-fit.png</property>
+    <property name="pixbuf">pixmaps/mutate.png</property>
+    <property name="pixbuf">pixmaps/add-peptide-1.png</property>
+    <property name="pixbuf">pixmaps/add-alt-conf.png</property>
+    <property name="pixbuf">pixmaps/atom-at-pointer.png</property>
+    <property name="pixbuf">pixmaps/rtz.png</property>
+    <property name="pixbuf">pixmaps/go-to-atom.png</property>
+    <property name="pixbuf">pixmaps/go-to-ligand.png</property>
+    <property name="pixbuf">pixmaps/reset-view.png</property>
+    <property name="pixbuf">pixmaps/broom.png</property>
+        <property name="pixbuf">pixmaps/coot-1.png</property>
+
+
+deleted  button-release-event
+
+                        <signal name="button-release-event" handler="on_mutate_molecule_sequence_text_button_release_event_gtkbuilder_callback" swapped="no"/>
+
+
+----
+backport this
+
+
+   GError *error = NULL;
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+
+      std::cout << "ERROR:: get_builder_for_preferences_dialog() failed to find or parse builder file for preferences dialog" << std::endl;
+      std::cout << "ERROR::" << error->message << std::endl;
+
+
+   Likewise in main.cc for the main glade file
+
+

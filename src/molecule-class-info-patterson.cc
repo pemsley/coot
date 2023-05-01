@@ -138,7 +138,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 map_name += mtz_file_name;
 	 map_name += " ";
 	 map_name += f_col;
-	 new_map(xmap, map_name);
+	 install_new_map(xmap, map_name, is_EM_map());
 	 update_map_in_display_control_widget();
 	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 	 map_mean_  = mv.mean; 
@@ -147,7 +147,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 map_min_   = mv.min_density;
 	 
 	 set_initial_contour_level();
-	 update_map();
+	 update_map(true);
 	 ret_val = 1;
       }
 
@@ -214,7 +214,7 @@ molecule_class_info_t::make_patterson_using_intensities(std::string mtz_file_nam
 	 map_name += mtz_file_name;
 	 map_name += " ";
 	 map_name += i_col;
-	 new_map(xmap, map_name);
+	 install_new_map(xmap, map_name, is_EM_map());
 	 update_map_in_display_control_widget();
 	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 	 map_mean_  = mv.mean; 
@@ -223,7 +223,7 @@ molecule_class_info_t::make_patterson_using_intensities(std::string mtz_file_nam
 	 map_min_   = mv.min_density;
 	 
 	 set_initial_contour_level();
-	 update_map();
+	 update_map(true);
 	 ret_val = 1;
 	 
       }

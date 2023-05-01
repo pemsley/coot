@@ -14,7 +14,7 @@
    height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="torsion-general.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/edit-chi.png"
@@ -196,17 +196,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.924054"
-     inkscape:cx="24.920458"
-     inkscape:cy="11.928754"
+     inkscape:zoom="7.848108"
+     inkscape:cx="14.531752"
+     inkscape:cy="23.038335"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1043"
+     inkscape:window-width="1250"
      inkscape:window-height="866"
-     inkscape:window-x="101"
-     inkscape:window-y="134"
+     inkscape:window-x="656"
+     inkscape:window-y="232"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata2165">
@@ -241,9 +241,10 @@
        id="path3383" />
     <path
        style="fill:none;stroke:#515151;stroke-width:3.04925346px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleOutS)"
-       d="m 42.249804,-12.214073 c 0.388533,-19.655388 -21.531061,-19.646777 -27.671991,-15.381519 -6.0513294,4.203025 -5.0509364,10.29614 -5.0509364,10.29614"
+       d="m 42.249804,-12.214073 c 0.388533,-19.655388 -19.836792,-19.839382 -27.671991,-15.381519 -7.8351988,4.457863 -5.0509364,10.29614 -5.0509364,10.29614"
        id="path3585"
-       sodipodi:nodetypes="czc" />
+       sodipodi:nodetypes="czc"
+       inkscape:connector-curvature="0" />
     <path
        transform="matrix(3.2880353,0,0,2.9412041,-28.865206,-17.529046)"
        d="m 19.10099,9.7155943 a 1.4190594,1.5542079 0 1 1 -2.838119,0 1.4190594,1.5542079 0 1 1 2.838119,0 z"
@@ -306,13 +307,14 @@
        sodipodi:type="arc" />
     <text
        xml:space="preserve"
-       style="font-size:36.59104156px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:0.77777782;stroke:none;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
-       x="9.8812275"
-       y="7.1174479"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:27.77571678px;line-height:0%;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:0.77777782;stroke:none;stroke-width:2.31464291"
+       x="13.378583"
+       y="1.8629208"
        id="text2189"><tspan
          sodipodi:role="line"
          id="tspan2191"
-         x="9.8812275"
-         y="7.1174479">O</tspan></text>
+         x="13.378583"
+         y="1.8629208"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:27.77571678px;line-height:1.25;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:2.31464291">O</tspan></text>
   </g>
 </svg>

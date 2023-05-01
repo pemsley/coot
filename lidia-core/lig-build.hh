@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <set>
 #include <stdexcept>
 
@@ -75,7 +76,6 @@ namespace lig_build {
 	 y -= p.y;
       }
       bool close_point(const pos_t &other) const {
-	 bool status = 0;
 	 double small_bit = 3;
 	 return near_point(other, small_bit);
       }
@@ -96,33 +96,32 @@ namespace lig_build {
 	 return pos_t(first.x + frac * d_x,
 				first.y + frac * d_y);
       }
-      static pos_t mid_point(const pos_t &first,
-				       const pos_t &second) {
+      static pos_t mid_point(const pos_t &first, const pos_t &second) {
 	 return fraction_point(first, second, 0.5);
       }
       // angle in degrees
       pos_t rotate(double angle) const {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x * cos_theta - y * sin_theta;
 	 double new_y = x * sin_theta + y * cos_theta;
 	 return pos_t(new_x, new_y);
       }
 
       pos_t rotate_about(double x_cen, double y_cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
       
       pos_t rotate_about(const pos_t &cen, double angle) {
-	 double theta = angle * DEG_TO_RAD;
-	 double sin_theta = sin(theta);
-	 double cos_theta = cos(theta);
+	 double theta_l = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta_l);
+	 double cos_theta = cos(theta_l);
 	 double new_x = cen.x + (x - cen.x) * cos_theta - (y - cen.y) * sin_theta;
 	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
 	 return pos_t(new_x, new_y);
@@ -190,17 +189,13 @@ namespace lig_build {
    class offset_text_t {
    public:
       enum text_pos_offset_t { HERE=0, UP=-1, DOWN=1};
-      offset_text_t(const std::string &text_in) {
-	 text = text_in;
+      explicit offset_text_t(const std::string &text_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = HERE;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
-      offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
-	 text = text_in;
+      offset_text_t(const std::string &text_in, const text_pos_offset_t &text_pos_offset_in) : text(text_in), tweak(pos_t(0,0)) {
 	 text_pos_offset = text_pos_offset_in;
-	 tweak = pos_t(0,0);
 	 subscript = false;
 	 superscript = false;
       }
@@ -212,20 +207,18 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
-   
+
    class atom_id_info_t {
    public:
 
       // simple case
-      atom_id_info_t(const std::string &atom_id_in) {
-	 atom_id = atom_id_in;
+      explicit atom_id_info_t(const std::string &atom_id_in) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 size_hint = 0;
       }
 
       // make a superscript for the formal charge
-      atom_id_info_t(const std::string &atom_id_in, int formal_charge) {
-	 atom_id = atom_id_in;
+      atom_id_info_t(const std::string &atom_id_in, int formal_charge) : atom_id(atom_id_in) {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
@@ -307,18 +300,17 @@ namespace lig_build {
 		       // the atom indexes in the bonds descriptions.
    public:
       pos_t atom_position;
-      std::string element;
       std::string atom_id;
+      std::string element;
       std::string atom_name; // PDB atom names typically
-      int charge;
+      int charge;  // formal
       bool aromatic;
-      atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
-	 atom_position = pos_in;
-	 atom_id = ele_in;
-	 element = ele_in;
-	 charge = charge_in;
+      atom_t(const pos_t &pos_in, const std::string &ele_in, int charge_in) :
+         atom_position(pos_in), atom_id(ele_in), element(ele_in), charge(charge_in) {
 	 is_closed_ = 0;
+         aromatic = false;
       }
+      virtual ~atom_t() {}
       bool over_atom(const double &x_in, const double &y_in) const {
 	 pos_t mouse(x_in, y_in);
 	 double d = pos_t::length(mouse, atom_position);
@@ -372,6 +364,14 @@ namespace lig_build {
 	 // std::cout << " closing base class atom" << std::endl;
 	 is_closed_ = 1;
       }
+      // return the angle in degrees relative to the horizontal axis.
+      // Recall that molecules are drawn upside down (inverted Y)
+      // these are molecule coordinates though, not canvas coordinates.
+      static double angle_of_bond(const atom_t &at_1, const atom_t &at_2) {
+	 pos_t delta = at_2.atom_position - at_1.atom_position;
+	 double theta = atan2(delta.y, delta.x);
+	 return theta;
+      }
    };
    
    std::ostream& operator<<(std::ostream &s, atom_t);
@@ -383,7 +383,7 @@ namespace lig_build {
       atom_t atom;
       bool has_ring_centre_flag;
       pos_t ring_centre;
-      atom_ring_centre_info_t(const atom_t &at) : atom(at) {
+      explicit atom_ring_centre_info_t(const atom_t &at) : atom(at) {
 	 has_ring_centre_flag = 0;
       }
       void add_ring_centre(const pos_t &pos) {
@@ -411,9 +411,10 @@ namespace lig_build {
       unsigned int atom_2;
    private:
       bond_type_t bond_type;
-      pos_t centre_pos_; // the position of the polygen of
-				  // which this bond is a part
+      pos_t centre_pos_; // the position of the polygen (i.e. ring of atoms) of
+	   	         // which this bond is a part
       bool have_centre_pos_;  // was the bond from a polygon or just an external bond?
+      int n_ring_atoms_; // ring double bond shortening factor depends on this
       bool is_closed_;
    public:
       bond_t() {
@@ -422,6 +423,7 @@ namespace lig_build {
 	 have_centre_pos_ = false;
 	 is_closed_ = 0;
 	 bond_type = BOND_UNDEFINED;
+         n_ring_atoms_ = 0;
       }
       bond_t(unsigned int first, unsigned int second, bond_type_t bt) {
 	 atom_1 = first;
@@ -429,15 +431,17 @@ namespace lig_build {
 	 bond_type = bt;
 	 have_centre_pos_ = false;
 	 is_closed_ = 0;
+         n_ring_atoms_ = 0;
       }
-      bond_t(unsigned int first, unsigned int second, pos_t centre_pos_in, bond_type_t bt) {
+      bond_t(unsigned int first, unsigned int second, pos_t centre_pos_in, bond_type_t bt) : centre_pos_(centre_pos_in) {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
 	 have_centre_pos_ = true;
-	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
+         n_ring_atoms_ = 0;
       }
+      virtual ~bond_t() {}
       // mouse is hovering over bond?
       bool over_bond(double x, double y,
 		     const atom_t &atom_1_at, const atom_t &atom_2_at) const;
@@ -452,13 +456,14 @@ namespace lig_build {
       void set_bond_type(bond_type_t bt) { bond_type = bt; }
       bool have_centre_pos() const { return have_centre_pos_; }
       // post-hoc bond modification
-      void set_centre_pos(const pos_t &pos_in) {
+      void set_centre_pos(const pos_t &pos_in, int n_ring_atoms_in) {
 	 centre_pos_ = pos_in;
 	 have_centre_pos_ = true;
-      } 
+	 n_ring_atoms_ = n_ring_atoms_in;
+      }
       pos_t centre_pos() const { return centre_pos_; }
-      void add_centre(const pos_t &centre_in) {
-	 set_centre_pos(centre_in);
+      void add_centre(const pos_t &centre_in, int n_ring_atoms_in) {
+	 set_centre_pos(centre_in, n_ring_atoms_in);
       }
       bool operator==(const bond_t &bond_in) const {
 	 bool status = 0;
@@ -493,12 +498,260 @@ namespace lig_build {
 	 return idx;
       }
 
-      // (the long/normal stick for this is just pos_1 to pos_2)
+      // for double bonds.  We need more info to get this right.
+      // Need connections to at_2
+      //
+      // pass const atom_t &at_1, const atom_t &at_2,
+      bool draw_as_asymmetry_shortened(unsigned int n_neigh_1,
+				       unsigned int n_neigh_2) const {
+	 bool state = false;
+	 if (bond_type == DOUBLE_BOND) {
+	    if (have_centre_pos()) {
+	       state = true;
+	    } else {
+	       // non-ring double bond
+	       unsigned int n_C = 0;
+
+               // why are these commented out?
+	       // if (at_1.element == "C") n_C++;
+	       // if (at_2.element == "C") n_C++;
+
+	       bool do_symmetric_case = false;
+	       if (n_C == 0) {
+		  do_symmetric_case = true;
+	       } else {
+		  // more than 1 Carbon
+		  if (n_C == 2) {
+		     if (n_neigh_1 == 0)
+			if (n_neigh_2 == 0)
+			   do_symmetric_case = true;
+		  }
+		  if (n_C == 1) {
+		     // if (at_1.element == "C")
+		     if (n_neigh_1 > 1)
+			do_symmetric_case = true;
+		     // if (at_2.element == "C")
+		     if (n_neigh_2 > 1)
+			do_symmetric_case = true;
+		  }
+	       }
+	       state = ! do_symmetric_case;
+	    }
+	 }
+	 return state;
+      }
+
+      std::pair<pos_t, pos_t> coords_for_single_bond(const atom_t &at_1,
+						     const atom_t &at_2,
+						     bool at_1_is_singleton,
+						     bool at_2_is_singleton) const {
+	 pos_t pos_1_in = at_1.atom_position;
+	 pos_t pos_2_in = at_2.atom_position;
+	 pos_t pos_1 = pos_1_in;
+	 pos_t pos_2 = pos_2_in;
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+
+	 if (at_1.element != "C") {
+	    shorten_first = true;
+	 } else {
+	    // Does this C have one bond?
+	    if (at_1_is_singleton)
+	       shorten_first = true;
+	 }
+	 if (at_2.element != "C") {
+	    shorten_second = true;
+	 } else {
+	    // Does this C have one bond?
+	    if (at_2_is_singleton)
+	       shorten_second = true;
+	 }
+	 if (shorten_first) {
+	    double shorten_fraction = 0.76; // standard
+	    if (at_1.element == "Cl" || at_1.element == "Br" ||
+		at_1.element == "As") {
+	       double theta = atom_t::angle_of_bond(at_1, at_2); // radians
+	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
+	       // Actually, it would be better to have a more severe cut
+	       // when the bond comes from the right (because of the l of the Cl)
+	       // i.e. when theta is beteen -90 and 90 (-M_PI_4 -> M_PI_4)
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       shorten_fraction -= sc_1 * 0.25;
+	    }
+	    if (at_1.element == "N") {
+	       double theta = atom_t::angle_of_bond(at_1, at_2);
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       shorten_fraction -= sc_1 * 0.05; // need optimization
+	    }
+
+	    pos_1 = pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+
+	 }
+	 if (shorten_second) {
+	    double shorten_fraction = 0.74; // standard
+	    if (at_2.element == "Cl" || at_2.element == "Br" ||
+		at_2.element == "As") {
+	       double theta = atom_t::angle_of_bond(at_2, at_1); // radians
+	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       shorten_fraction -= sc_1 * 0.25;
+	    }
+	    if (at_2.element == "N") {
+	       double theta = atom_t::angle_of_bond(at_2, at_1);
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       shorten_fraction -= sc_1 * 0.05;
+	    }
+	    pos_2 = pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
+	 }
+
+	 return std::pair<pos_t, pos_t> (pos_1, pos_2);
+      }
+
+      std::vector<pos_t>
+      coords_for_sheared_or_darted_wedge_bond(const pos_t &pos_1,
+					      const pos_t &pos_2,
+					      const std::vector<std::pair<atom_t, bond_t> > &other_connections_to_second_atom) const {
+
+	 std::vector<pos_t> pts;
+
+	 if (other_connections_to_second_atom.size() > 0) {
+
+	    if (other_connections_to_second_atom.size() == 1) {
+
+	       const pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+	       const bond_t &third_bond     = other_connections_to_second_atom[0].second;
+
+	       if (third_bond.bond_type == TRIPLE_BOND) {
+		  // make an ordinary wedge (but shortened)
+		  pos_t pos_2_cut = pos_t::fraction_point(pos_2, pos_1, 0.16);
+		  pts = pos_t::make_wedge_out_bond(pos_1, pos_2_cut);
+
+	       } else {
+
+		  pos_t b = pos_2-pos_1;
+		  pos_t buv = b.unit_vector();
+		  pos_t buv_90 = buv.rotate(90);
+		  pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.04);
+
+		  pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
+		  pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
+
+		  pos_t bfrom3rd = pos_2 - third_atom_pos;
+		  pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
+		  pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
+
+		  if (third_bond.get_bond_type() == bond_t::DOUBLE_BOND) {
+		     // do we need to make this shorter? (Looks OK in cairo-molecule)
+		     // bond_from_3rd_atom_extension   -= b * 0.05;
+		     // bond_from_3rd_atom_contraction -= b * 0.05;
+		  }
+#ifdef HAVE_IOSTREAM_HEADER
+		  if (false) {
+		     std::cout << " pos_1           " << pos_1 << std::endl;
+		     std::cout << " pos_2           " << pos_2 << std::endl;
+		     std::cout << " buv             " << buv << std::endl;
+		     std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
+		     std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
+		     std::cout << " sheared points: " << sharp_point_2 << std::endl;
+		     std::cout << "                 " << sharp_point_1 << std::endl;
+		     std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
+		     std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
+		  }
+#endif
+		  // is bfrom3rd_2 in the same direction as buv_90?
+		  // If not, then we need to swap around sharp_point_1 and sharp_point_2.
+		  //
+		  double dp = pos_t::dot(bfrom3rd, buv_90);
+		  if (dp < 0)
+		     std::swap(sharp_point_1, sharp_point_2);
+
+		  pts.push_back(sharp_point_2);
+		  pts.push_back(sharp_point_1);
+		  pts.push_back(bond_from_3rd_atom_extension);
+		  pts.push_back(bond_from_3rd_atom_contraction);
+	       }
+
+	    } else {
+
+	       // make a dart (there are 2 third atoms)
+	 
+	       const lig_build::pos_t  &third_atom_1_pos = other_connections_to_second_atom[0].first.atom_position;
+	       const lig_build::pos_t  &third_atom_2_pos = other_connections_to_second_atom[1].first.atom_position;
+
+	       const bond_t &third_bond_1     = other_connections_to_second_atom[0].second;
+	       const bond_t &third_bond_2     = other_connections_to_second_atom[1].second;
+	       lig_build::pos_t b = pos_2-pos_1;
+	       lig_build::pos_t buv = b.unit_vector();
+	       lig_build::pos_t buv_90 = buv.rotate(90);
+	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+
+	       lig_build::pos_t bfrom3rd_1 = pos_2 - third_atom_1_pos;
+	       lig_build::pos_t bfrom3rd_2 = pos_2 - third_atom_2_pos;
+	       lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
+	       lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
+
+	       // is bfrom3rd_2 in the same direction as buv_90?
+	       // If not, then we need to swap around sharp_point_1 and sharp_point_2.
+	       //
+	       double dp = pos_t::dot(bfrom3rd_2, buv_90);
+	       if (dp < 0)
+		  std::swap(sharp_point_1, sharp_point_2);
+
+	       // for double bonds, we don't want to have the dart point along the bond,
+	       // we want it to be on the line of the inner bond
+	       //
+	       // but we don't want to do this for double bonds in rings
+	       // (because those double bonds are not draw with symmetric offset)
+	       // in fact, there are non-ring double bonds drawn with offset
+	       // Hmmm... How do we know if the third bonds are drawn with offset?
+	       //
+	       // atom_t third_bond_1_atom_1 = atoms[third_bond_1.get_atom_1_index()];
+	       // atom_t third_bond_1_atom_2 = atoms[third_bond_1.get_atom_2_index()];
+	       // atom_t third_bond_2_atom_1 = atoms[third_bond_2.get_atom_1_index()];
+	       // atom_t third_bond_2_atom_2 = atoms[third_bond_2.get_atom_2_index()];
+	       // I don't know what is first or second - baah - needs some
+	       // clear thinking.
+	       // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > oc =
+	       // make_other_connections_to_second_atom_info(bond_index);
+               unsigned int n_1 = other_connections_to_second_atom.size(); // yes TIWIM
+	       unsigned int n_2 = 1;
+	       if (third_bond_1.get_bond_type() == bond_t::DOUBLE_BOND)
+		  if (! third_bond_1.draw_as_asymmetry_shortened(n_1, n_2))
+		     // change by half of the separation between double bonds
+		     bond_from_3rd_atom_1_contraction -= b * 0.1;
+	       if (third_bond_2.get_bond_type() == bond_t::DOUBLE_BOND)
+		  if (! third_bond_2.draw_as_asymmetry_shortened(n_1, n_2))
+		     // change by half of the separation between double bonds
+		     bond_from_3rd_atom_2_contraction -= b * 0.1;
+
+	       pts.push_back(sharp_point_2);
+	       pts.push_back(sharp_point_1);
+	       pts.push_back(bond_from_3rd_atom_1_contraction);
+	       pts.push_back(pos_2);
+	       pts.push_back(bond_from_3rd_atom_2_contraction);
+
+	    }
+	 }
+	 return pts;
+      }
+      // (the long/normal stick for this is just pos_1_in to pos_2_in)
       std::pair<pos_t, pos_t>
-      make_double_aromatic_short_stick(const pos_t &pos_1, const pos_t &pos_2) const;
+      make_double_aromatic_short_stick(const pos_t &pos_1_in, const pos_t &pos_2_in,
+				       bool shorten_first,
+				       bool shorten_second) const;
+
+      // symmetric offset version
+      std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
+			       make_double_bond(const pos_t &pos_1, const pos_t &pos_2,
+						bool shorten_first, bool shorten_second) const;
 
       std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
-      make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const;
+			       make_double_bond(const pos_t &pos_1, const pos_t &pos_2,
+						bool shorten_first, bool shorten_second,
+						const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+						const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom) const;
 
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
@@ -640,6 +893,7 @@ namespace lig_build {
 	       }
 	    }
 
+#ifdef HAVE_IOSTREAM_HEADER
 	    if (0) {  // debug;
 	       std::cout << "     atom index " << this_atom_index << " has "
 			 << atoms_bonded_to_atom_index_start.size()
@@ -648,7 +902,7 @@ namespace lig_build {
 		  std::cout << local_no_pass_atoms[i] << " ";
 	       std::cout << ")\n";
 	    }
-	 
+#endif	 
 	    for (unsigned int iat=0; iat<atoms_bonded_to_atom_index_start.size(); iat++) { 
 	       std::pair<bool, std::vector<unsigned int> > r =
 		  find_bonded_atoms_with_no_pass(start_atom_index,
@@ -664,12 +918,14 @@ namespace lig_build {
       
 	 } // end depth test
 
+#ifdef HAVE_IOSTREAM_HEADER
 	 if (0) { 
 	    std::cout << "returning 0 with this depth " << depth << " no-pass-list: (";
 	    for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
 	       std::cout << local_no_pass_atoms[i] << " ";
 	    std::cout << ")\n";
 	 }
+#endif
 	 std::vector<unsigned int> empty;
 	 return std::pair<bool, std::vector<unsigned int> > (0, empty);
       }
@@ -734,7 +990,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_internal(start_atom_index,
 						     atom_index_other,
@@ -802,7 +1058,7 @@ namespace lig_build {
 	    std::set<unsigned int>::const_iterator it;
 	    for (it  = atoms_bonded_to_this_atom.begin();
 		 it != atoms_bonded_to_this_atom.end();
-		 it++) {
+		 ++it) {
 	       std::vector<std::set<unsigned int> > r =
 		  find_rings_including_atom_simple_internal(start_atom_index, *it,
 							    local_no_pass_atoms, depth-1);
@@ -819,6 +1075,12 @@ namespace lig_build {
       // not const because it now caches the return value;
       //
       bool have_cached_bond_ring_centres_flag;
+      //
+      // ring centres should incorporate the number of atoms contributing to the
+      // ring, i.e. std::vector<std::pair<unsigned int, pos_t> >
+      // so that the ring centre info can be used to calculate the correct
+      // position of the inner bond of a ring double bond
+      //
       std::vector<pos_t> cached_bond_ring_centres;
 
    public:
@@ -828,7 +1090,7 @@ namespace lig_build {
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
 
-      virtual ~molecule_t() = 0;
+      virtual ~molecule_t() {};
 
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
@@ -908,7 +1170,37 @@ namespace lig_build {
 						      empty_no_pass_atoms, MAX_SEARCH_DEPTH);
          return v;
       }
-      
+
+      bool in_ring_p(unsigned int atom_index) const {
+	 bool in_ring = false;
+	 std::vector<std::set<unsigned int> > v = rings_including_atom(atom_index);
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    if (v[i].find(atom_index) != v[i].end()) {
+	       in_ring = true;
+	       break;
+	    }
+	 }
+	 return in_ring;
+      }
+
+      // return a vector of bond indices
+      //
+      std::vector<unsigned int> ring_atoms_to_ring_bonds(const std::set<unsigned int> &atom_indices) const {
+	 std::vector<unsigned int> ring_bonds;
+	 for (std::size_t iat=0; iat<atom_indices.size(); iat++) {
+	    // what are the bonds that contain iat?
+	    std::vector<unsigned int> bds = bonds_having_atom_with_atom_index(iat);
+	    for (std::size_t ibd=0; ibd<bds.size(); ibd++) {
+	       int idx_other = bonds[bds[ibd]].get_other_index(iat);
+	       if (std::find(atom_indices.begin(),
+			     atom_indices.end(), idx_other) != atom_indices.end()) {
+		  if (std::find(ring_bonds.begin(), ring_bonds.end(), ibd) == ring_bonds.end())
+		     ring_bonds.push_back(ibd);
+	       }
+	    }
+	 }
+	 return ring_bonds;
+      }
       
       // "Put the template class method definitions in the .h file" - Thanks, Kevin!
       // 
@@ -977,6 +1269,7 @@ namespace lig_build {
 			    unsigned int depth,
 			    const std::vector<unsigned int> &local_no_pass_atoms) const {
 
+#ifdef HAVE_IOSTREAM_HEADER
 	 std::cout << "    found atom index " << atom_index_start << " from this atom: "
 		   << this_atom_index
 		   << ", at depth " << depth << " no-pass-atoms: (";
@@ -984,20 +1277,22 @@ namespace lig_build {
 	    std::cout << local_no_pass_atoms[i] << " ";
 	 }
 	 std::cout << ")" << std::endl;
+#endif
       }
 
       void debug_pass_atoms(unsigned int atom_index_start, unsigned int this_atom_index,
 			    unsigned int depth,
 			    const std::set<unsigned int> &local_no_pass_atoms) const {
-
+#ifdef HAVE_IOSTREAM_HEADER
 	 std::cout << "    debug_pass_atoms(): found atom index "
 		   << atom_index_start << " from this atom: "
 		   << this_atom_index
 		   << ", at depth " << depth << " no-pass-atoms: (";
 	 std::set<unsigned int>::const_iterator it;
-	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); it++)
+	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); ++it)
 	    std::cout << *it << " ";
 	 std::cout << ")" << std::endl;
+#endif
       }
       
 
@@ -1006,7 +1301,7 @@ namespace lig_build {
       }
 
       void assign_ring_centres(bool force=false) {
-	 bool debug = false;
+	 bool debug_this = false;
 
 	 // first cache the ring info for the atoms.  The ring info should ideally/in future contain
 	 // information about the number (and placement?) of the double bonds in the ring (see comments
@@ -1016,10 +1311,12 @@ namespace lig_build {
 	    if (! bonds[ib].have_centre_pos() || force) {
 	       unsigned int atom_index     = bonds[ib].get_atom_1_index();
 	       unsigned int atom_idx_other = bonds[ib].get_atom_2_index();
-	       if (debug)
+#ifdef HAVE_IOSTREAM_HEADER
+	       if (debug_this)
 		  std::cout << "=============== checking bond " << ib
 			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
+#endif
 
 	       // all the rings for atom_index that pass throught atom_idx_other (because
 	       // for a double bond connected to a fused ring atom we want the ring that contains
@@ -1027,40 +1324,43 @@ namespace lig_build {
 	       // 
 	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index, atom_idx_other);
 
-	       if (debug) {
+#ifdef HAVE_IOSTREAM_HEADER
+	       if (debug_this) {
 		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index
 			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
 			    << ", found n_rings: " << rings.size() << std::endl;
 		  for (unsigned int ir=0; ir<rings.size(); ir++) {
 		     std::cout << "   ring " << ir << " :: ";
 		     std::set<unsigned int>::const_iterator it;
-		     for (it=rings[ir].begin(); it != rings[ir].end(); it ++)
+		     for (it=rings[ir].begin(); it != rings[ir].end(); ++it)
 			std::cout << " " << *it;
 		     std::cout << std::endl;
 		  }
-
 	       }
+#endif
 	       if (rings.size() > 0) {
 		  lig_build::pos_t centre_pos_sum;
-		  std::string centre_pos_atoms_string;
 		  unsigned int fav_ring_id = favourite_ring_id(rings);
 		  std::set<unsigned int>::const_iterator it;
-		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++) {
+		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); ++it) {
 		     centre_pos_sum += atoms[*it].atom_position;
 		  }
-		  lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
-		  bonds[ib].add_centre(centre_pos);
-		  if (debug) {
+		  lig_build::pos_t centre_pos =
+		     centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
+		  bonds[ib].add_centre(centre_pos, rings[fav_ring_id].size());
+#ifdef HAVE_IOSTREAM_HEADER
+		  if (debug_this) {
 		     std::cout << "   adding centre at " << centre_pos
 			       << " generated from (";
 		     std::cout << "   (";
-		     for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++)
+		     for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); ++it)
 			std::cout << " " << *it;
 		     std::cout << ")" 
 			       << " for bond " << ib
 			       << " connecting " << bonds[ib].get_atom_1_index() << " to "
 			       << bonds[ib].get_atom_2_index() << std::endl;
 		  }
+#endif
 	       }
 	    }
 	 }
@@ -1079,21 +1379,34 @@ namespace lig_build {
       // calling function should ensure that there should be at least one ring passed in rings.
       // 
       unsigned int favourite_ring_id(const std::vector<std::set<unsigned int> > &rings) const {
+
 	 unsigned int id = 0;
 	 unsigned int n_best = 0;
+
 	 for (unsigned int i=0; i<rings.size(); i++) {
-	    if (rings[i].size() == 6) {
-	       id = i;
-	       break;
+	    std::vector<unsigned int> ring_bonds = ring_atoms_to_ring_bonds(rings[i]);
+	    unsigned int n_bonds_double = 0;
+	    for (std::size_t ib=0; ib<ring_bonds.size(); ib++) {
+#ifdef HAVE_IOSTREAM_HEADER
+	       if (false)
+		  std::cout << "in favourite_ring_id() iring " << i << " ib " << ib
+			    << " ring_bonds[ " << ib << "] = " << ring_bonds[ib]
+			    << " " << bonds[ring_bonds[ib]] << std::endl;
+#endif
+	       if (bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_BOND ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::AROMATIC_BOND ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_OR_AROMATIC ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::SINGLE_OR_AROMATIC) {
+		  n_bonds_double++;
+	       }
 	    }
-	    if (rings[i].size() > n_best) {
+	    if (n_bonds_double > n_best) {
+	       n_best = n_bonds_double;
 	       id = i;
-	       n_best = rings.size();
 	    }
 	 }
 	 return id;
       }
-      
 
       // 
       std::vector<pos_t> get_ring_centres() {
@@ -1312,10 +1625,32 @@ namespace lig_build {
 	 return centre;
       }
 
+      double median_bond_length() const {
+	 double bl = -1;
+	 std::vector<double> bls;
+	 bls.reserve(bonds.size());
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    int idx_1 = bonds[ib].get_atom_1_index();
+	    int idx_2 = bonds[ib].get_atom_2_index();
+	    if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
+	       const pos_t &pos_1 = atoms[idx_1].atom_position;
+	       const pos_t &pos_2 = atoms[idx_2].atom_position;
+	       pos_t delta = pos_2 - pos_1;
+	       bls.push_back(delta.length());
+	    }
+	 }
+	 if (bls.size() > 0) {
+	    std::sort(bls.begin(), bls.end());
+	    unsigned int idx = bls.size() / 2;
+	    bl = bls[idx];
+	 }
+	 return bl;
+      }
+
       bool
       operator==(const molecule_t &mol_other) const {
 
-	 bool status = 0;
+	 bool status = false;
 
 	 // need to check that bonds are the same (atom indexing can be
 	 // different) and also stray atoms need to be checked after bonds.
@@ -1482,6 +1817,66 @@ namespace lig_build {
 	 return sum_delta;
       }
 
+      // to draw double bonds without centre correctly (and below)
+      std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_first_atom_info(unsigned int bond_index) const {
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+	 int atom_1_ref_idx = bonds[bond_index].get_atom_1_index();
+	 int atom_2_ref_idx = bonds[bond_index].get_atom_2_index();
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    if (ibond != bond_index) {
+	       int at_1_idx = bonds[ibond].get_atom_1_index();
+	       int at_2_idx = bonds[ibond].get_atom_2_index();
+	       if (at_1_idx == atom_1_ref_idx) {
+		  if (at_2_idx != atom_2_ref_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	       if (at_2_idx == atom_1_ref_idx) {
+		  if (at_1_idx != atom_2_ref_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	    }
+	 }
+	 return v;
+      }
+
+      // to draw wedge bonds correctly
+      std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_second_atom_info(unsigned int bond_index) const {
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+	 int atom_chiral_idx = bonds[bond_index].get_atom_1_index();
+	 int atom_other_idx  = bonds[bond_index].get_atom_2_index();
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    if (ibond != bond_index) {
+	       int at_1_idx = bonds[ibond].get_atom_1_index();
+	       int at_2_idx = bonds[ibond].get_atom_2_index();
+	       if (at_1_idx == atom_other_idx) {
+		  if (at_2_idx != atom_chiral_idx) { // should always be
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	       if (at_2_idx == atom_other_idx) {
+		  if (at_1_idx != atom_chiral_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	    }
+	 }
+
+	 // std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
+	 // << v.size() << std::endl;
+
+	 return v;
+      }
+      
       std::pair<bool, bool> shorten_flags(unsigned int bond_idx) const {
 	 bool shorten_first  = false;
 	 bool shorten_second = false;
@@ -1527,6 +1922,8 @@ namespace lig_build {
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
 	 int sum_neigb_bond_order = 0;
+	 // This is a hack to deal with aromatic bonds (non-integers - doh!)
+	 int n_aromatic = 0;
 
 	 // 20160701: This was commented out.  I wonder why.  I have
 	 //           now uncommented it.
@@ -1547,7 +1944,16 @@ namespace lig_build {
 	       sum_neigb_bond_order += 2;
 	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::TRIPLE_BOND)
 	       sum_neigb_bond_order += 3;
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::AROMATIC_BOND)
+	       n_aromatic++;
 	 }
+
+	 if (n_aromatic == 3) // unusual
+	    sum_neigb_bond_order += 3;
+	 if (n_aromatic == 2) // pyridine
+	    sum_neigb_bond_order += 3;
+	 if (n_aromatic == 1) // weird
+	    sum_neigb_bond_order += 2;
 
 	 if (ele == "N") {
 
@@ -1685,7 +2091,7 @@ namespace lig_build {
 		     offset_text_t otN("C");
 		     ot2.subscript = true;
 		     otH.tweak = pos_t(-16, 0);
-		     ot2.tweak = pos_t(-7, 0);
+		     ot2.tweak = pos_t(-8, 0);
 		     otN.tweak = pos_t(0, 0);
 		     id.add(otH);
 		     id.add(ot2);
@@ -1745,8 +2151,6 @@ namespace lig_build {
 	       // not NH2...
 	       // 
 	       // still in the [not NH, OH, SH] block.
-	       // 
-	       // There's lot's more that could go here.
 
 	       if (atom_id == "N+") {
 		  // nitro
@@ -1762,7 +2166,7 @@ namespace lig_build {
 
 	       } else {
 
-		  if (atom_id == "N+H") {
+		  if (atom_id == "NH+") {
 
 		     pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 		     if (bond_indices.size() == 1) {
@@ -1791,7 +2195,7 @@ namespace lig_build {
 			   if (fabs(sum_delta.y) > fabs(sum_delta.x)) {
 
 			      if (sum_delta.y > 0) {
-		  
+
 				 //    \   /
 				 //      N+
 				 //      H
@@ -1839,13 +2243,14 @@ namespace lig_build {
 			   }
 			   
 			} else {
+			   // number of bond_indices is not 2.
 			   // what is the madness?
 			   return atom_id_info_t("NH+");
 			}
 		     } 
 		  } else {
 		     
-		     if (atom_id == "N+H2") {
+		     if (atom_id == "NH2+") {
 
 			pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 
@@ -1888,14 +2293,18 @@ namespace lig_build {
 			      // normal sideways of N+H2
 
 			      if (sum_delta.x < 0) {
-				 atom_id_info_t id("N", 1);
+				 atom_id_info_t id("N"); // No charge set here
+				 offset_text_t plus("+"); // the plus goes after the H
 				 offset_text_t h("H");
 				 offset_text_t t("2");
-				 h.tweak = pos_t(16, 0);
-				 t.tweak = pos_t(24, 0);
+				 h.tweak = pos_t(10, 0);
+				 t.tweak = pos_t(18, 0);
+				 plus.tweak = pos_t(18, 0);
 				 t.subscript = true;
+				 plus.superscript = true;
 				 id.add(h);
 				 id.add(t);
+				 id.add(plus);
 				 return id;
 			      } else {
 				 atom_id_info_t id;
@@ -2095,6 +2504,7 @@ namespace lig_build {
       // write out the atom and bond tables:
       // 
       void debug() const {
+#ifdef HAVE_IOSTREAM_HEADER
 	 for (unsigned int i=0; i<atoms.size(); i++) {
 	    std::cout << "Atom " << i << ": " << atoms[i].element << " "
 		      << atoms[i].atom_id << " at "
@@ -2107,10 +2517,10 @@ namespace lig_build {
 	       std::cout << " centre_pos: " << bonds[i].centre_pos();
 	    std::cout << " type " << bonds[i].get_bond_type() << std::endl;
 	 }
-      } 
-      
+#endif
+      }
    }; // end of molecule_t class
-   
+
    class polygon_position_info_t {
    public:
       bool apply_internal_angle_offset_flag;
@@ -2120,6 +2530,8 @@ namespace lig_build {
 
       polygon_position_info_t() {
 	 can_stamp = 0; // unset internals.
+         angle_offset = 0.0;
+	 apply_internal_angle_offset_flag = false;
       } 
       polygon_position_info_t(double x_in, double y_in, double angle_in) {
 	 pos.x = x_in;
@@ -2128,14 +2540,12 @@ namespace lig_build {
 	 apply_internal_angle_offset_flag = 1;
 	 can_stamp = 1;
       }
-      polygon_position_info_t(pos_t pos_in, double angle_in) {
-	 pos = pos_in;
+      polygon_position_info_t(pos_t pos_in, double angle_in) : pos(pos_in){
 	 angle_offset = angle_in;
-	 apply_internal_angle_offset_flag = 1;
+	 apply_internal_angle_offset_flag = true;
 	 can_stamp = 1;
       }
-      polygon_position_info_t(pos_t pos_in, double angle_in, bool io) {
-	 pos = pos_in;
+      polygon_position_info_t(pos_t pos_in, double angle_in, bool io) : pos(pos_in){
 	 angle_offset = angle_in;
 	 apply_internal_angle_offset_flag = io;
 	 can_stamp = 1;

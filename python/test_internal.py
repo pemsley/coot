@@ -1,6 +1,6 @@
 r = test_internal()
 print "test_interanl returned status", r
 if r:
-  coot_real_exit(0)
+  coot.coot_real_exit(0)
 else:
-  coot_real_exit(1)
+  coot.coot_real_exit(1)

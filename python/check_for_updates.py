@@ -1,3 +1,4 @@
+import numbers
 
 
 # Is this true? Dont understand this
@@ -6,7 +7,7 @@ def get_stable_release_from_server_string(stri):
 
 # needs testing!
 def get_stable_release_from_coot_version():
-    s = coot_version()
+    s = coot.coot_version()
     ls = s.split(" ")
     return ls[0]
 
@@ -19,9 +20,9 @@ def new_version_on_server(stri, is_pre_release):
 
         # pre-releases are handle with svn revision numbers (as ints).
         #
-        server_rev = get_revision_from_string(stri)
+        server_rev = coot_utils.get_revision_from_string(stri)
         if server_rev:
-            return server_rev > svn_revision()
+            return server_rev > coot.svn_revision()
         else:
             return None
 
@@ -43,7 +44,7 @@ def notify_of_new_version(stri, use_curl=False):
     #print "notify_of_new_version given string:", stri
 
     # Maybe protect from being called again (download is running)
-    download_binary_dialog(coot_split_version_string(stri), use_curl)
+    download_binary_dialog(coot_utils.coot_split_version_string(stri), use_curl)
 
 # version_string is something like: "coot-0.6-pre-1-revision-2060"
 def download_binary_dialog(version_string, use_curl=False):
@@ -71,8 +72,8 @@ def download_binary_dialog(version_string, use_curl=False):
                 if curl_info:
                     v1 = curl_info['content-length-download']
                     v2 = curl_info['size-download']                        
-                    if operator.isNumberType(v1):
-                        if operator.isNumberType(v2):
+                    if isinstance(v1, numbers.Number):
+                        if isinstance(v2, numbers.Number):
                             f = v2 / v1
                             #print "count %s, active_count %s, f: %s" %(count, active_count, f)
                             progress_bar.set_fraction(f)
@@ -101,7 +102,7 @@ def download_binary_dialog(version_string, use_curl=False):
             # 
             global pending_install_in_place
             if file_name_for_progress_bar:
-                stop_curl_download(file_name_for_progress_bar)
+                coot.stop_curl_download(file_name_for_progress_bar)
             pending_install_in_place = "cancelled"  # not fail!
             return False
 
@@ -111,8 +112,8 @@ def download_binary_dialog(version_string, use_curl=False):
 
             # only start when ok button is pressed
             gobject.timeout_add(500, idle_func) # update every 500ms is god enough?!
-            if not operator.isNumberType(revision):
-                info_dialog("Failed to communicate with server")
+            if not isinstance(revision, numbers.Number):
+                coot.info_dialog("Failed to communicate with server")
             else:
                 # BL says:: check if we have a download available already?! (from before)
                 if (version_string in get_latest_pending_version()):
@@ -134,17 +135,17 @@ def download_binary_dialog(version_string, use_curl=False):
 
                         if ((not ret) and
                             (not pending_install_in_place == "cancelled")):
-                            print "run_download_binary_curl failed"
+                            print("run_download_binary_curl failed")
                             pending_install_in_place = "fail"
 
-                    run_python_thread(threaded_func, [])
+                    coot_gui.run_python_thread(threaded_func, [])
 
         #  and a timeout checking the progress of the download:
         def idle_func():
             global pending_install_in_place
             if (pending_install_in_place == "fail"):
                 window.destroy()
-                info_dialog("Failure to download and install binary")
+                coot.info_dialog("Failure to download and install binary")
                 return False  # stop idle func
             if (pending_install_in_place == "cancelled"):
                 window.destroy()
@@ -165,11 +166,11 @@ def download_binary_dialog(version_string, use_curl=False):
             "\n"                      + \
             "\n"                      + \
             version_string
-        revision = get_revision_from_string(version_string)
+        revision = coot_utils.get_revision_from_string(version_string)
 
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         dialog_name = "Download "
-        if is_windows():
+        if coot_utils.is_windows():
             dialog_name += "installer"
         else:
             dialog_name += "binary"
@@ -213,11 +214,11 @@ def download_binary_dialog(version_string, use_curl=False):
     # main line
     coot_prefix = os.getenv("COOT_PREFIX")
     coot_prefix = os.path.normpath(coot_prefix) # needed for WinCoot?! FIXME
-    if not directory_is_modifiable_qm(coot_prefix):
+    if not coot_utils.directory_is_modifiable_qm(coot_prefix):
         if not coot_prefix:
-            info_dialog("COOT_PREFIX is not set.  Download not started.")
+            coot.info_dialog("COOT_PREFIX is not set.  Download not started.")
         else:
-            info_dialog("Directory " + coot_prefix + \
+            coot.info_dialog("Directory " + coot_prefix + \
                         " is not modifiable.\n" + \
                         "Download/install not started.")
     else:
@@ -234,7 +235,7 @@ def restart_dialog(extra_text=""):
     def ok_button_event(*args):
         coot_command = "coot"
         coot_args =[]
-        if is_windows():
+        if coot_utils.is_windows():
             # we need the name of the installer, should be in pending-install
             coot_command = get_latest_pending_version()  # shall be full path name
             prefix_dir = os.getenv("COOT_PREFIX")
@@ -244,10 +245,10 @@ def restart_dialog(extra_text=""):
                         "/autoupdate"]
             
         # create a coot background subprocess
-        run_concurrently(coot_command, coot_args)
+        coot_utils.run_concurrently(coot_command, coot_args)
             
         window.destroy()
-        coot_real_exit(0)
+        coot.coot_real_exit(0)
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     dialog_name = "Restart Required to complete installation"
@@ -299,31 +300,31 @@ def check_for_updates_gui(use_curl=False):
             server_info_status = txt_from_server
     
     def get_server_info_status_thread():
-        url = make_latest_version_url()
-        print "INFO:: get URL", url
+        url = coot_utils.make_latest_version_url()
+        print("INFO:: get URL", url)
         if use_curl:
             # non pythonic
             #x=get_url_as_string(url) # FIXME to trick the firewall
             latest_version_server_response = coot_get_url_as_string(url)
         else:
             # pythonic version
-            import urllib
+            import urllib.request, urllib.parse, urllib.error
             try:
-                latest_version_server_response = urllib.urlopen(url).read()
+                latest_version_server_response = urllib.request.urlopen(url).read()
             except:
-                info_dialog("Could not establish connection to get latest version on server")
+                coot.info_dialog("Could not establish connection to get latest version on server")
                 return
         try:
             handle_latest_version_server_response(latest_version_server_response)
         except:
-            print "BL INFO:: problem getting server response from for url", url            # for now we give file-not-found, there should be some other form
+            print("BL INFO:: problem getting server response from for url", url)            # for now we give file-not-found, there should be some other form
             # of error
             handle_latest_version_server_response("The requested URL was not found on this server")
 
     # main line
     #
-    run_python_thread(get_server_info_status_thread, ())
-    is_pre_release = pre_release_qm()  # BL: why?
+    coot_gui.run_python_thread(get_server_info_status_thread, ())
+    is_pre_release = coot_utils.pre_release_qm()  # BL: why?
     global count
     count = 0
     def timeout_count():
@@ -331,7 +332,7 @@ def check_for_updates_gui(use_curl=False):
         global server_info_status
         if (count > 2000):  # try for 20 seconds, otherwise timeout.
             # fail_with_timeout
-            print "final fail: server_info_status:", server_info_status
+            print("final fail: server_info_status:", server_info_status)
             # maybe some info here too?!!? 
             return False  # stop running this idle function
         elif (server_info_status == "file-not-found"):
@@ -340,21 +341,21 @@ def check_for_updates_gui(use_curl=False):
                 " binary for this system (" + \
                 coot_sys_build_type() + \
                 ") on the binary server."
-            info_dialog(s)
+            coot.info_dialog(s)
             return False  # stop running idle function
         elif (server_info_status == ""):
             # BL says:: supposedly - havent checked
             # this happens when coot can't get past the proxy
             # 
-            info_dialog("Can't communicate with server")
+            coot.info_dialog("Can't communicate with server")
         elif server_info_status:
             if (new_version_on_server(server_info_status, is_pre_release)):
                 notify_of_new_version(server_info_status, use_curl)
             else:
                 s = "No version newer than this revision (" + \
-                    str(svn_revision())                     + \
+                    str(coot.svn_revision())                     + \
                     ")."
-                info_dialog(s)
+                coot.info_dialog(s)
             return False # stop running idle function
         else:
             time.sleep(0.010)
@@ -368,7 +369,7 @@ def check_for_updates_gui(use_curl=False):
 # returns latest installer version in pending-install or empty string ""
 # if no installer for windows use only!
 def get_latest_pending_version():
-    if is_windows():
+    if coot_utils.is_windows():
         import glob
         prefix_dir = os.getenv("COOT_PREFIX")
         pending_dir = os.path.join(prefix_dir, "pending-install")
@@ -396,7 +397,7 @@ def get_latest_pending_version():
 # hack to check if a pending install for WinCoot?!
 # if so, show the restart dialog?!
 # not sure yet how to do it otherwise (without chaning runwincoot.bat)
-if is_windows():
+if coot_utils.is_windows():
     pending_version_full = get_latest_pending_version()
     if pending_version_full:
         pending_version = os.path.basename(pending_version_full)

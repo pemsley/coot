@@ -46,13 +46,41 @@
 
 #include "model-bond-deltas.hh"
 
+std::vector<std::pair<bool,mmdb::Residue *> >
+fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb::Manager *mol) {
+
+   std::vector<std::pair<bool,mmdb::Residue *> > v;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      std::string this_chain_id = chain_p->GetChainID();
+      if (this_chain_id == chain_id) {
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    int this_res_no = residue_p->GetSeqNum();
+	    if (this_res_no >= resno_start) {
+	       if (this_res_no <= resno_end) {
+		  std::pair<bool, mmdb::Residue *> p(0, residue_p);
+		  v.push_back(p);
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
 int
 main(int argc, char **argv) {
 
 #ifndef HAVE_GSL
    std::cout << "We don't have GSL, this program does nothing" << std::endl;
 #else 
-   std::string dict_filename;
    coot::protein_geometry geom;
 
    if (argc < 2) {
@@ -68,7 +96,7 @@ main(int argc, char **argv) {
 
 	    geom.init_standard();
 	    std::string pdb_file_name(argv[2]);
-	    atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
+	    atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false); 
 	    int imol = 0; // dummy
 	    coot::model_bond_deltas deltas(asc.mol, imol, &geom);
 	    deltas.resolve();
@@ -82,7 +110,7 @@ main(int argc, char **argv) {
 	 std::string pdb_file_name(argv[1]);
 
 	 // if pdb_file_name does not exist -> crash?
-	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, 1, 0); 
+	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
 	 //coot::restraints_container_t restraints(asc);
 
 	 // So, we provide easy(?) access to the atoms of next and
@@ -121,19 +149,18 @@ main(int argc, char **argv) {
 	 short int have_flanking_residue_at_start = 0;
 	 short int have_flanking_residue_at_end   = 0;
 	 short int have_disulfide_residues = 0;
+	 clipper::Xmap<float> dummy_map;
 
-	 clipper::Xmap<float> dummy;
-      
-	 coot::restraints_container_t restraints(istart_res,
-						 iend_res,
-						 have_flanking_residue_at_start,
-						 have_flanking_residue_at_end,
-						 have_disulfide_residues,
-						 altloc,
-						 chain_id,
+	 std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
+	 if ((istart_res != mmdb::MinInt4) && iend_res != mmdb::MinInt4)
+	    local_residues =
+	       fill_residues(chain_id, istart_res, iend_res, asc.mol);
+
+	 std::vector<mmdb::Link> links;
+	 coot::restraints_container_t restraints(local_residues,
+						 links, geom,
 						 asc.mol,
-						 fixed_atom_specs, dummy);
-
+						 fixed_atom_specs, &dummy_map);
 
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
@@ -154,7 +181,7 @@ main(int argc, char **argv) {
 	 bool do_flank_restraints = true;
 	 int imol = 0; // dummy
 	 restraints.make_restraints(imol, geom, flags, 1, do_trans_peptide_restraints,
-				    0.0, 0, pseudos, do_link_restraints, do_flank_restraints);
+				    0.0, false, true, true, false, pseudos, do_link_restraints, do_flank_restraints);
 
 	 // restraints.set_do_numerical_gradients();
 	 restraints.minimize(flags);

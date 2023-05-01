@@ -20,10 +20,12 @@
  * 02110-1301, USA
  */
 
-#include "Python.h"
+#ifndef RESTRAINTS_HH
+#define RESTRAINTS_HH
+
+#include <Python.h>
 #include <cstddef>
 #include <string>
-#include <iostream>
 #include <vector>
 
 #include "compat/coot-sysdep.h"
@@ -43,7 +45,7 @@ namespace coot {
       quartet_set() {
 	 idx.resize(4,0);
       }
-      quartet_set(const std::vector<unsigned int> &q_in) {
+      explicit quartet_set(const std::vector<unsigned int> &q_in) {
 	 unsigned int n_max = 4;
 	 idx.resize(4,0);
 	 if (q_in.size() < n_max)
@@ -54,6 +56,24 @@ namespace coot {
       std::vector<unsigned int> idx;
       const unsigned int & operator[](unsigned int i) const { return idx[i]; }
    };
+
+   class indexed_name_and_rank_t {
+   public:
+      unsigned int atom_index;
+      unsigned int cip_rank;
+      std::string atom_name;
+      indexed_name_and_rank_t(unsigned int i, unsigned int r, const std::string &n) : atom_name(n) {
+         atom_index = i;
+         cip_rank = r;
+      }
+      bool operator<(const indexed_name_and_rank_t &o) const {
+         return (o.cip_rank < cip_rank);
+      }
+   };
+
+   int get_volume_sign_from_coordinates(const RDKit::ROMol &mol,
+                                        unsigned int idx_chiral_centre_atom,
+                                        const std::vector<indexed_name_and_rank_t> &neighb_names_and_ranks);
 
    void mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 				const std::string &comp_id,
@@ -79,6 +99,7 @@ namespace coot {
    mmcif_dict_from_mol(const std::string &comp_id,
 		       const std::string &compound_name,
 		       PyObject *rdkit_mol,
+                       bool do_minimization,
 		       const std::string &mmcif_out_file_name,
 		       bool quartet_planes, bool quartet_hydrogen_planes,
 		       bool replace_with_mmff_b_a_restraints=true);
@@ -115,4 +136,8 @@ namespace coot {
    void write_restraints(PyObject *restraints_py, const std::string &file_name);
 
 }
+
+
+
+#endif // RESTRAINTS_HH
 

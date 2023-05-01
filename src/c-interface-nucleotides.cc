@@ -22,6 +22,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -62,62 +63,75 @@
 #ifdef USE_GUILE
 SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 
+   // non-nucleic acid really
+   std::vector<std::string> protein_residue_names = { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
+                                                      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
+                                                      "TYR", "MG", "ZN"};
+   auto is_a_protein_residue = [&protein_residue_names] (mmdb::Residue *residue_p) {
+                                  std::string res_name(residue_p->GetResName());
+                                  return (std::find(protein_residue_names.begin(),
+                                                    protein_residue_names.end(),
+                                                    res_name) != protein_residue_names.end());
+                               };
    std::string altconf = "";
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
       mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
-      if (res_p) {
-	 try {
-	    coot::pucker_analysis_info_t pi(res_p, altconf);
-	    mmdb::Residue *following_res =
-	       graphics_info_t::molecules[imol].get_following_residue(residue_spec);
-	    if (do_pukka_pucker_check) {
-	       if (following_res) {
-// 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
-// 			    << " follows " << residue_spec << std::endl;
-		  try {
-		     double phosphate_d = pi.phosphate_distance(following_res);
-		     r = SCM_EOL;
-		     r = scm_cons(scm_double2num(pi.plane_distortion), r);
-		     r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
-		     r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
-		     r = scm_cons(scm_double2num(phosphate_d), r);
+      if (is_a_protein_residue(res_p)) {
+      } else {
+         if (res_p) {
+            try {
+               coot::pucker_analysis_info_t pi(res_p, altconf);
+               mmdb::Residue *following_res =
+                  graphics_info_t::molecules[imol].get_following_residue(residue_spec);
+               if (do_pukka_pucker_check) {
+                  if (following_res) {
+                     // 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
+                     // 			    << " follows " << residue_spec << std::endl;
+                     try {
+                        double phosphate_d = pi.phosphate_distance(following_res);
+                        r = SCM_EOL;
+                        r = scm_cons(scm_from_double(pi.plane_distortion), r);
+                        r = scm_cons(scm_from_double(pi.out_of_plane_distance), r);
+                        r = scm_cons(scm_from_locale_string(pi.puckered_atom().c_str()), r);
+                        r = scm_cons(scm_from_double(phosphate_d), r);
 
-		     // double dist_crit = xxx
-		     // If C2', phosphate oop dist should be > dist_crit
-		     // If C3', phosphate oop dist should be < dist_crit
-		     
-		  }
-		  catch (const std::runtime_error &phos_mess) {
-		     std::cout << " Fail in Pucker analysis for "
-			       << coot::residue_spec_t(res_p) << " " 
-			       << phos_mess.what() << std::endl;
-		  } 
-		  
-	       } else {
-		  r = SCM_EOL;
-	       } 
-	    } else {
-	       // no pucker check
-	       r = SCM_EOL;
-	       r = scm_cons(scm_double2num(pi.plane_distortion), r);
-	       r = scm_cons(scm_double2num(pi.out_of_plane_distance), r);
-	       r = scm_cons(scm_makfrom0str(pi.puckered_atom().c_str()), r);
-	       if (following_res) {
-		  try {
-		     double phosphate_d = pi.phosphate_distance(following_res);
-		     r = scm_cons(scm_double2num(phosphate_d), r);
-		  }
-		  catch (const std::runtime_error &phos_mess) { }
-	       }
-	    }
-	 }
-	 catch (const std::runtime_error &mess) {
-	    std::cout << " failed to find pucker for " << residue_spec << " " 
-		      << mess.what() << std::endl;
-	 } 
-      } 
+                        // double dist_crit = xxx
+                        // If C2', phosphate oop dist should be > dist_crit
+                        // If C3', phosphate oop dist should be < dist_crit
+
+                     }
+                     catch (const std::runtime_error &phos_mess) {
+                        std::cout << " Fail in Pucker analysis for "
+                                  << coot::residue_spec_t(res_p) << " "
+                                  << phos_mess.what() << std::endl;
+                     }
+
+                  } else {
+                     r = SCM_EOL;
+                  }
+               } else {
+                  // no pucker check
+                  r = SCM_EOL;
+                  r = scm_cons(scm_from_double(pi.plane_distortion), r);
+                  r = scm_cons(scm_from_double(pi.out_of_plane_distance), r);
+                  r = scm_cons(scm_from_locale_string(pi.puckered_atom().c_str()), r);
+                  if (following_res) {
+                     try {
+                        double phosphate_d = pi.phosphate_distance(following_res);
+                        r = scm_cons(scm_from_double(phosphate_d), r);
+                     }
+                     catch (const std::runtime_error &phos_mess) { }
+                  }
+               }
+            }
+            catch (const std::runtime_error &mess) {
+               std::cout << " failed to find pucker for " << residue_spec << " "
+                         << mess.what() << std::endl;
+            }
+         }
+      }
    }
    return r;
 }
@@ -126,62 +140,77 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
 #ifdef USE_PYTHON
 PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucker_check) {
 
+   // non-nucleic acid really
+   std::vector<std::string> protein_residue_names = { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
+                                                      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
+                                                      "TYR", "MG", "ZN"};
+
+   auto is_a_protein_residue = [&protein_residue_names] (mmdb::Residue *residue_p) {
+                                  std::string res_name(residue_p->GetResName());
+                                  return (std::find(protein_residue_names.begin(),
+                                                    protein_residue_names.end(),
+                                                    res_name) != protein_residue_names.end());
+                               };
+
    std::string altconf = "";
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
       mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
-      if (res_p) {
-	 try {
-	    coot::pucker_analysis_info_t pi(res_p, altconf);
-	    mmdb::Residue *following_res =
-	      graphics_info_t::molecules[imol].get_following_residue(residue_spec);
-	    if (do_pukka_pucker_check) {
-	       if (following_res) {
-// 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
-// 			    << " follows " << residue_spec << std::endl;
-		  try {
-		     double phosphate_d = pi.phosphate_distance(following_res);
-		     r = PyList_New(4);
-		     PyList_SetItem(r, 0, PyFloat_FromDouble(phosphate_d));
-		     PyList_SetItem(r, 1, PyString_FromString(pi.puckered_atom().c_str()));
-		     PyList_SetItem(r, 2, PyFloat_FromDouble(pi.out_of_plane_distance));
-		     PyList_SetItem(r, 3, PyFloat_FromDouble(pi.plane_distortion));
+      if (is_a_protein_residue(res_p)) {
+      } else {
+         if (res_p) {
+            try {
+               coot::pucker_analysis_info_t pi(res_p, altconf);
+               mmdb::Residue *following_res =
+                  graphics_info_t::molecules[imol].get_following_residue(residue_spec);
+               if (do_pukka_pucker_check) {
+                  if (following_res) {
+                     // 		  std::cout << "   DEBUG:: " << coot::residue_spec_t(following_res)
+                     // 			    << " follows " << residue_spec << std::endl;
+                     try {
+                        double phosphate_d = pi.phosphate_distance(following_res);
+                        r = PyList_New(4);
+                        PyList_SetItem(r, 0, PyFloat_FromDouble(phosphate_d));
+                        PyList_SetItem(r, 1, myPyString_FromString(pi.puckered_atom().c_str()));
+                        PyList_SetItem(r, 2, PyFloat_FromDouble(pi.out_of_plane_distance));
+                        PyList_SetItem(r, 3, PyFloat_FromDouble(pi.plane_distortion));
 
-		     // double dist_crit = 1.2;
-		     // If C2', phosphate oop dist should be > dist_crit
-		     // If C3', phosphate oop dist should be < dist_crit
-		     
-		  }
-		  catch (const std::runtime_error &phos_mess) {
-		     std::cout << " Failed in pucker analysis for "
-			       << coot::residue_spec_t(following_res) << " " 
-			       << phos_mess.what() << std::endl;
-		  } 
-		  
-	       } else {
-		 r = PyList_New(0);
-	       } 
-	    } else { 
-	       // no pucker check
-	       r = PyList_New(3);
-	       PyList_SetItem(r, 0, PyString_FromString(pi.puckered_atom().c_str()));
-	       PyList_SetItem(r, 1, PyFloat_FromDouble(pi.out_of_plane_distance));
-	       PyList_SetItem(r, 2, PyFloat_FromDouble(pi.plane_distortion));
-	       if (following_res) {
-		 try {
-		   double phosphate_d = pi.phosphate_distance(following_res);
-		   PyList_Insert(r, 0, PyFloat_FromDouble(phosphate_d));
-		 }
-		 catch (const std::runtime_error &phos_mess) { }
-	       }
-	    }
-	 }
-	 catch (const std::runtime_error &mess) {
-	    std::cout << " failed to find pucker for " << residue_spec << " " 
-		      << mess.what() << std::endl;
-	 } 
-      } 
+                        // double dist_crit = 1.2;
+                        // If C2', phosphate oop dist should be > dist_crit
+                        // If C3', phosphate oop dist should be < dist_crit
+
+                     }
+                     catch (const std::runtime_error &phos_mess) {
+                        std::cout << " Failed in pucker analysis for "
+                                  << coot::residue_spec_t(following_res) << " "
+                                  << phos_mess.what() << std::endl;
+                     }
+
+                  } else {
+                     r = PyList_New(0);
+                  }
+               } else {
+                  // no pucker check
+                  r = PyList_New(3);
+                  PyList_SetItem(r, 0, myPyString_FromString(pi.puckered_atom().c_str()));
+                  PyList_SetItem(r, 1, PyFloat_FromDouble(pi.out_of_plane_distance));
+                  PyList_SetItem(r, 2, PyFloat_FromDouble(pi.plane_distortion));
+                  if (following_res) {
+                     try {
+                        double phosphate_d = pi.phosphate_distance(following_res);
+                        PyList_Insert(r, 0, PyFloat_FromDouble(phosphate_d));
+                     }
+                     catch (const std::runtime_error &phos_mess) { }
+                  }
+               }
+            }
+            catch (const std::runtime_error &mess) {
+               std::cout << " failed to find pucker for " << residue_spec << " "
+                         << mess.what() << std::endl;
+            }
+         }
+      }
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -252,7 +281,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 		  clipper::Coord_orth mc = cm.second; // just for alias
 		  int imol = graphics_info_t::create_molecule();
 		  istat = imol;
-		  std::string label = "Ideal-" + form_str;
+		  std::string label = form_str;
 		  label += "-form-";
 		  label += RNA_or_DNA_str;
 		  atom_selection_container_t asc = make_asc(mol);

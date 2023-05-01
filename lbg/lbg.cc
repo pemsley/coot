@@ -1,18 +1,18 @@
 /* lbg/lbg.cc
- * 
+ *
  * Copyright 2010, 2011, 2012 by The University of Oxford
  * Copyright 2012, 2013, 2014, 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -21,9 +21,7 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
 #include <Python.h> // this is here get round header warnings
-#endif
 
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
@@ -41,9 +39,7 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#ifdef USE_PYTHON
 #include <boost/python.hpp>
-#endif
 #endif
 
 #include <cairo.h>
@@ -60,8 +56,46 @@
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
-// 
+void draw_test_graphs_in_canvas(GtkWidget *canvas) {
+
+   std::cout << "draw_test_graphs_in_canvas()" << std::endl;
+
+   if (true) { // test rectangle
+      int rgba = (111 << 24) + (100 << 16) + (100 << 8) + 108;
+
+      int n_chains = 2;
+      int max_chain_length = 100;
+      int canvas_usize_x = max_chain_length*10 + 200; // add a bit to get
+      int canvas_usize_y = 80 * n_chains + 30;
+
+      goo_canvas_rect_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
+                          0, 0,
+                          canvas_usize_x, canvas_usize_y,
+                          "fill-color-rgba", rgba,
+                          // "stroke-width", 0.0,
+                          NULL);
+
+      unsigned int n_blocks = 50;
+      for (unsigned int i=0; i<n_blocks; i++) {
+         double i_d = static_cast<double>(i);
+         double y = 110.0;
+         double x = i_d * 20.0;
+         double width  = 20;
+         double height = 60 * sin(0.5 * i_d);
+         int rgba_innner = ((111-3*i) << 24) + ((20+4*i) << 16) + (100 << 8) + 228;
+         std::cout << "block " << x << " " << y << std::endl;
+
+         goo_canvas_rect_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
+                             x, y, width, height,
+                             "fill-color-rgba", rgba_innner,
+                             // "stroke-width", 1.0,
+                             NULL);
+      }
+   }
+}
+
+
+//
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm,
     std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
@@ -76,7 +110,7 @@ lbg(lig_build::molfile_molecule_t mm,
     void (*prodrg_import_function_pointer) (std::string file_name, std::string comp_id),
     void (*sbase_import_function_pointer) (std::string comp_id),
     std::string (*get_drug_mdl_file_function_pointer_in) (std::string drug_name)) {
-   
+
    lbg_info_t *lbg = NULL; // failure return value.
    std::string glade_file = "lbg.glade";
 
@@ -84,69 +118,75 @@ lbg(lig_build::molfile_molecule_t mm,
    glade_file_full += "/";
    glade_file_full += glade_file;
 
-   bool glade_file_exists = 0;
+   // testing
+   // glade_file_full = "../../coot/lbg/lbg-ng.glade";
+
+   bool glade_file_exists = false;
    struct stat buf;
    int err = stat(glade_file_full.c_str(), &buf);
    if (! err)
       glade_file_exists = 1;
 
-   if (! glade_file_exists) { 
+   if (! glade_file_exists) {
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } else {
 
       // If we are using the graphics interface then we want non-null from the builder.
       // add_from_file_status should be good or we are in trouble.
-      // 
+      //
       // If not, we need not call gtk_builder_add_from_file().
-      // 
+      //
 
       if (use_graphics_interface_flag) {
-	 
+
 	 GtkBuilder *builder = gtk_builder_new();
-	 guint add_from_file_status =
-	    gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
+
+         // add_from_file_status is positive on success
+	 guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), NULL);
+         // std::cout << "debug add_from_file_status " << add_from_file_status << std::endl;
 
 	 if (! add_from_file_status) {
 
 	    // Handle error...
-	    
-	    std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
-		      << "\" failed." << std::endl;
+
+	    std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full << "\" failed." << std::endl;
 	    if (builder) {
 	       std::cout << "ERROR:: where builder was non-null" << std::endl;
 	    } else {
 	       std::cout << "ERROR:: where builder was NULL" << std::endl;
 	    }
-	    
+
 	 } else {
 
 	    // Happy Path
-	 
+
 	    lbg = new lbg_info_t(imol, geom_p_in);
 	    if (stand_alone_flag_in) {
 	       lbg->set_stand_alone();
 	    }
 	    int init_status = lbg->init(builder);
-	    
+
 	    // normal built-in and using-graphics path...
-	    
+
 	    if (! init_status) {
 	       std::cout << "ERROR:: lbg init failed." << std::endl;
 	    } else {
 
 	       // Happy Path
-	       
+
 	       gtk_builder_connect_signals (builder, lbg->canvas);
 	       g_object_unref (G_OBJECT (builder));
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
 
+               // draw_test_graphs_in_canvas(lbg->canvas);
+
 	       mmdb::Residue *residue_p = coot::get_first_residue_helper_fn(mol);
 	       if (residue_p) {
 		  std::string res_name = residue_p->GetResName();
 		  gtk_label_set_text(GTK_LABEL(lbg->lbg_toolbar_layout_info_label), res_name.c_str());
-	       } 
-	       
+	       }
+
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 
 	       lbg->import_from_widgeted_molecule(wmol);
@@ -164,7 +204,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	 int init_status = lbg->init(NULL); // setup canvas, but not gui.
 	 if (ligand_spec_pair.first)
 	    lbg->set_ligand_spec(ligand_spec_pair.second);
-	 
+
 	 widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	 lbg->import_from_widgeted_molecule(wmol);
 	 lbg->render();
@@ -191,13 +231,136 @@ lbg(lig_build::molfile_molecule_t mm,
    }
    return lbg;
 }
-#endif // GTK_VERSION
+
+void lbg_info_t::init_internal() {
+   imol = -1;
+   in_delete_mode_ = 0;
+   key_group = NULL;
+   save_molecule_index = UNASSIGNED_INDEX;
+   make_saves_mutex = 1; // allow saves initially
+   search_similarity = 0.95;
+   coot_mdl_ready_time = 0;
+   canvas_scale = 1.0;
+   canvas_drag_offset =  lig_build::pos_t(0,0);
+   top_left_correction = lig_build::pos_t(0,0);
+   most_recent_bond_made_new_atom_flag = false;
+   most_recent_bond_is_being_dragged_flag = false;
+   standard_residue_circle_radius = 19;
+   button_down_bond_addition = false;
+   latest_bond_canvas_item = 0;
+   penultimate_atom_index = UNASSIGNED_INDEX;
+   ultimate_atom_index = UNASSIGNED_INDEX;
+   latest_bond_was_extended = 0;
+   atom_index_of_atom_to_which_the_latest_bond_was_added = UNASSIGNED_INDEX;
+   stand_alone_flag = 0;
+   ligand_spec_pair.first = 0; // unset ligand_spec
+   use_graphics_interface_flag = 1; // default: show gui windows and widgets.
+   mdl_file_name = "coot.mol";
+   atom_X = "H";
+   comp_id = "LIG";
+   lbg_atom_x_dialog = NULL;
+   lbg_atom_x_entry = NULL;
+   get_url_func_ptr = 0;
+   get_url_func_ptr_flag = false;
+   prodrg_import_func_ptr = NULL;
+   sbase_import_func_ptr = NULL;
+   get_drug_mdl_file_function_pointer = NULL;
+
+   orient_view_func                               = NULL;
+   set_rotation_centre_func                       = NULL;
+   set_show_additional_representation_func        = NULL;
+   all_additional_representations_off_except_func = NULL;
+
+   canvas = NULL;
+   canvas_addition_mode = 0;
+   lbg_srs_search_results_vbox = NULL;
+   lbg_srs_search_results_scrolledwindow = NULL;
+   // lbg_qed_properties_progressbars = NULL;
+   lbg_qed_properties_vbox = NULL;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   pending_action_data_picked_bond_index = -1;
+#endif
+   lbg_view_rotate_entry = NULL;
+   lbg_scale_spinbutton = NULL;
+   lbg_search_combobox = NULL;
+   lbg_search_database_frame = NULL;
+   lbg_clean_up_2d_toolbutton = NULL;
+   lbg_flip_rotate_hbox = NULL;
+   lbg_get_drug_menuitem = NULL;
+   lbg_get_drug_entry =  NULL;
+   lbg_get_drug_dialog = NULL;
+   lbg_alert_name_label = NULL;
+   lbg_alert_hbox = NULL;
+   lbg_qed_progressbar = NULL;
+   lbg_qed_text_label = NULL;
+   lbg_qed_hbox = NULL;
+   lbg_statusbar = NULL;
+   lbg_import_from_comp_id_hydrogens_checkbutton = NULL;
+   lbg_import_from_comp_id_entry = NULL;
+   lbg_toolbar_layout_info_label = NULL;
+   lbg_import_from_comp_id_entry = NULL;;
+   lbg_import_from_smiles_entry = NULL;
+   lbg_import_from_smiles_dialog = NULL;
+   lbg_import_from_comp_id_dialog = NULL;
+   lbg_smiles_entry = NULL;
+   lbg_smiles_dialog = NULL;
+   lbg_sbase_search_results_vbox = NULL;
+   lbg_sbase_search_results_dialog = NULL;
+   lbg_export_as_svg_dialog = NULL;
+   lbg_export_as_pdf_dialog = NULL;
+   lbg_export_as_png_dialog = NULL;
+   save_as_dialog = NULL;
+   open_dialog = NULL;
+   about_dialog = NULL;
+   lbg_apply_button = NULL;
+   about_dialog = NULL;
+   lbg_window = NULL;
+
+   draw_flev_annotations_flag = false;
+   //       lbg_nitrogen_toggle_toolbutton = NULL;
+   //       lbg_carbon_toggle_toolbutton   = NULL;
+   //       lbg_oxygen_toggle_toolbutton   = NULL;
+   //       lbg_sulfur_toggle_toolbutton   = NULL;
+   //       lbg_phos_toggle_toolbutton     = NULL;
+   //       lbg_fluorine_toggle_toolbutton = NULL;
+   //       lbg_chlorine_toggle_toolbutton = NULL;
+   //       lbg_bromine_toggle_toolbutton  = NULL;
+   //       lbg_single_bond_toggle_toolbutton  = NULL;
+   //       lbg_double_bond_toggle_toolbutton  = NULL;
+   //       lbg_ring_8_toggle_toolbutton = NULL;
+   //       lbg_ring_7_toggle_toolbutton = NULL;
+   //       lbg_ring_6_toggle_toolbutton = NULL;
+   //       lbg_ring_6_arom_toggle_toolbutton = NULL;
+   //       lbg_ring_5_toggle_toolbutton = NULL;
+   //       lbg_ring_4_toggle_toolbutton = NULL;
+   //       lbg_ring_3_toggle_toolbutton = NULL;
+   lbg_show_alerts_checkbutton    = NULL;
+   lbg_alert_hbox_outer = NULL;
+   alert_group = NULL; // group for alert annotations
+   show_alerts_user_control = false; // no pattern matching available
+   geom_p = NULL; // no (const) geometry passed/set
+   display_atom_names   = false;
+   display_atom_numbers = false;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   pending_action_data_picked_bond_index = -1;
+   bond_pick_pending = false;
+   atom_pick_pending = false;
+#ifdef USE_PYTHON
+   user_defined_alerts_smarts_py = NULL;
+   setup_silicos_it_qed_default_func();
+   setup_user_defined_alert_smarts();
+#endif
+#endif
+}
+
 
 void
 lbg_info_t::new_lbg_window() {
-   
+
    lig_build::molfile_molecule_t blank_mol;
-   std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, 0);
+   mmdb::Residue *null_residue = 0;
+   coot::residue_spec_t null_spec(null_residue);
+   std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, null_spec);
    mmdb::Manager *mol = NULL;
    std::string view_name;
    std::string molecule_file_name;
@@ -225,9 +388,9 @@ coot::get_first_residue_helper_fn(mmdb::Manager *mol) {
    mmdb::Residue *res = NULL;
    if (mol) {
       mmdb::Model *model_p = mol->GetModel(1);
-      if (model_p) { 
+      if (model_p) {
 	 mmdb::Chain *chain_p;
-      
+
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
 	    chain_p = model_p->GetChain(i_chain);
@@ -248,7 +411,7 @@ coot::get_first_residue_helper_fn(mmdb::Manager *mol) {
    return res;
 }
 
-	     
+
 
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 
@@ -256,10 +419,10 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 }
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-// 
+//
 // widgeted_molecule_t mol needs to (store and?) transfer chiral info to the RDKit molecule.
 // Sounds tricky.
-// 
+//
 RDKit::RWMol
 lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 
@@ -290,20 +453,20 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    // atom_index[idx] to return the index of the atom in the rdkit
    // molecule.  i.e. converting from (possibly closed) atoms in a
    // lig_build::molecule
-   // 
+   //
    std::vector<int> atom_index(mol.atoms.size());
    int at_no = 0;
 
    RDKit::Conformer *conf = new RDKit::Conformer(mol.num_atoms());
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-      if (! mol.atoms[iat].is_closed()) { 
+      if (! mol.atoms[iat].is_closed()) {
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
 	 at->setFormalCharge(mol.atoms[iat].charge);
 
 	 // add the name to "at" too here (if you can).
-	 // 
+	 //
 	 try {
 	    at->setProp("name", std::string(mol.atoms[iat].get_atom_name()));
 	    std::string ele_capped =
@@ -312,7 +475,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    at->setAtomicNum(atomic_number);
 	    // at->setMass(tbl->getAtomicWeight(atomic_number));
 	    at->setIsotope(0);
-	    
+
 	    m.addAtom(at, false, true); // take ownership
 	    std::string dum;
 	    at->setProp("lbg_atom_index", coot::util::int_to_string(iat));
@@ -339,7 +502,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 }
       } else {
 	 // std::cout << "debug:: atom " << iat << " is closed " << std::endl;
-      } 
+      }
    }
 
    for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
@@ -361,30 +524,50 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    int idx_2_rdkit = atom_index[idx_2];
 	    bond->setBeginAtomIdx(idx_1_rdkit);
 	    bond->setEndAtomIdx(  idx_2_rdkit);
-	    if (type == RDKit::Bond::AROMATIC) { 
+	    if (type == RDKit::Bond::AROMATIC) {
 	       bond->setIsAromatic(true);
 	       m[idx_1_rdkit]->setIsAromatic(true);
 	       m[idx_2_rdkit]->setIsAromatic(true);
-	    } 
+	    }
 	    m.addBond(bond, true); // take ownership
 	 } else {
 	    delete bond;
 	 }
       } else {
 	 // std::cout << "debug:: bond " << ib << " is closed " << std::endl;
-      } 
+      }
    }
    m.addConformer(conf, true);
    return m;
 }
 #endif
 
+// not const because we modify canvas_item_vec
+// 
+void
+lbg_info_t::basic_white_underlay() {
+
+   // we dont do an outline around the white canvas
+   // but make a box later
+
+   GdkRGBA col_background;
+   if (gdk_rgba_parse(&col_background, "#cccccc") != TRUE)
+      std::cout << "ERROR:: in basic_white_underlay() failed to parse colour " << std::endl;
+
+   gtk_widget_override_background_color(GTK_WIDGET(canvas), GTK_STATE_FLAG_NORMAL, &col_background);
+
+   // 12/12/18 was grey97
+   // orig grey 90; grey 100 is white; 95 was good
+
+} 
+
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 RDKit::Bond::BondType
 lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 
    // There are lots more in RDKit::Bond::BondType!
-   // 
+   //
    RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED; // lig_build::bond_t::BOND_UNDEFINED
    if (t == lig_build::bond_t::SINGLE_BOND)
       bt = RDKit::Bond::SINGLE;
@@ -403,7 +586,7 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 
    if (t == lig_build::bond_t::DELOC_ONE_AND_A_HALF)
       bt = RDKit::Bond::ONEANDAHALF;
-   
+
    return bt;
 }
 #endif
@@ -417,7 +600,7 @@ lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
       bd = RDKit::Bond::BEGINDASH;
    if (t == lig_build::bond_t::OUT_BOND)
       bd = RDKit::Bond::BEGINWEDGE;
-   
+
    return bd;
 }
 
@@ -426,18 +609,18 @@ lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // this can throw a std::exception
-// 
+//
 std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
    // here mol is a widgeted_molecule_t (no idea about aromaticity)
    //
    // What about chiral atoms, eh?
-   // 
+   //
    RDKit::RWMol rdkm = rdkit_mol(mol);
    coot::rdkit_mol_sanitize(rdkm);
    return get_smiles_string(rdkm);
-   
+
 //    RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
 //    bool doIsomericSmiles = true;
 //    std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs, doIsomericSmiles);
@@ -456,7 +639,7 @@ lbg_info_t::write_mdl_molfile_using_default_file_name() const {
 
 void
 lbg_info_t::untoggle_others_except(GtkToggleToolButton *button_toggled_on) {
-   
+
    std::map<std::string, GtkToggleToolButton *>::const_iterator it;
    for (it=widget_names.begin(); it!=widget_names.end(); it++) {
       if (it->second != button_toggled_on) {
@@ -485,12 +668,12 @@ on_canvas_button_press(GooCanvasItem  *item,
 
    if (! event) {
       std::cout << "on_canvas_button_press() error NULL event!" << std::endl;
-   } else { 
+   } else {
       x_as_int = int(event->x);
       y_as_int = int(event->y);
    }
 
-   if (! target_item) { 
+   if (! target_item) {
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
@@ -498,7 +681,7 @@ on_canvas_button_press(GooCanvasItem  *item,
       } else {
 	 if (l->in_delete_mode_p()) {
 	    l->handle_item_delete(event);
-	 } else { 
+	 } else {
 	    l->handle_item_add(event);
 	 }
 
@@ -518,23 +701,23 @@ on_canvas_button_press(GooCanvasItem  *item,
 	       }
 	    }
 	 }
-	 
+
       }
-      
+
    } else {
 
       coot::residue_spec_t *spec_p =
 	 static_cast<coot::residue_spec_t *>(g_object_get_data (G_OBJECT (target_item), "spec"));
       clipper::Coord_orth *pos_p =
 	 static_cast<clipper::Coord_orth *> (g_object_get_data (G_OBJECT (target_item), "position"));
-      
+
       lbg_info_t *l = NULL;
       if (item)
 	 l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
 
-   
-//#ifdef MAKE_ENHANCED_LIGAND_TOOLS      
-      if (spec_p) { 
+
+//#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+      if (spec_p) {
 	 // std::cout << "on_canvas_button_press(): clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
 	    int imol = spec_p->int_user_data;
@@ -549,16 +732,16 @@ on_canvas_button_press(GooCanvasItem  *item,
 		  l->orient_view(imol,  ligand_spec_pair.second, *spec_p);
 	       }
 	    }
-	 } 
+	 }
       }
 
-      if (l) { 
+      if (l) {
 	 if (pos_p) {
 	    l->set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
 	 }
-      } 
+      }
 
-//#endif       
+//#endif
 
       if (!l) {
 	 std::cout << "null lbg-info from target_item" << std::endl;
@@ -571,32 +754,32 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 handled = l->handle_bond_picking_maybe();
 #endif
 
-	 if (! handled) { 
+	 if (! handled) {
 
 	    // note: it is not an error if l is null, that can happen
 	    // when clicking on the atom names for example - they don't
 	    // have a lbg-info attached (at the moment).
-	 
+
 	    l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
-	 
-	    if (0) 
+
+	    if (0)
 	       std::cout << "   on click: scale_correction  "
 			 << l->mol.scale_correction.first  << " "
 			 << l->mol.scale_correction.second << " centre_correction "
 			 << l->mol.centre_correction << std::endl;
-      
-	    if (l->in_delete_mode_p()) { 
+
+	    if (l->in_delete_mode_p()) {
 	       l->handle_item_delete(event);
 	    } else {
 	       l->handle_item_add(event);
 	    }
 	 }
       }
-   } 
+   }
    return TRUE;
 }
 
-   
+
 
 static bool
 on_canvas_button_release(GooCanvasItem  *item,
@@ -616,12 +799,12 @@ on_canvas_button_release(GooCanvasItem  *item,
 	 if (0)
 	    std::cout << "      here in on_canvas_button_release() clear button down "
 		      << std::endl;
-	 
+
 	 l->clear_button_down_bond_addition();
       } else {
 	 // this should not happen
 	 std::cout << "======= null lbg_info_t pointer " << std::endl;
-      } 
+      }
    } else {
       // std::cout << "======= non null target_item " << std::endl;
    }
@@ -633,11 +816,11 @@ void
 lbg_info_t::clear_button_down_bond_addition() {
 
    button_down_bond_addition = 0;
-   
+
    // 20120122 why were we saving here? It was giving a double-save on
    // every modification, thus leading to the need to double tap
    // delete to undo a modification...
-   // 
+   //
    // std::cout << "save_molecule() from clear_button_down_bond_addition() " << std::endl;
    // save_molecule();
 
@@ -656,12 +839,12 @@ on_canvas_motion(GooCanvasItem  *item,
    GdkModifierType state;
    if (! event) {
       // std::cout << "on_canvas_button_press_new() error NULL event!" << std::endl;
-   } else { 
+   } else {
       x_as_int = int(event->x);
       y_as_int = int(event->y);
    }
 
-   if (! target_item) { 
+   if (! target_item) {
       // std::cout << "on_canvas_motion(): NULL target item" << std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
@@ -686,7 +869,7 @@ on_canvas_motion(GooCanvasItem  *item,
 	    // << *spec_p << std::endl;
 	    l->set_show_additional_representation(imol, add_rep_handle, 1);
 	    l->all_additional_representations_off_except(imol, add_rep_handle, 0);
-	 } 
+	 }
       }
    }
 
@@ -774,6 +957,7 @@ void
 lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
 
    clear_canvas();
+   basic_white_underlay();
    if (delta.non_zero()) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
@@ -816,8 +1000,8 @@ lbg_info_t::translate_molecule(const lig_build::pos_t &delta) {  // and do a can
 
 void
 lbg_info_t::translate_residue_circles(const lig_build::pos_t &delta) {
-   
-   for (unsigned int i=0; i<residue_circles.size(); i++) 
+
+   for (unsigned int i=0; i<residue_circles.size(); i++)
       residue_circles[i].pos += delta;
 
 }
@@ -832,12 +1016,12 @@ lbg_info_t::is_sane_drag(const lig_build::pos_t &delta) const {
       }
    }
    return sane;
-} 
+}
 
 
 void
 lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
-   
+
    // If no highlighted data, simply rotate the bond.  (Note here that
    // the canvas item and the atom coordinates are separately rotated
    // (but should result in the same position).
@@ -871,16 +1055,16 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 		      << "atom_index_of_atom_to_which_the_latest_bond_was_added "
 		      << atom_index_of_atom_to_which_the_latest_bond_was_added
 		      << std::endl;
-	 
+
 	 // widgeted_bond_t &bond = mol.bonds.back();
 
-	 // 
+	 //
 	 // widgeted_atom_t &atom = mol.atoms.back();
 
 	 // idx is the index of the atom that is the other index of
 	 // a newly created bond (often is a new (and last) atom
 	 // but maybe not in "pathological" case)
-	 // 
+	 //
 	 unsigned int idx = ultimate_atom_index;
 
 	 if (false)
@@ -891,20 +1075,20 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 	 if (atom_index_of_atom_to_which_the_latest_bond_was_added != UNASSIGNED_INDEX) {
 
 	    if (most_recent_bond_made_new_atom_flag) {
-	       
+
 	       if (true) { // deubugging
 
 		  if (false)
 		     std::cout << "--------------------- rotate_bond block ------------"
 			       << std::endl;
-	       
+
 		  // we want to rotate atom idx
 
 		  widgeted_atom_t &atom = mol.atoms[idx];
 
 		  double x_cen = mol.atoms[atom_index_of_atom_to_which_the_latest_bond_was_added].atom_position.x;
 		  double y_cen = mol.atoms[atom_index_of_atom_to_which_the_latest_bond_was_added].atom_position.y;
-	    
+
 		  double x_at = atom.atom_position.x;
 		  double y_at = atom.atom_position.y;
 		  double theta_rad = atan2(-(y_mouse-y_cen), (x_mouse-x_cen));
@@ -912,12 +1096,12 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 		  double theta_current_rad = atan2(-(y_at-y_cen), (x_at-x_cen));
 		  double theta_current = theta_current_rad/DEG_TO_RAD;
 		  double degrees = theta_target - theta_current;
-	 
+
 		  lig_build::pos_t new_atom_pos =
 		     atom.atom_position.rotate_about(x_cen, y_cen, -degrees);
 
 		  if (true) {
-		  
+
 		     // move ultimate_atom_index atom to new_atom_pos
 		     atom.atom_position = new_atom_pos;
 
@@ -925,7 +1109,7 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 
 			std::cout << "ERROR:: trapped UNASSIGNED_INDEX for penultimate_atom_index in "
 				  << "rotate_latestbond()" << std::endl;
-	       
+
 		     } else {
 
 			unsigned int idx_2 = atom_index_of_atom_to_which_the_latest_bond_was_added;
@@ -947,17 +1131,17 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 			}
 		     }
 		  }
-	       } // debug 
+	       } // debug
 
 	    } else { // of most_recent_bond_made_new_atom_flag test
 
 	       if (false)
 		  std::cout << "--------------------- cut the bond and rotate block ------------"
 			    << std::endl;
-	    
+
 	       // we don't want to rotate atom idx, we want to
 	       // delete the latest bond (because it connect the "wrong" atom)
-	       // create a new atom, 
+	       // create a new atom,
 	       // rotate the bond to the new atom.
 
 	       // atom idx is the moving atom
@@ -968,7 +1152,7 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 			    << " and " << idx << std::endl;
 
 	       // create a new position, a new atom, add the atom, make a bond, add the bond.
-	       // 
+	       //
 	       widgeted_atom_t &atom = mol.atoms[idx];
 
 	       double x_cen = penultimate_atom_pos.x;
@@ -985,27 +1169,27 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 		  atom.atom_position.rotate_about(x_cen, y_cen, -degrees);
 	       bool is_close_to_atom = mol.is_close_to_non_last_atom(new_atom_pos);
 	       if (is_close_to_atom) {
-		  
+
 		  // std::cout << "rotate_latest_bond(): rotate prevented -- too close to atom "
 		  // << std::endl;
-		  
+
 	       }  else {
 
 		  unsigned int bond_index =
 		     mol.get_bond_index(idx, atom_index_of_atom_to_which_the_latest_bond_was_added);
-	       
+
 		  bool close_status = mol.close_bond(bond_index, root, true);
 		  if (false)
 		     std::cout << "rotate_latest_bond(): close bond between atom index "
 			       << atom_index_of_atom_to_which_the_latest_bond_was_added
 			       << " and " << idx << " close-status: " << close_status
 			       << std::endl;
-		  
+
 		  // make a new atom and bond
 		  widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
 		  std::pair<bool, int> checked_add = mol.add_atom(new_atom);
 		  if (checked_add.first) {
-		     
+
 		     int new_atom_index = checked_add.second;
 		     if (false)
 			std::cout << "rotate_latest_bond(): added atom! with new_atom_index "
@@ -1050,22 +1234,22 @@ lbg_info_t::extend_latest_bond_maybe() {
    if (mol.bonds.size() > 0) {
       if (mol.atoms.size() > 0) {
 
-	 if (highlight_data.has_contents()) { 
+	 if (highlight_data.has_contents()) {
 	    if (highlight_data.single_atom()) {
 
 	       widgeted_bond_t &bond = mol.bonds.back();
 	       widgeted_atom_t &atom = mol.atoms[atom_index_of_atom_to_which_the_latest_bond_was_added];
 
 	       int atom_index_snap_to = highlight_data.get_atom_index();
-	       if (atom_index_snap_to != atom_index_of_atom_to_which_the_latest_bond_was_added) { 
+	       if (atom_index_snap_to != atom_index_of_atom_to_which_the_latest_bond_was_added) {
 		  if (atom_index_snap_to != ultimate_atom_index) {
-		     
+
 		     GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
 		     mol.close_atom(ultimate_atom_index, root);
-	       
+
 		     // and add a new bond.
-		     // 
+		     //
 		     lig_build::bond_t::bond_type_t bt =
 			addition_mode_to_bond_type(canvas_addition_mode);
 
@@ -1083,7 +1267,7 @@ lbg_info_t::extend_latest_bond_maybe() {
 				                         // indices already exists.
 		     std::cout << "extend_latest_bond_maybe() adding bond! " << b
 			       << " new_bond_index: " << new_bond_idx << std::endl;
-		     
+
 		     // std::cout << "Now we have " << mol.n_open_bonds() << " bonds" << std::endl;
 		     status = true;
 		  }
@@ -1093,7 +1277,7 @@ lbg_info_t::extend_latest_bond_maybe() {
       }
    }
    return status;
-} 
+}
 
 
 bool
@@ -1110,7 +1294,7 @@ lbg_info_t::item_highlight_maybe(int x, int y) {
       if (atom_info.first != UNASSIGNED_INDEX) {
 	 highlight_status = 1;
 	 highlight_atom(atom_info.second, atom_info.first, in_delete_mode_p());
-      } 
+      }
    }
    return highlight_status;
 }
@@ -1133,12 +1317,12 @@ lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
 //    std::cout << "on_highlight_key_press_event: target " << target << std::endl;
 //    std::cout << "on_highlight_key_press_event: event  " << event  << std::endl;
 //    std::cout << "on_highlight_key_press_event: data   " << data   << std::endl;
-   
+
    if (item) {
       GooCanvas *canvas_l = goo_canvas_item_get_canvas(item);
       GooCanvasItem *root = goo_canvas_get_root_item(canvas_l);
       lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (root), "lbg-info"));
-      if (l) { 
+      if (l) {
 	 if (event) {
 	    bool ctrl_is_pressed = event->state & GDK_CONTROL_MASK;
 	    l->handle_key_press_button_toggle(event->keyval, ctrl_is_pressed);
@@ -1150,81 +1334,81 @@ lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
 
 void
 lbg_info_t::handle_key_press_button_toggle(int keyval, bool ctrl_is_pressed) {
-	    
+
    switch (keyval) {
 
-   case GDK_n:
+   case GDK_KEY_n:
       lbg_toggle_button_my_toggle(widget_names["nitrogen_toggle_toolbutton"]);
       break;
 
-   case GDK_c:
+   case GDK_KEY_c:
       lbg_toggle_button_my_toggle(widget_names["carbon_toggle_toolbutton"]);
       break;
 
-   case GDK_o:
+   case GDK_KEY_o:
       lbg_toggle_button_my_toggle(widget_names["oxygen_toggle_toolbutton"]);
       break;
 
-   case GDK_p:
+   case GDK_KEY_p:
       lbg_toggle_button_my_toggle(widget_names["phos_toggle_toolbutton"]);
       break;
 
-   case GDK_i:
+   case GDK_KEY_i:
       lbg_toggle_button_my_toggle(widget_names["iodine_toggle_toolbutton"]);
       break;
 
-   case GDK_s:
+   case GDK_KEY_s:
       if  (ctrl_is_pressed)
 	 lbg_toggle_button_my_toggle(widget_names["sulfur_toggle_toolbutton"]);
       else
 	 lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
 
-   case GDK_d:
+   case GDK_KEY_d:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
-		  
-   case GDK_1:
+
+   case GDK_KEY_1:
       lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
-		  
-   case GDK_2:
+
+   case GDK_KEY_2:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
-		  
-   case GDK_3:
+
+   case GDK_KEY_3:
       lbg_toggle_button_my_toggle(widget_names["c3_toggle_toolbutton"]);
       break;
-		  
-   case GDK_4:
+
+   case GDK_KEY_4:
       lbg_toggle_button_my_toggle(widget_names["c4_toggle_toolbutton"]);
       break;
-		  
-   case GDK_5:
+
+   case GDK_KEY_5:
       lbg_toggle_button_my_toggle(widget_names["c5_toggle_toolbutton"]);
       break;
-		  
-   case GDK_6:
+
+   case GDK_KEY_6:
       lbg_toggle_button_my_toggle(widget_names["c6_toggle_toolbutton"]);
       break;
-		  
-   case GDK_7:
+
+   case GDK_KEY_7:
       lbg_toggle_button_my_toggle(widget_names["c7_toggle_toolbutton"]);
       break;
-		  
-   case GDK_8:
+
+   case GDK_KEY_8:
       lbg_toggle_button_my_toggle(widget_names["c8_toggle_toolbutton"]);
       break;
-		  
-   case GDK_b:
+
+   case GDK_KEY_b:
       // lbg_toggle_button_my_toggle(lbg_bromine_toggle_toolbutton);
       lbg_toggle_button_my_toggle(widget_names["c6_arom_toggle_toolbutton"]);
       break;
-		  
+
    default:
       std::cout << "lbg::handle_key_press_button_toggle():: nothing we know" << std::endl;
    }
-} 
+}
 
 void
 lbg_info_t::lbg_toggle_button_my_toggle(GtkToggleToolButton *tb) {
@@ -1232,7 +1416,7 @@ lbg_info_t::lbg_toggle_button_my_toggle(GtkToggleToolButton *tb) {
       gtk_toggle_tool_button_set_active(tb, FALSE);
    else
       gtk_toggle_tool_button_set_active(tb, TRUE);
-} 
+}
 
 
 // set highlight_data
@@ -1249,7 +1433,7 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
    guint col = 0x20cc2080;
    if (delete_mode)
       col = 0xdd101080;
-   
+
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
    GooCanvasItem *group = goo_canvas_group_new (root, NULL);
    GooCanvasItem *h_line =
@@ -1303,10 +1487,10 @@ lbg_info_t::highlight_atom(const lig_build::atom_t &atom, int atom_index, bool d
 			   NULL);
 
    goo_canvas_grab_focus(GOO_CANVAS(canvas), rect_item);
-   
+
    g_signal_connect(rect_item, "key_press_event",
 		     G_CALLBACK (on_highlight_key_press_event), NULL);
-   
+
    highlight_data = highlight_data_t(rect_item, A, atom_index);
 }
 
@@ -1355,7 +1539,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 
    if (canvas_addition_mode == lbg_info_t::CHARGE) {
       changed_status = handle_charge_change();
-   } 
+   }
 
    if (changed_status) {
       save_molecule();
@@ -1386,7 +1570,7 @@ lbg_info_t::update_apply_button_sensitivity() {
 
 void
 lbg_info_t::update_descriptor_attributes() {
-   
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    if (use_graphics_interface_flag) {
@@ -1417,8 +1601,8 @@ lbg_info_t::update_descriptor_attributes() {
 	 }
       }
    }
-#endif      
-} 
+#endif
+}
 
 void
 lbg_info_t::handle_item_delete(GdkEventButton *event) {
@@ -1478,21 +1662,21 @@ lbg_info_t::handle_bond_picking_maybe() {
 
 	    }
 	    delete main_sans_R;
-	    
+
 	    handled = true;
 	 }
       }
-   } 
-   return handled; 
+   }
+   return handled;
 }
-#endif 
+#endif
 
 
 
 // that's canvas_addition_mode (from the button press).
 bool
 lbg_info_t::is_bond(int addition_mode) const {
-   bool r = 0; 
+   bool r = 0;
    if (addition_mode == lbg_info_t::ADD_SINGLE_BOND)
       r = 1;
    if (addition_mode == lbg_info_t::ADD_DOUBLE_BOND)
@@ -1590,7 +1774,7 @@ lbg_info_t::change_atom_id_maybe(unsigned int atom_index) {
    std::string fc = font_colour(ele);
    change_atom_element(atom_index, ele, fc);
 
-} 
+}
 
 
 bool
@@ -1604,18 +1788,18 @@ lbg_info_t::change_atom_element(unsigned int atom_index,
 
    // 20110410: Old/simple
    // std::string atom_id = mol.make_atom_id_by_using_bonds(new_ele, local_bonds);
-   
+
    bool gl_flag = false; // not a GL render engine
-   lig_build::atom_id_info_t atom_id_info = 
+   lig_build::atom_id_info_t atom_id_info =
       mol.make_atom_id_by_using_bonds(atom_index, new_ele, local_bonds, gl_flag);
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
    changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id_info,
 							       font_colour, root);
 
-   if (changed_status) { 
+   if (changed_status) {
       for (unsigned int ib=0; ib<local_bonds.size(); ib++) {
-	 // make a new line for the bond 
+	 // make a new line for the bond
 	 //
 	 int index_1 = mol.bonds[local_bonds[ib]].get_atom_1_index();
 	 int index_2 = mol.bonds[local_bonds[ib]].get_atom_2_index();
@@ -1665,7 +1849,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    std::pair<bool, bool> changed_status_pair =
 	       add_bond_to_atom(atom_index, canvas_addition_mode);
 	    changed_status = changed_status_pair.first;
-	    
+
 	    // we set button_down_bond_addition so that we can rotate
 	    // the bond.  But we only want to (be able to) rotate the
 	    // bond if button_1 is being pressed.
@@ -1678,7 +1862,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    if (false)
 	       std::cout << "in try_add_or_modify_bond() 2 most_recent_bond_made_new_atom_flag "
 			 << most_recent_bond_made_new_atom_flag << std::endl;
-	    
+
 	 }
       } else {
 
@@ -1690,7 +1874,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    addition_mode_to_bond_type(canvas_addition_mode);
 
 	 if (0)
-	    std::cout << "....... canvas_addition_mode: " << canvas_addition_mode << " " 
+	    std::cout << "....... canvas_addition_mode: " << canvas_addition_mode << " "
 		      << "bond type: " << bt << " c.f. " << lbg_info_t::ADD_STEREO_OUT_BOND
 		      << " and " << lig_build::bond_t::OUT_BOND
 		      << std::endl;
@@ -1703,7 +1887,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    //          so I guess we don't need to pass the atoms.  Hmmm...
 	    // // we need to pass the atoms so that we know if and how to
 	    // // shorten the bonds (canvas items) to account for atom names.
-	    // 
+	    //
 	    lig_build::atom_t at_1 = mol.atoms[ind_1];
 	    lig_build::atom_t at_2 = mol.atoms[ind_2];
 	    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
@@ -1714,7 +1898,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
 	       other_connections_to_first_atom =
 	       mol.make_other_connections_to_first_atom_info(bond_index);
-	    
+
 	    if (canvas_addition_mode == lbg_info_t::ADD_TRIPLE_BOND) {
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, shorten.first, shorten.second, true,
 						       other_connections_to_first_atom,
@@ -1723,18 +1907,18 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 	    } else {
 
 	       lig_build::bond_t::bond_type_t current_bt = mol.bonds[bond_index].get_bond_type();
-	       
+
 	       // bt is the bond type we want to change to (or add)
-	       // 
+	       //
 	       // (bt is OUT_BOND if we want to convert an OUT_BOND to an IN_BOND (because it
 	       // depends only on the "Stereo" button being depressed)).
-	       // 
+	       //
 
 	       if (bt == lig_build::bond_t::OUT_BOND) {
 
 		  if (current_bt != lig_build::bond_t::OUT_BOND &&
 		      current_bt != lig_build::bond_t::IN_BOND) {
-		     
+
 		     // if it is not currently a stereo out bond, convert
 		     // it to a stereo out bond. If it is a stereo_out
 		     // bond, convert it with change_bond_order().
@@ -1746,9 +1930,9 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 								other_connections_to_first_atom,
 								other_connections_to_second_atom,
 								root);
-		     
+
 		  } else {
-		     
+
 		     if (mol.bonds[bond_index].get_bond_type() == lig_build::bond_t::IN_BOND) {
 			highlight_data.swap_bond_indices(); // what does this do?
 			std::swap(shorten.first, shorten.second);
@@ -1779,7 +1963,7 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 								root);
 
 		  } else {
-		     
+
 		     // conventional/usual change
 		     mol.bonds[bond_index].change_bond_order(at_1, at_2,
 							     shorten.first, shorten.second,
@@ -1787,14 +1971,14 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 							     other_connections_to_second_atom,
 							     root); // single to double
 				  		                    // or visa versa
-		  } 
+		  }
 	       }
-	    } 
+	    }
 
 	    // Now that we have modified this bond, the atoms
 	    // compromising the bond may need to have their atom name
 	    // changed (e.g.) N -> NH,
-	    // 
+	    //
 	    // we do this for both of the atoms of the bond.
 	    //
 	    change_atom_id_maybe(ind_1);
@@ -1825,7 +2009,7 @@ lbg_info_t::add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode) 
 
    bool changed_status = false;
    bool created_new_atom_status = false;
-   
+
    std::vector<unsigned int> bonds = mol.bonds_having_atom_with_atom_index(atom_index);
 
    switch (bonds.size()) {
@@ -1856,7 +2040,7 @@ lbg_info_t::add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode) 
    // we might want to drag-rotate about atom_index shortly.
    if (changed_status)
       atom_index_of_atom_to_which_the_latest_bond_was_added = atom_index;
-	 
+
    return std::pair<bool, bool> (changed_status, created_new_atom_status);
 }
 
@@ -1888,15 +2072,15 @@ lbg_info_t::font_colour(const std::string &ele) const {
 
    if (ele == "N")
       font_colour = "#0000aa";
-   if (ele == "O") 
+   if (ele == "O")
       font_colour = "red";
    if (ele == "S")
       font_colour = "#888800";
    if (ele == "P")
       font_colour = "#DD9500"; // orange
-   if (ele == "F") 
+   if (ele == "F")
       font_colour = "#006600";
-   if (ele == "CL") 
+   if (ele == "CL")
       font_colour = "#116600";
    if (ele == "Cl") // mol files should have the second character in lower case, I think.
       font_colour = "#116600";
@@ -1904,7 +2088,7 @@ lbg_info_t::font_colour(const std::string &ele) const {
       font_colour = "#A52A2A";
    if (ele == "I")
       font_colour = "#220066";
-   
+
    return font_colour;
 }
 
@@ -1912,7 +2096,7 @@ bool
 lbg_info_t::add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canvas_addition_mode) {
 
    // certain change
-   
+
    widgeted_atom_t atom = mol.atoms[atom_index];
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
@@ -1920,7 +2104,7 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canv
    lig_build::pos_t a_bond(SINGLE_BOND_CANVAS_LENGTH, 0.0);
    a_bond.rotate(60);
    lig_build::pos_t new_atom_pos = current_atom_pos + a_bond;
-      
+
    widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
    std::pair<bool, int> add_atom_status = mol.add_atom(new_atom);
    int new_index = add_atom_status.second;
@@ -1944,14 +2128,14 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canv
 bool
 lbg_info_t::add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canvas_addition_mode,
 					      unsigned int bond_index) {
-   
+
    unsigned int index_1 = mol.bonds[bond_index].get_atom_1_index();
    unsigned int index_2 = mol.bonds[bond_index].get_atom_2_index();
 
    int other_atom_index = index_1;
    if (index_1 == atom_index)
       other_atom_index = index_2;
-   
+
    widgeted_atom_t atom = mol.atoms[atom_index];
 
    lig_build::pos_t pos_1 = mol.atoms[atom_index].atom_position;
@@ -1984,7 +2168,7 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canva
 
 
    // GooCanvasItem *ci = canvas_line_bond(pos_1, new_atom_pos, root, canvas_addition_mode);
-   
+
    widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
    std::pair<bool, int> add_atom_status = mol.add_atom(new_atom);
    int new_index = add_atom_status.second;
@@ -2033,7 +2217,7 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(unsigned int atom_index,
    lig_build::pos_t mpa_unit = mpa.unit_vector();
 
    lig_build::pos_t new_atom_pos = atom_pos + mpa_unit * SINGLE_BOND_CANVAS_LENGTH;
-   
+
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
    widgeted_atom_t at(new_atom_pos, "C", 0, NULL);
    std::pair<bool, int> checked_add = mol.add_atom(at);
@@ -2044,7 +2228,7 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(unsigned int atom_index,
 	 std::cout << "debug:: That connected to an already-existing atom: "
 		   << checked_add.second << std::endl;
    }
-   
+
    int new_index = checked_add.second;
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > empty;
@@ -2055,7 +2239,7 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(unsigned int atom_index,
    // have a extra bond, that atoms name could go from NH -> N (or C
    // -> C+ for 5 bonds).
    //
-   change_atom_id_maybe(atom_index); 
+   change_atom_id_maybe(atom_index);
    change_atom_id_maybe(new_index);
    penultimate_atom_pos = atom.atom_position;
    penultimate_atom_index = atom_index;
@@ -2079,16 +2263,16 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(unsigned int atom_index,
    //
    std::pair<bool, std::vector<unsigned int> > pr = have_2_stubs_attached_to_atom(atom_index, bond_indices);
    std::vector<unsigned int> attached_bonds = pr.second;
-   
+
    if (pr.first) {
       unsigned int l = attached_bonds.size();
-      
+
       widgeted_bond_t bond_to_core = orthogonalise_2_bonds(atom_index, attached_bonds, bond_indices);
       // now add a third
 
       int p1_idx = bond_to_core.get_other_index(atom_index);
       lig_build::pos_t p1 = mol.atoms[p1_idx].atom_position;
-      
+
       lig_build::pos_t central_atom_pos = mol.atoms[atom_index].atom_position;
       lig_build::pos_t existing_bond_dir = central_atom_pos - p1;
       lig_build::pos_t ebd_uv = existing_bond_dir.unit_vector();
@@ -2108,7 +2292,7 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(unsigned int atom_index,
       change_atom_id_maybe(atom_index);
       change_atom_id_maybe(new_atom_index);
       return add_atom_status.first;
-      
+
    } else {
       // bond_indices are bonds have an atom that is atom_index.
       squeeze_in_a_4th_bond(atom_index, canvas_addition_mode, bond_indices);
@@ -2125,17 +2309,17 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
    std::vector<double> sorted_angles = angles;
    std::sort(sorted_angles.begin(), sorted_angles.end());
    if (sorted_angles[0] > 115.0) { // smallest angle, i.e. each perfect 120.
-      if (all_closed_rings(atom_index, bond_indices)) { 
+      if (all_closed_rings(atom_index, bond_indices)) {
 	 lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
 	 bool found_from_pos = 0;
 	 lig_build::pos_t from_pos(0,0); // unfilled
-	 for (unsigned int i=0; i<bond_indices.size(); i++) { 
+	 for (unsigned int i=0; i<bond_indices.size(); i++) {
 	    int idx = mol.bonds[bond_indices[i]].get_other_index(atom_index);
 	    lig_build::pos_t pos = mol.atoms[idx].atom_position;
 	    lig_build::pos_t diff = pos - centre;
 	    double ori = diff.axis_orientation();
-	    if (ori > -20) { 
-	       if (ori < 90) { 
+	    if (ori > -20) {
+	       if (ori < 90) {
 		  from_pos = pos;
 		  found_from_pos = 1;
 	       }
@@ -2167,7 +2351,7 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
 	 ultimate_atom_index    = new_atom_index;
 
       } else {
-	 
+
 	 // OK, there were not centres on all side of all the bonds.
 	 // Go place the new atom not towards a ring centre
 
@@ -2185,9 +2369,9 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
 	 change_atom_id_maybe(atom_index);
 	 change_atom_id_maybe(new_atom_index);
 	 ultimate_atom_index    = new_atom_index;
-	 
+
       }
-      
+
 
    } else {
       lig_build::pos_t new_atom_pos = new_pos_by_bisection(atom_index, bond_indices, angles, root);
@@ -2203,7 +2387,7 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
       change_atom_id_maybe(atom_index);
       change_atom_id_maybe(new_atom_index);
       ultimate_atom_index    = new_atom_index;
-   } 
+   }
 
    widgeted_atom_t atom = mol.atoms[atom_index];
    penultimate_atom_pos = atom.atom_position;
@@ -2250,16 +2434,16 @@ lbg_info_t::get_centres_from_bond_indices(const std::vector<unsigned int> &bond_
       }
    }
    return centres;
-} 
+}
 
 lig_build::pos_t
 lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
-						 const std::vector<unsigned int> &bond_indices) const { 
+						 const std::vector<unsigned int> &bond_indices) const {
 
    lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
    lig_build::pos_t p;
    std::vector<lig_build::pos_t> centres = get_centres_from_bond_indices(bond_indices);
-   if (centres.size() == 2) { 
+   if (centres.size() == 2) {
       lig_build::pos_t diff = centres[1] - centres[0];
       lig_build::pos_t diff_uv_90 = diff.unit_vector().rotate(90);
       lig_build::pos_t extra = diff_uv_90 * SINGLE_BOND_CANVAS_LENGTH;
@@ -2268,7 +2452,7 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
       lig_build::pos_t best_candidate;
       double d_1 = 10000;
       double d_2 = 10000;
-      for (unsigned int i=0; i<mol.atoms.size(); i++) { 
+      for (unsigned int i=0; i<mol.atoms.size(); i++) {
 	 double dt_1 = lig_build::pos_t::length(candidate_1, mol.atoms[i].atom_position);
 	 double dt_2 = lig_build::pos_t::length(candidate_2, mol.atoms[i].atom_position);
 	 if (dt_1 < d_1)
@@ -2276,7 +2460,7 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
 	 if (dt_2 < d_2)
 	    d_2 = dt_2;
       }
-      if (d_1 < 9999) { 
+      if (d_1 < 9999) {
 	 p = candidate_1;
 	 if (d_2 > d_1)
 	    p = candidate_2;
@@ -2284,9 +2468,9 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
    } else {
 
       // build away from ring_centre
-      
+
       if (centres.size() > 0) {
-	 for (unsigned int i=0; i<bond_indices.size(); i++) { 
+	 for (unsigned int i=0; i<bond_indices.size(); i++) {
 	    if (mol.bonds[bond_indices[i]].have_centre_pos()) {
 	       lig_build::pos_t ring_centre = mol.bonds[bond_indices[i]].centre_pos();
 	       int other_index = mol.bonds[bond_indices[i]].get_other_index(atom_index);
@@ -2311,7 +2495,7 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
 	 std::pair<unsigned int, unsigned int> best_pair(0,0);
 	 double delta_length = 0;
 	 if (neighbours.size() > 0) {
-	    for (unsigned int i=0; i<(neighbours.size()-1); i++) { 
+	    for (unsigned int i=0; i<(neighbours.size()-1); i++) {
 	       lig_build::pos_t delta = neighbours[i+1] - neighbours[i];
 	       double len = delta.length();
 	       if (len > delta_length) {
@@ -2320,7 +2504,7 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
 		  best_pair.second = i;
 	       }
 	    }
-	    
+
 	    // now additionally test last to first
 	    lig_build::pos_t delta = neighbours[0] - neighbours.back();
 	    double len = delta.length();
@@ -2328,7 +2512,7 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
 	       best_pair.first  = 0;
 	       best_pair.second = neighbours.size()-1; // the last one
 	    }
-	    
+
 	    if (delta_length > 0) {
 	       lig_build::pos_t b1 = neighbours[best_pair.second] + neighbours[best_pair.first];
 	       lig_build::pos_t b2(0.5*b1.x, 0.5*b1.y);
@@ -2353,7 +2537,7 @@ lbg_info_t::new_pos_by_bisection(unsigned int atom_index,
    std::vector<double> sorted_angles = angles;
    std::sort(sorted_angles.begin(), sorted_angles.end());
    lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
-   for (unsigned int i=0; i<bond_indices.size(); i++) { 
+   for (unsigned int i=0; i<bond_indices.size(); i++) {
       unsigned int j = i+1;
       if (j == bond_indices.size())
 	 j = 0;
@@ -2408,11 +2592,11 @@ lbg_info_t::get_angles(unsigned int atom_index, const std::vector<unsigned int> 
 //
 // bond_indices are the indices of the bonds attached to atom_index
 // (the "central" atom).
-// 
+//
 widgeted_bond_t
 lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
 				  const std::vector<unsigned int> &stub_attached_atoms,
-				  const std::vector<unsigned int> &bond_indices) { 
+				  const std::vector<unsigned int> &bond_indices) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
@@ -2427,7 +2611,7 @@ lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
       widgeted_bond_t dummy;
       return dummy;
    }
-   
+
    int ind_1 = stub_attached_atoms[l-1];
    int ind_2 = stub_attached_atoms[l-2];
    std::string ele_1 = mol.atoms[ind_1].element;
@@ -2440,7 +2624,7 @@ lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
    // Find the bond that does not have an atom in stub_attached_atoms.
    bool found_bond = 0;
    widgeted_bond_t bond_to_core;
-   for (unsigned int i=0; i<bond_indices.size(); i++) { 
+   for (unsigned int i=0; i<bond_indices.size(); i++) {
       int idx_1 = mol.bonds[bond_indices[i]].get_atom_1_index();
       int idx_2 = mol.bonds[bond_indices[i]].get_atom_2_index();
       if (std::find(stub_attached_atoms.begin(), stub_attached_atoms.end(), idx_1) != stub_attached_atoms.end()) {
@@ -2468,7 +2652,7 @@ lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
    int p1_idx = bond_to_core.get_other_index(atom_index);
    lig_build::pos_t p1 = mol.atoms[p1_idx].atom_position;
    lig_build::pos_t existing_bond_dir = central_atom_pos - p1;
-   
+
    lig_build::pos_t ebd_uv = existing_bond_dir.unit_vector();
    lig_build::pos_t ebd_uv_90 = ebd_uv.rotate(90);
 
@@ -2497,13 +2681,13 @@ lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
 
 // return a status and a vector of atoms (bonded to atom_index) having
 // only one bond.
-// 
-std::pair<bool, std::vector<unsigned int> > 
+//
+std::pair<bool, std::vector<unsigned int> >
 lbg_info_t::have_2_stubs_attached_to_atom(unsigned int atom_index,
 					  const std::vector<unsigned int> &bond_indices) const {
 
    std::vector<unsigned int> v;
-   for (unsigned int i=0; i<bond_indices.size(); i++) { 
+   for (unsigned int i=0; i<bond_indices.size(); i++) {
       int other_index = mol.bonds[bond_indices[i]].get_other_index(atom_index);
       // now, does other_index have only one bond?
       std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(other_index);
@@ -2524,10 +2708,10 @@ lbg_info_t::have_2_stubs_attached_to_atom(unsigned int atom_index,
 void
 lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode) {
 
-   gpointer gp = gtk_object_get_user_data(GTK_OBJECT(canvas));
+   gpointer gp = g_object_get_data(G_OBJECT(canvas), "lbg");
    lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 
-   if (l) { 
+   if (l) {
       if (gtk_toggle_tool_button_get_active(tb)) {
 	 l->untoggle_others_except(tb);
 	 l->canvas_addition_mode = mode;
@@ -2537,7 +2721,7 @@ lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode) {
    } else {
       std::cout << "ERROR:: in lbg_handle_toggle_button() failed to get lbg pointer!"
 		<< std::endl;
-   } 
+   }
 }
 
 
@@ -2558,7 +2742,7 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
    if (mol.is_empty()) {
       stamp_polygon_anywhere(n_edges, x_cen, y_cen, is_aromatic, root);
       changed_status = 1; // stamp_polygon_anywhere() always modifies
-   } else { 
+   } else {
       if (highlight_data.has_contents()) {
 	 std::vector<int> new_atoms =
 	    try_stamp_polygon_using_highlighted_data(n_edges, is_spiro, is_aromatic, root);
@@ -2573,9 +2757,9 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
 		  // what are the atom indices of the spur bond?
 
 		  int highlighted_atom_index  = highlight_data.get_atom_index();
-		  if (highlighted_atom_index != new_atoms[0]) { 
+		  if (highlighted_atom_index != new_atoms[0]) {
 		     // std::cout << "adding spur bond...!" << std::endl;
-		     
+
 		     if (highlighted_atom_index != UNASSIGNED_INDEX) {
 			lig_build::bond_t::bond_type_t bt = lig_build::bond_t::SINGLE_BOND;
 			bool shorten_first  = false;
@@ -2598,7 +2782,7 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
 }
 
 // always modifies.  Always sets penultimate_atom_pos.
-// 
+//
 void
 lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y_mouse) {
 
@@ -2615,7 +2799,7 @@ lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y
     penultimate_atom_index = new_atom_index;
 }
 
-bool 
+bool
 lbg_info_t::handle_charge_change() {
 
    bool changed_status = false;
@@ -2645,9 +2829,9 @@ lbg_info_t::handle_charge_change() {
 	    std::string fc = font_colour(ele);
 	    bool gl_flag = false; // not a GL render engine
 	    std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
-	    lig_build::atom_id_info_t atom_id_info = 
+	    lig_build::atom_id_info_t atom_id_info =
 	       mol.make_atom_id_by_using_bonds(atom_index, ele, local_bonds, gl_flag);
-	
+
 	    mol.atoms[atom_index].update_atom_id_forced(atom_id_info, fc, root);
 	    changed_status = true;
 	 }
@@ -2655,9 +2839,9 @@ lbg_info_t::handle_charge_change() {
    }
 
   // update_descriptor_attributes() is done by calling function (e.g. handle_item_add()).
-  
+
   return changed_status;
-} 
+}
 
 
 double
@@ -2681,16 +2865,16 @@ lbg_info_t::stamp_polygon_anywhere(int n_edges, int x_cen, int y_cen,
 
 
 // is_aromatic means (for now) that double and single bonds alternate.
-// 
+//
 // always modifies
-// 
+//
 std::vector<int>
 lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 			  bool is_aromatic, GooCanvasItem *root) {
 
    // use the next two to construct the returned value.
    std::vector<int> atom_indices;
-      
+
    double angle_step = 360.0/double(n_edges);
    double dx_cen = double(ppi.pos.x);
    double dy_cen = double(ppi.pos.y);
@@ -2702,17 +2886,17 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
    double r = radius(n_edges);
 
    // offset so that the first bond lies along the X axis:
-   // 
+   //
    // double internal_angle_offset = -angle_step/2.0;
    // double orientation_correction = 180;
-   
+
    double internal_angle_offset = 0;
    double orientation_correction = 180;
-   if (! ppi.apply_internal_angle_offset_flag) { 
+   if (! ppi.apply_internal_angle_offset_flag) {
       internal_angle_offset = 0;
       orientation_correction = 0;
    }
-   
+
    for (int i=0; i<n_edges; i++) {
       double theta_deg =
 	 (i * angle_step + orientation_correction + internal_angle_offset + ppi.angle_offset);
@@ -2729,7 +2913,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 	 std::string stroke_colour = get_stroke_colour(i,atom_pos_index.size());
 	 GooCanvasItem *rect_item  =
 	    goo_canvas_rect_new (root,
-				 pt.x - 5.0, 
+				 pt.x - 5.0,
 				 pt.y - 5.0,
 				 10.0, 10.0,
 				 "line-width", 7.0, // in stamp_polygon_anywhere() (debug)
@@ -2737,7 +2921,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 				 NULL);
       }
    }
-   
+
    for (unsigned int i=0; i<atom_pos_index.size(); i++) {
       unsigned int j = i + 1;
       if (j == atom_pos_index.size())
@@ -2750,8 +2934,8 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
       // draw the bond (and of course, of the first and second atom
       // indexes were both from pre-existing atoms then *don't* draw
       // the bond).
-      // 
-      if (atom_pos_index[i].second.first || atom_pos_index[j].second.first) { 
+      //
+      if (atom_pos_index[i].second.first || atom_pos_index[j].second.first) {
 	 lig_build::bond_t::bond_type_t bt = lig_build::bond_t::SINGLE_BOND;
 	 if (is_aromatic) {
 	    if (((i/2)*2) == i)
@@ -2774,7 +2958,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
    atom_indices.resize(atom_pos_index.size());
    for (unsigned int i=0; i<atom_pos_index.size(); i++)
       atom_indices[i] = atom_pos_index[i].second.second;
-   
+
    return atom_indices;
 }
 
@@ -2786,14 +2970,14 @@ lbg_info_t::try_stamp_polygon_using_highlighted_data(int n_edges,
 						     GooCanvasItem *root) {
 
    std::vector<int> new_atoms;
-   
+
    double alpha = 2 * M_PI/double(n_edges);
    double corr_r = radius(n_edges) * cos(alpha/2.0);
    double rad_std = radius(n_edges);
-   
+
    lig_build::polygon_position_info_t ppi =
       highlight_data.get_new_polygon_centre(n_edges, spiro_flag, rad_std, corr_r, mol);
-   if (ppi.can_stamp) 
+   if (ppi.can_stamp)
       new_atoms = stamp_polygon(n_edges, ppi, is_aromatic, root);
    return new_atoms;
 }
@@ -2839,7 +3023,7 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    //
    //
    //              A
-   //              |\                                   . 
+   //              |\                                   .
    //              | \                                  .
    //              |  \                                 .
    //              |   \                                .
@@ -2847,7 +3031,7 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    //              |     \                              .
    //              |      \                             .
    //            M |-------\ P ................... C
-   //              |   1 
+   //              |   1
    //              |
    //              |
    //              |
@@ -2855,7 +3039,7 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    //              B
    //
    // So the question here is: where is P?
-   // 
+   //
    //    Take a unit vector along A->B.  Rotate it 90 degress about M.
    //
    //
@@ -2870,15 +3054,15 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
 
    lig_build::pos_t c = c_1;
    bool swapped_centre_direction = false;
-   
+
    if (has_ring_centre_flag) {
       double l1 = lig_build::pos_t::length(c_1, ring_centre);
       double l2 = lig_build::pos_t::length(c_2, ring_centre);
-      if (l1 < l2) { 
+      if (l1 < l2) {
 	 c = c_2;
 	 swapped_centre_direction = true;
-      } 
-   } 
+      }
+   }
 
    //  0    for a triangle : 120
    //  45   for a square   : 90
@@ -2888,14 +3072,14 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    // 22.5  for octagon    : 45
 
    // orientation correction
-   // 
+   //
    // double oc = 0;
 
-   lig_build::pos_t ab = b - a; 
+   lig_build::pos_t ab = b - a;
 
    // canvas is upside down:
    lig_build::pos_t ab_cor(ab.x, -ab.y);
-   
+
    double ao =  ab_cor.axis_orientation();
 
    // std::cout << "axis orientation of " << ab_cor << " is " << ao << std::endl;
@@ -2906,14 +3090,14 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    double angle_off = ao + internal_angle_offset;
    if (swapped_centre_direction)
       angle_off -= 180;
-   
+
    lig_build::polygon_position_info_t ppi(c, angle_off);
    return ppi;
-   
+
 }
 
 // This creates a polygon on a spur (unless spiro_flag is set)
-// 
+//
 lig_build::polygon_position_info_t
 lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
 								  bool spiro_flag,
@@ -2951,7 +3135,7 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
 	 lig_build::pos_t new_centre = A + mpa_unit * radius;
 	 if (! spiro_flag) {
 	    new_centre += mpa_unit * SINGLE_BOND_CANVAS_LENGTH;
-	 } 
+	 }
 
 	 ppi.pos = new_centre;
 	 lig_build::pos_t bond_vector = neighbours[1] - neighbours[0];
@@ -2959,14 +3143,14 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
 	 // upside-down canvas
 	 double angle = -mpa.axis_orientation();
 	 // std::cout << "spur orientation " << angle << std::endl;
-	 
+
 	 ppi.angle_offset = angle - 90;
 	 ppi.apply_internal_angle_offset_flag = 0; // don't internally correct orientation
       }
    }
 
    // now, say we are adding a ring to the end of a chain of single bonds
-   // 
+   //
    if (bv.size() == 1) {
       // We need the coordinates of the bond atom, We have one of
       // those (A), what is the other?
@@ -3014,7 +3198,7 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
    w_names.push_back("other_element_toggle_toolbutton");
    w_names.push_back("delete_item_toggle_toolbutton");
    w_names.push_back("lbg_charge_toggle_toolbutton");
-   
+
    // undo and clear, cut, smiles
 
    for (unsigned int i=0; i<w_names.size(); i++) {
@@ -3022,9 +3206,9 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object(builder, w_names[i].c_str()));
       widget_names[w_names[i]] = tb;
    }
-   
+
    return TRUE;
-} 
+}
 #endif // GTK_VERSION
 
 
@@ -3032,7 +3216,7 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 // clear and the canvas-drag clear...  Hmm... (because in the latter
 // case, we don't need to regnerate the SMILES string and the QED
 // score.
-// 
+//
 void
 lbg_info_t::clear(bool do_descriptor_updates) {
 
@@ -3041,7 +3225,7 @@ lbg_info_t::clear(bool do_descriptor_updates) {
    alert_group = NULL;
 
    key_group = NULL;
-   
+
    // clear the molecule
    mol.clear();
 
@@ -3055,29 +3239,28 @@ void
 lbg_info_t::clear_canvas() {
 
    // clear the canvas
-   GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
-
-   gint n_children = goo_canvas_item_get_n_children (root);
-   for (int i=0; i<n_children; i++)
-      goo_canvas_item_remove_child(root, 0);
+   if (true) {
+      GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+      gint n_children = goo_canvas_item_get_n_children (root);
+      for (int i=0; i<n_children; i++)
+         goo_canvas_item_remove_child(root, 0);
+   }
 }
 
 
 
-
-#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 bool
 lbg_info_t::init(GtkBuilder *builder) {
 
    GtkWidget *pe_test_function_button = NULL;
 
    if (use_graphics_interface_flag) {
-      
+
       lbg_window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
       if (! lbg_window) {
 
 	 lbg_window = NULL;
-	 about_dialog = NULL; 
+	 about_dialog = NULL;
 	 lbg_search_combobox = NULL;
 	 open_dialog = NULL;
 	 save_as_dialog = NULL;
@@ -3159,15 +3342,16 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
       }
-   } 
+   }
 
    canvas = goo_canvas_new();
 
    // this works, but need gui access
-   // 
+   //
    goo_canvas_set_scale(GOO_CANVAS(canvas), 1.0);
-   
-   GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
+
+   // gtk_widget_set_flags(canvas, GTK_CAN_FOCUS);
+   std::cout << "FIXME gtk_widget_set_flags GTK_CAN_FOCUS!"  << std::endl;
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
    g_object_set(G_OBJECT(root_item), "line_width", 1.5, NULL); // thank you Damon Chaplin
@@ -3175,7 +3359,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    if (lbg_scale_spinbutton) {
                                      // value lower upper step_inc page_inc page_size (which should be 0)
-      GtkObject *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
+      GtkAdjustment *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
       gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(lbg_scale_spinbutton), GTK_ADJUSTMENT(adj));
       gtk_spin_button_set_value(GTK_SPIN_BUTTON(lbg_scale_spinbutton), 1.0);
 
@@ -3183,7 +3367,7 @@ lbg_info_t::init(GtkBuilder *builder) {
       g_signal_connect(adj, "value-changed", G_CALLBACK(lbg_scale_adj_changed), lbg_scale_spinbutton);
 
    }
-   
+
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
@@ -3193,27 +3377,29 @@ lbg_info_t::init(GtkBuilder *builder) {
    gtk_widget_hide(lbg_srs_search_results_scrolledwindow);
 #endif // HAVE_CCP4SRS
 
-   if (use_graphics_interface_flag) { 
-      gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
-      gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-   
+   if (use_graphics_interface_flag) {
+      // gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
+      std::cout << "FIXME! bounds padding!" << std::endl;
+      g_object_set_data(G_OBJECT(canvas), "lbg", (gpointer) this);
+
       save_togglebutton_widgets(builder);
-      GtkWidget *lbg_scrolled_win =
-	 GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
+      GtkWidget *lbg_scrolled_win = GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
       gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
-      goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 1200);
+      // goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 1200);
    }
 
    GooCanvas *gc = GOO_CANVAS(canvas);
 
-   if (0) 
-      std::cout << "   after setting bounds: canvas adjustments: h-lower " 
+#if 0
+   if (0)
+      std::cout << "   after setting bounds: canvas adjustments: h-lower "
 		<< gc->hadjustment->lower << " h-upper-page "
 		<< gc->hadjustment->upper - gc->hadjustment->page_size  << " v-lower "
 		<< gc->vadjustment->lower  << " v-upper-page"
 		<< gc->vadjustment->upper - gc->vadjustment->page_size  << " h-page "
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
+#endif
 
    if (use_graphics_interface_flag) {
 
@@ -3230,58 +3416,46 @@ lbg_info_t::init(GtkBuilder *builder) {
 		       G_CALLBACK(on_canvas_button_release), NULL);
       g_signal_connect(G_OBJECT(root_item), "motion_notify_event",
 		       G_CALLBACK(on_canvas_motion), NULL);
-      
+
       // setup_lbg_drag_and_drop(lbg_window); // this lbg_info_t is not attached to this object.
       setup_lbg_drag_and_drop(canvas);
       gtk_widget_show(canvas);
       add_search_combobox_text();
    }
 
-   
+
    // ------------ (old-style) watch for new files from coot ---------------------
    //
-   if (is_stand_alone()) 
-      int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+   // Gtk3 porting: comment this out for now.
+   // if (is_stand_alone())
+   // int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
    // Hack in a button (or hide the hbox) for PE to test stuff
-   // 
+   //
    if (use_graphics_interface_flag) {
-      if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
-	 gtk_widget_show(pe_test_function_button);
+      if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) {
+         gtk_widget_show(pe_test_function_button);
       }
    }
 
    // if we don't have rdkit or python then we don't want to see qed progress bar
    // or the "show alerts" (because we can't match to the alert patterns).
-   
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON   
    // all, with QED
 
    if (! silicos_it_qed_default_func) { // set in init
       gtk_widget_hide(lbg_qed_hbox);
       gtk_widget_hide(lbg_qed_properties_vbox);
    }
-
-#else
-
-   gtk_widget_hide(lbg_qed_hbox);
-   gtk_widget_hide(lbg_qed_properties_vbox);
-
-#endif    
 #else
    gtk_widget_hide(lbg_qed_hbox);
-   gtk_widget_hide(lbg_alert_hbox_outer);
-   gtk_widget_hide(lbg_show_alerts_checkbutton); // perhaps this should be in the
-                                                 // lbg_alert_hbox_outer?
    gtk_widget_hide(lbg_qed_properties_vbox);
-   gtk_widget_hide(lbg_clean_up_2d_toolbutton);
-#endif    
+#endif
 
    return true;
 
 }
-#endif // GTK_VERSION
 
 
 // void lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton)
@@ -3290,11 +3464,12 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton) {
 
-   float f = gtk_spin_button_get_value_as_float(spinbutton);
+   // float f = 1.0; // gtk_spin_button_get_value_as_float(spinbutton);
+   float f = gtk_spin_button_get_value(spinbutton);
    gpointer user_data = g_object_get_data(G_OBJECT(spinbutton), "user_data");
    if (user_data) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 l->scale_canvas(f);
       }
@@ -3325,12 +3500,12 @@ lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
    GtkDestDefaults dest_defaults = GTK_DEST_DEFAULT_ALL; // we don't need ALL, but this
                                                          // removes int->GtkDestDefaults
                                                          // conversion problems with |.
-   
+
 
    gtk_drag_dest_set(GTK_WIDGET(lbg_window), /* widget that will accept a drop */
 		     dest_defaults,
 		     target_list,            /* lists of target to support */
-		     n_dnd_targets,          
+		     n_dnd_targets,
 		     GDK_ACTION_COPY);       /* what to do with data after dropped */
    gtk_drag_dest_add_uri_targets(GTK_WIDGET(lbg_window));
    // if something was dropped
@@ -3339,16 +3514,16 @@ lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
    // what to we do with dropped data...
    g_signal_connect (GTK_WIDGET(lbg_window), "drag-data-received",
 		     G_CALLBACK(on_lbg_drag_data_received), NULL);
-   
-} 
-      
+
+}
+
 
 std::string
 lbg_info_t::get_smiles_string_from_mol() const {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::string s;
-   try { 
+   try {
       s = get_smiles_string_from_mol_rdkit();
    }
    catch (const std::exception &e) {
@@ -3358,7 +3533,7 @@ lbg_info_t::get_smiles_string_from_mol() const {
 #else
    return get_smiles_string_from_mol_openbabel();
 #endif
-} 
+}
 
 std::string
 lbg_info_t::get_smiles_string_from_mol_openbabel() const {
@@ -3385,8 +3560,6 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
    // see setup_silicos_it_qed_default_func()
 
-#ifdef USE_PYTHON   
-
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -3402,20 +3575,20 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	    all_set = true;
 
 	 // get the values and their desirabilites (0->1)
-	 std::vector<std::pair<double, double> > properties = 
+	 std::vector<std::pair<double, double> > properties =
 	    get_qed_properties(silicos_it_qed_properties_func,
 			       silicos_it_qed_pads, rdkm);
 	 update_qed_properties(properties);
-	 
+
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
 	 // been installed - and works properly in just python?
-	 
-	 // std::cout << "null silicos_it_qed_default_func " << std::endl;
-      } 
 
-      if (all_set) { 
+	 // std::cout << "null silicos_it_qed_default_func " << std::endl;
+      }
+
+      if (all_set) {
 	 std::string s = coot::util::float_to_string_using_dec_pl(qed, 3);
 	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), s.c_str());
 	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), qed);
@@ -3424,7 +3597,6 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       }
    }
-#endif
 }
 #endif
 
@@ -3455,16 +3627,17 @@ lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > 
 		  s = coot::util::int_to_string(int(properties[i].first));
 	       else
 		  s = coot::util::float_to_string(properties[i].first);
-		  
+
 	       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
 					     properties[i].second);
 	       gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
 					 s.c_str());
 
 	       // tooltips here?
-	       GtkTooltips *tooltips = gtk_tooltips_new();
+	       // GtkTooltips *tooltips = gtk_tooltips_new();
 	       std::string m = "Ideal: " + ideal_values[i];
-	       gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       // gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       gtk_widget_set_tooltip_text(GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str());
 	    }
 	 }
       }
@@ -3491,10 +3664,10 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
    if (rdkm.getNumAtoms() == 0) {
       gtk_widget_hide(lbg_alert_hbox);
-   } else { 
+   } else {
 
       if (show_alerts_user_control) {
-	 
+
 	 std::vector<alert_info_t> v = alerts(rdkm);
 
 	 if (v.size()) {
@@ -3504,7 +3677,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 	    gtk_widget_show(lbg_alert_hbox);
 
 	    if (false) // debugging
-	       for (unsigned int i=0; i<v.size(); i++) 
+	       for (unsigned int i=0; i<v.size(); i++)
 		  std::cout << "ALERT: " << v[i].smarts << " " << v[i].smarts_name << std::endl;
 
 	    // if root gets renewed then this needs to be renewed too (so
@@ -3524,15 +3697,15 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 		  // idx is some function of rdkmol_idx - look it up
 		  std::string lbg_atom_index_str;
 		  int lbg_atom_index = rdkmol_idx;
-		  try { 
-		     RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
+		  try {
+		     const RDKit::Atom *at_p = rdkm[rdkmol_idx];
 		     at_p->getProp("lbg_atom_index", lbg_atom_index_str);
 		     int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
 		     lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
 		     double radius = 14;
 		     double line_width = 0;
 		     std::string col = "";
-		     GooCanvasItem *circle = 
+		     GooCanvasItem *circle =
 			goo_canvas_ellipse_new(alert_group,
 					       pos.x, pos.y, radius, radius,
 					       "line_width", line_width,
@@ -3543,7 +3716,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 		  catch (const KeyErrorException &kee) {
 		     // actually, perhaps we don't get this we should fail, else we risk a crash?
 		     // lbg_atom_index = rdkmol_idx;
-		     std::cout << "ERROR:: in update_alerts() failed to get atom name " 
+		     std::cout << "ERROR:: in update_alerts() failed to get atom name "
 			       << kee.what() << std::endl;
 		  }
 	       }
@@ -3564,19 +3737,19 @@ lbg_info_t::clear_canvas_alerts() {
    if (alert_group) {
 
       // g_object_set(alert_group, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
-      
+
       gint n_children = goo_canvas_item_get_n_children (alert_group);
       // std::cout << "removing " << n_children << " children " << std::endl;
       for (int i=0; i<n_children; i++) {
 	 // no, don't delete it because if we delete it then we don't
 	 // get a button up signal when button-1 is released
-	 // 
+	 //
          // goo_canvas_item_remove_child(alert_group, 0);
 	 GooCanvasItem *child = goo_canvas_item_get_child(alert_group, i);
 	 g_object_set(child, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
-      } 
+      }
    }
-} 
+}
 
 
 
@@ -3585,7 +3758,7 @@ gboolean
 lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 
    lbg_info_t *l = static_cast<lbg_info_t *> (user_data);
-   
+
    // the pdb file has the atom names.  When we read the mol file, we
    // will stuff the atom names into the widgeted_molecule (by
    // matching the coordinates).
@@ -3593,15 +3766,15 @@ lbg_info_t::watch_for_mdl_from_coot(gpointer user_data) {
 
    std::string coot_dir = l->get_flev_analysis_files_dir();
    std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
-   
+
    // in use (non-testing), coot_dir will typically be ".";
-   
+
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
 
    struct stat buf;
 
    // std::cout << "watching reading file: " << ready_file << std::endl;
-   
+
    int err = stat(ready_file.c_str(), &buf);
    if (! err) {
       time_t m = buf.st_mtime;
@@ -3620,7 +3793,7 @@ void
 lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
 						     const std::string &coot_mdl_file,
 						     const std::string &sa_file) {
-   
+
    mmdb::Manager *flat_pdb_mol = get_cmmdbmanager(coot_pdb_file);
    lig_build::molfile_molecule_t mm;
    mm.read(coot_mdl_file);
@@ -3631,7 +3804,7 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
 
    import_from_widgeted_molecule(wmol);
    render();
-   
+
 }
 
 
@@ -3644,7 +3817,7 @@ lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
       std::cout << "WARNING:: Problem reading coordinates file " << file_name << std::endl;
       delete mol;
       mol = NULL;
-   } 
+   }
 
    return mol;
 
@@ -3656,8 +3829,8 @@ std::string
 lbg_info_t::get_flev_analysis_files_dir() const {
 
    // in use (non-testing), coot_dir will typically be ".";
-   
-   std::string coot_dir = "../../build-coot-ubuntu-64bit/src"; 
+
+   std::string coot_dir = "../../build-coot-ubuntu-64bit/src";
    coot_dir = "../../build-lucid/src";
 
    const char *t_dir = getenv("COOT_LBG_OUT_DIR");
@@ -3667,7 +3840,7 @@ lbg_info_t::get_flev_analysis_files_dir() const {
    // std::cout << "DEBUG:: get_flev_analysis_files_dir: " << coot_dir << std::endl;
 //    if (t_dir)
 //       std::cout << "DEBUG:: t_dir: " << t_dir << std::endl;
-//    else 
+//    else
 //       std::cout << "DEBUG:: t_dir: NULL" << std::endl;
    return coot_dir;
 }
@@ -3676,10 +3849,10 @@ void
 lbg_info_t::read_files_from_coot() {
 
    std::string coot_dir = get_flev_analysis_files_dir();
-	    
+
    std::string coot_ccp4_dir = coot_dir + "/coot-ccp4";
    // in use (non-testing), coot_dir will typically be ".";
-	    
+
    std::string coot_mdl_file = coot_ccp4_dir + "/.coot-to-lbg-mol";
    std::string coot_pdb_file = coot_ccp4_dir + "/.coot-to-lbg-pdb";
    std::string ready_file    = coot_ccp4_dir + "/.coot-to-lbg-mol-ready";
@@ -3710,7 +3883,7 @@ lbg_info_t::add_search_combobox_text() const {
 			 0, s.c_str(), -1);
       // the default search similarity is 0.95 initially, so if we are
       // close to that, then make this the active widget.
-      if (f < (search_similarity + 0.005)) { 
+      if (f < (search_similarity + 0.005)) {
 	 if (f > (search_similarity - 0.005)) {
 	    done_set_active = 1;
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(lbg_search_combobox), i);
@@ -3723,7 +3896,7 @@ lbg_info_t::add_search_combobox_text() const {
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (lbg_search_combobox), renderer, TRUE);
    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (lbg_search_combobox), renderer, "text", 0);
-   
+
 
 }
 
@@ -3743,7 +3916,7 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 }
 
 // update the internal class variable widgeted_molecule_t mol from mol_in
-// 
+//
 void
 lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 
@@ -3752,7 +3925,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear(false); // clear and no descriptor updates
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-   
+
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
 				      // the this molecule atom
 				      // indexing.
@@ -3788,12 +3961,12 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 	    std::cout << "in render_from_molecule() atom with name :"
 		      << mol_in.atoms[iat].get_atom_name()
 		      << ": has solvent_accessibility " << sa << std::endl;
-	 
+
 	 new_atom.add_solvent_accessibility(sa);
 	 new_atom.bash_distances = mol_in.atoms[iat].bash_distances;
 	 std::pair<bool, int> s = mol.add_atom(new_atom);
 	 re_index[iat] = s.second;
-	 
+
 	 if (false)
 	    if (! s.first)
 	       std::cout << "render_from_molecule() atom " << iat
@@ -3801,7 +3974,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 			 << mol_in.atoms[iat].atom_position << "  vs.  "
 			 << mol.atoms[s.second].atom_position
 			 << std::endl;
-	 
+
 	 if (0)
 	    // clever c++
 	    std::cout << " in render_from_molecule: old sa: "
@@ -3812,7 +3985,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 
    // add in bonds
    for (unsigned int ib=0; ib<mol_in.bonds.size(); ib++) {
-      if (! mol_in.bonds[ib].is_closed()) { 
+      if (! mol_in.bonds[ib].is_closed()) {
 	 int idx_1 = re_index[mol_in.bonds[ib].get_atom_1_index()];
 	 int idx_2 = re_index[mol_in.bonds[ib].get_atom_2_index()];
 	 if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
@@ -3849,7 +4022,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 						  NULL);
 		     }
 		  }
-		  
+
 
 	       } else {
 		  // bond with no ring centre
@@ -3882,7 +4055,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
    mol.mol_in_min_y = mol_in.mol_in_min_y;
    mol.mol_in_max_y = mol_in.mol_in_max_y;
 
-   // 
+   //
    make_saves_mutex = 1; // allow saves again.
 
 }
@@ -3893,9 +4066,11 @@ lbg_info_t::render() {
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    if (false)
-      std::cout << "------------ render_from_molecule() with display_atom_names " << display_atom_names
+      std::cout << "------------ render() with display_atom_names " << display_atom_names
 		<< " display_atom_numbers "  << display_atom_numbers << " "
 		<< mol.atoms.size() << " atoms " << mol.bonds.size() << " bonds" << std::endl;
+
+   basic_white_underlay();
 
    if (! display_atom_names && ! display_atom_numbers) {
 
@@ -3947,9 +4122,11 @@ lbg_info_t::render() {
 
       if (display_atom_names || display_atom_numbers) {
 
-	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
-	 if (display_atom_numbers)
-	    atom_id_info = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1); // mol file numbering, 1-indexed
+	 lig_build::atom_id_info_t atom_id_info(mol.atoms[iat].atom_name);
+	 if (display_atom_numbers) {
+            std::string id = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1);
+	    atom_id_info = lig_build::atom_id_info_t(id); // mol file numbering, 1-indexed
+         }
 	 atom_id_info.size_hint = -1;
 	 const std::string &ele = mol.atoms[iat].element;
 	 std::string fc = font_colour(ele);
@@ -3983,7 +4160,7 @@ void
 lbg_info_t::undo() {
 
    save_molecule_index--;
-   if (save_molecule_index >= 0) { 
+   if (save_molecule_index >= 0) {
       widgeted_molecule_t saved_mol = previous_molecules[save_molecule_index];
       // std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
       import_from_widgeted_molecule(saved_mol);
@@ -3992,8 +4169,8 @@ lbg_info_t::undo() {
       update_apply_button_sensitivity();
    } else {
       clear(true);
-   } 
-} 
+   }
+}
 
 void
 lbg_info_t::delete_hydrogens() {
@@ -4007,13 +4184,13 @@ lbg_info_t::delete_hydrogens() {
    save_molecule();
    import_from_widgeted_molecule(copy_mol);
    render();
-   
-} 
+
+}
 
 
 
 void
-lbg_info_t::write_pdf(const std::string &file_name) const { 
+lbg_info_t::write_pdf(const std::string &file_name) const {
 
 #if CAIRO_HAS_PDF_SURFACE
 
@@ -4049,7 +4226,7 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 }
 
 void
-lbg_info_t::write_ps(const std::string &file_name) const { 
+lbg_info_t::write_ps(const std::string &file_name) const {
 
 #if CAIRO_HAS_PS_SURFACE
    cairo_surface_t *surface;
@@ -4085,7 +4262,7 @@ lbg_info_t::write_ps(const std::string &file_name) const {
 
 void
 lbg_info_t::write_svg(const std::string &file_name) const {
-   
+
 #if CAIRO_HAS_SVG_SURFACE
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
@@ -4095,7 +4272,7 @@ lbg_info_t::write_svg(const std::string &file_name) const {
    if (key_group) {
       pos_y += 240;
       pos_x += 50;
-   } 
+   }
 
    cairo_surface_t *surface = cairo_svg_surface_create(file_name.c_str(), pos_x, pos_y);
    cairo_t *cr = cairo_create(surface);
@@ -4108,7 +4285,7 @@ lbg_info_t::write_svg(const std::string &file_name) const {
    cairo_show_page(cr);
    cairo_surface_destroy(surface);
    cairo_destroy(cr);
-#endif   
+#endif
 
 }
 
@@ -4123,7 +4300,7 @@ lbg_info_t::write_png(const std::string &file_name) {
    // std::cout << "goo_canvas_get_scale() " << scale << std::endl;
    // std::cout << "extents_flev: " << extents_flev.first << " " << extents_flev.second
    //           << std::endl;
-   
+
    int size_x = int(extents.second.x) + 30;
    int size_y = int(extents.second.y) + 30;
 
@@ -4143,12 +4320,12 @@ lbg_info_t::write_png(const std::string &file_name) {
    }
    // std::cout << "new size_x: " << size_x << std::endl;
    // std::cout << "new size_y: " << size_y << std::endl;
-   
+
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
 
    {
-      
+
       int new_width  = size_x * scale;
       int new_height = size_y * scale;
       cairo_content_t content = CAIRO_CONTENT_COLOR_ALPHA;
@@ -4164,7 +4341,7 @@ lbg_info_t::write_png(const std::string &file_name) {
       cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
       /* Do the actual drawing */
       cairo_paint (cr);
-      goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0); 
+      goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0);
       cairo_surface_write_to_png(new_surface, file_name.c_str());
       cairo_surface_destroy(new_surface);
       cairo_destroy(cr);
@@ -4177,12 +4354,12 @@ lbg_info_t::write_png(const std::string &file_name) {
 void
 lbg_info_t::save_molecule() {
 
-   if (make_saves_mutex) { 
+   if (make_saves_mutex) {
       previous_molecules.push_back(mol);
       save_molecule_index = previous_molecules.size() - 1;
       if (0)
 	 std::cout << "saved molecule to index: " << save_molecule_index << std::endl;
-      
+
    } else {
       std::cout << "debug:: save_molecule() excluded" << std::endl;
    }
@@ -4272,24 +4449,24 @@ lbg_info_t::import_molecule_from_cif_file(const std::string &file_name) {
 		<< file_name << std::endl;
    }
 
-#endif 
+#endif
 }
 
 
 // Mol, sdf or mol2, that is.
-// 
+//
 // What happens when this fails?  File name is missing?
 // File is null?
 // File is not a molecule format?
 //
 // 20140322: Let's throw a runtime_error.
-// 
+//
 void
 lbg_info_t::import_mol_from_file(const std::string &file_name) {
 
    // if we have rdkit, try to read as an Mol2 file, if that fails try
    // to read as a Mol file.  If that fails try to read with my parser.
-   // 
+   //
    // if we don't have rdkit of course, just use my parser.
 
    bool try_as_mdl_mol = false;
@@ -4318,7 +4495,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 // strict_parsing is not in the MolFileToMol() interface for old RDKits.
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
 	 unsigned int iconf = 0;
-	 
+
 	 if (!m) {
 	    std::string s = "Null molecule from MolFile file \"";
 	    s += file_name;
@@ -4345,13 +4522,14 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       }
    }
    catch (const RDKit::BadFileException &e) {
-      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      // std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.what() << std::endl;
       try_as_mdl_mol = true;
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;
       try_as_mdl_mol = true;
-   } 
+   }
    catch (const std::exception &e) {
       std::cout << "WARNING:: import_mol_from_file: exception: " << e.what() << std::endl;
       try_as_mdl_mol = true;
@@ -4383,7 +4561,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       if (m) {
 	 unsigned int n_atoms = m->getNumAtoms();
 	 for (unsigned int iat=0; iat<n_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = (*m)[iat];
+	    const RDKit::Atom *at_p = (*m)[iat];
 	    std::string name;
 	    try {
 	       at_p->getProp("molFileAlias", name);
@@ -4417,7 +4595,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	 }
 
 	 //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
-	 //    
+	 //
 	 //    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
 	 //    mmdb::Manager *mol = NULL; // no atom names to transfer
 	 //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
@@ -4453,7 +4631,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 // pdb_mol is the pdb representation of the (flat) ligand - and it has
 // the atom names.  We will add the atom names into mol by matching
 // coordinates.
-// 
+//
 widgeted_molecule_t
 lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 			    const std::string &file_name,
@@ -4479,7 +4657,7 @@ lbg_info_t::import_mol_from_smiles_file(const std::string &file_name) {
       isplit = file_contents.find_first_of('\n');
       if (isplit != std::string::npos)
 	 file_contents = file_contents.substr(0, isplit);
-      
+
       try {
 	 RDKit::RWMol *m = RDKit::SmilesToMol(file_contents);
 	 if (m) {
@@ -4489,7 +4667,7 @@ lbg_info_t::import_mol_from_smiles_file(const std::string &file_name) {
 	 } else {
 	    // should throw an exception before getting here, I think.
 	    std::cout << "Null m in import_mol_from_file() " << std::endl;
-	 } 
+	 }
       }
       catch (const RDKit::FileParseException &rte) {
 	 std::cout << "WARNING:: something bad in import_mol_from_file() " << rte.what() << std::endl;
@@ -4503,7 +4681,7 @@ lbg_info_t::import_mol_from_smiles_file(const std::string &file_name) {
 
 void
 lbg_info_t::import_mol_from_smiles_string(const std::string &smiles) {
-   
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    try {
@@ -4515,16 +4693,16 @@ lbg_info_t::import_mol_from_smiles_string(const std::string &smiles) {
       } else {
 	 // should throw an exception before getting here, I think.
 	 std::cout << "Null m in import_mol_from_smiles_string() " << std::endl;
-      } 
+      }
    }
    catch (const RDKit::FileParseException &rte) {
       std::cout << "WARNING:: something bad in import_mol_from_smiles_string() " << rte.what() << std::endl;
    }
-   
+
 
 #else
    std::cout << "You need enhanced ligand tools version" << std::endl;
-   
+
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
@@ -4554,14 +4732,14 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
 	p = pg.get_monomer_restraints(comp_id, imol);
 	if (p.first) {
 	   dict = p.second;
-	} 
+	}
      } else {
 	std::cout << "Failed to load " << comp_id << " using SRS " << std::endl;
-     } 
-#endif // HAVE_CCP4SRS     
-   } 
+     }
+#endif // HAVE_CCP4SRS
+   }
 
-   if (have_dict) { 
+   if (have_dict) {
       import_via_rdkit_from_restraints_dictionary(dict, show_hydrogens_status);
    }
 #else
@@ -4584,7 +4762,7 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 
       try {
 	 coot::undelocalise(&m);
-	 if (! show_hydrogens_status) 
+	 if (! show_hydrogens_status)
 	    coot::remove_non_polar_Hs(&m);
 	 unsigned int n_mol_atoms = m.getNumAtoms();
 	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
@@ -4600,7 +4778,7 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 	 unsigned int nSamples=200;
 	 int sampleSeed=10;
 	 bool permuteDeg4Nodes=true;
-      
+
 	 unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
 							  canonOrient,
 							  clearConfs,
@@ -4652,9 +4830,11 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 
 
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 widgeted_molecule_t
 lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
+
+   // see that this returns a widgeted_molecule_t, it doesn't fill the class's mol data item.
 
    // transfer atom names if you can.
 
@@ -4663,7 +4843,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
    int n_conf  = rdkm->getNumConformers();
    if (iconf < n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-      
+
       RDKit::Conformer &conf = rdkm->getConformer(iconf);
       unsigned int n_mol_atoms = rdkm->getNumAtoms();
 
@@ -4672,7 +4852,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       double sum_y = 0;
       double min_y = 9e9;
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 sum_x += r_pos.x;
 	 sum_y += r_pos.y;
@@ -4681,13 +4861,13 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       }
 
       // set the scale correction
-      // 
+      //
       std::vector<double> bond_lengths;
       for (unsigned int i=0; i<rdkm->getNumBonds(); i++) {
 	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(i);
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
-	 if ( (*rdkm)[idx_1]->getAtomicNum() != 1) { 
+	 if ( (*rdkm)[idx_1]->getAtomicNum() != 1) {
 	    if ( (*rdkm)[idx_2]->getAtomicNum() != 1) {
 	       RDGeom::Point3D &r_pos_1 = conf.getAtomPos(idx_1);
 	       RDGeom::Point3D &r_pos_2 = conf.getAtomPos(idx_2);
@@ -4706,7 +4886,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 m.scale_correction.first = 1;
 	 m.scale_correction.second = scale;
       }
-      
+
 
       if (n_mol_atoms > 0) {
 	 double centre_x = sum_x/double(n_mol_atoms);
@@ -4716,7 +4896,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       }
 
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 std::string name = "";
 	 try {
@@ -4752,7 +4932,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
 
-	 try { 
+	 try {
 	    const widgeted_atom_t &wat1 = m[idx_1];
 	    const widgeted_atom_t &wat2 = m[idx_2];
 	    bool shorten_first  = false;
@@ -4770,7 +4950,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	    }
 
 	    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > empty;
-	    
+
 	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, shorten_first, shorten_second, bt, empty, empty, NULL);
 	    RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	    if (false)
@@ -4806,8 +4986,8 @@ void
 lbg_info_t::clean_up_2d_representation() {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   
-   if (use_graphics_interface_flag) { 
+
+   if (use_graphics_interface_flag) {
       try {
 	 RDKit::RWMol rdkm = rdkit_mol(mol);
 	 coot::rdkit_mol_sanitize(rdkm);
@@ -4853,7 +5033,7 @@ lbg_info_t::update_statusbar_smiles_string(const std::string &smiles_string) con
    // (gtk_statusbar_pop()) the previous label.
    //
    std::string status_string;
-   if (lbg_statusbar) { 
+   if (lbg_statusbar) {
       status_string = " SMILES:  ";
       status_string += smiles_string;
       guint statusbar_context_id =
@@ -4887,7 +5067,7 @@ lbg_info_t::get_smiles_string(const RDKit::ROMol &mol) const {
       // new
       RDKit::ROMol mol_copy(mol);
       s = RDKit::MolToSmiles(mol_copy);
-   } 
+   }
    return s;
 }
 #endif
@@ -4909,8 +5089,8 @@ lbg_info_t::show_atom_x_dialog() {
       gtk_widget_show(lbg_atom_x_dialog);
    } else {
       std::cout << "lbg_atom_x_dialog null " << std::endl;
-   } 
-} 
+   }
+}
 
 void
 lbg_info_t::set_atom_x_string(const std::string &s) {
@@ -4927,7 +5107,7 @@ lbg_info_t::get_drug_using_entry_text() {
       get_drug(std::string(txt));
    else
       std::cout << "ERROR:: null text in get_drug_using_entry_text() " << std::endl;
-} 
+}
 
 // get mol file and load it
 void
@@ -4937,90 +5117,101 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
    bool status = false;
    std::string status_string;
-   
+
    if (get_drug_mdl_file_function_pointer) {
 
-      try {
-	 if (get_drug_mdl_file_function_pointer) {
-	    std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
-	    if (file_name.empty()) {
-	       std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
-	    } else {
-	       status = true;
-	       import_mol_from_file(file_name);
-	       save_molecule();
-	    }
-	 }
-      }
-      catch (const std::runtime_error &rte) {
-	 std::cout << "WARNING:: " << rte.what() << std::endl;
-      }
+      std::cout << "DEBUG:: Using get_drug_mdl_file_function_pointer" << std::endl;
+      // this could fail for SSL reasons. Try to dig out the libcurl error
+      std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
 
+      std::cout << "####################### in get_drug() " << drug_name << " we got file_name " << file_name << std::endl;
+      if (file_name.empty()) {
+         std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
+      } else {
+         status = true;
+         import_mol_from_file(file_name);
+         save_molecule();
+      }
    }
 
-   if (status == false) {
+   if (!status) {
 
-      PyObject *pName = PyString_FromString("lidia.fetch");
-      PyObject *pModule = PyImport_Import(pName);
+      // If we have failed so far, try again with lidia.fetch.
+      // But import rdkit first so that import.fetch doesn't crash - !
+      std::cout << "DEBUG:: --- start import rdkit/lidia.fetch --- " << std::endl;
+      PyObject *pName_rdkit = PyUnicode_FromString("rdkit");
+      std::cout << "DEBUG:: --- we have pName_rdkit --- " << pName_rdkit << std::endl;
+      PyObject *pModule = PyImport_Import(pName_rdkit);
+      if (! pModule) return;
+      std::cout << "DEBUG:: --- we have imported rdkit --- " << pName_rdkit << std::endl;
+
+      PyObject *pName = PyUnicode_FromString("lidia.fetch");
+      std::cout << "DEBUG:: with lidia.fetch pName " << pName << std::endl;
+      pModule = PyImport_Import(pName);
       if (pModule == NULL) {
-	 std::cout << "NULL pModule" << std::endl;
+         std::cout << "NULL pModule" << std::endl;
       } else {
-	 // std::cout << "Hooray - found pModule" << std::endl;
+         // std::cout << "Hooray - found pModule" << std::endl;
 
-	 PyObject *pDict = PyModule_GetDict(pModule);
-	 if (! PyDict_Check(pDict)) {
-	    std::cout << "pDict is not a dict" << std::endl;
-	 } else {
+         PyObject *pDict = PyModule_GetDict(pModule);
+         if (! PyDict_Check(pDict)) {
+            std::cout << "DEBUG:: pDict is not a dict" << std::endl;
+         } else {
 
-	    PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
-	    if (PyCallable_Check(pFunc)) {
-	       PyObject *arg_list = PyTuple_New(1);
-	       PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
-	       PyTuple_SetItem(arg_list, 0, drug_name_py);
-	       PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+            PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
+            if (PyCallable_Check(pFunc)) {
+               std::cout << "DEBUG:: fetch_molecule is a callable function" << std::endl;
+               PyObject *arg_list = PyTuple_New(1);
+               PyObject *drug_name_py = PyUnicode_FromString(drug_name.c_str());
+               PyTuple_SetItem(arg_list, 0, drug_name_py);
+               std::cout << "DEBUG:: fetch_molecule called with arg " << drug_name << std::endl;
+               PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+               std::cout << "DEBUG:: fetch_molecule got result " << result_py << std::endl;
 
-	       if (result_py) {
+               if (result_py) {
 
-		  if (PyString_Check(result_py)) {
-		     std::string file_name = PyString_AsString(result_py);
+                  if (PyUnicode_Check(result_py)) {
+                     std::cout << "fetch_molecule result was a string " << std::endl;
+                     std::string file_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(result_py));
+                     std::cout << "fetch_molecule result was a file_name " << file_name << std::endl;
 
-		     try {
-			bool sanitize = true;
-			bool removeHs = false;
-			RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
-			unsigned int iconf = 0;
+                     try {
+                        bool sanitize = true;
+                        bool removeHs = false;
+                        RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
+                        unsigned int iconf = 0;
 
-			// we only want to compute coords if there are no coords
-			//
-			if (coot::has_zero_coords(m, 0))
-			   iconf = RDDepict::compute2DCoords(*m, NULL, true);
-			if (m->getNumConformers() == 0)
-			   iconf = RDDepict::compute2DCoords(*m, NULL, true);
+                        // we only want to compute coords if there are no coords
+                        //
+                        if (coot::has_zero_coords(m, 0))
+                        iconf = RDDepict::compute2DCoords(*m, NULL, true);
+                        if (m->getNumConformers() == 0)
+                        iconf = RDDepict::compute2DCoords(*m, NULL, true);
 
-			if (m) {
-			   rdkit_mol_post_read_handling(m, file_name, iconf);
-			   status = true;
-			}
-		     }
+                        if (m) {
+                           rdkit_mol_post_read_handling(m, file_name, iconf);
+                           status = true;
+                        }
+                     }
 
-		     catch (const RDKit::FileParseException &fpe) {
-			std::cout << "WARNING::" << fpe.what() << std::endl;
-			status_string = "File parsing error on reading " + file_name;
-		     }
-		  } else {
-		     std::cout << "Null result" << std::endl;
-		     status_string = "Null result on fetching " + drug_name;
-		  }
-	       } else {
-		  std::cout << "results_py was not a string" << std::endl;
-		  status_string = "Failed to download molecule " + drug_name;
-	       }
+                     catch (const RDKit::FileParseException &fpe) {
+                        std::cout << "WARNING::" << fpe.what() << std::endl;
+                        status_string = "File parsing error on reading " + file_name;
+                     }
+                  } else {
+                     std::cout << "Null result" << std::endl;
+                     status_string = "Null result on fetching " + drug_name;
+                  }
+               } else {
+                  std::cout << "results_py was not a string" << std::endl;
+                  status_string = "Failed to download molecule " + drug_name;
+               }
 
-	    } else {
-	       std::cout << "Non-callable pFunc" << std::endl;
-	       status_string = "Non-callable pFunc";
-	    }
-	 }
+            } else {
+               std::cout << "Non-callable pFunc" << std::endl;
+               status_string = "Non-callable pFunc";
+            }
+         }
       }
    }
 
@@ -5028,12 +5219,12 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       // problem
       clear(true);
       if (status_string.empty())
-	 status_string = "  Problem downloading molecule " + drug_name;
+      status_string = "  Problem downloading molecule " + drug_name;
       guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
-								status_string.c_str());
+      status_string.c_str());
       gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
-			 statusbar_context_id,
-			 status_string.c_str());
+      statusbar_context_id,
+      status_string.c_str());
 
    }
 #else
@@ -5043,8 +5234,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 }
 
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
-#ifdef USE_PYTHON   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 PyObject *
 lbg_info_t::get_callable_python_func(const std::string &module_name,
 				     const std::string &function_name) const {
@@ -5053,28 +5243,28 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 
    //
    // Build the name object
-   PyObject *pName = PyString_FromString(module_name.c_str());
+   PyObject *pName = PyUnicode_FromString(module_name.c_str());
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {
       // This happens, for example, when we can't pick up the rdkit installation properly
-      // 
+      //
       std::cout << "Null pModule" << std::endl;
-   } else { 
-      // pDict is a borrowed reference 
+   } else {
+      // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {
 	 std::cout << "pDict is not a dict"<< std::endl;
       } else {
-	 // pFunc is also a borrowed reference 
+	 // pFunc is also a borrowed reference
 	 PyObject *pFunc = PyDict_GetItemString(pDict, function_name.c_str());
 	 if (! pFunc) {
 	    std::cout << "pFunc is NULL" << std::endl;
-	 } else { 
+	 } else {
 	    if (PyCallable_Check(pFunc)) {
 	       extracted_func = pFunc;
-	       if (1)
-		  std::cout << "found " << module_name << " " << function_name << " function"
+	       if (true)
+		  std::cout << "DEBUG:: found " << module_name << " " << function_name << " function"
 			    << std::endl;
 	    }
 	 }
@@ -5082,7 +5272,6 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
    }
    return extracted_func;
 }
-#endif
 #endif
 
 // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
@@ -5136,18 +5325,18 @@ lbg_info_t::rotate_z_molecule(const std::string &angle_str) {
 void
 lbg_info_t::pe_test_function() {
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::cout << "PE test function" << std::endl;
 
    std::cout << "identify bond..." << std::endl;
    bond_pick_pending = true;
 
 
-#ifdef USE_PYTHON   
+#ifdef USE_PYTHON
    // RECAP mol
-   
+
    // first get the function:
-   // 
+   //
    // PyObject *recap_func = get_callable_python_func("rdkit.Chem.Recap", "RecapDecompose");
    PyObject *recap_func = get_callable_python_func("recap_wrapper", "wrap_recap");
 
@@ -5155,7 +5344,7 @@ lbg_info_t::pe_test_function() {
       PyObject *arg_list = PyTuple_New(1);
       RDKit::RWMol rdkm = rdkit_mol(mol);
       coot::rdkit_mol_sanitize(rdkm);
-      
+
       RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
       boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);
       boost::python::object obj(xx);

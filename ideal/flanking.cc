@@ -43,12 +43,27 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
    // std::cout << "debug:: add_fixed_atoms_from_flanking_residues() called " << bpc.size() << std::endl;
 
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
-   
-   for (unsigned int i=0; i<bpc.size(); i++) { 
+
+   if (false) { // debug
+      std::cout << "------ in add_fixed_atoms_from_flanking_residues() here are the elements of the bpc" << std::endl;
+      for (unsigned int i=0; i<bpc.size(); i++) {
+         std::cout << " bpc " << i << " " << bpc[i] << std::endl;
+      }
+   }
+
+   for (unsigned int i=0; i<bpc.size(); i++) {
       if (bpc[i].is_fixed_first)
 	 residues_for_fixed_atoms.push_back(bpc[i].res_1);
       if (bpc[i].is_fixed_second)
 	 residues_for_fixed_atoms.push_back(bpc[i].res_2);
+   }
+
+   if (false) { // debug
+      std::cout << "----in add_fixed_atoms_from_flanking_residues() here are the residues_for_fixed_atoms"
+                << std::endl;
+      for (unsigned int i=0; i<residues_for_fixed_atoms.size(); i++) {
+         std::cout << "             " << residue_spec_t(residues_for_fixed_atoms[i]) << std::endl;
+      }
    }
 
    for (unsigned int i=0; i<residues_for_fixed_atoms.size(); i++) {
@@ -61,9 +76,40 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
 	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
 	 } else {
+	    fixed_atom_indices.insert(idx); // hello grep: in add_fixed_atoms_from_flanking_residues()
+	 }
+      }
+   }
+}
+
+
+// Not a "flanking function" - maybe it shouldn't be in this file
+//
+// use non_bonded_neighbour_residues to extend the set of fixed atoms.
+// (these are not flanking residues)
+void
+coot::restraints_container_t::add_fixed_atoms_from_non_bonded_neighbours() {
+
+   // std::cout << "####################### in add_fixed_atoms_from_non_bonded_neighbours() "
+   // << non_bonded_neighbour_residues.size() << std::endl;
+
+   for (std::size_t jj=0; jj<non_bonded_neighbour_residues.size(); jj++) {
+      // std::cout << "debug:: in add_fixed_atoms_from_non_bonded_neighbours "
+      // << residue_spec_t(non_bonded_neighbour_residues[jj]) << std::endl;
+      mmdb::Residue *residue_p = non_bonded_neighbour_residues[jj];
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 int idx = -1;
+	 mmdb::Atom *at = residue_atoms[iat];
+	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
+	    std::cout << "ERROR:: in add_fixed_atoms_from_non_bonded_neighbours() "
+		      << " bad UDD for atom " << iat << std::endl;
+	 } else {
 	    if (std::find(fixed_atom_indices.begin(),
 			  fixed_atom_indices.end(), idx) == fixed_atom_indices.end())
-	       fixed_atom_indices.push_back(idx);
+	       fixed_atom_indices.insert(idx); // hello grep: in add_fixed_atoms_from_non_bonded_neighbours()
 	 }
       }
    }
@@ -87,20 +133,13 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(bool have_f
 	 mmdb::Atom *at = atom[iat];
 	 if (have_flanking_residue_at_start) {
 	    if (at->residue->GetSeqNum() == iselection_start_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       // perhaps this should be a set - yes.
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
 	 if (have_flanking_residue_at_end) {
 	    if (at->residue->GetSeqNum() == iselection_end_res) {
-	       // perhaps this should be a set
-	       if (std::find(fixed_atom_indices.begin(),
-			     fixed_atom_indices.end(), iat) == fixed_atom_indices.end()) {
-		  fixed_atom_indices.push_back(iat);
-	       }
+	       fixed_atom_indices.insert(iat);
 	    }
 	 }
       }
@@ -288,6 +327,8 @@ coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &neighbour_set,
 									 const coot::protein_geometry &geom) const {
 
+   // Don't make flanking residue restraints if both residues are fixed!
+
    coot::bonded_pair_container_t bpc;
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
@@ -313,11 +354,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 		<< bonded_pairs_container.size() << std::endl;
 
    if (false) { // debug
-      for (it=neighbour_set.begin(); it != neighbour_set.end(); it++) {
+      for (it=neighbour_set.begin(); it != neighbour_set.end(); ++it) {
 	 std::cout << "Residue " << residue_spec_t(it->first) << " has neighbours ";
 	 const std::set<mmdb::Residue *> &neighbours = it->second;
 	 std::set<mmdb::Residue *>::const_iterator it_set;
-	 for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+	 for (it_set=neighbours.begin(); it_set!=neighbours.end(); ++it_set) {
 	    std::cout << " " << residue_spec_t(*it_set);
 	 }
 	 std::cout << std::endl;
@@ -327,11 +368,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
    // 20180220 no longer iterate on the residue_vec. Elinor Breiner
    //
    // Use this instead:
-   for (it=neighbour_set.begin(); it != neighbour_set.end(); it++) {
+   for (it=neighbour_set.begin(); it != neighbour_set.end(); ++it) {
 
       const std::set<mmdb::Residue *> &neighbours = it->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
-      for (it_set=neighbours.begin(); it_set!=neighbours.end(); it_set++) {
+      for (it_set=neighbours.begin(); it_set!=neighbours.end(); ++it_set) {
 
 	 if (false) {
 	    std::cout << "base residue " << it->first << " " << residue_spec_t(it->first) << std::endl;
@@ -343,8 +384,8 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 	 for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
 	    // pointer comparison
 	    if (*it_set == residues_vec[ires].second) {
-	       found = true;
-	       break;
+               found = true;
+               break;
 	    }
 	 }
 
@@ -356,23 +397,48 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 
-		  std::pair<std::string, bool> l = find_link_type_complicado(*it_set, it->first, geom);
-		  const std::string &link_type = l.first;
-		  if (! link_type.empty()) {
-		     const bool &order_switch_flag = l.second;
-		     if (! order_switch_flag) {
-			coot::bonded_pair_t bp(*it_set, it->first, 1, 0, link_type);
-			bpc.try_add(bp);
-		     } else {
-			coot::bonded_pair_t bp(it->first, *it_set, 0, 1, link_type);
-			bpc.try_add(bp);
-		     }
-		  }
+                  unsigned int n_fixed_residues = 0;
+                  for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
+                     if (*it_set == residues_vec[ires].second)
+                        if (residues_vec[ires].first) {
+                           n_fixed_residues++;
+                        }
+                     if (it->first == residues_vec[ires].second)
+                        if (residues_vec[ires].first) {
+                           n_fixed_residues++;
+                        }
+                  }
+
+                  if (false)
+                     std::cout << "DEBUG:: here in bonded_flanking_residues_by_residue_vector() "
+                               << " considering residues " << residue_spec_t(*it_set) << " "
+                               << residue_spec_t(it->first) << " with n_fixed_residues "
+                               << n_fixed_residues << std::endl;
+
+                  if (n_fixed_residues != 2) {
+                     std::pair<std::string, bool> l = find_link_type_complicado(*it_set, it->first, geom);
+                     const std::string &link_type = l.first;
+                     if (! link_type.empty()) {
+                        const bool &order_switch_flag = l.second;
+                        if (! order_switch_flag) {
+                           coot::bonded_pair_t bp(*it_set, it->first, true, false, link_type);
+                           bpc.try_add(bp);
+                        } else {
+                           coot::bonded_pair_t bp(it->first, *it_set, false, true, link_type);
+                           bpc.try_add(bp);
+                        }
+                     }
+                  }
 	       }
 	    }
 	 }
       }
    }
+
+   // does your linking problem lie in here?
+   //
+   bpc.filter();
+
    return bpc;
 }
 

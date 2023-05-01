@@ -21,6 +21,7 @@
 
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -81,13 +82,13 @@ SCM score_rotamers_scm(int imol,
 		     imol_map, clash_flag, lowest_probability);
    for (unsigned int i=0; i<v.size(); i++) {
       SCM name_scm  = scm_from_locale_string(v[i].name.c_str());
-      SCM prob_scm  = scm_double2num(v[i].rotamer_probability_score);
-      SCM fit_scm   = scm_double2num(v[i].density_fit_score);
-      SCM clash_scm = scm_double2num(v[i].clash_score);
+      SCM prob_scm  = scm_from_double(v[i].rotamer_probability_score);
+      SCM fit_scm   = scm_from_double(v[i].density_fit_score);
+      SCM clash_scm = scm_from_double(v[i].clash_score);
       SCM atom_list_scm = SCM_EOL;
       for (unsigned int iat=0; iat<v[i].density_score_for_atoms.size(); iat++) {
 	 SCM p1 = scm_from_locale_string(v[i].density_score_for_atoms[iat].first.c_str());
-	 SCM p2 = scm_double2num(v[i].density_score_for_atoms[iat].second);
+	 SCM p2 = scm_from_double(v[i].density_score_for_atoms[iat].second);
 	 SCM atom_item = scm_list_2(p1,p2);
 	 atom_list_scm = scm_cons(atom_item, atom_list_scm);
       }
@@ -120,14 +121,14 @@ PyObject *score_rotamers_py(int imol,
    PyObject *r = PyList_New(v.size());
    for (unsigned int i=0; i<v.size(); i++) { 
       PyObject *item = PyList_New(5);
-      PyObject *name_py  = PyString_FromString(v[i].name.c_str());
+      PyObject *name_py  = myPyString_FromString(v[i].name.c_str());
       PyObject *prob_py  = PyFloat_FromDouble(v[i].rotamer_probability_score);;
       PyObject *fit_py   = PyFloat_FromDouble(v[i].density_fit_score);;
       PyObject *clash_py = PyFloat_FromDouble(v[i].clash_score);;
       PyObject *atom_list_py = PyList_New(v[i].density_score_for_atoms.size());
       for (unsigned int iat=0; iat<v[i].density_score_for_atoms.size(); iat++) {
 	 PyObject *atom_item = PyList_New(2);
-	 PyObject *p0 = PyString_FromString(v[i].density_score_for_atoms[iat].first.c_str());
+	 PyObject *p0 = myPyString_FromString(v[i].density_score_for_atoms[iat].first.c_str());
 	 PyObject *p1 = PyFloat_FromDouble(v[i].density_score_for_atoms[iat].second);
 	 PyList_SetItem(atom_item, 0, p0);
 	 PyList_SetItem(atom_item, 1, p1);
@@ -181,7 +182,7 @@ void register_interesting_positions_list_scm(SCM pos_list) {
    if (scm_is_true(scm_list_p(pos_list))) {
       unsigned int pos_length = scm_to_int(scm_length(pos_list));
       for (unsigned int i=0; i<pos_length; i++) { 
-	 SCM item = scm_list_ref(pos_list, SCM_MAKINUM(i));
+	 SCM item = scm_list_ref(pos_list, scm_from_int(i));
 	 if (scm_is_true(scm_list_p(item))) {
 	    // pos, label pair
 	    unsigned int item_length = scm_to_int(scm_length(item));
@@ -192,9 +193,9 @@ void register_interesting_positions_list_scm(SCM pos_list) {
 	       if (scm_is_true(scm_list_p(item_item_0))) {
 		  unsigned int l_p = scm_to_int(scm_length(item_item_0));
 		  if (l_p == 3) {
-		     SCM x = scm_list_ref(item_item_0, SCM_MAKINUM(0));
-		     SCM y = scm_list_ref(item_item_0, SCM_MAKINUM(1));
-		     SCM z = scm_list_ref(item_item_0, SCM_MAKINUM(2));
+		     SCM x = scm_list_ref(item_item_0, scm_from_int(0));
+		     SCM y = scm_list_ref(item_item_0, scm_from_int(1));
+		     SCM z = scm_list_ref(item_item_0, scm_from_int(2));
 		     if (scm_number_p(x)) { 
 			if (scm_number_p(y)) { 
 			   if (scm_number_p(z)) {
@@ -236,7 +237,7 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 	       PyObject *item_item_0 = PyList_GetItem(item, 0);
 	       PyObject *item_item_1 = PyList_GetItem(item, 1);
 
-	       if (PyString_Check(item_item_1)) {
+	       if (PyUnicode_Check(item_item_1)) {
 		  if (PyList_Check(item_item_0)) {
 
 		     unsigned int l_item_item = PyObject_Length(item_item_0);
@@ -252,7 +253,7 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 				 clipper::Coord_orth pos(PyFloat_AsDouble(x),
 							 PyFloat_AsDouble(y),
 							 PyFloat_AsDouble(z));
-				 std::string s = PyString_AsString(item_item_1);
+				 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(item_item_1));
 				 std::pair<clipper::Coord_orth, std::string> p(pos,s);
 				 v.push_back(p);
 			      }
@@ -354,13 +355,13 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 		   << id.res_type << std::endl;
       if (! id.res_type.empty()) {
 	 SCM parent_spec_scm = residue_spec_to_scm(id.parent_res_spec);
-	 SCM prime_flag_sym = scm_str2symbol("unset");
+	 SCM prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("unset"));
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
-	    prime_flag_sym = scm_str2symbol("prime");
+	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("prime"));
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
-	    prime_flag_sym = scm_str2symbol("non-prime");
+	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("non-prime"));
 
-	 r = SCM_LIST6(SCM_MAKINUM(id.level),
+	 r = SCM_LIST6(scm_from_int(id.level),
 		       prime_flag_sym,
 		       scm_from_locale_string(id.res_type.c_str()),
 		       scm_from_locale_string(id.link_type.c_str()),
@@ -536,16 +537,16 @@ PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py) {
       << id.res_type << std::endl;
       if (! id.res_type.empty()) {
          PyObject *parent_spec_py = residue_spec_to_py(id.parent_res_spec);
-         PyObject *prime_flag_sym = PyString_FromString("unset");
+         PyObject *prime_flag_sym = myPyString_FromString("unset");
          if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
-            prime_flag_sym = PyString_FromString("prime");
+            prime_flag_sym = myPyString_FromString("prime");
          if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
-            prime_flag_sym = PyString_FromString("non-prime");
+            prime_flag_sym = myPyString_FromString("non-prime");
 
-         PyObject *level = PyInt_FromLong(id.level);
-         PyObject *res_type = PyString_FromString(id.res_type.c_str());
-         PyObject *link_type = PyString_FromString(id.link_type.c_str());
-         PyObject *parent = PyString_FromString(id.parent_res_type.c_str());
+         PyObject *level = PyLong_FromLong(id.level);
+         PyObject *res_type = myPyString_FromString(id.res_type.c_str());
+         PyObject *link_type = myPyString_FromString(id.link_type.c_str());
+         PyObject *parent = myPyString_FromString(id.parent_res_type.c_str());
          r = PyList_New(6);
          PyList_SetItem(r, 0, level);
          PyList_SetItem(r, 1, prime_flag_sym);

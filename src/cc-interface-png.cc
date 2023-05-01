@@ -1,4 +1,8 @@
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #ifdef HAVE_CXX11
 #include <cmath>
 #else
@@ -7,9 +11,6 @@
 
 #include <iostream>
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -68,21 +69,21 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    Py_ssize_t pos = 0;
    if (PyDict_Check(text_info_dict_py)) {
       while (PyDict_Next(text_info_dict_py, &pos, &key, &value)) {
-	 std::string key_string = PyString_AsString(key);
+        std::string key_string = PyBytes_AS_STRING(PyUnicode_AsUTF8String(key));
 	 if (key_string == "text") {
-	    if (PyString_Check(value)) {
-	       std::string s = PyString_AsString(value);
+	    if (PyUnicode_Check(value)) {
+              std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value));
 	       text = s;
 	    }
 	 }
 	 if (key_string == "face") {
-	    if (PyString_Check(value)) {
-	       std::string s = PyString_AsString(value);
+	    if (PyUnicode_Check(value)) {
+              std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value));
 	       face = s;
 	    }
 	 }
 	 if (key_string == "font-size") {
-	    if (PyFloat_Check(value) || PyInt_Check(value)) {
+	    if (PyFloat_Check(value) || PyLong_Check(value)) {
 	       double fs = PyFloat_AsDouble(value);
 	       font_size = fs;
 	       std::cout << "debug:: font_size set to " << font_size << std::endl;
@@ -92,16 +93,16 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
 	 }
 	 
 	 if (key_string == "fg-colour") {
-	    if (PyString_Check(value)) {
-	       std::string s = PyString_AsString(value);
+	    if (PyUnicode_Check(value)) {
+              std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value));
 	       if (s.length() == 7)
 		  if (s[0] == '#')
 		     fg_col = coot::colour_holder(s);
 	    }
 	 }
 	 if (key_string == "bg-colour") {
-	    if (PyString_Check(value)) {
-	       std::string s = PyString_AsString(value);
+	    if (PyUnicode_Check(value)) {
+              std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value));
 	       if (s.length() == 7)
 		  if (s[0] == '#')
 		     bg_col = coot::colour_holder(s);
@@ -117,15 +118,15 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
 	    }
 	 }
 	 if (key_string == "npx") {
-	    if (PyInt_Check(value)) {
+	    if (PyLong_Check(value)) {
 	       npx.first = true;
-	       npx.second = PyInt_AsLong(value);
+	       npx.second = PyLong_AsLong(value);
 	    }
 	 }
 	 if (key_string == "npy") {
-	    if (PyInt_Check(value)) {
+	    if (PyLong_Check(value)) {
 	       npy.first = true;
-	       npy.second = PyInt_AsLong(value);
+	       npy.second = PyLong_AsLong(value);
 	    }
 	 }
 	 if (key_string == "atom-spec") {

@@ -21,21 +21,24 @@
 lib_LTLIBRARIES=libcoot-lidia.la
 
 AM_CPPFLAGS = \
+	-DUSE_PYTHON \
 	-I$(top_srcdir) \
         $(GSL_CFLAGS)   \
         $(GOOCANVAS_CFLAGS) \
         $(GTK_CFLAGS)   \
 	$(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(COOT_WINDOWS_CFLAGS) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)      \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)  \
-        $(PYTHON_CFLAGS)
+	$(PYTHON_CPPFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
 
-bin_PROGRAMS = lidia
+libexec_PROGRAMS = lidia-bin
+
+dist_bin_SCRIPTS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc lbg-flev.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc  \
@@ -45,10 +48,11 @@ libcoot_lidia_la_SOURCES = lbg.cc lbg-flev.cc wmolecule.cc  \
 # qed-interface.cc uses a boost::python function directly, so add L_BOOST_PYTHON
 # Thanks Marcin.
 libcoot_lidia_la_LIBADD = \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
 	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
@@ -56,7 +60,7 @@ libcoot_lidia_la_LIBADD = \
 # 
 libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
+lidia_bin_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
 pkginclude_HEADERS = lbg.hh w-atom.hh w-bond.hh wmolecule.hh topological-equivalence.hh \
         graphics-c-interface-functions.hh \
@@ -74,13 +78,17 @@ pkgincludedir = $(includedir)/coot/lbg
 # I have to force the output of libtool.  Bleugh.  Hmm...
 # Anyway, thankyou Gary Vaughan.
 wl=-Wl,
-lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+lidia_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # res spec output operator means we include libcoot-coord-utils
 # (if that is annoying, then remove it and expand it by hand)
 #
-lidia_LDADD = ./libcoot-lidia.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+lidia_bin_LDADD = ./libcoot-lidia.la \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+	$(top_builddir)/utils/libcoot-utils.la            \
         $(MMDB_LIBS) $(GLOB_LIBS) $(GTK_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
 # not needed: linked by dependency libs
@@ -99,8 +107,10 @@ test_lbg_functions_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(GOOCANVAS_LIBS) \
 	$(RDKIT_LIBS) \
-	$(PYTHON_LIBS)
+        $(GTK_LIBS) \
+        $(PYTHON_LIBS)
 
 test_srs_standalone_SOURCES = test-srs-standalone.cc
 test_srs_standalone_LDADD = $(CCP4SRS_LIBS) $(MMDB_LIBS)

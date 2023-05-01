@@ -31,10 +31,13 @@ pyexec_LTLIBRARIES =
 # rdkit includes are in the rdkit directory, boost includes are the (normal) prefix above that
 #
 # ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
-AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
-                      $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
+AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CPPFLAGS) \
+                      $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
 
-AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
+SWIG_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CXXFLAGS) \
+                    $(ENHANCED_LIGAND_TOOLS_CPPFLAGS) -I$(top_srcdir)
+
+AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(CAIRO_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 pyrogen_swig.py: pyrogen-swig.cc
 
@@ -49,8 +52,11 @@ mmdb2.py: mmdb2.cc
 # EXTRA_DIST = pyrogen-swig.i mmdb2.i mmdb-typemaps.i pointers.i mmdb2-interface.cc
 EXTRA_DIST = pyrogen-swig.i
 
+# we can't use AM_CPPFLAGS because that uses PYTHON_CFLAGS which in turn adds
+# -iwithsysroot /System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+# and swig barfs on that. So instead of AM_CPPFLAGS let's make a variable for just swig
 pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/restraints.hh
-	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
+	swig $(SWIG_CPPFLAGS) -o $@ -python -shadow -c++ $<
 
 # weird:
 # mmdb2-interface.cc doesn't have its own object code - it is compiled at the end
@@ -64,7 +70,6 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 #	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
 #	echo '#include "mmdb2-interface.cc"' >> $@
 
-if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
@@ -75,10 +80,14 @@ _pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(top_builddir)/ideal/libcoot-ideal.la             \
+                          $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+                          $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 			  $(top_builddir)/analysis/libcoot-analysis.la       \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
-                          $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(CLIPPER_LIBS) $(MMDB_LIBS) \
-			  $(PYTHON_LIBS)
+			  $(top_builddir)/utils/libcoot-utils.la             \
+                          $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
+                          $(CLIPPER_LIBS) $(MMDB_LIBS) \
+			  $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # What does this do? If we add it, we don't get this message:
 #  `_pyrogen_swig.la' is not a standard libtool library name
@@ -99,12 +108,16 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 # this is a bona fide library
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
-	py-restraints.cc py-restraints.hh restraints-private.hh
+	py-restraints.cc py-restraints.hh restraints-private.hh cairo-molecule.hh \
+	cairo-molecule.cc
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
-                                $(RDKIT_LIBS) $(PYTHON_LIBS)
+                                $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+                                $(top_builddir)/utils/libcoot-utils.la       \
+                                $(CLIPPER_LIBS) $(MMDB_LIBS) \
+                                $(RDKIT_LIBS) $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
@@ -116,16 +129,17 @@ pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
 pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/pli/libcoot-pli.la                 \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
+                                $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                                $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+                                $(MMDB_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 
 libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
 if OS_WIN32
 # need to dist pyrogen.bat too
-dist_bin_SCRIPTS = pyrogen.bat
+dist_bin_SCRIPTS = pyrogen.bat pyrogen
 else
 dist_bin_SCRIPTS = pyrogen
 endif
@@ -150,5 +164,4 @@ endif
 clean-local: 
 	rm -f _pyrogen_swig.so
 
-endif
 endif

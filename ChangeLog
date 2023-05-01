@@ -1,3 +1,70 @@
+2022-04-14  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.0.04
+
+2022-04-12  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.0.03
+
+2022-04-04  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.0.01
+
+2022-04-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1
+2022-09-17  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.4
+
+2022-05-31  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.2
+
+2022-03-18  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.1
+
+2022-03-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8
+
+2022-01-24  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.7
+
+2021-07-02  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.6
+
+2021-03-16  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.5
+
+2021-02-02  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9.4.1
+
+2021-01-29  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9.4
+
+2020-10-18  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9.3
+
+2020-10-02  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9.2
+
+2020-09-25  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9.1
+
+2020-04-01  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.9
+
 2018-04-01  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
 
 	* Release 0.8.9.2
@@ -25,7 +92,7 @@
 2016-08-08  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
 
 	* Release 0.8.5
-	
+
 2016-07-28  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
 
 	* Release 0.8.4
@@ -333,13 +400,13 @@
 	* src/c-interface.cc: function to set the default bond thickness,
 	saved/used in save_state_file().
 
-	* src/c-interface-build.cc: (on_merge_molecules_check_button_toggled): 
+	* src/c-interface-build.cc: (on_merge_molecules_check_button_toggled):
 	  Use GPOINTER_TO_INT to type user data. LTE bug.
 
 	* src/c-interface-build.cc (execute_refmac): Use GPOINTER_TO_INT
 	to get user data from active item. LTE bug.
 
-	* src/c-interface.cc (on_filename_filter_toggle_button_toggled): 
+	* src/c-interface.cc (on_filename_filter_toggle_button_toggled):
 	  Use GPOINTER_TO_INT to type user data. LTE bug.
 
 	* src/graphics-info-modelling.cc: (rot_trans_adjustment_changed):
@@ -556,7 +623,7 @@
 	* src/c-interface.cc (safe-scheme-command).  Now returns a value,
 	SCM, which can be decoded in the calling function.  A good thing.
 	[This means that libguile.h had to be included in c-interface.h].	    
- 
+
 2006-04-15  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* coot-utils/peak-search.hh (coot): remove extra qualification for

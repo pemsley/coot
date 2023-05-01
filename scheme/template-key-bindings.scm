@@ -136,12 +136,25 @@
 ;; (add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
 
 (add-key-binding "JED-flip" "F"
-   (lambda () (using-active-atom
-	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 0))))
+   (lambda ()
+
+     (let ((status (jed-flip-intermediate-atoms)))
+       ;; (format #t "status: ~s~%" status)
+       (if (= status 0)
+           (using-active-atom
+            (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code
+                      aa-atom-name aa-alt-conf 0))))))
 
 (add-key-binding "Reverse JED-flip" "G"
-   (lambda () (using-active-atom
-	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 1))))
+   (lambda ()
+
+     (let ((status (jed-flip-intermediate-atoms)))
+       ;; (format #t "status: ~s~%" status)
+       (if (= status 0)
+           (using-active-atom
+            (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code
+                      aa-atom-name aa-alt-conf 1))))))
+
 
 
 ;; not sure about this one :-)

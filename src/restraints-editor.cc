@@ -36,8 +36,6 @@
 #include <string.h>  // strcpy
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
 #include "interface.h"
 #include "support.h"
 
@@ -53,13 +51,18 @@
 
 #include "graphics-info.h"
 
+#include "widget-from-builder.hh"
+
 std::vector<coot::restraints_editor> graphics_info_t::restraints_editors;
 
 void
 coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
-   dialog = create_restraints_editor_dialog(); // defined in interface.h
-//    std::cout << "restraints editor saving "
-// 	     << dialog << std::endl;
+
+   // dialog = create_restraints_editor_dialog(); // defined in interface.h
+   dialog = widget_from_builder("restraints_editor_dialog");
+
+   //    std::cout << "restraints editor saving "
+   // 	     << dialog << std::endl;
    fill_info_tree_data   (dialog, restraints);
    fill_atom_tree_data   (dialog, restraints);
    fill_bond_tree_data   (dialog, restraints);
@@ -76,30 +79,37 @@ void
 coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog,
 					     const coot::dictionary_residue_restraints_t &restraints) { 
 
-   GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, 
-					     "atoms_treeview");
-   
+   // GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");
+   GtkWidget *atoms_treeview = widget_from_builder("atoms_treeview");
 
    GtkTreeView *tv_atoms = GTK_TREE_VIEW(atoms_treeview);
    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-							G_TYPE_FLOAT);
+							// G_TYPE_FLOAT  // for partial change
+                                                        G_TYPE_INT // for formal change
+                                                        );
+
    view_and_store_atoms.store = tree_store_atoms;
    view_and_store_atoms.view  = tv_atoms;
    
-   GtkTreeIter   toplevel;
+   GtkTreeIter toplevel;
    gtk_tree_view_set_model(tv_atoms, GTK_TREE_MODEL(tree_store_atoms));
 
    for (unsigned int i=0; i<restraints.atom_info.size(); i++) {
       gtk_tree_store_append(tree_store_atoms, &toplevel, NULL);
-      std::pair<bool, float> pcp = restraints.atom_info[i].partial_charge;
-      float pc = pcp.second;
-      if (! pcp.first)
-	 pc = -999.99;
+
+      // std::pair<bool, float> pcp = restraints.atom_info[i].partial_charge;
+      // float pc = pcp.second;
+      // if (! pcp.first) pc = -999.99;
+
+      std::pair<bool, int> fcp = restraints.atom_info[i].formal_charge;
+      int fc = 0;
+      if (fcp.first) fc = fcp.second;
+
       gtk_tree_store_set(tree_store_atoms, &toplevel,
 			 0, restraints.atom_info[i].atom_id_4c.c_str(),
 			 1, restraints.atom_info[i].type_symbol.c_str(),
 			 2, restraints.atom_info[i].type_energy.c_str(),
-			 3, pc, 
+			 3, fc,
 			 -1);
    }
 
@@ -107,7 +117,8 @@ coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog
    add_cell_renderer(tv_atoms, tree_store_atoms, "Atom Name",      0, tree_type);
    add_cell_renderer(tv_atoms, tree_store_atoms, "Element",        1, tree_type);
    add_cell_renderer(tv_atoms, tree_store_atoms, "Energy Type",    2, tree_type);
-   add_cell_renderer(tv_atoms, tree_store_atoms, "Partial Charge", 3, tree_type);
+   // add_cell_renderer(tv_atoms, tree_store_atoms, "Partial Charge", 3, tree_type);  not today.
+   add_cell_renderer(tv_atoms, tree_store_atoms, "Formal Charge", 3, tree_type);
 }
 
 GtkCellRenderer *
@@ -217,12 +228,12 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
    if (tree_type == coot::restraints_editor::TREE_TYPE_ATOMS) {
       switch(column_number) {
       case(3):
-	 r = G_TYPE_FLOAT;
+	 r = G_TYPE_INT; // now formal chage (was partial charge)
 	 break;
       default:
 	 r = G_TYPE_STRING;
-      } 
-   } 
+      }
+   }
    if (tree_type == coot::restraints_editor::TREE_TYPE_CHIRALS) {
       switch(column_number) {
       case(5):
@@ -287,8 +298,8 @@ coot::restraints_editor::get_column_type(int tree_type, int column_number, int m
 void coot::restraints_editor::fill_angle_tree_data(GtkWidget *restraints_editor_dialog,
 						   const coot::dictionary_residue_restraints_t &restraints) {
    
-   GtkWidget *angles_treeview = lookup_widget(restraints_editor_dialog, 
-					      "angles_treeview");
+   // GtkWidget *angles_treeview = lookup_widget(restraints_editor_dialog, "angles_treeview");
+   GtkWidget *angles_treeview = widget_from_builder("angles_treeview");
    
    GtkTreeView *tv_angles = GTK_TREE_VIEW(angles_treeview);
    GtkTreeStore *tree_store_angles =
@@ -324,8 +335,8 @@ void
 coot::restraints_editor::fill_info_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *info_treeview = lookup_widget(restraints_editor_dialog, 
-					    "info_treeview");
+   // GtkWidget *info_treeview = lookup_widget(restraints_editor_dialog, "info_treeview");
+   GtkWidget *info_treeview = widget_from_builder("info_treeview");
    
    GtkTreeView *tv_info = GTK_TREE_VIEW(info_treeview);
    GtkTreeStore *tree_store_info =
@@ -373,11 +384,11 @@ void
 coot::restraints_editor::fill_bond_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *bonds_treeview = lookup_widget(restraints_editor_dialog, "bonds_treeview");
+   // GtkWidget *bonds_treeview = lookup_widget(restraints_editor_dialog, "bonds_treeview");
+   GtkWidget *bonds_treeview = widget_from_builder("bonds_treeview");
    GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
-   GtkTreeStore *tree_store_bonds =
-      gtk_tree_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-			  G_TYPE_FLOAT, G_TYPE_FLOAT);
+   GtkTreeStore *tree_store_bonds = gtk_tree_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                                                        G_TYPE_FLOAT, G_TYPE_FLOAT);
    view_and_store_bonds.view = tv_bonds;
    view_and_store_bonds.store = tree_store_bonds;
 
@@ -434,8 +445,8 @@ void
 coot::restraints_editor::fill_torsion_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *torsions_treeview = lookup_widget(restraints_editor_dialog, 
-						"torsions_treeview");
+   // GtkWidget *torsions_treeview = lookup_widget(restraints_editor_dialog, "torsions_treeview");
+   GtkWidget *torsions_treeview = widget_from_builder("torsions_treeview");
 
    GtkTreeView *tv_torsions = GTK_TREE_VIEW(torsions_treeview);
    GtkTreeStore *tree_store_torsions =
@@ -477,8 +488,8 @@ void
 coot::restraints_editor::fill_chiral_tree_data(GtkWidget *restraints_editor_dialog,
 			 const coot::dictionary_residue_restraints_t &restraints) {
 
-   GtkWidget *chirals_treeview = lookup_widget(restraints_editor_dialog, 
-					     "chirals_treeview");
+   // GtkWidget *chirals_treeview = lookup_widget(restraints_editor_dialog, "chirals_treeview");
+   GtkWidget *chirals_treeview = widget_from_builder("chirals_treeview");
 
    GtkTreeView *tv_chirals = GTK_TREE_VIEW(chirals_treeview);
    GtkTreeStore *tree_store_chirals =
@@ -518,8 +529,8 @@ void
 coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialog,
 			  const coot::dictionary_residue_restraints_t &restraints) {
    
-   GtkWidget *planes_treeview = lookup_widget(restraints_editor_dialog, 
-					     "planes_treeview");
+   // GtkWidget *planes_treeview = lookup_widget(restraints_editor_dialog, "planes_treeview");
+   GtkWidget *planes_treeview = widget_from_builder("planes_treeview");
 
    GtkTreeView *tv_planes = GTK_TREE_VIEW(planes_treeview);
    
@@ -842,7 +853,7 @@ coot::restraints_editor::get_bond_restraints() const {
  	  (type.length() > 0)  &&
  	  (dist > 0.0)         &&
  	  (esd > 0.0)) { 
- 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd);
+ 	 coot::dict_bond_restraint_t rest(atom1, atom2, type, dist, esd, 0.0, 0.0, false);
 // 	 std::cout << "added a bond restraint ";
 // 	 std::cout << ":" << atom1 << ": :" << atom2 << ": :" << type << ": " << dist << " " << esd << std::endl;
 
@@ -1129,7 +1140,8 @@ coot::restraints_editor::get_atom_info() const {
       std::string atom_name("");
       std::string atom_element("");
       std::string energy_type("");
-      float partial_charge = -100.0;
+      float partial_charge = -100.0; // not used now
+      int formal_charge = 0;
       for (int col_no=0; col_no<4; col_no++) {
 	 int col_type = get_column_type(coot::restraints_editor::TREE_TYPE_ATOMS, col_no, -1);
 	 if (col_type == G_TYPE_STRING) { 
@@ -1144,24 +1156,30 @@ coot::restraints_editor::get_atom_info() const {
 	       energy_type = place_string_here;
 	 }
 	 if (col_type == G_TYPE_FLOAT) {
-	    float f;
-	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &f, -1);
-	    if (col_no == 3)
-	       partial_charge = f;
+	    // float f;
+	    // gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &f, -1);
+            int i;
+	    gtk_tree_model_get(GTK_TREE_MODEL(view_and_store_atoms.store), &iter, col_no, &i, -1);
+	    // if (col_no == 3)
+            // partial_charge = f;
+            if (col_no == 3)
+               formal_charge = i;
 	 }
       }
       v = gtk_tree_model_iter_next (GTK_TREE_MODEL(view_and_store_atoms.store), &iter);
 
-      if ((atom_name.length() > 0)    &&
+      if ((atom_name.length()    > 0) &&
 	  (atom_element.length() > 0) &&
- 	  (energy_type.length() > 0)) {
-	 std::pair<bool, float> part_charge_pair(0, partial_charge); // invalid
-	 if (partial_charge > -99.9) { 
-	    part_charge_pair.first = 1; // valid
+ 	  (energy_type.length()  > 0)) {
+	 std::pair<bool, float> part_charge_pair(false, partial_charge); // invalid
+	 if (partial_charge > -99.9) {
+	    part_charge_pair.first = true; // make valid
 	    have_partial_charges_flag = 1;
 	 }
-	 
+
+         std::pair<bool, int> formal_charge_pair(true, formal_charge);
  	 coot::dict_atom info(atom_name, atom_name, atom_element, energy_type, part_charge_pair);
+         info.formal_charge = formal_charge_pair; // not part of a constructor. Maybe change that in future.
 //  	 std::cout << "added a atom info ";
 // 	 std::cout << ":" << atom_name << ": :" << atom_element << ": :" << energy_type << ": " << partial_charge
 // 		   << " " << part_charge_pair.first << std::endl;
@@ -1295,18 +1313,22 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
    graphics_info_t g;
    coot::restraints_editor re = g.get_restraints_editor(w);
    if (re.is_valid()) {
-      GtkWidget *ww = create_save_restraint_chooserdialog();
+      // GtkWidget *ww = create_save_restraint_chooserdialog();
+      GtkWidget *ww = widget_from_builder("save_restraint_chooserdialog");
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
 
       filename += r.residue_info.comp_id;
       filename += ".cif";
-#if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))
+#if (GTK_MAJOR_VERSION >= 4)
+      // 20220602-PE FIXME overwrite confirmationn
 #else
       gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(w), TRUE);
-#endif      
+#endif
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(ww), filename.c_str());
-      add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
+
+      // bye bye CCP4i interface.
+      // add_ccp4i_project_optionmenu(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       add_filename_filter_button(ww, COOT_CIF_DICTIONARY_FILE_SELECTION);
       coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
       *ptr = r;
@@ -1319,11 +1341,18 @@ void save_monomer_restraints_by_widget(GtkDialog *chooser) {
 
    // recall the restraints come from reading the entries in the dialog
    // 
-   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+   // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+
+   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(chooser));
+   GError *error = NULL;
+   GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                            G_FILE_QUERY_INFO_NONE, NULL, &error);
+   const char *filename = g_file_info_get_name(file_info);
+   
    coot::dictionary_residue_restraints_t *t =
       (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
    t->write_cif(filename);
-} 
+}
 
 
 void restraints_editor_delete_restraint_by_widget(GtkWidget *w) {
@@ -1343,7 +1372,9 @@ coot::restraints_editor::delete_restraint(GtkWidget *w) {
       
    GtkTreeIter   iter;
    
-   GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   // GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   GtkWidget *nb = widget_from_builder("restraints_editor_notebook");
+
    GtkNotebook *notebook = GTK_NOTEBOOK(nb);
    gint current_page_index = gtk_notebook_get_current_page(notebook);
    if (current_page_index != -1) { 
@@ -1375,7 +1406,8 @@ coot::restraints_editor::add_restraint(GtkWidget *w) {
    //model and view
    GtkTreeIter   iter;
    
-   GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   // GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
+   GtkWidget *nb = widget_from_builder("restraints_editor_notebook");
    GtkNotebook *notebook = GTK_NOTEBOOK(nb);
    gint current_page_index = gtk_notebook_get_current_page(notebook);
    if (current_page_index != -1) { 
@@ -1456,4 +1488,3 @@ coot::restraints_editor::get_tree_view_by_notebook_page(gint current_page_index)
    return tree_view;
 }
 
-#endif // (GTK_MAJOR_VERSION > 1)

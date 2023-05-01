@@ -97,6 +97,8 @@ coot::simple_rotamer::simple_rotamer(std::string rotamer_name,
    chi3 = chi_3_mode;
    chi4 = chi_4_mode;
 
+   nr1234  = -1; // not used
+
    // the awk program put in dummy -5555 for chi_mode values that have
    // not been assigned.  This is because they are "additionally
    // allowed" - not real rotamers.
@@ -158,7 +160,7 @@ coot::chi_angles::add_IUPAC_extras_PHE_and_TYR_rotamers() {
 	 if (typed_rotamers[i].Type() == restype[irestype]) {
 
 	    // look for rotamers with fabs(chi2) > 70:
-	    std::vector<simple_rotamer> simple_rotamers = typed_rotamers[i].simple_rotamers();
+	    std::vector<simple_rotamer> simple_rotamers = typed_rotamers[i].get_simple_rotamers();
 	    for (unsigned int irot=0; irot<simple_rotamers.size(); irot++) {
 	       if (fabs(simple_rotamers[irot].Chi2()) > 70.0) {
 		  // create a simple rotamer and add it to typed_rotamers[i]
@@ -270,7 +272,16 @@ coot::chi_angles::add_chi_quad(const std::string &residue_type,
 std::ostream&
 coot::operator<<(std::ostream &s, coot::simple_rotamer rot) {
 
-   s <<
+   if (rot.rotamer_type == simple_rotamer::RICHARDSON_ROTAMER) {
+
+      s << " chi1: " << rot.chi1
+        << " chi2: " << rot.chi2
+        << " chi3: " << rot.chi3
+        << " chi4: " << rot.chi4;
+
+   } else {
+
+      s <<
       rot.rot1 << " " <<     
       rot.rot2 << " " <<      
       rot.rot3 << " " <<      
@@ -289,6 +300,7 @@ coot::operator<<(std::ostream &s, coot::simple_rotamer rot) {
       rot.sig_chi3 << " " <<  
       rot.chi4 << " " <<      
       rot.sig_chi4;
+   }
 
    return s;
 } 
@@ -424,7 +436,7 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 
    bool add_reverse_contacts = 0;
    std::vector<std::vector<int> > contact_indices =
-      coot::util::get_contact_indices_from_restraints(residue, geom_p, 1, add_reverse_contacts);
+      util::get_contact_indices_from_restraints(residue, geom_p, 1, add_reverse_contacts);
 
    std::string resname(residue->GetResName());
 
@@ -481,7 +493,7 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 
       if (ordered_residue_atoms)
 	 contact_indices =
-	    coot::util::get_contact_indices_for_PRO_residue(ordered_residue_atoms,
+	    util::get_contact_indices_for_PRO_residue(ordered_residue_atoms,
 							    nResidueAtoms, geom_p);
    } // end of specific PRO-logic
 
@@ -686,8 +698,6 @@ coot::chi_angles::change_by_internal(int ichi,
 				     int nResidueAtoms,
 				     const coot::atom_spec_t &tree_base_atom) {
 
-   // std::cout << "change_by_internal()..." << std::endl;
-   
    std::pair<short int, float> p(0, 0.0);
    
    // Let's make the coordinates:
@@ -705,7 +715,7 @@ coot::chi_angles::change_by_internal(int ichi,
 
 
    // debugging
-   if (0) {
+   if (false) {
       std::cout << " -----------   pairs ---------------- " << std::endl;
       for(unsigned int i=0; i<atom_index_pairs.size(); i++)
 	 std::cout << "pair " << i << ": " << atom_index_pairs[i].index1
@@ -819,7 +829,7 @@ coot::chi_angles::change_by_internal(int ichi,
       p.first = 1;
    } 
 
-   if (0) { 
+   if (0) {
       std::cout << "change_by_internal()... returns " << p.first << " "
 		<< p.second << std::endl;
    }

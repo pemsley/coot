@@ -120,6 +120,29 @@ ccp4_setup(int argc, char **argv) {
    return 0; 
 }
 
+int test_improper_dihdedrals(int argc, char **argv) {
+
+   coot::protein_geometry prot;
+   prot.init_standard();
+   int n = prot.size();
+
+   for (int i=0; i<n; i++) {
+      const std::pair<int, coot::dictionary_residue_restraints_t> rest = prot[i];
+      int n_pl_rest = rest.second.plane_restraint.size();
+      std::cout << "# type " << rest.second.residue_info.comp_id << " " << n_pl_rest << " plane restraints"
+                << std::endl;
+      for (int j=0; j<n_pl_rest; j++) {
+	 std::vector<coot::atom_name_quad> qv = rest.second.plane_restraint_to_improper_dihedrals(j);
+	 for (std::size_t k=0; k<qv.size(); k++) {
+	    std::cout << "    Here they are: " << k << " " << qv[k] << std::endl;
+	 }
+	 std::cout << "   " << rest.second.residue_info.comp_id << " " << j  << " got "
+		   << qv.size() << " atom name quads " << std::endl;
+      }
+   }
+   return 0;
+}
+
 void
 test_quick_hbs() {
 
@@ -131,9 +154,10 @@ test_quick_hbs() {
 
 int main(int argc, char **argv) {
 
-   // ccp4_setup(argc, argv);
+   // test_quick_hbs();
 
-   test_quick_hbs();
+   test_improper_dihdedrals(argc, argv);
+
 
    return 0;
 }

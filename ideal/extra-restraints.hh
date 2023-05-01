@@ -85,9 +85,18 @@ namespace coot {
 	    } else {
 	       std::cout << "not found bond restraint between " << br.atom_1 <<  " " << br.atom_2 << std::endl;
 	       return false;
-	    } 
-	 } 
+	    }
+	 }
       };
+
+
+      class extra_geman_mcclure_restraint_t : public extra_bond_restraint_t {
+
+      public:
+	 extra_geman_mcclure_restraint_t() {}
+	 extra_geman_mcclure_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) : extra_bond_restraint_t(a1, a2, d, e) {}
+      };
+
         
       class extra_angle_restraint_t {
       public:
@@ -128,7 +137,7 @@ namespace coot {
 	    period = period_in;
 	 }
       };
-      
+
       class extra_start_pos_restraint_t {
       public:
 	 atom_spec_t atom_1;
@@ -139,10 +148,24 @@ namespace coot {
 	 }
       };
 
+      class extra_target_position_restraint_t {
+      public:
+	 atom_spec_t atom_spec;
+	 clipper::Coord_orth pos;
+	 double weight;
+	 extra_target_position_restraint_t(const atom_spec_t &as, const clipper::Coord_orth &pos_in, double w) {
+	    atom_spec = as;
+	    weight = w;
+	    pos = pos_in;
+	 }
+      };
+
       std::vector<extra_bond_restraint_t> bond_restraints;
       std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
+      std::vector<extra_geman_mcclure_restraint_t> geman_mcclure_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
+      std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
 
       void read_refmac_extra_restraints(const std::string &file_name);
@@ -158,7 +181,11 @@ namespace coot {
 	    return true;
 	 else if (parallel_plane_restraints.size() > 0)
 	    return true;
-	 else 
+	 else if (target_position_restraints.size() > 0)
+	    return true;
+	 else if (geman_mcclure_restraints.size() > 0)
+	    return true;
+	 else
 	    return false;
       }
       
@@ -168,7 +195,9 @@ namespace coot {
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
          parallel_plane_restraints.clear();
+	 geman_mcclure_restraints.clear();
       }
+
       void add_restraints(const extra_restraints_t &r) {
 	 for (unsigned int i=0; i<r.bond_restraints.size(); i++)
 	    bond_restraints.push_back(r.bond_restraints[i]);
@@ -181,6 +210,7 @@ namespace coot {
 	 for (unsigned int i=0; i<r.parallel_plane_restraints.size(); i++)
 	    parallel_plane_restraints.push_back(r.parallel_plane_restraints[i]);
       }
+
       void delete_restraints_for_residue(const residue_spec_t &rs);
       // updates restraint on atom if it can, else adds
       void add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in) {

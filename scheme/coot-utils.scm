@@ -32,8 +32,7 @@
 ;; used in Extensions -> Representation -> Ball & Stick
 (define *default-ball-and-stick-selection* "//A/1-2")
 
-(load-by-search "redefine-functions.scm")
-
+;; (load "redefine-functions.scm")
 
 ;; documented functions
 
@@ -152,7 +151,7 @@
 			(if (= status 0)
 			    new-dir
 			    #f))))))))))
-      
+
 
 ;; schemify function
 ;; 
@@ -224,6 +223,9 @@
 ;; do something based on the active residue (presumably)
 (define post-set-rotation-centre-hook #f)
 
+;; a function that takes one argument (the model molecule number)
+(define post-read-model-hook #f)
+
 ;; Return a boolean
 ;; 
 (define (pre-release?)
@@ -249,6 +251,9 @@
 (define (model-molecule-number-list)
   (filter valid-model-molecule? (molecule-number-list)))
 
+(define (display-all-maps)
+  (let ((map-list (map-molecule-list)))
+    (for-each (lambda (imol) (set-map-displayed imol 1)) map-list)))
 
 
 ;; c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
@@ -263,8 +268,7 @@
 	      map-list)
     (set-map-displayed imol-map 1)))
 
-
-(define (just-one-or-next-map)
+(define (display-cycle-through-maps)
 
   ;; return an index or #f, lst must be a list
   (define (find-in-list item lst)
@@ -302,9 +306,18 @@
        ((= n-displayed 0) (if (> (length map-list) 0)
 			      (undisplay-all-maps-except (car map-list))))
        ((= n-displayed 1) (if (> (length map-list) 1)
-			      (undisplay-all-maps-except (next-map (car current-displayed-maps)
-								   map-list))))
-       (else (undisplay-all-maps-except (car (reverse current-displayed-maps)))))))))
+                              (let ((nm (next-map (car current-displayed-maps) map-list))
+                                    (currently-displayed-map (car current-displayed-maps)))
+                                (if (> nm currently-displayed-map)
+                                    (undisplay-all-maps-except nm)
+                                    (display-all-maps)))))
+
+       (else (undisplay-all-maps-except (car current-displayed-maps))))))))
+
+;; is isn't quite because one of the options is "all"
+(define (just-one-or-next-map)
+  (display-cycle-through-maps))
+
 
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.
@@ -443,6 +456,12 @@
       #f
       (car (cadr ra))))
 
+;; residue-info atom
+(define (residue-atom->position ra)
+  (if (not (list? ra))
+      #f
+      (list-ref ra 2)))
+
 ;; residue-info atom needs other parameters to make a spec for an atom
 (define (residue-atom->atom-spec ra chain-id res-no ins-code)
   (list chain-id res-no ins-code (residue-atom->atom-name ra) (residue-atom->alt-conf ra)))
@@ -495,10 +514,15 @@
 	      (cadr atom-spec)))))
 
 (define (residue-spec->residue-name imol spec)
-  (residue-name imol 
-		(list-ref spec 1)
-		(list-ref spec 2)
-		(list-ref spec 3)))
+  (if (= (length spec) 4)
+      (residue-name imol
+		    (list-ref spec 1)
+		    (list-ref spec 2)
+		    (list-ref spec 3))
+      (residue-name imol
+		    (list-ref spec 0)
+		    (list-ref spec 1)
+		    (list-ref spec 2))))
 
 ;; for sorting residue specs
 (define (residue-spec-less-than spec-1 spec-2)
@@ -593,9 +617,9 @@
   (cond 
    ((eq? type 'flat) (vt-surface 1))
    ((eq? type 'spherical-surface) (vt-surface 0))
-   (else 
+   (else
 					; usually not output anywhere
-    (format #t "virtual trackball type ~s not understood~%"))))
+    (format #t "virtual trackball type ~s not understood~%" type))))
     
 ;; Is @var{ls} a list of strings?  Return #t or #f
 ;; 
@@ -791,39 +815,39 @@
   (if (not (command-in-path-or-absolute? cmd))
       
       (begin 
-	(format #t "command ~s not found~%" cmd)
-	255)
+        (format #t "command ~s not found~%" cmd)
+        255)
 
       (let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
-	     (pid (car cmd-ports))
-	     (output-port (car (cdr cmd-ports)))
-	     (input-port  (cdr (cdr cmd-ports))))
-	
-	(let loop ((data-list data-list))
-	  (if (null? data-list)
-	      (begin 
-		(close input-port))
-	      
-	      (begin
-		(format input-port "~a~%" (car data-list))
-		(loop (cdr data-list)))))
-	
-	(call-with-output-file log-file-name
-	  (lambda (log-file-port)
-	    
-	    (let f ((obj (read-line output-port)))
-	      (if (eof-object? obj)
-		  (begin 
-		    (let* ((status-info (waitpid pid))
-			   (status (status:exit-val (cdr status-info))))
-		      ;; (format #t "exit status: ~s~%" status) silence
-		      status)) ; return status 
-		  
-		  (begin
-		    (if (eq? screen-output-also? #t)
-			(format #t ":~a~%" obj))
-		    (format log-file-port "~a~%" obj)
-		    (f (read-line output-port))))))))))
+             (pid (car cmd-ports))
+             (output-port (car (cdr cmd-ports)))
+             (input-port  (cdr (cdr cmd-ports))))
+
+        (let loop ((data-list data-list))
+          (if (null? data-list)
+              (begin
+                (close input-port))
+
+              (begin
+                (format input-port "~a~%" (car data-list))
+                (loop (cdr data-list)))))
+
+        (call-with-output-file log-file-name
+          (lambda (log-file-port)
+
+            (let f ((obj (read-line output-port)))
+              (if (eof-object? obj)
+                  (begin
+                    (let* ((status-info (waitpid pid))
+                           (status (status:exit-val (cdr status-info))))
+                      ;; (format #t "exit status: ~s~%" status) silence
+                      status)) ; return status
+
+                  (begin
+                    (if (eq? screen-output-also? #t)
+                        (format #t ":~a~%" obj))
+                    (format log-file-port "~a~%" obj)
+                    (f (read-line output-port))))))))))
 
 (define (ok-goosh-status? status)
 
@@ -1191,6 +1215,23 @@
 	  #f
 	  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))))
 
+;; the first elements are directories, the last is the file name
+;; c.f. os.path.join
+;; 
+(define (join-dir-file path-elements)
+  (if (null? path-elements)
+      ""
+      (let ((fn (car (reverse path-elements)))
+	    (dirs (reverse (cdr (reverse path-elements)))))
+	(let ((running ""))
+	  (for-each (lambda (d)
+		      (set! running (append-dir-dir running d)))
+		    dirs)
+	  ;; (format #t "dirs: ~s~%" dirs)
+	  ;; (format #t "fn: ~s~%" fn)
+	  (append-dir-file running fn)))))
+
+
 ;; remove any trailing /s
 ;; 
 (define (directory-as-file-name dir)
@@ -1428,7 +1469,7 @@
    ((eq? axis 'y) (list 0 length 0))
    ((eq? axis 'z) (list 0 0 length))
    (else 
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Rotate degrees about screen axis, where axis is either 'x, 'y or 'z.
@@ -1480,7 +1521,7 @@
    ((eq? axis 'y) (mult view-matrix (simple-rotation-y (deg-to-rad degrees))))
    ((eq? axis 'z) (mult view-matrix (simple-rotation-z (deg-to-rad degrees))))
    (else
-    (format #t "symbol axis: ~s incomprehensible~%")
+    (format #t "symbol axis: ~s incomprehensible~%" axis)
     #f)))
 
 ;; Support for old toggle functions.  (consider instead the raw
@@ -1570,9 +1611,9 @@
 
     (define tf
       (lambda (imol mat trans about-pt radius space-group cell)
-	
-;	(format #t "DEBUG:: tf was passed imol: ~s, trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
-;		imol mat trans about-pt radius space-group cell)
+
+	(format #t "DEBUG:: tf was passed imol: ~s, mat: ~s trans: ~s, about-pt: ~s, radius: ~s, space-group: ~s, cell: ~s~%"
+		imol mat trans about-pt radius space-group cell)
 
 	(transform-map-raw imol 
 			   (list-ref mat 0) 
@@ -1598,7 +1639,8 @@
 			   (list-ref cell 3) 
 			   (list-ref cell 4) 
 			   (list-ref cell 5))))
-    
+
+    (format #t  "debug:: transform-map was passed ~s~%" args)
 
     ;; main line
     (cond 
@@ -1623,9 +1665,12 @@
       (let ((imol (car args)))
 	(tf imol
 	    (identity-matrix)
-	    (list-ref args 1)
-	    (list-ref args 2)
-	    (list-ref args 3)
+            (list
+             (list-ref args 1)
+             (list-ref args 2)
+             (list-ref args 3))
+            (rotation-centre)
+            (list-ref (cell imol) 0)
 	    (space-group imol)
 	    (cell imol))))
      ((= (length args) 3) ; no matrix or about point specified
@@ -1678,13 +1723,55 @@
   (let ((space-group (symmetry-operators->xHM 
 		      (symmetry-operators imol-ref)))
 	(cell-params (cell imol-ref)))
+
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-ref ~s~%" imol-ref)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-mov ~s~%" imol-mov)
+    (format #t "debug:: transform-map-using-lsq-matrix: imol-map ~s~%" imol-map)
+    (format #t "debug:: transform-map-using-lsq-matrix: symmetry-operators imol-ref ~s~%" (symmetry-operators imol-ref))
+    (format #t "debug:: transform-map-using-lsq-matrix: space-group ~s~%" space-group)
+    (format #t "debug:: transform-map-using-lsq-matrix: cell-params ~s~%" cell-params)
     
     (if (not (and space-group cell-params))
-	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
-			       cell space-group imol-ref)))
+	(let ((message (format #f "Bad cell or symmetry ~s ~s for molecule ~s~%"
+			       cell-params space-group imol-ref)))
 	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
+
+
+;; Add molecular symmetry to a model molecule - the rotation is an n-fold rotation
+;; around the middle of the map (this is typically the way symmetry is *imposed* during
+;; reconstruction in cryo-EM).
+;; 
+(define (add-z-axis-model-molecular-symmetry imol-model imol-map n-fold)
+
+  (let* ((unit-cell (cell imol-map))
+         (angle-deg (/ 360 n-fold))
+         (angle-rad (* 3.14159226 0.00555555555 angle-deg))
+         (box-centre (map (lambda (x) (* x 0.5)) (list-head unit-cell 3))))
+
+    (for-each (lambda (n-copy)
+
+                (let* ((theta (* angle-rad n-copy))
+                       (cos-theta (cos theta))
+                       (sin-theta (sin theta))
+                       (r00 cos-theta) (r01 (- sin-theta)) (r02 0)
+                       (r10 sin-theta) (r11 cos-theta)     (r12 0)
+                       (r20 0)         (r21 0)             (r22 1)
+                       )
+
+                  (format #t "theta: ~s n-copy ~s~%" theta n-copy)
+
+                  (add-molecular-symmetry imol-model
+                                          r00 r01 r02
+                                          r10 r11 r12
+                                          r20 r21 r22
+                                          (list-ref box-centre 0)
+                                          (list-ref box-centre 1)
+                                          (list-ref box-centre 2))))
+              (cdr (range n-fold))))) ;; by-pass self (angle is zero)
+
+
 
 
 ;; Make the imol-th map brighter.
@@ -1766,13 +1853,6 @@
   (valid-map-molecule? (imol-refinement-map)))
 
 
-;; schemey interface to shelx molecule test
-;; 
-;; Return #t or #f.
-;; 
-(define (shelx-molecule? imol)
-  (= (is-shelx-molecule imol) 1))
-
 ;; schemey interface to the function that returns whether or not a map
 ;; is a difference map.  
 ;;
@@ -1836,7 +1916,9 @@
 	 (string-append " " al)))))
 
 (define (atom-spec->residue-spec atom-spec)
-  (list-head (cddr atom-spec) 3))
+  (if (= (length atom-spec) 5)
+      (list-head atom-spec 3)
+      (list-head (cddr atom-spec) 3)))
 
 
 ;; return a guess at the map to be refined (usually called after
@@ -1910,15 +1992,19 @@
   ;; chi squareds will be about 1.0).
   ;; 
   (define (weight-scale-from-refinement-results rr)
+
     (if (not (list? rr))
 	#f
-	(let* ((nnb-list (no-non-bonded (list-ref rr 2)))
-	       (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
-	       (n (length chi-squares))
-	       (sum (apply + chi-squares)))
-	  (if (= n 0)
-	      #f
-	      (/ sum n)))))
+        (let ((results-inner (list-ref rr 2)))
+          (if (null? results-inner)
+              #f
+              (let* ((nnb-list (no-non-bonded results-inner))
+                     (chi-squares (map (lambda (x) (list-ref x 2)) nnb-list))
+                     (n (length chi-squares))
+                     (sum (apply + chi-squares)))
+                (if (= n 0)
+                    #f
+                    (/ sum n)))))))
 
   
   ;; main body
@@ -2006,7 +2092,7 @@
 (define (associate-pir-file imol chain-id pir-file-name)
   (let ((seq-text (pir-file-name->pir-sequence pir-file-name)))
     (if seq-text
-	(assign-pir-sequence imol chain-id seq-text)
+	(assign-pir-sequence imol chain-id seq-text) ;; it isn't assigning sequence!
 	(format #t "WARNING:: associate-pir-file: bad text for ~s~%" pir-file-name))))
 
 
@@ -2441,6 +2527,22 @@
 	      (string=? rn "TPO")))))
 
   ;;
+  (define (is-nucleotide? imol chain-id res-no)
+    (let ((rn (residue-name imol chain-id res-no "")))
+      (if (not (string? rn))
+	  #f
+	  (or (string=? rn "G")
+              (string=? rn "A")
+              (string=? rn "T")
+              (string=? rn "U")
+              (string=? rn "C")
+              (string=? rn "DG")
+              (string=? rn "DA")
+              (string=? rn "DT")
+              (string=? rn "DC")))))
+
+
+  ;;
   (define (overlap-by-main-chain imol-mov chain-id-mov res-no-mov ins-code-mov
 				 imol-ref chain-id-ref res-no-ref ins-code-ref)
 
@@ -2449,8 +2551,72 @@
     (for-each (lambda (atom-name)
 		(add-lsq-atom-pair (list chain-id-ref res-no-ref ins-code-ref atom-name "")
 				   (list chain-id-mov res-no-mov ins-code-mov atom-name "")))
-	      (list " CA " " N  " " C  "))
+	      (list " CA " " N  " " C  "))  ;; PDBv3 FIXME
     (apply-lsq-matches imol-ref imol-mov))
+
+  (define (is-purine? res-name)
+    (or (string=? res-name "G")
+        (string=? res-name "A")
+        (string=? res-name "DA")
+        (string=? res-name "DG")))
+
+  (define (is-pyrimidine? res-name)
+    (or (string=? res-name "C")
+        (string=? res-name "T")
+        (string=? res-name "U")
+        (string=? res-name "DC")
+        (string=? res-name "DT")))
+
+  (define (overlap-by-base imol-mov chain-id-mov res-no-mov ins-code-mov
+                           imol-ref chain-id-ref res-no-ref ins-code-ref)
+
+    (format #t "debug:: in overlap-by-base:: ---------------- imol-mov: ~s imol-ref: ~s~%" imol-mov imol-ref)
+    (clear-lsq-matches)
+    ;; G and A
+
+    (let ((rn-1 (residue-name imol-mov chain-id-mov res-no-mov ins-code-mov))
+          (rn-2 (residue-name imol-ref chain-id-ref res-no-ref ins-code-ref))
+          (purine-set (list " N9 " " N7 " " C5 " " N1 " " N3 "))
+          (pyrimidine-set (list " N1 " " C5 " " N3 "))
+          (purine->pyrimidine-set (list " N1 " " C2 " " N3 "))
+          (pyrimidine->purine-set (list " N9 " " C4 " " N5 ")))
+
+      (let ((atom-list-1 '())
+            (atom-list-2 '()))
+
+        (if (is-purine? rn-1)
+            (if (is-purine? rn-2)
+                (begin
+                  (set! atom-list-1 purine-set)
+                  (set! atom-list-2 purine-set))))
+    
+        (if (is-pyrimidine? rn-1)
+            (if (is-pyrimidine? rn-2)
+                (begin
+                  (set! atom-list-1 pyrimidine-set)
+                  (set! atom-list-2 pyrimidine-set))))
+
+        (if (is-pyrimidine? rn-1)
+            (if (is-purine? rn-2)
+                (begin
+                  (set! atom-list-1 pyrimidine->purine-set)
+                  (set! atom-list-2 purine->pyrimidine-set))))
+        
+        (if (is-purine? rn-1)
+            (if (is-pyrimidine? rn-2)
+                (begin
+                  (set! atom-list-1 purine->pyrimidine-set)
+                  (set! atom-list-2 pyrimidine->purine-set))))
+        
+        (for-each (lambda (atom-name-1 atom-name-2)
+                    (add-lsq-atom-pair (list chain-id-ref res-no-ref ins-code-ref atom-name-1 "")
+                                       (list chain-id-mov res-no-mov ins-code-mov atom-name-2 "")))
+                  atom-list-1
+                  atom-list-2)
+
+        (format #t "applying matches~%~!")
+        (apply-lsq-matches imol-ref imol-mov)
+        (format #t "done matches~%~!"))))
 
   ;; get-monomer-and-dictionary, now we check to see if we have a
   ;; molecule already loaded that matches this residue, if we have,
@@ -2493,28 +2659,43 @@
 		(overlap-by-main-chain imol-ligand "A" 1 "" imol chain-id-in resno "")
 		(overlap-ligands imol-ligand imol chain-id-in resno))
 
-	    (match-ligand-torsions imol-ligand imol chain-id-in resno)
+            (if (is-nucleotide? imol chain-id-in resno)
+                (if (residue-exists? imol chain-id-in (- resno 1) "")
+                    (delete-atom imol-ligand "A" 1 "" " OP3" "")))
+
+            (if (and (is-nucleotide? imol-ligand "A" 1)
+                     (is-nucleotide? imol chain-id-in resno))
+		(overlap-by-base imol-ligand "A" 1 "" imol chain-id-in resno "")
+		(overlap-ligands imol-ligand imol chain-id-in resno))
+
+            (if (not (is-nucleotide? imol-ligand "A" 1))
+                (match-ligand-torsions imol-ligand imol chain-id-in resno))
 	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "DEBUG:: ------ new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
+                ;; merge-status is sometimes a spec, sometimes a chain-id pair
 		(format #t "DEBUG:: ------ merge-status: ~s~%" merge-status)
 		(if (= merge-status 1)
 		    (let* ((new-res-spec (car (car (cdr new-chain-id-info))))
 			   (new-chain-id (residue-spec->chain-id new-res-spec)))
+		      (format #t "debug:: ------ new-chain-id-info: ~s~%" new-chain-id-info)
+		      (format #t "debug:: ------ new-chain-id: ~s~%" new-chain-id)
 		      (format #t "debug:: ------ new-res-spec: ~s~%" new-res-spec)
 		      (format #t "debug:: ------ change-residue-number to ~s~%" resno)
-		      (change-residue-number imol
-					     (residue-spec->chain-id new-res-spec)
-					     (residue-spec->res-no   new-res-spec)
-					     (residue-spec->ins-code new-res-spec)
-					     resno "")
+
+ 		      (change-residue-number imol
+                                             (residue-spec->chain-id new-res-spec)
+                                             (residue-spec->res-no   new-res-spec)
+                                             (residue-spec->ins-code new-res-spec)
+                                             resno "")
+
+                      ;; (change-residue-number imol new-chain-id 1 "" resno "")
 
 		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
+                      
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (change-chain-id imol new-chain-id chain-id-in 1
-					   (residue-spec->res-no new-res-spec)
-					   (residue-spec->res-no new-res-spec)))
+                          (change-chain-id imol new-chain-id chain-id-in 1 resno resno)) ;; 1 means "use range"
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
@@ -3364,7 +3545,7 @@
 				   set-file-name-func)
 	 (set! continue-status #f))
        coot-updates-error-handler)
-    
+
       (while continue-status
 	     (if (string? file-name-for-progress-bar)
 		 (let ((curl-info (curl-progress-info file-name-for-progress-bar)))
@@ -3689,7 +3870,7 @@
 			      (let ((cs (drugbox->chemspider rev-string)))
 				(if (not (string? cs))
 				    (begin 
-				      (format #t "not a string ~s ~s~%~!" cs)
+				      (format #t "not a string ~s ~s~%~!" cs rev-string)
 				      #f)
 
 				    ;; chemspider extraction worked
@@ -3742,6 +3923,19 @@
 	       (stat-size (stat:size stat-result)))
 	  (> stat-size 20))))
 
+  (define (unbracket line)
+    (let ((m-open  (string-match "[[[]" line))
+          (m-close (string-match "[]]]" line)))
+      (if m-open
+          (if m-close
+              (let ((substring-1 (substring line
+                                            (+ (cdr (vector-ref m-open  1)) 1)
+                                            (car (vector-ref m-close 1)))))
+                (format #t "extracted REDIRECT substring ~s~%" substring-1)
+                substring-1)
+              #f)
+          #f)))
+
   ;; return a mol file name
   (define (handle-rev-string-2016 rev-string)
 
@@ -3755,9 +3949,9 @@
 	      (let ((close-match (string-match "\\]\\]" line)))
 		(if close-match
 		    (begin
-; 				  (format #t "-----------:  open-match ~%" open-match)
-; 				  (format #t "-----------: close-match ~%" close-match)
-; 				  (format #t "-----------: line ~%" line)
+                                        ; 				  (format #t "-----------:  open-match ~%" open-match)
+                                        ; 				  (format #t "-----------: close-match ~%" close-match)
+                                        ; 				  (format #t "-----------: line ~%" line)
 		      (let ((s (substring line 12 (car (vector-ref close-match 1)))))
 			(get-drug-via-wikipedia s)))))))) ;; returns a file anme
 
@@ -3768,34 +3962,41 @@
 
 		      ;; we don't want to hit xxx_Ref - hence the trailing space
 
-		      (if (string-match "DrugBank " line)
-			  (let ((parts (string->list-of-strings line)))
-			    (format #t "   debug:: drugbank parts: ~s~%" parts)
-			    (let ((id-string (last-element parts)))
-			      (if (number? (string->number id-string))
-				  (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
+		      (if (string-match "DrugBank[ \t]" line)
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: drugbank parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (number? (string->number id-string))
+                                  (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
 
-		      (if (string-match "ChemSpiderID " line)
-			  (let ((parts (string->list-of-strings line)))
-			    (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
-			    (let ((id-string (last-element parts)))
-			      (if (not (string-match "correct" id-string))
-				  (if (number? (string->number id-string))
-				      (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
+		      (if (string-match "ChemSpiderID[ \t]" line)
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (not (string-match "correct" id-string))
+                                  (if (number? (string->number id-string))
+                                      (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
 
-		      (if (string-match "PubChem " line)
-			  (let ((parts (string->list-of-strings line)))
-			    (format #t "   debug:: PubChem parts: ~s~%" parts)
-			    (let ((id-string (last-element parts)))
-			      (if (not (string-match "correct" id-string))
-				  (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
+		      (if (string-match "PubChem[ \t]" line)
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: PubChem parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (not (string-match "correct" id-string))
+                                  (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
 
-		      (if (string-match "ChEMBL " line)
-			  (let ((parts (string->list-of-strings line)))
-			    (format #t "   debug:: ChEMBL parts: ~s~%" parts)
-			    (let ((id-string (last-element parts)))
-			      (if (number? (string->number id-string))
-				  (set! db-id-list (cons (cons "ChEMBL" id-string) db-id-list))))))
+		      (if (string-match "ChEMBL[ \t]" line)
+                          (let ((parts (string->list-of-strings line)))
+                            (format #t "   debug:: ChEMBL parts: ~s~%" parts)
+                            (let ((id-string (last-element parts)))
+                              (if (number? (string->number id-string))
+                                  (set! db-id-list (cons (cons "ChEMBL" id-string) db-id-list))))))
+
+                      (if (string-match "#REDIRECT " line)
+                          (let ((new-string (unbracket line)))
+                            (if (string? new-string)
+                                (let ((mol-file-name (get-drug-via-wikipedia new-string)))
+                                  (if (string? mol-file-name)
+                                      (set! db-id-list (cons (cons "redirect" mol-file-name) db-id-list)))))))
 		      )
 		    lines)
 
@@ -3808,6 +4009,13 @@
 
 	    (cond
 	     ((null? db-id-list) "Failed-to-find-a-molecule-file-name")
+
+             ((string=? (car (car db-id-list)) "redirect")
+              (let ((fn (cdr (car db-id-list))))
+                (if (file-seems-good? fn)
+                    fn
+                    (loop (car db-id-list)))))
+
 	     ((string=? (car (car db-id-list)) "DrugBank")
 
 	       (let ((db-id (car db-id-list)))
@@ -4022,7 +4230,7 @@
 		       ))
 		 (xml (coot-get-url-as-string url)))
 
-	    (format #t "INFO:: get-drug-via-wikipedia: url: ~s~%" url)
+	    (format #t "INFO:: get-drug-via-wikipedia: drug-name-in: ~s url: ~s~%" drug-name-in url)
 	    (let ((l (string-length xml)))
 
 	      (if (= l 0)
@@ -4113,11 +4321,18 @@
 
 (define (template-keybindings-to-preferences)
 
-  (let* ((pkg-data-dir 
-          (if (file-exists? (pkgdatadir))
-              (pkgdatadir)
-              (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
-  (let* ((bindings-file-name "template-key-bindings.scm")
+  ;; (let* ((pkg-data-dir
+  ;;         (if (file-exists? (pkgdatadir))
+  ;;             (pkgdatadir)
+  ;;             (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
+
+  (let ((pkg-data-dir
+         (let ((coot-prefix-dir (getenv "COOT_PREFIX"))) ;; try this first
+           (if (string? coot-prefix-dir)
+               (append-dir-dir (append-dir-dir coot-prefix-dir "share") "coot")
+               (pkgdatadir))))) ;; self-install directory
+
+    (let* ((bindings-file-name "template-key-bindings.scm")
 	 (scm-dir (append-dir-dir pkg-data-dir "scheme"))
 	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
     (if (not (string? ref-scm))
@@ -4147,6 +4362,77 @@
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
 				  (load pref-file))))))))))))))
+
+
+
+;; something like this for intermediate atoms also?
+;;
+;; n-neighbs is either 0 or 1
+;;
+(define (rebuild-residues-using-db-loop imol middle-residue-spec n-neighbs)
+
+  ;; utility function
+  ;;
+  (define (remove-any-GLY-CBs imol-db-loop saved-residue-names ch-id resno-low)
+
+    (for-each (lambda (residue-idx res-name)
+		(if (string? res-name) ;; might be #f for missing residues
+		    (if (string=? res-name "GLY")
+			(let ((res-no-gly (+ resno-low residue-idx)))
+			  (delete-atom imol-db-loop ch-id res-no-gly "" " CB " "")))))
+	      (range (length saved-residue-names)) saved-residue-names))
+
+   ;; main line
+
+   (let* ((resno-mid (residue-spec->res-no middle-residue-spec))
+	  (resno-low  (- resno-mid n-neighbs))
+	  (resno-high (+ resno-mid n-neighbs))
+          (r (append (range (- resno-mid 4 n-neighbs) (+ resno-mid n-neighbs 0))
+		     (range (+ resno-mid 1 n-neighbs) (+ resno-mid 3 n-neighbs))))
+          (nov (print-var r))
+          (ch-id (residue-spec->chain-id middle-residue-spec))
+          (residue-specs (map (lambda(res-no)
+                                (list ch-id res-no ""))
+                              r)))
+
+     (let ((loop-mols (protein-db-loops
+		       imol residue-specs (imol-refinement-map) 1 *db-loop-preserve-residue-names*)))
+        (let ((residue-spec-of-residues-to-be-replaced (if (= n-neighbs 0)
+                                                           (list middle-residue-spec)
+							   (map (lambda (r)
+								  (list ch-id r ""))
+								(range resno-low
+								       (+ resno-high 1))))))
+
+          (let ((saved-residue-names (map (lambda (r) (residue-spec->residue-name imol r))
+					  residue-spec-of-residues-to-be-replaced)))
+	    (if (> (length loop-mols) 0)
+
+		;; loop-mols have the correct residue numbering but the wrong chain-id and
+		;; residue type
+
+		(let ((imol-db-loop (car (list-ref loop-mols 1)))
+		      (tmp-loop-mols (car loop-mols)))
+		  (let ((chain-id-db-loop (chain-id imol-db-loop 0)))
+		    (if (not (string=? ch-id chain-id-db-loop))
+			(change-chain-id imol-db-loop chain-id-db-loop ch-id 0 0 0))
+		    (let ((selection (string-append "//" ch-id "/"
+						    (number->string resno-low)
+						    "-"
+						    (number->string resno-high)
+						    )))
+
+		      ;; if the original residue was a GLY, the imol-db-loop might (probably
+		      ;; will) have CB. If that is the case, then we should remove the CBs now
+		      ;;
+		      (remove-any-GLY-CBs imol-db-loop saved-residue-names ch-id resno-low)
+
+		      ;; this moves atoms, adds atoms if needed, doesn't change the residue name
+		      ;;
+		      (replace-fragment imol imol-db-loop selection)
+		      ;; tidy up
+		      (for-each (lambda (i) (close-molecule i)) tmp-loop-mols))))))))))
+
 
 	
 ;; Americans...
@@ -4180,3 +4466,61 @@
     (run-python-command python-string)))
 
 
+
+(define (go-to-box-middle)
+
+  (let ((ls (map-molecule-list)))
+    (if (not (null? ls))
+       (let ((imol-map (car ls)))
+         (let ((c (cell imol-map)))
+           (format #t "c ~s~%" c)
+           (apply set-rotation-centre (map (lambda (a) (* a 0.5)) (list-head c 3))))))))
+
+
+
+
+(define (write-current-sequence-as-pir imol chain-id file-name)
+  (print-sequence-chain-general imol chain-id 1 1 file-name))
+
+(define (run-clustalw-alignment imol chain-id target-sequence-pir-file)
+
+  ;; write out the current sequence
+  (let ((current-sequence-pir-file "current-sequence.pir")
+        (aligned-sequence-pir-file "aligned-sequence.pir")
+        (clustalw2-output-file-name "clustalw2-output-file.log"))
+
+    (if (file-exists? aligned-sequence-pir-file)
+        (delete-file aligned-sequence-pir-file))
+    (if (file-exists? "aligned-sequence.dnd")
+        (delete-file "aligned-sequence.dnd"))
+    (if (file-exists? "current-sequence.dnd")
+        (delete-file "current-sequence.dnd"))
+
+    (write-current-sequence-as-pir imol chain-id current-sequence-pir-file)
+    (goosh-command
+     "clustalw2"
+     '()
+     (list
+     "3"
+     "1"
+     target-sequence-pir-file
+     "2"
+     current-sequence-pir-file
+     "9"
+     "2"
+     ""
+     "4"
+     ""
+     aligned-sequence-pir-file
+     ""
+     "x"
+     ""
+     "x")
+     clustalw2-output-file-name
+     #t)
+
+    (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
+    (apply-pir-alignment imol chain-id)
+    (simple-fill-partial-residues imol)
+    (resolve-clashing-sidechains-by-deletion imol)
+    ))

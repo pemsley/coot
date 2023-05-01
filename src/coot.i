@@ -1,5 +1,6 @@
 
 %module coot
+
 %{
 #include <cstdio>
 #include <cstddef>
@@ -13,7 +14,7 @@
 #include "c-interface-ligands-swig.hh"
 #include "c-interface-mogul.hh"
 #include "c-interface-sequence.hh"
-#include "c-interface-refmac.h"
+#include "c-interface-refine.h"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
@@ -31,9 +32,14 @@
 #include "get-monomer.hh"
 #include "globularize.hh"
 #include "curlew.hh"
+#include "validation.hh"
 #include "cfc.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#include "init_coot_as_python_module.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %}
 
 
@@ -49,6 +55,11 @@ namespace std {
 %template(vector_mtz_type_label) vector<coot::mtz_type_label>;
 }
 
+%init %{
+  init_coot_as_python_module();
+%}
+
+%feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
@@ -64,6 +75,9 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
+#ifdef USE_MOLECULES_TO_TRIANGLES
+%include "cc-interface-molecular-representation.hh"
+#endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
@@ -73,6 +87,7 @@ namespace std {
 %include "c-interface-mogul.hh"
 %include "c-interface-sequence.hh"
 %include "c-interface-refmac.h"
+%include "c-interface-refine.h"
 %include "c-interface-generic-objects.h"
 %include "cmtz-interface.hh"
 %include "manipulation-modes.hh"
@@ -85,6 +100,7 @@ namespace std {
 %include "get-monomer.hh"
 %include "globularize.hh"
 %include "curlew.hh"
+%include "validation.hh"
 %include "generic-display-objects-c.h"
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"

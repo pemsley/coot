@@ -37,9 +37,9 @@ mogul_results_scm(const char *mogul_out_file_name) {
    if (m.n_items() > 0) {
       r = SCM_EOL;
       for (unsigned int i=0; i<m.n_items(); i++) { 
-	 const coot::mogul_item &item = m[i];
-	 SCM scm_item = scm_double2num(item.z);
-	 r = scm_cons(scm_item, r);
+         const coot::mogul_item &item = m[i];
+         SCM scm_item = scm_from_double(item.z);
+         r = scm_cons(scm_item, r);
       }
    }
    return r;
@@ -71,7 +71,7 @@ SCM mogul_results_process_many(const char *glob_dir, const char *glob_str) {
 	       std::cout << "   max_z: " << files[i] << " " <<  accession_code << " " << mzb.first
 			 << " " << mzb.second << std::endl;
 	    }
-	    SCM l = scm_list_2(scm_from_locale_string(accession_code.c_str()), scm_double2num(mzb.first));
+	    SCM l = scm_list_2(scm_from_locale_string(accession_code.c_str()), scm_from_double(mzb.first));
 	    r = scm_cons(l, r);
 	 }
 

@@ -38,7 +38,7 @@ def open_coot_listener_socket(port_number, host_adress = "127.0.0.1"):
     import socket
     global coot_listener_socket
 
-    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_adress)
+    print("in open_coot_listener_socket port: %s host %s" %(port_number, host_adress))
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -46,14 +46,14 @@ def open_coot_listener_socket(port_number, host_adress = "127.0.0.1"):
 
     soc.connect((host_adress, port_number))
 
-    print "Coot listener socket ready!"
+    print("Coot listener socket ready!")
     soc.send("Coot listener socket ready!\n")
     coot_listener_socket = soc
     if soc:
-        set_coot_listener_socket_state_internal(1)
+        coot.set_coot_listener_socket_state_internal(1)
 
     # threads? Needed?
-    status = run_python_thread(coot_listener_idle_function_proc,())
+    status = coot_gui.run_python_thread(coot_listener_idle_function_proc,())
 
 # yet another go to make a coot port reader work.  This time, we use
 # a gtk-timer to read stuff from the socket.  
@@ -66,13 +66,13 @@ def open_coot_listener_socket_with_timeout(port_number, host_adress = "127.0.0.1
     try:
         import gobject
     except:
-        print "BL WARNING:: no gobject available, so no socket. Sorry!"
+        print("BL WARNING:: no gobject available, so no socket. Sorry!")
         return
     
     import socket
     global coot_listener_socket
 
-    print "in open_coot_listener_socket port: %s host %s" %(port_number, host_adress)
+    print("in open_coot_listener_socket port: %s host %s" %(port_number, host_adress))
 
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #host_adress = "127.0.0.1"
@@ -80,10 +80,10 @@ def open_coot_listener_socket_with_timeout(port_number, host_adress = "127.0.0.1
     try:
         soc.connect((host_adress, port_number))
     except:
-        print "BL INFO:: cannot connect to socket on host %s with port %s" %(host_adress, port_number)
+        print("BL INFO:: cannot connect to socket on host %s with port %s" %(host_adress, port_number))
         return
 
-    print "Coot listener socket ready!"
+    print("Coot listener socket ready!")
     soc.send("Coot listener socket ready!\n")
     coot_listener_socket = soc
 
@@ -100,25 +100,25 @@ def coot_socket_timeout_func():
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)
             if (not continue_qm):
-                set_coot_listener_socket_state_internal(0)
+                coot.set_coot_listener_socket_state_internal(0)
                 try:
                     coot_listener_socket.shutdown(2)
                 except:
                     try:
                         coot_listener_socket.shutdown(1)
                     except:
-                        print "BL INFO:: problems shutting down the controling socket, "
-                        print "maybe already down"
+                        print("BL INFO:: problems shutting down the controling socket, ")
+                        print("maybe already down")
                 coot_listener_socket.close()
                 coot_listener_socket = False
-                print "server gone - listener thread ends", coot_listener_socket
+                print("server gone - listener thread ends", coot_listener_socket)
                 return False
             else:
                 # keep listening
                 #time.sleep(0.01)
                 return True
     else:
-        print "coot_socket_timeout_func bad sock: ", coot_listener_socket
+        print("coot_socket_timeout_func bad sock: ", coot_listener_socket)
         return False
 
 
@@ -128,7 +128,7 @@ def coot_listener_idle_function_procbbbbbb():
     msg = 'start'
     while msg != 'exit':
         data = coot_listener_socket.recv(1024)
-        print 'Received Message: ', data
+        print('Received Message: ', data)
         #msg = raw_input('Enter a Message: ')
         coot_listener_socket.send('return value')
     coot_listener_socket.close()
@@ -141,7 +141,7 @@ def coot_listener_idle_function_procbbbbbb():
 
 def coot_listener_error_handler(key, args=""):
 
-    print "coot_listener_error_handler handling error in %s with args %s" %(key, args)
+    print("coot_listener_error_handler handling error in %s with args %s" %(key, args))
 
 
 def coot_listener_idle_function_proc():
@@ -152,24 +152,24 @@ def coot_listener_idle_function_proc():
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)
             if (not continue_qm):
-                set_coot_listener_socket_state_internal(0)
+                coot.set_coot_listener_socket_state_internal(0)
                 try:
                     coot_listener_socket.shutdown(2)
                 except:
                     try:
                         coot_listener_socket.shutdown(1)
                     except:
-                        print "BL INFO:: problem shutting down the controling socket, "
-                        print "maybe already down"
+                        print("BL INFO:: problem shutting down the controling socket, ")
+                        print("maybe already down")
                 coot_listener_socket.close()
                 coot_listener_socket = False
-                print "server gone - listener thread ends", coot_listener_socket
+                print("server gone - listener thread ends", coot_listener_socket)
                 return
             else:
                 time.sleep(0.01)
                 return
     else:
-        print "coot_listener_idle_func_proc bad sock: ", coot_listener_socket
+        print("coot_listener_idle_func_proc bad sock: ", coot_listener_socket)
 
 global total_socket_data
 total_socket_data = []
@@ -181,19 +181,19 @@ def listen_coot_listener_socket(soc):
     end_connection_string = "# end"    # just 'end' for test
 
     def evaluate_character_list(string_list):
-        print "received in evaluate", string_list
+        print("received in evaluate", string_list)
         # new eval?!
         for line in string_list.split("\n"):
             if (line == close_connection_string):
-                print "finish socket"
+                print("finish socket")
                 #soc.send("Closing session")
                 return False
             try:
                 ret = eval(line)
             except SyntaxError:
-                if (line == "\n"): print "CR"
+                if (line == "\n"): print("CR")
                 try:
-                    exec line in globals()
+                    exec(line, globals())
                     ret = None
                 except:
                     ret = "INFO:: cannot eval or exec given string: " + string
@@ -216,7 +216,7 @@ def listen_coot_listener_socket(soc):
         try:
             soc.sendall("")
         except:
-            print "BL INFO:: appear that serve is down, closing down connection"
+            print("BL INFO:: appear that serve is down, closing down connection")
             return False
         return True
 

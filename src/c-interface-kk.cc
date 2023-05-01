@@ -22,6 +22,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 
@@ -126,7 +127,9 @@ void
 clear_extra_restraints(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].clear_extra_restraints(); 
+      graphics_info_t::molecules[imol].set_display_extra_restraints(0);
    }
+   graphics_draw();
 }
 
 #ifdef USE_PYTHON
@@ -255,7 +258,7 @@ PyObject *regularize_zone_with_score_py(int imol, const char *chain_id, int resn
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
 	       rv = g.refinement_results_to_py(rr);
 	    }
@@ -296,11 +299,11 @@ SCM regularize_zone_with_score_scm(int imol, const char *chain_id, int resno1, i
 	 if (index2 >= 0) { 
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
-		      << rr.lights.size() << " " << rr.info << std::endl;
+		      << rr.lights.size() << " " << rr.info_text << std::endl;
 	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
 	       rv = g.refinement_results_to_scm(rr);
 	    }
-	    
+
 	 } else {
 	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
 		      << resno2 << std::endl;
@@ -336,7 +339,7 @@ PyObject *python_representation_kk(int imol) {
       
       for (int ichain=0; ichain<nchains; ichain++) {
 	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
-	 PyObject *chain_id = PyString_FromString(chain_p->GetChainID());
+	 PyObject *chain_id = myPyString_FromString(chain_p->GetChainID());
          int nres;
          mmdb::PResidue *residues;
          chain_p->GetResidueTable(residues, nres);
@@ -350,9 +353,9 @@ PyObject *python_representation_kk(int imol) {
             
             //get the residue name, number, and insertion code
             PyObject *res_name, *res_num, *res_inscode;
-            res_name    = PyString_FromString(this_res->GetResName());
-            res_num     = PyInt_FromLong(this_res->GetSeqNum());
-            res_inscode = PyString_FromString(this_res->GetInsCode());
+            res_name    = myPyString_FromString(this_res->GetResName());
+            res_num     = PyLong_FromLong(this_res->GetSeqNum());
+            res_inscode = myPyString_FromString(this_res->GetInsCode());
             
             //store the residue name, number, and insertion code
             PyObject *res_info = PyList_New(4);
@@ -385,10 +388,10 @@ PyObject *python_representation_kk(int imol) {
 
                at_occ = PyFloat_FromDouble(at->occupancy);
                at_biso= PyFloat_FromDouble(at->tempFactor);
-               at_ele = PyString_FromString(at->element);
-               at_name = PyString_FromString(at->name);
-               at_segid = PyString_FromString(at->segID);
-               at_altconf = PyString_FromString(at->altLoc);
+               at_ele = myPyString_FromString(at->element);
+               at_name = myPyString_FromString(at->name);
+               at_segid = myPyString_FromString(at->segID);
+               at_altconf = myPyString_FromString(at->altLoc);
 
                at_b = at_biso;
                if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {

@@ -19,6 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+#ifndef ATOM_SELECTION_HH
+#define ATOM_SELECTION_HH
+
+#include <string>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot {
    
@@ -80,3 +85,7 @@ namespace coot {
    };
 
 }
+
+
+#endif // ATOM_SELECTION_HH
+

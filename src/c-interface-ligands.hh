@@ -32,6 +32,7 @@
 
 #include "pli/flev-annotations.hh"
 #include "ligand-check.hh"
+#include "ideal/simple-restraint.hh"
 
 // not for swig
 
@@ -71,10 +72,15 @@ namespace coot {
 			    const ligand_report_absolute_t &lr,
 			    double percentile_limit);
 
+   geometry_distortion_info_container_t get_ligand_distortion_summary_info(int imol,
+                                                                           residue_spec_t &rs);
+
 } // namespace coot
 
 
 void coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec);
+
+void coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec);
 
 
 #endif // C_INTERFACE_LIGANDS_HH

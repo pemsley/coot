@@ -1,6 +1,5 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef USE_PYTHON
 
 #include <boost/python.hpp>
 
@@ -22,45 +21,47 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    silicos_it_qed_default_func = NULL;
 
    // Build the name object
-   PyObject *pName = PyString_FromString("silicos_it.descriptors.qed");
+   PyObject *pName = PyUnicode_FromString("silicos_it.descriptors.qed");
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {
       // This happens when biscu-it is not installed (which is often(?) the case)
       // 
-      // std::cout << "Null pModule in get_qed() " << std::endl;
+      std::cout << "Null pModule in get_qed() - biscu-it not installed? " << std::endl;
    } else { 
-      // pDict is a borrowed reference 
+      // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {
-	 std::cout << "pDict is not a dict"<< std::endl;
+         std::cout << "pDict is not a dict"<< std::endl;
       } else {
-	 // pFunc is also a borrowed reference 
-	 PyObject *pFunc = PyDict_GetItemString(pDict, "default");
-	 if (! pFunc) {
-	    // std::cout << "pFunc is NULL" << std::endl;
-	 } else { 
-	    if (PyCallable_Check(pFunc)) {
-	       silicos_it_qed_default_func = pFunc;
-	    } else {
-	       std::cout << "default() function is not callable"  << std::endl;
-	    }
-	 }
+         // pFunc is also a borrowed reference
+         PyObject *pFunc = PyDict_GetItemString(pDict, "default");
+         if (! pFunc) {
+            // std::cout << "pFunc is NULL" << std::endl;
+         } else {
+            if (PyCallable_Check(pFunc)) {
+               std::cout << "Yeay - storing silicos_it_qed_default_func" << std::endl;
+               silicos_it_qed_default_func = pFunc;
+            } else {
+               std::cout << "default() function is not callable"  << std::endl;
+            }
+         }
 
 	 pFunc = PyDict_GetItemString(pDict, "properties");
 	 if (pFunc) {
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_properties_func = pFunc;
+               std::cout << "Yeay - storing silicos_it_qed_properties_func" << std::endl;
 	    } else {
 	       std::cout << "properties() function is not callable"  << std::endl;
 	    }
 	 }
 
-	 silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
+         silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }
+      Py_XDECREF(pModule);
    }
    Py_DECREF(pName);
-   Py_XDECREF(pModule);
 }
 
 // needs a properly initialized (say, via rdkit_mol_sanitize()) molecule.
@@ -100,16 +101,16 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
 	 PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
 
-	 PyObject *dest = PyString_FromString("object: %s\n");
+	 PyObject *dest = PyUnicode_FromString("object: %s\n");
 	 if (type_ptr)
 	    std::cout << "error: type "
-		      << PyString_AsString(PyString_Format(dest, type_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, type_ptr))) << std::endl;
 	 if (value_ptr)
 	    std::cout << "error: value "
-		      << PyString_AsString(PyString_Format(dest, value_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, value_ptr))) << std::endl;
 	 if (traceback_ptr)
 	    std::cout << "error: traceback_ptr "
-		      << PyString_AsString(PyString_Format(dest, traceback_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, traceback_ptr))) << std::endl;
 	    
       } 
       catch (...) {
@@ -119,7 +120,5 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
    return r;
 }
 
-
-#endif
 #endif
 

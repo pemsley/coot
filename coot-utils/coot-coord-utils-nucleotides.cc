@@ -29,7 +29,7 @@
 // Throw an exception if it is not possible to generate pucker info
 // 
 coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
-						     std::string altconf_in) {
+                                                     std::string altconf_in) {
 
    C1_prime = 0;
    N1_or_9 = 0;
@@ -55,16 +55,16 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       std::string atm_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
       if (altconf == alt_name) { 
-	 if (atm_name == " C1*") atoms[0] = residue_atoms[i];
-	 if (atm_name == " C1'") atoms[0] = residue_atoms[i];
-	 if (atm_name == " C2*") atoms[1] = residue_atoms[i];
-	 if (atm_name == " C2'") atoms[1] = residue_atoms[i];
-	 if (atm_name == " C3*") atoms[2] = residue_atoms[i];
-	 if (atm_name == " C3'") atoms[2] = residue_atoms[i];
-	 if (atm_name == " C4*") atoms[3] = residue_atoms[i];
-	 if (atm_name == " C4'") atoms[3] = residue_atoms[i];
-	 if (atm_name == " O4*") atoms[4] = residue_atoms[i];
-	 if (atm_name == " O4'") atoms[4] = residue_atoms[i];
+         if (atm_name == " C1*") atoms[0] = residue_atoms[i];
+         if (atm_name == " C1'") atoms[0] = residue_atoms[i];
+         if (atm_name == " C2*") atoms[1] = residue_atoms[i];
+         if (atm_name == " C2'") atoms[1] = residue_atoms[i];
+         if (atm_name == " C3*") atoms[2] = residue_atoms[i];
+         if (atm_name == " C3'") atoms[2] = residue_atoms[i];
+         if (atm_name == " C4*") atoms[3] = residue_atoms[i];
+         if (atm_name == " C4'") atoms[3] = residue_atoms[i];
+         if (atm_name == " O4*") atoms[4] = residue_atoms[i];
+         if (atm_name == " O4'") atoms[4] = residue_atoms[i];
       }
    }
    if (! (atoms[0] && atoms[1] && atoms[2] && atoms[3] && atoms[4])) {
@@ -72,32 +72,32 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       throw std::runtime_error(mess);
    } else {
       for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-	 clipper::Coord_orth c(atoms[i_oop_atom]->x,
-			       atoms[i_oop_atom]->y,
-			       atoms[i_oop_atom]->z);
-	 ribose_atoms_coords.push_back(c);
+         clipper::Coord_orth c(atoms[i_oop_atom]->x,
+                               atoms[i_oop_atom]->y,
+                               atoms[i_oop_atom]->z);
+         ribose_atoms_coords.push_back(c);
       }
       // oop: out of plane distance
       std::vector<std::pair<float, float> > pucker_distortion_and_oop_d(5);
       for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-	 std::vector<mmdb::Atom *> plane_atom;
-	 std::vector<clipper::Coord_orth> plane_atom_coords;
-	 for (int i=0; i<5; i++) {
-	    if (i != i_oop_atom) {
-	       clipper::Coord_orth c(atoms[i]->x, atoms[i]->y, atoms[i]->z);
-	       plane_atom.push_back(atoms[i]);
-	       plane_atom_coords.push_back(c);
-	    }
-	 }
-	 // plane atom is now filled with 4 atoms from which the plane
-	 // should be calculated.
-	 clipper::Coord_orth pt(atoms[i_oop_atom]->x,
-				atoms[i_oop_atom]->y,
-				atoms[i_oop_atom]->z);
-	 // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
-	 std::pair<double, double> dev =
-	    coot::lsq_plane_deviation(plane_atom_coords, pt);
-	 pucker_distortion_and_oop_d[i_oop_atom] = dev;
+         std::vector<mmdb::Atom *> plane_atom;
+         std::vector<clipper::Coord_orth> plane_atom_coords;
+         for (int i=0; i<5; i++) {
+            if (i != i_oop_atom) {
+               clipper::Coord_orth c(atoms[i]->x, atoms[i]->y, atoms[i]->z);
+               plane_atom.push_back(atoms[i]);
+               plane_atom_coords.push_back(c);
+            }
+         }
+         // plane atom is now filled with 4 atoms from which the plane
+         // should be calculated.
+         clipper::Coord_orth pt(atoms[i_oop_atom]->x,
+                                atoms[i_oop_atom]->y,
+                                atoms[i_oop_atom]->z);
+         // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
+         std::pair<double, double> dev =
+            coot::lsq_plane_deviation(plane_atom_coords, pt);
+         pucker_distortion_and_oop_d[i_oop_atom] = dev;
       }
 
       // Find the biggest out-of-plane distance.  That is the pucker
@@ -105,14 +105,14 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       puckered_atom_ = coot::pucker_analysis_info_t::NONE;
       std::pair<float, float> most_deviant(0,0);
       for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-// 	 std::cout << "   pucker_distortion_and_oop_d["
-// 		   << i_oop_atom << "] "
-// 		   << pucker_distortion_and_oop_d[i_oop_atom].first  << " " 
-// 		   << pucker_distortion_and_oop_d[i_oop_atom].second  << std::endl;
-	 if (fabs(pucker_distortion_and_oop_d[i_oop_atom].first) > fabs(most_deviant.first)) {
-	    most_deviant = pucker_distortion_and_oop_d[i_oop_atom];
-	    puckered_atom_ = possible_puckers[i_oop_atom];
-	 }
+//          std::cout << "   pucker_distortion_and_oop_d["
+//                    << i_oop_atom << "] "
+//                    << pucker_distortion_and_oop_d[i_oop_atom].first  << " " 
+//                    << pucker_distortion_and_oop_d[i_oop_atom].second  << std::endl;
+         if (fabs(pucker_distortion_and_oop_d[i_oop_atom].first) > fabs(most_deviant.first)) {
+            most_deviant = pucker_distortion_and_oop_d[i_oop_atom];
+            puckered_atom_ = possible_puckers[i_oop_atom];
+         }
       }
       out_of_plane_distance = most_deviant.first;
       plane_distortion = most_deviant.second;
@@ -190,14 +190,14 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
       std::string atom_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
       if (alt_name == altconf) { 
-	 if (atom_name == " N1 ")
-	    N1_or_9 = residue_atoms[i];
-	 if (atom_name == " N9 ")
-	    N1_or_9 = residue_atoms[i];
-	 if (atom_name == " C1*")
-	    C1_prime = residue_atoms[i];
-	 if (atom_name == " C1'")
-	    C1_prime = residue_atoms[i];
+         if (atom_name == " N1 ")
+            N1_or_9 = residue_atoms[i];
+         if (atom_name == " N9 ")
+            N1_or_9 = residue_atoms[i];
+         if (atom_name == " C1*")
+            C1_prime = residue_atoms[i];
+         if (atom_name == " C1'")
+            C1_prime = residue_atoms[i];
       }
    }
 
@@ -229,15 +229,15 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
 
    if (base_names.size() > 0) { 
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::string atm_name(residue_atoms[i]->name);
-	 std::string alt_name(residue_atoms[i]->altLoc);
-	 for (unsigned int j=0; j<base_names.size(); j++) {
-	    if (base_names[j] == atm_name) {
-	       base_atoms_coords.push_back(clipper::Coord_orth(residue_atoms[i]->x,
-							       residue_atoms[i]->y,
-							       residue_atoms[i]->z));
-	    }
-	 }
+         std::string atm_name(residue_atoms[i]->name);
+         std::string alt_name(residue_atoms[i]->altLoc);
+         for (unsigned int j=0; j<base_names.size(); j++) {
+            if (base_names[j] == atm_name) {
+               base_atoms_coords.push_back(clipper::Coord_orth(residue_atoms[i]->x,
+                                                               residue_atoms[i]->y,
+                                                               residue_atoms[i]->z));
+            }
+         }
       }
    }
 } 
@@ -263,29 +263,29 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
       std::string atm_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
       if (atm_name == " P  ") { 
-	 if (altconf == alt_name) {
-	    clipper::Coord_orth pt(residue_atoms[i]->x,
-				   residue_atoms[i]->y,
-				   residue_atoms[i]->z);
-	    // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
+         if (altconf == alt_name) {
+            clipper::Coord_orth pt(residue_atoms[i]->x,
+                                   residue_atoms[i]->y,
+                                   residue_atoms[i]->z);
+            // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
 
-	    if (base_atoms_coords.size() < 4) {
+            if (base_atoms_coords.size() < 4) {
 
-	       // construct an error message and throw an exception.
-	       // 
-	       std::string m = "Failed to find base atoms. Found ";
-	       m += coot::util::int_to_string(base_atoms_coords.size());
-	       m += " atoms. ";
-	       throw std::runtime_error(m);
-		  
-	    } else { 
-	       std::pair<double, double> oop_plus_dev =
-		  coot::lsq_plane_deviation(base_atoms_coords, pt);
-	       oop = oop_plus_dev.first;
-	       found = 1;
-	       break;
-	    }
-	 }
+               // construct an error message and throw an exception.
+               // 
+               std::string m = "Failed to find base atoms. Found ";
+               m += coot::util::int_to_string(base_atoms_coords.size());
+               m += " atoms. ";
+               throw std::runtime_error(m);
+                  
+            } else { 
+               std::pair<double, double> oop_plus_dev =
+                  coot::lsq_plane_deviation(base_atoms_coords, pt);
+               oop = oop_plus_dev.first;
+               found = 1;
+               break;
+            }
+         }
       }
    }
    if (found == 0) {
@@ -311,15 +311,15 @@ coot::pucker_analysis_info_t::phosphate_distance(mmdb::Residue *following_res) {
    //                    / \  90 degrees       ;
    //                 d / X \                  ;
    //                  /     \                 ;
-   //                 /       \	               ;
+   //                 /       \                       ;
    //                /         \               ; 
    //               /   pi-alpha\              ;
-   //              --------------\C1'	       ;
+   //              --------------\C1'               ;
    //            P           alpha\            ; 
    //                              \           ;
    //                               \          ; 
    //                                \         ;
-   //                                 \	       ;
+   //                                 \               ;
    //                                  \       ; 
    //                                   \ N1   ;
    
@@ -333,29 +333,29 @@ coot::pucker_analysis_info_t::phosphate_distance(mmdb::Residue *following_res) {
       std::string atm_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
       if (atm_name == " P  ") { 
-	 if (altconf == alt_name) {
-	    clipper::Coord_orth P_pt(residue_atoms[i]->x,
-				     residue_atoms[i]->y,
-				     residue_atoms[i]->z);
-	    clipper::Coord_orth N_pt( N1_or_9->x,  N1_or_9->y,  N1_or_9->z);
-	    clipper::Coord_orth C_pt(C1_prime->x, C1_prime->y, C1_prime->z);
-	    clipper::Coord_orth CN = N_pt - C_pt;
-	    clipper::Coord_orth CP = P_pt - C_pt;
+         if (altconf == alt_name) {
+            clipper::Coord_orth P_pt(residue_atoms[i]->x,
+                                     residue_atoms[i]->y,
+                                     residue_atoms[i]->z);
+            clipper::Coord_orth N_pt( N1_or_9->x,  N1_or_9->y,  N1_or_9->z);
+            clipper::Coord_orth C_pt(C1_prime->x, C1_prime->y, C1_prime->z);
+            clipper::Coord_orth CN = N_pt - C_pt;
+            clipper::Coord_orth CP = P_pt - C_pt;
 
-	    double CN_d = clipper::Coord_orth::length(N_pt, C_pt);
-	    double CP_d = clipper::Coord_orth::length(P_pt, C_pt);
+            double CN_d = clipper::Coord_orth::length(N_pt, C_pt);
+            double CP_d = clipper::Coord_orth::length(P_pt, C_pt);
 
-	    if (CN_d > 0.0) { 
-	       if (CP_d > 0.0) { 
-		  found = 1;
-		  double cos_alpha = clipper::Coord_orth::dot(CN, CP)/(CN_d*CP_d);
-		  
-		  double alpha = acos(cos_alpha);
-		  double sin_pi_minus_alpha = sin(M_PI - alpha);
-		  d = sin_pi_minus_alpha * CP_d;
-	       }
-	    }
-	 }
+            if (CN_d > 0.0) { 
+               if (CP_d > 0.0) { 
+                  found = 1;
+                  double cos_alpha = clipper::Coord_orth::dot(CN, CP)/(CN_d*CP_d);
+                  
+                  double alpha = acos(cos_alpha);
+                  double sin_pi_minus_alpha = sin(M_PI - alpha);
+                  d = sin_pi_minus_alpha * CP_d;
+               }
+            }
+         }
       }
    }
 
@@ -389,72 +389,72 @@ coot::pucker_analysis_info_t::puckered_atom() const {
 
 // return "" on no canonical name found
 std::string
-coot::util::canonical_base_name(const std::string res_name_in, base_t rna_or_dna) {
+coot::util::canonical_base_name(const std::string &res_name_in, base_t rna_or_dna) {
 
    if (rna_or_dna == coot::RNA) {
       if (res_name_in == "C")
-	 return "Cr";
+         return "Cr";
       if (res_name_in == "A")
-	 return "Ar";
+         return "Ar";
       if (res_name_in == "G")
-	 return "Gr";
+         return "Gr";
       if (res_name_in == "T")
-	 return "Tr";
+         return "Tr";
       if (res_name_in == "U")
-	 return "Ur";
+         return "Ur";
       if (res_name_in == "Cr")
-	 return "Cr";
+         return "Cr";
       if (res_name_in == "Ar")
-	 return "Ar";
+         return "Ar";
       if (res_name_in == "Gr")
-	 return "Gr";
+         return "Gr";
       if (res_name_in == "Tr")
-	 return "Tr";
+         return "Tr";
       if (res_name_in == "Ur")
-	 return "Ur";
+         return "Ur";
       if (res_name_in == "Cd")
-	 return "Cr";
+         return "Cr";
       if (res_name_in == "Ad")
-	 return "Ar";
+         return "Ar";
       if (res_name_in == "Gd")
-	 return "Gr";
+         return "Gr";
       if (res_name_in == "Td")
-	 return "Tr";
+         return "Tr";
       if (res_name_in == "Ud")
-	 return "Ur";
+         return "Ur";
    }
    
    if (rna_or_dna == coot::DNA) {
       if (res_name_in == "C")
-	 return "Cd";
+         return "Cd";
       if (res_name_in == "A")
-	 return "Ad";
+         return "Ad";
       if (res_name_in == "G")
-	 return "Gd";
+         return "Gd";
       if (res_name_in == "T")
-	 return "Td";
+         return "Td";
       if (res_name_in == "U")
-	 return "Ud";
+         return "Ud";
       if (res_name_in == "Cd")
-	 return "Cd";
+         return "Cd";
       if (res_name_in == "Ad")
-	 return "Ad";
+         return "Ad";
       if (res_name_in == "Gd")
-	 return "Gd";
+         return "Gd";
       if (res_name_in == "Td")
-	 return "Td";
+         return "Td";
       if (res_name_in == "Ud")
-	 return "Ud";
+         return "Ud";
       if (res_name_in == "Cr")
-	 return "Cd";
+         return "Cd";
       if (res_name_in == "Ar")
-	 return "Ad";
+         return "Ad";
       if (res_name_in == "Gr")
-	 return "Gd";
+         return "Gd";
       if (res_name_in == "Tr")
-	 return "Td";
+         return "Td";
       if (res_name_in == "Ur")
-	 return "Ud";
+         return "Ud";
    }
 
    return "";

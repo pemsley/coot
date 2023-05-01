@@ -20,10 +20,6 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif
-
 #include <fstream>
 
 #include <stdlib.h> // for getenv()
@@ -34,8 +30,8 @@
 #include "geometry/srs-interface.hh"
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
 #include <cairo.h>
+// used to be installed in the wrong directory
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
-// used to be installed in the wrong directory #include <MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
 #else
 #include "lidia-core/rdkit-interface.hh"
@@ -217,7 +213,7 @@ lbg_info_t::get_search_similarity() const {
 
    double r = search_similarity;
 
-   gchar *txt = gtk_combo_box_get_active_text(GTK_COMBO_BOX(lbg_search_combobox));
+   gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(lbg_search_combobox));
    if (txt) {
       try { 
 	 r = lig_build::string_to_float(txt);
@@ -229,7 +225,7 @@ lbg_info_t::get_search_similarity() const {
    } 
    return r;
 }
-#endif 
+#endif
 
 
 
@@ -264,7 +260,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
       GList* glist = gtk_container_get_children(GTK_CONTAINER(lbg_sbase_search_results_vbox));
       while (glist) {
 	 GtkWidget *w = GTK_WIDGET(glist->data);
-	 gtk_widget_destroy(w);
+	 gtk_widget_destroy(w); // clear existing children
 	 glist = glist->next;
       }
 
@@ -272,15 +268,26 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	 std::string lab = v[i].comp_id;
 	 lab += ":  ";
 	 lab += v[i].name;
+
+            // monomer search does it like this (it has left-aligned text)
+            //
+            // GtkWidget *button = gtk_button_new();
+            // GtkWidget *label  = gtk_label_new(l.c_str());
+            // GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+            // gtk_container_add(GTK_CONTAINER(button), button_hbox);
+            // gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+
 	 GtkWidget *button = gtk_button_new_with_label(lab.c_str());
 	 gtk_box_pack_start(GTK_BOX(lbg_sbase_search_results_vbox),
 			    GTK_WIDGET(button), FALSE, FALSE, 3);
 	 std::string *comp_id = new std::string(v[i].comp_id);
 	 g_signal_connect(GTK_WIDGET(button), "clicked",
-			  GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			  G_CALLBACK(on_sbase_search_result_button_clicked),
 			  (gpointer) (comp_id));
-	 gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
-	 gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+
+	 // gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5); // deprecated  - but how to FIX-IT?
+
+	 g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 	 gtk_widget_show(button);
       }
    } else {
@@ -306,13 +313,14 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 			       GTK_WIDGET(button), FALSE, FALSE, 3);
 	    std::string *comp_id = new std::string(v[i].comp_id);
 	    g_signal_connect(GTK_WIDGET(button), "clicked",
-			     GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			     G_CALLBACK(on_sbase_search_result_button_clicked),
 			     (gpointer) (comp_id));
 	    gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
-	    gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+	    g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 
 	    GtkWidget *label  = gtk_label_new(lab.c_str());
-	    GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+	    // GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+            GtkWidget *button_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	    gtk_container_add(GTK_CONTAINER(button), button_hbox);
 	    int imol = 0; // dummy
 
@@ -451,7 +459,7 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
       // std::cout << "Do something with " << comp_id << std::endl;
 
       // 20120110 new style, call an import function, using a pointer.
-      lbg_info_t *lbg = (lbg_info_t *) gtk_object_get_data(GTK_OBJECT(button), "lbg");
+      lbg_info_t *lbg = (lbg_info_t *) g_object_get_data(G_OBJECT(button), "lbg");
       if (!lbg) { 
 	 std::cout << "ERROR NULL lbg in on_sbase_search_result_button_clicked() " << std::endl;
       } else {

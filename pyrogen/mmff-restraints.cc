@@ -46,8 +46,8 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
 
       // iterate over bonds - simple
       // 
-      ForceFields::MMFF::MMFFBondCollection *mmff_bonds =
-	 ForceFields::MMFF::MMFFBondCollection::getMMFFBond();
+      // ForceFields::MMFF::MMFFBondCollection *mmff_bonds =
+      // ForceFields::MMFF::MMFFBondCollection::getMMFFBond();
       
       RDKit::ROMol::BondIterator bondIt;
       RDKit::ROMol::BondIterator start;
@@ -59,8 +59,9 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
       	 unsigned int iAtomType_1 = mmffMolProperties->getMMFFAtomType(idx_1);
       	 unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
       	 unsigned int bondType  = mmffMolProperties->getMMFFBondType(*bondIt);
-      	 const ForceFields::MMFF::MMFFBond *mmffBondParams =
-      	    (*mmff_bonds)(bondType, iAtomType_1, iAtomType_2);
+      	 const ForceFields::MMFF::MMFFBond *mmffBondParams = 0;
+         // (*mmff)(bondType, iAtomType_1, iAtomType_2);  // I don't know how to look up the bond list now.
+         // FIXME
       	 if (mmffBondParams) { 
       	    double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
       	    double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
@@ -75,21 +76,22 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
       
       // iterate over angles
       // 
-      ForceFields::MMFF::MMFFAngleCollection *mmff_angles =
-	 ForceFields::MMFF::MMFFAngleCollection::getMMFFAngle();
+      ForceFields::MMFF::MMFFAngleCollection *mmff_angles;
+      // = ForceFields::MMFF::MMFFAngleCollection::getMMFFAngle();  // I don't know how to look up the anglelist now.
+      // FIXME
       unsigned int n_atoms = mol.getNumAtoms();
       std::map<unsigned long long, bool> done_angle;
       for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-	 RDKit::ATOM_SPTR at_1 = mol[iat_1];
+	 const RDKit::Atom *at_1 = mol[iat_1];
 	 RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	 boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
 	 while(nbr_idx_1 != end_nbrs_1){
-	    const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+	    const RDKit::Atom *at_2 = mol[*nbr_idx_1];
 
 	    RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
 	    boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
 	    while(nbr_idx_2 != end_nbrs_2){
-	       const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
+	       const RDKit::Atom *at_3 = mol[*nbr_idx_2];
 	       if (at_3 != at_1) {
 
 		  unsigned int idx_1 = at_1->getIdx();
@@ -109,11 +111,13 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
 		     unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
 		     unsigned int iAtomType_3 = mmffMolProperties->getMMFFAtomType(idx_3);
 
-		     unsigned int angle_type =
-			mmffMolProperties->getMMFFAngleType(mol, idx_1, idx_2, idx_3);
+		     // unsigned int angle_type =
+                     // mmffMolProperties->getMMFFAngleType(mol, idx_1, idx_2, idx_3);
 
- 		     const ForceFields::MMFF::MMFFAngle *mmffAngleParams =
- 			(*mmff_angles)(angle_type, iAtomType_1, iAtomType_2, iAtomType_3);
+ 		     const ForceFields::MMFF::MMFFAngle *mmffAngleParams = 0;
+
+                     // doesn't compile now
+                     // (*mmff_angles)(angle_type, iAtomType_1, iAtomType_2, iAtomType_3);
 		     
 		     if (mmffAngleParams) {
 			double a = ForceFields::MMFF::Utils::calcAngleRestValue(mmffAngleParams);
@@ -151,8 +155,8 @@ coot::make_mmff_restraints(RDKit::ROMol &mol) {
       try {
 	 unsigned int idx_1 = mm_info->bonds[ibond].get_idx_1();
 	 unsigned int idx_2 = mm_info->bonds[ibond].get_idx_2();
-	 RDKit::ATOM_SPTR at_p_1 = mol[idx_1];
-	 RDKit::ATOM_SPTR at_p_2 = mol[idx_2];
+	 const RDKit::Atom *at_p_1 = mol[idx_1];
+	 const RDKit::Atom *at_p_2 = mol[idx_2];
 	 std::string name_1 = "";
 	 std::string name_2 = "";
 	 at_p_1->getProp("name", name_1);
@@ -161,7 +165,7 @@ coot::make_mmff_restraints(RDKit::ROMol &mol) {
 	 dict_bond_restraint_t br(name_1, name_2,
 				  mm_info->bonds[ibond].get_type(),
 				  mm_info->bonds[ibond].get_resting_bond_length(),
-				  mm_info->bonds[ibond].get_sigma());
+				  mm_info->bonds[ibond].get_sigma(), 0.0, 0.0, false);
 	 r.bond_restraint.push_back(br);
       }
       catch (const KeyErrorException &kee) {
@@ -173,9 +177,9 @@ coot::make_mmff_restraints(RDKit::ROMol &mol) {
 	 unsigned int idx_1 = mm_info->angles[iangle].get_idx_1();
 	 unsigned int idx_2 = mm_info->angles[iangle].get_idx_2();
 	 unsigned int idx_3 = mm_info->angles[iangle].get_idx_3();
-	 RDKit::ATOM_SPTR at_p_1 = mol[idx_1];
-	 RDKit::ATOM_SPTR at_p_2 = mol[idx_2];
-	 RDKit::ATOM_SPTR at_p_3 = mol[idx_3];
+	 const RDKit::Atom *at_p_1 = mol[idx_1];
+	 const RDKit::Atom *at_p_2 = mol[idx_2];
+	 const RDKit::Atom *at_p_3 = mol[idx_3];
 	 std::string name_1 = "";
 	 std::string name_2 = "";
 	 std::string name_3 = "";

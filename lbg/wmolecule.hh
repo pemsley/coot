@@ -41,6 +41,11 @@
 #ifndef WMOLECULE_HH
 #define WMOLECULE_HH
 
+#include <string>
+#include <goocanvas.h>
+#include <clipper/core/coords.h>
+
+#include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-shared.hh"
 
 // #define dark "#111111"
@@ -83,12 +88,12 @@ public:
    }
 
    virtual GooCanvasItem *wrap_goo_canvas_text_new(GooCanvasItem *group,
-					   const std::string &text,
-					   double x_pos, double y_pos, 
-					   int something,
-					   GtkAnchorType anchor_type,
-					   const std::string &font,
-					   const std::string &fill_colour) const {
+                                                   const std::string &text,
+                                                   double x_pos, double y_pos, 
+                                                   int something,
+                                                   GooCanvasAnchorType anchor_type,
+                                                   const std::string &font,
+                                                   const std::string &fill_colour) const {
       return goo_canvas_text_new(group,
 				 text.c_str(),
 				 x_pos, y_pos, 
@@ -109,7 +114,7 @@ public:
       // root and let this item inherit it from there
       
       GooCanvasItem *item = 
- 	 goo_canvas_polyline_new_line(root, 
+ 	 goo_canvas_polyline_new_line(root,
  				      pos_1_x, pos_1_y,
  				      pos_2_x, pos_2_y,
  				      key.c_str(), value.c_str(),
@@ -295,7 +300,7 @@ private:
 public:
    widgeted_molecule_t() { init(); }
    widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in, mmdb::Manager *pdb_mol);
-   ~widgeted_molecule_t();
+   virtual ~widgeted_molecule_t();
 
    // return 0 as first if not highlighting a bond
    std::pair<bool, widgeted_bond_t> highlighted_bond_p(int x, int y) const;
@@ -344,14 +349,14 @@ public:
    // 
    lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const;
 
+   // Moved down
    // to draw double bonds without centre correctly (and below)
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-      make_other_connections_to_first_atom_info(unsigned int bond_index) const;
+   // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+   // make_other_connections_to_first_atom_info(unsigned int bond_index) const;
    // to draw wedge bonds correctly
-   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-      make_other_connections_to_second_atom_info(unsigned int bond_index) const;
+   //    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+   // make_other_connections_to_second_atom_info(unsigned int bond_index) const;
    
-
    // can throw an exception (no atoms)
    // 
    // lig_build::pos_t get_ligand_centre() const; // 20111229 base class now

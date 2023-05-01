@@ -1,19 +1,19 @@
 # coot-utils/Makefile.am
-# 
+#
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
 # Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -22,11 +22,9 @@
 
 WITH_GUILE_CFLAGS=$(COOT_USE_GUILE)
 
-if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
-endif
 
-lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la \
+lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-coord-extras.la \
 	libcoot-map-utils.la libcoot-map-heavy.la
 
 pkginclude_HEADERS = peak-search.hh coot-trim.hh \
@@ -35,16 +33,27 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
-        atom-overlaps.hh reduce.hh secondary-structure-headers.hh plane-utils.hh
+        atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
+        secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
+	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
+	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
+	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
+	pepflip-using-difference-map.hh \
+	polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh
+
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
 	$(WITH_GUILE_CFLAGS)		\
+	$(RDKIT_CXXFLAGS) 		\
+	$(BOOST_CPPFLAGS) 		\
 	$(WITH_PYTHON_CFLAGS)
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
@@ -57,72 +66,105 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
-	atom-overlaps.cc reduce.cc secondary-structure-headers.cc plane-utils.cc
+	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
+	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
+	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
+	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc \
+	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc
 
-
-#    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
-#    $(top_builddir)/utils/libcoot-utils.la 
+#    $(top_builddir)/mini-mol/libcoot-mini-mol.la
+#    $(top_builddir)/utils/libcoot-utils.la
 #    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-# clean
+# this needs to be linked with clipper the (ubuntu 18.04) linker tells me - what uses clipper
+# in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
+    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
-    $(CLIPPER_LIBS) $(GSL_LIBS)
+    $(top_builddir)/protein_db/libcoot-protein-db.la \
+    $(top_builddir)/utils/libcoot-utils.la \
+    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+    $(CLIPPER_LIBS) $(MMDB_LIBS) \
+    $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # shelx
-libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
+# libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 
 # clean
-libcoot_shelx_la_LIBADD =  \
-    libcoot-coord-utils.la \
-    $(top_builddir)/utils/libcoot-utils.la
+# libcoot_shelx_la_LIBADD =  \
+# libcoot-coord-utils.la \
+# $(top_builddir)/utils/libcoot-utils.la
 
-libcoot_shelx_la_LDFLAGS = $(SHARED_LDFLAGS)
+# ibcoot_shelx_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc
 
 # needs more, mini-mol, geometry
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
 
+# should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la 
+   libcoot-coord-utils.la \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS)
 
 libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
-	xmap-stats.cc maps-spherical.cc
+	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc
 
-# clean
+
+# should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
-   $(CLIPPER_LIBS)
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
-libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_map_utils_la_LDFLAGS = \
+   $(SHARED_LDFLAGS) -lpthread
 
 # for map things that need mmdb, clipper, gsl and other things
-libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
+libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc
 
-#   $(top_builddir)/utils/libcoot-utils.la 
+#   $(top_builddir)/utils/libcoot-utils.la
 
 # and mini-mol (just one).
 libcoot_map_heavy_la_LIBADD = \
    libcoot-map-utils.la \
    libcoot-coord-utils.la \
-   $(GSL_LIBS)
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
 
 libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
+# lidia-core functions moved here because they use coot-utils functions
+#
+check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
+		 test-spherical glyco-torsions test-tt-morph test-coot-probe test-chem-feat \
+		 test-cod-atom-types dictionary-atom-types cod-db-access \
+		 test-5-residue-fragments \
+		 make-cablam-like-stats test-cod-atom-types-from-sm-cif
 
-# test-agg-clust
-check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions \
-	test-tt-morph test-coot-probe
+# wrong build order - delete from make check for now.
+# test-emma test-convolute test-coot-utils test-segmap
+
+bin_PROGRAMS = mmrrcc test-coot-utils
+
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -130,60 +172,145 @@ check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elast
 # test_agg_clust_LDADD =     $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
 
 
-#	$(top_builddir)/geometry/libcoot-geometry.la 
-#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#	$(top_builddir)/geometry/libcoot-geometry.la
+#        $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 
+# Why do I need to add lidia-core here? It's already added to libcoot-coord-utils.
+mmrrcc_SOURCES = mmrrcc.cc
+mmrrcc_LDADD = ./libcoot-map-utils.la \
+	./libcoot-coord-utils.la  \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(CLIPPER_LIBS)
+
+make_cablam_like_stats_SOURCES = make-cablam-like-stats.cc
+make_cablam_like_stats_LDADD = ./libcoot-coord-utils.la \
+	./libcoot-map-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)	$(MMDB_LIBS)
+
 test_coot_probe_SOURCES = test-coot-probe.cc
 test_coot_probe_LDADD =          \
-	./libcoot-coord-utils.la
+	./libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(MMDB_LIBS)
 
 testshelxreader_SOURCES = test-shelx-reader.cc
-testshelxreader_LDADD =          \
-	./libcoot-shelx.la       \
-	./libcoot-coord-utils.la 
+testshelxreader_LDADD =  ./libcoot-coord-utils.la
 
-#	$(top_builddir)/geometry/libcoot-geometry.la 
-#       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
-#       $(top_builddir)/utils/libcoot-utils.la
+# if OOPS_WRONG_BUILD_ORDER # - No - I can't use coords libraries - they have not been built yet - fix later.
+# test_emma_SOURCES = test-emma.cc
+# test_emma_LDADD =  libcoot-map-utils.la \
+# 	./libcoot-coord-utils.la  \
+# 	$(top_builddir)/coords/libcoot-coords.la \
+# 	$(CLIPPER_LIBS) $(FFTW2_LIBS)
 
-testcootutils_SOURCES = test-utils.cc
-testcootutils_LDADD =            \
-	./libcoot-shelx.la       \
-	./libcoot-coord-extras.la\
-	./libcoot-coord-utils.la \
-	$(GSL_LIBS) \
-        $(GLOB_LIBS)
+# test_convolute_SOURCES = test-convolute.cc
+# test_convolute_LDADD = \
+# 	./libcoot-coord-utils.la  \
+# 	./libcoot-map-utils.la \
+# 	./libcoot-map-heavy.la \
+# 	$(top_builddir)/coords/libcoot-coords.la \
+# 	$(top_builddir)/utils/libcoot-utils.la \
+# 	$(CLIPPER_LIBS)
 
-#	$(top_builddir)/geometry/libcoot-geometry.la 
-#       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
-#       $(top_builddir)/utils/libcoot-utils.la 
+# # other test binaries may need to be linked like this too
+test_coot_utils_SOURCES = test-coot-utils.cc
+test_coot_utils_LDADD = \
+	./libcoot-map-heavy.la    \
+	./libcoot-map-utils.la    \
+	./libcoot-coord-extras.la \
+	./libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
+
+# test_segmap_SOURCES = test-segmap.cc
+# test_segmap_LDADD = \
+# 	./libcoot-map-utils.la \
+# 	./libcoot-map-heavy.la \
+# 	$(top_builddir)/coords/libcoot-coords.la \
+# 	$(CLIPPER_LIBS) -lpthread
+
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
-        $(GLOB_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(GLOB_LIBS) $(MMDB_LIBS)
 
 test_hole_SOURCES = test-hole.cc
-test_hole_LDADD = ./libcoot-coord-utils.la
-
-# \
-#	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
-#	$(top_builddir)/geometry/libcoot-geometry.la \
-#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+test_hole_LDADD = ./libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(MMDB_LIBS)
 
 test_tt_morph_SOURCES = test-morph.cc
-
-test_tt_morph_LDADD = 	./libcoot-map-heavy.la
+test_tt_morph_LDADD = ./libcoot-map-heavy.la \
+	./libcoot-map-utils.la \
+	./libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
+test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS) $(MMDB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
-test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
+test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
-glyco_torsions_LDADD   = ./libcoot-coord-utils.la
+glyco_torsions_LDADD   = ./libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(MMDB_LIBS)
 
-#    $(MMDB_LIBS)
+
+test_chem_feat_SOURCES = test-chem-feat.cc
+
+test_chem_feat_LDADD = \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(MMDB_LIBS) $(RDKIT_LIBS)
+
+test_cod_atom_types_SOURCES = test-cod-atom-types.cc
+
+test_cod_atom_types_LDADD = \
+	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(RDKIT_LIBS)
+
+test_cod_atom_types_from_sm_cif_SOURCES = test-cod-atom-types-from-sm-cif.cc
+
+test_cod_atom_types_from_sm_cif_LDADD = \
+	libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(RDKIT_LIBS)
+
+cod_db_access_SOURCES = cod-db-access.cc
+
+cod_db_access_LDADD = $(top_builddir)/lidia-core/libcoot-lidia-core.la $(RDKIT_LIBS)
+
+test_5_residue_fragments_SOURCES = test-5-residue-fragments.cc
+
+test_5_residue_fragments_LDADD = \
+	libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) \
+	$(RDKIT_LIBS)
+
+dictionary_atom_types_SOURCES = dictionary-atom-types.cc
+
+dictionary_atom_types_LDADD = \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(RDKIT_LIBS)

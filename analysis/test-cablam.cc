@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
    if (argc > 1) {
 
       std::string file_name(argv[1]);
-      atom_selection_container_t asc = get_atom_selection(file_name, false, 0);
+      atom_selection_container_t asc = get_atom_selection(file_name, false, false, false);
 
       if (false) {
 

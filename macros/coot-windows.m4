@@ -29,6 +29,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  SHARED_LDFLAGS=
  have_windows_mingw=no
  windows=false
+ have_win64=no
 
  # BL: workaround needed for new MinGW
  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
@@ -36,7 +37,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  case $ac_cv_build_alias in 
 
   *-mingw*)
-    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
+    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS -D_USE_MATH_DEFINES"
     # BL says:: may need rethink for shared compilation of course!!
     COOT_WINDOWS_LDFLAGS="-shared-libgcc -static-libstdc++"
     if test $enable_shared = yes ; then
@@ -47,9 +48,19 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
     windows=true
     ;;
  esac
+AC_MSG_RESULT([$have_windows_mingw])
+
+AC_MSG_CHECKING([if this is msys2 windows 64])
+ case $ac_cv_build_alias in
+
+  *x86_64-*mingw*)
+    have_win64=yes
+    ;;
+  esac
 
 AM_CONDITIONAL([OS_WIN32], [test x$windows = xtrue])
-AC_MSG_RESULT([$have_windows_mingw])
+AM_CONDITIONAL([OS_WIN64], [test x$have_win64 = xyes])
+AC_MSG_RESULT([$have_win64])
 AC_SUBST(COOT_WINDOWS_CFLAGS)
 AC_SUBST(COOT_WINDOWS_LDFLAGS)
 AC_SUBST(SHARED_LDFLAGS)

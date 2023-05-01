@@ -1,4 +1,4 @@
-# hello.py 
+# hello.py
 # Copyright 2005, 2006 by Bernhard Lohkamp
 # Copyright 2003, 2004, 2005, 2006 Paul Emsley, University of York
 # Copyright 2016 by Medical Research Council
@@ -34,6 +34,7 @@ import time
 import string
 import os, sys
 import getpass
+import coot
 
 def coot_says_hello():
 
@@ -62,19 +63,18 @@ def coot_says_hello():
    except:
       name_string = getpass.getuser()
       name_strings = name_string.split()
-    
+
    # reverse name_strings if locale is japanese
    l1 = os.getenv("LANG")
    l2 = os.getenv("LANGUAGE")
    if l1 == "ja": name_strings.reverse() # perhaps beginswith
    if l2 == "ja": name_strings.reverse()
-   personal_name = string.capitalize(first_non_trivial_name(name_strings))
-   hello_str = "Good %s %s, Welcome to Coot version %s" %(time_str, personal_name, coot_version())
-   print hello_str
-   set_display_intro_string(hello_str)
+   personal_name = str.capitalize(first_non_trivial_name(name_strings))
+   hello_str = "Good %s %s, Welcome to Coot version %s" %(time_str, personal_name, coot.coot_version())
+   print(hello_str)
+   coot.set_display_intro_string(hello_str)
 
 # check for main
 #if __name__ == "__main__":
 
 coot_says_hello()
-

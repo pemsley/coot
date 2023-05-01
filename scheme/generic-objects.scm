@@ -113,6 +113,17 @@
 ;; return status.
 ;; 
 (define (reduce-on-pdb-file imol pdb-in pdb-out)
+    (reduce-on-pdb-file-generic imol 'build pdb-in pdb-out))
+
+
+;; return status.
+;; 
+(define (reduce-on-pdb-file-no-flip imol pdb-in pdb-out)
+    (reduce-on-pdb-file-generic imol 'no-flip pdb-in pdb-out))
+
+;; return status.
+;; 
+(define (reduce-on-pdb-file-generic imol no-flip-or-build pdb-in pdb-out)
 
   (format #t "running reduce on ~s~%" pdb-in)
   (if (not (command-in-path-or-absolute? *reduce-command*))
@@ -123,6 +134,7 @@
 	       (ext (apply string-append (map (lambda (item)
 						(string-append item "-"))
 					      nshl)))
+               (mode "-build")
 	       (reduce-het-dict-file-name (string-append 
 					   "coot-molprobity/reduce-het-dict" ext ".txt")))
 
@@ -143,15 +155,16 @@
 			      (format #t "puting env ~s~%" env-string)
 			      (putenv env-string))))))))
 
+	  (if (eq? no-flip-or-build 'no-flip)
+	      (set! mode "-NOFLIP"))
+
 	  (format #t "======= reduce-on-pdb-file: command ~s args ~s with pdb-out: ~s~%"
 		  *reduce-command*
-		  (list "-build"  pdb-in
-			"-DB" reduce-het-dict-file-name)		  
+		  (list mode pdb-in "-DB" reduce-het-dict-file-name)
 		  pdb-out)
 	  
 	  (let ((status (goosh-command *reduce-command* 
-				       (list "-build"  pdb-in
-					     "-DB" reduce-het-dict-file-name)
+				       (list mode pdb-in "-DB" reduce-het-dict-file-name)
 				       '() pdb-out #f)))
 	    
 	    (format #t "======== status ~s~%" status)
@@ -162,6 +175,9 @@
 (define *old-pdb-style* #f)
 
 (define reduce-molecule-updates-current #f)
+
+(define *probe-command* "probe")
+(define *reduce-command* "reduce")
 
 ;; run molprobity (well reduce and probe) to make generic objects (and
 ;; display the generic objects gui)

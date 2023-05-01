@@ -1,11 +1,14 @@
 
    For Release 0.8.9.3
 
+   o Refine a bit of distorted RNA
+     Marc Leibundgut 26/06/2019.
+
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
    o Fix the representation of charges in the residue restraints notebook
 
    o multiple file selection in the dictionary cif chooser (don't spend too much time on this)
-
-   o how about fixing the raster3d install? Make it dependent on having gfortran
 
    o Fix the H5' problem
 
@@ -85,9 +88,17 @@
 
 * Done.
 
+   o if balls and sticks representation then draw balls for waters, not sticks
+
+* Done.
+
+   o Make a "I like the graphics size and postion" - like for dialogs.
+
+* Done.
+
    o backup format change to mmdb-binary.
 
-* It is now cif if input was cif = that will do for now.
+* It is now cif if input was cif, that will do for now.
 
    o Find Ligands: if the ligand was not specified, don't dismiss the dialog (unless there are
      no ligands)
@@ -136,6 +147,20 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
 ----
 
    For Release 0.8.9.2
+
+   o fix clipper configure fftw2 - Don't use the system version.
+
+   o Can you do "x" refine on a residue with a insertion code, ee.g. H 35A in 5aco.  Triple Refine this too.
+
+   o glyco tree refine A 1334 in 5aco.
+
+   o fix the colours of (say) 5vic in Calpha Backbone mode
+
+   o make anamalous maps non-red/green
+
+   o edit chi angles gives the wrong chi angles for chi2? update_residue_by_chi_change() uses
+     tree.rotate_about() with 2 atoms as the arguments.  tree should preferentially
+     choose N as the base atom, if it is an option. Also, CG1 rather than CG2.
 
    o validation outliers gui in the release, in the gui.
 
@@ -188,6 +213,9 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
    o multisharpen in a directory not writable. Give a better error message
 
 * Done.
+
+------
+
 
    o delete is_sane_inter_residue_distance debug
 
@@ -250,8 +278,6 @@ Thread 0 Crashed:: Dispatch queue: com.apple.main-thread
    o Try rotate/translate on a chain by picking C4',B in B 2 of 2H0N
 
    o update the copyright in the about dialog?
-
-------
 
    o Randy: update NCS matrices for "O" key after symm shift reference chain here
 
@@ -706,6 +732,6 @@ Punt.
 
 * Punt.
 
-   o does normal/old/standard cis-trans update the bonds?
+   o does normal/old/standard coot cis-trans update the bonds?
 
 * Yes

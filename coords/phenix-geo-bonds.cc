@@ -112,11 +112,11 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 		     std::cout << "Residue for Atom 2 was not the same Residue as for Atom 1 "
 			       << "and not the next or previous residues either  " << std::endl;
 
-		     mmdb::Residue *residue_p = coot::util::get_residue(atom_2_spec, mol);
-		     mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, residue_p);
+		     mmdb::Residue *residue_p = coot::util::get_residue(coot::residue_spec_t(atom_2_spec), mol);
+		     mmdb::Atom *atom_2_l = coot::util::get_atom(atom_2_spec, residue_p);
 		     done = true;
-		     if (atom_2) {
-			std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
+		     if (atom_2_l) {
+			std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2_l);
 			bonded_atom_pairs.push_back(ap);
 		     } else {
 			std::cout << "Null atom 2 - [D path] this should not happen " << std::endl;
@@ -168,7 +168,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       } else { // res of this atom_1 was not the same as the the res of the previous atom_1
 
 	 atom_1 = coot::util::get_atom(atom_1_spec, mol);
-	 res_1_spec = coot::residue_spec_t(atom_1);
+	 res_1_spec = coot::residue_spec_t(atom_1->GetResidue());
 
 	 if (atom_1) {
 
@@ -226,8 +226,8 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       mmdb::Atom *a2 = bonded_atom_pairs[i].second;
       coot::CartesianPair p(coot::Cartesian(a1->x, a1->y, a1->z),
 			    coot::Cartesian(a2->x, a2->y, a2->z));
-      a1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-      a2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+      a1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+      a2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
       bonds[0].add_bond(p, cc, true, true, -1, -1, -1);
    }
@@ -265,7 +265,7 @@ Bond_lines_container::set_udd_unbonded(mmdb::Manager *mol, int uddHnd) {
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
 			if (at) 
-			   at->PutUDData(uddHnd, NO_BOND);
+			   at->PutUDData(uddHnd, graphical_bonds_container::NO_BOND);
 		     }
 		  }
 	       }
@@ -313,7 +313,7 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 			at = residue_p->GetAtom(iat);
 			if (at) { 
 			   if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
-			      if (ic == NO_BOND) {
+			      if (ic == graphical_bonds_container::NO_BOND) {
 				 coot::Cartesian atom_pos(at->x, at->y, at->z);
 				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1);
 				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1);

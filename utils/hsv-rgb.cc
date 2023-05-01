@@ -41,7 +41,7 @@ coot::convert_rgb_to_hsv(const std::vector<float> &in_vals) {
 	    cols[0] = 4.0 + gc-rc;
 	 }
       }
-      cols[0] = cols[0]/6.0- floorf(cols[0]/6.0);
+      cols[0] = cols[0]/6.0 - floorf(cols[0]/6.0);
    }
    return cols; 
 }
@@ -114,6 +114,22 @@ coot::hsv_to_colour(const std::vector<float> &hsv) {
    return colour_holder(v[0],v[1],v[2]);
 }
 
+void
+coot::colour_holder::pastelize(float degree) {
+
+   float col[3] = {red, green, blue};
+   for (unsigned int i=0; i<3; i++) {
+      const float &cc = col[i];
+      float r = 1.0f - cc;
+      col[i] += r * degree;
+      col[i] *= (1.0f - 0.5f * degree); // I don't want bright pastel
+   }
+   red   = col[0];
+   green = col[1];
+   blue  = col[2];
+
+}
+
 // 
 coot::colour_holder::colour_holder(const std::string &hex_colour_string) { 
 
@@ -154,7 +170,12 @@ coot::colour_holder::colour_holder(const std::string &hex_colour_string) {
 // // dum is a holder for a colour map selection.
 // // 
 coot::colour_holder::colour_holder(double value, double min_z, double max_z,
+                                   bool use_deuteranomaly_mode,
 				   const std::string &dum) {
+
+   // Given a min, max range of 0,1
+   // If value ~0, we want ~green
+   // if value ~1, we want ~red
 
    float this_z = value;
    float range = max_z - min_z;
@@ -162,12 +183,53 @@ coot::colour_holder::colour_holder(double value, double min_z, double max_z,
    if (f > 1.0) f = 1.0;
    if (f < 0.0) f = 0.0;
 
-   blue = 0.0;
    blue = 0.25 - (f-0.5)*(f-0.5);
-   red = pow(f, 0.2);
-   green = pow(1 - f, 0.2);
+   red = powf(f, 0.2);
+   green = powf(1.0-f, 0.2);
 
-} 
+   if (use_deuteranomaly_mode) {
+      blue = f;
+   }
+
+}
+
+void
+coot::colour_holder::scale_intensity(float f) {
+
+   red   *= f;
+   green *= f;
+   blue  *= f;
+
+}
+
+void
+coot::colour_holder::rotate_by(float angle) {
+
+   auto convert_to_hsv = [] (float red, float green, float blue) {
+                            std::vector<float> v = { red, green, blue};
+                            return convert_rgb_to_hsv(v);
+                         };
+
+   // references to member functions
+   auto convert_from_hsv = [] (const std::vector<float> &v, float &red, float &green, float &blue) {
+                              std::vector<float> o = convert_hsv_to_rgb(v);
+                              red   = o[0];
+                              green = o[1];
+                              blue  = o[2];
+                           };
+
+   std::vector<float> hsv = convert_to_hsv(red, green, blue);
+   hsv[0] += angle;
+   while (hsv[0] > 1.0)
+      hsv[0] -= 1.0;
+
+   // not sure that this does any good. I need to test what convert_rgb_to_hsv() returns
+   // for some sane and non-sane input values.
+   while (hsv[0] < 0.0)
+      hsv[0] += 1.0;
+
+   convert_from_hsv(hsv, red, green, blue); // modify red, green, blue
+}
 
 
 
@@ -207,3 +269,14 @@ coot::colour_holder::hex() const {
    hexstring += ss3.str();
    return hexstring;
 } 
+
+void
+coot::colour_holder::brighten(float amount) {
+
+   red   += amount;
+   green += amount;
+   blue  += amount;
+   if (red   > 1.0) red   = 1.0;
+   if (green > 1.0) green = 1.0;
+   if (blue  > 1.0) blue  = 1.0;
+}

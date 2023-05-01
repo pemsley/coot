@@ -29,15 +29,16 @@ ACLOCAL_AMFLAGS=-I macros
 # geometry depends on utils
 #
 
+# also: coords depends on ligand because now we do rotamer markup.
+#       so ligand functions must not use coot::Cartesian
 if COND_LIDIA_ONLY
    SUBDIRS = compat utils mini-mol geometry lidia-core lbg
 else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
-        coot-utils surface coot-surface lidia-core \
-	coords angles skeleton ccp4mg-utils density-contour \
-	db-main analysis ideal ligand high-res build greg-tests python-tests \
-	tw libgtkgraph lbg cootaneer cootilus goograph pli pyrogen src data \
-	man rama-data doc rcrane pixmaps
+        lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
+	density-contour skeleton  high-res build MoleculesToTriangles greg-tests \
+	python-tests lbg cootilus pli fonts pyrogen test-validation src data \
+	man rama-data doc rcrane glTF pixmaps textures
 endif
 
 # po, no po today.
@@ -61,6 +62,9 @@ EXTRA_DIST = 		\
 	missing 	\
 	TODO 		\
 	count-loc 	\
+	a6.glade        \
+	coot-gtk4.ui    \
+	single-map-properties-dialog.glade \
 	syminfo.lib	\
 	colours.def	\
 	my.supp		\
@@ -103,10 +107,13 @@ EXTRA_DIST = 		\
 #	  done \
 #	fi
 
+# packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
 	mtrix-to-ncs-matrix.awk syminfo.lib
 
+cootgladedir = $(pkgdatadir)/glade
+dist_cootglade_DATA = coot-gtk4.ui a6.glade preferences-gtk3.glade single-map-properties-dialog-gtk4.ui
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml

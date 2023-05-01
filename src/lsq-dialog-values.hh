@@ -20,6 +20,11 @@
  * 02110-1301, USA
  */
 
+#include <string>
+#include <gtk/gtk.h>
+#include <clipper/core/clipper_types.h>
+
+#include "widget-from-builder.hh"
 
 class lsq_dialog_values_t {
 
@@ -46,15 +51,16 @@ public:
 	 // GtkWidget *mov_option_menu = lookup_widget(dialog, "least_squares_moving_molecule_optionmenu");
 	 // GtkWidget *ref_option_menu = lookup_widget(dialog, "least_squares_reference_molecule_optionmenu");
 	 
-	 GtkWidget *ref_res_range_1 = lookup_widget(dialog, "least_squares_reference_range_1_entry");
-	 GtkWidget *ref_res_range_2 = lookup_widget(dialog, "least_squares_reference_range_2_entry");
-	 GtkWidget *mov_res_range_1 = lookup_widget(dialog, "least_squares_moving_range_1_entry");
-	 GtkWidget *mov_res_range_2 = lookup_widget(dialog, "least_squares_moving_range_2_entry");
+	 GtkWidget *ref_res_range_1 = widget_from_builder("least_squares_reference_range_1_entry");
+	 GtkWidget *ref_res_range_2 = widget_from_builder("least_squares_reference_range_2_entry");
+	 GtkWidget *mov_res_range_1 = widget_from_builder("least_squares_moving_range_1_entry");
+	 GtkWidget *mov_res_range_2 = widget_from_builder("least_squares_moving_range_2_entry");
 
-	 const char *txt_r_1 = gtk_entry_get_text(GTK_ENTRY(ref_res_range_1));
-	 const char *txt_r_2 = gtk_entry_get_text(GTK_ENTRY(ref_res_range_2));
-	 const char *txt_m_1 = gtk_entry_get_text(GTK_ENTRY(mov_res_range_1));
-	 const char *txt_m_2 = gtk_entry_get_text(GTK_ENTRY(mov_res_range_2));
+	 const char *txt_r_1 = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_1));
+	 const char *txt_r_2 = gtk_editable_get_text(GTK_EDITABLE(ref_res_range_2));
+	 const char *txt_m_1 = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_1));
+	 const char *txt_m_2 = gtk_editable_get_text(GTK_EDITABLE(mov_res_range_2));
+
 	 int ir1 = clipper::String(txt_r_1).i();
 	 int ir2 = clipper::String(txt_r_2).i();
 	 int im1 = clipper::String(txt_m_1).i();

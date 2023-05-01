@@ -23,6 +23,9 @@
 #define INCLUDE_STATS_HH
 
 #include <vector>
+#include <utility>
+#include <algorithm>
+
 #include <math.h>
 
 #include <gsl/gsl_sf_erf.h>
@@ -43,8 +46,7 @@ namespace coot {
 	 single() {
 	    // have_cached_kurtosis = false;
 	 }
-	 single(const std::vector<double> &v_in) {
-	    v = v_in;
+	 explicit single(const std::vector<double> &v_in) :v(v_in) {
 	    // have_cached_kurtosis = false;
 	 }
 	 unsigned int size() const { return v.size(); }
@@ -52,11 +54,11 @@ namespace coot {
 	    v.push_back(a);
 	    // have_cached_kurtosis = false;
 	 }
-	 
+
 	 double mean() const {
 	    double m = 0;
-	    double sum = 0;
 	    if (v.size() ) { 
+               double sum = 0;
 	       for (unsigned int i=0; i<v.size(); i++)
 		  sum += v[i];
 	       m = sum/double(v.size());
@@ -66,9 +68,9 @@ namespace coot {
 
 	 double variance() const {
 	    double var = 0;
-	    double sum = 0;
-	    double sum_sq = 0;
 	    if (v.size() ) { 
+               double sum = 0;
+               double sum_sq = 0;
 	       for (unsigned int i=0; i<v.size(); i++) { 
 		  sum += v[i];
 		  sum_sq += v[i] * v[i];
@@ -78,6 +80,23 @@ namespace coot {
 	    }
 	    if (var < 0) var = 0; // numerical stability
 	    return var;
+	 }
+
+	 double skew() const {
+	    double skew = 0;
+	    double m = mean();
+	    double var = variance();
+	    double sigma = sqrt(var);
+	    double s3 = sigma * sigma * sigma;
+	    if (v.size() > 0) {
+               double sum_cubed = 0;
+	       for (unsigned int i=0; i<v.size(); i++) {
+		  double delta = v[i] - m;
+		  sum_cubed += delta * delta * delta;
+	       }
+	       skew = (sum_cubed/double(v.size()))/s3;
+	    }
+	    return skew;
 	 }
 
 	 double kurtosis() const {
@@ -96,11 +115,11 @@ namespace coot {
 	    double k = -999;
 	    if (v.size() ) {
 
-	       double sum_to_the_4 = 0;
 	       double m = mean();
 	       double var = variance();
 
 	       if (var > 0) {
+                  double sum_to_the_4 = 0;
 		  for (unsigned int i=0; i<v.size(); i++) { 
 		     double t = v[i] - m;
 		     sum_to_the_4 += t * t * t * t;
@@ -111,6 +130,25 @@ namespace coot {
 	       }
 	    }
 	    return k;
+	 }
+
+	 std::pair<double, double> median_and_iqr() const {
+
+	    std::vector<double> vv = v;
+	    std::sort(vv.begin(), vv.end());
+	    int n = vv.size();
+
+	    int idx_q1 = static_cast<int>(0.25 * static_cast<double>(n));
+	    int idx_q2 = static_cast<int>(0.50 * static_cast<double>(n));
+	    int idx_q3 = static_cast<int>(0.75 * static_cast<double>(n));
+	    double iqr = vv[idx_q3] - vv[idx_q1];
+	    double m = vv[idx_q2];
+	    if (n%2 == 0) {
+	       int idx_q2a = idx_q2 + 1;
+	       if (idx_q2a < n)
+		  m = (m + vv[idx_q2a]) * 0.5;
+	    }
+	    return std::pair<double, double> (m,iqr);
 	 }
       };
 

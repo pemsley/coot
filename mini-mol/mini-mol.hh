@@ -22,7 +22,6 @@
 #ifndef HAVE_MINIMOL
 #define HAVE_MINIMOL
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -42,10 +41,9 @@ namespace coot {
 	 std::string chain_id;
 	 int resno_1;
 	 int resno_2;
-	 zone_info_t() { is_simple_zone = 0; }
-	 zone_info_t(const std::string &chain_id_in, int r1, int r2) {
+	 zone_info_t() { is_simple_zone = false; resno_1 = -1; resno_2 = -1; }
+	 zone_info_t(const std::string &chain_id_in, int r1, int r2) : chain_id(chain_id_in) {
 	    is_simple_zone = 1;
-	    chain_id = chain_id_in;
 	    resno_1 = r1;
 	    resno_2 = r2;
 	 }
@@ -56,8 +54,8 @@ namespace coot {
 	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float occupancy, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy, float b_factor);
-	 atom(mmdb::Atom *at);
-	 atom() { int_user_data = -1; }
+	 explicit atom(mmdb::Atom *at);
+	 atom() { int_user_data = -1; occupancy = -1; temperature_factor = -1; }
 	 std::string altLoc;
 	 float occupancy;
 	 float temperature_factor;
@@ -67,16 +65,16 @@ namespace coot {
 	 int int_user_data;
 	 bool is_hydrogen_p() const;
 	 friend std::ostream&  operator<<(std::ostream&, atom);
+         mmdb::Atom *make_atom() const;
       };
 
       class residue { 
       public:
-	 residue(int i){ seqnum = i; ins_code = "";}
-	 residue(int i, const std::string &resname) {
+	 explicit residue(int i) : ins_code(""), name("") { seqnum = i;}
+	 residue(int i, const std::string &resname) : ins_code(""), name(resname) {
 	    seqnum = i;
-	    name = resname;
-	    ins_code = "";}
-	 residue(mmdb::Residue *residue_p);
+         }
+	 explicit residue(mmdb::Residue *residue_p);
 	 residue(mmdb::Residue *residue_p,
 		 const std::vector<std::string> &keep_only_these_atoms);
 	 residue(){ seqnum = mmdb::MinInt4; /* unset */ }; // for resizing the residues in fragment
@@ -89,6 +87,10 @@ namespace coot {
 	 const atom& operator[](const std::string &atname) const; // look it up, return atom 
                                             	 // with name "FAIL" if the atom is not there.
 	 atom&       operator[](int i) {return atoms[i];}
+	 atom& at(const std::string &atname) ; // look it up, return atom 
+                                               // with name "FAIL" if the atom is not there.
+         // more robust, but involves a copy:
+         std::pair<bool, atom> get_atom(const std::string &atom_name) const;
 	 void addatom(std::string atom_name, std::string element,
 		      float x, float y, float z, const std::string &altloc, float bf, float occupancy);
 	 void addatom(std::string atom_name, std::string element,
@@ -120,15 +122,14 @@ namespace coot {
 	 fragment() {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1)); }
-	 fragment(const std::string &frag_id_in) {
-	    fragment_id = frag_id_in;
+	 explicit fragment(const std::string &frag_id_in) : fragment_id(frag_id_in) {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1));
 	 }
-	 fragment(const std::string &frag_id_in, bool f) {
-	    fragment_id = frag_id_in;
+	 fragment(const std::string &frag_id_in, bool f) : fragment_id(frag_id_in) {
 	    residues_offset = 0;
-	 } 
+            if (f) {};
+	 }
 	 std::string fragment_id;
 	 std::vector<residue> residues;
 	 friend std::ostream&  operator<<(std::ostream&, fragment);
@@ -138,9 +139,11 @@ namespace coot {
 	 const residue& operator[](int i) const {
 	    int itmp = residues.size() + residues_offset;
 	    if (i>= itmp) {
+#ifdef HAVE_IOSTREAM_HEADER
 	       std::cout << "ERROR:: can't resize const residues: request for " << i
 			 << " with residues size: " << residues.size()
 			 << " and offset: " << residues_offset << std::endl;
+#endif
 	       std::string s = "can't resize const residues: request for ";
 	       s += util::int_to_string(i);
 	       s += " with residues size: ";
@@ -152,6 +155,7 @@ namespace coot {
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);
+	 residue& at(int i) { return (*this)[i]; }
 	 // can throw a std::runtime_error exception if this is called
 	 // with an uninialised (and empty) res and we try to add it.
 	 void addresidue(const residue &res, bool add_if_empty_flag);
@@ -163,9 +167,11 @@ namespace coot {
 	 int n_filled_residues() const;
 	 int resize_for(int nres, int min_resno);
 	 void check() const;
+         void write_file(const std::string &file_name) const;
 	 clipper::Coord_orth midpoint() const;
 	 // transform all coordinates in the fragment by rtop:
 	 void transform(const clipper::RTop_orth &rtop);
+	 void delete_first_residue();
 	 bool operator<(const fragment &f1) const {
 	    return (fragment_id < f1.fragment_id);
 	 }
@@ -185,9 +191,12 @@ namespace coot {
 	 // residue_type is usually, "HOH" or "DUM".
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
-		  std::string chain_id);
-	 molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
-	 molecule(const fragment &frag);
+		  std::string chain_id, const std::string &ele=" O");
+	 molecule(const std::vector<std::pair<clipper::Coord_orth, float> > &atom_list_with_estimated_b_factors,
+		  const std::string &residue_type, std::string atom_name,
+		  std::string chain_id, const std::string &ele=" O");
+	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
+	 explicit molecule(const fragment &frag);
 
 	 // Ridiculous synthetic constructor.  Use the atom selection
 	 // to generate the molecule hierachy, but use the atom vector
@@ -243,6 +252,7 @@ namespace coot {
 	 int read_file(std::string pdb_filename); // use mmdb to read.
 	 // return 0 on success
 	 int write_file(std::string pdb_filename, float new_atom_b_factor) const; // use mmdb to write.
+	 int write_cif_file(const std::string &cif_filename) const; // use mmdb to write.
 	 // possibly expensive/large return value:
 	 std::vector<atom *> select_atoms_serial() const;
 	 // ditto
@@ -277,6 +287,8 @@ namespace coot {
 	 void transform(const clipper::RTop_orth &rtop);
 	 // apply a shift of -pos before transforming (then apply shift back again)
 	 void transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos);
+
+         void translate(const clipper::Coord_orth &t);
 
 	 // get the RTop that transforms this molecule onto mol_ref.
 	 // mol_ref is (guaranteed by caller) to be of the same
@@ -313,6 +325,19 @@ namespace coot {
 
 
 /* Need this construction?
+                                              for(unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
+                                                 for(int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number(); ires++) {
+                                                    for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
+                                                       const clipper::Coord_orth atom_pos(m[ifrag][ires][iat].pos);
+                                                       std::cout << " " << m[ifrag].fragment_id << " " << m[ifrag][ires]
+                                                                 << " " << m[ifrag][ires][iat].name
+                                                                 << " " << m[ifrag][ires][iat].pos.format() << std::endl;
+                                                    }
+                                                 }
+                                              }
+
+   or mabye this one:
+
    for(int ifrag=0; ifrag<fragments.size(); ifrag++) {
       for(int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
 	 for (int iat=0; iat<(*this)[ifrag][ires].atoms.size(); iat++) {

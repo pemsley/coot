@@ -38,12 +38,6 @@
  
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
-
 #include <vector>
 #include <string>
 
@@ -74,33 +68,53 @@
 
 #include "ligand/wligand.hh"
 
-
+#include "widget-from-builder.hh"
 
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog() { 
 
-   GtkWidget *dialog = create_unmodelled_blobs_dialog();
-   int ifound; 
-   short int diff_maps_only_flag = 0;
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "find_blobs_map", 
-							diff_maps_only_flag);
-   if (ifound == 0) {
-      std::cout << "Error: you must have a map to search for blobs!"
-		<< std::endl;
-   } 
-   ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "find_blobs_protein");
-   if (ifound == 0) {
-      std::cout << "Error: you must have a protein to mask the map to search for blobs!"
-		<< std::endl;
-   }
+   graphics_info_t g;
+   GtkWidget *dialog         = widget_from_builder("unmodelled_blobs_dialog");
+   GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
+   GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
 
-   // fill sigma level
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
 
-   GtkWidget *entry;
-   entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
 
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto model_list = get_model_molecule_vector();
+   auto   map_list = get_map_molecule_vector();
+   if (! model_list.empty()) imol_mol_active = model_list[0];
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
+   // fill sigma level entry
+   //
+   GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
    char *txt = get_text_for_find_waters_sigma_cut_off();
-   gtk_entry_set_text(GTK_ENTRY(entry), txt);
+   gtk_editable_set_text(GTK_EDITABLE(entry), txt);
    free(txt);
 
    return dialog;
@@ -108,14 +122,13 @@ GtkWidget *wrapped_create_unmodelled_blobs_dialog() {
 
 void execute_find_blobs_from_widget(GtkWidget *dialog) { 
 
-   int imol_model = -1;
-   int imol_for_map = -1;
    float sigma_cut_off = -1; 
 
-   GtkWidget *entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
-   const gchar *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   // GtkWidget *entry = lookup_widget(dialog, "find_blobs_peak_level_entry");
+   GtkWidget *entry = widget_from_builder("find_blobs_peak_level_entry");
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) { 
-      float f = atof(txt);
+      float f = coot::util::string_to_float(txt);
       if (f > 0.0 && f < 1000.0) { 
 	 sigma_cut_off = f;
       }
@@ -123,61 +136,17 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 
    if (sigma_cut_off > 0.0) {
 
-      // Find the first active map radiobutton
-      GtkWidget *map_button;
-      short int found_active_button_for_map = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_xmap()) { 
-	    std::string map_str = "find_blobs_map_radiobutton_";
-	    map_str += graphics_info_t::int_to_string(imol);
-	    map_button = lookup_widget(dialog, map_str.c_str());
-	    if (map_button) { 
-	       if (GTK_TOGGLE_BUTTON(map_button)->active) {
-		  imol_for_map = imol;
-		  found_active_button_for_map = 1;
-		  break;
-	       }
-	    } else {
-	       std::cout << "WARNING:: (error) " << map_str << " widget not found in "
-			 << "execute_get_mols_ligand_search" << std::endl;
-	    }
-	 }
-      }
+      GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
+      GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
+      graphics_info_t g;
+      int imol_model   = g.combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+      int imol_for_map = g.combobox_get_imol(GTK_COMBO_BOX(map_combobox));
 
-      // Find the first active protein radiobutton
-      GtkWidget *protein_button;
-      short int found_active_button_for_protein = 0;
-      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    std::string protein_str = "find_blobs_protein_radiobutton_";
-	    protein_str += graphics_info_t::int_to_string(imol);
-	    protein_button = lookup_widget(dialog, protein_str.c_str());
-	    if (protein_button) { 
-	       if (GTK_TOGGLE_BUTTON(protein_button)->active) {
-		  imol_model = imol;
-		  found_active_button_for_protein = 1;
-		  break;
-	       }
-	    } else {
-	       std::cout << protein_str << " widget not found in "
-			 << "execute_get_mols_ligand_search" << std::endl;
-	    }
-	 }
-      }
+      bool interactive_flag = true;
+      execute_find_blobs(imol_model, imol_for_map, sigma_cut_off, interactive_flag);
 
-      if (! found_active_button_for_map) { 
-	 std::cout << "INFO:: You need to have define a map to search for map blobs!\n";
-      } else { 
-	 if (! found_active_button_for_protein) { 
-	 std::cout << "INFO:: You need to have define coordinates for masking to search for map blobs!\n";
-	 } else { 
-	    short int interactive_flag = 1;
-	    execute_find_blobs(imol_model, imol_for_map, sigma_cut_off, interactive_flag);
-	 }
-      }
    } else { 
-      std::cout << "WARNING:: nonsense sigma level " << sigma_cut_off
-		<< " not doing search\n";
+      std::cout << "WARNING:: nonsense sigma level " << sigma_cut_off << " not doing search\n";
    }
 }
 
@@ -213,10 +182,12 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	 if (interactive_flag) { 
 	    if ( n_big_blobs > 0 ) {
 
-	       GtkWidget *dialog = create_ligand_big_blob_dialog();
-	       GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+	       // GtkWidget *dialog = create_ligand_big_blob_dialog();
+	       GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
+	       GtkWidget *main_window = graphics_info_t::get_main_window();
 	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-	       GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+	       // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+	       GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
 	       if (vbox) { 
 		  std::string label;
 		  for(int i=0; i< n_big_blobs; i++) {
@@ -226,18 +197,22 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 		     //	 gtk_widget_ref(button);
 		     clipper::Coord_orth *c = new clipper::Coord_orth;
 		     *c = lig.big_blobs()[i].first;
-		     gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-					 GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-					 c);
+		     g_signal_connect (G_OBJECT(button), "clicked", 
+				       G_CALLBACK(on_big_blob_button_clicked),
+				       c);
+                     gtk_widget_set_margin_start (button, 6);
+                     gtk_widget_set_margin_end   (button, 6);
+                     gtk_widget_set_margin_top   (button, 2);
+                     gtk_widget_set_margin_bottom(button, 2);
 		     gtk_widget_show(button);
-		     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-		     gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+		     gtk_box_append(GTK_BOX(vbox), button);
 		  }
 	       }
 	       gtk_widget_show(dialog);
 	    } else { 
 	       std::cout << "Coot found no blobs" << std::endl;
-	       GtkWidget *dialog = create_ligand_no_blobs_dialog();
+	       // GtkWidget *dialog = create_ligand_no_blobs_dialog();
+	       GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
 	       gtk_widget_show(dialog);
 	    } 
 	 }
@@ -245,16 +220,25 @@ void execute_find_blobs(int imol_model, int imol_for_map,
    }
 }
 
+#include "c-interface-gui.hh"
+#include "widget-from-builder.hh"
 
-// function to show find waters (from wherever)
-void
+GtkWidget *
 wrapped_create_find_waters_dialog() {
 
-   GtkWidget *widget;
-   widget = create_find_waters_dialog();
+   GtkWidget *widget = widget_from_builder("find_waters_dialog");
    fill_find_waters_dialog(widget);
+   set_transient_for_main_window(widget);
+   return widget;
+}
+
+void
+show_create_find_waters_dialog() {
+
+   GtkWidget *widget = wrapped_create_find_waters_dialog();
    gtk_widget_show(widget);
 }
+
 
 // We need to look up the vboxes and add items, like we did in code in
 // gtk-manual.c
@@ -263,9 +247,9 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
 
    int ifound; 
    short int diff_maps_only_flag = 0;
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name    (find_ligand_dialog,
-							    "find_waters_map",
-							    diff_maps_only_flag);
+   ifound = fill_ligands_dialog_map_bits_by_dialog_name(find_ligand_dialog,
+                                                        "find_waters_map",
+                                                        diff_maps_only_flag);
    if (ifound == 0) {
       std::cout << "Error: you must have a map to search for ligands!"
 		<< std::endl;
@@ -277,91 +261,88 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
 		<< std::endl;
    }
 
-   GtkWidget *entry;
-   entry = lookup_widget(find_ligand_dialog, "find_waters_peak_level_entry");
+   // GtkWidget *entry = lookup_widget(find_ligand_dialog, "find_waters_peak_level_entry");
+   GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
 
    char *txt = get_text_for_find_waters_sigma_cut_off();
-   gtk_entry_set_text(GTK_ENTRY(entry), txt);
+   gtk_editable_set_text(GTK_EDITABLE(entry), txt);
    free(txt);
 
    // Now deal with the (new) entries for the distances to the protein
    // (if they exist (not (yet?) in gtk1 version)).
    //
-   GtkWidget *wd1 = lookup_widget(GTK_WIDGET(find_ligand_dialog),
-				  "find_waters_max_dist_to_protein_entry");
-   GtkWidget *wd2 = lookup_widget(GTK_WIDGET(find_ligand_dialog),
-				  "find_waters_min_dist_to_protein_entry");
+   // GtkWidget *wd1 = lookup_widget(GTK_WIDGET(find_ligand_dialog), "find_waters_max_dist_to_protein_entry");
+   // GtkWidget *wd2 = lookup_widget(GTK_WIDGET(find_ligand_dialog), "find_waters_min_dist_to_protein_entry");
+   GtkWidget *wd1 = widget_from_builder("find_waters_max_dist_to_protein_entry");
+   GtkWidget *wd2 = widget_from_builder("find_waters_min_dist_to_protein_entry");
 
    if (wd1 && wd2) {
       float max = graphics_info_t::ligand_water_to_protein_distance_lim_max;
       float min = graphics_info_t::ligand_water_to_protein_distance_lim_min;
-      gtk_entry_set_text(GTK_ENTRY(wd1), coot::util::float_to_string(max).c_str());
-      gtk_entry_set_text(GTK_ENTRY(wd2), coot::util::float_to_string(min).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(wd1), coot::util::float_to_string(max).c_str());
+      gtk_editable_set_text(GTK_EDITABLE(wd2), coot::util::float_to_string(min).c_str());
    }
 }
 
 
 void
-execute_find_waters(GtkWidget *dialog_ok_button) {
+execute_find_waters() {
 
    // GtkWidget *widget = lookup_widget(dialog_ok_button, "find_waters_dialog");
 
-   short int found_active_button_for_map = 0;
-   short int found_active_button_for_protein = 0;
    int find_waters_map_mol = -1; // gets assigned
    int find_waters_protein_mol = -1; // gets assigned? Check me.
    graphics_info_t g;
-   GtkWidget *dialog_button;
 
-   // Find the active map radiobutton:
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].has_xmap()) {
-	 std::string map_str = "find_waters_map_radiobutton_";
-	 map_str += g.int_to_string(imol);
-	 dialog_button = lookup_widget(dialog_ok_button, map_str.c_str());
-	 if (dialog_button) {
-	    if (GTK_TOGGLE_BUTTON(dialog_button)->active) {
-	       find_waters_map_mol = imol;
-	       found_active_button_for_map = 1;
-	       break;
-	    }
-	 } else {
-	    std::cout << map_str << " widget not found in execute_find_waters "
-		      << std::endl;
-	 }
+   GtkWidget *map_vbox     = widget_from_builder("find_waters_map_vbox");
+   GtkWidget *protein_vbox = widget_from_builder("find_waters_protein_vbox");
+
+   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
+                                      if (GTK_IS_TOGGLE_BUTTON(item)) {
+                                         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
+                                            int *imol_ptr = static_cast<int *>(data);
+                                            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+                                            *imol_ptr = imol;
+                                         }
+                                      }
+                                  };
+
+   if (GTK_IS_BOX(map_vbox)) {
+      int imol_map = -1;
+      void *imol_ptr = &imol_map;
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "in execute_find_waters() FIXME container foreach A" << std::endl;
+#else
+      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_map_molecule(imol_map)) {
+         find_waters_map_mol = imol_map;
       }
+#endif
    }
 
-   // Find the active protein radiobutton:
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].has_model()) {
-	 std::string protein_str = "find_waters_protein_radiobutton_";
-	 protein_str += g.int_to_string(imol);
-	 dialog_button = lookup_widget(dialog_ok_button, protein_str.c_str());
-	 if (dialog_button) {
-	    if (GTK_TOGGLE_BUTTON(dialog_button)->active) {
-	       find_waters_protein_mol = imol;
-	       found_active_button_for_protein = 1;
-	       break;
-	    }
-	 } else {
-	    std::cout << protein_str << " widget not found in execute_find_waters "
-		      << std::endl;
-	 }
+   if (GTK_IS_BOX(protein_vbox)) {
+      int imol_protein = -1;
+      void *imol_ptr = &imol_protein;
+#if (GTK_MAJOR_VERSION >= 4)
+      std::cout << "in execute_find_waters() FIXME container foreach B" << std::endl;
+#else
+      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_model_molecule(imol_protein)) {
+         find_waters_protein_mol = imol_protein;
       }
+#endif
    }
 
    // now read the entry containing the cut-off
-   GtkWidget *entry = lookup_widget(dialog_ok_button,
-				    "find_waters_peak_level_entry");
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
+   // GtkWidget *entry = lookup_widget(dialog_ok_button, "find_waters_peak_level_entry");
+   GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float f = atof(text);
    if (f > 0.0 && f < 100.0) {
       std::cout << "finding peaks above " << f << " sigma " << std::endl;
    } else {
       f= 2.2;
-      std::cout << "nonsense value for cut-off: using " << f
-		<< " instead." << std::endl;
+      std::cout << "WARNING:: nonsense value for cut-off: using " << f << " instead." << std::endl;
    }
 
    set_value_for_find_waters_sigma_cut_off(f); // save it for later
@@ -374,40 +355,38 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
    // Now deal with the (new) entries for the distances to the protein
    // (if they exist (not (yet?) in gtk1 version)).
    //
-   GtkWidget *wd1 = lookup_widget(GTK_WIDGET(dialog_ok_button),
-				  "find_waters_max_dist_to_protein_entry");
-   GtkWidget *wd2 = lookup_widget(GTK_WIDGET(dialog_ok_button),
-				  "find_waters_min_dist_to_protein_entry");
+   // GtkWidget *wd1 = lookup_widget(GTK_WIDGET(dialog_ok_button), "find_waters_max_dist_to_protein_entry");
+   // GtkWidget *wd2 = lookup_widget(GTK_WIDGET(dialog_ok_button), "find_waters_min_dist_to_protein_entry");
+   GtkWidget *wd1 = widget_from_builder("find_waters_max_dist_to_protein_entry");
+   GtkWidget *wd2 = widget_from_builder("find_waters_min_dist_to_protein_entry");
 
    if (wd1 && wd2) {
-      const gchar *t1 = gtk_entry_get_text(GTK_ENTRY(wd1));
-      const gchar *t2 = gtk_entry_get_text(GTK_ENTRY(wd2));
+      const gchar *t1 = gtk_editable_get_text(GTK_EDITABLE(wd1));
+      const gchar *t2 = gtk_editable_get_text(GTK_EDITABLE(wd2));
       float f1 = atof(t1);
       float f2 = atof(t2);
       // slam in the distances to the static vars directly (not as
       // arguments to find_waters_real()).
       g.ligand_water_to_protein_distance_lim_max = f1;      
       g.ligand_water_to_protein_distance_lim_min = f2;
-   } 
-
-
+   }
 
    // Should the waters be added to a new molecule or the masking molecule?
    //
-   short int new_waters_mol_flag = 1; // 1 mean a new molecule,
-				      // 0 means the masking molecule.
+   bool new_waters_mol_flag = true; // 1 mean a new molecule,
+				    // 0 means the masking molecule.
    
-   GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button,
-						   "water_mol_protein_mask_radiobutton");
-   if (GTK_TOGGLE_BUTTON(waters_toggle_button)->active)
-      new_waters_mol_flag = 0;
-   waters_toggle_button = lookup_widget(dialog_ok_button,
-					"water_mol_new_mol_radiobutton");
-   if (GTK_TOGGLE_BUTTON(waters_toggle_button)->active)
-      new_waters_mol_flag = 1;
+   // GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_protein_mask_radiobutton");
+   GtkWidget *waters_toggle_button = widget_from_builder("water_mol_protein_mask_radiobutton");
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
+      new_waters_mol_flag = false;
+   // waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_new_mol_radiobutton");
+   waters_toggle_button = widget_from_builder("water_mol_new_mol_radiobutton");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
+      new_waters_mol_flag = true;
    
-   if (found_active_button_for_map &&
-       found_active_button_for_protein) {
+   if (find_waters_map_mol != -1 && find_waters_protein_mol != -1) {
       execute_find_waters_real(find_waters_map_mol,
 			       find_waters_protein_mol,
 			       new_waters_mol_flag,
@@ -415,8 +394,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
 
       graphics_draw();
    } else {
-      std::cout << "Something wrong in the selection of map/molecule"
-		<< std::endl;
+      std::cout << "ERROR:: Something wrong in the selection of map/molecule" << std::endl;
    } 
 }
 
@@ -476,13 +454,17 @@ void find_waters(int imol_for_map,
 	 // It's just too painful to make this a c-interface.h function:
 
 	 if (graphics_info_t::use_graphics_interface_flag) { 
-	    if (show_blobs_dialog) { 
+	    if (show_blobs_dialog) {
 	       if (lig.big_blobs().size() > 0) {
 
-		  GtkWidget *dialog = create_ligand_big_blob_dialog();
-		  GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+		  // GtkWidget *dialog = create_ligand_big_blob_dialog();
+		  GtkWidget *dialog = widget_from_builder("ligand_big_blob_dialog");
+		  GtkWidget *main_window = graphics_info_t::get_main_window();
 		  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-		  GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+		  // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+		  GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
+                  std::cout << "####################### ligand_big_blob_vbox " << vbox << std::endl;
+                  gtk_widget_set_size_request(vbox, -1, 300);
 		  if (vbox) { 
 		     std::string label;
 		     for(unsigned int i=0; i< lig.big_blobs().size(); i++) { 
@@ -492,12 +474,16 @@ void find_waters(int imol_for_map,
 			//	 gtk_widget_ref(button);
 			clipper::Coord_orth *c = new clipper::Coord_orth;
 			*c = lig.big_blobs()[i].first;
-			gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-					    GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-					    c);
+			g_signal_connect(G_OBJECT(button), "clicked", 
+					 G_CALLBACK(on_big_blob_button_clicked),
+					 c);
 			gtk_widget_show(button);
+#if (GTK_MAJOR_VERSION == 4)
+			gtk_box_append(GTK_BOX(vbox), button);
+#else
 			gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 			gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+#endif
 		     }
 		  }
 		  gtk_widget_show(dialog);
@@ -509,7 +495,6 @@ void find_waters(int imol_for_map,
 	 std::cout << "DEBUG::  new_waters_mol_flag: " << new_waters_mol_flag << std::endl;
 	 if (new_waters_mol_flag) { 
 	    if (! water_mol.is_empty()) {
-	       float bf = graphics_info_t::default_new_atoms_b_factor;
 	       atom_selection_container_t asc = make_asc(water_mol.pcmmdbmanager());
 	       // We need to make the atoms in asc HETATMs
 	       for (int iat=0; iat<asc.n_selected_atoms; iat++)
@@ -525,6 +510,7 @@ void find_waters(int imol_for_map,
 	    // waters added to masking molecule
 	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
+            g.update_geometry_graphs(imol_for_protein);
 	 }
       }
    }

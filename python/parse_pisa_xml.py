@@ -1,31 +1,47 @@
+
+import coot
+import coot_gui
+import coot_utils
+import os
+
 global pisa_command
 pisa_command = "pisa"
 global pisa_min_version
 pisa_min_version = "v1.13"
+
+def pisa_molecule_chooser_gui(mode):
+
+    if mode == "interfaces":
+        coot_gui.molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+                                      lambda imol: pisa_interfaces(imol))
+
+    if mode == "assemblies":
+        coot_gui.molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+                                      lambda imol: pisa_assemblies(imol))
+
 
 def pisa_assemblies(imol):
 
     global pisa_min_version
     pisa_exe = pisa_new_enough_qm()
     if not pisa_exe:
-        msg = "Your pisa version it too old.  Need at least " + \
-              pisa_min_version + "."
-        info_dialog(msg)
+        msg = "Your pisa version it too old.  Need at least " + pisa_min_version + "."
+        coot.info_dialog(msg)
     else:
         #
         # main line
         pdb_file_name, pisa_config, pisa_xml_file_name = prep_for_pisa('assemblies', imol)
 
-        status_1 = popen_command(pisa_exe,
+        status_1 = coot_utils.popen_command(pisa_exe,
                                  ["pisa", "-analyse", pdb_file_name],
                                  [], "pisa.log", False)
 
         if (status_1 != 0):
-            info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
+            coot.info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
         else:
             # good
             # used to be print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
-            status_2 = popen_command(pisa_exe,
+            status_2 = coot_utils.popen_command(pisa_exe,
                                      ["pisa", "-xml", "assemblies"],
                                      [], pisa_xml_file_name, False)
             if (status_2 == 0):
@@ -43,7 +59,7 @@ def pisa_assemblies_xml(imol, file_name):
     import os
 
     if (os.path.isfile(file_name)):
-        print "opened", file_name
+        print("opened", file_name)
         sm = ElementTree()
         xml_file = clean_xml_file(file_name)
         if xml_file:
@@ -127,7 +143,7 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
                     atom_selection_string = "// /" + residue_string + "/" + element_string
                 else:
                     atom_selection_string = "//" + chain_string + "/" + residue_string
-                # print "BL debug:: atom_selection_string: %s from %s" \
+                # print "BL coot_utils.debug:: atom_selection_string: %s from %s" \
                 #      %(atom_selection_string, chain_id_raw)
                 return atom_selection_string
         else:
@@ -150,7 +166,7 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
 
 
     ( STRING,
-      STDOUT) = range(2)
+      STDOUT) = list(range(2))
     # record in an element in xml element tree (molecule)
     # port is STRING or STDOUT
     #
@@ -162,8 +178,8 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -195,8 +211,8 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -243,28 +259,28 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         else:
             symm_name_part = chain_id_raw
 
-        # was it on of the rotation or translation symbols?
+        # was it on of the rotation or coot_utils.translation symbols?
         for symbol in rtop_symbols:
             ass_rtop_symbols.append([symbol, float(mol_dic[symbol])])
 
         # do something with residues (if interface)
-        if mol_dic.has_key("residues"):
+        if "residues" in mol_dic:
             residues = molecule.getiterator("residue")
             mol_dic["residues"] = handle_residues(residues)
             
         if not (len(ass_rtop_symbols) == 12):
             return False # ass_rtop_symbols were not all set
         else:
-            mat = map(lambda sym: sym[1], ass_rtop_symbols)
+            mat = [sym[1] for sym in ass_rtop_symbols]
             #print "== atom-selection string %s   mat:::: %s" %(atom_selection_string, mat)
-            #print "currently %s molecules" %(graphics_n_molecules())
+            #print "currently %s molecules" %(coot.graphics_n_molecules())
             new_molecule_name = "Symmetry copy of " + \
                                 str(imol) +\
                                 " using " + symm_name_part
             # new-molecule-by-symop-with-atom-selection,
             # perhaps? (20100222 doesn't seem needed because
             # the transformation is contained in mat.)
-            new_mol_no = new_molecule_by_symmetry_with_atom_selection(
+            new_mol_no = coot.new_molecule_by_symmetry_with_atom_selection(
                 imol,
                 new_molecule_name,
                 atom_selection_string,
@@ -350,17 +366,17 @@ def parse_pisa_assemblies(imol, entity):
         if not assembly_set_molecule_numbers:
             return False
         else:
-            first_copy = copy_molecule(assembly_set_molecule_numbers[0])
-            if not valid_model_molecule_qm(first_copy):
+            first_copy = coot.copy_molecule(assembly_set_molecule_numbers[0])
+            if not coot_utils.valid_model_molecule_qm(first_copy):
                 return False
             else:
                 rest = assembly_set_molecule_numbers[1:]
                 merge_molecules(rest, first_copy)
-                set_molecule_name(first_copy, "Assembly Set " + assembly_set_number)
+                coot.set_molecule_name(first_copy, "Assembly Set " + assembly_set_number)
                 return first_copy
 
     ( STRING,
-      STDOUT) = range(2)
+      STDOUT) = list(range(2))
     # record in an element in xml element tree
     # port is STRING or STDOUT
     #
@@ -372,8 +388,8 @@ def parse_pisa_assemblies(imol, entity):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -415,8 +431,8 @@ def parse_pisa_assemblies(imol, entity):
             assembly_molecule_numbers.append(mol_no)
         assembly_dic["molecule"] = assembly_molecule_numbers
         for mol_no in assembly_molecule_numbers:
-            if (valid_model_molecule_qm(mol_no)):
-                set_mol_displayed(mol_no, 0)
+            if (coot_utils.valid_model_molecule_qm(mol_no)):
+                coot.set_mol_displayed(mol_no, 0)
         return assembly_dic
 
 
@@ -449,17 +465,17 @@ def parse_pisa_assemblies(imol, entity):
             # make a string out of the dictionary
             top_assembly_set = print_assembly(assembly_record_set, STRING)
         if first_assembly_set_is_displayed_already_qm:
-            set_mol_displayed(molecule_number, 0)
+            coot.set_mol_displayed(molecule_number, 0)
         else:
             first_assembly_set_is_displayed_already_qm = True
 
 
     if top_assembly_set:
-        print "top assembly-set:\n", top_assembly_set
+        print("top assembly-set:\n", top_assembly_set)
         s = "top assembly-set: \n\n" + top_assembly_set
     else:
         s = "no assembly-sets found"
-    info_dialog(s)
+    coot.info_dialog(s)
             
 
 def make_pisa_config(pisa_coot_dir, config_file_name):
@@ -501,9 +517,9 @@ def prep_for_pisa(mode, imol):
 
     #
     def make_stubbed_name(imol):
-        return strip_extension(os.path.basename(molecule_name(imol)))
+        return coot_utils.strip_extension(os.path.basename(coot.molecule_name(imol)))
 
-    if valid_model_molecule_qm(imol):
+    if coot_utils.valid_model_molecule_qm(imol):
         pisa_coot_dir = "coot-pisa"
         stubbed_name = make_stubbed_name(imol)
         pdb_file_name      = os.path.join(pisa_coot_dir, stubbed_name + ".pdb")
@@ -511,9 +527,9 @@ def prep_for_pisa(mode, imol):
         pisa_xml_file_name = os.path.join(pisa_coot_dir, stubbed_name + "-" + str(mode) + ".xml")
         #pisa_project_name  = os.path.join(stubbed_name)
 
-        make_directory_maybe(pisa_coot_dir)
+        coot.make_directory_maybe(pisa_coot_dir)
         make_pisa_config(pisa_coot_dir, pisa_config)
-        write_pdb_file(imol, pdb_file_name)
+        coot.write_pdb_file(imol, pdb_file_name)
         if (os.path.isfile(pdb_file_name)):
             return pdb_file_name, pisa_config, pisa_xml_file_name
         else:
@@ -532,10 +548,10 @@ def pisa_new_enough_qm():
     global pisa_min_version
     if not pisa_command:
         pisa_command="pisa"
-    pisa_exe = find_exe(pisa_command, "CBIN", "CCP4_BIN", "PATH")
+    pisa_exe = coot_utils.find_exe(pisa_command, "CBIN", "CCP4_BIN", "PATH")
     if pisa_exe:
         tmp_file = "pisa-version.log"
-        process = popen_command(pisa_exe, [], [], tmp_file)
+        process = coot_utils.popen_command(pisa_exe, [], [], tmp_file)
         fin = open(tmp_file, 'r')
         lines = fin.readlines()
         fin.close()
@@ -562,19 +578,19 @@ def pisa_interfaces(imol):
     if not pisa_exe:
         msg = "Your pisa version it too old.  Need at least" \
               + pisa_min_version + "."
-        info_dialog(msg)
+        coot.info_dialog(msg)
     else:
         pdb_file_name, pisa_config, pisa_xml_file_name = prep_for_pisa("interfaces", imol)
 
         if pisa_config:
             if not cached_pisa_analysis(pisa_config):
                 # pisa analysis
-                status_1 = popen_command(pisa_exe,
+                status_1 = coot_utils.popen_command(pisa_exe,
                                          ["pisa", "-analyse", pdb_file_name],
                                          [],
                                          "pisa-analysis.log", False)
                 if (status_1 == 0):
-                    status_2 = popen_command(pisa_exe,
+                    status_2 = coot_utils.popen_command(pisa_exe,
                                              ["pisa", "-xml", "interfaces"],
                                              [],
                                              pisa_xml_file_name, False)
@@ -584,7 +600,7 @@ def pisa_interfaces(imol):
 
 def pisa_interfaces_xml(imol, file_name):
     if not os.path.isfile(file_name):
-        print "WARNING:: in pisa_interfaces_xml: %s does not exist" %file_name
+        print("WARNING:: in pisa_interfaces_xml: %s does not exist" %file_name)
     else:
         from xml.etree.ElementTree import ElementTree
         sm = ElementTree()
@@ -748,9 +764,9 @@ def parse_pisa_interfaces(imol, xml_entity):
         bond_type = entity.tag
         bonds = entity.getiterator("bond")
         for bond in bonds:
-            atom_specs = parse_bond(bond)
-            if atom_specs:
-                atom_specs.insert(0, bond_type)
+            coot_utils.atom_specs = parse_bond(bond)
+            if coot_utils.atom_specs:
+                coot_utils.atom_specs.insert(0, bond_type)
                 ret_bonds.append(atom_specs)
         return ret_bonds
             

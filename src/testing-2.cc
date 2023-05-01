@@ -39,7 +39,7 @@ int test_dreiding_torsion_energy() {
 
    int r = 0;
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, false, false);
    bool ifound = 0;
    testing_data t;
 
@@ -80,20 +80,26 @@ int test_parallel_plane_restraints() {
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    clipper::Xmap<float> dummy_xmap;
 
-   coot::restraints_container_t restraints(37,
-					   38,
-					   have_flanking_residue_at_start,
-					   have_flanking_residue_at_end,
-					   have_disulfide_residues,
-					   alt_conf,
-					   chain_id.c_str(),
-					   mol,
-					   fixed_atom_specs,
-					   dummy_xmap);
+   // coot::restraints_container_t restraints(37,
+   //      				   38,
+   //      				   have_flanking_residue_at_start,
+   //      				   have_flanking_residue_at_end,
+   //      				   have_disulfide_residues,
+   //      				   alt_conf,
+   //      				   chain_id.c_str(),
+   //      				   mol,
+   //      				   fixed_atom_specs,
+   //      				   &dummy_xmap);
+
+   std::vector<std::pair<bool,mmdb::Residue *> > residues;
+   mmdb::Residue *residue_37_p = coot::util::get_residue(coot::residue_spec_t(chain_id, 37, ""), mol);
+   mmdb::Residue *residue_38_p = coot::util::get_residue(coot::residue_spec_t(chain_id, 38, ""), mol);
+   residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_37_p));
+   residues.push_back(std::pair<bool,mmdb::Residue *>(false, residue_38_p));
+   coot::restraints_container_t restraints(residues, t.geom, mol, &dummy_xmap);
 
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
-   short int do_link_torsions = 0;
    float rama_plot_restraint_weight = 1.0;
 
    coot::restraint_usage_Flags flags =
@@ -101,18 +107,18 @@ int test_parallel_plane_restraints() {
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    bool do_trans_peptide_restraints = false;
    int imol = 0; // dummy
-   int nrestraints = 
-      restraints.make_restraints(imol, t.geom, flags,
-				 do_residue_internal_torsions,
-				 do_trans_peptide_restraints,
-				 rama_plot_restraint_weight,
-				 do_rama_restraints,
-				 pseudos);
+   int nrestraints = restraints.make_restraints(imol, t.geom, flags,
+                                                do_residue_internal_torsions,
+                                                do_trans_peptide_restraints,
+                                                rama_plot_restraint_weight,
+                                                do_rama_restraints, false, false, false,
+                                                pseudos);
 
+   std::cout << "INFO:: nrestraints: " << nrestraints << std::endl;
    std::string extra_restraints_file_name("test-base-pairing-extras-I-chain.txt");
    coot::extra_restraints_t er;
    er.read_refmac_extra_restraints(extra_restraints_file_name);
-   restraints.add_extra_restraints(imol, er, t.geom); // we need a geom to look up expansions
+   restraints.add_extra_restraints(imol, "testing extras", er, t.geom); // we need a geom to look up expansions
                                                 // for restraint atom names.
    restraints.minimize(flags);
    mol->WritePDBASCII("3tu4-test-37,38-par-planes-out.pdb");
@@ -145,5 +151,52 @@ int test_string_splitting() {
 	 break;
       }
    }
+   return status;
+}
+
+#include "utils/split-indices.hh"
+
+int test_index_splitting() {
+
+   int status = 1;
+
+   unsigned int n_atoms = 303;
+   unsigned int n_threads = 20;
+
+   std::vector<std::pair<unsigned int, unsigned int> > air = coot::atom_index_ranges(n_atoms, n_threads);
+
+   std::cout << "DEBUG:: test_index_splitting:: n_atoms " << n_atoms << " nt " << n_threads << std::endl;
+
+   air = coot::atom_index_ranges(20, 20);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-2:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(20, 2);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-2b: atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(24, 6);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-3:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(n_atoms, n_threads);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-1:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(25, 6);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-4:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(5, 3);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-5:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+   air = coot::atom_index_ranges(5, 2);
+   for (unsigned int i=0; i<air.size(); i++)
+      std::cout << "test-6:  atom_index_ranges  " << i << " : "
+		<< air[i].first << " " << air[i].second << std::endl;
+
+   // if (air[19].first == 304) status = 0;
+
    return status;
 }

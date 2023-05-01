@@ -21,11 +21,8 @@
 #ifndef HAVE_GOOGRAPH_HH
 #define HAVE_GOOGRAPH_HH
 
-#ifdef HAVE_GOOCANVAS
-
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include <gtk/gtk.h>
 #include <goocanvas.h>
@@ -118,6 +115,8 @@ namespace coot {
 
       GooCanvas *canvas;
       GtkWidget *dialog;
+      bool dark_mode; // means light text
+      bool use_dialog_for_graph_flag;
       int dialog_width_orig;
       int dialog_height_orig;
       int dialog_width; // variable
@@ -185,8 +184,9 @@ namespace coot {
 
 	 lig_build::pos_t pos((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
 			      (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
-	 if (false)
-	    std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+#if 0 // no iostream in headers
+         std::cout << "world_to_canvas() input: " << p << " returning " << pos << std::endl;
+#endif
 	 return pos;
       }
       void draw_title();
@@ -203,6 +203,7 @@ namespace coot {
       void draw_annotation_boxes();
       void draw_contour_level_bar();
       void set_data_scales(int axis);
+      void set_extents_internal(int axis, double min, double max);
    public:
       enum {X_AXIS, Y_AXIS};
       enum {MAJOR_TICK, MINOR_TICK};
@@ -272,16 +273,19 @@ namespace coot {
       void clear();
       void draw_graph();
       void set_trace_type(int trace_id, int plot_type, bool dashed=false);
-      void set_trace_colour(int trace, const std::string colour);
+      void set_trace_colour(int trace, const std::string &colour);
       GtkWidget *get_canvas() const; // for embedding in other windows
       GtkWidget *show_dialog();            // for graph in dialog, return the close button so that we
                                            // can add a callback that NULLs the pointer to a goograph
-      void set_extents(int axis, double min, double max); 
+      void set_extents(int axis, double min, double max);
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);
       void set_draw_axis(int axis, bool draw_state);
       void set_draw_ticks(int axis, bool draw_state);
       void set_plot_title(const std::string &title);
+
+      void set_use_dialog_for_graph(bool flag); // default true currently
+      void enable_dark_mode(bool flag);
 
       // if using auto-extents, then the first use of set_data() sets the extents
       // (they are not over-ridden by subsequent set_data() usage)
@@ -339,6 +343,5 @@ namespace coot {
    };
 }
 
-#endif // HAVE_GOOCANVAS
 #endif // HAVE_GOOGRAPH_HH
 

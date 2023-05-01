@@ -28,29 +28,12 @@
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
 
-namespace mmdb_utils { 
-  bool is_hydrogen(const std::string &ele);
-} 
-
+#include "coot-utils/atom-selection-container.hh"
 
 coot::Cartesian
 centre_of_molecule(atom_selection_container_t SelAtom); 
 
 
-atom_selection_container_t get_atom_selection(std::string t, 
-					      bool allow_duplseqnum, 
-					      bool convert_to_v2_name_flag);
-int fix_nucleic_acid_residue_names(atom_selection_container_t asc);
-int fix_nucleic_acid_residue_name(mmdb::Residue *r); // return whether it was changed or not.
-void convert_to_old_nucleotide_atom_names(mmdb::Residue *r);
-void fix_element_name_lengths(mmdb::Manager *mol);
-
-// return the number of fixed atoms
-int fix_away_atoms(atom_selection_container_t asc);
-
-// return the number of changed hydrogen names
-int 
-fix_wrapped_names(atom_selection_container_t asc);
 
 int write_atom_selection_file(atom_selection_container_t asc,
 			      const std::string &filename,
@@ -86,20 +69,9 @@ namespace coot {
 }
 
 
-// needs <iostream>
 // 
 std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom);
 
 std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom); 
-
-namespace coot { 
-  // mdl mol file support
-  atom_selection_container_t mdl_mol_to_asc(const lig_build::molfile_molecule_t &m);
-  atom_selection_container_t mdl_mol_to_asc(const lig_build::molfile_molecule_t &m, float b_factor);
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-  atom_selection_container_t mol_to_asc_rdkit(const std::string &file_name);
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
-} 
-
 
 #endif // MMDB_H

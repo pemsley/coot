@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy toplevel-contextual -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkIconFactory" id="iconfactory1">
     <sources>
       <source stock-id="stock-zoom-follow-window-12-svg" filename="pixmaps/stock-zoom-follow-window-12.svg"/>
@@ -30,8 +30,8 @@
     <property name="can_focus">False</property>
     <property name="border_width">2</property>
     <property name="title" translatable="yes">Dynarama</property>
-    <signal name="destroy" handler="on_dynarama2_window_destroy" swapped="no"/>
     <signal name="configure-event" handler="on_dynarama2_window_configure_event" swapped="no"/>
+    <signal name="destroy" handler="on_dynarama2_window_destroy" swapped="no"/>
     <child>
       <object class="GtkVBox" id="dynarama_vbox">
         <property name="visible">True</property>
@@ -259,8 +259,8 @@ Kleywegt Plot</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
-                        <accelerator key="minus" signal="activate"/>
                         <signal name="activate" handler="on_zoom_out_activate" swapped="no"/>
+                        <accelerator key="minus" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -271,8 +271,8 @@ Kleywegt Plot</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
-                        <accelerator key="plus" signal="activate"/>
                         <signal name="activate" handler="on_zoom_in_activate" swapped="no"/>
+                        <accelerator key="plus" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -337,8 +337,6 @@ Kleywegt Plot</property>
           <object class="GtkScrolledWindow" id="dynarama_scrolledwindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
             <property name="shadow_type">etched-in</property>
             <child>
               <placeholder/>
@@ -364,10 +362,10 @@ Kleywegt Plot</property>
                     <property name="label" translatable="yes">Selection</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
                     <property name="focus_on_click">False</property>
+                    <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_dynarama_selection_checkbutton_toggled" swapped="no"/>
+                    <signal name="toggled" handler="on_dynarama_selection_checkbutton_toggled_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -382,12 +380,9 @@ Kleywegt Plot</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">●</property>
                     <property name="text" translatable="yes">//*</property>
-                    <property name="invisible_char_set">True</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="secondary_icon_activatable">False</property>
-                    <property name="primary_icon_sensitive">True</property>
-                    <property name="secondary_icon_sensitive">True</property>
-                    <signal name="activate" handler="on_dynarama_selection_entry_activate" swapped="no"/>
+                    <signal name="activate" handler="on_dynarama_selection_entry_activate_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -402,9 +397,9 @@ Kleywegt Plot</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                     <property name="focus_on_click">False</property>
-                    <signal name="clicked" handler="on_dynarama_selection_apply_button_clicked" swapped="no"/>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_dynarama_selection_apply_button_clicked_gtkbuilder_callback" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -424,10 +419,10 @@ Kleywegt Plot</property>
               <object class="GtkToggleButton" id="dynarama2_zoom_resize_togglebutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Zoom image when window size changes</property>
                 <property name="image">image3</property>
-                <property name="focus_on_click">False</property>
                 <signal name="toggled" handler="on_dynarama2_zoom_resize_togglebutton_toggled" swapped="no"/>
               </object>
               <packing>
@@ -442,11 +437,11 @@ Kleywegt Plot</property>
                 <property name="label" translatable="yes">Outliers Only</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show outliers only</property>
-                <property name="focus_on_click">False</property>
-                <property name="yalign">0.56000000238418579</property>
-                <signal name="toggled" handler="on_dynarama2_outliers_only_togglebutton_toggled" swapped="no"/>
+                <property name="yalign">0.5600000023841858</property>
+                <signal name="toggled" handler="on_dynarama2_outliers_only_togglebutton_toggled_gtkbuilder_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -482,10 +477,10 @@ Kleywegt Plot</property>
                   <object class="GtkLabel" id="rama_stats_label_1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="xpad">6</property>
                     <property name="label" translatable="yes">In Prefered Regions:  239  (85.02%)</property>
                     <property name="justify">center</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -497,10 +492,10 @@ Kleywegt Plot</property>
                   <object class="GtkLabel" id="rama_stats_label_2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="xpad">6</property>
                     <property name="label" translatable="yes">In Allowed Regions:  365  (23.45%)</property>
                     <property name="justify">center</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -512,10 +507,10 @@ Kleywegt Plot</property>
                   <object class="GtkLabel" id="rama_stats_label_3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="xpad">6</property>
                     <property name="label" translatable="yes">Outliers:  34 (0.23%) </property>
                     <property name="justify">center</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -590,10 +585,10 @@ Kleywegt Plot</property>
                 <property name="label">gtk-apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <property name="focus_on_click">False</property>
-                <signal name="clicked" handler="on_kleywegt_apply_chain_button_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_kleywegt_apply_chain_button_clicked_gtkbuilder_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -615,110 +610,17 @@ Kleywegt Plot</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkButton" id="dynarama2_ok_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">False</property>
-                <property name="border_width">6</property>
-                <signal name="clicked" handler="on_dynarama2_ok_button_clicked" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment37">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkHBox" id="hbox188">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image1506">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-ok</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label362">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  OK  </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="dynarama2_cancel_button">
+              <object class="GtkButton" id="dynarama2_close_button">
+                <property name="label" translatable="yes"> Close </property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
                 <property name="border_width">6</property>
-                <signal name="clicked" handler="on_dynarama2_cancel_button_clicked" swapped="no"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment38">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkHBox" id="hbox189">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image1507">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="stock">gtk-cancel</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label363">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">  Cancel  </property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+                <signal name="clicked" handler="on_dynarama2_close_button_clicked_gtkbuilder_callback" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -735,6 +637,9 @@ Kleywegt Plot</property>
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkAboutDialog" id="rama_aboutdialog1">
     <property name="can_focus">False</property>
@@ -742,15 +647,16 @@ Kleywegt Plot</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Dynarama</property>
     <property name="authors">PaulE and myself</property>
+    <property name="logo_icon_name">image-missing</property>
     <signal name="close" handler="on_rama_aboutdialog1_close" swapped="no"/>
     <signal name="response" handler="on_rama_aboutdialog1_response" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -766,199 +672,8 @@ Kleywegt Plot</property>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkFileChooserDialog" id="rama_export_as_pdf_filechooserdialog">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="role">GtkFileChooserDialog</property>
-    <property name="type_hint">dialog</property>
-    <property name="action">save</property>
-    <signal name="close" handler="on_rama_export_as_pdf_filechooserdialog_close" swapped="no"/>
-    <signal name="response" handler="on_rama_export_as_pdf_filechooserdialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox3">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="save_as_pdf_cancel_button">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="save_as_pdf_save_button">
-                <property name="label">gtk-save</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
+    <child type="titlebar">
+      <placeholder/>
     </child>
-    <action-widgets>
-      <action-widget response="0">save_as_pdf_cancel_button</action-widget>
-      <action-widget response="-5">save_as_pdf_save_button</action-widget>
-    </action-widgets>
-  </object>
-  <object class="GtkFileChooserDialog" id="rama_export_as_png_filechooserdialog">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="role">GtkFileChooserDialog</property>
-    <property name="type_hint">dialog</property>
-    <property name="action">save</property>
-    <signal name="close" handler="on_rama_export_as_png_filechooserdialog_close" swapped="no"/>
-    <signal name="response" handler="on_rama_export_as_png_filechooserdialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox4">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area4">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="save_as_png_cancel_button">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="save_as_png_save_button">
-                <property name="label">gtk-save</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">save_as_png_cancel_button</action-widget>
-      <action-widget response="-5">save_as_png_save_button</action-widget>
-    </action-widgets>
-  </object>
-  <object class="GtkFileChooserDialog" id="rama_open_filechooserdialog">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="role">GtkFileChooserDialog</property>
-    <property name="type_hint">dialog</property>
-    <signal name="close" handler="on_rama_open_filechooserdialog_close" swapped="no"/>
-    <signal name="response" handler="on_rama_open_filechooserdialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="open_cancel_button">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="open_button">
-                <property name="label">gtk-open</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">open_cancel_button</action-widget>
-      <action-widget response="-5">open_button</action-widget>
-    </action-widgets>
   </object>
 </interface>

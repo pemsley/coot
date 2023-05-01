@@ -5,7 +5,7 @@ import rcrane
 def import_rcrane_wrapper():
    
    #create the menu entry in the Extensions menu
-   extMenu = coot_menubar_menu("Calculate")
+   extMenu = coot_gui.coot_menubar_menu("Calculate")
    rcraneLaunch = gtk.MenuItem("RCrane launch")
    rcraneLaunch.connect("activate", lambda x: rcrane.createRCraneMenuWithCheck())
    rcraneLaunch.show()
@@ -34,7 +34,7 @@ def import_rcrane_wrapper():
                rcraneSettings.close()
                break
        else:
-           #the rcrane.py file exists, but it doesn't have a run_python_script( line,
+           #the rcrane.py file exists, but it doesn't have a coot.run_python_script( line,
            #so the user doesn't have an old version of RCrane installed
            rcraneSettings.close()
            return False
@@ -47,7 +47,7 @@ def import_rcrane_wrapper():
        try:
            move(rcraneSettingsFilename, join(dirname(rcraneSettingsFilename), "rcrane.py.bak"))
        except IOError:
-           print "Cannot move ~/.coot-preferences/rcrane.py to ~/.coot-preferences/rcrane.py.bak"
+           print("Cannot move ~/.coot-preferences/rcrane.py to ~/.coot-preferences/rcrane.py.bak")
            return False
 
        #let the user know what we just did

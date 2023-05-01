@@ -164,7 +164,7 @@ void density_score_molecule(std::string pdb_filename,
 			    float cut_level) {
 
 
-   atom_selection_container_t asc = get_atom_selection(pdb_filename, true, true);
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, true, false, false);
    if (asc.n_selected_atoms > 0) {
 
       std::vector<scored_chain_t> density_score_results;
@@ -299,42 +299,42 @@ main(int argc, char **argv) {
       while ( -1 != 
 	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
-	 // std::cout << "DEBUG:: " << option_index << " " << optarg << std::endl;
+	 // std::cout << "DEBUG:: " << option_index << " " << coot_optarg << std::endl;
 
 	 switch(ch) { 
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  pdb_out_filename = optarg;
+		  pdb_out_filename = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "weight") {
-		  w_col = optarg;
+		  w_col = coot_optarg;
 		  n_used_args += 2;
 		  use_weights = 1; // yes, do use them
 	       }
 	       if (arg_str == "cut-level") {
 		  n_used_args += 2;
-		  cut_level = atof(optarg);
+		  cut_level = atof(coot_optarg);
 	       } 
 	       
 	       
@@ -357,27 +357,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 default:
-	    std::cout << "default optarg: " << optarg << std::endl;
+	    std::cout << "default coot_optarg: " << coot_optarg << std::endl;
 	    break;
 	 }
       }

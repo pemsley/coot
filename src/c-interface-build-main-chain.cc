@@ -54,12 +54,6 @@
 
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
-
 #include "coords/mmdb-crystal.h"
 
 #include "coords/Cartesian.h"
@@ -162,7 +156,7 @@ set_add_terminal_residue_add_other_residue_flag(int i) {
 void set_add_terminal_residue_do_rigid_body_refine(short int v) { 
 
    graphics_info_t g;
-   g.terminal_residue_do_rigid_body_refine = v;
+   g.add_terminal_residue_do_rigid_body_refine = v;
    std::vector<std::string> command_strings;
    command_strings.push_back("set-terminal-residue-do-rigid-body-refine");
    command_strings.push_back(graphics_info_t::int_to_string(v));
@@ -176,6 +170,18 @@ void set_add_terminal_residue_do_rigid_body_refine(short int v) {
 void set_terminal_residue_do_rigid_body_refine(short int v) { 
    set_add_terminal_residue_do_rigid_body_refine(v);
 }
+
+void set_add_terminal_residue_debug_trials(short int debug_state) {
+
+   graphics_info_t g;
+   g.add_terminal_residue_debug_trials = debug_state;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-terminal-residue-debug-trials");
+   command_strings.push_back(graphics_info_t::int_to_string(debug_state));
+   add_to_history(command_strings);
+
+}
+
 
 void set_add_terminal_residue_do_post_refine(short int istat) {
    graphics_info_t::add_terminal_residue_do_post_refine = istat;
@@ -233,10 +239,9 @@ int add_terminal_residue(int imol,
 	       g.molecules[imol].get_residue(chain_id, residue_number, inscode);
 
 	    if (res_p)
-	       g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
-					      residue_type_string, immediate_add);
+	       istate = g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
+						       residue_type_string, immediate_add);
 	    
-	    istate = 1;
 	 } else {
 	    std::cout << "WARNING:: in add_terminal_residue: "
 		      << " Can't find atom index for CA in residue "
@@ -244,6 +249,7 @@ int add_terminal_residue(int imol,
 	 }
       }
    }
+
    std::vector<std::string> command_strings;
    command_strings.push_back("add-terminal-residue");
    command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -413,12 +419,12 @@ db_mainchain(int imol,
 	     const char *direction_string) {
 
    int imol_new = -1;
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       imol_new = g.execute_db_main(imol, std::string(chain_id), iresno_start, iresno_end,
 				   std::string(direction_string));
    } else {
-      std::cout << "WARNING molecule index error" << std::endl;
+      std::cout << "WARNING:: molecule index error" << std::endl;
    } 
    std::string cmd = "db-mainchain";
    std::vector<coot::command_arg_t> args;
@@ -482,22 +488,42 @@ void pepflip(int imol, const char *chain_id, int resno,
    } 
 } 
 
+int pepflip_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms();
+} 
+
+int pepflip_intermediate_atoms_other_peptide() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms_other_peptide();
+}
+
 									 
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */
 /*  ----------------------------------------------------------------------- */
 
 void add_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->add_planar_peptide_restraint();
 } 
 
 void remove_planar_peptide_restraints() {
-
    graphics_info_t g;
    g.Geom_p()->remove_planar_peptide_restraint();
 }
+
+
+/*! \brief make the planar peptide restraints tight
+
+Useful when refining models with cryo-EM maps */
+void make_tight_planar_peptide_restraints() {
+   graphics_info_t g;
+   g.Geom_p()->make_tight_planar_peptide_restraint();
+}
+
 
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state() {
@@ -558,9 +584,15 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       SCM mol_list_scm = SCM_EOL;
       // add backwards (for scheme)
+
+      std::cout << "debug:: protein_db_loops() here are the results from protein_db_loops()" << std::endl;
+      for (std::size_t ii=0; ii<p.second.size(); ii++) {
+	 std::cout << "     " << p.second[ii] << std::endl;
+      }
+
       for (int i=(p.second.size()-1); i>=0; i--)
-	 mol_list_scm = scm_cons(SCM_MAKINUM(p.second[i]), mol_list_scm);
-      SCM first_pair_scm = scm_list_2(SCM_MAKINUM(p.first.first), SCM_MAKINUM(p.first.second));
+	 mol_list_scm = scm_cons(scm_from_int(p.second[i]), mol_list_scm);
+      SCM first_pair_scm = scm_list_2(scm_from_int(p.first.first), scm_from_int(p.first.second));
       r = scm_list_2(first_pair_scm, mol_list_scm);
    } 
    return r;
@@ -574,26 +606,25 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 
    PyObject *r = Py_False;
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
-   if (!specs.size()) {
-      std::cout << "WARNING:: Ooops - no specs in " 
-		<< PyString_AsString(display_python(residue_specs_py))
+   if (specs.empty()) {
+      std::cout << "WARNING:: protein_db_loops_py(): Ooops - no specs in "
+		<< PyUnicode_AsUTF8String(display_python(residue_specs_py))
 		<< std::endl;
    } else {
-      std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
+      std::pair<std::pair<int, int>, std::vector<int> > p = protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (unsigned int i=0; i< p.second.size(); i++)
-        PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
+         PyList_SetItem(mol_list_py, i, PyLong_FromLong(p.second[i]));
       r = PyList_New(2);
       PyObject *loop_molecules = PyList_New(2);
-      PyList_SetItem(loop_molecules, 0, PyInt_FromLong(p.first.first));
-      PyList_SetItem(loop_molecules, 1, PyInt_FromLong(p.first.second));
+      PyList_SetItem(loop_molecules, 0, PyLong_FromLong(p.first.first));
+      PyList_SetItem(loop_molecules, 1, PyLong_FromLong(p.first.second));
 
       PyList_SetItem(r, 0, loop_molecules);
       PyList_SetItem(r, 1, mol_list_py);
    } 
    if (PyBool_Check(r)) {
-     Py_INCREF(r);
+      Py_INCREF(r);
    }
    return r;
 } 
@@ -608,8 +639,8 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 // return -1 in the first of the pair on failure
 // 
 std::pair<std::pair<int, int> , std::vector<int> > 
-protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags,
-		 bool preserve_residue_names) {
+protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map,
+		 int nfrags, bool preserve_residue_names) {
    
    int imol_consolodated = -1;
    int imol_loop_orig = -1; // set later hopefully
@@ -630,14 +661,14 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	    std::vector<coot::residue_spec_t> rs = residue_specs;
 	    std::sort(rs.begin(), rs.end());
 	    int first_res_no = rs[0].res_no;
-	    
-	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+
+	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 
 	    std::vector<ProteinDB::Chain> chains =
 	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
 
 	    graphics_info_t g;
-	    if (chains.size()) {
+	    if (! chains.empty()) {
 
 	       // a molecule for each chain
 	       for(unsigned int ich=0; ich<chains.size(); ich++) { 
@@ -645,7 +676,9 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 		  coot::util::delete_anomalous_atoms(mol); //CBs in GLY etc
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
-		  name += coot::util::int_to_string(ich+1);
+		  name += coot::util::int_to_string(ich);
+		  std::cout << "INFO:: installing molecule number " << imol
+			    << " with name " << name << std::endl;
 		  g.molecules[imol].install_model(imol, mol, g.Geom_p(), name, 1);
 		  vec_chain_mols.push_back(imol);
 		  set_mol_displayed(imol, 0);
@@ -665,10 +698,12 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	       // copy of the original coordinates
 	       // 
 	       std::string ass = protein_db_loop_specs_to_atom_selection_string(residue_specs);
-	       imol_loop_orig = new_molecule_by_atom_selection(imol_coords, ass.c_str());
-	       set_mol_active(imol_loop_orig, 0);
-	       set_mol_displayed(imol_loop_orig, 0);
 
+	       if (true) {
+		  imol_loop_orig = new_molecule_by_atom_selection(imol_coords, ass.c_str());
+		  set_mol_active(imol_loop_orig, 0);
+		  set_mol_displayed(imol_loop_orig, 0);
+	       }
 	       graphics_draw();
 	    }
 	 }
@@ -750,17 +785,83 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
 
 #ifdef USE_PYTHON
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
-		  const std::string &link_name, float length) {
+                  const std::string &link_name, float length) {
    coot::atom_spec_t s1 = atom_spec_from_python_expression(spec_1);
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
    if (s1.string_user_data != "OK")
      std::cout << "WARNING:: problem with atom spec "
-               << PyString_AsString(display_python(spec_1)) << std::endl;
+               << PyUnicode_AsUTF8String(display_python(spec_1)) << std::endl;
    else 
      if (s2.string_user_data != "OK")
        std::cout << "WARNING:: problem with atom spec "
-                 << PyString_AsString(display_python(spec_2)) << std::endl;
+                 << PyUnicode_AsUTF8String(display_python(spec_2)) << std::endl;
      else 
        make_link(imol, s1, s2, link_name, length);
+}
+#endif
+
+int add_nucleotide(int imol, const char *chain_id, int res_no) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.execute_simple_nucleotide_addition(imol, chain_id, res_no);
+      graphics_draw();
+      return 1;
+   }
+   return 0;
+
+}
+
+#include "coot-utils/pepflip-using-difference-map.hh"
+
+#ifdef USE_GUILE
+SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, float n_sigma) {
+
+   SCM r = SCM_EOL;
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         graphics_info_t g;
+         if (g.molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = g.molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = g.molecules[imol_coords].atom_sel.mol;
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+            for (std::size_t i=0; i<flips.size(); i++) {
+               SCM flip_scm = residue_spec_to_scm(flips[i]);
+               r = scm_cons(flip_scm, r);
+	    }
+	 }
+      }
+   }
+   r = scm_reverse(r);
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *pepflip_using_difference_map_py(int imol_coords, int imol_difference_map, float n_sigma) {
+
+   PyObject *o = PyList_New(0);
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         graphics_info_t g;
+         if (g.molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = g.molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = g.molecules[imol_coords].atom_sel.mol;
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+            if (flips.size() > 0) {
+               o = PyList_New(flips.size());
+               for (std::size_t i=0; i<flips.size(); i++) {
+                  PyList_SetItem(o, i, residue_spec_to_py(flips[i]));
+               }
+            }
+	 }
+      }
+   }
+   return o;
 }
 #endif

@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include <string>
 #include "generic-display-objects-c.h"
 
 
@@ -34,20 +35,41 @@
 /*! \name Generic Objects */
 /* \{ */
 
-/*! \brief create a new generic object with name objname and return the index 
-   of the object */
-int new_generic_object_number(const char *objname);
+/*! \brief create a new generic object with name objname
+
+   return the index of the object */
+int new_generic_object_number(const std::string &obj_name);
+
+/*! \brief create a new generic object with name objname
+           and attach it to the given molecule
+
+bool is_valid_generic_display_object_number(int obj);
+  @return the index of the object */
+int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_line(int object_number, 
-				const char *colour,
-				int line_width,
-				float from_x1, 
-				float from_y1, 
-				float from_z1, 
-				float to_x2, 
-				float to_y2, 
-				float to_z2);
+                                const char *colour,
+                                int line_width,
+                                float to_x1,
+                                float to_y1,
+                                float to_z1,
+                                float to_x2,
+                                float to_y2,
+                                float to_z2);
+
+void to_generic_object_add_cylinder(int object_number,
+                                    const char *colour,
+                                    float line_radius,
+                                    int n_slices, // 4, 8, 16
+                                    float from_x,
+                                    float from_y,
+                                    float from_z,
+                                    float to_x,
+                                    float to_y,
+                                    float to_z,
+                                    bool cap_start,
+                                    bool cap_end);
 
 /*! \brief add a dashed line to generic object object_number 
 
@@ -84,8 +106,7 @@ void to_generic_object_add_arc(int object_number,
 			       const char *colour,
 			       float radius,
 			       float radius_inner,
-			       float from_angle,
-			       float to_angle,
+			       float angle_delta,
 			       float start_point_x,
 			       float start_point_y,
 			       float start_point_z,
@@ -95,6 +116,28 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_x1, 
 			       float normal_y1, 
 			       float normal_z1);
+
+void to_generic_object_add_torus(int object_number,
+                                 const char *colour_name,
+                                 float radius,
+                                 float radius_inner,
+                                 float centre_point_x,
+                                 float centre_point_y,
+                                 float centre_point_z,
+                                 float normal_x,
+                                 float normal_y,
+                                 float normal_z);
+
+void
+to_generic_object_add_arrow(int object_number,
+                            const char *colour_name,
+                            float stem_radius,
+                            float from_x1,
+                            float from_y1,
+                            float from_z1,
+                            float to_x2,
+                            float to_y2,
+                            float to_z2);
 
 void to_generic_object_add_dodecahedron(int object_number,
 					const char *colour,
@@ -145,7 +188,8 @@ int generic_object_index(const std::string &name);
 SCM generic_object_name_scm(int obj_number);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
-PyObject *generic_object_name_py(int obj_number);
+PyObject *generic_object_name_py(unsigned int obj_number);
+PyObject *get_generic_object_py(unsigned int obj_number);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
@@ -182,7 +226,8 @@ one might do this if the generic object is specific to a molecule.
  */
 void attach_generic_object_to_molecule(int obj_number, int imol);
 
-void set_display_generic_objects_as_solid(int state);
+// This no longer maeks sense.
+// void set_display_generic_objects_as_solid(int state);
 
 
 /* \} */

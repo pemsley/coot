@@ -22,6 +22,7 @@
 
 #include <boost/python.hpp>
 // #include "rdkit/RDBoost/Exceptions.h"
+#include <lidia-core/use-rdkit.hh>
 #include "restraints.hh"
 #include "py-restraints.hh"
 #include <lidia-core/rdkit-interface.hh>
@@ -30,8 +31,6 @@
 
 #include "mmff-restraints.hh" // needed?
 
-// for minimization
-#define HAVE_GSL
 #include <ideal/simple-restraint.hh>
 
 
@@ -55,7 +54,9 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    n_atoms_all,
 									    n_atoms_non_hydrogen,
 									    bond_order_restraints);
+   restraints.set_use_nuclear_distances(true);
    restraints.write_cif(cif_file_name);
+
 }
 
 void
@@ -71,11 +72,11 @@ coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
    }
  
    if (restraints.is_filled()) {
+      restraints.set_use_nuclear_distances(true);
       restraints.write_cif(file_name);
    } else {
       std::cout << "No restraints in write_restraints()" << std::endl;
    } 
-
 }
 
 // replace_with_mmff_b_a_restraints is an optional arg, default true
@@ -104,7 +105,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
    unsigned int n_atoms_non_hydrogen = 0;
 
    for (unsigned int iat=0; iat<n_atoms_all; iat++) { 
-      RDKit::ATOM_SPTR at_p = mol[iat];
+      const RDKit::Atom *at_p = mol[iat];
       if (at_p->getAtomicNum() != 1)
 	 n_atoms_non_hydrogen++;
       try {
@@ -186,8 +187,8 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    // default return value (failure)
    PyObject *o = PyTuple_New(3);
    PyTuple_SetItem(o, 0, PyBool_FromLong(0));
-   PyTuple_SetItem(o, 1, PyInt_FromLong(-1));
-   PyTuple_SetItem(o, 2, PyString_FromString(""));
+   PyTuple_SetItem(o, 1, PyLong_FromLong(-1));
+   PyTuple_SetItem(o, 2, PyUnicode_FromString(""));
 
    coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
    std::vector<std::string> comp_ids;
@@ -196,7 +197,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (PyList_Check(template_comp_id_list)) {
       Py_ssize_t len = PyObject_Length(template_comp_id_list);
       for (Py_ssize_t i=0; i<len; i++) {
-	 std::string s = PyString_AsString(PyList_GetItem(template_comp_id_list, i));
+	 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(template_comp_id_list, i)));
 	 if (! s.empty())
 	    comp_ids.push_back(s);
       }
@@ -205,7 +206,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (PyList_Check(template_cif_dict_file_names)) {
       Py_ssize_t len = PyObject_Length(template_cif_dict_file_names);
       for (Py_ssize_t i=0; i<len; i++) {
-	 std::string s = PyString_AsString(PyList_GetItem(template_cif_dict_file_names, i));
+	 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(template_cif_dict_file_names, i)));
 	 dictionary_file_names.push_back(s);
       }
    }
@@ -217,7 +218,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (md.filled()) {
       PyObject *name_list_py = PyList_New(md.dict.atom_info.size());
       for (unsigned int i=0; i<md.dict.atom_info.size(); i++)
-	 PyList_SetItem(name_list_py, i, PyString_FromString(md.dict.atom_info[i].atom_id_4c.c_str()));
+	 PyList_SetItem(name_list_py, i, PyUnicode_FromString(md.dict.atom_info[i].atom_id_4c.c_str()));
       PyTuple_SetItem(o, 0, PyBool_FromLong(true));
       PyTuple_SetItem(o, 1, monomer_restraints_to_python(md.dict));
       PyTuple_SetItem(o, 2, name_list_py); 
@@ -233,7 +234,6 @@ coot::matching_dict_t
 coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
 				      mmdb::Residue *residue_p) {
    
-   mmdb::Residue *returned_res = NULL;
    matching_dict_t dict;
 
    unsigned int n_comp_ids = 21;
@@ -349,8 +349,8 @@ PyObject *
 coot::test_tuple() {
 
    PyObject *o = PyTuple_New(2);
-   PyTuple_SetItem(o, 0, PyInt_FromLong(-19));
-   PyTuple_SetItem(o, 1, PyString_FromString("this-is-part-of-a-tuple"));
+   PyTuple_SetItem(o, 0, PyLong_FromLong(-19));
+   PyTuple_SetItem(o, 1, PyUnicode_FromString("this-is-part-of-a-tuple"));
 
    return o;
 } 
@@ -368,12 +368,14 @@ coot::types_from_mmcif_dictionary(const std::string &file_name) {
 
    PyObject *l = PyList_New(types.size());
    for (unsigned int i=0; i<types.size(); i++) { 
-      PyObject *o = PyString_FromString(types[i].c_str());
+      PyObject *o = PyUnicode_FromString(types[i].c_str());
       PyList_SetItem(l, i, o);
    }
    return l;
 } 
 
+// This is the function that give pyrogen its name
+//
 // write restraints and return restraints
 // 
 // replace_with_mmff_b_a_restraints is an optional arg, default true
@@ -382,34 +384,57 @@ PyObject *
 coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  const std::string &compound_name,
 			  PyObject *rdkit_mol_py,
+                          bool do_minimization,
 			  const std::string &mmcif_out_file_name,
 			  bool quartet_planes, bool quartet_hydrogen_planes,
 			  bool replace_with_mmff_b_a_restraints) {
 
-   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
+   std::pair<bool, coot::dictionary_residue_restraints_t> restraints_pair =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
 
-   if (restraints.first) { 
+   coot::dictionary_residue_restraints_t &restraints = restraints_pair.second;
+
+   if (false)
+      std::cout << "in mmcif_dict_from_mol, mmcif_dict_from_mol_using_energy_lib "
+		<< "returns with status " << restraints_pair.first << std::endl;
+
+   if (restraints_pair.first) { 
       if (replace_with_mmff_b_a_restraints) {
+
 	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
 	 RDKit::ROMol mol_for_mmff(mol);
 	 // bonds and angles 
 	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
-	 restraints.second.conservatively_replace_with(mmff_restraints);
+	 restraints.conservatively_replace_with(mmff_restraints);
       }
+   } else {
+      std::cout << "WARNING:: failure in calling mmcif_dict_from_mol_using_energy_lib() " << std::endl;
    }
 
-   bool success = restraints.first;
+   bool success = restraints_pair.first;
    if (success)
-      if (! restraints.second.is_filled())
+      if (! restraints.is_filled()) {
+	 std::cout << "WARNING:: restraints are not filled: "
+		   << restraints.atom_info.size() << " atoms "
+		   << restraints.bond_restraint.size() << " bonds "
+		   << std::endl;
 	 success = false;
+      }
 
-   if (success) { 
-      restraints.second.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
+   if (success) {
+
+      if (do_minimization) {
+	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+	 RDKit::RWMol mol_for_mmff(mol);
+         regularize_and_update_mol_and_restraints(&mol_for_mmff, &restraints);
+      }
+      restraints.set_use_nuclear_distances(true);
+      restraints.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
                                                          // matching is enabled.
-      return monomer_restraints_to_python(restraints.second);
+      return monomer_restraints_to_python(restraints);
    } else {
+      std::cout << "no success in mmcif_dict_from_mol() " << std::endl;
       PyObject *o = new PyObject;
       o = Py_None;
       Py_INCREF(o);
@@ -471,7 +496,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       restraints.residue_info.number_atoms_nh = n_atoms_non_hydrogen;
       restraints.residue_info.group = "non-polymer";
       restraints.residue_info.description_level = "."; // default is full <smiley>
-      
+
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
@@ -483,10 +508,15 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
       bool status_p = coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
 
+      // std::cout << "here in mmcif_dict_from_mol_using_energy_lib statuses are "
+      //           << status_a << " " << status_b << " " << status_p << std::endl;
+
       if (! status_b) status = false;
       if (! status_a) status = false;
    }
 
+   // std::cout << "mmcif_dict_from_mol_using_energy_lib returns with status "
+   // << status << std::endl;
    std::pair<bool, coot::dictionary_residue_restraints_t> p(status, restraints);
    return p;
 }
@@ -498,14 +528,14 @@ bool
 coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
-   
+
    unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
       int idx_1 = bond_p->getBeginAtomIdx();
       int idx_2 = bond_p->getEndAtomIdx();
-      RDKit::ATOM_SPTR at_1 = mol[idx_1];
-      RDKit::ATOM_SPTR at_2 = mol[idx_2];
+      const RDKit::Atom *at_1 = mol[idx_1];
+      const RDKit::Atom *at_2 = mol[idx_2];
       {
 	 // put the lighter atom first (so that we find "Hxx ."  rather than "N .")
 	 if (at_1->getAtomicNum() > at_2->getAtomicNum())
@@ -528,7 +558,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << " with permissive search " << std::endl;
 	       std::string bond_type = bond.type;
-	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd);
+	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd, 0.0, 0.0, false);
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {
@@ -539,11 +569,12 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	 
 	 }
 	 catch (const KeyErrorException &kee) {
-	    std::cout << "ERROR:: caugh KeyErrorException in fill_with_energy_lib_bonds() - "
+	    std::cout << "ERROR:: caught KeyErrorException in fill_with_energy_lib_bonds() - "
 		      << "atom types and names for bond number " << ib << std::endl;
 	 }
       }
    }
+   // std::cout << "returnging form fill_with_energy_lib_bonds() " << n_bonds << std::endl;
    return (n_bonds == restraints->bond_restraint.size());
 }
 
@@ -556,16 +587,16 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
    unsigned int n_atoms = mol.getNumAtoms();
    std::map<std::string, bool> done_angle;
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+      const RDKit::Atom *at_1 = mol[iat_1];
       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
       while(nbr_idx_1 != end_nbrs_1){
-	 const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+	 const RDKit::Atom *at_2 = mol[*nbr_idx_1];
 
 	 RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
 	 boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
 	 while(nbr_idx_2 != end_nbrs_2){
-	    const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
+	    const RDKit::Atom *at_3 = mol[*nbr_idx_2];
 	    if (at_3 != at_1) { 
 
 	       try {
@@ -611,7 +642,7 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 		  } 
 	       }
 	       catch (const KeyErrorException &kee) {
-		  std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
+		  std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_angles() "
 			    << std::endl;
 	       }
 	       
@@ -641,17 +672,17 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
    bool debug = false;
    
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+      const RDKit::Atom *at_1 = mol[iat_1];
 
       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
       while(nbr_idx_1 != end_nbrs_1){
-	 const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+	 const RDKit::Atom *at_2 = mol[*nbr_idx_1];
 
 	 RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
 	 boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
 	 while(nbr_idx_2 != end_nbrs_2){
-	    const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
+	    const RDKit::Atom *at_3 = mol[*nbr_idx_2];
 	    if (at_3 != at_1) {
 	       
 	       RDKit::ROMol::ADJ_ITER nbr_idx_3, end_nbrs_3;
@@ -662,13 +693,13 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 	       // with the hydrogen atom.
 
 	       bool at_4_set = false;
-	       RDKit::ATOM_SPTR at_4 = mol[*nbr_idx_3]; // best so far, (maybe its at_2 though)
+	       const RDKit::Atom *at_4 = mol[*nbr_idx_3]; // best so far, (maybe its at_2 though)
 	       if (at_4 != at_2 && at_4 != at_1)
 		  at_4_set = true; // OK, it wasn't.
 	       
 	       while (nbr_idx_3 != end_nbrs_3) {
 
-		  const RDKit::ATOM_SPTR at_4_trial = mol[*nbr_idx_3];
+		  const RDKit::Atom *at_4_trial = mol[*nbr_idx_3];
 		  if (at_4_trial != at_2 && at_4_trial != at_1) {
 		     if (at_4_trial->getAtomicNum() != 1) {
 			// anything not hydrogen is good enough.
@@ -731,7 +762,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 		     }
 		  }
 		  catch (const KeyErrorException &kee) {
-		     std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+		     std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
 			       << std::endl;
 		  }
 	       }
@@ -749,10 +780,10 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 bool
 coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraints,
 				const RDKit::ROMol &mol,
-				const RDKit::ATOM_SPTR at_1,
-				const RDKit::ATOM_SPTR at_2,
-				const RDKit::ATOM_SPTR at_3,
-				const RDKit::ATOM_SPTR at_4,
+				const RDKit::Atom *at_1,
+				const RDKit::Atom *at_2,
+				const RDKit::Atom *at_3,
+				const RDKit::Atom *at_4,
 				const RDKit::Bond *bond, // between atoms 2 and 3
 				unsigned int *tors_no,
 				unsigned int *const_no,
@@ -804,7 +835,7 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	 energy_lib_torsion tors =
 	    energy_lib.get_torsion(atom_type_2, atom_type_3);
 			      
-	 bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
+	 bool is_const = is_const_torsion(mol, at_2, at_3);
 
 	 if (debug)
 	    std::cout << "    torsion between a " << atom_type_2 << " and a "
@@ -842,7 +873,7 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	 double esd = 20;
 	 int period = 1;
 			      
-	 bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
+	 bool is_const = is_const_torsion(mol, at_2, at_3);
 	 RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
 	 RDKit::Atom::HybridizationType ht_3 = at_3->getHybridization();
 
@@ -913,7 +944,7 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
       }
    }
    catch (const KeyErrorException &kee) {
-      std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+      std::cout << "WARNING:: caught KeyErrorException in fill_with_energy_lib_torsions() "
 		<< std::endl;
    }
    return added_state;
@@ -957,7 +988,38 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 
    return status;
 
-} 
+}
+
+void
+coot::update_chem_comp_atoms_from_residue(mmdb::Residue *residue_p,
+                                          coot::dictionary_residue_restraints_t *restraints) {
+
+   bool verbose = false;
+   if (verbose)
+      std::cout << "update_chem_comp_atoms_from_residue() ******************************" << std::endl;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at = residue_atoms[iat];
+      if (! at->isTer()) {
+         std::string atom_name(at->GetAtomName());
+
+         std::vector<dict_atom> &atom_info = restraints->atom_info;;
+         for (unsigned int jat=0; jat<atom_info.size(); jat++) {
+            dict_atom &da = atom_info[jat];
+            if (da.atom_id_4c == atom_name) {
+               clipper::Coord_orth c = co(at);
+               const clipper::Coord_orth &old_c = da.model_Cartn.second;
+               if (verbose)
+                  std::cout << "debug:: updating " << atom_name << " from " << old_c.format()
+                            << " to " << c.format() << std::endl;
+               da.model_Cartn.second = c;
+            }
+         }
+      }
+   }
+}
 
 
 void
@@ -966,15 +1028,18 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
    int iconf = 0;
    unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
-      RDKit::ATOM_SPTR at_p = mol[iat];
+      const RDKit::Atom *at_p = mol[iat];
       try {
 	 std::string name;
 	 std::string atom_type;
 	 double charge;
 	 bool have_charge = true; // can be clever with GetProp() KeyErrorException
 	                          // if you like
+	 // std::cout << "add_chem_comp_atoms() getting names... " << std::endl;
 	 at_p->getProp("name", name);
+	 // std::cout << "add_chem_comp_atoms() getting type_energy... " << std::endl;
 	 at_p->getProp("type_energy", atom_type);
+	 // std::cout << "add_chem_comp_atoms() getting charges... " << std::endl;
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
@@ -1000,6 +1065,7 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
    bool status = true;
    add_chem_comp_aromatic_planes(mol, restraints, quartet_planes, quartet_hydrogen_planes);
    add_chem_comp_deloc_planes(mol, restraints);
+   add_chem_comp_sp2_C_planes(mol, restraints);
    restraints->remove_redundant_plane_restraints();
    restraints->reweight_subplanes();
    add_chem_comp_sp2_N_planes(mol, restraints);
@@ -1032,27 +1098,30 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; //20210923-PE FIXME
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 
-	    std::cout << "INFO:: matched aromatic plane: " << std::setw(14) << std::right
-		      << patterns[ipat];
-	    std::cout << " ("; 
-	    for (unsigned int iat=0; iat<matches[imatch].size(); iat++) { 
-	       unsigned int atom_idx = matches[imatch][iat].second;
-	       try {
-		  RDKit::ATOM_SPTR at_p = mol[atom_idx];
-		  std::string atom_name;
-		  at_p->getProp("name", atom_name);
-		  std::cout << " " << atom_name;
+	    if (false) { // too noisy when debugging other things
+	       std::cout << "INFO:: matched aromatic plane: " << std::setw(14) << std::right
+			 << patterns[ipat];
+	       std::cout << " (";
+	       for (unsigned int iat=0; iat<matches[imatch].size(); iat++) {
+		  unsigned int atom_idx = matches[imatch][iat].second;
+		  try {
+		     const RDKit::Atom *at_p = mol[atom_idx];
+		     std::string atom_name;
+		     at_p->getProp("name", atom_name);
+		     std::cout << " " << atom_name;
+		  }
+		  catch (const KeyErrorException &kee) {
+		     std::cout << " " << atom_idx;
+		  }
 	       }
-	       catch (const KeyErrorException &kee) {
-		  std::cout << " " << atom_idx;
-	       } 
+	       std::cout << " )";
+	       std::cout << std::endl;
 	    }
-	    std::cout << " )";
-	    std::cout << std::endl; 
 
 	    if (! quartet_planes) { 
 	       dict_plane_restraint_t plr =
@@ -1090,14 +1159,14 @@ coot::add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
    // hydrogen of course).
    unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+      const RDKit::Atom *at_1 = mol[iat_1];
       if (at_1->getAtomicNum() == 1) {
 	 std::vector<unsigned int> quartet_indices;
 
 	 RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	 boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
 	 while(nbr_idx_1 != end_nbrs_1){
-	    const RDKit::ATOM_SPTR at_centre = mol[*nbr_idx_1];
+	    const RDKit::Atom *at_centre = mol[*nbr_idx_1];
 	       
 	    if (at_centre->getHybridization() == RDKit::Atom::SP2) {
 
@@ -1161,7 +1230,7 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
    std::vector<std::string> plane_restraint_atoms; 
    try {
       for (unsigned int ii=0; ii<match.size(); ii++) {
-	 RDKit::ATOM_SPTR at_p = mol[match[ii].second];
+	 const RDKit::Atom *at_p = mol[match[ii].second];
 
 	 // only add this atom to a plane restraint if it not
 	 // already in a plane restraint.  Test by failing to
@@ -1215,9 +1284,9 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
 	       // 
 	       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
-	       std::vector<RDKit::ATOM_SPTR> attached_atoms;
+	       std::vector<const RDKit::Atom *> attached_atoms;
 	       while(nbr_idx_1 != end_nbrs_1) {
-		  const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+		  const RDKit::Atom *at_2 = mol[*nbr_idx_1];
 		  // add if not a hydrogen or we are not doing quartet hydrogen planes
 		  if (at_2->getAtomicNum() != 1 || !quartet_hydrogen_planes)
 		     attached_atoms.push_back(at_2);
@@ -1281,7 +1350,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
    int n_planes = 0;
    try {
       for (unsigned int ii=0; ii<match.size(); ii++) {
-	 RDKit::ATOM_SPTR at_p = mol[match[ii].second];
+	 const RDKit::Atom *at_p = mol[match[ii].second];
 	 if (at_p->getAtomicNum() != 1) {
 
 	    if (0) {
@@ -1299,7 +1368,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
 	    while(nbr_idx_1 != end_nbrs_1){
-	       const RDKit::ATOM_SPTR at_neighb = mol[*nbr_idx_1];
+	       const RDKit::Atom *at_neighb = mol[*nbr_idx_1];
 	       if (at_neighb->getAtomicNum() != 1) {
 		  quartet_indices.push_back(*nbr_idx_1);
 	       }
@@ -1344,7 +1413,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	       // OK quartet_indices should be 3 now.  Root atom and
 	       // its two neighbours.
 	       //
-	       if (0) { // debug
+	       if (false) { // debug
 		  std::cout << "debug quartet_indices.size() (should be 3): "
 			    << q_indices.size() << std::endl;
 		  for (unsigned int jj=0; jj<q_indices.size(); jj++) { 
@@ -1359,7 +1428,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	       //
 	       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
 	       while(nbr_idx_1 != end_nbrs_1){
-		  const RDKit::ATOM_SPTR at_1 = mol[*nbr_idx_1];
+		  const RDKit::Atom *at_1 = mol[*nbr_idx_1];
 		  if (at_1->getAtomicNum() != 1) {
 
 		     RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
@@ -1367,14 +1436,14 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 		     while(nbr_idx_2 != end_nbrs_2){
 
 			if (mol[*nbr_idx_2]->getAtomicNum() != 1) {
-			   std::vector<unsigned int> local_quartet = quartet_indices;
+                           std::vector<unsigned int> local_quartet(quartet_indices);
 
 			   // Add this atom if it's not already in the quartet
 			   if (std::find(local_quartet.begin(),
 					 local_quartet.end(),
 					 *nbr_idx_2) == local_quartet.end()) {
 			      local_quartet.push_back(*nbr_idx_2);
-			      quartet_sets_vec.push_back(local_quartet);
+			      quartet_sets_vec.push_back(quartet_set(local_quartet));
 			   }
 			}
 			++nbr_idx_2;
@@ -1393,7 +1462,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	 const quartet_set &q = quartet_sets_vec[i];
 	 std::vector<std::string> atom_names;
 	 for (unsigned int iat=0; iat<4; iat++) { 
-	    const RDKit::ATOM_SPTR at = mol[q[iat]];
+	    const RDKit::Atom *at = mol[q[iat]];
 	    std::string name;
 	    at->getProp("name", name);
 	    atom_names.push_back(name);
@@ -1445,12 +1514,11 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
    patterns.push_back(d_pat("*[C;X3;^2](=O)[N;X3;^2;H1]([H])*", 0.02));  // amino
-   
 
    // Martin's pattern, these should be weaker (than standard 0.02) though, I think
    patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
    // patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04)); // no. bad match for OAC,CBG in 0BU
-   
+
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
       RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
@@ -1458,7 +1526,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 	    
@@ -1468,7 +1537,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	       for (unsigned int iat=0; iat<matches[imatch].size(); iat++) { 
 		  unsigned int atom_idx = matches[imatch][iat].second;
 		  try {
-		     RDKit::ATOM_SPTR at_p = mol[atom_idx];
+		     const RDKit::Atom *at_p = mol[atom_idx];
 		     std::string atom_name;
 		     at_p->getProp("name", atom_name);
 		     std::cout << " " << atom_name;
@@ -1489,7 +1558,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	    try {
 	       std::vector<std::string> atom_names;
 	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
-		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+		  const RDKit::Atom *at_p = mol[matches[imatch][ii].second];
 
 		  // Unlike aromatics, the atoms of this type of plane
 		  // can be in more than one plane.
@@ -1519,6 +1588,59 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
 
 void
+coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   typedef std::pair<std::string, double> d_pat;
+   std::vector<d_pat> patterns;
+
+   patterns.push_back(d_pat("AC(=O)C",                 0.02));  // ketone, A is usually C, maybe S.
+
+   int n_planes = 1; // counter for output text
+   for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::vector<RDKit::MatchVectType>  matches;
+      bool recursionPossible = true;
+      bool useChirality = true;
+      bool uniquify = true;
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
+      if (0) // debug
+	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
+      for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
+	 if (matches[imatch].size() > 0) {
+	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::string plane_id = "plane-sp2-N-";
+	    char s[100];
+	    snprintf(s,99,"%d", n_planes);
+	    plane_id += std::string(s);
+	    try {
+	       std::vector<std::string> atom_names;
+	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
+		  const RDKit::Atom *at_p = mol[matches[imatch][ii].second];
+
+		  // Unlike aromatics, the atoms of this type of plane
+		  // can be in more than one plane.
+
+		  std::string name = "";
+		  at_p->getProp("name", name);
+		  at_p->setProp("plane_id", plane_id);
+		  atom_names.push_back(name);
+	       }
+	       if (atom_names.size() > 3) {
+		  mmdb::realtype dist_esd = patterns[ipat].second;
+		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
+		  restraints->plane_restraint.push_back(res);
+	       }
+	    }
+	    catch (const KeyErrorException &kee) {
+	    }
+	    n_planes++;
+	 }
+      }
+   }
+}
+
+void
 coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
 
    typedef std::pair<std::string, double> d_pat;
@@ -1532,7 +1654,8 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      int matched = false; // 20210923-PE FIXME
       if (0) // debug
 	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
@@ -1545,7 +1668,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	    try {
 	       std::vector<std::string> atom_names;
 	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
-		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+		  const RDKit::Atom *at_p = mol[matches[imatch][ii].second];
 
 		  // Unlike aromatics, the atoms of this type of plane
 		  // can be in more than one plane.
@@ -1591,7 +1714,7 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
 
    unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
-      RDKit::ATOM_SPTR at_p = mol[iat];
+      const RDKit::Atom *at_p = mol[iat];
       try {
 	 std::string ch;
 	 std::string chiral_centre, n1, n2, n3;
@@ -1627,140 +1750,163 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
 	 if (0)
 	    std::cout << "assign_chirals_mmcif_tags() strange - caught runtime_error "
 		      << rte.what() << std::endl;
-      } 
+      }
    }
    return n_chirals;
 }
- 
+
+
+// return -1 or +1
+int
+coot::get_volume_sign_from_coordinates(const RDKit::ROMol &mol,
+                                       unsigned int idx_chiral_centre_atom,
+                                       const std::vector<indexed_name_and_rank_t> &neighb_names_and_ranks) {
+
+   auto make_vector = [] (const RDGeom::Point3D &a, const RDGeom::Point3D &central) {
+                         return clipper::Coord_orth(a.x-central.x, a.y-central.y, a.z-central.z);
+                      };
+
+   int n_conf = mol.getNumConformers();
+   if (n_conf > 0) {
+      int id_conf = n_conf -1;
+      const RDKit::Conformer &conf = mol.getConformer(id_conf);
+      const RDGeom::Point3D &pos_central = conf.getAtomPos(idx_chiral_centre_atom);
+      const RDGeom::Point3D &pos_a = conf.getAtomPos(neighb_names_and_ranks[0].atom_index);
+      const RDGeom::Point3D &pos_b = conf.getAtomPos(neighb_names_and_ranks[1].atom_index);
+      const RDGeom::Point3D &pos_c = conf.getAtomPos(neighb_names_and_ranks[2].atom_index);
+      clipper::Coord_orth a = make_vector(pos_a, pos_central);
+      clipper::Coord_orth b = make_vector(pos_b, pos_central);
+      clipper::Coord_orth c = make_vector(pos_c, pos_central);
+      double vol = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+      // std::cout << "chiral vol " << vol << std::endl;
+      if (vol > 0)
+         return 1;
+      else
+         return -1;
+   }
+   return 1;
+}
+
 // alter restraints: RDKit/SMILES -> mmCIF chiral conversion
-int 
+int
 coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 				coot::dictionary_residue_restraints_t *restraints) {
-   
-   int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+
+   // debug_cip_ranks(mol);
 
    int n_chirals = 0;
 
    unsigned int n_atoms = mol.getNumAtoms();
-   for (unsigned int iat=0; iat<n_atoms; iat++) { 
-      RDKit::ATOM_SPTR at_p = mol[iat];
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+      const RDKit::Atom *at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
-      // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
+      if (false)
+	 std::cout << "DEBUG:: in assign_chirals_rdkit_tags() atom " << iat
+		   << " chiral tag: " << chiral_tag << std::endl;
 
+      // I think that these are round the wrong way.
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
 	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
 
       if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) {
-	 try { 
+	 try {
+
+	    if (false)
+	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): considering chiral "
+			 << "for atom idx " << iat << std::endl;
+
+            unsigned int idx_central = iat;
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
-	    std::string n1, n2, n3; // these need setting, c.f. get_chiral_tag() in rdkit-interface.cc?
+	    std::string n1, n2, n3; // these need setting, c.f.
+	                            // get_chiral_tag() in rdkit-interface.cc?
 
-	    // The refmac monomer library and the rdkit (SMILES-based)
-	    // representation of chirality is quite different.
-
-	    // in SMILES the chiral centre has 4 substituents A[B@C](D)E
-	    // Looking down the AB bond, C, D, and E are ordered clockwise (@).
+	    // What are the neighbours of at_p and what are their ranks?
 	    //
-	    // So we need to find the 4 neighbours of B: B should have
-	    // an index below A, (similar reason for the others).
-	    //
-	    // pairs of: RDKit-atom-idx,RDKit-atom-name
-	    std::vector<std::pair<int, std::string> > neighbours;
 
-	    unsigned int n_bonds = mol.getNumBonds();
-	    for (unsigned int ib=0; ib<n_bonds; ib++) {
-	       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
-	       unsigned int idx_1 = bond_p->getBeginAtomIdx();
-	       unsigned int idx_2 = bond_p->getEndAtomIdx();
-
-	       if (idx_1 == iat)
-		  neighbours.push_back(std::pair<int, std::string> (idx_2, ""));
-	       if (idx_2 == iat)
-		  neighbours.push_back(std::pair<int, std::string> (idx_1, ""));
+	    // std::vector<std::pair<unsigned int, std::string> > neighb_names_and_ranks;
+            std::vector<indexed_name_and_rank_t> neighb_names_and_ranks;
+	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+	    while(nbr_idx_1 != end_nbrs_1){
+	       const RDKit::Atom *at_neighb = mol[*nbr_idx_1];
+	       unsigned int cip_rank;
+	       std::string neighb_name;
+	       at_neighb->getProp(RDKit::common_properties::_CIPRank,cip_rank);
+	       at_neighb->getProp("name", neighb_name);
+	       indexed_name_and_rank_t p(*nbr_idx_1, cip_rank, neighb_name);
+	       neighb_names_and_ranks.push_back(p);
+	       ++nbr_idx_1;
 	    }
 
-	    // std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;
+	    if (false) { // debug
+	       std::sort(neighb_names_and_ranks.begin(),
+			 neighb_names_and_ranks.end());
 
-	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
+	       std::reverse(neighb_names_and_ranks.begin(),
+			    neighb_names_and_ranks.end());
 
-	    // it sorts on the first index first, and if that is a
-	    // match, sorts on the second, I think, neighbours is now
-	    // sorted so that the low indices are first.
+	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags() for atom "
+			 << chiral_centre << " found "
+			 << neighb_names_and_ranks.size() << "  neighbours: ";
+	       for (unsigned int ii=0; ii<neighb_names_and_ranks.size(); ii++)
+		  std::cout << " "
+			    << coot::util::remove_whitespace(neighb_names_and_ranks[ii].atom_name)
+                            << " (rank " << neighb_names_and_ranks[ii].cip_rank << ")";
+	       std::cout << std::endl;
+	    }
 
-	    if (neighbours.size() == 4) {
+	    if (neighb_names_and_ranks.size() == 4) {
 
-	       for (unsigned int in=0; in<neighbours.size(); in++) {
-		  std::string name;
-		  mol[neighbours[in].first]->getProp("name", name); // already inside a try
-		  // std::cout << "got name " << name << " for atom index "
-		  // << neighbours[in].first << std::endl;
-		  neighbours[in].second = name;
-	       }
+	       //std::sort(neighb_names_and_ranks.begin(),
+               // neighb_names_and_ranks.end());
 
-	       // This will still need testing.
-	       // 
-	       if (false)
-		  std::cout << "Here with chiral neighbours: "
-			    << "(" << neighbours[0].first << " " << neighbours[0].second << ") "
-			    << "(" << neighbours[1].first << " " << neighbours[1].second << ") "
-			    << "(" << neighbours[2].first << " " << neighbours[2].second << ") "
-			    << "(" << neighbours[3].first << " " << neighbours[3].second << ")"
-			    << std::endl;
-
-	       std::vector<int> n_idx(3);
-	       n_idx[0] = 0;
-	       n_idx[1] = 2;
-	       n_idx[2] = 3;
-
-	       // if neighbours[1] was not the hydrogen, we need to shuffle.
-	       if (mol[neighbours[1].first]->getAtomicNum() != 1) {
-		  if (mol[neighbours[0].first]->getAtomicNum() == 1) {
-		     n_idx[0] = 1;
-		  }
-		  if (mol[neighbours[2].first]->getAtomicNum() == 1) {
-		     n_idx[1] = 1;
-		     n_idx[2] = 3;
-		  }
-		  if (mol[neighbours[3].first]->getAtomicNum() == 1) {
-		     n_idx[1] = 1;
-		     n_idx[2] = 2;
-		  }
-	       }
+	       // std::reverse(neighb_names_and_ranks.begin(),
+               // neighb_names_and_ranks.end());
 
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
-	       // Neighbour[1] is the hydrogen, we presume. 
-	       if (!chiral_centre.empty() &&
-		   !neighbours[n_idx[0]].second.empty() &&
-		   !neighbours[n_idx[1]].second.empty() &&
-		   !neighbours[n_idx[2]].second.empty()) {
-		  if (1) {
-		     coot::dict_chiral_restraint_t chiral(chiral_id,
-							  chiral_centre,
-							  neighbours[0].second,
-							  neighbours[2].second,
-							  neighbours[3].second, vol_sign);
-		     restraints->chiral_restraint.push_back(chiral);
-		     n_chirals++;
-		     // std::cout << ".............. made a chiral " << chiral << std::endl;
-		  }
-	       }
+	       std::string n1 = neighb_names_and_ranks[0].atom_name;
+	       std::string n2 = neighb_names_and_ranks[1].atom_name;
+	       std::string n3 = neighb_names_and_ranks[2].atom_name;
 
-	    } else {
-	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
-	    } 
+               vol_sign = get_volume_sign_from_coordinates(mol, idx_central, neighb_names_and_ranks);
+
+	       dict_chiral_restraint_t cr(chiral_id, chiral_centre, n1, n2, n3, vol_sign);
+	       restraints->chiral_restraint.push_back(cr);
+
+	       n_chirals++;
+	    }
 	 }
-	 catch (const KeyErrorException &kee) {
-	    std::cout << "caught no-name for atom exception in chiral assignment(): "
-		      <<  kee.what() << std::endl;
+
+	 catch (KeyErrorException &kee) {
+	    std::cout << "assign_chirals_rdkit_tags(): no prop name " << iat << std::endl;
 	 }
-      } 
+      }
    }
    return n_chirals;
 }
 
+void
+coot::debug_cip_ranks(const RDKit::ROMol &mol) {
+
+   unsigned int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      const RDKit::Atom *at_p = mol[iat];
+      try {
+	 unsigned int cip_rank;
+	 at_p->getProp(RDKit::common_properties::_CIPRank,cip_rank);
+	 std::cout << "DEBUG:: debug_cip_ranks() " << iat << " " << cip_rank << std::endl;
+      }
+      catch (const KeyErrorException &kee) {
+	    std::cout << "caught no-cip_rank for atom exception in debug_cip_ranks(): "
+		      <<  kee.what() << std::endl;
+      } 
+   }
+
+}
 
 
 
@@ -1770,6 +1916,7 @@ coot::write_restraints(PyObject *restraints_py,
 		       const std::string &file_name) {
 
    coot::dictionary_residue_restraints_t rest = monomer_restraints_from_python(restraints_py);
+   rest.set_use_nuclear_distances(true);
    rest.write_cif(file_name);
 }
 
@@ -1812,7 +1959,6 @@ void
 coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
-   
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    
    std::pair<mmdb::Manager *, mmdb::Residue *> regular =
@@ -1822,10 +1968,39 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 
       // now create a new molecule, because the one we are given is a ROMol.
       RDKit::RWMol *rw_mol = new RDKit::RWMol(mol);
-      int iconf = 0; 
+
+      int iconf = 0;
+      // this shouldn't move the atoms if bypass_refinement is true in regularize_inner().
       update_coords(rw_mol, iconf, regular.second);
    }
-} 
+}
+
+
+// update mol and restraints_p
+void
+coot::regularize_and_update_mol_and_restraints(RDKit::RWMol *mol,
+                                               coot::dictionary_residue_restraints_t *restraints_p) {
+
+   int n_conf = mol->getNumConformers();
+   if (n_conf > 0) {
+      int i_conf = n_conf -1;
+      std::string res_name = restraints_p->residue_info.comp_id;
+      mmdb::Residue *residue_p = coot::make_residue(*mol, i_conf, res_name);
+      mmdb::Manager *mmdb_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      mmdb::Residue *first_residue_p = coot::util::get_first_residue(mmdb_mol);
+
+      simple_refine(first_residue_p, mmdb_mol, *restraints_p);
+      update_coords(mol, i_conf, first_residue_p);
+      update_chem_comp_atoms_from_residue(first_residue_p, restraints_p);
+      delete mmdb_mol;
+      delete residue_p;
+   } else {
+      std::cout << "WARNING:: regularize_and_update_mol_and_restraints() no conformers means no minimization"
+                << std::endl;
+   }
+   
+}
+
 
 std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(PyObject *rdkit_mol_py,
@@ -1841,13 +2016,15 @@ std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(RDKit::ROMol &mol,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
-   
+
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
+
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
+   
    return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
 } 
 

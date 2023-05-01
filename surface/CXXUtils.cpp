@@ -2,26 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-int CXXUtils::assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable){
+int CXXUtils_old::assignCharge(mmdb::PManager theManager, int selHnd,
+			       CXX_mot::CXXChargeTable *theChargeTable) {
 	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		mmdb::Atom *theAtom = SelAtom[iAtom];
-		string atomName(theAtom->name);
-		string residueName(theAtom->residue->name);
-		double theAtomCharge;
-		theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
-		theAtom->charge = theAtomCharge;
-		// std::cout << "assignCharge() " << theAtom << " was given charge "
-		// << theAtom->charge << std::endl;
+	   mmdb::Atom *theAtom = SelAtom[iAtom];
+	   string atomName(theAtom->name);
+	   string residueName(theAtom->residue->name);
+	   double theAtomCharge;
+	   theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
+	   theAtom->charge = theAtomCharge;
 	}
 	return 0;
 }
 
-int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
+int CXXUtils_old::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 	// Add a radius property to the atoms
 	int iRadiusHandle = theManager->RegisterUDReal(mmdb::UDR_ATOM, "PerAtomRadius");
 	if (!iRadiusHandle) {
@@ -45,12 +44,12 @@ int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 		string residueName(anAtom->residue->name);
 		int unassigned = 1;
 		double radius = 1.8;
-		for (int iAtomRadius = 0; iAtomRadius < CXXUtils::nAtomRadii && unassigned; iAtomRadius++){
-			if (atomName == CXXUtils::unitedAtomRadii[iAtomRadius].atomName){
-				if (residueName == string(CXXUtils::unitedAtomRadii[iAtomRadius].residueName) ||
-					"*  "== string(CXXUtils::unitedAtomRadii[iAtomRadius].residueName)){
+		for (int iAtomRadius = 0; iAtomRadius < CXXUtils_old::nAtomRadii && unassigned; iAtomRadius++){
+			if (atomName == CXXUtils_old::unitedAtomRadii[iAtomRadius].atomName){
+				if (residueName == string(CXXUtils_old::unitedAtomRadii[iAtomRadius].residueName) ||
+					"*  "== string(CXXUtils_old::unitedAtomRadii[iAtomRadius].residueName)){
 					unassigned = 0;
-					radius = CXXUtils::unitedAtomRadii[iAtomRadius].radius;
+					radius = CXXUtils_old::unitedAtomRadii[iAtomRadius].radius;
 				}
 			}
 		}
@@ -60,12 +59,12 @@ int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 	return 0;
 }
 
-void CXXUtils::reformatAtomRadii(){
-	for (int iAtomRadius = 0; iAtomRadius < CXXUtils::nAtomRadii; iAtomRadius++){
+void CXXUtils_old::reformatAtomRadii(){
+	for (int iAtomRadius = 0; iAtomRadius < CXXUtils_old::nAtomRadii; iAtomRadius++){
 		string paddedAtomName, paddedResidueName;
-		string testAtomName(CXXUtils::unitedAtomRadii[iAtomRadius].atomName);
-		string testResidueName(CXXUtils::unitedAtomRadii[iAtomRadius].residueName);
-		float &testAtomRadius(CXXUtils::unitedAtomRadii[iAtomRadius].radius);
+		string testAtomName(CXXUtils_old::unitedAtomRadii[iAtomRadius].atomName);
+		string testResidueName(CXXUtils_old::unitedAtomRadii[iAtomRadius].residueName);
+		float &testAtomRadius(CXXUtils_old::unitedAtomRadii[iAtomRadius].radius);
 		
 		
 		cout << "{ \"";
@@ -100,7 +99,7 @@ void CXXUtils::reformatAtomRadii(){
 	}
 }
 
-int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection, mmdb::SELECTION_KEY selKeyRequest){
+int CXXUtils_old::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection, mmdb::SELECTION_KEY selKeyRequest){
    int selHnd;
    mmdb::SELECTION_KEY selKey;
 	if (existingSelection == -1) {
@@ -121,7 +120,7 @@ int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::st
 	return selHnd;
 }
 
-int CXXUtils::unCharge(mmdb::PManager theManager, int selHnd){
+int CXXUtils_old::unCharge(mmdb::PManager theManager, int selHnd){
 	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);

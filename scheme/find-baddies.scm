@@ -108,10 +108,14 @@
 		baddies)))
 
     (define (molecule-atom-overlap-baddies)
-      (molecule-atom-overlaps imol))
+      (let ((l (molecule-atom-overlaps imol)))
+        (if (list? l)
+            (begin l)
+            (begin (info-dialog l)
+                   '()))))
 
     (define (filter-molecule-atom-overlap-baddies mao-baddies)
-      (let ((baddie-limit 2.2)) ;; more than this is marked as a baddie
+      (let ((baddie-limit 2.0)) ;; more than this is marked as a baddie, was 2.2. Is 2.0 good?
 	(let ((fn (lambda(mao-item)
 		    (let ((atom-spec-1 (list-ref mao-item 0))
 			  (atom-spec-2 (list-ref mao-item 1))
@@ -177,19 +181,28 @@
     (define (ok-to-do-CG-torsion-diffs?)
       (if (not (defined? 'CG-spin-search))
 	  #f
-	  (gtk-toggle-button-get-active cg-torsion-diff-checkbutton)))
+	  (if (not cg-torsion-diff-checkbutton)
+	      (begin
+		(format #t "cg-torsion-diff-checkbutton not set yet~%")
+		#f)
+	      (gtk-toggle-button-get-active cg-torsion-diff-checkbutton))))
 
     (define (make-buttons)
 
-      (let ((frb (find-rama-baddies))
-	    (fcbb (find-c-beta-baddies))
-	    (filtered-mao-baddies (filter-molecule-atom-overlap-baddies (molecule-atom-overlap-baddies)))
-	    (residue-correlations
-	     (if (not (ok-to-do-density-correlations?))
-		 '()
-		 (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
+      (let* ((frb (find-rama-baddies))
+             (fcbb (find-c-beta-baddies))
+             (maob (molecule-atom-overlap-baddies))
+             (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob))
+             (residue-correlations
+              (if (not (ok-to-do-density-correlations?))
+                  '()
+                  (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
 
-	(let* (
+        ;; debug
+        ;; (format #t "debug maob: ~s~%" maob)
+        (format #t "debug filtered-mao baddies: ~s~%" filtered-mao-baddies)
+
+	     (let* (
 
 	       ;; rama
 	       (rama-filter-fn (lambda(baddie)
@@ -226,7 +239,10 @@
 
 	       ;; CG Torsion
 	       ;;
-	       (cg-torsion-baddies (find-em-ringer-baddies))
+	       (cg-torsion-baddies
+		(if (not (ok-to-do-CG-torsion-diffs?))
+		    '()
+		    (find-em-ringer-baddies)))
 
 	       ;; Rotamers
 	       ;;
@@ -321,7 +337,8 @@
 					   (score (cadr baddie)))
 
 				       ;; I am not sure that I like a score of 0.0 meaning "Missing sidechain"
-				       ;; we have lost some information on the way
+				       ;; we have lost some information on the way.
+                                       ;; 20200511-PE Yeah, like the fact that the residue was RNA!
 				       ;;
 				       (let ((score-string (format #f "~5f %" (* score 100)))
 					     (ms-string (if (= score 0.0) "Missing Sidechain" "Rotamer Outlier"))
@@ -375,14 +392,16 @@
 						 (list button-label fn)))))
 					 cg-torsion-baddies))
 
-		(chiral-volume-buttons (map (lambda (baddie-atom-spec)
-					      (let ((button-label
-						     (string-append "Chiral Volume Error "
-								    (atom-spec->string baddie-atom-spec)))
-						    (fn (lambda ()
-							   (set-go-to-atom-molecule imol)
-							   (set-go-to-atom-from-atom-spec baddie-atom-spec))))
-						(list button-label fn)))
+		(chiral-volume-buttons (map (lambda (baddie-atom-spec-6)
+					      ;; strip off leading incorrect imol
+					      (let ((baddie-atom-spec (cdr baddie-atom-spec-6)))
+						(let ((button-label
+						       (string-append "Chiral Volume Error "
+								      (atom-spec->string baddie-atom-spec)))
+						      (fn (lambda ()
+							    (set-go-to-atom-molecule imol)
+							    (set-go-to-atom-from-atom-spec baddie-atom-spec))))
+						  (list button-label fn))))
 					    (find-chiral-volume-baddies)))
 
 		(atom-overlap-buttons (map (lambda(baddie)
@@ -402,6 +421,11 @@
 							   (set-go-to-atom-from-atom-spec atom-spec-1))))
 						 (list buton-label fn))))
 					   filtered-mao-baddies)))
+
+	    ;; This gives a list in "baddie-type" order.
+	    ;; If we want a list in Chain/Residue order,
+	    ;;    each baddie will need to be associated with (prefixed by)
+	    ;;    a residue spec - and use those to sort residues.
 
 	    (let ((buttons (append chiral-volume-buttons
 				   rama-buttons
@@ -476,4 +500,69 @@
 	      ))))
 
       ))))
+
+(define (molecule-atom-overlaps-gui imol)
+
+  (define (filter-molecule-atom-overlap-baddies mao-baddies)
+    (let ((baddie-limit 1.0)) ;; more than this is marked as a baddie, was 2.2. Is 2.0 good?
+      (let ((fn (lambda(mao-item)
+                  (let ((atom-spec-1 (list-ref mao-item 0))
+                        (atom-spec-2 (list-ref mao-item 1))
+                        (overlap     (list-ref mao-item 4)))
+                    (> overlap baddie-limit)))))
+        (filter fn mao-baddies))))
+
+  (define (make-buttons)
+
+    (let* ((maob (molecule-atom-overlaps imol))
+           (maob-2 (if (list? maob)
+                       (begin maob)
+                       (begin (info-dialog maob)
+                              '())))
+           ;; (nov   (format #t "debug:: maob: ~s~%" maob))
+           ;; (nov-2 (format #t "debug:: maob-2: ~s~%" maob-2))
+           (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob-2)))
+
+      (if #f
+          (call-with-output-file "mao.table"
+            (lambda (port)
+              (for-each (lambda (item)
+                          (format port "~s~%" item))
+                        maob))))
+
+      (map (lambda(baddie)
+             (let ((atom-spec-1 (cdr (list-ref baddie 0))) ;; unprefix
+                   (atom-spec-2 (cdr (list-ref baddie 1))) ;; ditto
+                   (overlap     (list-ref baddie 4)))
+               (let ((res-name-1 (residue-spec->residue-name imol (atom-spec->residue-spec atom-spec-1)))
+                     (res-name-2 (residue-spec->residue-name imol (atom-spec->residue-spec atom-spec-2))))
+                 (let ((buton-label
+                        (string-append
+                         "Atom Overlap "
+                         (atom-spec->string atom-spec-1)
+                         " " res-name-1
+                         " on "
+                         (atom-spec->string atom-spec-2)
+                         " " res-name-2
+                         " OV: "
+                         (format #f "~5f" overlap)))
+                       (fn (lambda()
+                             (set-go-to-atom-molecule imol)
+                             (set-go-to-atom-from-atom-spec atom-spec-1))))
+                   (list buton-label fn)))))
+           filtered-mao-baddies)))
+
+  (define (make-window-title n)
+    (string-append "Atom Overlaps for Molecule " (number->string n)))
+  
+  ;; --- main line ---
+
+  (let ((dialog-vbox #f)
+          (window #f))
+
+      (let* ((buttons (make-buttons)))
+
+        (let ((p (dialog-box-of-buttons (make-window-title (length buttons)) (cons 350 200) buttons " Close ")))
+
+          p))))
 

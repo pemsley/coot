@@ -14,7 +14,7 @@
    height="48"
    id="svg2383"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="go-to-ligand.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1"
@@ -114,16 +114,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.8481082"
-     inkscape:cx="45.496241"
+     inkscape:cx="21.796262"
      inkscape:cy="28.005559"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="852"
+     inkscape:window-width="1153"
      inkscape:window-height="840"
-     inkscape:window-x="32"
-     inkscape:window-y="49"
+     inkscape:window-x="538"
+     inkscape:window-y="263"
      inkscape:window-maximized="0"
      inkscape:snap-global="false">
     <inkscape:grid
@@ -142,7 +142,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -153,7 +153,7 @@
      transform="translate(0,32)">
     <path
        sodipodi:type="star"
-       style="fill:none;stroke:#282828;stroke-width:1.27779973;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:none;stroke:#c9c9c9;stroke-width:1.27779973;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="path3616"
        sodipodi:sides="6"
        sodipodi:cx="-30"
@@ -168,20 +168,20 @@
        d="m -25,-4 -2.5,4.33012702 -5,0 L -35,-4 l 2.5,-4.330127 5,0 L -25,-4 z"
        transform="matrix(2.3647916,0,0,2.3468057,84.186503,13.326459)" />
     <path
-       style="fill:none;stroke:#282828;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#c9c9c9;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 24.0004,6.0659872 12.413204,-3e-6"
        id="path3640"
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;stroke:#282828;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#c9c9c9;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 23.972123,1.7503173 12.413206,-3e-6"
        id="path3640-4"
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-size:15.12817764px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:#ce2828;stroke-width:1.55682492;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Microsoft Sans Serif, FreeSans;-inkscape-font-specification:FreeSans"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', FreeSans;-inkscape-font-specification:FreeSans;fill:#000000;fill-opacity:1;stroke:#e62e2e;stroke-width:1.55682492;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
        x="41.28899"
        y="8.7121811"
        id="text4174"
@@ -190,22 +190,21 @@
          id="tspan4176"
          x="41.28899"
          y="8.7121811"
-         style="stroke-width:1.55682492">O</tspan></text>
+         style="font-size:15.12799968px;line-height:1.25;stroke-width:1.55682492;-inkscape-font-specification:'Noto Sans, Normal';font-family:'Noto Sans';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;stroke:#e62e2e;stroke-opacity:1;">O</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:11.74730778px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#2828f7;stroke-width:1.20890296;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Microsoft Sans Serif, FreeSans;-inkscape-font-specification:FreeSans"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', FreeSans;-inkscape-font-specification:FreeSans;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#6f93ef;stroke-width:1.20890296;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
        x="10.086489"
        y="-18.343956"
        id="text4174-7"
-       transform="scale(0.90361475,1.1066663)"
-       sodipodi:linespacing="125%"><tspan
+       transform="scale(0.90361475,1.1066663)"><tspan
          sodipodi:role="line"
          id="tspan4211"
          x="10.086489"
          y="-18.343956"
-         style="stroke:#2828f7;stroke-width:1.20890296;stroke-opacity:1">N</tspan></text>
+         style="font-size:11.74733358px;line-height:1.25;stroke:#6f93ef;stroke-width:1.20890296;stroke-opacity:1;-inkscape-font-specification:'Noto Sans, Normal';font-family:'Noto Sans';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;">N</tspan></text>
     <path
-       style="fill:none;stroke:#282828;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#c9c9c9;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="M 8.0518457,-21.174368 3.686895,-17.960487 7.2070166,-6.4204484 19.3504,-6.3795201 23.282931,-17.796777 17.925269,-21.682445"
        id="path4209"
        sodipodi:nodetypes="cccccc"

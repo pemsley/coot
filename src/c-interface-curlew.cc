@@ -1,7 +1,8 @@
 
 #ifdef USE_PYTHON
-#include "Python.h"
+#include <Python.h>
 #endif // USE_PYTHON // for std::ptrdiff_t
+
 #include <string>
 #include <cstddef>
 
@@ -21,10 +22,18 @@
 
 
 #ifdef BUILD_CURLEW
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 #endif
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#if !defined _MSC_VER
+#include <unistd.h>
+#endif
 
 #include <gtk/gtk.h>
 
@@ -39,6 +48,9 @@ using json = nlohmann::json;
 #include "curlew.h"
 #include "curlew.hh"
 
+#include "widget-from-builder.hh"
+
+#include "c-interface-curlew.hh"
 
 void remove_file_curlew_menu_item_maybe() {
 
@@ -48,7 +60,8 @@ void remove_file_curlew_menu_item_maybe() {
 
 #else
    std::cout << "No curlew - not compiled" << std::endl;
-   GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   // GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   GtkWidget *menubar = widget_from_builder("menubar1");
    if (menubar) {
       // gtk_container_foreach(GTK_CONTAINER(menubar), my_delete_file_curlew_menu_item, menubar);
 
@@ -93,153 +106,248 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 						const std::string &checksum,
 						const std::string &file_name,
 						const std::string &download_dir,
-						const std::string &url_curlew_prefix);
+						const std::string &url_curlew_prefix,
+                                                bool make_and_add_curlew_extension_widget);
 
 void curlew() {
 
 #ifdef BUILD_CURLEW
 
-   GtkWidget *w = create_curlew_dialog();
+   if (! graphics_info_t::use_graphics_interface_flag) {
+      std::cout << "WARNING:: no graphics, no curlew" << std::endl;
+      return;
+   }
+
+   // GtkWidget *w = create_curlew_dialog();
+   GtkWidget *w = widget_from_builder("curlew_dialog");
+
+   if (!w) {
+      std::cout << "Failed to find curlew_dialog widget in builder (needs to be added to ui)" << std::endl;
+      return;
+   }
    graphics_info_t g;
 
-   GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
-   GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
+   //  GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
+   // GtkWidget *install_selected_button = lookup_widget(w, "curlew_install_button");
+   GtkWidget *vbox = widget_from_builder("curlew_vbox_for_extensions");
+   GtkWidget *install_selected_button = widget_from_builder("curlew_install_button");
+   // new method does individual installs, not all at once
+   gtk_widget_hide(install_selected_button);
+
+   // install_button callback:  curlew_dialog_install_extensions()
    if (vbox) {
-      std::string download_dir = "coot-download"; // FIXME
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
       std::string dl_fn = download_dir + "/info.json";
 
       // not https, that transfers nothing
       // (probably a curl configuration thing)
       // 2019-07-31 https is the only way now
       //
+      // BL says:: cheap way, just use my extensions for Windows
+#ifndef WINDOWS_MINGW
       std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+#else
+      std::string url_prefix = "https://bernhardcl.github.io/coot/";
+#endif
       url_prefix += "extensions";
 
       std::string url_curlew_prefix = url_prefix + "/curlew";
       std::string json_url = url_curlew_prefix + "/info.json";
 
       int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
+
+      // hack in a pre-downloaded file
+      // dl_fn = "info.json";
+
       bool is_empty = true; // now check that it isn't
       struct stat buf;
       int istat = stat(dl_fn.c_str(), &buf);
       if (istat == 0) { // OK, it exists...
-	 if (buf.st_size > 0) {
-	    is_empty = false;
-	 } else {
-	    std::cout << "WARNING:: empty file " << dl_fn << std::endl;
-	    std::cout << "          maybe your curl needs OpenSSL?" << std::endl;
-	    std::string s = "WARNING:: empty file " + dl_fn;
-	    add_status_bar_text(s.c_str());
-	 }
+         if (buf.st_size > 0) {
+            is_empty = false;
+         } else {
+            std::cout << "WARNING:: empty file " << dl_fn << std::endl;
+            std::cout << "          maybe your curl needs OpenSSL?" << std::endl;
+            std::string s = "WARNING:: empty file " + dl_fn;
+            add_status_bar_text(s.c_str());
+         }
       }
 
       if (! is_empty) {
-	 if (coot::file_exists(dl_fn)) {
-	    std::fstream f(dl_fn);
-	    if (f) {
+         if (coot::file_exists(dl_fn)) {
+            std::fstream f(dl_fn);
+            if (! f) {
+               std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
+            } else {
 
-	       std::string s;
-	       f.seekg(0, std::ios::end);
-	       s.reserve(f.tellg());
-	       f.seekg(0, std::ios::beg);
+               std::string s;
+               f.seekg(0, std::ios::end);
+               s.reserve(f.tellg());
+               f.seekg(0, std::ios::beg);
 
-	       s.assign((std::istreambuf_iterator<char>(f)),
-			std::istreambuf_iterator<char>());
-	       unsigned int n_already_done = 0;
+               s.assign((std::istreambuf_iterator<char>(f)),
+               std::istreambuf_iterator<char>());
+               unsigned int n_already_done = 0;
 
-	       try {
-		  json j = json::parse(s);
-		  json ls = j["extensions"];
-		  // std::cout << "found " << ls.size() << " extensions" << std::endl;
-		  int n_extensions = ls.size();
+               try {
+                  json j = json::parse(s);
+                  json ls = j["extensions"];
+                  // std::cout << "found " << ls.size() << " extensions" << std::endl;
+                  int n_extensions = ls.size();
 
-		  for (std::size_t i=0; i<ls.size(); i++) {
-		     json &item = ls[i];
-		     std::string name;
-		     std::string description;
-		     std::string date;
-		     std::string version;
-		     std::string icon;
-		     std::string file_name;
-		     std::string checksum;
-		     std::string expired_version; // which version of coot has this built in
-		     // so that the extension is no longer needed
-		     bool expired = false;
-		     bool have_this_or_more_recent = false;
+                  unsigned int n_already_installed = 0;
+                  unsigned int n_available = 0;
+                  for (std::size_t i=0; i<ls.size(); i++) {
+                     json &item = ls[i];
+                     std::string file_name;
+                     std::string version;
+                     json::iterator it;
+                     it = item.find(std::string("file-name"));
+                     if (it != item.end()) { file_name = it.value(); }
+                     it = item.find(std::string("version"));
+                     if (it != item.end()) { version = it.value(); }
+                     // set "have more recent" (or same) here
+                     std::string vv = g.get_version_for_extension(file_name);
+                     if (! vv.empty()) {
+                        if (vv >= version)
+                           n_already_installed++;
+                        else
+                           n_available++;
+                     } else {
+                        n_available++;
+                     }
+                  }
 
-		     json::iterator it;
-		     it = item.find(std::string("name"));
-		     if (it != item.end()) { name = it.value(); }
-		     it = item.find(std::string("description"));
-		     if (it != item.end()) { description = it.value(); }
-		     it = item.find(std::string("date"));
-		     if (it != item.end()) { date = it.value(); }
-		     it = item.find(std::string("icon"));
-		     if (it != item.end()) { icon = it.value(); }
-		     it = item.find(std::string("file-name"));
-		     if (it != item.end()) { file_name = it.value(); }
-		     it = item.find(std::string("version"));
-		     if (it != item.end()) { version = it.value(); }
-		     it = item.find(std::string("checksum"));
-		     if (it != item.end()) { checksum = it.value(); }
-		     it = item.find(std::string("expired_version"));
-		     if (it != item.end()) { expired_version = it.value(); }
+                  if (false)
+                     std::cout << "DEBUG:: n_already_installed: " << n_already_installed
+                               << " n_available " << n_available << std::endl;
 
-		     // set expired here
-		     if (! expired_version.empty()) {
-			std::string c = coot_version();
-			if (c > expired_version) {
-			   expired = true;
-			}
-		     }
+                  for(unsigned int iround=0; iround<2; iround++) {
+                     for (std::size_t i=0; i<ls.size(); i++) {
 
-		     // set "have more recent" (or same) here
-		     std::string vv = g.get_version_for_extension(file_name);
-		     if (! vv.empty())
-			if (vv >= version)
-			   have_this_or_more_recent = true;
+                        if (i==0) {
+                           if (iround == 0) {
+                              if (n_already_installed > 0) {
+                                 GtkWidget *w = gtk_label_new(NULL);
+                                 gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
+                                 gtk_label_set_markup(GTK_LABEL(w), "   <b>Installed</b>");
+                                 // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 std::cout << "set the alignment (deprecated)"  << std::endl;
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                                 // 20220528-PE-FIXME box packing
+#else
+                                 gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+#endif
+                                 gtk_widget_show(w);
+                              }
+                           } else {
+                              if (n_available > 0) {
+                                 GtkWidget *w = gtk_label_new(NULL);
+                                 gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+                                 // 20220528-PE-FIXME box packing
+#else
+                                 gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+#endif
+                                 gtk_label_set_markup(GTK_LABEL(w), "   <b>Available</b>");
+                                 // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 std::cout << "set the alignment (deprecated)"  << std::endl;
+                                 gtk_widget_show(w);
+                              }
+                           }
+                        }
 
-		     if (have_this_or_more_recent)
-			n_already_done++;
+                        json &item = ls[i];
+                        std::string name;
+                        std::string description;
+                        std::string date;
+                        std::string version;
+                        std::string icon;
+                        std::string file_name;
+                        std::string checksum;
+                        std::string expired_version; // which version of coot has this built in
+                        // so that the extension is no longer needed
+                        bool expired = false;
+                        bool have_this_or_more_recent = false;
 
-		     GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
-									    name, description, date,
-									    version, checksum, file_name,
-									    download_dir, url_curlew_prefix);
-		     if (expired || have_this_or_more_recent)
-			gtk_widget_set_sensitive(hbox, FALSE);
+                        json::iterator it;
+                        it = item.find(std::string("name"));
+                        if (it != item.end()) { name = it.value(); }
+                        it = item.find(std::string("description"));
+                        if (it != item.end()) { description = it.value(); }
+                        it = item.find(std::string("date"));
+                        if (it != item.end()) { date = it.value(); }
+                        it = item.find(std::string("icon"));
+                        if (it != item.end()) { icon = it.value(); }
+                        it = item.find(std::string("file-name"));
+                        if (it != item.end()) { file_name = it.value(); }
+                        it = item.find(std::string("version"));
+                        if (it != item.end()) { version = it.value(); }
+                        it = item.find(std::string("checksum"));
+                        if (it != item.end()) { checksum = it.value(); }
+                        it = item.find(std::string("expired_version"));
+                        if (it != item.end()) { expired_version = it.value(); }
 
-		  }
+                        // set expired here
+                        if (! expired_version.empty()) {
+                           std::string c = coot_version();
+                           if (c > expired_version) {
+                              expired = true;
+                           }
+                        }
 
-		  if (install_button)
-		     g_object_set_data(G_OBJECT(install_button), "n_extensions",
-				       GINT_TO_POINTER(n_extensions));
+                        // set "have more recent" (or same) here
+                        std::string vv = g.get_version_for_extension(file_name);
+                        if (! vv.empty())
+                           if (vv >= version)
+                              have_this_or_more_recent = true;
 
-	       }
-	       catch(const nlohmann::detail::type_error &e) {
-		  std::cout << "ERROR:: " << e.what() << std::endl;
-	       }
-	       catch(const nlohmann::detail::parse_error &e) {
-		  std::cout << "ERROR:: " << e.what() << std::endl;
-	       }
+                        if (iround == 0) // add these up only once
+                           if (have_this_or_more_recent)
+                              n_already_done++;
 
-	       GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
-	       if (done_label) {
-		  if (n_already_done>0) {
-		     std::string txt = coot::util::int_to_string(n_already_done);
-		     txt += " extension";
-		     if (n_already_done != 1) txt += "s";
-		     txt += " already installed";
-		     gtk_label_set_text(GTK_LABEL(done_label), txt.c_str());
-		     gtk_widget_show(done_label);
-		  } else {
-		     gtk_widget_hide(done_label);
-		  }
-	       }
-	    }
-	 } else {
-	    std::cout << "Missing curlew info file " << dl_fn << std::endl;
-	 }
+                        bool do_it = false;
+                        if (iround == 0)
+                           if (have_this_or_more_recent)
+                              do_it = true;
+                        if (iround == 1)
+                           if (! have_this_or_more_recent)
+                              do_it = true;
+
+                        if (do_it)
+                              GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
+                                    name, description, date,
+                                    version, checksum, file_name,
+                                    download_dir, url_curlew_prefix,
+                                    have_this_or_more_recent);
+                     } // items
+                  } // rounds
+               } // try
+
+               catch(const nlohmann::detail::type_error &e) {
+                  std::cout << "ERROR:: " << e.what() << std::endl;
+               }
+               catch(const nlohmann::detail::parse_error &e) {
+                  std::cout << "ERROR:: " << e.what() << std::endl;
+               }
+
+               // GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
+               GtkWidget *done_label = widget_from_builder("curlew_already_installed_label");
+               if (done_label) {
+                  if (n_already_done > 0) {
+                     std::string txt = coot::util::int_to_string(n_already_done);
+                     txt += " extension";
+                     if (n_already_done != 1) txt += "s";
+                     txt += " already installed";
+                     gtk_label_set_text(GTK_LABEL(done_label), txt.c_str());
+                     gtk_widget_show(done_label);
+                  } else {
+                     gtk_widget_hide(done_label);
+                  }
+               }
+            }
+         }
       } // we've done the "empty" message already
    }
 
@@ -251,56 +359,99 @@ void curlew() {
 #endif // BUILD_CURLEW
 }
 
+void curlew_install_extension(GtkWidget *install_button, gpointer data) {
+
+   gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(install_button), "file-name"));
+   gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(install_button), "checksum"));
+   if (file_name_cstr) {
+      if (checksum_cstr) {
+         std::string fn(file_name_cstr);
+         std::string checksum(checksum_cstr);
+         GtkWidget *uninstall_button = GTK_WIDGET(g_object_get_data(G_OBJECT(install_button), "uninstall_button"));
+         std::cout << "debug:: curlew_install_extension() uninstall_button " << uninstall_button << std::endl;
+         // on success, we will need to swap the visibility of the buttons
+         curlew_install_extension_file(fn, checksum, install_button, uninstall_button);
+      } else {
+         std::cout << "Null thing in curlew_install_extension" << std::endl;
+      }
+   } else {
+      std::cout << "Null thing in curlew_install_extension" << std::endl;
+   }
+}
+
+// return uninstall status (true for done)
+void curlew_uninstall_extension(GtkWidget *w, gpointer data) {
+
+   gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
+   if (file_name_cstr) {
+      std::string fn(file_name_cstr);
+      bool status = curlew_uninstall_extension_file(fn);
+      if (status) {
+         // Hide the uninstall button, because once it's been uninstalled we can't install it
+         // any more
+         gtk_widget_hide(w);
+         if (data) {
+            GtkWidget *install_button = static_cast<GtkWidget *>(data);
+            gtk_widget_show(install_button);
+         }
+      }
+   } else {
+      std::cout << "Null thing in curlew_uninstall_extension" << std::endl;
+   }
+}
+
 
 GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
-						GtkWidget *vbox,
-						int idx,
-						const std::string &icon,
-						const std::string &name,
-						const std::string &description,
-						const std::string &date,
-						const std::string &version,
-						const std::string &checksum,
-						const std::string &file_name,
-						const std::string &download_dir,
-						const std::string &url_curlew_prefix) {
+                                                GtkWidget *vbox,
+                                                int idx,
+                                                const std::string &icon,
+                                                const std::string &name,
+                                                const std::string &description,
+                                                const std::string &date,
+                                                const std::string &version,
+                                                const std::string &checksum,
+                                                const std::string &file_name,
+                                                const std::string &download_dir,
+                                                const std::string &url_curlew_prefix,
+                                                bool have_this_or_more_recent) {
 
-   GtkWidget *item_hbox = gtk_hbox_new(FALSE, 0);
-   
+   GtkWidget *item_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+
    std::string item_hbox_name = "curlew_extension_hbox_";
    item_hbox_name += coot::util::int_to_string(idx);
    g_object_set_data_full(G_OBJECT(dialog),
-			  item_hbox_name.c_str(),
-			  item_hbox,
-			  (GtkDestroyNotify) gtk_widget_unref);
-   gtk_widget_ref(item_hbox);
+                          item_hbox_name.c_str(),
+                          item_hbox,
+                          (GDestroyNotify) g_object_unref);
+   g_object_ref(item_hbox);
 
    // --------------- Icon -----------------
    GtkWidget *icon_widget = 0;
    if (icon.size() > 0) {
       std::string icon_url = url_curlew_prefix + "/" + icon;
-      std::string icon_fn  =
-	 coot::util::append_dir_file(download_dir,
-				     coot::util::file_name_non_directory(icon));
-      // std::cout << "get " << icon_url << " to " << icon_fn << std::endl;
-      coot_get_url(icon_url.c_str(), icon_fn.c_str());
+      std::string icon_fn  = coot::util::append_dir_file(download_dir,
+                             coot::util::file_name_non_directory(icon));
+      if (!coot::file_exists(icon_fn))
+        coot_get_url(icon_url.c_str(), icon_fn.c_str());
       if (coot::file_exists(icon_fn)) {
-	 GError *error = NULL;
-	 GtkWidget *w = gtk_image_new_from_file(icon_fn.c_str());
-	 if (w) {
-	    icon_widget = w;
-	 } else {
-	    std::cout << "Null icon" << std::endl;
-	 }
+         GError *error = NULL;
+         GtkWidget *w = gtk_image_new_from_file(icon_fn.c_str());
+         if (w) {
+            icon_widget = w;
+         } else {
+            std::cout << "Null icon" << std::endl;
+         }
       } else {
-	 icon_widget = gtk_label_new("  Icon");
-	 gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
+         icon_widget = gtk_label_new("  Icon");
+         std::cout << "set the alignment (deprecated)" << std::endl;
+         // gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
       }
    } else {
-      std::cout << "No icon in item " << std::endl;
+      std::cout << "No icon in item " << file_name << std::endl;
       icon_widget = gtk_label_new("  ----");
    }
-   gtk_widget_set_usize(icon_widget, 50, -1);
+
+   gtk_widget_set_size_request(icon_widget, 50, -1);
 
    // --------------- Description -----------------
    std::string rr = "<b>";
@@ -309,51 +460,116 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    rr += description;
    GtkWidget *description_label = gtk_label_new(rr.c_str());
    gtk_label_set_use_markup(GTK_LABEL(description_label), TRUE);
-   gtk_misc_set_alignment (GTK_MISC(description_label), 0, 0.5);
-   gtk_widget_set_usize(description_label, 320, -1);
+   // gtk_misc_set_alignment (GTK_MISC(description_label), 0, 0.5);
+   std::cout << "set the alignment" << std::endl;
+   gtk_widget_set_size_request(description_label, 340, -1);
    // --------------- Version -----------------
    GtkWidget *version_label = gtk_label_new(version.c_str());
+   gtk_widget_set_size_request(version_label, 40, -1);
    // --------------- Date -----------------
    GtkWidget *date_label = gtk_label_new(date.c_str());
-   // --------------- Select -----------------
-   GtkWidget *selected_check_button = gtk_check_button_new();
-   std::string cb_name = "curlew_selected_check_button_";
-   cb_name += coot::util::int_to_string(idx);
+   // --------------- Uninstall -----------------
+   GtkWidget *uninstall_frame = gtk_frame_new(NULL);
+   GtkWidget *uninstall_button = gtk_button_new();
+   std::string ucb_name = "curlew_uninstall_button_";
+   ucb_name += coot::util::int_to_string(idx);
+   gtk_button_set_label(GTK_BUTTON(uninstall_button), "Uninstall");
+   gtk_widget_set_size_request(uninstall_frame, 100, -1);
+
+   std::cout << "FIXME set uninstall frame shadow " << std::endl;
+   // gtk_frame_set_shadow_type(GTK_FRAME(uninstall_frame), GTK_SHADOW_NONE);
+
+   // --------------- Install -----------------
+   GtkWidget *install_frame = gtk_frame_new(NULL);
+   GtkWidget *install_button = gtk_button_new();
+   std::string icb_name = "curlew_install_button_";
+   icb_name += coot::util::int_to_string(idx);
+   gtk_button_set_label(GTK_BUTTON(install_button), "Install");
+   gtk_widget_set_size_request(install_frame, 100, -1);
+   std::cout << "FIXME set install frame shadow " << std::endl;
+   // gtk_frame_set_shadow_type(GTK_FRAME(install_frame), GTK_SHADOW_NONE);
    // --------------------------------------
 
-   gtk_box_pack_start(GTK_BOX(item_hbox), icon_widget,           TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox), description_label,     TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox), version_label,         TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox),    date_label,         TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox), selected_check_button, TRUE, TRUE, 0);
+   // question to self: does strcpy() set the ending \0? Yes, it does.
+   char *file_name_copy_1 = new char[file_name.size() +1];
+   char *file_name_copy_2 = new char[file_name.size() +1];
+   strcpy(file_name_copy_1, file_name.c_str());
+   strcpy(file_name_copy_2, file_name.c_str());
+   g_object_set_data(G_OBJECT(  install_button), "file-name", (gpointer) file_name_copy_1);
+   g_object_set_data(G_OBJECT(uninstall_button), "file-name", (gpointer) file_name_copy_2);
+   char *checksum_copy = new char[checksum.size() +1];
+   strcpy(checksum_copy, checksum.c_str());
+   g_object_set_data(G_OBJECT(  install_button), "checksum",  (gpointer) checksum_copy);
+   g_object_set_data(G_OBJECT(  install_button), "uninstall_button", uninstall_button);
+
+   GdkRGBA color_green;
+   GdkRGBA color_blue;
+   // gdk_color_parse ("#aabbaa", &color_green);
+   // gdk_color_parse ("#99aabb", &color_blue);
+   gdk_rgba_parse(&color_green, "#aabbaa");
+   gdk_rgba_parse(&color_blue, "#99aabb");
+
+   // Gtk2:
+   // gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
+   // gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);
+   // Gtk3 but deprecated? Modern is to use CSS - another time.
+   // gtk_widget_override_background_color(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, color_green);
+   // gtk_widget_override_background_color(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, color_blue);
+
+#if (GTK_MAJOR_VERSION >= 4)
+   gtk_frame_set_child(GTK_FRAME(  install_frame),   install_button);
+   gtk_frame_set_child(GTK_FRAME(uninstall_frame), uninstall_button);
+#else
+   gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
+   gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);
+#endif
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
+   gtk_box_pack_start(GTK_BOX(item_hbox), icon_widget,       FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), description_label, TRUE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), version_label,     FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), date_label,        TRUE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), install_frame,     FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), uninstall_frame,   FALSE, FALSE, 0);
+#endif
 
    gtk_widget_show(icon_widget);
    gtk_widget_show(description_label);
    gtk_widget_show(version_label);
    gtk_widget_show(date_label);
-   gtk_widget_show(selected_check_button);
+   gtk_widget_show(install_frame);
+   gtk_widget_show(uninstall_frame);
    gtk_widget_show(item_hbox);
 
-   gtk_box_pack_start(GTK_BOX(vbox), item_hbox, TRUE, TRUE, 0);
+   if (have_this_or_more_recent)
+      gtk_widget_show(uninstall_button);
+   else
+      gtk_widget_show(install_button);
 
-   g_object_set_data_full(G_OBJECT(dialog),
-			  cb_name.c_str(),
-			  selected_check_button,
-			  (GtkDestroyNotify) gtk_widget_unref);
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+         // 20220528-PE-FIXME box packing
+#else
+   gtk_box_pack_start(GTK_BOX(vbox), item_hbox, TRUE, TRUE, 6);
+#endif
 
-   char *file_name_copy = new char[file_name.size() +1];
-   strcpy(file_name_copy, file_name.c_str());
-   g_object_set_data(G_OBJECT(selected_check_button),
-		     "file-name", (gpointer) file_name_copy);
+   g_signal_connect(  install_button, "clicked", G_CALLBACK(curlew_install_extension),   NULL);
+   g_signal_connect(uninstall_button, "clicked", G_CALLBACK(curlew_uninstall_extension), install_button);
+
+   g_object_set_data_full(G_OBJECT(dialog), icb_name.c_str(), install_button,
+                          (GDestroyNotify) g_object_unref);
+
+   g_object_set_data_full(G_OBJECT(dialog), ucb_name.c_str(), uninstall_button,
+                          (GDestroyNotify) g_object_unref);
 
    if (! checksum.empty()) {
       char *checksum_copy = new char[checksum.size() + 1];
       strcpy(checksum_copy, checksum.c_str());
-      g_object_set_data(G_OBJECT(selected_check_button), "checksum",
-			(gpointer) checksum_copy);
+      g_object_set_data(G_OBJECT(install_button), "checksum", (gpointer) checksum_copy);
    }
 
-   gtk_widget_ref(selected_check_button); // ref after set_data?
+   g_object_ref(install_button); // ref after set_data?
+   g_object_ref(uninstall_button); // ref after set_data?
 
    return item_hbox;
 }

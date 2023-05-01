@@ -232,8 +232,8 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      int matched = RDKit::SubstructMatch(*mol, *query, matches, uniquify,
-					  recursionPossible, useChirality);
+      // int matched = RDKit::SubstructMatch(*mol, *query, matches, uniquify, recursionPossible, useChirality); 20210923-PE FIXME
+      int matched = false;
       if (matched) {
 	 for (unsigned int im=0; im<matches.size(); im++) {
 	    for (std::size_t j=0; j<smarts_type.atom_index.size(); j++) {

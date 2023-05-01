@@ -28,9 +28,11 @@ namespace coot {
       class xyz_deltas_t {
       public:
 	 std::vector<double> x[3];
+	 std::vector<double> deltas; // not resolved along axes
 	 unsigned int n;
 	 xyz_deltas_t() {n = 0;}
-	 void add(const clipper::Coord_orth &d) {
+	 void add(double delta_in, const clipper::Coord_orth &d) {
+	    deltas.push_back(delta_in);
 	    x[0].push_back(d.x());
 	    x[1].push_back(d.y());
 	    x[2].push_back(d.z());
@@ -38,11 +40,11 @@ namespace coot {
 	 }
 	 unsigned int size() const { return n;}
       };
-      xyz_deltas_t xyz;
-      void add(const clipper::Coord_orth &d) {
-	 xyz.add(d);
+      xyz_deltas_t xyzd;
+      void add(double delta_in, const clipper::Coord_orth &d) {
+	 xyzd.add(delta_in, d);
       }
-      unsigned int size() const { return xyz.size(); }
+      unsigned int size() const { return xyzd.size(); }
    };
 }
 

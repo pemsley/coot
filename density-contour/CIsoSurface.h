@@ -1,22 +1,22 @@
 /* density-contour/CIsoSurface.h
- * 
- * Copyright 2000 Paul Bourke 
+ *
+ * Copyright 2000 Paul Bourke
  * Copyright 2000 Cory Gene Bloyd
  * Copyright 2005 The University of York
- * 
+ *
  * Author: Raghavendra Chandrashekara, Paul Bourke and Cory Gene Bloyd
  *         Paul Emsley and Kevin Cowtan
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -56,27 +56,29 @@ public:
 	// Constructor and destructor.
 	CIsoSurface();
 	~CIsoSurface();
-	
+
 	// Generates the isosurface from the scalar field contained in the
 	// buffer ptScalarField[].
 	void GenerateSurface(const T* ptScalarField, T tIsoLevel, unsigned int nCellsX, unsigned int nCellsY,  unsigned int nCellsZ, float fCellLengthX, float fCellLengthY, float fCellLengthZ);
 
-	// Called with an Xmap.  
+	// Called with an Xmap.
 	//
 	// I suppose we could overload the function name.... Nah, let's not.
 	//
-	//vector<CartesianPair> GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map, 
+	//vector<CartesianPair> GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 	//			       const  T tIsoLevel);
 
 	// We overload the function name this time.
 	//
-	// vector<CartesianPair> 
+	// vector<CartesianPair>
 	coot::CartesianPairInfo
 	  GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 				    T tIsoLevel,
 				    float box_radius, // half length
 				    coot::Cartesian centre_point,
-				    int isample_step, bool is_em_map);
+				    int isample_step,
+				    int iream_start, int n_reams,
+				    bool is_em_map);
 
 	coot::CartesianPairInfo
 	  GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
@@ -90,10 +92,11 @@ public:
 				      T tIsoLevel,
 				      float box_radius, // half length
 				      coot::Cartesian centre_point,
-				      int isample_step);
+				      int isample_step, int iream_start, int n_reams, bool is_em_map);
 
-	
- 
+	std::pair<int, int> rangeify(const clipper::Grid_map &grid, int isample_step, int isection_start,
+				     int n_sections) const;
+
 	// Returns true if a valid surface has been generated.
 	bool IsSurfaceValid();
 
@@ -106,13 +109,13 @@ public:
 	int GetVolumeLengths(float& fVolLengthX, float& fVolLengthY, float& fVolLengthZ);
 
 	// PE adds
-	unsigned int nTriangles(void); 
+	unsigned int nTriangles(void);
 
 	// PE adds
-	void morphVertices(void); 
+	void morphVertices(void);
 
 	// PE adds
-	void writeTriangles(std::string); 
+	void writeTriangles(std::string);
 
 	// PE adds
 	coot::CartesianPairInfo
@@ -131,10 +134,10 @@ public:
 
 
 	// PE adds
-	void check_max_min_vertex_index_from_triangles(void); 
+	void check_max_min_vertex_index_from_triangles(void);
 
 	// PE adds
-	void check_max_min_vertices(void); 
+	void check_max_min_vertices(void);
 
 protected:
 	// The number of vertices which make up the isosurface.
@@ -174,7 +177,7 @@ protected:
 	// Interpolates between two grid points to produce the point at which
 	// the isosurface intersects an edge.
 	POINT3DID Interpolate(float fX1, float fY1, float fZ1, float fX2, float fY2, float fZ2, T tVal1, T tVal2);
- 
+
 	// Renames vertices and triangles so that they can be accessed more
 	// efficiently.
 	void RenameVerticesAndTriangles();
@@ -212,51 +215,51 @@ protected:
 	bool isSmallTriangle(unsigned int i);
 
 	// PE adds
-	void adjustVertices(unsigned int i); 
-	
+	void adjustVertices(unsigned int i);
+
 
 };
 
 
 // This is a list of vertices (basically, indices)
-// 
-class to_vertex_list_t { 
+//
+class to_vertex_list_t {
 
-   //vector<bool> vertex_list; 
-   int *vertex_list; 
+   //vector<bool> vertex_list;
+   int *vertex_list;
    int vertex_list_size;  // the size of the array
    int n_vertices;        // the maximum index filled so far.
 
  public:
    to_vertex_list_t();
    to_vertex_list_t(const to_vertex_list_t &a);
-   void Copy(const to_vertex_list_t &a); 
-   ~to_vertex_list_t(); 
+   void Copy(const to_vertex_list_t &a);
+   ~to_vertex_list_t();
 
-   const to_vertex_list_t& operator=(const to_vertex_list_t &a); 
+   const to_vertex_list_t& operator=(const to_vertex_list_t &a);
 
    void add(int i);
-   bool contains(int i); 
+   bool contains(int i);
    // bool operator[](unsigned int) const;
 };
 
 // This is a list of vertices to which there may be connections to
 // other vertices.
-// 
+//
 // It is a container class.
-// 
+//
 // I loathe this type of programming. I loathe it, I loathe it, I
 // loathe it, I loathe it, I loathe it.  I've spent two days on this now
-// and it still doesn't work.  Grrrr.  Waaagh.... and it would be so 
+// and it still doesn't work.  Grrrr.  Waaagh.... and it would be so
 // simple in scheme...
-// 
-class done_line_list_t { 
+//
+class done_line_list_t {
 
    to_vertex_list_t *from_vertices;
    void resize_and_copy(int j);
 
  public:
-   
+
    done_line_list_t();
 
    ~done_line_list_t();
@@ -265,7 +268,7 @@ class done_line_list_t {
    int max_from_vertex;     // the maximum vertex encountered so far.
 
    // to_vertex_list_t operator[](unsigned int) const;
-   to_vertex_list_t getVertex(unsigned int i) const; 
+   to_vertex_list_t getVertex(unsigned int i) const;
 
    void mark_as_done(int i, int j);
    bool done_before(int i, int j) ;  // question and manipulation of class
@@ -273,4 +276,3 @@ class done_line_list_t {
 
 
 #endif // CISOSURFACE_H
-

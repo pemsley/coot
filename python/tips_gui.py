@@ -18,14 +18,14 @@
 # given a number and a gtk text widget @var{text} (textbuffer!), put tip number
 # @var{n} into the widget.
 def show_coot_tip_from_list(n, text):
-    tip = tip_list()[n]
+    tip = tips.tip_list()[n]
     textbuffer = text.get_buffer()
     textbuffer.set_text(tip)
 
 # increment the tip number when the user sees a tip
 def increment_coot_tip_number():
     global coot_tip_number
-    if (coot_tip_number == len(tip_list())-1):
+    if (coot_tip_number == len(tips.tip_list())-1):
        coot_tip_number = 0
     else:
        coot_tip_number += 1
@@ -34,7 +34,7 @@ def increment_coot_tip_number():
 def decrease_coot_tip_number():
     global coot_tip_number
     if (coot_tip_number == 0):
-       coot_tip_number = len(tip_list())-1
+       coot_tip_number = len(tips.tip_list())-1
     else:
        coot_tip_number -= 1
 
@@ -88,7 +88,7 @@ def tips_gui():
        hbox.add(cancel_button)
        scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
     
-       coot_tip_number = random.randint(0,len(tip_list())-1)
+       coot_tip_number = random.randint(0,len(tips.tip_list())-1)
        show_coot_tip_from_list(coot_tip_number,text)
     
        cancel_button.connect_object("clicked",delete_event, window)

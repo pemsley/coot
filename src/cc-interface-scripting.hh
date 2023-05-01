@@ -3,6 +3,12 @@
 /*                  scripting                                               */
 /*  ----------------------------------------------------------------------- */
 
+// Not including Python.h here beacuse it needs to be first in the sources
+// 20210820-PE (but maybe that won't affect it being added here... Hmm)
+//
+#include <vector>
+#include <string>
+
 #ifdef USE_GUILE
 SCM safe_scheme_command_test(const char *cmd);
 SCM safe_scheme_command(const std::string &scheme_command);
@@ -24,3 +30,23 @@ void run_generic_script(const std::vector<std::string> &cmd_strings);
 #ifdef USE_GUILE
 SCM coot_has_python_p();
 #endif
+
+
+#ifdef USE_GUILE
+SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
+#endif
+
+#ifdef USE_PYTHON
+// maybe a better name when things are more established.
+// key can be a single-letter string or an int
+void add_key_binding_gtk4_py(PyObject *key, int ctrl_key_flag, PyObject *func,
+                             const std::string &description);
+void set_light_position_py(int light_id, float x, float y, float z);
+#endif
+
+#ifdef USE_GUILE
+void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::string &description);
+#endif
+
+void reload_shaders();
+

@@ -21,10 +21,6 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
-#include <Python.h> // this is here get round header warnings
-#endif
-
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -1820,14 +1816,14 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    
    text_1 = goo_canvas_text_new(group, rt.c_str(),
 				circle_pos.x, circle_pos.y-6, -1,
-				GTK_ANCHOR_CENTER,
+				GOO_CANVAS_ANCHOR_CENTER,
 				"font", "Sans 9",
 				"fill_color", "#111111",
 				NULL);
 
    text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
 				circle_pos.x, circle_pos.y+6.5, -1,
-				GTK_ANCHOR_CENTER,
+				GOO_CANVAS_ANCHOR_CENTER,
 				"font", "Sans 7",
 				"fill_color", "#111111",
 				NULL);
@@ -2458,7 +2454,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 						     hex_and_ring_centre[ir].x,
 						     hex_and_ring_centre[ir].y,
 						     -1,
-						     GTK_ANCHOR_CENTER,
+						     GOO_CANVAS_ANCHOR_CENTER,
 						     "font", "Sans 12",
 						     "fill_color", stroke_colour.c_str(),
 						     NULL);
@@ -2626,6 +2622,8 @@ lbg_info_t::bottom_of_flev_items() {
 } 
 
 
+// This is for reading SMILES, to use elsewhere, the lines
+// need to have newlines added.
 std::string
 lbg_info_t::file_to_string(const std::string &file_name) const {
 
@@ -2718,7 +2716,7 @@ lbg_info_t::show_key() {
 					       "Main-chain acceptor",
 					       AB_txt.x, AB_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2737,7 +2735,7 @@ lbg_info_t::show_key() {
 					       "Main-chain donor",
 					       ABd_txt.x, ABd_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2757,7 +2755,7 @@ lbg_info_t::show_key() {
 					       "Side-chain acceptor",
 					       CD_txt.x, CD_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2776,7 +2774,7 @@ lbg_info_t::show_key() {
 					       "Side-chain donor",
 					       CDd_txt.x, CDd_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2795,7 +2793,7 @@ lbg_info_t::show_key() {
 					       "H-bond to Water",
 					       Wat_txt.x, Wat_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2812,7 +2810,7 @@ lbg_info_t::show_key() {
 					       "Metal Bond",
 					       Metal_txt.x, Metal_txt.y,
 					       -1,
-					       GTK_ANCHOR_WEST,
+					       GOO_CANVAS_ANCHOR_WEST,
 					       "font", "Sans 10",
 					       "fill_color", "#111111",
 					       NULL);
@@ -2870,7 +2868,7 @@ lbg_info_t::show_key() {
 						    "Grease",
 						    Et.x, Et.y,
 						    -1,
-						    GTK_ANCHOR_WEST,
+						    GOO_CANVAS_ANCHOR_WEST,
 						    "font", "Sans 10",
 						    "fill_color", "#111111",
 						    NULL);
@@ -2878,7 +2876,7 @@ lbg_info_t::show_key() {
 						   "Polar",
 						   Ft.x, Ft.y,
 						   -1,
-						   GTK_ANCHOR_WEST,
+						   GOO_CANVAS_ANCHOR_WEST,
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
@@ -2886,7 +2884,7 @@ lbg_info_t::show_key() {
 						   "Acidic",
 						   Gt.x, Gt.y,
 						   -1,
-						   GTK_ANCHOR_WEST,
+						   GOO_CANVAS_ANCHOR_WEST,
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
@@ -2894,7 +2892,7 @@ lbg_info_t::show_key() {
 						   "Basic",
 						   Ht.x, Ht.y,
 						   -1,
-						   GTK_ANCHOR_WEST,
+						   GOO_CANVAS_ANCHOR_WEST,
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
@@ -2902,7 +2900,7 @@ lbg_info_t::show_key() {
 						   "Water",
 						   It.x, It.y,
 						   -1,
-						   GTK_ANCHOR_WEST,
+						   GOO_CANVAS_ANCHOR_WEST,
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
@@ -2911,7 +2909,7 @@ lbg_info_t::show_key() {
 						   "Metal",
 						   Jt.x, Jt.y,
 						   -1,
-						   GTK_ANCHOR_WEST,
+						   GOO_CANVAS_ANCHOR_WEST,
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
@@ -2926,7 +2924,7 @@ lbg_info_t::show_key() {
 							  "Solvent exposure",
 							  Kt.x, Kt.y,
 							  -1,
-							  GTK_ANCHOR_WEST,
+							  GOO_CANVAS_ANCHOR_WEST,
 							  "font", "Sans 10",
 							  "fill_color", "#111111",
 							  NULL);
@@ -2948,7 +2946,7 @@ lbg_info_t::show_key() {
 							     "Residue protection",
 							     Lt.x, Lt.y,
 							     -1,
-							     GTK_ANCHOR_WEST,
+							     GOO_CANVAS_ANCHOR_WEST,
 							     "font", "Sans 10",
 							     "fill_color", "#111111",
 							     NULL);
@@ -2971,7 +2969,7 @@ lbg_info_t::show_key() {
 								  "Substitution Contour",
 								  Mt.x, Mt.y,
 								  -1,
-								  GTK_ANCHOR_WEST,
+								  GOO_CANVAS_ANCHOR_WEST,
 								  "font", "Sans 10",
 								  "fill_color", "#111111",
 								  NULL);

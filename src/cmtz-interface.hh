@@ -81,6 +81,31 @@ namespace coot {
       int selected_refmac_im_col;
       int selected_refmac_sigim_col;
       int use_weights;
+
+      int get_prefered_label_idx(const std::vector<mtz_type_label> &cols,
+				 const std::string &prefered_suffix) const {
+	 int prf_idx = 0;
+	 for (std::size_t i=0; i<cols.size(); i++) {
+	    const std::string &col_lab = cols[i].column_label;
+	    if (col_lab.length() >= prefered_suffix.length()) {
+	       std::size_t ll = col_lab.length();
+	       std::size_t lp = prefered_suffix.length();
+	       std::string tail = col_lab.substr(ll-lp, lp);
+	       if (tail == prefered_suffix) {
+		  prf_idx = i;
+		  break;
+	       }
+	    }
+	 }
+	 return prf_idx;
+      }
+
+      int get_prefered_f_col_idx() const {
+	 return get_prefered_label_idx(f_cols, "/FWT");
+      }
+      int get_prefered_phi_col_idx() const {
+	 return get_prefered_label_idx(phi_cols, "/PHWT");
+      }
    };
 
    mtz_column_types_info_t get_mtz_columns(const std::string &filename);
@@ -92,9 +117,11 @@ namespace coot {
    std::vector<std::string> get_weight_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_d_cols(const std::string &mtz_file_name);
 
-
 }
 
-
+void
+my_combo_box_text_add_items(GtkComboBox *combobox,
+			    const std::vector<coot::mtz_type_label> &labels,
+			    int active_label_index);
 
 #endif // CMTZ_INTERFACE_HH

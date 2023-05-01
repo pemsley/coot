@@ -26,21 +26,15 @@
 
 #include "Python.h" // _XOPEN_SOURCE definition - python one before /usr/include/features.h
 
+#include "compat/coot-sysdep.h"
 #include <cstddef>
+
+#include <epoxy/gl.h>
 
 // needed to parse cc-interface.hh
 #ifdef USE_GUILE
 #include <libguile.h> 
 #endif // USE_GUILE
-
-// For drawing balls
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#   include <OpenGL/glu.h>
-#else
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#endif
 
 #include "cfc.hh"
 #include "cfc-widgets.hh"
@@ -65,8 +59,10 @@
 // which, with radius will be used to find the waters
 // 
 PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
-				       PyObject *solvated_ligand_info_py,
+				       PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
 				       double radius_1, double radius_2) {
+
+   std::cout << "debug:: ################ chemical_feature_clusters_py() start" << std::endl;
 
    PyObject *r = Py_False;
 
@@ -80,19 +76,23 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
          	                                           // solvated_ligand_info_py
 
 	 int n = PyObject_Length(solvated_ligand_info_py);
+         std::cout << "debug:: ################ chemical_feature_clusters_py() here with size of imol_ligand_specs "
+                   << n << std::endl;
 	 for(int i=0; i<n; i++) {
 
+            // std::cout << "debug:: ################ chemical_feature_clusters_py() here with i " << i << std::endl;
 	    PyObject *o = PyList_GetItem(solvated_ligand_info_py, i);
 
 	    // o should be a list of molecule-idx, residue-spec
 	    if (PyList_Check(o)) {
 	       int no = PyObject_Length(o);
+               // std::cout << "debug:: ################ chemical_feature_clusters_py() here with no " << no << std::endl;
 	       if (no == 2) {
 		  PyObject *mol_idx_py  = PyList_GetItem(o, 0);
 		  PyObject *lig_spec_py = PyList_GetItem(o, 1);
 
-		  if (PyInt_Check(mol_idx_py)) {
-		     int imol = PyInt_AsLong(mol_idx_py);
+		  if (PyLong_Check(mol_idx_py)) {
+		     int imol = PyLong_AsLong(mol_idx_py);
 		     coot::residue_spec_t ligand_spec = residue_spec_from_py(lig_spec_py);
 
 		     if (graphics_info_t::is_valid_model_molecule(imol)) {
@@ -102,13 +102,20 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 			std::vector<coot::residue_spec_t> neighbs_waters; // fill this
 			std::vector<coot::residue_spec_t> neighbs_raw =
 			   coot::residues_near_residue(ligand_spec, mol, radius_1);
+                        if (false)
+                           std::cout << "debug:: ##### in chemical_feature_clusters_py() neighbs_raw size is "
+                                     << neighbs_raw.size() << std::endl;
+
 			for (unsigned int i_neighb=0; i_neighb<neighbs_raw.size(); i_neighb++) { 
 			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i_neighb], mol);
 			   if (res) {
 			      std::string res_name = res->GetResName();
 			      if (res_name == "HOH")
 				 neighbs_waters.push_back(neighbs_raw[i_neighb]);
-			   }
+			   } else {
+                              std::cout << "debug:: ##### in chemical_feature_clusters_py() got a NULL residue"
+                                        << std::endl;
+                           }
 			}
 
 			if (false) { // debug
@@ -153,7 +160,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(pos_py, 0, PyFloat_FromDouble(water_positions[iw].pos.x()));
 	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(water_positions[iw].pos.y()));
 	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(water_positions[iw].pos.z()));
-	    PyList_SetItem(o, 0, PyInt_FromLong(water_positions[iw].ligand_idx));
+	    PyList_SetItem(o, 0, PyLong_FromLong(water_positions[iw].ligand_idx));
 	    PyList_SetItem(o, 1, residue_spec_to_py(water_positions[iw].residue_spec()));
 	    PyList_SetItem(o, 2, pos_py);
 	    PyList_SetItem(water_attribs_py, iw, o);
@@ -168,9 +175,9 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(chemical_features[i].pos.y()));
 	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(chemical_features[i].pos.z()));
 
-	    PyList_SetItem(o, 0, PyString_FromString(chemical_features[i].type.c_str()));
+	    PyList_SetItem(o, 0, PyUnicode_FromString(chemical_features[i].type.c_str()));
 	    PyList_SetItem(o, 1, pos_py);
-	    PyList_SetItem(o, 2, PyInt_FromLong(chemical_features[i].imol));
+	    PyList_SetItem(o, 2, PyLong_FromLong(chemical_features[i].imol));
 	    PyList_SetItem(o, 3, residue_spec_to_py(chemical_features[i].residue_spec));
 	    PyList_SetItem(chemical_feature_attribs_py, i, o);
 	 }
@@ -180,7 +187,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	 // ------------------------------------------------------------------------
 
 	 PyObject *residue_sidechain_attribs_py = PyList_New(1);
-	 PyObject *x_py = PyInt_FromLong(12);
+	 PyObject *x_py = PyLong_FromLong(12);
 
 	 // PyList_SetItem(residue_sidechain_attribs_py, 0, x_py);
 
@@ -214,6 +221,9 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
 					      PyObject *mol_ligand_specs,
 					      PyObject *cluster_info) {
 
+   std::cout << "debug:: ################################## chemical_feature_clusters_accept_info_py()"
+             << std::endl;
+
    if (graphics_info_t::use_graphics_interface_flag) {
       cfc::extracted_cluster_info_from_python eci(cluster_info);
       std::cout << "::::::::::::::::::::::::::: in chemical_feature_clusters_accept_info_py() "
@@ -229,7 +239,8 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
 
 void chemical_feature_clusters_setup_dialog() {
 
-   GtkWidget *w = create_cfc_dialog();
+   // GtkWidget *w = create_cfc_dialog();
+   GtkWidget *w = widget_from_builder("cfc_dialog");
    if (w) {
       graphics_info_t::cfc_dialog = w;
    } else {
@@ -281,20 +292,20 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 	    PyObject *site_idx_py          = PyTuple_GetItem(tup, 0);
 	    PyObject *imol_residue_spec_py = PyTuple_GetItem(tup, 1);
 	    
-	    if (PyInt_Check(site_idx_py) || PyLong_Check(site_idx_py)) { // Argh! PyInt_Check() passes on Mac, fails on PC.
+	    if (PyLong_Check(site_idx_py) || PyLong_Check(site_idx_py)) { // Argh! PyLong_Check() passes on Mac, fails on PC.
 	                                                                 // (it was actually a numpy int64, but keep
 	                                                                 //  this extra test now that we have it)
 	       if (PyList_Check(imol_residue_spec_py)) {
 		  int ll = PyObject_Length(imol_residue_spec_py);
 		  if (ll == 2) {
 		     int site_idx = -1;
-		     if (PyInt_Check(site_idx_py))
-			 site_idx = PyInt_AsLong(site_idx_py);
 		     if (PyLong_Check(site_idx_py))
-			 site_idx = PyInt_AsLong(site_idx_py);
+			 site_idx = PyLong_AsLong(site_idx_py);
+		     if (PyLong_Check(site_idx_py))
+			 site_idx = PyLong_AsLong(site_idx_py);
 		     PyObject *imol_py     = PyList_GetItem(imol_residue_spec_py, 0);
 		     PyObject *res_spec_py = PyList_GetItem(imol_residue_spec_py, 1);
-		     int imol = PyInt_AsLong(imol_py);
+		     int imol = PyLong_AsLong(imol_py);
 		     std::pair<bool, coot::residue_spec_t> spec =
 			make_residue_spec_py(res_spec_py);
 
@@ -319,7 +330,7 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py (null dp)" << std::endl;
 	       } else { 
 		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py() site_idx_py type: "
-			    << PyString_AsString(dp2) << std::endl;
+			    << PyUnicode_AsUTF8String(dp2) << std::endl;
 	    }
 	    } 
 	 }
@@ -328,15 +339,16 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 
    // return a list of pairs of imol,residue_specs
    //
+   std::cout << "---------------------------- debug creating ligand_sites_py with size " << ligand_sites.size() << std::endl;
    PyObject *ligand_sites_py = PyList_New(ligand_sites.size());
    
    std::map<int, std::vector<std::pair<int, coot::residue_spec_t> > >::const_iterator it;
    unsigned int list_idx = 0; // because we are using iterator
-   for (it = ligand_sites.begin(); it != ligand_sites.end(); it++) {
+   for (it = ligand_sites.begin(); it != ligand_sites.end(); ++it) {
       PyObject *li = PyList_New(it->second.size());
       for (unsigned int i=0; i<it->second.size(); i++) { 
 	 PyObject *l = PyList_New(2);
-	 PyList_SetItem(l, 0, PyInt_FromLong(it->second[i].first));
+	 PyList_SetItem(l, 0, PyLong_FromLong(it->second[i].first));
 	 PyList_SetItem(l, 1, residue_spec_to_py(it->second[i].second));
 	 PyList_SetItem(li, i, l);
       }
@@ -375,7 +387,6 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    //
    std::vector<int> structures_vec = extracted_cluster_info.water_structures_vec();
 
-   unsigned int cluster_idx = 0;
    double inv_n = 1.0/double(n_structures);
 
    // we need to convert the map to a vector, because we can sort a
@@ -389,7 +400,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	     << extracted_cluster_info.water_cluster_idx_max() << std::endl;
    
    std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.water_cluster_idx_max()+1);
-   for (it=cluster_map.begin(); it!=cluster_map.end(); it++) {
+   for (it=cluster_map.begin(); it!=cluster_map.end(); ++it) {
 
       unsigned int idx = it->first;
       if (idx < extracted_cluster_info.wc.size()) {
@@ -407,7 +418,8 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    
    // GtkWidget *waters_table = lookup_widget(cfc_dialog, "cfc_waters_table");
 
-   GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
+   // GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
+   GtkWidget *waters_vbox = widget_from_builder("cfc_waters_vbox");
    GtkWidget *waters_table = gtk_table_new(cluster_vec.size(), 2, FALSE);
 
    std::string waters_table_name = "cfc_waters_table_site_";
@@ -415,9 +427,12 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 
    // we want to be able to look up the widget and undisplay it.
    // 
-   gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), waters_table_name.c_str(), 
-			     waters_table,
-			     (GtkDestroyNotify) gtk_widget_unref);
+   // old
+   // gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), waters_table_name.c_str(),
+   //                           waters_table,
+   // 			        (GtkDestroyNotify) gtk_widget_unref);
+   g_object_set_data(G_OBJECT(cfc_dialog), waters_table_name.c_str(), waters_table);
+
    // perhaps we want to do this actually?
    std::string *wtn_p = new std::string(waters_table_name);
    gpointer gp = (gpointer) wtn_p;
@@ -466,16 +481,17 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	 //
 	 // std::cout << "debug:: gtk_object_set_data_full() on button with name " << button_name
 	 // << " and label: " << lb_label << std::endl;
-	 gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), button_name.c_str(), 
-				   left_button,
-				   (GtkDestroyNotify) gtk_widget_unref);
+	 // gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), button_name.c_str(),
+         // left_button, (GtkDestroyNotify) gtk_widget_unref);
+         //
+         g_object_set_data(G_OBJECT(cfc_dialog), button_name.c_str(), left_button);
 
 	 water_cluster_info_from_python *wat_clust_p =
 	    new water_cluster_info_from_python(cluster_vec[i].second);
 
-	 gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
-			    GTK_SIGNAL_FUNC(on_cfc_water_cluster_button_clicked),
-			    (gpointer) wat_clust_p);
+	 g_signal_connect(G_OBJECT(left_button), "clicked",
+                          G_CALLBACK(on_cfc_water_cluster_button_clicked),
+                          (gpointer) wat_clust_p);
 	 
 	 gtk_table_attach(GTK_TABLE(waters_table), left_button,
 			  0, 1, i, i+1,
@@ -499,7 +515,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	       // the question is: what is
 	       // the imol (molecule number) of the jth
 	       // structure?
-	    
+
 	       std::string struct_button_name = "cfc_site_";
 	       struct_button_name += coot::util::int_to_string(site_number);
 	       struct_button_name += "_water_cluster_";
@@ -511,9 +527,9 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 
 	       GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
 	       gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
-				  GTK_SIGNAL_FUNC(on_cfc_water_cluster_structure_button_clicked),
-				  GINT_TO_POINTER(imol_local));
+	       g_signal_connect(G_OBJECT(button), "clicked",
+                                G_CALLBACK(on_cfc_water_cluster_structure_button_clicked),
+                                GINT_TO_POINTER(imol_local));
 	    
 	       // change the color to green when the structure (j) is a
 	       // member of the vector cluster_vec[i];
@@ -523,8 +539,9 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	       } else {
 		  // happy path
 		  GdkColor color;
-		  gdk_color_parse ("#AACCAA", &color);
+		  gdk_color_parse("#AACCAA", &color);
 		  gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                  gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
 	       }
 	       gtk_widget_show(button);
 
@@ -588,7 +605,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 
    for (it_2  = cluster_structure_vector.begin();
 	it_2 != cluster_structure_vector.end();
-	it_2++) {
+	++it_2) {
       for (unsigned int i=0; i<it_2->second.size(); i++)
 	 n_pharacophores++;
    }
@@ -597,7 +614,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    if (true) { 
       for (it_2  = cluster_structure_vector.begin();
 	   it_2 != cluster_structure_vector.end();
-	   it_2++) {
+	   ++it_2) {
 	 for (unsigned int i=0; i<it_2->second.size(); i++) {
 	    if (false) { // debug
 	       std::cout << "DEBUG:: cluster_structure_vector[" << it_2->first
@@ -608,10 +625,11 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	    }
 	 }
       }
-      std::cout << "DEUBG:: found " << n_pharacophores << " pharmacophores " << std::endl;
+      std::cout << "DEBUG:: found " << n_pharacophores << " pharmacophores " << std::endl;
    }
 
-   GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
+   // GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
+   GtkWidget *cfc_ligands_vbox = widget_from_builder("cfc_ligands_vbox");
    GtkWidget *ligands_table = gtk_table_new(n_pharacophores+1, 2, FALSE);
 
    std::string ligands_table_name = "cfc_ligands_table_site_";
@@ -619,14 +637,15 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    
    // we want to be able to look up the widget and undisplay it.
    // 
-   gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), ligands_table_name.c_str(), 
-			     ligands_table,
-			     (GtkDestroyNotify) gtk_widget_unref);
+   // gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), ligands_table_name.c_str(),
+   //   ligands_table, (GtkDestroyNotify) gtk_widget_unref);
+   g_object_set_data(G_OBJECT(cfc_dialog), ligands_table_name.c_str(), ligands_table);
+
    // perhaps we want to do this actually?
    std::string *ltn_p = new std::string(ligands_table_name);
    gpointer gp = (gpointer) ltn_p;
    g_object_set_data(G_OBJECT(ligands_table), "widget_name", gp);
-   
+
    gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
    if (site_number == 0)
       gtk_widget_show(ligands_table);
@@ -642,7 +661,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    //
    unsigned int n_structures = extracted_cluster_info.n_pharmacophore_structures();
 
-   std::cout << "in cfc_dialog_add_pharmacophores() n_structures: " << n_structures << std::endl;
+   std::cout << "debug:: in cfc_dialog_add_pharmacophores() n_structures: " << n_structures << std::endl;
 
    if (n_structures == 0) {
 
@@ -661,7 +680,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    
       for (it_2  = cluster_structure_vector.begin();
 	   it_2 != cluster_structure_vector.end();
-	   it_2++) {
+	   ++it_2) {
 
 	 const std::string &type = it_2->first;
 
@@ -735,21 +754,28 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 
 		  on_pharmacophore_structure_click_info_t *ci_p = new on_pharmacophore_structure_click_info_t(ci);
 	       
-		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
-				     GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_structure_button_clicked),
-				     (gpointer)ci_p);
+		  g_signal_connect(G_OBJECT(button), "clicked",
+                                   G_CALLBACK(on_cfc_pharmacophore_cluster_structure_button_clicked),
+                                   (gpointer)ci_p);
 
 		  if (std::find(it_2->second[i].first.begin(),
 				it_2->second[i].first.end(),
 				imol_this_structure) == it_2->second[i].first.end()) {
 		  
 		     // wasn't there (that's OK)
+                     gtk_button_set_label(GTK_BUTTON(button), "_"); // space doesn't match the size of an I
 		  
 		  } else {
-		     // happy path
+		     // happy path, let's change the button colour and add it to contributing specs
 		     GdkColor color;
 		     gdk_color_parse("#AACCAA", &color);
+
+                     if (false) // we know now that this is working right - it's the window manager that
+                                // obscures the colour of the background
+                        std::cout << "debug:: cfc_dialog_add_pharmacophores() setting the button bg to #AACCAA " << std::endl;
 		     gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                     gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
+                     gtk_button_set_label(GTK_BUTTON(button), "I");
 
 		     if (std::find(contributing_specs.begin(),
 				   contributing_specs.end(),
@@ -766,9 +792,9 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	    // make a pointer to a copy of that that we can use in the callback user-data.
 	    //
 	    on_pharmacophore_click_info_t *ci_p = new on_pharmacophore_click_info_t(ci);
-	    gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
-			       GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_button_clicked),
-			       (gpointer) ci_p);
+	    g_signal_connect(G_OBJECT(left_button), "clicked",
+                             G_CALLBACK(on_cfc_pharmacophore_cluster_button_clicked),
+                             (gpointer) ci_p);
 
 	 }
       }
@@ -809,9 +835,12 @@ cfc::on_cfc_site_button_clicked(GtkButton *button,
 
       int site_number = pos_p->first;
       // undisplay other tables
-      GtkWidget *ligands_vbox  = lookup_widget(GTK_WIDGET(button), "cfc_ligands_vbox");
-      GtkWidget *waters_vbox   = lookup_widget(GTK_WIDGET(button), "cfc_waters_vbox");
-      GtkWidget *residues_vbox = lookup_widget(GTK_WIDGET(button), "cfc_residues_vbox");
+      // GtkWidget *ligands_vbox  = lookup_widget(GTK_WIDGET(button), "cfc_ligands_vbox");
+      // GtkWidget *waters_vbox   = lookup_widget(GTK_WIDGET(button), "cfc_waters_vbox");
+      // GtkWidget *residues_vbox = lookup_widget(GTK_WIDGET(button), "cfc_residues_vbox");
+      GtkWidget *ligands_vbox  = widget_from_builder("cfc_ligands_vbox");
+      GtkWidget *waters_vbox   = widget_from_builder("cfc_waters_vbox");
+      GtkWidget *residues_vbox = widget_from_builder("cfc_residues_vbox");
 
       if (ligands_vbox) {
 	 std::string show_this_one_name = "cfc_ligands_table_site_";
@@ -841,7 +870,7 @@ cfc::on_cfc_site_button_clicked(GtkButton *button,
 void
 cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
    
-   GList *dlist = gtk_container_children(GTK_CONTAINER(vbox));
+   GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
    GList *free_list = dlist;
    
    while (dlist) {
@@ -991,6 +1020,10 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
    std::vector<clustered_feature_info_from_python> v_cw;
 
    int list_size = PyObject_Length(cluster_info_py);
+
+   std::cout << "extracted_cluster_info_from_python::extract_water_info() list_size is " << list_size
+             << std::endl;
+
    if (list_size > 0) {
       PyObject *water_cluster_info_py = PyList_GetItem(cluster_info_py, 0);
 
@@ -1015,7 +1048,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 			    << "cfc_extract_cluster_info() (null dp)" << std::endl;
 	       } else { 
 		  std::cout << "ERROR:: not a list for water_cluster item in "
-			    << "cfc_extract_cluster_info()" << PyString_AsString(dp)
+			    << "cfc_extract_cluster_info()" << PyUnicode_AsUTF8String(dp)
 			    << std::endl;
 	       }
 
@@ -1026,7 +1059,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 	       if (n_items != 3) {
 		  std::cout << "strange cluster info " << n_items << std::endl;
 	       } else {
-		     
+
 		  PyObject *pos_py    = PyTuple_GetItem(cluster_py, 0);
 		  PyObject *weight_py = PyTuple_GetItem(cluster_py, 1);
 		  PyObject *radius_py = PyTuple_GetItem(cluster_py, 2);
@@ -1094,8 +1127,8 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 		  PyObject *iclust_py = PyList_GetItem(item_py, 2);
 
 		  coot::residue_spec_t water_spec = residue_spec_from_py(spec_py);
-		  int imol_water = PyInt_AsLong(imol_py);
-		  int iclust     = PyInt_AsLong(iclust_py);
+		  int imol_water = PyLong_AsLong(imol_py);
+		  int iclust     = PyLong_AsLong(iclust_py);
 
 		  clustered_feature_info_from_python cw(imol_water, water_spec, iclust);
 		  v_cw.push_back(cw);
@@ -1178,8 +1211,8 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 	 int n = PyObject_Length(facn_py);
 
 	 std::string type;
-	 if (PyString_Check(type_py))
-	    type = PyString_AsString(type_py);
+	 if (PyUnicode_Check(type_py))
+	    type = PyBytes_AS_STRING(PyUnicode_AsUTF8String(type_py));
 
 	 pharmacophore_model_cluster_means[type] = extract_cluster_means(means_py);
 
@@ -1199,9 +1232,9 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 		  PyObject *cluster_number_py     = PyList_GetItem(pharm_py, 1);
 
 		  if (PyList_Check(pos_imol_spec_list_py)) {
-		     if (PyInt_Check(cluster_number_py)) {
+		     if (PyLong_Check(cluster_number_py)) {
 
-			int cluster_number = PyInt_AsLong(cluster_number_py);
+			int cluster_number = PyLong_AsLong(cluster_number_py);
 
 			int n_pos_imol_spec_list =
 			   PyObject_Length(pos_imol_spec_list_py);
@@ -1213,14 +1246,14 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 			   PyObject *spec_py = PyList_GetItem(pos_imol_spec_list_py, 2);
 
 			   if (PyList_Check(pos_py)) {
-			      if (PyInt_Check(imol_py)) {
+			      if (PyLong_Check(imol_py)) {
 				 if (PyList_Check(spec_py)) {
 
 				    PyObject *x_py = PyList_GetItem(pos_py, 0);
 				    PyObject *y_py = PyList_GetItem(pos_py, 1);
 				    PyObject *z_py = PyList_GetItem(pos_py, 2);
 
-				    int imol = PyInt_AsLong(imol_py);
+				    int imol = PyLong_AsLong(imol_py);
 
 				    coot::residue_spec_t res_spec =
 				       residue_spec_from_py(spec_py);
@@ -1256,6 +1289,7 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
    }
 }
 
+// constructor
 cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
 
    if (! PyList_Check(cluster_info_py)) {
@@ -1434,13 +1468,18 @@ cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
    return idx_max;
 }
 
+#include "c-interface-generic-objects.h"
+
 // return the generic display object index
 int
 cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_number) const {
 
+   graphics_info_t g;
    std::string s = "CFC Site " + coot::util::int_to_string(site_number) + " conserved waters";
-   coot::generic_display_object_t obj(s);
-   
+
+   int water_balls_object = new_generic_object_number(s);
+   meshed_generic_display_object &obj = g.generic_display_objects[water_balls_object];
+
    if (graphics_info_t::use_graphics_interface_flag) {
       int n = n_water_structures();
       unsigned int n_wc = wc.size();
@@ -1459,18 +1498,21 @@ cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_numb
 	 if (f > 0.01) {
 
 	    double radius = f * 1.1;
-	    coot::generic_display_object_t::sphere_t sphere(wc[i].pos, radius);
-	    sphere.col = coot::colour_t(0.9, 0.2, 0.2);
-	    obj.spheres.push_back(sphere);
+	    meshed_generic_display_object::sphere_t sphere(wc[i].pos, radius);
+	    sphere.col = glm::vec4(0.9, 0.2, 0.2, 1.0);
+	    obj.add(sphere);
 	 }
       }
    }
 
-   obj.is_displayed_flag = true;
-   graphics_info_t::generic_objects_p->push_back(obj);
-   graphics_info_t::graphics_draw();
+   // obj.is_displayed_flag = true;
+   // graphics_info_t::generic_objects_p->push_back(obj);
 
-   return (graphics_info_t::generic_objects_p->size() -1);
+   Material material;
+   obj.mesh.setup(material); // fast return if already done
+   set_display_generic_object(water_balls_object, 1);
+
+   return water_balls_object;
    
 }
 
@@ -1478,8 +1520,9 @@ void
 cfc::cfc_dialog_add_site_info(unsigned int site_number,
 			      const extracted_cluster_info_from_python &eci) {
 
-   GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog,
-					  "cfc_sites_table");
+   // GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog, "cfc_sites_table");
+   GtkWidget *sites_table = widget_from_builder("cfc_sites_table");
+
    if (sites_table) {
       gtk_table_resize(GTK_TABLE(sites_table), site_number+1, 4);
       unsigned int n_structures = eci.n_pharmacophore_structures();
@@ -1498,9 +1541,9 @@ cfc::cfc_dialog_add_site_info(unsigned int site_number,
       GtkWidget *label_1 = gtk_label_new(" contributed to by ");
       GtkWidget *label_2 = gtk_label_new(coot::util::int_to_string(n_structures).c_str());
       GtkWidget *label_3 = gtk_label_new(structures_word.c_str());
-      gtk_signal_connect(GTK_OBJECT(site_button), "clicked",
-			 GTK_SIGNAL_FUNC(on_cfc_site_button_clicked),
-			 (gpointer) site_no_pos_p);
+      g_signal_connect(G_OBJECT(site_button), "clicked",
+                       G_CALLBACK(on_cfc_site_button_clicked),
+                       (gpointer) site_no_pos_p);
       gtk_table_attach(GTK_TABLE(sites_table), site_button,
 		       0, 1, site_number, site_number+1,
 		       (GtkAttachOptions) (GTK_FILL),
@@ -1534,7 +1577,8 @@ cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
    cfc_dialog_add_waters(site_number, eci, cfc_dialog);
    cfc_dialog_add_pharmacophores(site_number, eci, cfc_dialog);
    cfc_dialog_add_site_info(site_number, eci);
-   
+
+   gtk_window_set_default_size(GTK_WINDOW(cfc_dialog), 600, 400);
    gtk_widget_show(cfc_dialog);
 }
 

@@ -18,88 +18,7 @@
 # fi
 
 # you will want to redefine this if you are ccp4
-PYTHON=python
-
-function apply_pending_install { 
-
-   COOT_PREFIX="$1"
-   dir_list="
-bin
-info
-man
-share
-include
-lib"
-
-   old_dir="old"
-   old_dir=revision-$($coot_bin --version | sed -e 's/.*revision //' -e 's/).*//')
-   echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
-
-   if [ -d $COOT_PREFIX/$old_dir ] ; then
-       rm -rf $COOT_PREFIX/$old_dir
-   fi 
-
-   if [ ! -e $COOT_PREFIX/$old_dir ] ; then
-      mkdir $COOT_PREFIX/$old_dir
-
-      if [ -d $COOT_PREFIX/$old_dir ] ; then
-
-	 # set $coot_bin_dir to the newly installed 
-         # coot-something directory in pending-install
-         # (if we can, that is).
-	 #
-         t=$(echo $COOT_PREFIX/pending-install/coot*)
-         if [ -e "$t" ] ; then 
-            coot_bin_dir=$t
-            echo set coot_bin_dir to $coot_bin_dir
-         else 
-            echo situation too complicated to install - clean up pending installs.
-         fi
-
-         if [ -z "$coot_bin_dir" ] ; then 
-           echo coot_bin_dir not set.
-         else 
-            # continue, it's good
-
-	    echo =====================================================================
-	    echo ==================== installing fresh coot ==========================
-	    echo =====================================================================
-
-            # move aside current dirs
-            for dir in $dir_list
-            do
-	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
-                 # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
-                 mv $COOT_PREFIX/$dir $COOT_PREFIX/$old_dir/$dir
-              else 
-                 echo on move-out: "$COOT_PREFIX/$dir" does not exist.
-              fi
-            done
-
-
-   	    # move in the new ones
-            for dir in $dir_list
-            do 
-	      # echo debug:: moving in $dir
-	      if [ -e "$coot_bin_dir/$dir" ] ; then 
-                 # echo move-in "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-                 mv "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
-              else 
-                 echo on move-in: "$coot_bin_dir/$dir" does not exist.
-              fi
-            done
-         fi
-      else 
-         echo WARNING:: $COOT_PREFIX/$old_dir could not be created.
-      fi 
-   else 
-       echo WARNING:: $COOT_PREFIX/$old_dir could not be removed, aborting new binary install
-   fi
-
-   echo  removing pending-install...
-   rm -rf $COOT_PREFIX/pending-install
-
-}
+PYTHON=@PYTHON@
 
 
 function check_for_no_graphics {
@@ -120,20 +39,19 @@ function check_for_no_graphics {
 current_exe_dir=$(dirname $0)
 systype=$(uname)
 
-if [ $systype = Darwin ] ; then 
-   COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
-else 
-   if [ $current_exe_dir = . ] ; then 
-      COOT_PREFIX=$(readlink -f $(dirname $PWD))
-   else 
-      COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
-   fi
-   if test "$COOT_PREFIX" = ""; then
-      COOT_PREFIX=$(dirname "$current_exe_dir")
-   fi
+if [ $systype = Darwin ] ; then
+    COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
+else
+    unlinked_exe=$(readlink -f $0)
+    unlinked_exe_dir=$(dirname $unlinked_exe)
+    COOT_PREFIX=$(dirname $unlinked_exe_dir)
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
+
+python_major=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(major))')
+python_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(minor))')
+python_major_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}{}".format(major, minor))')
 
 # we need this for movable/slim directory usage
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
@@ -141,7 +59,7 @@ if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
    # I could use (if we have new bash)
    # if [[ $systype == MINGW* ]] ; then
    coot_bin=$COOT_PREFIX/bin/coot-bin
-   PYTHONHOME=$COOT_PREFIX/python27
+   PYTHONHOME=$COOT_PREFIX/python$python_major_minor
    PATH=$PATH:$PYTHONHOME
 else
    coot_bin=$COOT_PREFIX/libexec/coot-bin
@@ -166,21 +84,15 @@ PATH=$COOT_PREFIX/bin:$PATH
 SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
 COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
 if [ -z $CLIBD_MON ] ; then
- echo CLIBD_MON not set using COOT_REFMAC_LIB_DIR
+ # echo debug:: CLIBD_MON not set, using COOT_REFMAC_LIB_DIR
  COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
  export COOT_REFMAC_LIB_DIR
 fi
 COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
-COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
+# COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/glade/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
- 
-if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
-   COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
-else
-   COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
-fi
 
 # Added 20090429 - take this out when trying internationalization.
 LANG=C
@@ -190,23 +102,17 @@ export LANG
 export LC_ALL
 export LC_NUMERIC
 
-
-
-# Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
-# know why it is failing to be set correctly from Coot's configure in
-# Kevin's Ubuntu.  Needless to say, it works fine on my Ubuntu
-# (Gutsy).  Must fix later.
-#
-GUILE_LOAD_PATH=\
-$COOT_PREFIX/share/guile/1.8:$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
-GUILE_WARN_DEPRECATED=no
-export GUILE_WARN_DEPRECATED
-
-if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
-    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
-fi
+export GUILE_WARN_DEPRECATED=no
+GUILE_LOAD_PATH=$COOT_PREFIX/share/guile/2.2:$COOT_PREFIX/share/guile/site:$COOT_PREFIX/share/guile-gnome-2/gnome
 
 # echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+GUILE_BIN=guile
+if [ -e $COOT_PREFIX/bin/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/bin/guile
+fi
+if [ -e $COOT_PREFIX/libexec/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/libexec/guile
+fi
 
 if [ $systype = Linux ] ; then 
    if [ -z "$LD_LIBRARY_PATH" ] ;  then
@@ -222,22 +128,19 @@ if [ $systype = Darwin ] ; then
    else 
 	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH}
    fi
-fi
-if [ $systype = IRIX ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
+   if [ -z "$LTDL_LIBRARY_PATH" ] ;  then
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
    else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
-   fi
-fi
-if [ $systype = IRIX64 ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
+	OLD_LTDL_LIBRARY_PATH=${LTDL_LIBRARY_PATH}
+	LTDL_LIBRARY_PATH=$COOT_PREFIX/lib:${LTDL_LIBRARY_PATH}
    fi
 fi
 
+if [ -z "$GI_TYPELIB_PATH" ] ; then
+    if [ -e  /usr/lib/x86_64-linux-gnu/girepository-1.0 ] ; then
+        export GI_TYPELIB_PATH=/usr/lib/x86_64-linux-gnu/girepository-1.0
+    fi
+fi
 
 export SYMINFO
 export COOT_PREFIX
@@ -245,7 +148,8 @@ export COOT_STANDARD_RESIDUES
 # export COOT_REFMAC_LIB_DIR
 export COOT_PYTHON_DIR
 # export PYTHONPATH
-export PYTHONHOME
+# This is likely no longer necessary and it breaks python when using python installed in the system
+# export PYTHONHOME
 export COOT_SCHEME_DIR
 export COOT_REF_STRUCTS
 export COOT_RESOURCES_FILE
@@ -253,62 +157,54 @@ export COOT_PIXMAPS_DIR
 export COOT_DATA_DIR
 export GUILE_LOAD_PATH
 export DYLD_FALLBACK_LIBRARY_PATH
+export LTDL_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-# if a pending binary install exists, apply it before starting coot
-if [ -e $COOT_PREFIX/pending-install ] ; then
-   apply_pending_install $COOT_PREFIX
-fi
 
 if [ "$1" = --check-libs ] ; then 
    if [ $systype = Darwin ] ; then
       otool -L $coot_bin
    else
-      ldd $coot_bin
+      ldd -r $coot_bin
    fi
-else 
-   if [ "$1" = --ccp4-mode ] ; then
-      ccp4_mode=true
-   fi
+else
 
-   # echo DEBUG:: coot-script with PATH $PATH and PYTHON $PYTHON
+   for arg in "$@" ;
+   do
+       if [ "$arg" = --ccp4-mode ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --ccp4 ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --disable-libtool-hack ] ; then
+           LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
+       fi
+   done
+
    # which rsvg-convert
    # otool -L $HOME/bin/rsvg-convert
 
    # this doesn't fix the svg icon/library problem
    # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
-
+   # install librsvg: that fixes the svg icon/library problem
 
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
    if [ -z "$ccp4_mode" ] ; then
-      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
-      $coot_bin "$@"
-      status=$?
+       # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+       $coot_bin "$@"
+       status=$?
    else
-      shift
-      coot_py_dir=$COOT_PREFIX/lib/python2.7/site-packages/coot
-      $PYTHON $coot_py_dir/coot_output_to_window.py $@
-      status=$?
+       shift
+       libdir=lib # lib64?
+       coot_py_dir=$COOT_PREFIX/$libdir/python@PYTHON_VERSION@/site-packages/coot
+       $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
+       status=$?
    fi
    if [ $status != 0 ] ; then
-      #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
-      # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
-      unset PYTHONHOME
-      unset PYTHONPATH
-      unset LD_LIBRARY_PATH
-      # only run the crash catcher if coot was compiled with guile
-      if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-         if [ -e $COOT_PREFIX/bin/guile ] ; then
-            if guile --version ; then
-               echo catching the crash log:
-               $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
-            else
-               echo failed to launch the crash catcher
-            fi
-         fi
-      fi
+      echo Coot crashed.
    fi
    exit $status
 fi

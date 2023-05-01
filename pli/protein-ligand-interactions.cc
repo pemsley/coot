@@ -472,8 +472,8 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	    }
 	 }
 	 if (best_dist_sqrd < max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom) {
-	    coot::fle_ligand_bond_t bond(ligand_atom,
-					 env_residue_atom,
+	    coot::fle_ligand_bond_t bond(atom_spec_t(ligand_atom),
+					 atom_spec_t(env_residue_atom),
  					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
  					 sqrt(best_dist_sqrd), false);
 	    v.push_back(bond);

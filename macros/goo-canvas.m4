@@ -43,10 +43,10 @@ if test x$goocanvas_prefix != x; then
 
   case $ac_cv_build_alias in
   *-mingw*)
-    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0.0/goocanvas"
+    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-2.0.0/goocanvas"
     break;;
   *)
-    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-1.0"
+    GOOCANVAS_CFLAGS="-I$goocanvas_prefix/include/goocanvas-2.0"
     break;;
   esac
   #
@@ -56,7 +56,7 @@ if test x$goocanvas_prefix != x; then
   # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
   # GCC c++ does not.
   #
-  GOOCANVAS_LDOPTS="-L$goocanvas_prefix/lib -lgoocanvas"
+  GOOCANVAS_LDOPTS="-L$goocanvas_prefix/lib -lgoocanvas-2.0"
 
 else
   # the compiler looks in the "standard" places for GOOCANVAS. (or uses pkgconfig)
@@ -65,17 +65,17 @@ else
   *-mingw*)
     # we can use pkg-config, so why not
     if test -z "${PKG_CONFIG}"; then
-      GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0.0"
+      GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-2.0.0"
     else
       GOOCANVAS_CFLAGS=`$PKG_CONFIG goocanvas --cflags`
     fi
     break;;
   *)
-    GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
+    GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-2.0"
     break;;
   esac
   if test -z "${PKG_CONFIG}"; then
-     GOOCANVAS_LDOPTS="-lgoocanvas"
+     GOOCANVAS_LDOPTS="-lgoocanvas-2.0"
   else
      GOOCANVAS_LDOPTS=`$PKG_CONFIG goocanvas --libs`
   fi
@@ -109,7 +109,7 @@ dnl esac
 
 
 AC_LANG_PUSH(C++)
-AC_TRY_LINK([#include "goocanvas.h"] ,[ GooCanvas *a;  ], have_goocanvas=yes, have_goocanvas=no)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include "goocanvas.h" ]], [[ GooCanvas *a;  ]])],[have_goocanvas=yes],[have_goocanvas=no])
 AC_LANG_POP
 
 AC_MSG_RESULT($have_goocanvas)

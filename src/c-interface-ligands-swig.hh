@@ -3,6 +3,10 @@
 #ifndef C_INTERFACE_LIGANDS_SWIG_HH
 #define C_INTERFACE_LIGANDS_SWIG_HH
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include "probe-clash-score.hh"
 #include "ligand-check.hh"
 
@@ -11,9 +15,10 @@
 */
 
 // We don't need to SWIG this one...
+#ifndef SWIG
 std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol);
-
+#endif
 
 // return a new molecule number
 int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
@@ -41,6 +46,12 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
 // it doesn't belong here
 PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
 PyObject *get_intermediate_atoms_distortions_py();
+#endif
+
+#ifdef USE_GUILE
+// this is not a ligands function (although it can be used for ligands)
+// it doesn't belong here
+SCM residues_distortions_scm(int imol, SCM residue_spec_list_scm);
 #endif
 
 // This don't call graphics_draw(), so the caller needs to do so.
@@ -92,7 +103,7 @@ double kolmogorov_smirnov_vs_normal_py(PyObject *l1, double mean, double std_dev
 PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2);
 #endif
 
-// Returning void ATM.  We shoud return an interesting object at some
+// Returning void ATM.  We should return an interesting object at some
 // stage. Perhaps a coot::geometry_distortion_info_container_t?
 //
 double
@@ -144,6 +155,12 @@ bool comprised_of_organic_set_p(const std::string &rn);
 //! remove contact dots objects using the Generic Display Objects dialog
 void coot_all_atom_contact_dots(int imol);
 
+//! \brief set if all atom contact should ignore water-water interactions (default off)
+void set_all_atom_contact_dots_ignore_water(short int state);
+
+//! \brief set if all atom contact should make the vdw surface (default off/false)
+void set_all_atom_contact_dots_do_vdw_surface(short int state);
+
 #ifdef USE_PYTHON
 void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
 // change HE2 to HD1 and vice versa
@@ -151,7 +168,11 @@ void switch_HIS_protonation_py(int imol, PyObject *residue_spec);
 #endif
 
 // this is not a ligand function - it does not belong here.
+//! \brief add Hydrogen atoms to the molecule
+void coot_add_hydrogen_atoms(int imol);
+
 void coot_reduce(int imol);
+
 
 
 #ifdef USE_GUILE
@@ -160,7 +181,11 @@ void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
 void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 #endif
 
+//! \brief set the contact dot density
+void set_contact_dots_density(float density);
 
+//! \brief set the number of subdivisions of contact dot density sphere (1=low (default), 3=high)
+void set_contact_dot_sphere_n_subdivisions(unsigned int n_subdivisions);
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure
@@ -171,9 +196,44 @@ void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 // 
 double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order);
 
+#ifdef USE_GUILE
+// find all the residues that are linked to this reside (and those that are attached to those and so on)
+// the attachment test is trivial: is an atom of a potential neighber within close_dist_max of
+// an atom of the current residue?
+SCM linked_residues_scm(SCM residue_centre, int imol, float close_dist_max);
+#endif
+#ifdef USE_PYTHON
+// find all the residues that are linked to this reside (and those that are attached to those and so on)
+// the attachment test is trivial: is an atom of a potential neighber within close_dist_max of
+// an atom of the current residue?
+PyObject *linked_residues_py(PyObject *residue_centre, int imol, float close_dist_max);
+#endif
 
-// is enhanced ligand version
+//! \brief is this an "enhanced-ligand" version?
 bool enhanced_ligand_coot_p();
 
+//! \brief JED-Flip the bond of the active atoms
+int jed_flip_intermediate_atoms();
+
+//! \brief JED-Flip the bond of the active atoms using reversed atom selection (wag the dog)
+int reverse_jed_flip_intermediate_atoms();
+
+//! \brief side-chain 180 flip on the active atom
+// int side_chain_flip_180_intermediate_atoms(); moved because button in gui, unlike JED flip
+
+// No here - this file  is for swigging
+// #include "ideal/simple-restraint.hh"
+// coot::geometry_distortion_info_container_t get_ligand_distortion_summary_info(int imol, coot::residue_spec_t &rs);
+
+#ifdef USE_GUILE
+//! \brief return the summary info for ligand distortion
+SCM get_ligand_distortion_summary_info_scm(int imol, SCM residue_spec);
+#endif
+#ifdef USE_PYTHON
+//! \brief return the summary info for ligand distortion
+PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec);
+#endif
+
+double gsl_sf_erf_scm(double v);
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

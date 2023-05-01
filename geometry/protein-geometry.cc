@@ -91,80 +91,6 @@
 //    return r;
 // }
 
-std::string
-coot::atom_id_mmdb_expand(const std::string &atomname) { 
-   std::string r;
-   int ilen = atomname.length();
-      
-   if (ilen == 4) return atomname;
-      
-   if (ilen == 1) {
-      r = " ";
-      r += atomname;
-      r += "  ";
-   } else {
-      if (ilen == 2) {
-
-	 // 20180512-PE we have to be more clever here for metals.
-	 // But what about CA! - argh! we shouldn't be using this function.
-	 // We need to know the residue name to pad correctly.
-	 //
-	 bool done = false;
-	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
-	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
-	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
-	     atomname == "SE" || atomname == "BR" || atomname == "RB" || atomname == "SR" || atomname == "RE" || atomname == "OS" ||
-	     atomname == "IR" || atomname == "PT" || atomname == "AU" || atomname == "HG" || atomname == "PB" || atomname == "BI") {
-	    r += atomname;
-	    r += "  ";
-	 } else {
-	    r = " ";
-	    r += atomname;
-	    r += " ";
-	 }
-      } else {
-	 if (ilen == 3) {
-	    r = " ";
-	    r += atomname;
-	 } else {
-	    r = atomname;
-	 }
-      }
-   }
-   return r;
-}
-
-std::string
-coot::atom_id_mmdb_expand(const std::string &atomname, const std::string &element) {
-
-   std::string r = coot::atom_id_mmdb_expand(atomname);
-
-   if (element.length() == 2 && element[0] != ' ') {
-      if (atomname.length() == 1) { // unlikely
-	 r = " ";
-	 r += atomname;
-	 r += "  ";
-      } else {
-	 if (atomname.length() == 2) {
-	    r = atomname;
-	    r += "  ";
-	 } else {
-	    if (atomname.length() == 3) {
-	       r = atomname;
-	       r += " ";
-	    } else {
-	       r = atomname;
-	    }
-	 }
-      }
-   }
-   if (0)  // debug
-      std::cout << "Given :" << atomname << ": and element :" <<
-	 element << ": returning :" << r << ":" << std::endl;
-   return r;
-}
-
-
 bool
 coot::protein_geometry::matches_imol(int imol_dict, int imol_enc) const {
 
@@ -172,24 +98,6 @@ coot::protein_geometry::matches_imol(int imol_dict, int imol_enc) const {
       return true;
    else
       return (imol_dict == imol_enc);
-}
-
-
-// for mmdb::math::Graph mmdb::math::Edge usage
-//
-// if the bond type is "deloc" then return a single bond.  This
-// doesn't matter (at the moment) because the code using this doesn't
-// care about the bond order, it only cares about connectivity (or so
-// I think).
-// 
-int
-coot::dict_bond_restraint_t::mmdb_bond_type() const {
-   int bt = 1;
-   if (type_ == "double")
-      bt = 2;
-   if (type_ == "triple")
-      bt = 3;
-   return bt;
 }
 
 
@@ -256,263 +164,6 @@ coot::protein_geometry::filter_chiral_centres(const dictionary_residue_restraint
    return v;
 } 
 
-void
-coot::protein_geometry::assign_link_chiral_volume_targets() {
-
-   for (unsigned int idict=0; idict<dict_link_res_restraints.size(); idict++) {
-      if (dict_link_res_restraints[idict].has_unassigned_chiral_volumes()) {
-	 dict_link_res_restraints[idict].assign_link_chiral_volume_targets();
-      }
-   }
-}
-
-bool
-coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &r) const {
-
-   bool status = true;
-   unsigned int n_found = 0;
-   if (atom_ids.size() != r.atom_ids.size())
-      return false;
-   if (atom_ids.size() > 0)
-      status = false; // initial setting.
-   
-   for (unsigned int i=0; i<atom_ids.size(); i++) {
-      const std::string &ref_atom = atom_ids[i].first;
-      for (unsigned int j=0; j<r.atom_ids.size(); j++) { 
-	 if (r.atom_ids[j].first == ref_atom) {
-	    n_found++;
-	    break;
-	 }
-      }
-   }
-   if (n_found == atom_ids.size())
-      status = true;
-   return status;
-}
-
-
-// constructor.  Caller should make sure that there are no bonds
-// before constructing this (mol->RemoveBonds());
-//
-coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(mmdb::Residue *residue_p) {
-
-   init(residue_p);
-}
-
-void
-coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
-
-   filled_with_bond_order_data_only_flag = false;
-   if (residue_p) {
-      mmdb::PModel   model;
-      mmdb::PChain   chain;
-      // mmdb::PResidue res = 0;
-      mmdb::math::Graph    graph;
-      mmdb::math::PPVertex V;
-      mmdb::math::PPEdge   E;
-      int       i, im,ic,ir, nV,nE, k1,k2;
-
-      graph.MakeGraph   ( residue_p,NULL );
-      graph.GetVertices ( V,nV );
-      graph.GetEdges    ( E,nE );
-
-      mmdb::PPAtom residue_atoms = 0;
-      int nResidueAtoms;
-      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-	 
-      if (0) { //debug
-	 for (int iv=0; iv<nV; iv++) { 
-	    std::cout << "vertex " << iv << " of " << nV << " " << V[iv] << std::endl;
-	 }
-			      
-	 for (int ie=0; ie<nE; ie++) { 
-	    std::cout << "edge " << ie << " of " << nE << " " << E[ie] << std::endl;
-	    std::cout << "edge " << ie << " of " << nE << " with vertex1 "
-		      << E[ie]->GetVertex1() << " and vertex2 "
-		      << E[ie]->GetVertex2() << std::endl;
-	 }
-      }
-			   
-      for (i=0;i<nE;i++)  {
-
-	 // mmdb 1.25.3 on pc offset needs to be -1
-	 int idx_offset = -1;
-
-	 bool debug = false;
-	 
-	 if (debug) { 
-	    std::cout << "V index for k1 " << E[i]->GetVertex1() << std::endl;
-	    std::cout << "V index for k2 " << E[i]->GetVertex2() << std::endl;
-	 }
-	 // this indexing needs testing.
-	 k1 = V[E[i]->GetVertex1()+idx_offset]->GetUserID();
-	 k2 = V[E[i]->GetVertex2()+idx_offset]->GetUserID();
-	 if (debug) 
-	    std::cout << "1 adding bond to atom  " << k1 << " of " << nResidueAtoms << std::endl;
-	 residue_p->atom[k1]->AddBond ( residue_p->atom[k2],E[i]->GetType() );
-	 if (debug)
-	    std::cout << "2 adding bond to atom  " << k2 << " of " << nResidueAtoms << std::endl;
-	 residue_p->atom[k2]->AddBond ( residue_p->atom[k1],E[i]->GetType() );
-	 if (debug) 
-	    std::cout << "added bond of type " << E[i]->GetType() << " to "
-		      << k1 << " and " << k2 << std::endl;
-      }
-
-	 
-      // bool calc_only = true;
-      // mol->MakeBonds(calc_only);  // crash, hence above hack.
-
-      std::string comp_id = residue_p->GetResName();
-      std::string group("monomer");
-      std::string desc_level(".");
-      int n_all = nResidueAtoms;
-      int n_non_H = 0;
-      for (int iat=0; iat<nResidueAtoms; iat++) {
-	 std::string ele(residue_atoms[iat]->element);
-	 if (ele != "H" && ele != " H" && ele != "D" && ele != " D")
-	    n_non_H++;
-      }
-	    
-      residue_info = dict_chem_comp_t(comp_id, comp_id, comp_id, group,
-				      n_all, n_non_H, desc_level);
-      // also fill atom_info with dict_atom objects
-      for (int iat=0; iat<nResidueAtoms; iat++) {
-	 mmdb::Atom *at = residue_atoms[iat];
-	 std::string ele(residue_atoms[iat]->element);
-	 dict_atom da(at->name, at->name, ele, "", std::pair<bool, float> (false, 0));
-	 atom_info.push_back(da);
-      }
-
-      std::vector<atom_pair_t> bond_pairs;
-      for (int iat=0; iat<nResidueAtoms; iat++) { 
-	 mmdb::Atom *at_1 = residue_atoms[iat];
-	 if (at_1) { 
-	    int n_bonds_1 = at_1->GetNBonds();
-	    mmdb::AtomBond *AtomBonds = NULL;
-	    int n_bonds_2; 
-	    at_1->GetBonds(AtomBonds, n_bonds_2);
-	    for (int ibond=0; ibond<n_bonds_2; ibond++) { 
-	       mmdb::Atom *at_2 = AtomBonds[ibond].atom;
-	       if (at_2) { 
-		  if (at_1 < at_2) { // pointer comparison
-		     std::string at_name_1(at_1->name);
-		     std::string at_name_2(at_2->name);
-		     std::string type = "single";
-		     if (AtomBonds[ibond].order == 2)
-			type = "double";
-		     if (AtomBonds[ibond].order == 3)
-			type = "triple";
-		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-		     double dist = sqrt((pt_1-pt_2).lengthsq());
-		     double dist_esd = 0.02;
-		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
-		     bond_restraint.push_back(br);
-		     bond_pairs.push_back(atom_pair_t(at_1, at_2));
-		  }
-	       }
-	    }
-	 }
-      }
-
-      // now find angle by finding bond-pair pairs that that share
-      // an atom
-      // 
-      for (unsigned int ibp=0; ibp<bond_pairs.size(); ibp++) { 
-	 for (unsigned int jbp=ibp; jbp<bond_pairs.size(); jbp++) {
-	    if (ibp != jbp) {
-	       mmdb::Atom *shared_atom = bond_pairs[ibp].shared_atom(bond_pairs[jbp]);
-	       if (shared_atom) {
-		  mmdb::Atom *at_1 = bond_pairs[ibp].at_1;
-		  mmdb::Atom *at_2 = bond_pairs[ibp].at_2;
-		  mmdb::Atom *at_3 = bond_pairs[jbp].at_1;
-		  if (at_1 == shared_atom) {
-		     at_1 = bond_pairs[ibp].at_2;
-		     at_2 = bond_pairs[ibp].at_1; // shared atom
-		  } 
-		  if (at_3 == shared_atom)
-		     at_3 = bond_pairs[jbp].at_2;
-
-		  // this test should not be needed (because bond_pairs vector is only made
-		  // of atoms that are non-null) - but is here to keep the static analyzer quiet.
-		  // 
-		  if (at_1 && at_2 && at_3) { 
-
-		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-		     clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
-		     // doesn't exist (mmdb problem)?
-		     // double angle = BondAngle(at_1, at_2, at_3);
-		     double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
-		     // std::cout << "angle: " << angle << std::endl;
-		     if (angle > 0.001) {
-			std::string at_name_1(at_1->name);
-			std::string at_name_2(at_2->name);
-			std::string at_name_3(at_3->name);
-			double angle_esd = 3;
-			dict_angle_restraint_t ar(at_name_1, at_name_2, at_name_3, angle, angle_esd);
-			angle_restraint.push_back(ar);
-			if (0)
-			   std::cout << "found an angle restraint "
-				     << at_name_1 << " " << at_name_2 << " " << at_name_3 << std::endl;
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-}
-
-// mol contains one residue in a hierarchy, the residue from which the
-// dictionary should be constructed.
-// 
-coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(mmdb::Manager *mol) {
-
-   mmdb::Residue *residue_p = NULL;
-   filled_with_bond_order_data_only_flag = true; // it has nothing initially
-   
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   mmdb::Chain *chain_p;
-   int n_chains = model_p->GetNumberOfChains();
-   for (int ichain=0; ichain<n_chains; ichain++) {
-      chain_p = model_p->GetChain(ichain);
-      int nres = chain_p->GetNumberOfResidues();
-      for (int ires=0; ires<nres; ires++) {
-	 residue_p = chain_p->GetResidue(ires);
-	 if (residue_p)
-	    break;
-      }
-      if (residue_p)
-	 break;
-   }
-   
-
-   if (residue_p) {
-      mol->RemoveBonds();
-      init(residue_p);
-   }
-} 
-
-
-
-void
-coot::dictionary_residue_restraints_t::clear_dictionary_residue() {
-
-   residue_info = coot::dict_chem_comp_t("", "", "", "", 0, 0, "");
-   has_partial_charges_flag = 0;
-
-   // need different constructors.
-//    atom_info.resize(0);
-//    bond_restraint.resize(0);
-//    angle_restraint.resize(0);
-//    torsion_restraint.resize(0);
-//    chiral_restraint.resize(0);
-//    plane_restraint.resize(0);
-}
-
-
 // Because they were all at origin, for example.
 // 
 void
@@ -533,602 +184,6 @@ coot::protein_geometry::delete_atom_positions(const std::string &comp_id,
       }
    }
 }
-
-// the input from_tos should be 4 character atom names. PDBv3 FIXME
-void
-coot::dictionary_residue_restraints_t::atom_id_swap(const std::vector< std::pair<std::string, std::string> > &from_tos) {
-
-   std::vector<std::pair<int, std::string> > alter_idx;
-   // find the set of difference to apply (by filling alter_idx), then apply them
-
-   // -------------- Atoms ---------------------------------
-   // 
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (atom_info[iat].atom_id_4c == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
-	 }
-      }
-   }
-
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++) {
-      std::string was = atom_info[alter_idx[idx].first].atom_id_4c;
-      atom_info[alter_idx[idx].first].atom_id_4c = alter_idx[idx].second;
-      atom_info[alter_idx[idx].first].atom_id    = util::remove_whitespace(alter_idx[idx].second);
-   } 
-   alter_idx.clear();
-
-   // -------------- Atom Tree ------------------------------
-   // 
-   for (unsigned int iat=0; iat<tree.size(); iat++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (tree[iat].atom_id == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      tree[alter_idx[idx].first].atom_id = alter_idx[idx].second;
-   alter_idx.clear();
-   
-   
-   // -------------- Bonds 1st atom --------------------------
-   //
-   for (unsigned int ib=0; ib<bond_restraint.size(); ib++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (bond_restraint[ib].atom_id_1_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ib, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      bond_restraint[alter_idx[idx].first].set_atom_1_atom_id(util::remove_whitespace(alter_idx[idx].second));
-   alter_idx.clear();
-   
-   // -------------- Bonds 2nd atom --------------------------
-   //
-   for (unsigned int ib=0; ib<bond_restraint.size(); ib++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (bond_restraint[ib].atom_id_2_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ib, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      bond_restraint[alter_idx[idx].first].set_atom_2_atom_id(util::remove_whitespace(alter_idx[idx].second));
-   alter_idx.clear();
-
-   
-   // -------------- Angles 1st atom ------------------------
-   //
-   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (angle_restraint[ia].atom_id_1_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      angle_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Angles 2nd atom ------------------------
-   //
-   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (angle_restraint[ia].atom_id_2_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      angle_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Angles 3rd atom ------------------------
-   //
-   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (angle_restraint[ia].atom_id_3_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      angle_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Torsion 1st atom ------------------------
-   //
-   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (torsion_restraint[it].atom_id_1_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      torsion_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-   
-
-   // -------------- Torsion 2nd atom ------------------------
-   //
-   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (torsion_restraint[it].atom_id_2_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      torsion_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Torsion 3rd atom ------------------------
-   //
-   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (torsion_restraint[it].atom_id_3_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      torsion_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Torsion 4th atom ------------------------
-   //
-   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (torsion_restraint[it].atom_id_4_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      torsion_restraint[alter_idx[idx].first].set_atom_4_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Chiral Centre atom ------------------------
-   //
-   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (chiral_restraint[ic].atom_id_c_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      chiral_restraint[alter_idx[idx].first].set_atom_c_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-
-   // -------------- Chiral 1st atom ------------------------
-   //
-   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (chiral_restraint[ic].atom_id_1_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      chiral_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-   
-   // -------------- Chiral 2nd atom ------------------------
-   //
-   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (chiral_restraint[ic].atom_id_2_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      chiral_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-   
-   // -------------- Chiral 3rd atom ------------------------
-   //
-   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
-      for (unsigned int j=0; j<from_tos.size(); j++) { 
-	 if (chiral_restraint[ic].atom_id_3_4c() == from_tos[j].first) {
-	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
-	 }
-      }
-   }
-   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
-      chiral_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
-   alter_idx.clear();
-   
-   // -------------- Planes ------------------------
-   // 
-   for (unsigned int ip=0; ip<plane_restraint.size(); ip++) { 
-      dict_plane_restraint_t &pr = plane_restraint[ip];
-      alter_idx.clear();
-      for (int iat=0; iat<pr.n_atoms(); iat++) { 
-	 for (unsigned int j=0; j<from_tos.size(); j++) {
-	    if (pr.atom_id(iat) == from_tos[j].first)
-	       alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
-	 }
-      }
-      if (alter_idx.size())
-	 pr.set_atom_ids(alter_idx);
-   }
-}
-
-
-// If include_hydrogen_torsions_flag is set, we check the neighbours
-// of the atom-2 and atom-3 to see if this is really a pure hydrogen
-// torsion.
-// 
-std::vector<coot::dict_torsion_restraint_t>
-coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydrogen_torsions_flag) const {
-
-   std::vector<coot::dict_torsion_restraint_t> v;
-   for (unsigned int i=0; i<torsion_restraint.size(); i++) {
-      if (! torsion_restraint[i].is_const()) {
-	 if (include_hydrogen_torsions_flag) { 
-	    v.push_back(torsion_restraint[i]);
-	 } else {
-	    // only add this torsion if neither of end atoms of the torsion are hydrogen.
-	    if (!is_hydrogen(torsion_restraint[i].atom_id_1())) { 
-	       if (!is_hydrogen(torsion_restraint[i].atom_id_4())) { 
-		  v.push_back(torsion_restraint[i]);
-	       } else {
-
-		  // OK, so atom-4 was a hydrogen in the dictionary,
-		  // but is there an atom attached to atom_id_3 that
-		  // is not a hydrogen and not atom_id_3?  (Is so,
-		  // then this is not a pure hydrogen torsion, and we
-		  // can add it to the list).
-		  //
-
-		  std::vector<std::string> v_n = neighbours(torsion_restraint[i].atom_id_3(), false);
-		  for (unsigned int i_neighb=0; i_neighb<v_n.size(); i_neighb++) { 
-		     if (v_n[i_neighb] != torsion_restraint[i].atom_id_4()) { 
-			if (v_n[i_neighb] != torsion_restraint[i].atom_id_2()) { 
-			   if (v_n[i_neighb] != torsion_restraint[i].atom_id_1()) {
-			      if (! is_hydrogen(v_n[i_neighb])) {
-				 v.push_back(torsion_restraint[i]);
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    } else {
-
-	       // OK, so atom-1 was a hydrogen in the dictionary,
-	       // but is there an atom attached to atom_id_3 that
-	       // is not a hydrogen and not atom_id_3?  (Is so,
-	       // then this is not a pure hydrogen torsion, and we
-	       // can add it to the list).
-	       //
-	       std::vector<std::string> v_n = neighbours(torsion_restraint[i].atom_id_2(), false);
-	       for (unsigned int i_neighb=0; i_neighb<v_n.size(); i_neighb++) { 
-		  if (v_n[i_neighb] != torsion_restraint[i].atom_id_1()) { 
-		     if (v_n[i_neighb] != torsion_restraint[i].atom_id_3()) { 
-			if (v_n[i_neighb] != torsion_restraint[i].atom_id_4()) {
-			   if (! is_hydrogen(v_n[i_neighb])) {
-			      v.push_back(torsion_restraint[i]);
-			   }
-			}
-		     }
-		  }
-	       }
-	    } 
-	 }
-      }
-   }
-   return v;
-}
-
-bool
-coot::dict_torsion_restraint_t::is_pyranose_ring_torsion(const std::string &comp_id) const {
-
-   // Needs fixup for PDBv3
-   bool status = false;
-   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
-   if (comp_id == "XYP")
-      for (unsigned int i=0; i<6; i++)
-	 ring_atoms[i][3] = 'B'; // danger on PDBv3 fixup.
-
-   int n_matches = 0;
-   for (unsigned int i=0; i<6; i++) { 
-      if (atom_id_2_4c() == ring_atoms[i])
-	 n_matches++;
-      if (atom_id_3_4c() == ring_atoms[i])
-	 n_matches++;
-   }
-   if (n_matches == 2)
-      status = true;
-   return status;
-}
-
-bool
-coot::dict_link_torsion_restraint_t::is_pyranose_ring_torsion() const {
-
-   // Needs fixup for PDBv3
-   bool status = false;
-   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
-
-   int n_matches = 0;
-   for (unsigned int i=0; i<6; i++) { 
-      if (atom_id_2_4c() == ring_atoms[i])
-	 n_matches++;
-      if (atom_id_3_4c() == ring_atoms[i])
-	 n_matches++;
-   }
-   if (n_matches == 2)
-      status = true;
-   return status;
-} 
-
-bool
-coot::dict_torsion_restraint_t::is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const {
-
-   bool match = false; 
-   std::vector<std::string> torsion_restraint_atom_names(2);
-   torsion_restraint_atom_names[0] = atom_id_2_4c();
-   torsion_restraint_atom_names[1] = atom_id_3_4c();
-   
-   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
-      const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
-
-      int n_match = 0;
-      for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
-	 for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
-	    if (ring_atom_names[iname_1] == torsion_restraint_atom_names[iname_2])
-	       n_match++;
-	 }
-      }
-      if (n_match == 2) {
-	 match = true;
-	 break;
-      }
-   }
-   return match;
-} 
-
-
-bool
-coot::dict_torsion_restraint_t::is_const() const {
-
-   bool const_flag = 0;
-   if (id_.length() > 5) {
-      std::string bit = id_.substr(0,5);
-      if (bit == "CONST")
-	 const_flag = 1;
-      if (bit == "const")
-	 const_flag = 1;
-   }
-   return const_flag;
-}
-
-
-std::string
-coot::dictionary_residue_restraints_t::atom_name_for_tree_4c(const std::string &atom_id) const {
-
-   std::string r = atom_id;
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-      if (atom_info[iat].atom_id == atom_id) {
-	 r = atom_info[iat].atom_id_4c;
-      }
-   }
-   return r;
-}
-
-
-// look up the atom id in the atom_info (dict_atom vector).
-// Return "" on no atom found with name atom_name;
-// 
-std::string
-coot::dictionary_residue_restraints_t::element(const std::string &atom_name) const {
-
-   std::string r = "";
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-      if (atom_info[iat].atom_id_4c == atom_name) {
-	 r = atom_info[iat].type_symbol;
-	 break;
-      }
-   }
-   if (r.length() == 1)
-      r = " " + r;
-   
-   // std::cout << " dictionary_residue_restraints_t::element()"
-   // 	     << " on atom name :" << atom_name << ": returns :" << r << ":" << std::endl;
-   return r;
-}
-
-// likewise look up the energy type.  Return "" on no atom found
-// with that atom_name.
-// 
-std::string
-coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name) const {
-
-   std::string r = "";
-
-   // If you are reading this, then you are looking in a dictionary looked up from an index
-   // that is out of bounds.
-   // 
-   // std::cout << "dictionary_has " << atom_info.size() << " atoms" << std::endl;
-   
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-      if (false)
-	 std::cout << "comparing :" << atom_name << ": with :" << atom_info[iat].atom_id_4c
-		   << ":" << std::endl;
-      if (atom_info[iat].atom_id_4c == atom_name) { // PDBv3 FIXME
-	 r = atom_info[iat].type_energy;
-	 break;
-      }
-   }
-   return r;
-}
-
-std::vector<std::string>
-coot::dictionary_residue_restraints_t::neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const {
-
-   std::vector<std::string> n;
-   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
-      if (bond_restraint[i].atom_id_1() == atom_name) {
-	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(bond_restraint[i].atom_id_2())) {
-	    n.push_back(bond_restraint[i].atom_id_2());
-	 }
-      }
-      if (bond_restraint[i].atom_id_2() == atom_name) {
-	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(bond_restraint[i].atom_id_1())) {
-	    n.push_back(bond_restraint[i].atom_id_1());
-	 }
-      }
-   }
-   return n;
-}
-
-std::vector<unsigned int>
-coot::dictionary_residue_restraints_t::neighbours(unsigned int idx, bool allow_hydrogen_neighbours_flag) const {
-
-   std::vector<unsigned int> v;
-   std::string atom_name = atom_info[idx].atom_id_4c;
-   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
-      if (bond_restraint[i].atom_id_1() == atom_name) {
-	 const std::string &other_atom_name = bond_restraint[i].atom_id_2();
-	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(other_atom_name)) {
-	    // what is the index of atom_id_2?  - bleugh.  This shows
-	    // that the dictionary store should work with atom indices, not
-	    // atom names (i.e. do it like RDKit does it).
-	    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-	       if (atom_info[iat].atom_id_4c == other_atom_name) {
-		  v.push_back(iat);
-		  break;
-	       }
-	    }
-	 }
-      }
-      if (bond_restraint[i].atom_id_2() == atom_name) {
-	 const std::string &other_atom_name = bond_restraint[i].atom_id_1();
-	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(other_atom_name)) {
-	    // what is the index of atom_id_2?  - bleugh.  This shows
-	    // that the dictionary store should work with atom indices, not
-	    // atom names (i.e. do it like RDKit does it).
-	    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-	       if (atom_info[iat].atom_id_4c == other_atom_name) {
-		  v.push_back(iat);
-		  break;
-	       }
-	    }
-	 }
-      }
-   }
-   return v;
-}
-
-
-
-
-
-std::vector<std::string>
-coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &atom_name) const {
-
-   std::vector<std::string> v;
-   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
-      if (bond_restraint[i].atom_id_1() == atom_name) {
-	 // if (element(bond_restraint[i].atom_id_2()) == " H")
-	 if (is_hydrogen(bond_restraint[i].atom_id_2()))
-	    v.push_back(bond_restraint[i].atom_id_2());
-      }
-      if (bond_restraint[i].atom_id_2() == atom_name) {
-	 // if (element(bond_restraint[i].atom_id_1()) == " H")
-	 if (is_hydrogen(bond_restraint[i].atom_id_1()))
-	    v.push_back(bond_restraint[i].atom_id_1());
-      }
-   }
-   return v;
-}
-
-
-// return an empty string on failure
-std::string
-coot::dictionary_residue_restraints_t::get_other_H_name(const std::string &H_at_name) const {
-
-   std::string r;
-
-   // if it's a hydrogen atom name as input then the neighbour of that won't be
-   // a hydrogen
-   //
-   std::vector<std::string> neighbs = neighbours(H_at_name, false);
-
-   if (neighbs.size() == 1) {
-      const std::string &n = neighbs[0];
-      for (unsigned int i=0; i<bond_restraint.size(); i++) {
-	 if (bond_restraint[i].atom_id_1() == n) {
-	    if (bond_restraint[i].atom_id_2() != H_at_name) {
-	       if (false)
-		  std::cout << "here 1 with br " << bond_restraint[i] << " ele :"
-			    << element(bond_restraint[i].atom_id_2_4c()) << ":" << std::endl;
-	       if (element(bond_restraint[i].atom_id_2_4c()) == " H") {
-		  r = bond_restraint[i].atom_id_2_4c();
-		  break;
-	       }
-	    }
-	 }
-	 if (bond_restraint[i].atom_id_2() == n) {
-	    if (bond_restraint[i].atom_id_1() != H_at_name) {
-	       if (false)
-		  std::cout << "here 2 with br " << bond_restraint[i] << " ele :"
-			    << element(bond_restraint[i].atom_id_1_4c()) << ":" << std::endl;
-	       if (element(bond_restraint[i].atom_id_1_4c()) == " H") {
-		  r = bond_restraint[i].atom_id_1_4c();
-		  break;
-	       }
-	    }
-	 }
-      }
-   }
-   return r;
-}
-
-// return an empty vector on failure
-std::vector<std::string>
-coot::dictionary_residue_restraints_t::get_other_H_names(const std::string &H_at_name) const {
-
-   std::vector<std::string> v;
-
-   // if it's a hydrogen atom name as input then the neighbour of that won't be
-   // a hydrogen
-   //
-   std::vector<std::string> neighbs = neighbours(H_at_name, false);
-
-   if (neighbs.size() == 1) {
-      const std::string &n = neighbs[0];
-      for (unsigned int i=0; i<bond_restraint.size(); i++) {
-	 if (bond_restraint[i].atom_id_1() == n) {
-	    if (bond_restraint[i].atom_id_2() != H_at_name) {
-	       if (false)
-		  std::cout << "here 1 with br " << bond_restraint[i] << " ele :"
-			    << element(bond_restraint[i].atom_id_2_4c()) << ":" << std::endl;
-	       if (element(bond_restraint[i].atom_id_2_4c()) == " H") {
-		  v.push_back(bond_restraint[i].atom_id_2_4c());
-	       }
-	    }
-	 }
-	 if (bond_restraint[i].atom_id_2() == n) {
-	    if (bond_restraint[i].atom_id_1() != H_at_name) {
-	       if (false)
-		  std::cout << "here 2 with br " << bond_restraint[i] << " ele :"
-			    << element(bond_restraint[i].atom_id_1_4c()) << ":" << std::endl;
-	       if (element(bond_restraint[i].atom_id_1_4c()) == " H") {
-		  v.push_back(bond_restraint[i].atom_id_1_4c());
-	       }
-	    }
-	 }
-      }
-   }
-   return v;
-}
-
 
 
 
@@ -1254,7 +309,9 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
    s << "dict_atom: "
      << "atom_id :" << at.atom_id << ":  "
      << "atom-id-4c :" << at.atom_id_4c << ":  "
-     << "type-symbol :" << at.type_symbol << ":  ";
+     << "type-symbol :" << at.type_symbol << ":  "
+     << "pdbx_stereo_config: " << at.pdbx_stereo_config.first
+     << " \"" << at.pdbx_stereo_config.second << "\" ";
    if (at.formal_charge.first)
       s << "formal-charge " << at.formal_charge.second << " ";
    else 
@@ -1372,22 +429,6 @@ coot::dict_torsion_restraint_t::format() const {
 }
 
 
-std::ostream &
-coot::operator<<(std::ostream &s, const coot::dictionary_residue_restraints_t &rest) {
-
-   std::cout << "--- dict " << rest.residue_info.comp_id << std::endl;
-   std::cout << "    " << rest.atom_info.size() << " atoms" << std::endl;
-   for (unsigned int iat=0; iat<rest.atom_info.size(); iat++)
-      std::cout << "   " << rest.atom_info[iat] << std::endl;
-   std::cout << "    " << rest.bond_restraint.size() << " bonds" << std::endl;
-   for (unsigned int ibond=0; ibond<rest.bond_restraint.size(); ibond++)
-      std::cout << "   " << rest.bond_restraint[ibond] << std::endl;
-
-   return s;
-}
-
-
-
 
 
 std::string
@@ -1451,471 +492,6 @@ coot::protein_geometry::info() const {
    }
    
 } 
-
-
-std::pair<bool, bool>
-coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
-					     const std::string &group_1,
-					     const std::string &comp_id_2,
-					     const std::string &group_2) const {
-
-   bool debug = false;
-
-   bool match = false; // initially
-   bool order_switch = false;
-
-   std::string local_group_1 = group_1; 
-   std::string local_group_2 = group_2;
-
-   // chem_links specify "peptide" or "pyranose", but comp_groups are "L-peptide"/"D-pyranose".
-   // So allow them to match.
-   // 201201013 (Friday) allow M-peptides to match too.
-   if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
-   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
-   if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
-   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
-   if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
-   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
-   
-   if (debug) {
-      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
-		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
-		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
-		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
-		<< chem_link_comp_id_2 << ":" << std::endl;
-      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
-		<< local_group_1 << " and " << local_group_2 << " vs ref link-group-1 :"
-		<< chem_link_group_comp_1 << ": ref link-group-2 :"
-		<< chem_link_group_comp_2 << ":" << std::endl;
-   }
-
-   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
-       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
-      if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
-	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2))) {
-	 match = true;
-      }
-
-   if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
-	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
-      match = true;
-
-   if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "DNA") && 
-	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
-      match = true;
-
-   if (match) {
-      
-      // OK, nothing more to do
-      
-   } else { 
-      
-      // And what about if the residues come here backward? We should
-      // report a match and that they should be reversed to the calling
-      // function?  
-
-      // reverse index 
-      if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
-	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1))) { 
-	 if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
-	     ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) {
-	    // std::cout << "debug:: matched with order switch " << std::endl;
-	    match = true;
-	    order_switch = true;
-	 }
-      }
-   }
-   
-   if (debug)
-      if (match)
-	 std::cout << "!!! matches_comp_ids_and_groups() passed comp_id_1: \""
-		   << comp_id_1 << "\" and group_1: \"" << group_1
-		   << "\" and comp_id_2: \"" 
-		   << comp_id_2 << "\" and group_2: \"" << group_2
-		   << "\" and this: " << *this
-		   << "\" returns " << match << std::endl;
-   
-   return std::pair<bool, bool>(match, order_switch);
-}
-
-std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
-
-   s << "[chem_link: id: " << lnk.id
-     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: \"" << lnk.chem_link_group_comp_1
-     << "\" mod_1: \"" << lnk.chem_link_mod_id_1 << "\"] to "
-     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: \"" << lnk.chem_link_group_comp_2
-     << "\" mod_2: \"" << lnk.chem_link_mod_id_2 << "\"] " << lnk.chem_link_name << "]";
-   return s; 
-}
-
-std::ostream& coot::operator<<(std::ostream &s, coot::list_chem_mod mod) {
-
-   s << "[list_chem_mod: id: " << mod.id << " " 
-     << "name: " << mod.name 
-     << " comp_id :" << mod.comp_id 
-     << ": group_id: " << mod.group_id
-     << "]";
-   return s;
-} 
-
-
-// return "" on failure.
-// no order switch is considered.
-// 
-std::string
-coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const {
-
-   // Fixup needed for PDBv3
-
-   bool debug = false;
-   double critical_dist = 2.4; // A, less than that and Coot should
-			       // try to make the bond.
-                               // 20170505: changed to 2.4, was 3.0.
-                               // Needed to stop the beta1-6 linked MAN
-                               // on a BMA linkinking to the NAG to which
-                               // the BMA is bonded (A605-602 in 3whe).
-                              
-   mmdb::PPAtom res_selection_1 = NULL;
-   mmdb::PPAtom res_selection_2 = NULL;
-   int i_no_res_atoms_1;
-   int i_no_res_atoms_2;
-   double d;
-   std::vector<coot::glycosidic_distance> close;
-   
-   first->GetAtomTable( res_selection_1, i_no_res_atoms_1);
-   second->GetAtomTable(res_selection_2, i_no_res_atoms_2);
-
-   for (int i1=0; i1<i_no_res_atoms_1; i1++) { 
-      clipper::Coord_orth a1(res_selection_1[i1]->x,
-			     res_selection_1[i1]->y,
-			     res_selection_1[i1]->z);
-      for (int i2=0; i2<i_no_res_atoms_2; i2++) {
-	 clipper::Coord_orth a2(res_selection_2[i2]->x,
-				res_selection_2[i2]->y,
-				res_selection_2[i2]->z);
-	 d = (a1-a2).lengthsq();
-	 if (d < critical_dist*critical_dist) {
-	    close.push_back(coot::glycosidic_distance(res_selection_1[i1],
-						      res_selection_2[i2],
-						      sqrt(d)));
-	 }
-      }
-   }
-
-   std::sort(close.begin(), close.end());
-
-   // if you consider to uncomment this to debug a repulsion instead
-   // the forming of a glycosidic bond, consider the residue numbering
-   // of the residues involved: the "residue 1" should have the O4 and
-   // the "residue 2" (+1 residue number) should have the C1.
-   // 
-   if (debug) {
-      std::cout << "DEBUG:: find_glycosidic_linkage_type() "
-		<< "number of sorted distances: "
-		<< close.size() << std::endl;
-      for (unsigned int i=0; i<close.size(); i++) {
-	 std::cout << "#### glyco close: " << close[i].distance << "  "
-		   << close[i].at1->GetChainID() << " " 
-		   << close[i].at1->GetSeqNum() << " " 
-		   << close[i].at1->GetAtomName() << " " 
-		   << " to "
-		   << close[i].at2->GetChainID() << " " 
-		   << close[i].at2->GetSeqNum() << " " 
-		   << close[i].at2->GetAtomName() << " " 
-		   << std::endl;
-      }
-   }
-
-   std::string link_type("");
-
-   // glyco_chiral constructor can throw an exception
-   try { 
-   
-      float smallest_link_dist = 99999.9;
-      for (unsigned int i=0; i<close.size(); i++) {
-	 std::string name_1(close[i].at1->name);
-	 std::string name_2(close[i].at2->name);
-
-
-	 // First test the NAG-ASN link (that order - as per dictionary)
-	 //
-	 if (name_1 == " C1 ")
-	    if (name_2 == " ND2")
-	       if (close[i].distance < smallest_link_dist) {
-		  smallest_link_dist = close[i].distance;
-		  link_type = "NAG-ASN";
-	       }
-      
-	 if (name_1 == " O4 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-4");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "BETA1-4";
-		  }
-	       }
-      
-	 if (name_1 == " O2 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-2");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "BETA1-2";
-		  }
-	       }
-
-	 if (name_1 == " O3 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-3");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "BETA1-3";
-		  }
-	       }
-      
-
-	 // The BETA2-3 link should never happen :-)
-	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
-	 // (SIA BETA2-3 would be axial if it existed)
-	 //
-	 if (name_1 == " C2 " )
-	    if (name_2 == " O3 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") {
-		  if (close[i].distance < smallest_link_dist) {
-		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
-		     std::cout << "   glyco_chiral ALPHA2-3 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
-			smallest_link_dist = close[i].distance;
-			link_type = "ALPHA2-3";
-		     }
-		  }
-	       }
-
-	 // 20180111 Add ALPHA2-6 links for SIA
-	 if (name_1 == " C2 " )
-	    if (name_2 == " O6 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") {
-		  if (close[i].distance < smallest_link_dist) {
-		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
-		     std::cout << "   glyco_chiral ALPHA2-6 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
-			smallest_link_dist = close[i].distance;
-			link_type = "ALPHA2-6";
-		     }
-		  }
-	       }
-
-	 if (name_1 == " O6 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-6");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "BETA1-6";
-		  }
-	       }
-	       
-	 if (name_1 == " O2 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-2");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "ALPHA1-2";
-		  }
-	       }
-	       
-	 if (name_1 == " O3 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-3");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "ALPHA1-3";
-		  }
-	       }
-
-	 if (name_1 == " C2 " )
-	    if (name_2 == " O3 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
-		  if (close[i].distance < smallest_link_dist) {
-		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
-		     std::cout << "   glyco_chiral ALPHA2-3 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-			smallest_link_dist = close[i].distance;
-			link_type = "ALPHA2-3";
-		     }
-		  }
-	       }
-      
-	 if (name_1 == " O4 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-4");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "ALPHA1-4";
-		  }
-	       }
-      
-	 if (name_1 == " O6 " )
-	    if (name_2 == " C1 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-6");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "ALPHA1-6";
-		  }
-	       }
-      }
-   }
-   catch (const std::runtime_error &rte) {
-      std::cout << "WARNING::" << rte.what() << std::endl;
-   }
-
-   if (false) 
-      std::cout << "   debug:: find_glycosidic_linkage_type() for "
-		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
-		<< first->GetResName() << ","
-		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
-		<< second->GetResName() 
-		<< " returns \"" << link_type << "\""
-		<< std::endl;
-   
-   return link_type;
-}
-
-std::string
-coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
-						     mmdb::Residue *second,
-						     mmdb::Manager *mol) const {
-   
-   // First check that the residues are LINK - or are sequential.
-   // If so, then we can find the link as above.
-   
-   std::string link_type;
-   bool are_linked = false;
-   bool are_sequential = false;
-
-   // Test for sequential/tandem
-   //
-   std::string chain_id_1 =  first->GetChainID();
-   std::string chain_id_2 = second->GetChainID();
-   int resno_1 =  first->GetSeqNum();
-   int resno_2 = second->GetSeqNum();
-   if (chain_id_1 == chain_id_2) {
-      if (resno_1 == (resno_2+1)) are_sequential = true;
-      if (resno_2 == (resno_1+1)) are_sequential = true;
-   } 
-
-   if (! are_sequential) {
-      // Test for link in molecule
-      std::string ins_code_1 =  first->GetInsCode();
-      std::string ins_code_2 = second->GetInsCode();
-      int imod = 1;
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) { 
-	 mmdb::LinkContainer *links = model_p->GetLinks();
-	 int n_links = model_p->GetNumberOfLinks();
-	 for (int ilink=1; ilink<=n_links; ilink++) { 
-	    mmdb::Link *link = model_p->GetLink(ilink);
-	    if (link) {
-	       are_linked = are_linked_in_order(first, second, link);
-	       if (! are_linked)
-		  are_linked = are_linked_in_order(first, second, link);
-	       if (are_linked)
-		  break;
-	    }
-	 }
-      }
-   } 
-
-
-   if (are_linked || are_sequential)
-      link_type = find_glycosidic_linkage_type(first, second);
-
-   return link_type;
-}
-
-
-bool
-coot::protein_geometry::are_linked_in_order(mmdb::Residue *first,
-					    mmdb::Residue *second,
-					    mmdb::Link *link) const {
-
-   bool linked = false;
-   // c.f link_atoms() - but we can't use that because that's a
-   // coot-utils function and geometry is more primitive.
-   std::string link_chain_id_1(link->chainID1);
-   std::string link_chain_id_2(link->chainID2);
-   std::string chain_id_1 =  first->GetChainID();
-   std::string chain_id_2 = second->GetChainID();
-   int resno_1 =  first->GetSeqNum();
-   int resno_2 = second->GetSeqNum();
-   if (link_chain_id_1 == chain_id_1) { 
-      if (link_chain_id_2 == chain_id_2) {
-	 int link_reso_1 = link->seqNum1;
-	 int link_reso_2 = link->seqNum2;
-	 if (link_reso_1 == resno_1) { 
-	    if (link_reso_2 == resno_2) {
-	       std::string link_ins_code_1 = link->insCode1;
-	       std::string link_ins_code_2 = link->insCode2;
-	       std::string ins_code_1 =  first->GetInsCode();
-	       std::string ins_code_2 = second->GetInsCode();
-	       if (link_ins_code_1 == ins_code_1) { 
-		  if (link_ins_code_2 == ins_code_2) {
-		     linked = true;
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-
-   return linked;
-} 
-					    
-
-std::pair<std::string, bool>
-coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const {
-
-   std::pair<std::string, bool> r("", false);
-
-   std::string l = find_glycosidic_linkage_type(first, second);
-
-   if (l == "") { 
-      l = find_glycosidic_linkage_type(second,first);
-      if (l != "") {
-	 r.first = l;
-	 r.second = true;
-      } 
-   } else {
-      r.first = l;
-      r.second = false;
-   } 
-   return r;
-} 
-
-
-
       
 void
 coot::protein_geometry::set_verbose(bool verbose_flag) {
@@ -1950,14 +526,14 @@ coot::protein_geometry::comp_id_to_file_name(const std::string &comp_id) const {
       }
    }
    return file_name;
-} 
+}
 
 
 // Return 0 on failure to do a dynamic add (actually, the number of
 // atoms read).
 //
 // try_dynamic_add() will add with an imol of IMOL_ENC_ANY
-// 
+//
 int
 coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_number) {
 
@@ -1966,7 +542,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 		     // init_refmac_mon_lib().
 
    // If this is INH, DRG etc, don't try to auto-add
-   // 
+   //
    if (is_non_auto_load_ligand(resname)) {
       std::cout << "INFO:: comp-id: " << resname
 		<< " is marked for non-autoloading - stopping now "
@@ -1993,8 +569,9 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       s  = getenv("CLIB");
 
       if (! s) {
-	 std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
-		   << std::endl;
+         if (false)
+	    std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
+		      << std::endl;
 	 std::string tmp_string = package_data_dir();
 	 tmp_string = util::append_dir_dir(tmp_string, "lib");
 	 s = new char[tmp_string.length() + 1];
@@ -2135,7 +712,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
 
 bool
-coot::protein_geometry::is_non_auto_load_ligand(const std::string resname) const {
+coot::protein_geometry::is_non_auto_load_ligand(const std::string &resname) const {
 
    bool r = false;
    std::vector<std::string>::const_iterator it;
@@ -2399,7 +976,7 @@ coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_res
 
 
 std::vector <coot::dict_chiral_restraint_t>
-coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_type,
+coot::protein_geometry::get_monomer_chiral_volumes(const std::string &monomer_type,
 						   int imol_enc) const { 
 
    bool ifound = 0;
@@ -2445,6 +1022,32 @@ coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_typ
    }
    return rv;
 }
+
+std::pair<bool, coot::dict_atom>
+coot::protein_geometry::get_monomer_atom_info(const std::string &monomer_name,
+					      const std::string &atom_name,
+					      int imol_enc) const {
+
+   bool status = false;
+   dict_atom da;
+
+   std::pair<bool, dictionary_residue_restraints_t> dr = get_monomer_restraints(monomer_name, imol_enc);
+   if (dr.first) {
+      const std::vector<dict_atom> &atom_info = dr.second.atom_info;
+      for (std::size_t i=0; i<atom_info.size(); i++) {
+	 dict_atom a = atom_info[i];
+	 // std::cout << "comparing atom names \"" << atom_name << "\" and \""
+	 // << a.atom_id_4c << "\"" << std::endl;
+	 if (atom_name == a.atom_id_4c) {
+	    da = a;
+	    status = true;
+	 }
+      }
+   }
+
+   return std::pair<bool, dict_atom> (status, da);
+}
+
 
 
 
@@ -2657,6 +1260,9 @@ coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const 
 // 
 // Return in pair.first the state of the match and in .second, the
 // list of atoms that do not match the dictionary.
+//
+//  function name: do_the_atom_names_match_the_dictionary?() - it is a question
+//  not an imperative.
 // 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
@@ -2684,7 +1290,7 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 		   << ":" << std::endl;
       } 
    }
-   
+
    for (int i=0; i<n_residue_atoms; i++) {
 
       if (! residue_atoms[i]->isTer()) { 
@@ -2706,9 +1312,11 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 	    }
 	 }
 	 if (! found) {
-	    if (residue_atom_name != " OXT") { 
-	       atom_name_vec.push_back(residue_atom_name);
-	       status = 0;
+	    if (residue_atom_name != " OXT") {
+               if (std::find(atom_name_vec.begin(), atom_name_vec.end(), residue_atom_name) == atom_name_vec.end()) {
+                  atom_name_vec.push_back(residue_atom_name);
+               }
+               status = false;
 	    }
 	 }
       }
@@ -2731,8 +1339,7 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 					       bool apply_bond_distance_check) const {
 
    std::string res_name(residue_p->GetResName());
-   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
-      get_monomer_restraints(res_name, imol);
+   std::pair<bool, dictionary_residue_restraints_t> restraints = get_monomer_restraints(res_name, imol);
 
    if (restraints.first) {
       return atoms_match_dictionary(residue_p, check_hydrogens_too_flag,
@@ -2747,14 +1354,14 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 // return a pair, overall status, and vector of pairs of residue names and
 // atom names that dont't match.
 //
-std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
 coot::protein_geometry::atoms_match_dictionary(int imol,
 					       const std::vector<mmdb::Residue *> &residues,
 					       bool check_hydrogens_too_flag,
 					       bool apply_bond_distance_check) const {
 
    bool status = true;
-   std::vector<std::pair<std::string, std::vector<std::string> > > p;
+   std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > p;
    
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string res_name(residues[ires]->GetResName());
@@ -2766,8 +1373,8 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 				   check_hydrogens_too_flag,
 				   apply_bond_distance_check,
 				   restraints.second);
-	 if (r.first == 0) {
-	    std::pair<std::string, std::vector<std::string> > p_bad(res_name, r.second);
+	 if (r.first == false) {
+	    std::pair<mmdb::Residue *, std::vector<std::string> > p_bad(residues[ires], r.second);
 	    p.push_back(p_bad);
 	    status = 0;
 	 }
@@ -2775,7 +1382,7 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 	 std::cout << "ERROR:: atoms_match_dictionary() --- no restraints" << std::endl;
       }
    }
-   return std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > > (status, p);
+   return std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > > (status, p);
 }
 
 bool
@@ -2970,10 +1577,11 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
+   bool debug = false;
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
-      if (false)
+      if (debug)
 	 std::cout << "in get_monomer_restraints_index() comparing \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
 		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
@@ -3002,7 +1610,6 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
       }
    }
    
-
    if (r == -1) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
@@ -3011,7 +1618,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	       int ndict = dict_res_restraints.size();
 	       for (int j=0; j<ndict; j++) {
 		  if (dict_res_restraints[j].second.residue_info.comp_id == residue_name_synonyms[i].comp_id) {
-		     r = i;
+		     r = j;
 		     break;
 		  }
 	       }
@@ -3082,6 +1689,50 @@ coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
    return r;
 }
 
+// calculated once and then stored
+bool
+coot::protein_geometry::atom_is_metal(mmdb::Atom *atom) const {
+
+   // PDBv3 FIXME
+
+   bool status = false;
+   std::string atom_name(atom->GetAtomName());
+   if (atom_name == "NA" || atom_name == "CA" || atom_name == "LI") {
+      return true;
+   } else {
+      if (atom_name == "BE" || atom_name == "K" || atom_name == "RB") {
+	 return true;
+      } else {
+	 if (atom_name == "SR" || atom_name == "CS" || atom_name == "BA") {
+	    return true;
+	 } else {
+	    if (atom_name == "SC" || atom_name == "TI" || atom_name == "V" || atom_name == "CR") {
+	       return true;
+	    } else {
+	       if (atom_name == "MN" || atom_name == "FE" || atom_name == "CO" || atom_name == "NI") {
+		  return true;
+	       } else {
+		  if (atom_name == "CU" || atom_name == "ZN" || atom_name == "ZR" || atom_name == "MO") {
+		     return true;
+		  } else {
+		     if (atom_name == "AG" || atom_name == "AU" || atom_name == "PT" || atom_name == "HG") {
+			return true;
+		     } else {
+			if (atom_name == "OS" || atom_name == "PB" || atom_name == " K" || atom_name == " W") {
+			   return true;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+}
+
+
 // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
 // Used in chem mods, when we don't know the comp_id until residue modification time.
 // 
@@ -3127,322 +1778,6 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
    return i;
 }
 
-// Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
-//
-bool
-coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name) const {
-
-   bool r = false;
-   for (unsigned int i=0; i<atom_info.size(); i++) {
-      if (false)
-	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \""
-		   << atom_name << "\"" << std::endl;
-      if (atom_info[i].atom_id_4c == atom_name) {
-	 if (false)
-	    std::cout << "in is_hydrogen found atom name " << atom_name << " and atom has type_symbol \""
-		      << atom_info[i].type_symbol << "\"" << std::endl;
-	 if (atom_info[i].type_symbol == "H" ||
-	     atom_info[i].type_symbol == " H" ||
-	     atom_info[i].type_symbol == "D") {
-	    r = true;
-	    break;
-	 }
-      }
-   }
-   return r;
-}
-
-bool
-coot::dict_atom::is_hydrogen() const {
-
-   bool r = false;
-   if (type_symbol == "H" ||
-       type_symbol == " H" ||
-       type_symbol == "D")
-      r = true;
-   return r;
-}
-
-bool
-coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
-
-   bool r = false;
-   if (idx < atom_info.size()) {
-      const std::string &ele = atom_info[idx].type_symbol;
-      if (ele == " H" || ele == "H" || ele == "D")
-	 r = true;
-   } 
-   return r;
-}
-
-unsigned int
-coot::dictionary_residue_restraints_t::number_of_non_hydrogen_atoms() const {
-
-   unsigned int r = 0;
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-      if (! is_hydrogen(iat))
-	 r++;
-   }
-   return r;
-}
-
-std::string
-coot::dictionary_residue_restraints_t::get_bonded_atom(const std::string &H_atom_name) const {
-
-  std::string r;
-
-  for (unsigned int i=0; i<bond_restraint.size(); i++) {
-    if (bond_restraint[i].atom_id_1_4c() == H_atom_name) {
-      r = bond_restraint[i].atom_id_2_4c();
-      break;
-    }
-    if (bond_restraint[i].atom_id_2_4c() == H_atom_name) {
-      r = bond_restraint[i].atom_id_1_4c();
-      break;
-    }
-  }
-  return r;
-}
-
-
-
-// c.f. dict_torsion_restraint_t::is_ring_torsion()
-bool
-coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_quad &quad) const {
-
-   bool match = false; 
-   std::vector<std::string> torsion_atom_names(2);
-   torsion_atom_names[0] = quad.atom_name(1);
-   torsion_atom_names[1] = quad.atom_name(2);
-   std::vector<std::vector<std::string> > ring_atoms_sets = get_ligand_ring_list();
-
-   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
-      const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
-      int n_match = 0;
-      for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
-	 for (unsigned int iname_2=0; iname_2<torsion_atom_names.size(); iname_2++) { 
-	    if (ring_atom_names[iname_1] == torsion_atom_names[iname_2])
-	       n_match++;
-	 }
-      }
-      if (n_match == 2) {
-	 match = true;
-	 break;
-      }
-   }
-
-   return match;
-} 
-
-bool
-coot::dictionary_residue_restraints_t::has_unassigned_chiral_volumes() const {
-   bool r = 0;
-   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) {
-      if (chiral_restraint[ic].has_unassigned_chiral_volume()) {
-	 r = 1;
-	 break;
-      }
-   }
-   return r;
-}
-
-bool
-coot::dictionary_residue_link_restraints_t::has_unassigned_chiral_volumes() const {
-   bool r = 0;
-   for (unsigned int ic=0; ic<link_chiral_restraint.size(); ic++) {
-      if (link_chiral_restraint[ic].has_unassigned_chiral_volume()) {
-	 r = 1;
-	 break;
-      }
-   }
-   return r;
-}
-
-
-int
-coot::dictionary_residue_restraints_t::assign_chiral_volume_targets() {
-
-   int ich = 0;
-
-   if (0) 
-      std::cout << "DEBUG:: in dictionary_residue_restraints_t::assign_chiral_volume_targets "
-		<< "there are " << chiral_restraint.size() << " chiral restraints for "
-		<< residue_info.comp_id << " \n";
-    
-   for (unsigned int i=0; i<chiral_restraint.size(); i++) {
-      chiral_restraint[i].assign_chiral_volume_target(bond_restraint, angle_restraint);
-      ich++;
-   }
-   return ich;
-}
-
-int
-coot::dictionary_residue_link_restraints_t::assign_link_chiral_volume_targets() {
-
-   int ic = 0;
-   for (unsigned int i=0; i<link_chiral_restraint.size(); i++) {
-      std::vector <coot::dict_bond_restraint_t> bond_restraints_1;
-      std::vector <coot::dict_bond_restraint_t> bond_restraints_2;
-      std::vector <coot::dict_angle_restraint_t> angle_restraints_1;
-      std::vector <coot::dict_angle_restraint_t> angle_restraints_2;
-      std::vector <coot::dict_link_bond_restraint_t> link_bonds;
-      std::vector <coot::dict_link_angle_restraint_t> link_angles;
-      
-      link_chiral_restraint[i].assign_chiral_volume_target(bond_restraints_1,
-							   angle_restraints_1,
-							   bond_restraints_2,
-							   angle_restraints_2,
-							   link_bonds,
-							   link_angles);
-      ic++;
-   }
-   return ic;
-}
-
-double
-coot::dict_chiral_restraint_t::assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds,
-							   const std::vector <dict_angle_restraint_t> &angles) {
-
-   double vol = -1;
-   double a = -1, b = -1, c = -1;
-   double alpha = -1, beta = -1, gamma = -1;
-   std::string mmdb_centre_atom =  atom_id_mmdb_expand(local_atom_id_centre);
-   std::string mmdb_local_atom_id_1 = atom_id_mmdb_expand(local_atom_id_1);
-   std::string mmdb_local_atom_id_2 = atom_id_mmdb_expand(local_atom_id_2);
-   std::string mmdb_local_atom_id_3 = atom_id_mmdb_expand(local_atom_id_3);
-   
-   // local_atom_id_centre to local_atom_id_1 bond length
-   for (unsigned int i=0; i<bonds.size(); i++) {
-      try { 
-	 if (bonds[i].atom_id_1_4c() == mmdb_centre_atom) {
-	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
-	       a = bonds[i].value_dist();
-	    }
-	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
-	       b = bonds[i].value_dist();
-	    }
-	    if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
-	       c = bonds[i].value_dist();
-	    }
-	 }
-	 if (bonds[i].atom_id_2_4c() == atom_id_mmdb_expand(local_atom_id_centre)) {
-	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_1)) { 
-	       a = bonds[i].value_dist();
-	    }
-	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_2)) { 
-	       b = bonds[i].value_dist();
-	    }
-	    if (bonds[i].atom_id_1_4c() == atom_id_mmdb_expand(local_atom_id_3)) { 
-	       c = bonds[i].value_dist();
-	    }
-	 }
-      }
-      catch (const std::runtime_error &rte) {
-	 // do nothing, it's not really an error if the dictionary
-	 // doesn't have target geometry (the bonding description came
-	 // from a Chemical Component Dictionary entry for example).
-      } 
-   }
-
-   for (unsigned int i=0; i<angles.size(); i++) {
-      if (angles[i].atom_id_2_4c() == mmdb_centre_atom) {
-	 if ((angles[i].atom_id_1_4c() == mmdb_local_atom_id_2 &&
-	      angles[i].atom_id_3_4c() == mmdb_local_atom_id_3) ||
-	     (angles[i].atom_id_3_4c() == mmdb_local_atom_id_2 &&
-	      angles[i].atom_id_1_4c() == mmdb_local_atom_id_3))  {
-	    alpha = clipper::Util::d2rad(angles[i].angle());
-	 }
-	 if ((angles[i].atom_id_1_4c() == mmdb_local_atom_id_1 &&
-	      angles[i].atom_id_3_4c() == mmdb_local_atom_id_3) ||
-	     (angles[i].atom_id_3_4c() == mmdb_local_atom_id_1 &&
-	      angles[i].atom_id_1_4c() == mmdb_local_atom_id_3))  {
-	    beta = clipper::Util::d2rad(angles[i].angle());
-	 }
-	 if ((angles[i].atom_id_1_4c() == mmdb_local_atom_id_1 &&
-	      angles[i].atom_id_3_4c() == mmdb_local_atom_id_2) ||
-	     (angles[i].atom_id_3_4c() == mmdb_local_atom_id_1 &&
-	      angles[i].atom_id_1_4c() == mmdb_local_atom_id_2))  {
-	    gamma = clipper::Util::d2rad(angles[i].angle());
-	 }
-      }
-   }
-
-   
-   if (a > 0 && b > 0 && c > 0) {
-//       std::cout << "DEBUG:: found all distances in chiral restraint" << std::endl;
-      if (alpha > 0 && beta > 0 && gamma > 0) {
-// 	 std::cout << "DEBUG:: found all angles in chiral restraint" << std::endl;
-	 vol = assign_chiral_volume_target_internal(a, b, c, alpha, beta, gamma);
-      } else {
-// 	 std::cout << "DEBUG:: failed to find all angles in chiral restraint"
-// 		   << alpha << " " << beta << " " << gamma << std::endl;
-      }
-   } else {
-//       std::cout << "DEBUG:: failed to find all distances in chiral restraint"
-// 		<< a << " " << b << " " << c << std::endl;
-   }
-   return vol;
-}
-
-double
-coot::dict_link_chiral_restraint_t::assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds_1,
-								const std::vector <dict_angle_restraint_t> &angles_1,
-								const std::vector <dict_bond_restraint_t> &bonds_2,
-								const std::vector <dict_angle_restraint_t> &angles_2,
-								const std::vector <dict_link_bond_restraint_t> &link_bonds,
-								const std::vector <dict_link_angle_restraint_t> &link_angles) {
-
-   double d = 0;
-
-   return d;
-} 
-
-
-// angles in radians.
-double
-coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, double b, double c,
-								    double alpha, double beta, double gamma) {
-
-   // set target_volume
-   // from: abc ( 1 - cos^2(alpha) - cos^2(beta) - cos^2(gamma) + 2(cos(alpha) + cos(beta) + cos(gamma)))^0.5
-
-   double cos_alpha = cos(alpha);
-   double cos_beta  = cos(beta);
-   double cos_gamma = cos(gamma);
-   
-   double cos_2_alpha = cos_alpha * cos_alpha;
-   double cos_2_beta  = cos_beta  * cos_beta;
-   double cos_2_gamma = cos_gamma * cos_gamma;
-
-
-   double param = 1-cos_2_alpha-cos_2_beta-cos_2_gamma + 2*cos_alpha*cos_beta*cos_gamma;
-   if (false) {
-      std::cout << "assign_chiral_volume_target_internal() input a, b, c, alpha, beta, gamma " << a << " "
-		<< b << " " << c << " "
-		<< clipper::Util::rad2d(alpha) << " "
-		<< clipper::Util::rad2d(beta) << " "
-		<< clipper::Util::rad2d(gamma) << " " << std::endl;
-
-      double a_bit = 1-cos_2_alpha-cos_2_beta-cos_2_gamma;
-      double b_bit = 2 * cos_alpha * cos_beta * cos_gamma;
-      double c_bit = a_bit + b_bit;
-      std::cout << "    bits: " << a_bit << " " << b_bit << " " << c_bit << std::endl;
-      std::cout << "    param: " << param << std::endl;
-   }
-   if (param < 0) param = 0;
-   target_volume_ = volume_sign * a*b*c*sqrt(param);
-
-   volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
-
-   if (false)
-      std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "
-		<< target_volume_ << std::endl;
-
-   // give the appropriate dictionary, this can return a target_volume_ of nan
-   return target_volume_;
-}
-
-
 std::string
 coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 
@@ -3457,7 +1792,7 @@ void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
    std::string plane_id = "plane-5-atoms";
-   mmdb::realtype dist_esd = 0.11;
+   mmdb::realtype dist_esd = 0.08; // was 0.11 (why?)
 
    std::string atom_id; 
    std::vector<std::pair<int, std::string> > v;
@@ -3471,6 +1806,29 @@ coot::protein_geometry::add_planar_peptide_restraint() {
       link_add_plane("TRANS",  v[i].second, plane_id, v[i].first, dist_esd);
       link_add_plane("PTRANS", v[i].second, plane_id, v[i].first, dist_esd);
    }
+}
+
+bool
+coot::protein_geometry::make_tight_planar_peptide_restraint() {
+
+   std::string link_id("TRANS");
+   std::string plane_id("plane-5-atoms");
+   bool ifound = false;
+
+   for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
+      if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
+	 std::vector<dict_link_plane_restraint_t>::iterator it;
+	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
+	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
+	    if (it->plane_id == plane_id) {
+	       it->set_dist_esd(0.03); // guess value
+	       ifound = true;
+	       break;
+	    }
+	 }
+      }
+   }
+   return ifound;
 }
 
 
@@ -3625,148 +1983,13 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
 					       it->second.residue_info.name);
 	 v.push_back(p);
+      } else {
+         // std::cout << "No match for " << it->first << " " << it->second.residue_info.name << std::endl;
       }
    }
    return v;
 }
 
-void
-coot::dictionary_residue_restraints_t::remove_redundant_plane_restraints() {
-
-
-   bool match = true; // synthetic first value
-
-   // erase_if usage would be more elegant here.
-   //
-   // This might be better done with indices, then we can remove the
-   // higher planes (rather than the lower ones)
-   // 
-   while (match) {
-
-      match = false;
-      std::vector<dict_plane_restraint_t>::iterator it;
-      for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) { 
-	 if (is_redundant_plane_restraint(it)) {
-	    // std::cout << "   erase plane " << it->plane_id << std::endl;
-	    plane_restraint.erase(it);
-	    match = true;
-	    break;
-	 }
-      }
-   }
-} 
-
-// is the plane restraint of it_ref redundant? (i.e. has an exact copy
-// (i.e. do all the atom names match? another plane in the list?
-// 
-bool
-coot::dictionary_residue_restraints_t::is_redundant_plane_restraint(std::vector<dict_plane_restraint_t>::iterator it_ref) const {
-
-   bool match = false;
-   std::vector<dict_plane_restraint_t>::const_iterator it_this;
-   for (it_this=plane_restraint.begin(); it_this!=it_ref; it_this++) {
-      
-      if (it_this->n_atoms() >= it_ref->n_atoms()) {
-	 
-	 // do all of the atoms in this_rest have matchers in ref_rest?
-	 //
-	 int n_match = 0;
-	 for (int i=0; i<it_ref->n_atoms(); i++) {
-	    for (int j=0; j<it_this->n_atoms(); j++) {
-	       if (it_this->atom_id(j) == it_ref->atom_id(i)) {
-		  n_match++;
-		  break;
-	       }
-	    }
-	 }
-	 if (n_match == it_ref->n_atoms()) {
-	    if (0) { 
-	       std::cout << "test plane     " << it_ref->plane_id << " matches list plane id "
-			 << it_this->plane_id << " ref plane: ";
-	       for (int iat=0; iat<it_ref->n_atoms(); iat++)
-		  std::cout << " " << it_ref->atom_id(iat);
-	       std::cout << " vs list-plane ";
-	       for (int iat=0; iat<it_this->n_atoms(); iat++)
-		  std::cout << " " << it_this->atom_id(iat);
-
-	       std::cout << std::endl;
-	    } 
-	    match = true;
-	    break;
-	 }
-      }
-   }
-   return match;
-}
-
-// if an atom is in more than one plane restraint, then
-// reduce its esd.
-void coot::dictionary_residue_restraints_t::reweight_subplanes() {
-
-   std::map<std::string, int> name_map;
-   std::vector<dict_plane_restraint_t>::iterator it;
-   for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
-      for (int i=0; i<it->n_atoms(); i++) {
-	 const std::string &atom_name = it->atom_id(i);
-	 name_map[atom_name]++;
-      }
-   }
-
-//    std::map<std::string, int>::iterator it_names;
-//    for(it_names=name_map.begin(); it_names!=name_map.end(); it_names++) {
-//       if (it_names->second != 1) {
-// 	 // reweight.
-// 	 double w_multiplier = sqrt(double(it_names->second));
-// 	 const std::string &atom_name = it_names->first;
-// 	 for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
-// 	    for (unsigned int i=0; i<it->n_atoms(); i++) {
-// 	       if (it->atom_id(i) == atom_name) {
-// 		  it->set_dist_esd(i, it->dist_esd(i) * w_multiplier);
-// 	       }
-// 	    }
-// 	 }
-//       }
-//    }
-
-
-   for (unsigned int i=0; i<plane_restraint.size(); i++) {
-      dict_plane_restraint_t &rest_1 = plane_restraint[i];
-      for (unsigned int j=0; j<plane_restraint.size(); j++) {
-	 dict_plane_restraint_t &rest_2 = plane_restraint[j];
-	 if (i != j) {
-	    std::vector<int> matchers_1;
-	    for (int ii=0; ii<rest_1.n_atoms(); ii++) {
-	       for (int jj=0; jj<rest_2.n_atoms(); jj++) {
-		  if (rest_1.atom_id(ii) == rest_2.atom_id(jj)) {
-		     matchers_1.push_back(ii);
-		  }
-	       }
-	    }
-	    if (matchers_1.size() > 3) {
-	       for (unsigned int im=0; im<matchers_1.size(); im++) {
-		  rest_1.set_dist_esd(matchers_1[im], rest_1.dist_esd(matchers_1[im]) * 1.4142);
-	       }
-	    }
-	 }
-      }
-   }
-}
-
-
-
-
-bool
-coot::simple_cif_reader::has_restraints_for(const std::string &res_type) {
-
-   bool r = 0;
-   for (unsigned int i=0; i<three_letter_codes.size(); i++) {
-      if (three_letter_codes[i] == res_type) {
-	 r = 1;
-	 break;
-      }
-   }
-   return r;
-}
 
 // replace (return 1)  or add (if not replacable) (return 0).
 // 
@@ -3888,92 +2111,6 @@ coot::protein_geometry::replace_monomer_restraints_conservatively_angles(int ire
    }
 }
 
-// replace the restraints that we have with new_restraints,
-// keeping restraints that in the current set bu not in
-// new_restraints
-void
-coot::dictionary_residue_restraints_t::conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints) {
-
-   conservatively_replace_with_bonds(new_restraints);
-   conservatively_replace_with_angles(new_restraints);
-
-}
-
-void
-coot::dictionary_residue_restraints_t::conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints) {
-
-   for (unsigned int ibond=0; ibond<bond_restraint.size(); ibond++) { 
-      for (unsigned int jbond=0; jbond<new_restraints.bond_restraint.size(); jbond++) {
-	 if (bond_restraint[ibond].atom_id_1_4c() ==
-	     new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
-	    if (bond_restraint[ibond].atom_id_2_4c() ==
-		new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
-	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
-	       break;
-	    }
-	 } 
-
-	 if (bond_restraint[ibond].atom_id_1_4c() ==
-	     new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
-	    if (bond_restraint[ibond].atom_id_2_4c() ==
-		new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
-	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
-	       break;
-	    }
-	 } 
-      }
-   }
-}
-
-void
-coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints) {
-
-   for (unsigned int iangle=0; iangle<angle_restraint.size(); iangle++) { 
-      for (unsigned int jangle=0; jangle<new_restraints.angle_restraint.size(); jangle++) {
-	 
-	 if (angle_restraint[iangle].atom_id_1_4c() ==
-	     new_restraints.angle_restraint[jangle].atom_id_1_4c()) {
-	    if (angle_restraint[iangle].atom_id_2_4c() ==
-		new_restraints.angle_restraint[jangle].atom_id_2_4c()) {
-	       if (angle_restraint[iangle].atom_id_3_4c() ==
-		   new_restraints.angle_restraint[jangle].atom_id_3_4c()) {
-		  angle_restraint[iangle] = new_restraints.angle_restraint[jangle];
-	       }
-	    }
-	 }
-	 if (angle_restraint[iangle].atom_id_3_4c() ==
-	     new_restraints.angle_restraint[jangle].atom_id_1_4c()) {
-	    if (angle_restraint[iangle].atom_id_2_4c() ==
-		new_restraints.angle_restraint[jangle].atom_id_2_4c()) {
-	       if (angle_restraint[iangle].atom_id_1_4c() ==
-		   new_restraints.angle_restraint[jangle].atom_id_3_4c()) {
-		  angle_restraint[iangle] = new_restraints.angle_restraint[jangle];
-	       }
-	    }
-	 }
-      }
-   }
-}
-
-void
-coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_residue_restraints_t &mon_res_in) {
-
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
-      dict_atom &at = atom_info[iat];
-      
-      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) { 
-	 const dict_atom &at_ref = mon_res_in.atom_info[iat];
-
-	 if (at_ref.atom_id_4c == at.atom_id_4c) {
-	    at.pdbx_model_Cartn_ideal = at_ref.pdbx_model_Cartn_ideal;
-	    at.model_Cartn            = at_ref.model_Cartn;
-	 } 
-      }
-   }
-} 
-
-
-
 
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {
@@ -4035,12 +2172,69 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    return group;
 }
 
+
+std::vector<std::string>
+coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int imol_no) const {
+
+   std::vector<std::string> v;
+
+   if (mol) {
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string residue_name = residue_p->GetResName();
+		  if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name))
+                     if (std::find(v.begin(), v.end(), residue_name) == v.end())
+                        v.push_back(residue_name);
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+bool
+coot::protein_geometry::read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p) {
+
+   if (! mol) return false;
+
+   std::vector<std::string> v = residue_names_with_no_dictionary(mol, imol);
+   if (false) {
+      std::cout << "-------------- debug residue names with no dictionary " << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) {
+         std::cout << "           " << v[i] << std::endl;
+      }
+   }
+   bool success = true;
+   for (std::size_t i=0; i<v.size(); i++) {
+      const std::string &rn = v[i];
+      int success_for_residue = try_dynamic_add(rn, *read_number_p);
+      if (success_for_residue == 0)
+	 success = false;
+      *read_number_p += 1;
+   }
+
+   return success;
+}
+
+
+
 // optional arg: bool try_autoload_if_needed=true.
 // optional arg: float b_factor.
 mmdb::Residue *
 coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
 				    bool idealised_flag,
 				    bool try_autoload_if_needed, float b_factor) {
+
+   // std::cout << "in get_residue() idealised_flag is " << idealised_flag << std::endl;
 
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
@@ -4051,8 +2245,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-	 if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
-	    residue_p = dict_res_restraints[i].second.GetResidue(idealised_flag, b_factor);
+         const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
+	 if (rest.residue_info.comp_id == comp_id) {
+	    residue_p = rest.GetResidue(idealised_flag, b_factor);
 	    break;
 	 }
       }
@@ -4115,15 +2310,6 @@ coot::protein_geometry::mol_from_dictionary(int monomer_index,
 }
 
 
-void
-coot::protein_geometry::print_chem_links() const {
-
-   for (unsigned int i_chem_link=0; i_chem_link<chem_link_vec.size(); i_chem_link++) {
-      std::cout<< i_chem_link << " " << chem_link_vec[i_chem_link] << "\n";
-   } 
-
-} 
-
 // delete comp_id from dict_res_restraints (if it exists there).
 bool
 coot::protein_geometry::delete_mon_lib(const std::string &comp_id, int imol_enc) {
@@ -4141,25 +2327,6 @@ coot::protein_geometry::delete_mon_lib(const std::string &comp_id, int imol_enc)
    }
    
    return deleted;
-} 
-
-bool
-coot::protein_geometry::linkable_residue_types_p(const std::string &this_res_type,
-						 const std::string &env_res_type) {
-
-   std::pair<short int, coot::dictionary_residue_restraints_t> r1 = get_monomer_restraints(this_res_type, IMOL_ENC_ANY);
-   std::pair<short int, coot::dictionary_residue_restraints_t> r2 = get_monomer_restraints(env_res_type, IMOL_ENC_ANY);
-
-   bool r = 0;
-   if (r1.first) {
-      if (r1.second.residue_info.group != "non-polymer")
-	 r = 1;
-   }
-   if (r2.first) {
-      if (r2.second.residue_info.group != "non-polymer")
-	 r = 1;
-   }
-   return r;
 } 
 
 bool
@@ -4181,180 +2348,6 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
 		   << std::endl;
    } 
    return r;
-}
-
-mmdb::Residue *
-coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_factor) const {
-
-   mmdb::Residue *residue_p = NULL;
-   std::vector<mmdb::Atom *> atoms;
-
-   bool make_hetatoms = ! coot::util::is_standard_residue_name(residue_info.comp_id);
-   int atom_index = 0;
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-
-      clipper::Coord_orth p(0,0,0);
-      bool flag_and_have_coords = false;
-
-      if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
-	 p = atom_info[iat].pdbx_model_Cartn_ideal.second;
-	 flag_and_have_coords = true;
-      }
-
-      if (! flag_and_have_coords) {
-	 // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
-	 // (better than nothing).
-	 // 
-	 if (atom_info[iat].model_Cartn.first) {
-	    p = atom_info[iat].model_Cartn.second;
-	    flag_and_have_coords = true;
-	 }
-      }
-
-      if (flag_and_have_coords) { 
-	 mmdb::Atom *atom = new mmdb::Atom;
-	 mmdb::realtype occ = 1.0;
-	 mmdb::realtype b = b_factor;
-	 std::string ele = atom_info[iat].type_symbol; // element
-	 atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
-	 atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
-
-	 //	       Strange things happen when I use this...
-	 // 	       atom->SetAtomName(atom_index, -1,
-	 // 				 atom_info[iat].atom_id_4c.c_str(),
-	 // 				 "", "", ele.c_str());
-	       
-	 atom->SetElementName(ele.c_str());
-	 if (make_hetatoms)
-	    atom->Het = 1;
-	 atoms.push_back(atom);
-	 atom_index++; // for next round
-      }
-   }
-
-   if (atoms.size() > 0) {
-      residue_p = new mmdb::Residue;
-      residue_p->SetResID(residue_info.comp_id.c_str(), 1, "");
-      for (unsigned int iat=0; iat<atoms.size(); iat++) 
-	 residue_p->AddAtom(atoms[iat]);
-   } 
-   return residue_p; 
-} 
-
-std::vector<std::vector<std::string> >
-coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
-
-   // get a list of bonds, so that they can be used to find rings.
-   // 
-   std::vector<std::pair<std::string, std::string> > bonds;
-   for (unsigned int irest=0; irest<bond_restraint.size(); irest++) {
-      std::pair<std::string, std::string> p(bond_restraint[irest].atom_id_1_4c(),
-					    bond_restraint[irest].atom_id_2_4c());
-      bonds.push_back(p);
-   }
-
-   // used in non-necessarily-aromatic way...
-   coot::aromatic_graph_t bond_list(bonds);
-   std::vector<std::vector<std::string> > ring_list = bond_list.ring_list();
-
-   if (0) {
-      std::cout << "----------- " << ring_list.size() << " rings ---------- " << std::endl;
-      for (unsigned int i=0; i<ring_list.size(); i++) {
-	 std::cout << "ring " << i << "\n   ";
-	 for (unsigned int j=0; j<ring_list[i].size(); j++) { 
-	    std::cout << ring_list[i][j] << "  ";
-	 }
-	 std::cout << std::endl;
-      }
-   }
-   return ring_list;
-}
-
-bool
-coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const { 
-
-   bool match = false;
-   std::vector<std::vector<std::string> > ring_list = get_ligand_ring_list();
-
-   for (unsigned int i=0; i<ring_list.size(); i++) {
-      unsigned int n_match = 0;
-      for (unsigned int j=0; j<ring_list[i].size(); j++) {
-	 if (ring_list[i][j] == atom_name_1)
-	    n_match++;
-	 if (ring_list[i][j] == atom_name_2)
-	    n_match++;
-      }
-      if (n_match == 2) {
-	 match = true;
-	 break;
-      }
-   }
-   return match;
-}
-
-bool
-coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
-						    const std::vector<std::vector<std::string> > &ring_list) const {
-
-   bool match = false;
-
-   for (unsigned int i=0; i<ring_list.size(); i++) {
-      unsigned int n_match = 0;
-      for (unsigned int j=0; j<ring_list[i].size(); j++) {
-	 if (ring_list[i][j] == atom_name_1)
-	    n_match++;
-	 if (ring_list[i][j] == atom_name_2)
-	    n_match++;
-      }
-      if (n_match == 2) {
-	 match = true;
-	 break;
-      }
-   }
-   return match;
-}
-
-
-
-bool
-coot::dictionary_residue_restraints_t::ligand_has_aromatic_bonds_p() const {
-
-   for (unsigned int irest=0; irest<bond_restraint.size(); irest++)
-      if (bond_restraint[irest].type() == "aromatic")
-	 return true;
-   return false;
-}
-
-
-std::vector<std::vector<std::string> >
-coot::dictionary_residue_restraints_t::get_ligand_aromatic_ring_list() const {
-
-   // get a list of aromatic bonds, so that they can be used to find
-   // aromatic rings.
-   // 
-   std::vector<std::pair<std::string, std::string> > bonds;
-   for (unsigned int irest=0; irest<bond_restraint.size(); irest++) {
-      if (bond_restraint[irest].type() == "aromatic") {
-	 std::pair<std::string, std::string> p(bond_restraint[irest].atom_id_1_4c(),
-					       bond_restraint[irest].atom_id_2_4c());
-	 bonds.push_back(p);
-      }
-   }
-   
-   coot::aromatic_graph_t arom(bonds);
-   std::vector<std::vector<std::string> > ring_list = arom.ring_list();
-
-   if (0) {
-      std::cout << "----------- " << ring_list.size() << " rings ---------- " << std::endl;
-      for (unsigned int i=0; i<ring_list.size(); i++) {
-	 std::cout << "ring " << i << "\n   ";
-	 for (unsigned int j=0; j<ring_list[i].size(); j++) { 
-	    std::cout << ring_list[i][j] << "  ";
-	 }
-	 std::cout << std::endl;
-      }
-   }
-   return ring_list;
 }
 
 
@@ -4481,29 +2474,6 @@ coot::protein_geometry::get_bonded_and_1_3_angles(const std::string &comp_id, in
 
 
 
-// return "" on not found
-std::string
-coot::dictionary_residue_restraints_t::get_bond_type(const std::string &name_1,
-						     const std::string &name_2) const {
-
-   std::string r("unknown");
-   for (unsigned int i=0; i<bond_restraint.size(); i++) {
-      if (bond_restraint[i].atom_id_1_4c() == name_1) { 
-	 if (bond_restraint[i].atom_id_2_4c() == name_2) { 
-	    r = bond_restraint[i].type();
-	    break;
-	 }
-      }
-      if (bond_restraint[i].atom_id_1_4c() == name_2) { 
-	 if (bond_restraint[i].atom_id_2_4c() == name_1) { 
-	    r = bond_restraint[i].type();
-	    break;
-	 }
-      }
-   }
-   return r;
-}
-
 // should this return a set - or filter the results for duplicates?
 //
 std::vector<std::string>
@@ -4624,178 +2594,6 @@ coot::protein_geometry::n_non_hydrogen_atoms(const std::string &residue_type) {
 
 
 
-coot::energy_lib_atom
-coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const {
-
-   coot::energy_lib_atom at;
-   
-   std::map<std::string, energy_lib_atom>::const_iterator it =
-      energy_lib.atom_map.find(ener_type);
-
-   if (it != energy_lib.atom_map.end())
-      at = it->second;
-   
-   return at;
-   
-}
-
-// use auto-load if not present
-void
-coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
-							     int mmcif_read_number) {
-
-   bool minimal = false;
-   int idx = get_monomer_restraints_index(res_name, imol, minimal);
-   if (idx == -1) {
-      try_dynamic_add(res_name, mmcif_read_number);
-      idx = get_monomer_restraints_index(res_name, imol, minimal);
-   }
-
-   if (idx != -1) {
-      // continue
-
-      // (first is the imol)
-      std::vector <dict_torsion_restraint_t> &torsion_restraints =
-	 dict_res_restraints[idx].second.torsion_restraint;
-
-      // We don't want to clear them all, just the ring torsions
-      // orig_torsion_restraints.clear();
-      std::vector<std::string> ring_atom_names;
-      ring_atom_names.push_back(" C1 "); ring_atom_names.push_back(" C2 ");
-      ring_atom_names.push_back(" C3 "); ring_atom_names.push_back(" C4 ");
-      ring_atom_names.push_back(" C5 "); ring_atom_names.push_back(" O5 ");
-      if (res_name == "XYP")
-	 for (unsigned int i=0; i<ring_atom_names.size(); i++)
-	    ring_atom_names[i][3] = 'B';
-
-      if (false) {
-	 for (unsigned int i=0; i<torsion_restraints.size(); i++)
-	    std::cout << " torsion restraint: " << i << " " << torsion_restraints[i] << std::endl;
-	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
-		   << " for " << res_name << std::endl;
-      }
-
-      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
-					      torsion_restraints.end(),
-					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
-
-      if (false)
-	 std::cout << "............... post-delete size: " << torsion_restraints.size()
-		   << " for " << res_name << std::endl;
-
-      std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
-      for (unsigned int i=0; i<quads.size(); i++) {
-	 const atom_name_torsion_quad &quad = quads[i];
-	 dict_torsion_restraint_t tors(quad.id,
-				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
-				       quad.torsion, 4.0, 1);
-	 torsion_restraints.push_back(tors);
-      }
-   }
-}
-
-// pass the atom names and the desired torsion value - sigma is not specified
-// by the user.
-void
-coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
-							     const std::vector<coot::atom_name_torsion_quad> &tors_info_vec,
-							     int mmcif_read_number) {
-
-   bool minimal = false;
-   int idx = get_monomer_restraints_index(res_name, imol, minimal);
-   if (idx == -1) {
-      try_dynamic_add(res_name, mmcif_read_number);
-      idx = get_monomer_restraints_index(res_name, imol, minimal);
-   }
-
-   if (idx != -1) {
-      // continue
-
-      // (first is the imol)
-      std::vector <dict_torsion_restraint_t> &torsion_restraints =
-	 dict_res_restraints[idx].second.torsion_restraint;
-
-      // We don't want to clear all torsion restraints, just the ring torsions
-      //
-      std::set<std::string> ring_atom_names;
-      // we generate the ring atoms names from the atoms in the passed quads
-      for (std::size_t i=0; i<tors_info_vec.size(); i++) {
-	 const atom_name_torsion_quad &q = tors_info_vec[i];
-	 ring_atom_names.insert(q.atom_name(0));
-	 ring_atom_names.insert(q.atom_name(1));
-	 ring_atom_names.insert(q.atom_name(2));
-	 ring_atom_names.insert(q.atom_name(3));
-      }
-
-      if (false) {
-	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
-		   << " for " << res_name << std::endl;
-      }
-
-      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
-					      torsion_restraints.end(),
-					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
-
-      if (false)
-	 std::cout << "............... post-delete size: " << torsion_restraints.size()
-		   << " for " << res_name << std::endl;
-
-      for (unsigned int i=0; i<tors_info_vec.size(); i++) {
-	 const atom_name_torsion_quad &quad = tors_info_vec[i];
-	 // this could have a nicer interface - using the quad here.
-	 dict_torsion_restraint_t tors(quad.id,
-				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
-				       quad.torsion, 4.0, 1);
-	 torsion_restraints.push_back(tors);
-      }
-   }
-}
-
-
-std::vector<coot::atom_name_torsion_quad>
-coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {
-
-   std::vector<coot::atom_name_torsion_quad> v;
-   if (res_name == "MAN" || res_name == "GLC" || res_name == "GAL") {
-      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.35));
-      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.67));
-      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.59));
-      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.20));
-      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.75));
-   }
-   if (res_name == "BMA") {
-      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.57));
-      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.31));
-      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.80));
-      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.28));
-      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.52));
-   }
-   if (res_name == "NAG") {
-      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  61.18));
-      v.push_back(coot::atom_name_torsion_quad("var_5",  "O5", "C5", "C4", "C3", -57.63));
-      v.push_back(coot::atom_name_torsion_quad("var_7",  "C5", "C4", "C3", "C2",  57.01));
-      v.push_back(coot::atom_name_torsion_quad("var_10", "C3", "C2", "C1", "O5",  57.60));
-      v.push_back(coot::atom_name_torsion_quad("var_1",  "C5", "O5", "C1", "C2", -61.19));
-   }
-   if (res_name == "FUC") {
-      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4", -67.61));
-      v.push_back(coot::atom_name_torsion_quad("var_5",  "C5", "C4", "C3", "C2", -53.87));
-      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2",  67.595));
-      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5", -61.26));
-      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3",  61.32));
-   }
-   if (res_name == "XYP") {
-      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5B", "C5B", "C4B", "C3B", -61.35));
-      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1B", "O5B", "C5B", "C4B",  67.67));
-      v.push_back(coot::atom_name_torsion_quad("var_11", "C5B", "O5B", "C1B", "C2B", -67.59));
-      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3B", "C2B", "C1B", "O5B",  61.20));
-      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5B", "C4B", "C3B", "C2B",  53.75));
-   }
-
-   return v;
-}
-
-
 // debug
 void
 coot::protein_geometry::debug() const {
@@ -4815,245 +2613,26 @@ coot::protein_geometry::debug() const {
    }
 }
 
-void
-coot::dictionary_residue_restraints_t::remove_phosphate_hydrogens() {
+void coot::protein_geometry::all_plane_restraints_to_improper_dihedrals() {
 
-   remove_PO4_SO4_hydrogens(" P");
-
-}
-
-void
-coot::dictionary_residue_restraints_t::remove_sulphate_hydrogens() {
-
-   remove_PO4_SO4_hydrogens(" S");
-}
-
-void
-coot::dictionary_residue_restraints_t::remove_PO4_SO4_hydrogens(const std::string &P_ele) {
-
-   // This is needed to make the dictionary match the modifications to the RDKit molecule
-   // when removing Hydrogen atoms from Oxygen atoms on phosphates (and we need to do that
-   // so that the atom types match the Acedrg tables (no bonds to Hydrogens in phosphates).
-
-   // find Ps
-   // find Os connected to Ps
-   // find Hs connected to Os.
-   // delete bond, angle, etc, restraints that contain those Hs
-   std::vector<std::string> H_atoms_to_be_deleted;
-
-   unsigned int n_atoms = atom_info.size();
-   for (unsigned int i=0; i<n_atoms; i++) {
-      if (element(atom_info[i].atom_id_4c) == P_ele) {
-
-	 // this block needs reverse indexing check also - e.g. the P can be the second atom
-	 //
-
-	 std::vector<std::string> oxygen_list;
-	 // is there a bond from an O to this P?
-	 unsigned int n_bonds = bond_restraint.size();
-	 for (unsigned int j=0; j<n_bonds; j++) {
-	    const dict_bond_restraint_t &br = bond_restraint[j];
-	    // is an atom of this bond the phosphate atom?
-	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
-	       // yes it is.  Is there an oxygen atom bonded to this phosphate atom?
-	       for (unsigned int k=0; k<n_bonds; k++) {
-		  if (j != k) {
-		     const dict_bond_restraint_t &br_inner = bond_restraint[k];
-		     if (br_inner.atom_id_1_4c() == atom_info[i].atom_id_4c) {
-			// is this an oxygen on the other side of the bond?
-			if (element(br_inner.atom_id_2_4c()) == " O") {
-			   // add it if it was not already in the list:
-			   if (std::find(oxygen_list.begin(),
-					 oxygen_list.end(),
-					 br_inner.atom_id_2_4c()) == oxygen_list.end()) {
-			      if (false)
-				 std::cout << "adding " << util::single_quote(br_inner.atom_id_2_4c())
-					   << std::endl;
-			      oxygen_list.push_back(br_inner.atom_id_2_4c());
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-
-	 if (oxygen_list.size() > 1) { // 20170603 unsure about this test
-	    if (false)
-	       std::cout << "found " << oxygen_list.size() << " oxygen atoms attached to "
-			 << util::single_quote(atom_info[i].atom_id_4c) << std::endl;
-	    // All these oxygen atoms are bonded to the same phosphate atoms
-	    // delete all hydrogen atoms attached to all these oxygen atoms
-	    //
-	    std::vector<std::string> hydrogen_atom_delete_list;
-	    std::vector<std::string> oxygen_atom_charge_list;
-	    for (unsigned int j=0; j<n_bonds; j++) {
-	       const dict_bond_restraint_t &br = bond_restraint[j];
-	       if (std::find(oxygen_list.begin(),
-			     oxygen_list.end(),
-			     br.atom_id_1_4c()) != oxygen_list.end()) {
-		  if (element(br.atom_id_2_4c()) == " H") {
-		     hydrogen_atom_delete_list.push_back(br.atom_id_2_4c());
-		     oxygen_atom_charge_list.push_back(br.atom_id_1_4c());
-		  }
-	       }
-	       // reverse indexing
-	       if (std::find(oxygen_list.begin(),
-			     oxygen_list.end(),
-			     br.atom_id_2_4c()) != oxygen_list.end()) {
-		  if (element(br.atom_id_1_4c()) == " H") {
-		     hydrogen_atom_delete_list.push_back(br.atom_id_1_4c());
-		     oxygen_atom_charge_list.push_back(br.atom_id_2_4c());
-		  }
-	       }
-	    }
-	    if (false) {
-	       std::cout << "Delete these " << hydrogen_atom_delete_list.size() << " hydrogen atoms"
-			 << std::endl;
-	       std::cout << "Charge these " << oxygen_atom_charge_list.size() << " oxygen atoms"
-			 << std::endl;
-	    }
-
-	    delete_atoms_from_restraints(hydrogen_atom_delete_list);
-
-	    for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
-	       for (unsigned int k=0; k<atom_info.size(); k++) {
-		  if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
-		     atom_info[k].formal_charge.first = true;
-		     atom_info[k].formal_charge.first = -1;
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   
-}
-
-void
-coot::dictionary_residue_restraints_t::remove_carboxylate_hydrogens() {
-
-   // This is a pain.
-
-   std::vector<std::string> H_atoms_to_be_deleted;
-   std::vector<std::string> oxygen_atom_charge_list;
-
-   unsigned int n_atoms = atom_info.size();
-   for (unsigned int i=0; i<n_atoms; i++) {
-
-      if (element(atom_info[i].atom_id_4c) == " C") { // PDBv3 FIXME
-	 std::vector<std::string> oxygen_list;
-	 int n_bonds_to_C = 0;
-	 int C_O_bond_idx = -1; // initially unset
-	 std::string O_with_possibly_H;
-	 int n_single_bonds = 0;
-	 int n_double_bonds = 0;
-	 unsigned int n_bonds = bond_restraint.size();
-	 for (unsigned int j=0; j<n_bonds; j++) {
-	    const dict_bond_restraint_t &br = bond_restraint[j];
-
-	    //
-	    // note to self - do reverse indexing also
-	    //
-
-	    // is an atom of this bond the C atom?
-	    //
-	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
-	       // yes it is.
-	       n_bonds_to_C++;
-
-	       std::string atom_id_O = br.atom_id_2_4c();
-	       if (element(atom_id_O) == " O") {
-		  if (br.type() == "single") {
-		     C_O_bond_idx = j;
-		     O_with_possibly_H = atom_id_O;
-		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
-		     n_single_bonds++;
-		  }
-		  if (br.type() == "double") {
-		     n_double_bonds++;
-		  }
-	       }
-	    }
-	    if (br.atom_id_2_4c() == atom_info[i].atom_id_4c) {
-	       // yes it is.
-	       n_bonds_to_C++;
-
-	       std::string atom_id_O = br.atom_id_1_4c();
-	       if (element(atom_id_O) == " O") {
-		  if (br.type() == "single") {
-		     C_O_bond_idx = j;
-		     O_with_possibly_H = atom_id_O;
-		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
-		     n_single_bonds++;
-		  }
-		  if (br.type() == "double") {
-		     n_double_bonds++;
-		  }
-	       }
-	    }
-	 }
-
-	 if (n_bonds_to_C == 3) {
-	    if (n_single_bonds == 1) {
-	       if (n_double_bonds == 1) {
-		  if (! O_with_possibly_H.empty()) {
-		     // go through the bond restraints looking for both the named Oxygen atom
-		     // and a hydrogen.
-		     std::string delete_H_atom;
-		     for (unsigned int k=0; k<n_bonds; k++) {
-			const dict_bond_restraint_t &br = bond_restraint[k];
-			if (br.atom_id_1_4c() == O_with_possibly_H) {
-			   if (element(br.atom_id_2_4c()) == " H") {
-			      // delete this hydrogen and this bond
-			      H_atoms_to_be_deleted.push_back(br.atom_id_2_4c());
-			   }
-			}
-			if (br.atom_id_2_4c() == O_with_possibly_H) {
-			   if (element(br.atom_id_1_4c()) == " H") {
-			      // delete this hydrogen and this bond
-			      H_atoms_to_be_deleted.push_back(br.atom_id_1_4c());
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      dict_res_restraints[i].second.improper_dihedral_restraint.clear();
+      for (unsigned int j=0; j<dict_res_restraints[i].second.plane_restraint.size(); j++) {
+         std::vector<atom_name_quad> qs = dict_res_restraints[i].second.plane_restraint_to_improper_dihedrals(j);
+         for(unsigned int k=0; k<qs.size(); k++) {
+            dict_improper_dihedral_restraint_t r(qs[k].atom_name(0), qs[k].atom_name(1), qs[k].atom_name(2), qs[k].atom_name(3));
+            dict_res_restraints[i].second.improper_dihedral_restraint.push_back(r);
+         }
       }
    }
 
-   std::cout << "Here with H_atoms_to_be_deleted size() " << H_atoms_to_be_deleted.size() << std::endl;
-   if (H_atoms_to_be_deleted.size() > 0) {
-      delete_atoms_from_restraints(H_atoms_to_be_deleted);
-      for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
-	 for (unsigned int k=0; k<atom_info.size(); k++) {
-	    if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
-	       atom_info[k].formal_charge.first = true;
-	       atom_info[k].formal_charge.first = -1;
-	    }
-	 }
-      }
-   }
 }
 
+void coot::protein_geometry::delete_plane_restraints() {
 
-void
-coot::dictionary_residue_restraints_t::delete_atoms_from_restraints(const std::vector<std::string> &hydrogen_atom_delete_list) {
-
-   if (hydrogen_atom_delete_list.size()) {
-      for (unsigned int j=0; j<hydrogen_atom_delete_list.size(); j++) {
-	 atom_info.erase(std::remove_if(atom_info.begin(), atom_info.end(), eraser(hydrogen_atom_delete_list)),
-			 atom_info.end());
-	 bond_restraint.erase(std::remove_if(bond_restraint.begin(),
-					     bond_restraint.end(),
-					     eraser(hydrogen_atom_delete_list)),
-			      bond_restraint.end());
-	 angle_restraint.erase(std::remove_if(angle_restraint.begin(),
-					      angle_restraint.end(),
-					      eraser(hydrogen_atom_delete_list)),
-			       angle_restraint.end());
-      }
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      dict_res_restraints[i].second.plane_restraint.clear();
    }
-   
+
 }
+

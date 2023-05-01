@@ -180,7 +180,7 @@ namespace coot {
 			       mmdb::Residue *residue_p);
 
       void add_guanidinium_hydrogens(mmdb::Residue *residue_p);
-      void add_trp_indole_hydrogens(mmdb::Residue *residue_p);
+      void add_trp_indole_hydrogens(mmdb::Residue *residue_p, double bl_HN, double bl_arom);
       void add_trp_indole_hydrogen(const std::string &H_name,
 				   const std::string &at_name_1,
 				   const std::string &at_name_2,
@@ -228,7 +228,7 @@ namespace coot {
 		    mmdb::Residue *residue_p);
       
       
-      void add_his_ring_C_Hs(mmdb::Residue *residue_p);
+      void add_his_ring_C_Hs(mmdb::Residue *residue_p, double bl_arom);
       std::vector<mmdb::Atom *> add_his_ring_H(const std::string &H_name,
 					       const std::string &at_name_1,
 					       const std::string &at_name_2,
@@ -238,21 +238,30 @@ namespace coot {
 
       void add_his_ring_H(const std::string &H_at_name,
 			  const std::string &first_neigh,
-			  const std::vector<std::string> second_neighb_vec,
+			  const std::vector<std::string> &second_neighb_vec,
 			  double bl,
 			  mmdb::Residue *residue_p);
 
       void add_aromatic_hydrogen(const std::string &H_at_name,
 				 const std::string &first_neigh,
-				 const std::vector<std::string> second_neighb_vec,
+				 const std::vector<std::string> &second_neighb_vec,
 				 double bl,
 				 mmdb::Residue *residue_p);
 
       mmdb::Manager *mol;
       int imol; // for dictionary lookups.
       protein_geometry *geom_p;
-      void add_riding_hydrogens(); // non-spin-search
-      bool add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
+      void add_riding_hydrogens(double bl_aliph,
+                                double bl_arom,
+                                double bl_amino,
+                                double bl_oh,
+                                double bl_sh); // non-spin-search
+      bool add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
+                                double bl_aliph,
+                                double bl_arom,
+                                double bl_amino,
+                                double bl_oh,
+                                double bl_sh);
       void add_main_chain_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
 				    bool is_gly=false);
       void add_main_chain_HA(mmdb::Residue *residue_p);
@@ -264,7 +273,7 @@ namespace coot {
 			      double bl,
 			      mmdb::Residue *residue_p);
       // add H to second atom by bisection
-      void add_amino_single_H(const std::string H_at_name,
+      void add_amino_single_H(const std::string &H_at_name,
 			      const std::string &at_name_1,
 			      const std::string &at_name_2,
 			      const std::string &at_name_3,
@@ -278,22 +287,42 @@ namespace coot {
       // score hypotheses and convert to the best scoring one.
       void find_best_his_protonation_orientation(mmdb::Residue *residue_p);
       void delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p);
-      void hydrogen_placement_by_dictionary(mmdb::Residue *residue_p);
+      void hydrogen_placement_by_dictionary(mmdb::Residue *residue_p,
+                                            double bl_aliph,
+                                            double bl_arom,
+                                            double bl_amino,
+                                            double bl_oh,
+                                            double bl_sh);
       void hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
-					    mmdb::Residue *residue_p);
+					    mmdb::Residue *residue_p,
+                                            double bl_aliph,
+                                            double bl_arom,
+                                            double bl_amino,
+                                            double bl_oh,
+                                            double bl_sh);
       // return a list of names of placed atoms
       std::vector<std::string>
       place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
 						   unsigned int iat_neighb,
 						   const dictionary_residue_restraints_t &rest,
-						   mmdb::Residue *residue_p);
+						   mmdb::Residue *residue_p,
+                                                   double bl_aliph,
+                                                   double bl_arom,
+                                                   double bl_amino,
+                                                   double bl_oh,
+                                                   double bl_sh);
       // which calls
       std::vector<std::string>
       place_hydrogen_by_connected_atom_energy_type(const std::string &energy_type,
 						   unsigned int iat,
 						   unsigned int iat_neighb,
 						   const dictionary_residue_restraints_t &rest,
-						   mmdb::Residue *residue_p);
+						   mmdb::Residue *residue_p,
+                                                   double bl_aliph,
+                                                   double bl_arom,
+                                                   double bl_amino,
+                                                   double bl_oh,
+                                                   double bl_sh);
       void place_hydrogen_by_connected_2nd_neighbours(unsigned int iat,
 						      unsigned int iat_neighb,
 						      const dictionary_residue_restraints_t &rest,
@@ -303,7 +332,7 @@ namespace coot {
       //
       std::map<std::string, std::vector<std::string> > 
       third_neighbour_map(const std::string &first_neighb,
-			  const std::vector<std::string> second_neighb_vec,
+			  const std::vector<std::string> &second_neighb_vec,
 			  const dictionary_residue_restraints_t &rest) const;
 
       std::string get_other_H_name(const std::string &first_neighb,
@@ -323,11 +352,14 @@ namespace coot {
 
       bool verbose_output;
 
+      void switch_his_protonation(mmdb::Residue *residue_p, mmdb::Atom *current_H_atom, double bl_arom);
+
    public:
       reduce(mmdb::Manager *mol_in, int imol_in) {
 	 mol = mol_in;
 	 imol = imol_in;
          verbose_output = true;
+         geom_p = 0;
       }
       void add_hydrogen_atoms(); // changes mol
       void delete_hydrogen_atoms();

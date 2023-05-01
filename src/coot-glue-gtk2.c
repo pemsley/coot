@@ -7,14 +7,13 @@
 
 #include "c-interface-gtk-widgets.h"
 
-/* #define GTK_ENABLE_BROKEN 1  NO.  We are not going to do that. */
 #include <libguile.h>
 #include <guile-gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
 /* #include "config.h" */
 /* #include "compat.h" */
 #include <c-interface.h>
+
 extern sgtk_enum_info sgtk_sgtk_timestamp_info;
 extern sgtk_enum_info sgtk_gdk_window_type_info;
 extern sgtk_enum_info sgtk_gdk_window_class_info;
@@ -303,5 +302,4 @@ coot_init_glue ()
   scm_c_define_gsubr(s_main_hbox,      0, 0, 0, sgtk_main_hbox);
 }
 
-#endif // GTK_MAJOR_VERSION > 1
 #endif //  USE_GUILE

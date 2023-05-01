@@ -71,7 +71,7 @@ SCM ligand_atom_overlaps_scm(int imol, SCM ligand_spec, double neighb_radius) {
 	       if (ol.overlaps[i].is_h_bond) sb = SCM_BOOL_T;
 	       SCM l = scm_list_4(spec_1_scm,
 				  spec_2_scm,
-				  scm_double2num(ol.overlaps[i].overlap_volume),
+				  scm_from_double(ol.overlaps[i].overlap_volume),
 				  sb);
 	       r = scm_cons(l, r);
 	    }
@@ -116,6 +116,10 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol) {
+
+   // if the return list is null then that's possibly because there was a missing dictionary.
+   // return a string in that case.
+
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -131,11 +135,21 @@ SCM molecule_atom_overlaps_scm(int imol) {
 	 coot::atom_spec_t spec_2(o.atom_2);
 	 SCM spec_1_scm = atom_spec_to_scm(spec_1);
 	 SCM spec_2_scm = atom_spec_to_scm(spec_2);
-	 SCM r_1_scm = scm_double2num(o.r_1);
-	 SCM r_2_scm = scm_double2num(o.r_2);
-	 SCM ov_scm  = scm_double2num(o.overlap_volume);
+	 SCM r_1_scm = scm_from_double(o.r_1);
+	 SCM r_2_scm = scm_from_double(o.r_2);
+	 SCM ov_scm  = scm_from_double(o.overlap_volume);
 	 SCM item_scm = scm_list_5(spec_1_scm, spec_2_scm, r_1_scm, r_2_scm, ov_scm);
 	 r = scm_cons(item_scm, r);
+      }
+      r = scm_reverse(r);
+
+      // if the list is null then that's possibly because there was a missing dictionary.
+      // return a string in that case.
+      //
+      if (olv.empty()) {
+         if (!overlaps.get_have_dictionary()) {
+            r = scm_from_locale_string("WARNING:: No-dictionary (something missing) ");
+         }
       }
    }
    return r;
@@ -193,67 +207,21 @@ PyObject *molecule_atom_overlaps_py(int imol) {
 void
 graphics_info_t::do_interactive_coot_probe() {
 
-   if (moving_atoms_asc->n_selected_atoms > 0) {
-      if (moving_atoms_asc->mol) {
-	 bool ignore_waters = true;
-	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p(), ignore_waters);
-	 // dot density
-	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.5);
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         if (moving_atoms_asc->mol) {
 
-	 std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-
-	 // for quick colour lookups.
-	 std::map<std::string, coot::colour_holder> colour_map;
-	 colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
-	 colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
-	 colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
-	 colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
-	 colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
-	 colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
-	 colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
-	 colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
-	 colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
-	 colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
-	 colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
-	 colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
-	 colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
-	 colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
-
-	 graphics_info_t g;
-	 for (it=c.dots.begin(); it!=c.dots.end(); it++) {
-	    const std::string &type = it->first;
-	    const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	    std::string obj_name = type;
-	    int obj = g.generic_object_index(obj_name.c_str());
-	    if (obj == -1)
-	       obj = new_generic_object_number(obj_name.c_str());
-	    else
-	       (*g.generic_objects_p)[obj].clear();
-	    std::string col = "#445566";
-	    int point_size = 2;
-	    if (type == "vdw-surface") point_size = 1;
-	    for (unsigned int i=0; i<v.size(); i++) {
-	       const std::string &col_inner = v[i].col;
-	       (*g.generic_objects_p)[obj].add_point(colour_map[col_inner], col_inner, point_size, v[i].pos);
-	    }
-	    if (type != "vdw-surface")
-	       (*g.generic_objects_p)[obj].is_displayed_flag = true;
-	 }
-
-	 int clashes_obj = g.generic_object_index("clashes"); // find or set
-	 if (clashes_obj == -1)
-	    clashes_obj = new_generic_object_number("clashes");
-	 else
-	    (*g.generic_objects_p)[clashes_obj].clear();
-	 std::string cn =  "#ff59b4";
-	 coot::colour_holder ch(cn);
-	 for (unsigned int i=0; i<c.clashes.size(); i++) {
-	    (*g.generic_objects_p)[clashes_obj].add_line(ch, cn, 2, c.clashes[i]);
-	 }
-	 (*g.generic_objects_p)[clashes_obj].is_displayed_flag = true;
-
-	 // do we need to draw here?
-	 // graphics_draw();
+            // std::cout << "doing do_interactive_coot_probe() " << std::endl;
+            // For speed, I need the lock inside this function, it's ok to release the lock after
+            // the contact dots have been found (but before the contact dots meshes have
+            // been generated).
+            // auto tp_0 = std::chrono::high_resolution_clock::now();
+            coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+            // auto tp_1 = std::chrono::high_resolution_clock::now();
+            // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+            // 30 ms for chain refine.
+            // std::cout << "INFO:: ---------- Timing for contact dots " << d10 << " milliseconds" << std::endl;
+         }
       }
    }
 }

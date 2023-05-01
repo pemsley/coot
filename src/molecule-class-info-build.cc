@@ -45,7 +45,7 @@ molecule_class_info_t::protein_db_loops(const std::vector<coot::residue_spec_t> 
    std::vector<clipper::Coord_orth> clash_coords;
 
    ProteinDB::Chain chain = make_fragment_chain(residue_specs);
-   
+
    ProteinDB::ProteinDBSearch protein_db_search(file_name);
    std::vector<ProteinDB::Chain> chains = protein_db_search.search(chain, nfrags, xmap, clash_coords);
 
@@ -128,7 +128,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 
    make_backup();
    bool added = 0;
-   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, false);
+   atom_selection_container_t asc = get_atom_selection(reduce_pdb_out, true, true, false);
    if (asc.read_success) { 
       int imod = 1;
       mmdb::Model *new_model_p = asc.mol->GetModel(imod);
@@ -238,17 +238,17 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    mmdb::Manager *mol = atom_sel.mol;
 	 
-	    mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
+            mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
-	    strncpy(link->atName1,  at_1->GetAtomName(), 19);
-	    strncpy(link->aloc1,    at_1->altLoc, 9);
+	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
+	    strncpy(link->aloc1,    at_1->altLoc, 20);
 	    strncpy(link->resName1, at_1->GetResName(), 19);
 	    strncpy(link->chainID1, at_1->GetChainID(), 9);
 	    strncpy(link->insCode1, at_1->GetInsCode(), 9);
 	    link->seqNum1         = at_1->GetSeqNum();
 
-	    strncpy(link->atName2,  at_2->GetAtomName(), 19);
-	    strncpy(link->aloc2,    at_2->altLoc, 9);
+	    strncpy(link->atName2,  at_2->GetAtomName(), 20);
+	    strncpy(link->aloc2,    at_2->altLoc, 20);
 	    strncpy(link->resName2, at_2->GetResName(), 19);
 	    strncpy(link->chainID2, at_2->GetChainID(), 9);
 	    strncpy(link->insCode2, at_2->GetInsCode(), 9);
@@ -275,7 +275,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    coot::restraints_container_t restraints(residues,
 						    links,
-						    geom, mol, dummy_fixed_atom_specs, dummy_xmap);
+						    geom, mol, dummy_fixed_atom_specs, &dummy_xmap);
 	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
 
 	    asn_hydrogen_position_swap(residues); // HD21 and HD22 (HD22 will be deleted)
@@ -524,11 +524,30 @@ molecule_class_info_t::globularize() {
    if (mol) { 
       make_backup();
 
-      clipper::MiniMol mm;
+      bool nucleotides = false;
 
+      // now check if we have nucleotides
+      std::pair<unsigned int, unsigned int> number_of_typed_residues(0,0);
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (chain_p) {
+               std::pair<unsigned int, unsigned int> nric = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+               number_of_typed_residues.first  = nric.first;
+               number_of_typed_residues.second = nric.second;
+            }
+         }
+      }
+      if (number_of_typed_residues.second > number_of_typed_residues.first)
+         nucleotides = true;
+
+      clipper::MiniMol mm;
       clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>(mol);
       mmdbfile->import_minimol(mm);
-      bool r = ProteinTools::globularise(mm);
+      bool r = ProteinTools::globularise(mm, nucleotides);
 
       mmdbfile->export_minimol(mm);
 
@@ -553,8 +572,23 @@ molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
    update_molecule_after_additions();
-   update_symmetry();
 
+   if (false) { // debug
+      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+	 mmdb::Atom *at = atom_sel.atom_selection[i];
+	 int idx;
+	 if (at->GetUDData(atom_sel.UDDAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
+	    std::string fail;
+	    if (idx != i)
+	       fail = "FAIL";
+	    std::cout << "atom " << coot::atom_spec_t(at) << " has index " << i << " and udd " << idx << " " << fail << "\n";
+	 } else {
+	    std::cout << "bad GetUDData() for atom " << coot::atom_spec_t(at) << std::endl;
+	 }
+      }
+   }
+
+   update_symmetry();
 }
 
 void
@@ -598,18 +632,201 @@ molecule_class_info_t::crankshaft_peptide_rotation_optimization(const coot::resi
 								unsigned int n_peptides,
 								const clipper::Xmap<float> &xmap,
 								float map_weight,
-								int n_samples) {
+								int n_samples,
+								ctpl::thread_pool *thread_pool_p,
+								int n_threads) {
+   if (n_threads < 1) n_threads = 1;
    int n_solutions = 1;
+
    std::vector<mmdb::Manager *> mols =
       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, atom_sel.mol, map_weight,
-					       n_samples, n_solutions);
+					       n_samples, n_solutions, thread_pool_p, n_threads);
 
    if (mols.size() == 1) {
       make_backup();
       std::cout << "DEBUG:: crankshaft updated " << std::endl;
+      // what do we do with the old atom selection and mol?
+      // should we delete them here?
+      //
       atom_sel = make_asc(mols[0]);
       have_unsaved_changes_flag = 1;
       update_molecule_after_additions();
       update_symmetry();
    }
+}
+
+int
+molecule_class_info_t::add_residue_with_atoms(const coot::residue_spec_t &residue_spec, const std::string &res_name, const std::vector<coot::minimol::atom> &list_of_atoms) {
+
+   std::cout << "start add_residue_with_atoms()" << std::endl;
+   int r_added = 0;
+
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (! residue_p) {
+      // make one then
+      mmdb::Chain *chain_p_for_residue = 0; // set this
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == residue_spec.chain_id)
+               chain_p_for_residue = chain_p;
+         }
+         if (chain_p_for_residue) {
+            residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         } else {
+            chain_p_for_residue = new mmdb::Chain;
+            chain_p_for_residue->SetChain(residue_spec.chain_id.c_str());
+            model_p->AddChain(chain_p_for_residue);
+            residue_p = new mmdb::Residue(chain_p_for_residue, res_name.c_str(), residue_spec.res_no, residue_spec.ins_code.c_str());
+         }
+      } else {
+         std::cout << "ERROR:: in add_residue_with_atoms() null model_p " << imod << std::endl;
+      }
+   }
+   if (residue_p) {
+      for (unsigned int i=0; i<list_of_atoms.size(); i++) {
+         const coot::minimol::atom &atom = list_of_atoms[i];
+         mmdb::Atom *at = atom.make_atom();
+         if (at) {
+            residue_p->AddAtom(at);
+         }
+      }
+      atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle); // correct?
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      update_molecule_after_additions();
+      update_symmetry();
+   }
+   return r_added;
+}
+
+
+
+int
+molecule_class_info_t::trim_molecule_by_b_factor(float limit, bool keep_higher_flag) {
+
+   // delete residues if the B-factor is higher (or lower)
+
+   int status = 1;
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   std::set<mmdb::Residue *> deletable_residues;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float b_factor = at->tempFactor;
+                        if (keep_higher_flag) {
+                           if (b_factor < limit) {
+                              deletable_residues.insert(residue_p);
+                           }
+                        } else {
+                           if (b_factor > limit) {
+                              deletable_residues.insert(residue_p);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+#if 0
+   if (! deletable_residues.empty()) {
+      have_unsaved_changes_flag = true;
+      std::set<mmdb::Residue *>::const_iterator it;
+      unsigned int n_residues = deletable_residues.size();
+      unsigned int ith_residue = 0;
+      for (it=deletable_residues.begin(); it!=deletable_residues.end(); ++it) {
+         mmdb::Residue *r = *it;
+         if (true)
+            std::cout << "deleting " << ith_residue << " residue of " << n_residues << " " << r << " " << coot::residue_spec_t(r) << std::endl;
+         delete r;
+         ith_residue++;
+      }
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      make_bonds_type_checked();
+   }
+#endif
+
+   if (! deletable_residues.empty()) {
+      std::vector<coot::residue_spec_t> residues;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (it=deletable_residues.begin(); it!=deletable_residues.end(); ++it) {
+         mmdb::Residue *r = *it;
+         coot::residue_spec_t spec(r);
+         residues.push_back(spec);
+      }
+      delete_residues(residues);
+   }
+   return status;
+}
+
+
+void
+molecule_class_info_t::pLDDT_to_b_factor() {
+
+   auto converter_function = [] (float b_in) {
+      float b_out = 2.0 * (100.0 - b_in);
+      if (b_out < 2.0) b_out = 2.0;
+      return b_out;
+   };
+
+   float m_b_factor_pre = coot::util::average_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 0, 1000, 0, 0);
+   make_backup();
+   mmdb::Manager *mol = atom_sel.mol;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float b_factor = at->tempFactor;
+                        float new_b_factor = converter_function(b_factor);
+                        at->tempFactor = new_b_factor;
+                        if (true) {
+                           std::string atom_name = at->name;
+                           if (atom_name == " CA ") {
+                              std::cout << "converted b-factor " << b_factor << " " << new_b_factor << std::endl;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   float m_b_factor_post = coot::util::average_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 0, 1000, 0, 0);
+
+   std::cout << "INFO:: average b-factor-pre: " << m_b_factor_pre << " post: " << m_b_factor_post << std::endl;
+
+   have_unsaved_changes_flag = true;
+   make_bonds_type_checked(); // we might be looking at B-factor representation
+
 }

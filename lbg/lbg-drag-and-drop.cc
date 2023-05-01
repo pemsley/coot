@@ -21,9 +21,7 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
 #include <Python.h>
-#endif
 
 #include <iostream>
 #include "utils/win-compat.hh"
@@ -38,9 +36,10 @@ on_lbg_drag_drop (GtkWidget *widget,
 		  guint time,
 		  gpointer user_data) {
 
-   
-   // gboolean is_valid_drop_site = TRUE;
    gboolean retval = FALSE;
+   std::cout << "FIXME drag and drop needs fixing " << std::endl;
+#if 0
+   // gboolean is_valid_drop_site = TRUE;
    // Request the data from the source.
    if (context->targets) {
       GdkAtom target_type =
@@ -53,6 +52,7 @@ on_lbg_drag_drop (GtkWidget *widget,
    } else {
       std::cout << "ERROR:: null dnd context" << std::endl;
    }
+#endif
    return retval;
 }
 
@@ -66,6 +66,8 @@ on_lbg_drag_data_received (GtkWidget *widget,
 			   guint time,
 			   gpointer user_data) {
 
+   std::cout << "FIXME drag and drop needs fixing " << std::endl;
+#if 0
    gboolean dnd_success = FALSE;
    gboolean delete_selection_data = FALSE;
    
@@ -81,6 +83,7 @@ on_lbg_drag_data_received (GtkWidget *widget,
       }
    }
    gtk_drag_finish (context, dnd_success, delete_selection_data, time);
+#endif
 }
 
 

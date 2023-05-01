@@ -56,12 +56,6 @@
 
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "callbacks.h"
-#include "interface.h" // now that we are moving callback
-		       // functionality to the file, we need this
-		       // header since some of the callbacks call
-		       // fuctions built by glade.
-
 #include "coords/mmdb-crystal.h"
 
 #include "coords/Cartesian.h"
@@ -528,9 +522,9 @@ SCM origin_pre_shift_scm(int imol) {
       try { 
 	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
 	 r = SCM_EOL;
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.w()))), r);
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.v()))), r);
-	 r = scm_cons(SCM_MAKINUM(int(round(cf.u()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.w()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.v()))), r);
+	 r = scm_cons(scm_from_int(int(round(cf.u()))), r);
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
@@ -551,14 +545,14 @@ PyObject *origin_pre_shift_py(int imol) {
       try { 
 	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
 	 r = PyList_New(0);
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.u()))));
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.v()))));
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.w()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.u()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.v()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.w()))));
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
-      } 
-   } 
+      }
+   }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -572,9 +566,11 @@ PyObject *origin_pre_shift_py(int imol) {
 /*  ----------------------------------------------------------------------- */
 void do_cis_trans_conversion_setup(int istate) {
 
-   if (istate == 1) { 
+   if (istate == 1) {
+
       graphics_info_t::in_cis_trans_convert_define = 1;
       pick_cursor_maybe(); // depends on ctrl key for rotate
+
    } else {
       graphics_info_t::in_cis_trans_convert_define = 0;
       normal_cursor(); // depends on ctrl key for rotate
@@ -588,8 +584,10 @@ cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode
 
    
    graphics_info_t g;
-   if (is_valid_model_molecule(imol)) { 
-      g.molecules[imol].cis_trans_conversion(chain_id, resno, inscode);
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *standard_residues_mol = g.standard_residues_asc.mol;
+      g.molecules[imol].cis_trans_conversion(chain_id, resno, inscode, standard_residues_mol);
+      graphics_draw();
    }
 }
 

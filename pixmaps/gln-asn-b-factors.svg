@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="16px"
    height="16px"
    id="svg1307"
    sodipodi:version="0.32"
-   inkscape:version="0.43"
-   sodipodi:docbase="/lmb/wear/emsley/Projects/coot/pixmaps"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="gln-asn-b-factors.svg"
    inkscape:export-filename="/lmb/wear/emsley/Projects/coot/pixmaps/temperature.png"
    inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-ydpi="90"
+   version="1.1">
   <defs
      id="defs1309" />
   <sodipodi:namedview
@@ -28,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.197802"
-     inkscape:cx="12.712593"
-     inkscape:cy="10.503108"
+     inkscape:cx="7.3625773"
+     inkscape:cy="10.458058"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -37,8 +38,9 @@
      showguides="false"
      inkscape:window-width="914"
      inkscape:window-height="869"
-     inkscape:window-x="158"
-     inkscape:window-y="140" />
+     inkscape:window-x="765"
+     inkscape:window-y="279"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata1312">
     <rdf:RDF>
@@ -94,18 +96,19 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:6px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
-       x="1.5527344"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="3.5527344"
        y="5.453125"
-       id="text3418"
-       sodipodi:linespacing="100%"><tspan
+       id="text3418"><tspan
          sodipodi:role="line"
          id="tspan3420"
-         x="1.5527344"
-         y="5.453125">GLN</tspan><tspan
+         x="3.5527344"
+         y="5.453125"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6px;line-height:1;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">GLN</tspan><tspan
          sodipodi:role="line"
-         x="1.5527344"
+         x="3.5527344"
          y="11.453125"
-         id="tspan3422">ASN</tspan></text>
+         id="tspan3422"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6px;line-height:1;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">ASN</tspan></text>
   </g>
 </svg>

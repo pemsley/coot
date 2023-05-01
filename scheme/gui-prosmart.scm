@@ -15,28 +15,157 @@
 ;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
-(define (add-module-prosmart) 
+;; target is my molecule, ref is the homologous (high-res) model
+;; 
+(define (run-prosmart imol-target imol-ref include-side-chains?)
+  (let ((dir-stub "coot-ccp4"))
+    (make-directory-maybe dir-stub)
+    (let ((target-pdb-file-name (append-dir-file dir-stub
+						 (string-append (molecule-name-stub imol-target 0)
+								"-prosmart.pdb")))
+	  (reference-pdb-file-name (append-dir-file dir-stub
+						    (string-append (molecule-name-stub imol-ref 0)
+								   "-prosmart-ref.pdb")))
+	  (prosmart-out (append-dir-file "ProSMART_Output"
+					 (string-append
+					  (coot-replace-string (molecule-name-stub imol-target 0)
+							       " " "_" )
+					  "-prosmart.txt")))
+	  (prosmart-rmax 6.0))
+
+      (write-pdb-file imol-target target-pdb-file-name)
+      (write-pdb-file imol-ref reference-pdb-file-name)
+      (goosh-command "prosmart"
+		     (let ((l (list "-p1" target-pdb-file-name
+				    "-p2" reference-pdb-file-name
+				    "-restrain_seqid" "30" "-rmax" (number->string prosmart-rmax))))
+		       (if include-side-chains?
+			   (append l (list "-side"))
+			   l))
+		     '()
+		     (append-dir-file dir-stub "prosmart.log")
+		     #f)
+      (if (not (file-exists? prosmart-out))
+	  (begin
+	    (format #t "file not found ~s~%" prosmart-out))
+	  (begin
+	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
+	    (add-refmac-extra-restraints imol-target prosmart-out))))))
+
+(define (add-prosmart-secondary-structure-restraints imol do-mc-h-bonds-also-flag)
+
+  (let ((dir-stub (get-directory "coot-ccp4"))
+	(stub-name (molecule-name-stub imol 0)))
+
+    (let* ((helix-pdb-file-name-rwd (string-append stub-name "-helix.pdb"))
+	   (helix-pdb-file-name (append-dir-file dir-stub helix-pdb-file-name-rwd))
+	   (strand-pdb-file-name-rwd (string-append stub-name "-strand.pdb"))
+	   (strand-pdb-file-name (append-dir-file dir-stub strand-pdb-file-name-rwd))
+	   (h-bonds-pdb-file-name-rwd (string-append stub-name "-h-bonds.pdb"))
+	   (h-bonds-pdb-file-name (append-dir-file dir-stub h-bonds-pdb-file-name-rwd))
+	   (helix-out (join-dir-file
+		       (list dir-stub
+			     "ProSMART_Output"
+			     (string-append "LIB_" stub-name "-helix" ".txt"))))
+	   (strand-out (join-dir-file
+			(list
+			 dir-stub
+			 "ProSMART_Output"
+			 (string-append "LIB_" stub-name "-strand" ".txt"))))
+	   (h-bonds-out (join-dir-file
+			(list
+			 dir-stub
+			 "ProSMART_Output"
+			 (string-append stub-name "-h-bonds" ".txt"))))) ;; not LIB_
+
+      (write-pdb-file imol  helix-pdb-file-name)
+      (write-pdb-file imol strand-pdb-file-name)
+      (if do-mc-h-bonds-also-flag
+	  (write-pdb-file imol h-bonds-pdb-file-name))
+
+      ;; Prosmart writes results in ProSMART_Output, so we change to the coot-ccp4 directory
+      ;; so that it puts it in the place we expect it
+
+      (let ((current-dir (getcwd)))
+
+	(format #t "DEBUG:: dir-stub: ~s~%" dir-stub)
+	(chdir dir-stub)
+	(format #t "DEBUG:: (getcwd): ~s~%" (getcwd))
+
+	(for-each (lambda (p)
+		    (goosh-command "prosmart"
+				   (list "-p1" (car p) (cadr p))
+				   '()
+				   (string-append "prosmart-" stub-name "-" (caddr p) ".log")
+				   #f))
+		  (list (list  helix-pdb-file-name-rwd  "-helix" "helix")
+			(list strand-pdb-file-name-rwd "-strand" "strand")))
+
+	(if do-mc-h-bonds-also-flag
+	    (goosh-command "prosmart"
+			   (list "-p1" h-bonds-pdb-file-name-rwd "-h")
+			   '()
+			   (string-append "prosmart-" stub-name "-h-bond.log") #f))
+
+	(chdir current-dir))
+
+      (for-each (lambda (fn)
+		  (format #t "INFO:: reading ProSMART output file fn: ~s~%" fn)
+		  (if (file-exists? fn)
+		      (add-refmac-extra-restraints imol fn)
+		      (let ((s (string-append "Missing file: " fn)))
+			(info-dialog s))))
+		(list helix-out strand-out))
+
+      (if do-mc-h-bonds-also-flag
+	  (begin
+	    (format #t "INFO:: reading ProSMART output file fn: ~s~%" h-bonds-out)
+	    (if (file-exists? h-bonds-out)
+		(add-refmac-extra-restraints imol h-bonds-out)
+		(info-dialog (string-append "Missing file " h-bonds-out))))))))
+
+
+(define (add-module-restraints)
 
   (if (defined? 'coot-main-menubar)
-      (let ((menu (coot-menubar-menu "ProSMART")))
+      (let ((menu (coot-menubar-menu "Restraints")))
 	
+	(add-simple-coot-menu-menuitem
+	 menu "Generate Self Restraints 3.7 for Chain"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-local-self-restraints aa-imol aa-chain-id 3.7))))
+
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Self Restraints 4.3 for Chain"
 	 (lambda ()
 	   (using-active-atom
 	    (generate-local-self-restraints aa-imol aa-chain-id 4.3))))
 
+        ;; note to self: make this a loop next time
 	(add-simple-coot-menu-menuitem
-	 menu "Generate Self Restraints 6 for Chain"
+	 menu "Generate Self Restraints 5 for Chain"
 	 (lambda ()
 	   (using-active-atom
-	    (generate-local-self-restraints aa-imol aa-chain-id 6))))
+	    (generate-local-self-restraints aa-imol aa-chain-id 5))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Generate All-Molecule Self Restraints 4.3"
 	 (lambda ()
 	   (using-active-atom
 	    (generate-self-restraints aa-imol 4.3))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Generate All-Molecule Self Restraints 5.0"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-self-restraints aa-imol 5.0))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Generate All-Molecule Self Restraints 6.0"
+	 (lambda ()
+	   (using-active-atom
+	    (generate-self-restraints aa-imol 6.0))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Local Self Restraints 6"
@@ -53,6 +182,7 @@
 				      (list centred-residue))))
 
 	      (generate-local-self-restraints-by-residues-scm aa-imol residue-specs local-dist-max)))))
+
 
 	(add-simple-coot-menu-menuitem
 	 menu "Undisplay Extra Restraints"
@@ -96,6 +226,16 @@
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol 0 0 ))))
 
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Rotamer Dodecs"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rota-markup 1)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Ramachandran Spheres"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rama-markup 1)))
+
 ;	(add-simple-coot-menu-menuitem
 ;	 menu "Restraint Representation To CA"
 ;	 (lambda ()
@@ -107,6 +247,86 @@
 ;	 (lambda ()
 ;	   (using-active-atom
 ;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 0))))
+
+	(load-by-search "user-define-restraints.scm")
+
+	(add-simple-coot-menu-menuitem
+	 menu "Delete All Extra Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-all-extra-restraints aa-imol)))))))
+
+
+
+(define (add-module-prosmart)
+
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "ProSMART")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART Secondary Structure & H-bond Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondary-structure-restraints aa-imol #t))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART (Only) Secondary Structure Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondary-structure-restraints aa-imol #f))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Save as REFMAC restraints..."
+	 (lambda ()
+	   (generic-chooser-and-file-selector 
+	    "Save REFMAC restraints for molecule " 
+	    valid-model-molecule?
+	    " Restraints file name:  " 
+	    "refmac-restraints.txt"
+	    (lambda (imol file-name)
+	      (extra-restraints->refmac-restraints-file imol file-name)))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "ProSMART..."
+	 (lambda ()
+	   (let ((window (gtk-window-new 'toplevel))
+		 (hbox (gtk-hbox-new #f 0))
+		 (vbox (gtk-vbox-new #f 0))
+		 (h-sep (gtk-hseparator-new))
+		 (chooser-hint-text-1 " Target molecule ")
+		 (chooser-hint-text-2 " Reference (high-res) molecule ")
+		 (go-button (gtk-button-new-with-label " ProSMART "))
+		 (cancel-button (gtk-button-new-with-label " Cancel "))
+		 (check-button (gtk-check-button-new-with-label "Include Side-chains")))
+
+	     (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser
+						   vbox chooser-hint-text-1))
+		   (option-menu-mol-list-pair-ref (generic-molecule-chooser
+						   vbox chooser-hint-text-2)))
+
+	       (gtk-box-pack-start vbox check-button  #f #f 2)
+	       (gtk-box-pack-start vbox h-sep         #f #f 2)
+	       (gtk-box-pack-start vbox hbox          #f #f 2)
+	       (gtk-box-pack-start hbox go-button     #f #f 6)
+	       (gtk-box-pack-start hbox cancel-button #f #f 6)
+	       (gtk-container-add window vbox)
+
+	       (gtk-signal-connect cancel-button "clicked"
+				   (lambda ()
+				     (gtk-widget-destroy window)))
+
+	       (gtk-signal-connect go-button "clicked"
+				   (lambda ()
+				     (let ((imol-tar
+					    (apply get-option-menu-active-molecule
+						   option-menu-mol-list-pair-tar))
+					   (imol-ref
+					    (apply get-option-menu-active-molecule
+						   option-menu-mol-list-pair-ref))
+					   (do-side-chains? (gtk-toggle-button-get-active check-button)))
+				       (run-prosmart imol-tar imol-ref do-side-chains?)
+				       (gtk-widget-destroy window))))
+	       (gtk-widget-show-all window)))))
 
 	)))
 

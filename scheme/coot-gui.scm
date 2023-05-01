@@ -885,6 +885,10 @@
 
       (gtk-widget-show-all window))))
 
+;; works with below function generic-chooser-entry-and-file-selector
+;;
+(define *generic-chooser-entry-and-file-selector-file-entry-default-text* "")
+
 ;; Create a window
 ;; 
 ;; Return a pair of widgets, a molecule chooser and an entry.  The
@@ -893,7 +897,10 @@
 ;; 
 ;; chooser-filter is typically valid-map-molecule? or valid-model-molecule?
 ;; 
-(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function)
+;; If file-entry-default-text is passed, then *generic-chooser-entry-and-file-selector-file-entry-default-text* is set
+;; to be the contents of the file selection entry on "OK" button click.
+;;
+(define (generic-chooser-entry-and-file-selector chooser-label chooser-filter entry-hint-text default-entry-text file-selector-hint callback-function . file-entry-default-text)
 
   (let* ((window (gtk-window-new 'toplevel))
 	 (label (gtk-label-new chooser-label))
@@ -927,6 +934,10 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
     
       (gtk-option-menu-set-menu option-menu menu)
+
+      (if (not (null? file-entry-default-text))
+	 (let ((file-name (car file-entry-default-text)))
+            (gtk-entry-set-text file-sel-entry file-name)))
       
       ;; button callbacks:
       (gtk-signal-connect ok-button "clicked"
@@ -940,8 +951,10 @@
 				  (begin
 				    (let ((text (gtk-entry-get-text entry))
 					  (file-sel-text (gtk-entry-get-text file-sel-entry)))
+                                      (if (not (null? file-entry-default-text))
+                                          (set! *generic-chooser-entry-and-file-selector-file-entry-default-text* file-sel-text))
 				      (callback-function active-mol-no text file-sel-text)))))
-			    
+
 			    (gtk-widget-destroy window)))
       
       (gtk-signal-connect cancel-button "clicked"
@@ -1383,7 +1396,7 @@
 	       (inside-vbox (gtk-vbox-new #f 2))
 	       (h-sep (gtk-hseparator-new))
 	       (buttons-hbox (gtk-hbox-new #t 2))
-	       (go-button (gtk-button-new-with-label "  Dock Sequence!  "))
+	       (go-button (gtk-button-new-with-label "  Dock Sequence  "))
 	       (cancel-button (gtk-button-new-with-label "  Cancel  ")))
 
 	  (let ((seq-info-ls (sequence-info imol)))
@@ -1558,6 +1571,21 @@
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
       (list inside-vbox window)))
+
+
+(define (dialog-box-of-buttons-from-specs window-name geometry imol specs)
+
+  (let ((buttons (map (lambda(spec)
+                        (let ((label (residue-spec->string spec))
+                              (cbf (lambda ()
+                                     (set-go-to-atom-molecule imol)
+                                     (set-go-to-atom-chain-residue-atom-name
+                                      (residue-spec->chain-id spec)
+                                      (residue-spec->res-no spec) " C  "))))
+                          (list label cbf)))
+                      specs)))
+    (dialog-box-of-buttons window-name geometry buttons " Close ")))
+
 
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
@@ -1977,7 +2005,7 @@
 				(resno-2-mov-text (gtk-entry-get-text (list-ref frame-info-mov 5)))
 				
 				(radius-text (gtk-entry-get-text radius-entry)))
-				
+
 			    (let ((imol-map (imol-refinement-map))
 				  (resno-1-ref (string->number resno-1-ref-text))
 				  (resno-2-ref (string->number resno-2-ref-text))
@@ -1993,7 +2021,7 @@
 
 				  (if (not (valid-map-molecule? imol-map))
 				      (format #t "Must set the refinement map~%")
-			    
+
 				      (let ((imol-copy (copy-molecule active-mol-mov)))
 					(let ((new-map-number 
 					       (transform-map-using-lsq-matrix 
@@ -2695,16 +2723,29 @@
 
   (format #t "in associate-pir-with-molecule-gui~%") 
   (generic-chooser-entry-and-file-selector 
-   "Associate Sequence to Model: "
+   "Associate PIR Sequence to Model: "
    valid-model-molecule?
    "Chain ID"
    ""
-   "Select PIR file"
+   "Select PIR Alignment file"
    (lambda (imol chain-id file-name)
      (associate-pir-file imol chain-id file-name)
      (if do-alignment?
-	 (alignment-mismatches-gui imol)))))
-	   
+        (alignment-mismatches-gui imol)))
+    *generic-chooser-entry-and-file-selector-file-entry-default-text*))
+
+;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
+;; 
+(define (associate-sequence-file-with-molecule-gui)
+
+  (format #t "in associate-sequence-file-with-molecule-gui~%")
+  (generic-chooser-and-file-selector
+   "Associate Sequence File to Model: "
+   valid-model-molecule? "Sequence File: " ""
+   (lambda (imol file-name)
+     (associate-sequence-from-file imol file-name))))
+
+
 
 ;; Make a box-of-buttons GUI for the various modifications that need
 ;; to be made to match the model sequence to the assigned sequence(s).
@@ -2721,7 +2762,7 @@
 	   (res-no   (list-ref res-info 3))
 	   (ins-code (list-ref res-info 4)))
       (let ((residue-atoms (residue-info imol chain-id res-no ins-code)))
-	(if (null? residue-atoms) 
+	(if (null? residue-atoms)
 	    " CA " ;; won't work of course
 	    (let loop ((atoms residue-atoms))
 	      (cond 
@@ -2731,7 +2772,6 @@
 	       (else (loop (cdr atoms)))))))))
 
 
-	   
   (format #t "------------- alignment-mismatches-gui called with imol ~s~%" imol)
 
   ;; main line
@@ -2809,17 +2849,21 @@
 		      (list button-1-label button-1-action)))
 		  (list-ref am 2))))
 
-	(let ((buttons (append delete-buttons mutate-buttons insert-buttons)))
-	  
+	(let ((buttons (append delete-buttons mutate-buttons insert-buttons))
+	      (alignments-as-text-list (list-ref am 3)))
+
+	  (for-each (lambda (alignment-text)
+		      (info-dialog-with-markup alignment-text))
+		    alignments-as-text-list)
+
 	  (dialog-box-of-buttons "Residue mismatches"
 				 (cons 300 300)
 				 buttons "  Close  ")))))))
 
 
-
 ;; Wrapper in that we test if there have been sequence(s) assigned to
 ;; imol before we look for the sequence mismatches
-
+;; 
 (define (wrapper-alignment-mismatches-gui imol)
   
   (let ((seq-info (sequence-info imol)))
@@ -2829,6 +2873,97 @@
 	    (associate-pir-with-molecule-gui #t)
 	    (alignment-mismatches-gui imol))
 	(associate-pir-with-molecule-gui #t))))
+
+
+;; Use clustalw to do the alignment. Then mutate using that alignement.
+;; 
+(define (run-clustalw-alignment imol chain-id target-sequence-pir-file)
+
+  (define (get-clustalw2-command)
+    (let ((clustalw2-command "clustalw2"))
+      (if (command-in-path-or-absolute? clustalw2-command)
+          clustalw2-command
+          (let ((s (getenv "CCP4")))
+            (if (not (string? s))
+                #f
+                (let ((file-path (append-dir-file (append-dir-dir s "libexec") "clustalw2")))
+                  (print-var file-path)
+                  (if (command-in-path-or-absolute? file-path)
+                      file-path
+                      #f)))))))
+  
+
+  ;; write out the current sequence
+  (let ((current-sequence-pir-file "current-sequence.pir")
+        (aligned-sequence-pir-file "aligned-sequence.pir")
+        (clustalw2-output-file-name "clustalw2-output-file.log")
+        (clustalw2-command (get-clustalw2-command)))
+
+    (if (not clustalw2-command)
+        (begin
+          (format #t "No clustalw2 command~%~!")
+          #f)
+        (begin
+
+          ;; if these files are not deleted/renamed then the input to clustalw2
+          ;; goes wonky.
+
+          (if (file-exists? aligned-sequence-pir-file)
+              (let ((new-file-name (string-append aligned-sequence-pir-file ".old")))
+                (rename-file aligned-sequence-pir-file new-file-name)))
+
+          (if (file-exists? "current-sequence.dnd")
+              (let ((new-file-name (string-append "current-sequence.dnd" ".old")))
+                (rename-file "current-sequence.dnd" new-file-name)))
+
+          (if (file-exists? "current-sequence.aln")
+              (let ((new-file-name (string-append "current-sequence.aln" ".old")))
+                (rename-file "current-sequence.aln" new-file-name)))
+
+          (print-sequence-chain-general imol chain-id 1 1 current-sequence-pir-file)
+          (goosh-command
+           clustalw2-command
+           '()
+           (list
+            "3"
+            "1"
+            target-sequence-pir-file
+            "2"
+            current-sequence-pir-file
+            "9"
+            "2"
+            ""
+            "4"
+            ""
+            aligned-sequence-pir-file
+            ""
+            "x"
+            ""
+            "x")
+           clustalw2-output-file-name
+           #t)
+
+          (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
+          (apply-pir-alignment imol chain-id)
+          (simple-fill-partial-residues imol)
+          (resolve-clashing-sidechains-by-deletion imol)))))
+
+
+(if (defined? 'coot-main-menubar)
+    (let ((menu (coot-menubar-menu "Calculate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Use Clustalw for Alignment, then Mutate"
+       (lambda ()
+         ;; gui with molecule number chain-id and file-name
+         (generic-chooser-entry-and-file-selector "Target PIR file: " valid-model-molecule?
+                                                  "Chain-ID" "A" "PIR file for target sequence"
+                                                  (lambda (imol chain-id target-pir-file-name)
+                                                    (run-clustalw-alignment imol chain-id target-pir-file-name)
+                                                    (associate-pir-file imol chain-id target-pir-file-name)
+                                                    (alignment-mismatches-gui imol)
+                                                    ""))))))
+
 
 
 ;; Multiple residue ranges gui
@@ -3061,7 +3196,7 @@
 (define *solvent-ligand-list* 
   (append
    *additional-solvent-ligands*
-   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PG4" "EBE" "BTB")))
+   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PEG" "PG4" "PE8" "EBE" "BTB")))
 
 (define *random-jiggle-n-trials* 50)
 
@@ -3135,7 +3270,7 @@
 	 (h-sep (gtk-hseparator-new))
 	 (close-button (gtk-button-new-with-label "  Close  ")))
     
-    (gtk-window-set-default-size window 250 500)
+    (gtk-window-set-default-size window 450 500)
     (gtk-window-set-title window "Solvent Ligands")
     (gtk-container-border-width window 8)
     (gtk-container-add window outside-vbox)
@@ -3718,6 +3853,69 @@
       (gtk-widget-show-all window)))
 
 
+;; interface to the difference-map based pepflip finder
+(define (pepflips-by-difference-map-gui)
+
+  (define (fill-option-menu-with-difference-map-options menu)
+    (fill-option-menu-with-mol-options menu is-difference-map?))
+
+  (let* ((window (gtk-window-new 'toplevel))
+         (chooser-label "Difference map")
+	 (label (gtk-label-new chooser-label))
+	 (vbox (gtk-vbox-new #f 6))
+	 (hbox-buttons (gtk-hbox-new #f 5))
+         (hbox-sigma (gtk-hbox-new #f 5))
+	 (menu-map (gtk-menu-new))
+	 (menu-coords (gtk-menu-new))
+	 (option-menu-map    (gtk-option-menu-new))
+	 (option-menu-coords (gtk-option-menu-new))
+         (n-sigma-label (gtk-label-new "N-sigma cut-off"))
+         (n-sigma-entry (gtk-entry-new))
+	 (ok-button (gtk-button-new-with-label "  OK  "))
+	 (cancel-button (gtk-button-new-with-label " Cancel "))
+	 (h-sep (gtk-hseparator-new))
+	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu-coords))
+	 (map-mol-list (fill-option-menu-with-difference-map-options menu-map)))
+    (gtk-window-set-default-size window 370 100)
+    (gtk-container-add window vbox)
+    (gtk-box-pack-start vbox label #f #f 5)
+    (gtk-box-pack-start vbox option-menu-map    #t #t 6)
+    (gtk-box-pack-start vbox option-menu-coords #t #t 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-label #f #f 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-entry #f #f 6)
+    (gtk-box-pack-start vbox hbox-sigma  #t #f 6)
+    (gtk-box-pack-start vbox h-sep #t #f 2)
+    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+    (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
+    
+    (gtk-option-menu-set-menu option-menu-map    menu-map)
+    (gtk-option-menu-set-menu option-menu-coords menu-coords)
+    (gtk-entry-set-text n-sigma-entry "4.0")
+
+    (gtk-signal-connect cancel-button "clicked" (lambda () (gtk-widget-destroy window)))
+    (gtk-signal-connect ok-button "clicked"
+                        (lambda ()
+                          (let* ((imol-coords (get-option-menu-active-molecule
+                                               option-menu-coords model-mol-list))
+                                 (imol-map (get-option-menu-active-molecule
+                                            option-menu-map map-mol-list))
+                                 (n-sigma-str (gtk-entry-get-text n-sigma-entry))
+                                 (n-sigma (string->number n-sigma-str)))
+                            (let ((specs (pepflip-using-difference-map-scm imol-coords imol-map n-sigma)))
+                              (format #t "dialog for specs\n")
+                              (format #t "specs: ~s~%" specs)
+                              (if (null? specs)
+                                  (info-dialog "No pepflips found")
+                                  (dialog-box-of-buttons-from-specs "Potential Pepflip"
+                                                                    (cons 240 170)
+                                                                    imol-coords specs))
+                              (gtk-widget-destroy window)))))
+
+    (gtk-widget-show-all window)))
+
+
+
 ;; return a list, or #f (e.g. if not in same chain and molecule)
 ;; 
 (define (min-max-residues-from-atom-specs specs)
@@ -3784,7 +3982,7 @@
 				     (min-max-and-chain-id (min-max-residues-from-atom-specs atom-specs)))
 
 				 (if (not (list? min-max-and-chain-id))
-				     (info-dialog "Picked atoms not in same molecule and chain")
+				     (info-dialog "WARNING:: Picked atoms not in same molecule and chain")
 				     (let ((loop-mols
 					    (protein-db-loops imol residue-specs 
 							      (imol-refinement-map)
@@ -3833,10 +4031,10 @@
 (define (refmac-multi-sharpen-gui)
   (let ((window (gtk-window-new 'toplevel))
 	;; boxes
-	(vbox (gtk-vbox-new #f 0))
-	(hbox-1 (gtk-hbox-new #f 0))
-	(hbox-2 (gtk-hbox-new #f 0))
-	(hbox-3 (gtk-hbox-new #f 0))
+	(vbox (gtk-vbox-new #f 4))
+	(hbox-1 (gtk-hbox-new #f 4))
+	(hbox-2 (gtk-hbox-new #f 4))
+	(hbox-3 (gtk-hbox-new #f 4))
 	;; menus
 	(option-menu-map (gtk-option-menu-new))
 	(option-menu-b-factor (gtk-option-menu-new))
@@ -3854,7 +4052,7 @@
 	;; buttons
 	(ok-button (gtk-button-new-with-label "   OK   "))
 	(cancel-button (gtk-button-new-with-label " Cancel "))
-	(n-levels-list (list 1 2 3 4 5 6))
+	(n-levels-list (list 1 2 3 4 5 6 8 10 12 15))
 	(b-factor-list (list 50 100 200 400 800 2000)))
 
     (let ((map-molecule-list (fill-option-menu-with-map-mol-options
@@ -3887,10 +4085,10 @@
       (gtk-box-pack-end hbox-3 cancel-button #f #f 12)
       (gtk-box-pack-end hbox-3     ok-button #f #f 12)
 
-      (gtk-box-pack-start vbox hbox-1)
-      (gtk-box-pack-start vbox hbox-2)
-      (gtk-box-pack-start vbox h-sep)
-      (gtk-box-pack-start vbox hbox-3)
+      (gtk-box-pack-start vbox hbox-1 #f #f 6)
+      (gtk-box-pack-start vbox hbox-2 #f #f 6)
+      (gtk-box-pack-start vbox h-sep  #f #f 2)
+      (gtk-box-pack-start vbox hbox-3 #f #f 6)
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda() (gtk-widget-destroy window)))
@@ -3925,14 +4123,13 @@
 
 				  (begin
 
-				    (format #t "active-item-imol: ~s~%" active-item-imol)
-
 				    (let* ((step-size (/ max-b n-levels))
-					   (numbers-string (apply string-append (map (lambda(i)
-										       (let ((lev (* step-size (+ i 1))))
-											 (string-append
-											  (number->string lev) " ")))
-										     (range n-levels))))
+					   (numbers-string
+					    (apply string-append (map (lambda(i)
+									(let ((lev (* step-size (+ i 1))))
+									  (string-append
+									   (number->string (exact->inexact lev)) " ")))
+								      (range n-levels))))
 					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
 					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
 
@@ -3973,6 +4170,24 @@
     (gtk-container-add window vbox)
     (gtk-widget-show-all window))))
 
+(define (auto-assign-sequence-from-map)
+  (using-active-atom
+   (let ((imol aa-imol)
+         (ch-id aa-chain-id))
+     (let ((imol-map (imol-refinement-map)))
+       (let ((fragment-residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+         (let ((residue-number-list (map (lambda (item) (list-ref item 2)) fragment-residues)))
+           (let ((resno-start (apply min residue-number-list))
+                 (resno-end   (apply max residue-number-list)))
+             (let ((new-sequence (sequence-from-map imol ch-id resno-start resno-end imol-map)))
+               (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))
+               (format #t "INFO:: mutate-residue-range ~s ~s ~s ~s ~s~%" imol ch-id resno-start resno-end new-sequence)
+               (format #t "INFO:: mutate-residue-range lengths: ~s ~s~%"
+                       (+ (- resno-end resno-start) 1) (string-length new-sequence))
+               (mutate-residue-range imol ch-id resno-start resno-end new-sequence)
+               (backrub-rotamers-for-chain imol ch-id)
+               (refine-residues imol fragment-residues)))))))))
+
 ;;
 (define (add-module-cryo-em)
   (if (defined? 'coot-main-menubar)
@@ -3983,33 +4198,212 @@
   (if (defined? 'coot-main-menubar)
       (add-module-ccp4-gui)))
 
+(define (add-module-pdbe)
+  (if (defined? 'coot-main-menubar)
+      (add-module-pdbe-gui)))
+
 ;;
 (define (add-module-cryo-em-gui)
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "Cryo-EM")))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Multi-sharpen..."
-	 refmac-multi-sharpen-gui)
+        (add-simple-coot-menu-menuitem
+         menu "Go To Map Molecule Middle"
+         (lambda ()
+          (go-to-map-molecule-centre (imol-refinement-map))))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Interactive Nudge Residues..."
-	 (lambda ()
-	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
+        (add-simple-coot-menu-menuitem
+         menu "Go To Box Middle" go-to-box-middle)
+
+        (add-simple-coot-menu-menuitem
+         menu "Sharpen/Blur..."
+         sharpen-blur-map-gui)
+
+        (add-simple-coot-menu-menuitem
+         menu "Multi-sharpen using Refmac..."
+         refmac-multi-sharpen-gui)
+
+        (add-simple-coot-menu-menuitem
+         menu "Flip Hand of Map..."
+         (lambda ()
+           (map-molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Add molecular symmetry using MTRIX"
+         (lambda ()
+           (using-active-atom
+            (set-show-symmetry-master 1)
+            (add-molecular-symmetry-from-mtrix-from-self-file aa-imol))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Align and Mutate using ClustalW2"
+         (lambda ()
+           'x
+           (generic-chooser-entry-and-file-selector
+            "Align Sequence to Model: "
+            valid-model-molecule?
+            "Chain ID"
+            ""
+            "Select PIR Alignment file"
+            (lambda (imol chain-id target-sequence-pir-file)
+              (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Assign Sequence Based on Associated Sequence"
+         (lambda ()
+           (assign-sequence-to-active-fragment)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Auto-assign Sequence Based on Map"
+         (lambda ()
+           (auto-assign-sequence-from-map)))
+
+        (add-simple-coot-menu-menuitem
+         menu "No Auto-Recontour Map Mode" (lambda () (set-auto-recontour-map 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Enable Auto-Recontour Map Mode" (lambda () (set-auto-recontour-map 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Interactive Nudge Residues..."
+         (lambda ()
+           (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
 ;;
 (define (add-module-ccp4-gui)
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "CCP4")))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Make Link via Acedrg"
-	 (lambda ()
-	   (acedrg-link-generation-control-window))))))
+        (add-simple-coot-menu-menuitem
+         menu "Make Link via Acedrg"
+         (lambda ()
+           (acedrg-link-generation-control-window))))))
+
+(define (add-module-pdbe-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "PDBe")))
+
+        ;; ---------------------------------------------------------------------
+        ;;     Recent structures from the PDBe
+        ;; ---------------------------------------------------------------------
+        ;;
+        ;; 20110921 too crashy at the moment (something to do with lots of threads?)
+        ;;
+        (add-simple-coot-menu-menuitem
+         menu "PDBe recent structures..."
+         pdbe-latest-releases-gui)
+
+        (add-simple-coot-menu-menuitem
+         menu "Get from PDBe..."
+         (lambda ()
+           (let ((mess
+                  (if (command-in-path? "refmac5")
+                      "Get PDBe accession code"
+                      (string-append
+                       "\n  WARNING:: refmac5 not in the path - SF calculation will fail  \n\n"
+                       "Get PDBe accession code"))))
+             (generic-single-entry mess
+                                   "" " Get it "
+                                   (lambda (text)
+                                     ;; fire off something that is controlled by a time-out -
+                                     ;; doesn't return a useful value.
+                                     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))))))
+
+(define (residues-in-chain imol chain-id-in)
+  (residues-matching-criteria imol (lambda (chain-id res-no ins-code serial-no) (string=? chain-id chain-id-in))))
+
+(define (chain-refine imol chain-id)
+  (let ((ls (residues-in-chain imol chain-id)))
+	(refine-residues imol ls)))
+
+(define (regularize-active-chain)
+   (using-active-atom
+      (let ((ls (residues-in-chain aa-imol aa-chain-id)))
+         (regularize-residues aa-imol ls))))
+
+(define (refine-active-fragment)
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (refine-residues aa-imol residues)
+	 (format #t "residues not a list!~%")))))
+
+(define (regularize-active-fragment)
+
+  (using-active-atom
+   ;; needs a "don't count Hydrogen atom" mode
+   (let ((residues (linked-residues-scm aa-res-spec aa-imol 1.7)))
+     (if (list? residues)
+         (regularize-residues aa-imol residues)
+	 (format #t "residues not a list!~%")))))
+
+(define (add-module-refine)
+
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Refine")))
+
+        (add-simple-coot-menu-menuitem
+         menu "All-atom Refine"
+         (lambda ()
+           (using-active-atom
+            (let ((ls (all-residues aa-imol)))
+              (refine-residues aa-imol ls)))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Chain Refine"
+         (lambda ()
+           (using-active-atom (chain-refine aa-imol aa-chain-id))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Contact Dots On"
+         (lambda ()
+           (set-do-coot-probe-dots-during-refine 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Contact Dots Off"
+         (lambda ()
+           (set-do-coot-probe-dots-during-refine 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Intermediate Atom Restraints On"
+         (lambda ()
+           (set-draw-moving-atoms-restraints 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Intermediate Atom Restraints Off"
+         (lambda ()
+           (set-draw-moving-atoms-restraints 0)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Refine Fragment"
+         refine-active-fragment)
+
+        (add-simple-coot-menu-menuitem
+         menu "Regularize Fragment"
+         regularize-active-fragment)
+
+        (add-simple-coot-menu-menuitem
+         menu "Regularize Chain"
+         regularize-active-chain)
+
+        (add-simple-coot-menu-menuitem
+         menu "Rotamer Goodness Dodecs On"
+         (lambda ()
+           (set-show-intermediate-atoms-rota-markup 1)))
+
+        (add-simple-coot-menu-menuitem
+         menu "Rotamer Goodness Dodecs Off"
+         (lambda ()
+           (set-show-intermediate-atoms-rota-markup 0)))
+
+        )))
+
+
 
 
 ;; let the c++ part of coot know that this file was loaded:
 (set-found-coot-gui)
-	 
+
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:

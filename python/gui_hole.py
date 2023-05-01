@@ -9,51 +9,50 @@ def hole_ify():
                                                        position[0],
                                                        position[1],
                                                        position[2])
-        add_status_bar_text(s)
+        coot.add_status_bar_text(s)
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     vbox = gtk.VBox(False, 0)
     hbox = gtk.VBox(False, 0)
     hbox_pos_buttons = gtk.HBox(False, 0)
     hbox_calc_cancel_buttons = gtk.HBox(False, 0)
-    start_button = gtk.Button("  Set Start Point  ")
-    end_button   = gtk.Button("  Set End Point  ")
+    start_button = gtk.Button(label="  Set Start Point  ")
+    end_button   = gtk.Button(label="  Set End Point  ")
     h_sep = gtk.HSeparator()
-    calculate_button = gtk.Button("Calculate")
-    cancel_button = gtk.Button("Cancel")
+    calculate_button = gtk.Button(label="Calculate")
+    cancel_button = gtk.Button(label="Cancel")
     hole_export_entry = gtk.Entry()
-    export_text = gtk.Label("Export surface dots to File: ")
+    export_text = gtk.Label(label="Export surface dots to File: ")
     export_hbox = gtk.HBox(False, 0)
-    option_menu_and_model_mol_list = generic_molecule_chooser(hbox,
-                                                              "HOLE-ify molecule: ")
+    combobox = coot_gui.generic_molecule_chooser(hbox, "HOLE-ify molecule: ")
 
     window.add(vbox)
-    hbox_pos_buttons.pack_start(start_button, False, False, 6)
-    hbox_pos_buttons.pack_start(end_button, False, False, 6)
-    hbox_calc_cancel_buttons.pack_start(calculate_button, False, False, 6)
-    hbox_calc_cancel_buttons.pack_start(cancel_button, False, False, 6)
-    export_hbox.pack_start(export_text, False, False, 6)
-    export_hbox.pack_start(hole_export_entry, False, False, 6)
-    vbox.pack_start(hbox, True, True, 6)
-    vbox.pack_start(hbox_pos_buttons, True, True, 6)
-    vbox.pack_start(export_hbox, True, True, 6)
+    hbox_pos_buttons.append(start_button)
+    hbox_pos_buttons.append(end_button)
+    hbox_calc_cancel_buttons.append(calculate_button)
+    hbox_calc_cancel_buttons.append(cancel_button)
+    export_hbox.append(export_text)
+    export_hbox.append(hole_export_entry)
+    vbox.append(hbox)
+    vbox.append(hbox_pos_buttons)
+    vbox.append(export_hbox)
     vbox.pack_start(h_sep)
-    vbox.pack_start(hbox_calc_cancel_buttons, True, True, 6)
+    vbox.append(hbox_calc_cancel_buttons)
 
     hole_export_entry.set_text("hole_surface_dots.dat")
 
     def start_button_cb(*args):
         global start_pos
-        start_pos = rotation_centre()
-        print "Start pos set to:", start_pos
+        start_pos = coot_utils.rotation_centre()
+        print("Start pos set to:", start_pos)
         status_bar_pos(start_pos, "start")
         
     start_button.connect("clicked", start_button_cb)
 
     def end_button_cb(*args):
         global end_pos
-        end_pos = rotation_centre()
-        print "End pos set to:", end_pos
+        end_pos = coot_utils.rotation_centre()
+        print("End pos set to:", end_pos)
         status_bar_pos(end_pos, "end")
         
     end_button.connect("clicked", end_button_cb)
@@ -64,17 +63,17 @@ def hole_ify():
     
     def calculate_button_cb(*args):
         global start_pos, end_pos
-        imol = get_option_menu_active_molecule(*option_menu_and_model_mol_list)
+        imol = combobox_to_molecule_number(combobox)
         if isinstance(imol, int):
-            print start_pos, end_pos
+            print(start_pos, end_pos)
             if not isinstance(start_pos, list):
-                add_status_bar_text("Start position not set")
+                coot.add_status_bar_text("Start position not set")
             else:
                 if not isinstance(end_pos, list):
-                    add_status_bar_text("End position not set")
+                    coot.add_status_bar_text("End position not set")
                 else:
                     # main?
-                    print "hole", imol, start_pos, end_pos
+                    print("hole", imol, start_pos, end_pos)
                     # get this from an entry ideally.
                     export_dots_file_name = hole_export_entry.get_text()
                     colour_map_multiplier = 1
@@ -82,8 +81,8 @@ def hole_ify():
                     hole_args = [imol] + start_pos + end_pos + \
                                 [colour_map_multiplier, colour_map_offset, 1,
                                  True, export_dots_file_name]
-                    print "BL DEBUG:: hole_args", hole_args
-                    hole(*hole_args)
+                    print("BL DEBUG:: hole_args", hole_args)
+                    coot.hole(*hole_args)
                     delete_event()
                     
     calculate_button.connect("clicked", calculate_button_cb)

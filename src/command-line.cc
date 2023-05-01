@@ -26,8 +26,6 @@
 //           do we need python here at all?!
 #endif
 
-#include "compat/coot-sysdep.h"
-
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -73,14 +71,13 @@
 
 
 command_line_data
-parse_command_line(int argc, char ** argv ) { 
+parse_command_line(int argc, char ** argv ) {
 
    command_line_data cld;
 
-   optind = 0; // reset the (global) extern because
-	       // parse_command_line() is/can be called more once.
+   coot_optind = 0; // reset the (global) extern because
+	            // parse_command_line() is/can be called more once.
 
-#ifdef _GETOPT_H    
    int ch; 
 
  /* 
@@ -117,30 +114,34 @@ parse_command_line(int argc, char ** argv ) {
       {"comp_id",    1, 0, 0},
       {"comp-id",    1, 0, 0},
       {"em",         0, 0, 0},
+      {"emdb",       1, 0, 0},
       {"title",      1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
-      {"splash-screen", 1, 0, 0}, // alternate splash screen
+      {"run-state-script", 0, 0, 0},
+      {"splash-screen",    1, 0, 0}, // alternate splash screen
       {"self-test",        0, 0, 0},
       {"no-state-script",  0, 0, 0},
       {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
-      {"stereo",     0, 0, 0},        // no arguments 
+      {"stereo",           0, 0, 0},        // no arguments 
       {"side-by-side",     0, 0, 0},  //
       {"zalman-stereo",    0, 0, 0},  //
-      {"version",    0, 0, 0},        //
-      {"version-full",  0, 0, 0},     //
-      {"no-guano",   0, 0, 0},        //
+      {"version",          0, 0, 0},        //
+      {"version-full",     0, 0, 0},     //
+      {"no-guano",         0, 0, 0},        //
       {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
       {"update-self", 0, 0, 0},  
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
-   int option_index = 0; 
+   int option_index = 0;
+
+   bool found_no_graphics_in_the_command_line = false;
 
    while( -1 != 
 	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index) )) {
@@ -148,76 +149,79 @@ parse_command_line(int argc, char ** argv ) {
       switch(ch) {
 	 
       case 0:
-	 
-	 if (optarg) {
+
+	 if (coot_optarg) {
 
 	    // options that need an argument:
 	    
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "pdb") { 
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "coords") { 
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "xyzin") {
-	       cld.coords.push_back(optarg);
+	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "map") { 
-	       cld.maps.push_back(optarg);
+	       cld.maps.push_back(coot_optarg);
 	    }
 	    if (arg_str == "data") { 
-	       cld.datasets.push_back(optarg);
+	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "hklin") { 
-	       cld.datasets.push_back(optarg);
+	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "script") {
-	       cld.script.push_back(optarg);
+	       cld.script.push_back(coot_optarg);
 	    }
 	    if (arg_str == "command") {
-	       cld.command.push_back(optarg);
+	       cld.command.push_back(coot_optarg);
 	    }
 	    if (arg_str == "port") {
-	       cld.port = atoi(optarg);
+	       cld.port = atoi(coot_optarg);
 	    } 
 	    if (arg_str == "host") {
-	       cld.hostname = optarg;
+	       cld.hostname = coot_optarg;
 	    } 
 	    if (arg_str == "hostname") {
-	       cld.hostname = optarg;
+	       cld.hostname = coot_optarg;
 	    }
 	    if (arg_str == "auto") {
-	       cld.auto_datasets.push_back(optarg);
+	       cld.auto_datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "dictionary") {
-	       cld.dictionaries.push_back(optarg);
+	       cld.dictionaries.push_back(coot_optarg);
 	    }
 	    if (arg_str == "ccp4-project") {
-	       cld.ccp4_project = optarg;
+	       cld.ccp4_project = coot_optarg;
 	    }
 	    if (arg_str == "code") {
-	       cld.accession_codes.push_back(optarg);
+	       cld.accession_codes.push_back(coot_optarg);
+	    }
+	    if (arg_str == "emdb") {
+	       cld.emdb_codes.push_back(coot_optarg);
 	    }
 	    if (arg_str == "comp_id") {
-	       cld.comp_ids.push_back(optarg);
+	       cld.comp_ids.push_back(coot_optarg);
 	    }
 	    if (arg_str == "comp-id") {
-	       cld.comp_ids.push_back(optarg);
+	       cld.comp_ids.push_back(coot_optarg);
 	    }
 	    if (arg_str == "title") {
-	       cld.title = optarg;
+	       cld.title = coot_optarg;
 	    }
 	    if (arg_str == "splash-screen") {
-	       cld.alternate_splash_screen_file_name = optarg;
+	       cld.alternate_splash_screen_file_name = coot_optarg;
 	    }
-	    
+
 	 } else { 
 
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
-	    
+
 	    if (arg_str == "stereo") {
 	       cld.hardware_stereo_flag = 1;
 	    } else {
@@ -277,14 +281,20 @@ parse_command_line(int argc, char ** argv ) {
 #ifdef HAVE_CXX_THREAD
 			   enableds.push_back("Threads");
 #endif
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+			   enableds.push_back("Boost-based-thread-pool");
+#endif
 #ifdef USE_MOLECULES_TO_TRIANGLES
-			   enableds.push_back("Molecular-triangles");
+			   enableds.push_back("MoleculesToTriangles");
 #endif
 #ifdef HAVE_GOOCANVAS
 			   enableds.push_back("Goocanvas");
 #endif
 #ifdef HAVE_GSL
 			   enableds.push_back("GSL");
+#endif
+#ifdef USE_GEMMI
+                           enableds.push_back("GEMMI");
 #endif
 #ifdef USE_SQLITE3
 			   enableds.push_back("SQLite3");
@@ -313,47 +323,52 @@ parse_command_line(int argc, char ** argv ) {
 			      if (arg_str == "no-state-script") {
 				 graphics_info_t::run_state_file_status = 0;
 			      } else {
-				 if (arg_str == "no-startup-scripts") {
-				    graphics_info_t::run_startup_scripts_flag = false;
-				 } else {
-				    if (arg_str == "no-graphics") {
-				       cld.do_graphics = 0;
-				    } else {
-				       if (arg_str == "em") {
-					  cld.em_mode = true;
-				       } else {
-					  if (arg_str == "side-by-side") {
-					     cld.hardware_stereo_flag = 2;
-					  } else {
-					     if (arg_str == "no-guano") {
-						cld.disable_state_script_writing = 1;
-					     } else {
-						if (arg_str == "small-screen") {
-						   cld.small_screen_display = 1;
-						} else {
-						   if (arg_str == "no-splash-screen") {
-						      cld.use_splash_screen = 0;
-						   } else {
-						      if (arg_str == "self-test") {
-							 cld.run_internal_tests_and_exit = 1;
-						      } else {
-							 if (arg_str == "update-self") {
-							    cld.update_self = 1;
-							    cld.do_graphics = 0;
-							 } else {
-							    std::cout << "WARNING! Malformed option - needs an argument: " 
-								      << long_options[option_index].name
-								      << std::endl << std::endl;
-							 }
-						      }
-						   }
-						}
-					     }
-					  }
-				       }
-				    }
-				 }
-			      }
+                                 if (arg_str == "run-state-script") {
+                                    graphics_info_t::run_state_file_status = 2;
+                                 }  else {
+                                    if (arg_str == "no-startup-scripts") {
+                                       graphics_info_t::run_startup_scripts_flag = false;
+                                    } else {
+                                       if (arg_str == "no-graphics") {
+                                          cld.do_graphics = false; // 20220409-PE it's already false now
+                                          found_no_graphics_in_the_command_line = true;
+                                       } else {
+                                          if (arg_str == "em") {
+                                             cld.em_mode = true;
+                                          } else {
+                                             if (arg_str == "side-by-side") {
+                                                cld.hardware_stereo_flag = 2;
+                                             } else {
+                                                if (arg_str == "no-guano") {
+                                                   cld.disable_state_script_writing = 1;
+                                                } else {
+                                                   if (arg_str == "small-screen") {
+                                                      cld.small_screen_display = 1;
+                                                   } else {
+                                                      if (arg_str == "no-splash-screen") {
+                                                         cld.use_splash_screen = 0;
+                                                      } else {
+                                                         if (arg_str == "self-test") {
+                                                            cld.run_internal_tests_and_exit = 1;
+                                                         } else {
+                                                            if (arg_str == "update-self") {
+                                                               cld.update_self = 1;
+                                                               cld.do_graphics = 0;
+                                                            } else {
+                                                               std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                         << long_options[option_index].name
+                                                                         << std::endl << std::endl;
+                                                            }
+                                                         }
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
 			   }
 			}
 		     }
@@ -366,31 +381,31 @@ parse_command_line(int argc, char ** argv ) {
 	 // try short options then...
 	 
       case 'p':
-	 cld.coords.push_back(optarg);
+	 cld.coords.push_back(coot_optarg);
 	 break; 
 	 
       case 's':
-	 cld.script.push_back(optarg);
+	 cld.script.push_back(coot_optarg);
 	 break; 
 	 
       case 'd':
-	 cld.datasets.push_back(optarg);
+	 cld.datasets.push_back(coot_optarg);
 	 break; 
 	 
       case 'a':
-	 cld.auto_datasets.push_back(optarg);
-	 break; 
+	 cld.auto_datasets.push_back(coot_optarg);
+	 break;
 	 
       case 'm':
-	 cld.maps.push_back(optarg);
+	 cld.maps.push_back(coot_optarg);
 	 break; 
 	 
       case 'c':
-         if (optarg) { 
-            // std::cout << "command optarg: " << optarg << std::endl;
-	    cld.command.push_back(optarg);
+         if (coot_optarg) { 
+            // std::cout << "command coot_optarg: " << coot_optarg << std::endl;
+	    cld.command.push_back(coot_optarg);
          } else { 
-            std::cout << "command optarg is NULL " << std::endl;
+            std::cout << "command coot_optarg is NULL " << std::endl;
          } 
 	 break; 
 	 
@@ -399,17 +414,18 @@ parse_command_line(int argc, char ** argv ) {
 	 break;
 	 
       default:
-	 std::cout << "Unaccounted for optarg condition " << std::endl; 
-	 break; 
+	 std::cout << "Unaccounted for coot_optarg condition " << std::endl; 
+	 break;
       }
    }
 
    if (cld.hostname != "" && cld.port != 0)
-      cld.try_listener = 1;
+      cld.try_listener = true;
+
+   if (! found_no_graphics_in_the_command_line) // we do this for "import coot" in Python, which doesn't use main()
+      cld.do_graphics = true;                   // and doesn't run this function.
 
    cld.roberto_pdbs(argc, argv);
-   
-#endif // _GETOPT_H    
 
    return cld; 
 
@@ -434,8 +450,10 @@ command_line_data::handle_immediate_settings() {
    // small screen
    if (small_screen_display && graphics_info_t::use_graphics_interface_flag) {
      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
-     gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
-     gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
+
+     std::cout << "Fix small screen parsing in handle_immediate_settings() " << std::endl;
+     // gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
+     // gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
      graphics_info_t::graphics_x_size = 400;
      graphics_info_t::graphics_y_size = 400;
    }
@@ -443,26 +461,15 @@ command_line_data::handle_immediate_settings() {
 
 
 // add any pdb files not alread added with --pdb/coords/xyzin
-// BL:: extend to mtzs (auto) and scripts (the easier ones)
-// maybe the name should be change then...
 void
 command_line_data::roberto_pdbs(int argc, char **argv) {
 
    for (int i=1; i<argc; i++) {
-     std::string file = argv[i];
-     if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)) ||
-         coot::util::extension_is_for_shelx_coords(coot::util::file_name_extension(file)))
-       if (std::find(coords.begin(), coords.end(), file) == coords.end())
-         coords.push_back(file);
-
-     if (coot::util::extension_is_for_auto_datasets(coot::util::file_name_extension(file)))
-       if (std::find(auto_datasets.begin(), auto_datasets.end(), file) == auto_datasets.end())
-         auto_datasets.push_back(file);
-
-     if (coot::util::extension_is_for_scripts(coot::util::file_name_extension(file)))
-       if (std::find(script.begin(), script.end(), file) == script.end())
-         script.push_back(file);
-     
+      std::string file(argv[i]);
+      if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)) ||
+          coot::util::extension_is_for_shelx_coords(coot::util::file_name_extension(file)))
+         if (std::find(coords.begin(), coords.end(), file) == coords.end())
+            coords.push_back(file);
    }
 }
 

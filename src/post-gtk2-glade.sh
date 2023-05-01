@@ -62,11 +62,48 @@ $SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
         /png/s/create_pixmap (preferences, /gtk_image_new_from_stock (/
         /png/s/);/, GTK_ICON_SIZE_BUTTON);/
         }' \
-    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
-    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' \
-    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' \
-    gtk2-interface.c > gtk2-interface.post-sed
+    -e 's/ gtk_combo_box_append_text .GTK_COMBO_BOX / gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT /' \
+    -e 's/ gtk_combo_box_new_text / gtk_combo_box_text_new /' \
+    -e 's?  GtkTooltips *?  // GtkTooltips ?' \
+    -e 's? tooltips = gtk_tooltips_new ? // tooltips = gtk_tooltips_new ?' \
+    -e 's? gtk_tooltips_set_tip ? // gtk_tooltips_set_tip ?' \
+    -e 's? gtk_tool_item_set_tooltip ? // gtk_tool_item_set_tooltip ?' \
+    -e 's? gtk_dialog_set_has_separator ? // gtk_dialog_set_has_separator ?' \
+    -e 's? gtk_toolbar_set_orientation (GTK_TOOLBAR ? gtk_orientable_set_orientation (GTK_ORIENTABLE ?' \
+    -e 's/gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)/g_object_ref (widget), (GDestroyNotify) g_object_unref)/' \
+    -e 's/ gtk_about_dialog_set_name / gtk_about_dialog_set_program_name /' \
+    -e 's/GDK_F7/GDK_KEY_F7/' \
+    -e 's/GDK_F6/GDK_KEY_F6/' \
+    -e 's/GDK_D/GDK_KEY_D/'   \
+    -e 's/GDK_U/GDK_KEY_U/'   \
+    -e 's/ gtk_vbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_VERTICAL/'   \
+    -e 's/ gtk_vbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_VERTICAL/'   \
+    -e 's/ gtk_hbox_new .FALSE/ gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
+    -e 's/ gtk_hbox_new .TRUE/  gtk_box_new (GTK_ORIENTATION_HORIZONTAL/' \
+    -e 's? GLADE_HOOKUP_OBJECT_NO_REF .*tooltip? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?' \
+    gtk2-interface.c \
+    | awk '
+/ = GTK_DIALOG/ {f=$4; gsub("[(]", "", f); gsub("[)].*", "", f); print(" ", $1, "=", "gtk_dialog_get_content_area(", f, ");")}
+/ GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT/ {print "  gtk_widget_set_can_default " $2, "1);" ; next }
+/ GTK_WIDGET_SET_FLAGS .* GTK_CAN_FOCUS/   {print "  gtk_widget_set_can_focus " $2, "1);" ; next }
+/ GTK_WIDGET_UNSET_FLAGS .* GTK_CAN_FOCUS/   {print "  gtk_widget_set_can_focus " $2, "0);" ; next }
+$0 !~ "= GTK_DIALOG"
+    ' \
+    > gtk2-interface.post-sed
 
-cp gtk2-interface.post-sed gtk2-interface.c
-sh fixup-gtk2-interface.sh
+sh fixup-gtk2-interface.sh gtk2-interface.post-sed
 bash fixup-interface.h.sh
+
+#    -e 's? GTK_WIDGET_SET_FLAGS ? // GTK_WIDGET_SET_FLAGS ?'
+#   -e 's? GTK_WIDGET_UNSET_FLAGS ? // GTK_WIDGET_UNSET_FLAGS ?' \
+#    -e 's? GTK_WIDGET_SET_FLAGS ? gtk_widget_set_can_default ?' \
+
+# / GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT / {print "  gtk_widget_set_can_default " $2, "1);" }
+
+#    -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?'
+
+# We don't care about old gtks now
+#    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/'
+#    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/'
+#    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/'
+

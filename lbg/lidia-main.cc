@@ -43,9 +43,7 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#ifdef USE_PYTHON
 #include <boost/python.hpp>
-#endif
 #endif
 
 #include <cairo.h>
@@ -69,13 +67,26 @@ void set_rotation_centre(const clipper::Coord_orth &pos) {}
 int
 main(int argc, char *argv[]) {
 
-   mmdb::InitMatType(); // mmdb program. 
+   mmdb::InitMatType(); // mmdb program.
 
-#ifdef USE_PYTHON
-   Py_Initialize();
-   PySys_SetArgv(argc, argv);
-   PyRun_SimpleString("global user_defined_alert_smarts ; user_defined_alert_smarts = []");
-#endif
+#ifdef USE_PYMAC_INIT
+
+  //  (on Mac OS, call PyMac_Initialize() instead)
+  //http://www.python.org/doc/current/ext/embedding.html
+  //
+  PyMac_Initialize();
+
+#else
+
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   for (int i=0; i<argc; i++) {
+      wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
+      _argv[i] = arg;
+   }
+   Py_InitializeEx(0);
+   PySys_SetArgv(argc, _argv);
+
+#endif // USE_PYMAC_INIT
    
    gtk_init (&argc, &argv);
    std::string molecule_file_name = "";

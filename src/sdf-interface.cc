@@ -25,6 +25,9 @@
 
 // We need this high so that dcgettext() so we don't get expected unqualified-id before 'const'
 // errors when we read libintl from rdkit-interface.hh
+#define ENABLE_NLS // 20220126-PE Charles says this is needed to fix dcgettext() problems
+                   // when including libintl.h - hmm!
+#include "graphics-info.h"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <libintl.h>
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -33,14 +36,9 @@
 
 #include <cstring>
 
-#define ENABLE_NLS // fix dcgettext() header problems on including
-		   // libintl.h (via RDKitBase.h etc (including boost
-		   // stuff).
-
 #include <iostream> // for istream?
 #include <istream> // for istream?
 
-#include "graphics-info.h"
 #include "c-interface-generic-objects.h"
 #include "sdf-interface.hh"
 
@@ -278,7 +276,11 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
    }
 
    RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
-   coot::generic_display_object_t features_obj(name);
+   //coot::generic_display_object_t features_obj(name);
+
+   int obj_features = new_generic_object_number(name);
+   meshed_generic_display_object &features_obj = g.generic_display_objects[obj_features];
+   features_obj.mesh.name = name;
    RDKit::Conformer conf = rdkm.getConformer(0); // iconf?
 
    std::list<RDKit::FeatSPtr>::const_iterator it;
@@ -287,7 +289,8 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       boost::shared_ptr<RDKit::MolChemicalFeature> sp = *it;
       RDGeom::Point3D pos = sp.get()->getPos();
       clipper::Coord_orth centre(pos.x, pos.y, pos.z);
-      coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
+      // coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
+      meshed_generic_display_object::sphere_t sphere(centre, 0.5);
       std::string family = sp.get()->getFamily();
       coot::colour_t col;
       if (family == "Hydrophobe")
@@ -305,7 +308,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       if (family == "NegIonizable")
 	 col = coot::colour_t(0.7, 0.2, 0.2);
 
-      sphere.col = col;
+      sphere.col = col.to_glm();
 
       // make the lumped sphere be smaller for aesthetic reasons (more
       // easily distinguished)
@@ -315,16 +318,19 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
 
       // don't show a sphere for an aromatic - but do for everything else.
       // 
+      // if (family != "Aromatic")
+      // features_obj.spheres.push_back(sphere);
+      //
       if (family != "Aromatic")
-	 features_obj.spheres.push_back(sphere);
+         features_obj.add(sphere);
 
       if (family == "Donor" || family == "Acceptor") {
 	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
 	 if (normal.first) {
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
- 	    coot::generic_display_object_t::arrow_t arrow(centre, p1);
-	    arrow.col = col;
- 	    features_obj.arrows.push_back(arrow);
+ 	    meshed_generic_display_object::arrow_t arrow(centre, p1);
+	    arrow.col = col.to_colour_holder(); // because reasons.
+ 	    features_obj.add_arrow(arrow);
 	 }
       }
       
@@ -334,23 +340,25 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
 	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
 	    
- 	    coot::generic_display_object_t::torus_t torus_1(centre, p1, 0.18, 1.1);
- 	    coot::generic_display_object_t::torus_t torus_2(centre, p2, 0.18, 1.1);
- 	    torus_1.col = col;
- 	    torus_2.col = col;
+ 	    meshed_generic_display_object::torus_t torus_1(centre, p1, 0.18, 1.1);
+ 	    meshed_generic_display_object::torus_t torus_2(centre, p2, 0.18, 1.1);
+ 	    torus_1.col = col.to_colour_holder();
+ 	    torus_2.col = col.to_colour_holder();
 	    if (sp.get()->getNumAtoms() == 5) {
 	       torus_1.n_ring_atoms = 5;
 	       torus_2.n_ring_atoms = 5;
 	    }
-	    features_obj.tori.push_back(torus_1);
- 	    features_obj.tori.push_back(torus_2);
+	    features_obj.add_torus(torus_1);
+ 	    features_obj.add_torus(torus_2);
 	 }
       }
    }
 
-   int n_new = add_generic_display_object(features_obj);
-   attach_generic_object_to_molecule(n_new, imol);
-   set_display_generic_object(n_new, 1);
+   Material material;
+   features_obj.mesh.setup(material); // fast return if already done
+
+   attach_generic_object_to_molecule(obj_features, imol);
+   set_display_generic_object(obj_features, 1);
 }
 
 
@@ -417,7 +425,7 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
       boost::tie(nbrIdx, endNbrs) = mol.getAtomNeighbors(feat_atoms[0]);
       std::vector<clipper::Coord_orth> neighbour_positions;
       while(nbrIdx != endNbrs){
-	 const RDKit::ATOM_SPTR at = mol[*nbrIdx];
+	 const RDKit::Atom *at = mol[*nbrIdx];
 	 if (at->getAtomicNum() != 1) {
 	    RDGeom::Point3D r_pos = conf.getAtomPos(*nbrIdx);
 	    neighbour_positions.push_back(clipper::Coord_orth(r_pos.x, r_pos.y, r_pos.z));

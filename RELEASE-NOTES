@@ -1,4 +1,622 @@
 
+   Release 1.0.06
+
+  o FEATURE: Add user-define colours to molecular ribbons representation.
+
+  o FEATURE: AlphaFold pLDDT colour scheme.
+
+  o FEATURE: Added load_gltf_mode() to the API.
+
+----
+
+  Release 0.9.8.4
+
+  o FEATURE: AlphaFold pLDDT colour scheme.
+
+  o CHANGE:  Load files from ~/.coot if it is a directory.
+
+  o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
+
+  o CHANGE:  Waters have a larger radius.
+
+  o CHANGE:  Added bad NBC interaction annotation.
+
+  o BUG-FIX: Atom picking is no longer allowed in "Edit Chi Angles."
+             Thanks Juno Krahn.
+
+  o BUG-FIX: configure improvement for checking Python.
+             Thanks Juno Krahn.
+
+  o BUG-FIX: mutate_residue_range() now in the coot namesspace in auto_assign_sequence_from_map()
+
+  o CHANGE:  Inter-chain links can now be refined. [Keitaro Yamashita]
+
+  o BUG-FIX: Reenable the picking of hydrogen atoms in rotation/translation
+             Thank you Taro Yamada.
+
+  o BUG-FIX: Fix up interesting_residues_gui(). Fixes problem in "Residues with Missing Atoms"
+             Reported by EJD.
+
+  o BUG-FIX: The GL Ramachandran plot is only displayed during refinement.
+
+
+----
+
+   Release 1.0.05
+
+   o FEATURE: Contour level is now added to the status bar
+
+   o FEATURE: spin speed is now user-settable
+
+   o FEATURE: "mask by chain" added to Cryo-EM module
+
+   o FEATURE: Difference Map Peaks now has an "Update" button (should your difference
+              map change) [Sam Horrell]
+
+   o FEATURE: ability to change map colour by hexcolour
+
+   o FEATURE: triple-refine auto-accept key-binding added (H)
+
+   o FEATURE: "Outline" mode added to shader
+
+   o FEATURE: Window resize buttons added to the interface for Mac OS - don't pull on
+              the window, use these instead
+
+   o CHANGE: Rotamer markup during RSR now on by default
+
+   o CHANGE: Remove map colour change menu items
+
+   o CHANGE: Residue Info dialog now reports the chain-id and residue number
+
+   o CHANGE: Shaders are initialized after framebuffer - should now validate correctly
+             on Mac OS
+
+   o CHANGE: clipping plane adjustment step size decreased in perspective mode
+
+   o CHANGE: dialogs now filter files by default and save/restore previous directory
+
+   o BUG-FIX: Renumber residue range dialog fixed
+
+   o BUG-FIX: Ribbon representation checkbuttons no longer can grab focus
+
+   o BUG-FIX: right-mouse during refinement no longer picks atoms
+
+   o BUG-FIX: anchored atoms now displayed correctly
+
+   o BUG-FIX: Unmodelled blobs dialog fixed
+
+----
+
+   Release 1.0.04
+
+   o configure of backward improved
+
+----
+
+   Release 1.0.03
+
+  o FEATURE: backward can be configured to use libdw if available
+    -DBACKWARD_HAS_DW=1 added to CXXFLAGS
+
+  o BUG-FIX: "Validation Outliers" dialog now works
+
+  o BUG-FIX: "Ramachandran Outliers" dialog now works
+
+  o BUG-FIX: GL Ramachandran Plot now clickable after window resize
+
+  o BUG-FIX: coot python module improved
+
+  o BUG-FIX: Views Panel improved
+
+  o BUG-FIX: Display Manager window no longer blank on re-opening
+
+  o BUG-FIX: Dynarama glade file now installed correctly - Ramachandran plots now
+             work [Charles Ballard]
+
+----
+
+   Release 1.0.02
+
+   o BUG-FIX: sort out the coot_wrap*.cc files
+
+----
+
+   Release 1.0.01
+
+   o FEATURE:  Space during RSR clicks the OK button
+
+   o FEATURE:  NCS Ghosts now work again
+
+   o BUG-FIX:  Add missing header files [Hew Jenkins]
+
+   o BUG-FIX:  Don't rotate the view during RSR atom pull on Mac OS.
+
+   o BUG-FIX:  Fix Pyrogen Oxygen atom types
+
+   o BUG-FIX:  geometry_graphs_builder.glade installed correctly [Charles Ballard]
+
+   o BUG-FIX:  Calculate -> Run Script dialog now works
+
+   o BUG-FIX:  Draw -> Screenshot -> Simple now works (uses the "Plain" framebuffer)
+
+   o BUG-FIX:  Removed some debugging
+
+----
+
+    Coot 1
+
+18 years after the release of Coot 0 it's time that I actually released Coot 1.
+
+Coot 1 is a major change beyond Coot 0. It has required a lot of writing and rewriting [1]
+and has been the preponderance of my work since 2017. I have had to learn how to program
+graphics from scratch using the new style. Much of the GUI internals has been
+rewritten [2].
+
+My experience with 0.9 was that I sat on it, bug-fixing for a long time, releasing it
+too late. I don't want to repeat that mistake. So here we are, there's a lot of good new
+stuff in Coot 1, but it's not as slick as it might be (or will become).
+
+  o Update graphics to use OpenGL 3.3
+  o Update Python to use version 3.9
+  o Update GTK+ to use version 3
+
+While many of the features that were available in 0.9.x have been reworked or
+reimplemented, there are some gaps. Dropped features include Cross-hairs, Stereo, Pisa
+interface, built-in key-bindings, NCS Ghosts, Edit Phi/Psi, antialiasing, Kleywegt
+plots, the clipping dialog, Chemical Feature Clustering, Dynamically-Transformed/NCS
+Maps, LSQ plane distances, dynamic distances, CABLAM-markup, the test suite,
+user-defined colour schemes, anisotropic atoms, CURLEW, Scheme GUI scripting,
+Skeletonization and Baton-Building.
+
+"So, is there anything that _does_ work?" - you might ask...
+
+The GUI has been updated, I have tried to cut down on the number of dialogs, the Real
+Space Refinement in particular has seen quite a lot of work. The GUI now uses dark mode
+if the theme is installed [3]. Several menu items have been relocated. More menus are now
+alphabetically ordered [4].
+
+The graphics is, by default, now based on triangles instead of lines which affords a
+more pleasing representation (density maps can be represented using both modes) and one
+can have a more expeditious if not pleasant experience with a fast graphics card and a
+big screen. The various graphics effects and filters can be tailored to some extent by
+changing the configuration using the GUI or by editing/replacing the shaders.
+Full-screen mode is now an option [5].
+
+Overall, the GUI has only had light testing. At the moment, it's probably best to
+avoid closing dialogs using the window manager. The "OK" button now appears after the
+"Cancel" button in dialogs.
+
+Python scripting now has uses a history from previous sessions and the functions need
+to be used with namespaces/modules (e.g. "coot", or "coot_utils"). Coot (or coot) is
+now a module that can be imported into python.
+
+This build compiles with the RDKit and optionally MoleculestoTriangles from Martin Noble.
+
+The map and the model can now be exported to glTF files (for use in Blender and other
+3D modelling software).
+
+The build script for Coot 1, called build-it-3-3 can be found in the "Build from Scratch"
+menu on the web page (you will need to have already installed cmake and Gtk+). The catch
+though is that (at least in my hands) Python and friends are frustratingly difficult to
+install, so it's possible/likely that the build script won't work. Likewise,
+the script doesn't work for Mac OS either. But it is currently the best method to get
+binaries so I will support it if you try it [6]. (Homebrew might be another method.)
+
+Bernhard Lohkamp has been working on the WinCoot version - I will defer WinCoot
+questions to him.
+
+Mac Coot is now native (no X11/XQuartz needed). I would be interested to see how a
+natively-compiled [7] version works on a M1 Max processor [8,9].
+
+Judging from previous experience, a few rapid iterations of bug-fix releases will be
+needed. After this, the version numbers will become sane - it's my plan to release a new
+major version every year or so.
+
+[1] new as in OpenGL 3.3 or later - using shaders - I don't mean Vulkan (that's for the
+    future)
+[2] the patch from the 0.9.x version is 285k lines
+[3] I recommend it
+[4] rather than chronologically
+[5] double-tap Esc key (the first time) to revert to standard display
+[6] I have be working with CCP4 collaborators to use their system to build Coot binaries.
+    Hopefully the binaries will be available stand-alone, as well as integrated into
+    the CCP4 Suite via that method
+[7] so that's a different meaning of "native"
+[8] the little testing I have done on a recent intel MacBook Pro shows unimpressive
+    performance (Iris graphics, retina display)
+[9] Thanks to my Mac-using colleagues for their feedback.
+
+----
+
+  Release 0.9.8.3 [Fumbled release]
+
+----
+
+
+  Release 0.9.8.2
+
+  o CHANGE:   Don't try to read ~/.coot on startup if it is a directory
+
+  o BUG-FIX:  Regenerate the bonds after a cis-trans conversion
+
+  o BUG-FIX:  Fix crash on picking intermediate atoms in Real Space Refinement
+              [Nikos Pinotsis]
+
+  o BUG-FIX:  Hydrogen atoms are now pickable again in Rotation/Translation
+              [Taro Yamada]
+
+----
+
+  Release 0.9.8.1
+
+  o BUG-FIX:  Python test for averaged maps fixed
+
+  o BUG-FIX:  Pythonic and scheme get_drug() function fixed
+
+  o BUG-FIX: downloaded curlew files are now copied, not renamed.
+
+----
+
+  Release 0.9.8
+
+  o BUG-FIX:  Fix python extension scripts
+
+  o BUG-FIX:  Fix active item in Bond Parameters bond-width combobox
+
+  o BUG-FIX:  Now can parse cif files with long molecule names (Eugene Krissinel)
+
+  o BUG-FIX:  Fix bond orders in RNA and DNA
+
+  o BUG-FIX:  Fix crash when parsing data_lib in mmcif files
+
+  o BUG-FIX:  Fix Wikipedia redirect of molecule name
+
+  o BUG-FIX:  rename() is no longer used when installing curlew files
+
+  o BUG-FIX:  Fix crash on using the Generic Objects dialog Close button
+
+----
+
+Release 0.9.7
+
+  o FEATURE: Add angles in coot-ligand-validation
+
+  o FEATURE: "Updating Maps" added to the API and GUI
+
+  o FEATURE: Stereo style can now be switched back to how it used to be in 2010 [Dirk Kostrewa]
+
+  o CHANGE:  Better B-factors for added waters
+
+  o CHANGE:  Windows build script updates
+
+  o CHANGE:  RSR GM restraints now filtered by distance difference
+
+  o BUG-FIX: Python GUI and updates to match scheme version - now pyrogen work on Windows
+
+  o BUG-FIX: Fix gui simple mutation crash [John Bollinger].
+
+  o BUG-FIX: add a null function (no-coot-tips) for those that have this in their startup scripts
+
+  o BUG-FIX: Fix crash when coot tries to exit while the refinement is still refining [James Holton]
+
+----
+
+
+  Release 0.9.6
+
+  o FEATURE: Middle-mouse and double-clicking on moving atoms is now enabled
+             (for recentre and label)
+
+  o FEATURE: -P mode added to pyrogen (no coordinates optimization)
+
+  o FEATURE: model_correlation_stats_per_residue_range() added to the API
+
+  o FEATURE: Molecular (i.e. not crystallographic) symmetry added
+
+  o FEATURE: coot-find-ligand has a mode to merely generate conformers
+
+  o FEATURE: added function to the API to flip the side-chain of the active atom
+             of the moving atoms: side-chain-flip-180-intermediate-atoms
+             [Oliver Clarke]
+
+  o FEATURE: New program coot-identify-protein, identifies a protein from a poly-ALA
+             fragment and a set of sequences
+
+  o CHANGE:  Adjust the NBC model once more for 1-4 atoms involving Hydrogen atoms
+
+  o CHANGE:  Water-water contacts are now considered by default in atom overlap analysis
+
+  o CHANGE:  Adjust the initial RSR step size (no more wild water refinement)
+
+  o CHANGE:  Increase the initial step size for refinement for large fragments
+
+  o CHANGE:  Post-refinement restraints analysis added
+
+  o CHANGE:  Trans-peptide restraints added/removed as needed for cis-trans conversion
+             of intermediate atoms
+
+  o CHANGE:  API accept_moving_atoms() can now return the refinement results
+
+  o CHANGE:  Remove libcheck as a restraints generator option
+
+  o CHANGE:  Turn off EM-mode for PANDDA maps (Frank von Delft)
+
+  o CHANGE:  "Residues with missing atoms" function no longer considers OP3. Additionally,
+             missing atom names are written to the terminal (Lothar Essar)
+
+  o CHANGE:  MMFF94 target geometry now used in minimization in pyrogen by default
+
+  o CHANGE:  Atom Overlaps optional toolbutton added
+
+  o BUG-FIX: Linking (shell) to the Coot executable now works (Marcin Wodjyr)
+
+  o BUG-FIX: --ccp4 mode fixed/improved
+
+  o BUG-FIX: Clean up bit-rotten chemical feature clustering
+
+  o BUG-FIX: rotamer-fit now runs the post-manipulation hook
+
+  o BUG-FIX: No longer fail to load scheme scripts if the user-name is not in the passwd file
+
+  o BUG-FIX: Better crash-catcher diagnostics (thanks Kevin Cowtan)
+
+  o BUG-FIX: Chiral restraints improved in pyrogen (Rob Nicholls)
+
+  o BUG-FIX: add-hydrogen-atoms no longer adds a hydrogen atom to an CYS SG if it is linked
+
+----
+
+  Release 0.9.5
+
+  o FEATURE: Search monomer library has images
+
+  o FEATURE: New comamnd-line program coot-ligand-validation
+
+  o FEATURE: Add "Label Atoms in Residue" menu item
+
+  o FEATURE: Add command line argument --run-state-script
+
+  o FEATURE: Add function set_torsion_restraints_weight() to the API
+
+  o FEATURE: Real space refinement now has dynamic weights (under More Control)
+
+  o CHANGE:  Fall-back to monomer atoms for the chemical diagram when there are missing
+             atoms in the model for hetgroups
+
+  o CHANGE:  Scheme interface to refmac is now non-blocking
+
+  o CHANGE:  set_map_is_difference_map() function now takes an argument (so that you can now
+             say that a map is not a difference map)
+
+  o CHANGE:  Map density histogram is now improved
+
+  o CHANGE:  1-4 Non-bonded contacts adjusted
+
+  o CHANGE:  Chiral volume sigma reduced to 0.1 A^3
+
+  o CHANGE:  Change the configuration of RDKit in configure
+             Now use --with-enhanced-ligand-tools and --with-rdkit-prefix=prfx
+
+  o BUG-FIX: fix up the use of residue-exists? in mutate-it
+
+  o BUG-FIX: installation of side-chain data [thanks John Bollinger]
+
+  o BUG-FIX: refine_zone() on a single residue works again
+
+----
+
+  Release 0.9.4.1
+
+  o BUG-FIX: Fix crash on reading some CCP4/MRC maps
+
+  o BUG-FIX: Colour-by-chain fixed again: now respects the draw-missing-residues-loops
+             setting
+
+  o BUG-FIX: Fix the installation of side-chain-data
+
+----
+
+  Release 0.9.4
+
+  o FEATURE: Add function for Backrub Rotamer for chain
+
+  o FEATURE: Faster reading of maps for cryo-EM reconstructions
+
+  o FEATURE: Add "no-recontour on panning" mode
+
+  o FEATURE: function add_hydrogens_atoms() added to the API
+
+  o FEATURE: function assign_sequence_to_active_fragment() added to the API
+
+  o FEATURE: Add "Atom Overlaps" to the Validation menu
+
+  o FEATURE: Add an entry for weight change in the active map selection dialog
+
+  o CHANGE:  Remove Prodrg-ify from the interface
+
+  o CHANGE:  Better application of Ramachandran restraints
+
+  o CHANGE:  Link with latest and greatest version of Python 2
+
+  o CHANGE:  Fill partial residues now faster as residues are now refined at the same time
+
+  o CHANGE:  API function change argument order for add_OXT_to_residue()
+
+  o CHANGE   N-linked glycosylation feature: weight change. Now more robust and useful
+             in cryo-EM
+
+  o CHANGE:  Represent formal charge in the restraints editor. Remove partial charge.
+
+  o BUG-FIX: globularize() now works for nucleic acid chains
+
+  o BUG-FIX: Fix up the "Dock Sequence" dialog - now is called "Assign Sequence"
+
+  o BUG-FIX: Colour-by-chain colours fixed again
+
+  o BUG-FIX: Conditionally delete OP3 when extending nucleotide chains
+
+  o BUG-FIX: Fix up hardware stereo
+
+----
+
+  Release 0.9.3
+
+  o BUG-FIX: Colour-by-chain colours no longer run out [Huw Jenkins]
+
+  o BUG-FIX: undo-redo no longer creates duplicate atoms when
+             using cif files
+
+----
+
+  Release 0.9.2
+
+  o BUG-FIX: Fix crash in raster3d output [Vito Calderone]
+
+  o BUG-FIX: Colour-by-B-factor modes fixed and improved
+
+  o BUG-FIX: Fix atom colours in Colour-by-Chain mode
+
+----
+
+  Release 0.9.1
+
+  o FEATURE: fat atoms for some metals and halides
+
+  o FEATURE: add a "Rescale" entry and button for the density fit validation graph
+
+  o FEATURE: add label_closest_atoms_in_neighbour_residues to the API and added to the Draw menu
+
+  o FEATURE: missing-residue loops can now be undisplayed: set_draw_missing_residues_loops()
+
+  o FEATURE: find pep-flips using based on difference map
+
+  o FEATURE: Add "Proportional editing" for atom-pull neighbour displacement
+             [c.f. Tristan's ISOLDE]. Use Ctrl-scroll to change the radius
+
+  o FEATURE: carbon atoms in Colour-by-Chain mode have their own colour index
+
+  o FEATURE: add a menu items for the addition of hydrogen atoms
+
+  o FEATURE: backup file names can now be decolonized
+
+  o FEATURE: flip_hand() function added - for reversing the hand of Cryo-EM maps
+
+  o FEATURE: add "backward" for better core dump reporting
+
+  o FEATURE: "Delete Residue" added - bound to Ctrl-D
+
+  o FEATURE: add_nucleotide() added to the API [Gianluca Cascarano]
+
+  o FEATURE: Distances added to raster3d output [Vito Calderone]
+
+  o CHANGE: Waters can no longer be placed directly on top of another atom
+
+  o CHANGE: Sequence view is docked by default - now with current-residue highlighting
+
+  o CHANGE: Bond orders used for colour-by-chain mode
+
+  o CHANGE: Increase weight on atom-pull restraint
+
+  o CHANGE: More sane rotation Ctrl-base rotation in Rotation/Translation mode [Mattias Barone]
+
+  o CHANGE: contact dots now use Fibonacci spheres - goodbye UV pole crowding
+
+  o CHANGE: improvements to dictionary reading and reporting of mismatches
+
+  o CHANGE: single-letter entry added to residue type selector for mutations
+
+  o CHANGE: rework the linking algorithm so that residues with a residue number gap but close
+            N and C atoms can now be linked.
+
+  o CHANGE: Fourier filtered Jiggle-Fit now followed by rigid-body refinement at full
+            resolution
+
+  o CHANGE: assign_sequence_from_file() rewritten and generalize for all-chain search [Bob Nolte]
+
+  o BUG-FIX: fix the generation of link metal oxygens restraints when the atoms are reversed.
+
+  o BUG-FIX: fix crash in lbg network molecule retrival
+
+  o BUG-FIX: Merging a ligand in merge-molecules no longer steps the residue number by 100 when
+             adding the same ligand type [Keith Wilson]
+
+  o BUG-FIX: Curlew's "Install" and "Uninstall" buttons work better
+
+  o BUG-FIX: mutate_by_overlap now works for nucleotides
+
+  o BUG-FIX: backup file name generation cleaned up
+
+  o BUG-FIX: tidied up the GLY representation in CA+sidechains mode
+
+  o BUG-FIX: Apply the dynamic transformation to NCS ghost maps [Randy Read]
+
+  o BUG-FIX: remove neighbour-generation memory leak
+
+  o BUG-FIX: getopt usage reworked - the command line should behave better on some systems
+
+-----
+
+  Release 0.9
+
+  This release has been a long-term effort (4 years according to my notes). It is powerful but not as
+  clean and stable as I would have liked, but I don't want to delay any longer. Many of the additions
+  and updates have been focused on the problems posed by cryo-EM reconstructions.
+
+  o REQUIREMENT:  C+11 required for compilation
+
+  o REQUIREMENT:  Boost required for compilation
+
+  o FEATURE: Automatic addition of alpha helix, nucleic acid stacking and pairing restraints and
+             metal coordination bond restraints
+
+  o FEATURE: Standard molecular representation now has "atoms" (not just bonds).
+             Waters are balls, not crosses
+
+  o FEATURE: interactive representation of Ramachandran and rotamer probabilities during refinement
+             Add set_show_intermediate_atoms_rota_markup()
+             Add set_show_intermediate_atoms_rama_markup()
+
+  o FEATURE: Curlew (the Extensions Wrangler) now has a menu item and has been redesigned
+
+  o FEATURE: Added function "Go To Middle of Cryo-EM Reconstruction Molecule"
+
+  o FEATURE: Sharpen/blur map feature added
+
+  o CHANGE:  Improved Real Space Refinement - now refinement is on-going instead of activated by
+             dropping (releasing) the atom
+
+  o CHANGE:  Multi-threaded code for real-space refinement, jiggle-fit, rotamer probabilities,
+             atom overlaps, restraints generation, density contouring
+
+  o CHANGE:  Improved Jiggle Fit
+
+  o CHANGE:  All option menus replaced by comboboxes
+
+  o CHANGE:  The non-bonded contact model is now Lennard-Jones
+
+  o CHANGE:  Lidia chemical diagram rendering improvements
+
+  o CHANGE:  "Hit" atom radius increased for atom picking
+
+  o CHANGE:  Chiral atom restraints tightened, torsion restraints use a canonical cosine form
+
+  o CHANGE:  Rotamer fitting deletes clashing waters
+
+  o CHANGE:  Origin marker is now white
+
+  o CHANGE (API): Add access to CaBLAM markup
+
+  o CHANGE (API): Create multiple maps based on atom selection masking
+
+  o CHANGE (API): Add access to shift-field B-factor refinement (algorithm from Kevin Cowtan)
+
+  o BUG-FIX: Improved XML parsing of molecules from Wikipedia
+
+  o BUG-FIX: Align & Mutate output fixed
+
+
+-----
+
   Pre-Release 0.8.9.3
 
   o FEATURE: Add a menu item to save graphics window size and position
@@ -38,8 +656,8 @@
              [Erec Stebbins]
              (set-use-variable-bond-thickness 1)
 
-  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
-             [Hannah Bridges]
+  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic"
+             rather than disconnected) [Hannah Bridges]
 
   o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
 
@@ -203,6 +821,21 @@
 
   Release 0.8.8
 
+  o FEATURE: intermediate-atoms movement works with stick for atom positional 
+             restraint rather than scaled all-atom movement
+
+  o FEATURE: CPK atom colouring
+
+  o FEATURE: Ball & stick mode by default
+
+  o FEATURE: intermediate-atoms movement works with stick for atom positional
+             restraint rather than scaled all-atom movement
+
+  o FEATURE: intermediate-atoms pepflip enabled
+
+  o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
+            residues
+  
   o FEATURE: C++11 compilers will multi-thread multiple map contouring
 
   o FEATURE: SMILES -> simple 3D menu item added
@@ -247,6 +880,8 @@
 
   Release 0.8.7
 
+  o FEATURE: intermediate-atoms pepflip enabled
+
   o FEATURE: Lidia now has canvas scaling
 
   o FEATURE: Lidia now has CH3 superatoms, atom name and index display modes
@@ -282,6 +917,7 @@
 
   o BUG-FIX: Fix typo in findligand shell script
 
+----
 
   Release 0.8.6
 
@@ -291,11 +927,13 @@
 
   o CHANGE:  no backups for each residue in fill_partial residues() function.
 
-  o CHANGE:  User control over max and min distance to the protein in findwaters
+  o CHANGE:  User control over max and min distance to the protein in 
+             findwaters
 
   o CHANGE:  Go-To-Ligand function now has better animation
 
-  o CHANGE:  Included a speed-up for the non-bonded contact restraints generation
+  o CHANGE:  Included a speed-up for the non-bonded contact restraints 
+             generation
 
 -----
 
@@ -320,6 +958,8 @@
              to the centre of the screen (without CA subsitution)
 
   o FEATURE: chemical feature clustering (import cfc_ligand_sites)
+
+  o FEATURE: user-define colour scheme
 
   o FEATURE: Ramachandran plot now has a "Outliers Only" mode
 

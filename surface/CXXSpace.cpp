@@ -9,10 +9,10 @@
 
 #include "CXXSpace.h"
 
-CXXSpace::CXXSpace() { // dummy constructor
+CXX_mot::CXXSpace::CXXSpace() { // dummy constructor
 }
 
-CXXSpace::CXXSpace(float probeRadius, float gridSpacing, 
+CXX_mot::CXXSpace::CXXSpace(float probeRadius, float gridSpacing, 
 				   float xMin, float xMax, float yMin, float yMax, 
 				   float zMin, float zMax):SolventMap(gridSpacing, probeRadius, 
 													  xMin, xMax, yMin, yMax, zMin, zMax) {
@@ -34,7 +34,7 @@ CXXSpace::CXXSpace(float probeRadius, float gridSpacing,
 						   epsilonKappaSq = new double[dim[0]*dim[1]*dim[2]];
 						   
 						   if ((chargeGrid == 0) || (potentialGrid == 0) | (dielGrid == 0)) {
-							   CXXException theException = CXXException(" ERROR: (CXXSpace::CXXSpace()) :Could not reserve suffiecent memory !\n");
+							   CXXException theException = CXXException(" ERROR: (CXX_mot::CXXSpace::CXXSpace()) :Could not reserve suffiecent memory !\n");
 							   throw theException;
 						   }
 						   
@@ -68,7 +68,7 @@ CXXSpace::CXXSpace(float probeRadius, float gridSpacing,
 				   }
 
 
-int CXXSpace::setChargeGrid(int i, int j, int k, double value) {
+int CXX_mot::CXXSpace::setChargeGrid(int i, int j, int k, double value) {
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		CXXException theException = CXXException("ERROR in: CXXSpace::setChargeGrid - index error");
@@ -78,7 +78,7 @@ int CXXSpace::setChargeGrid(int i, int j, int k, double value) {
 	return 0;
 }
 
-int CXXSpace::setDielGrid(int i, int j, int k, int direction,  double value) {
+int CXX_mot::CXXSpace::setDielGrid(int i, int j, int k, int direction,  double value) {
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		CXXException theException = CXXException("ERROR in: CXXSpace::setChargeGrid - index error");
@@ -100,7 +100,7 @@ int CXXSpace::setDielGrid(int i, int j, int k, int direction,  double value) {
 	return 0;
 }
 
-int CXXSpace::setPotential(int i, int j, int k, double value) {
+int CXX_mot::CXXSpace::setPotential(int i, int j, int k, double value) {
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		
@@ -111,7 +111,7 @@ int CXXSpace::setPotential(int i, int j, int k, double value) {
 	return 0;
 }
 
-int CXXSpace::setSolvationGrid(int i, int j, int k, double value) {
+int CXX_mot::CXXSpace::setSolvationGrid(int i, int j, int k, double value) {
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		
@@ -122,7 +122,7 @@ int CXXSpace::setSolvationGrid(int i, int j, int k, double value) {
 	return 0;
 }
 
-int CXXSpace::setEpsilonKappaSq(int i, int j, int k, double value) {
+int CXX_mot::CXXSpace::setEpsilonKappaSq(int i, int j, int k, double value) {
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		
@@ -134,7 +134,7 @@ int CXXSpace::setEpsilonKappaSq(int i, int j, int k, double value) {
 }
 
 
-int CXXSpace::addDielectricSphere(double x, double y, double z, double r) { //mmdbManager thePdb) {
+int CXX_mot::CXXSpace::addDielectricSphere(double x, double y, double z, double r) { //mmdbManager thePdb) {
 	
 	// adds an atom to the solvent map
 	int returnInt = atomAt3d(  x,  y, z, r);
@@ -143,7 +143,7 @@ int CXXSpace::addDielectricSphere(double x, double y, double z, double r) { //mm
 }
 
 
-int CXXSpace::defineBoundaryConditions(double value) {
+int CXX_mot::CXXSpace::defineBoundaryConditions(double value) {
 	
 	dielectricBoundary = value;
 	return 0;
@@ -151,7 +151,7 @@ int CXXSpace::defineBoundaryConditions(double value) {
 
 
 
-int CXXSpace::addGridCharge(int i, int j, int k,  double gridCharge) { 
+int CXX_mot::CXXSpace::addGridCharge(int i, int j, int k,  double gridCharge) { 
 	
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
 		CXXException theException = CXXException("ERROR in: CXXSpace::addGridCharge - index error");
@@ -164,7 +164,7 @@ int CXXSpace::addGridCharge(int i, int j, int k,  double gridCharge) {
 	
 }
 
-double CXXSpace::getGridCharge(int i, int j, int k) { 
+double CXX_mot::CXXSpace::getGridCharge(int i, int j, int k) { 
 	
    if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
 		return 0; // WARNING ugly  - need  proper boundary value ...
@@ -183,7 +183,7 @@ double CXXSpace::getGridCharge(int i, int j, int k) {
 }
 
 
-double CXXSpace::getGridSolvationParameter(int i, int j, int k) { 
+double CXX_mot::CXXSpace::getGridSolvationParameter(int i, int j, int k) { 
 	
    if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
 		return 0; // WARNING ugly  - need  proper boundary value ...
@@ -202,7 +202,7 @@ double CXXSpace::getGridSolvationParameter(int i, int j, int k) {
 }
 
 
-double CXXSpace::getEpsilonKappaSq(int i, int j, int k) { 
+double CXX_mot::CXXSpace::getEpsilonKappaSq(int i, int j, int k) { 
 	
    if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
 		return epsilonKappaSq[0]; // WARNING ugly  - need  proper boundary value ...
@@ -220,7 +220,7 @@ double CXXSpace::getEpsilonKappaSq(int i, int j, int k) {
 }
 
 
-double CXXSpace::getPotential(int i, int j, int k) {	
+double CXX_mot::CXXSpace::getPotential(int i, int j, int k) {	
 	
    if ((i < 0) || (j < 0) || (k < 0) || (i == dim[0]) || (j == dim[1]) || (k == dim[2])) {
 		return 0; // WARNING later have alternative boundary conditions ....
@@ -238,7 +238,7 @@ double CXXSpace::getPotential(int i, int j, int k) {
 	}
 }
 
-double CXXSpace::getBoundaryMap(int i, int j, int k) { 
+double CXX_mot::CXXSpace::getBoundaryMap(int i, int j, int k) { 
 	
 	// this special case only comes into effect when the dielectric grid is generated becuase this step 
 	// involves averaging over box around i j k ± 1 - then should give boindary value ...
@@ -265,7 +265,7 @@ double CXXSpace::getBoundaryMap(int i, int j, int k) {
 	}
 }
 
-double CXXSpace::getDielGrid(int i, int j, int k, int direction) {
+double CXX_mot::CXXSpace::getDielGrid(int i, int j, int k, int direction) {
 	
 	if(i<0 || j<0 || k<0) return 78;
 	if((i + j*dim[0] + k*dim[0]*dim[1]) >= dim[0]*dim[1]*dim[2]){
@@ -291,7 +291,7 @@ double CXXSpace::getDielGrid(int i, int j, int k, int direction) {
 	}
 }
 
-CXXCoord CXXSpace::getOrigin() {
+CXX_mot::CXXCoord CXX_mot::CXXSpace::getOrigin() {
 	
 	CXXCoord theOrigin;
 	theOrigin.setX( originOfGrid[0]);
@@ -301,32 +301,32 @@ CXXCoord CXXSpace::getOrigin() {
 	return theOrigin;
 }
 
-CXXCoord CXXSpace::getSpaceSpanningVectorX() {
+CXX_mot::CXXCoord CXX_mot::CXXSpace::getSpaceSpanningVectorX() {
 	
 	// for now space is always orthogonal and equidistant with grid spacing ...
 	CXXCoord span(gridSpacing, 0., 0.);
 	return span;
 }
 
-CXXCoord CXXSpace::getSpaceSpanningVectorY() {
+CXX_mot::CXXCoord CXX_mot::CXXSpace::getSpaceSpanningVectorY() {
 	
 	// for now space is always orthogonal and equidistant with grid spacing ...
 	CXXCoord span(0.,gridSpacing, 0.);
 	return span;
 }
 
-CXXCoord CXXSpace::getSpaceSpanningVectorZ() {
+CXX_mot::CXXCoord CXX_mot::CXXSpace::getSpaceSpanningVectorZ() {
 	
 	// for now space is always orthogonal and equidistant with grid spacing ...
 	CXXCoord span( 0., 0., gridSpacing);
 	return span;
 }
 
-int CXXSpace::getDimI() { return dim[0];}
-int CXXSpace::getDimJ() { return dim[1];}
-int CXXSpace::getDimK() { return dim[2];}
+int CXX_mot::CXXSpace::getDimI() { return dim[0];}
+int CXX_mot::CXXSpace::getDimJ() { return dim[1];}
+int CXX_mot::CXXSpace::getDimK() { return dim[2];}
 
-int CXXSpace::setSolventParameters(double salt, double temperature) {
+int CXX_mot::CXXSpace::setSolventParameters(double salt, double temperature) {
 	
 	saltConc = salt;
 	temp = temperature;
@@ -334,7 +334,7 @@ int CXXSpace::setSolventParameters(double salt, double temperature) {
 	return 0;
 }
 
-int CXXSpace::introduceMedium(double dielectricInMedium, double dielectricInProtein, double probeRadius) { 
+int CXX_mot::CXXSpace::introduceMedium(double dielectricInMedium, double dielectricInProtein, double probeRadius) { 
 	
 	try {
 		
@@ -456,7 +456,7 @@ int CXXSpace::introduceMedium(double dielectricInMedium, double dielectricInProt
 
 
 
-int CXXSpace::dumpSpaceSlice(int dimension, int gridType, int sliceNumber){
+int CXX_mot::CXXSpace::dumpSpaceSlice(int dimension, int gridType, int sliceNumber){
 	
 	/*  dumps a slice through space perpendicular to <dimension> with property of <type>. Space is sliced 
 	at position <sliceNumber> along <dimension> axis. The dump is a textfile called dump.dat:

@@ -20,7 +20,17 @@
  * 02110-1301, USA
  */
 
+#ifndef RESTRAINTS_PRIVATE_HH
+#define RESTRAINTS_PRIVATE_HH
+
+#include <Python.h>
+#include <string>
+#include <mmdb2/mmdb_manager.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
+
+#include "geometry/protein-geometry.hh"
+
+#include <lidia-core/rdkit-interface.hh>
 
 namespace coot {
 
@@ -36,6 +46,9 @@ namespace coot {
    regularize_inner(RDKit::ROMol &mol,
 		    PyObject *restraints_py,
 		    const std::string &res_name);
+
+   void
+   regularize_and_update_mol_and_restraints(RDKit::RWMol *mol, dictionary_residue_restraints_t *restraints_p);
    
 
    bool is_const_torsion(const RDKit::ROMol &mol,
@@ -48,7 +61,11 @@ namespace coot {
    // 
    void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
-      // alter restraints
+   // after we have done minimization, we want to update the coordinates in the dictionary
+   void update_chem_comp_atoms_from_residue(mmdb::Residue *residue_p,
+                                            dictionary_residue_restraints_t *restraints);
+
+   // alter restraints
    int assign_chirals(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
    void add_chem_comp_atoms(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
@@ -81,6 +98,7 @@ namespace coot {
    void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
    void add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
 
    // alter restraints
@@ -90,10 +108,10 @@ namespace coot {
    // which calls
    bool add_torsion_to_restraints(dictionary_residue_restraints_t *restraints,
 				  const RDKit::ROMol &mol,
-				  const RDKit::ATOM_SPTR at_1,
-				  const RDKit::ATOM_SPTR at_2,
-				  const RDKit::ATOM_SPTR at_3,
-				  const RDKit::ATOM_SPTR at_4,
+				  const RDKit::Atom *at_1,
+				  const RDKit::Atom *at_2,
+				  const RDKit::Atom *at_3,
+				  const RDKit::Atom *at_4,
 				  const RDKit::Bond *bond, // between atoms 2 and 3
 				  unsigned int *tors_no,
 				  unsigned int *const_no,
@@ -116,6 +134,8 @@ namespace coot {
    int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
+   void debug_cip_ranks(const RDKit::ROMol &mol);
+
    // for returning best graph-match data (for dictionary atom name map to reference)
    // 
    class matching_dict_t {
@@ -127,9 +147,8 @@ namespace coot {
 	 residue = NULL;
 	 filled_flag = false;
       }
-      matching_dict_t(mmdb::Residue *res, const dictionary_residue_restraints_t &d) {
+      matching_dict_t(mmdb::Residue *res, const dictionary_residue_restraints_t &d) : dict(d) {
 	 residue = res;
-	 dict = d;
 	 filled_flag = true;
       }
       bool filled() const { return filled_flag; }
@@ -154,4 +173,7 @@ namespace coot {
 
 
 }
+
+
+#endif // RESTRAINTS_PRIVATE_HH
 

@@ -54,6 +54,11 @@
 	       (vector-ref rfree-list 0))))))))))
 
 
+;;(if (enhanced-ligand-coot?)
+;;    (format #t "----------------------------- with enhanced-ligand! -------------------~%~!")
+;;    (format #t "----------------------------- without enhanced-ligand! -------- -------~%~!"))
+
+
 (if (enhanced-ligand-coot?)
 
     (begin
@@ -74,7 +79,7 @@
 		    (if (ok-goosh-status? status)
 			(let ((pdb-name (string-append comp-id "-pyrogen.pdb"))
 			      (cif-name (string-append comp-id "-pyrogen.cif")))
-			  
+
 			  (read-pdb pdb-name)
 			  (read-cif-dictionary cif-name)))))))
 
@@ -96,6 +101,12 @@
 	     menu "Hydrogenate region"
 	     (lambda ()
 	       (hydrogenate-region 6)))
+
+            (add-simple-coot-menu-menuitem
+             menu "Contact Dots for Ligand"
+             (lambda ()
+               (using-active-atom
+                (coot-contact-dots-for-ligand-scm aa-imol (list aa-chain-id aa-res-no aa-ins-code)))))
 
 	    (add-simple-coot-menu-menuitem
 	     menu "SMILES → 2D"
@@ -160,6 +171,11 @@
 	       (set-display-generic-objects-as-solid 1) ;; there may be consequences...
 	       (using-active-atom
 		(display-residue-distortions aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+            (add-simple-coot-menu-menuitem
+             menu "Quick Ligand Validate" ;; yes/no
+             (lambda ()
+               (gui-ligand-check-dialog-active-residue)))
 
 ; 	    (add-simple-coot-menu-menuitem
 ; 	     menu "write sdf file" 

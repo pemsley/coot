@@ -20,6 +20,11 @@
  * 02110-1301, USA
  */
 
+#ifndef C_INTERFACE_PREFERENCES_H
+#define C_INTERFACE_PREFERENCES_H
+
+#include <gtk/gtk.h>
+
 #ifndef BEGIN_C_DECLS
 
 #ifdef __cplusplus
@@ -27,7 +32,7 @@
 #define END_C_DECLS }
 
 #else
-#define BEGIN_C_DECLS extern
+#define BEGIN_C_DECLS
 #define END_C_DECLS     
 #endif
 #endif /* BEGIN_C_DECLS */
@@ -41,9 +46,16 @@ BEGIN_C_DECLS
 void preferences();
 void show_preferences();
 void clear_preferences();
-void set_mark_cis_peptides_as_bad(int istate);
+void set_mark_cis_peptides_as_bad(int istate); /* in geometry graph */
 int show_mark_cis_peptides_as_bad_state();
+#ifndef SWIG
+#if (GTK_MAJOR_VERSION >= 4)
+void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type);
+#else
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
+#endif
+#endif
+
 void update_preference_gui();
 void make_preferences_internal();
 void make_preferences_internal_default();
@@ -56,17 +68,24 @@ void preferences_internal_change_value_float3(int preference_type,
 					float fvalue1, float fvalue2, float fvalue3);
 void show_model_toolbar_icon(int pos);
 void hide_model_toolbar_icon(int pos);
-void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
-				     	  GtkWidget *scrolled_window);
+
 void update_model_toolbar_icons_menu();
 
 void show_main_toolbar_icon(int pos);
 void hide_main_toolbar_icon(int pos);
-void fill_preferences_main_toolbar_icons(GtkWidget *preferences,
-				     	  GtkWidget *scrolled_window);
 void update_main_toolbar_icons_menu();
 void update_toolbar_icons_menu(int toolbar_index);
 
 int preferences_internal_font_own_colour_flag();
 
+#ifndef SWIG
+void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
+				     	  GtkWidget *scrolled_window);
+void fill_preferences_main_toolbar_icons(GtkWidget *preferences,
+				     	  GtkWidget *scrolled_window);
+#endif
+
 END_C_DECLS
+
+#endif /* C_INTERFACE_PREFERENCES_H */
+

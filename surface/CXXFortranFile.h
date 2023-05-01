@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXFortranFile_included
-#define CXXFortranFile_included
+#ifndef CXX_mot_CXXFortranFile_included
+#define CXX_mot_CXXFortranFile_included
 
 #include <iostream>
 #include <fstream>

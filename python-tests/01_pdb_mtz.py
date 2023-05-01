@@ -919,6 +919,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test20_1(self):
         """Refinement gives useful results"""
 
+#        if self.skip_test(True, "skipping because we dont get useful refinement " \
+#                          "results due to threading!"):
+#            return
         #
         def no_non_bonded(ls):
             ret = []
@@ -947,7 +950,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # so we just try 10 times (wild guess for now)
         failed = True
         for idum in range(10):
-            results = refine_zone_with_full_residue_spec(imol, "A", 40, "", 43, "", "")
+            refine_zone_with_full_residue_spec(imol, "A", 40, "", 43, "", "")
+            results = accept_moving_atoms()
             print "   refinement results:", results
             ow = weight_scale_from_refinement_results(results)
             print "::::   ow factor", ow
@@ -957,7 +961,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
             else:
                 new_weight = matrix_state() / (ow * ow)
                 print "   INFO:: setting refinement weight to", new_weight, "from", matrix_state() , "/ (", ow, '*', ow, ')'
-                
                 set_matrix(new_weight)
 
         # this test doesn't converge on Ubuntu for some reason that I don't understand
@@ -1225,8 +1228,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(valid_model_molecule_qm(imol),
                         "Failed to read test-TER-OXT.pdb")
 
-        add_status_1 = add_OXT_to_residue(imol, 14, "", "A")
-        add_status_2 = add_OXT_to_residue(imol, 14, "", "A")
+        add_status_1 = add_OXT_to_residue(imol, "A", 14, "")
+        add_status_2 = add_OXT_to_residue(imol, "A", 14, "")
 
         # the second add should be ignored, only 1 OXT allowed
         # per residue.
@@ -1258,7 +1261,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                 break # pass (have TER after OXT)
             if (line[13:16] == "OXT"):
                 self.failIf(ter_line)  # fail because TER has already happened
-                    # should never happen
+                self.failIf(oxt_line, "   Encountered another OXT! - fail")
                 oxt_line = True
 
 
@@ -1496,6 +1499,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         self.failUnless(valid_map_molecule_qm(new_map),
                         " average map fail")
+
+        set_ignore_pseudo_zeros_for_map_stats(0)
 
         # the differnce map shoudl be nearly flat (0.0)
         #
@@ -2436,7 +2441,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         self.failUnless(len(chids_2) == 4)
 
-        self.failUnless(chids_2[3] == "AAA_2")
+        self.failUnless(chids_2[3] == "AAA2")
         
 
     def test53_0(self):

@@ -36,6 +36,7 @@
 #include "cc-interface.hh"
 #include "c-interface.h"
 
+#if 0 // 20220602-PE FIXME
 gboolean
 on_gl_canvas_drag_drop(GtkWidget *widget,
 		       GdkDragContext *context,
@@ -43,11 +44,15 @@ on_gl_canvas_drag_drop(GtkWidget *widget,
 		       guint time,
 		       gpointer user_data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+   return 0;
+#else
    gboolean is_valid_drop_site = TRUE;
    // Request the data from the source.
-   if (context->targets) {
-      GdkAtom target_type =
-	 GDK_POINTER_TO_ATOM(g_list_nth_data(context->targets, TARGET_STRING));
+   GList *targets = gdk_drag_context_list_targets(context);
+   if (targets) {
+      GdkAtom target_type = GDK_POINTER_TO_ATOM(g_list_nth_data(targets, TARGET_STRING));
       
       gtk_drag_get_data(widget, context,  
 			target_type,    /* the target type we want (a string) */
@@ -56,26 +61,33 @@ on_gl_canvas_drag_drop(GtkWidget *widget,
       std::cout << "ERROR:: null dnd context" << std::endl;
    } 
    return  is_valid_drop_site;
+#endif
 }
+#endif
 
+#if 0 // 20220602-PE FIXME
 void
 on_drag_data_received (GtkWidget *widget, 
 		       GdkDragContext *context, 
 		       gint x, gint y,
-		       GtkSelectionData *selection_data, 
+		       GtkSelectionData *selection_data,
 		       guint target_type, 
 		       guint time,
 		       gpointer data) {
 
+#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+   // 20220528-PE FIXME mouse
+#else
    gboolean dnd_success = FALSE;
    gboolean delete_selection_data = FALSE;
    
    // Deal with what the source sent over
-   if((selection_data != NULL) && (selection_data-> length >= 0)) {
+   gint len = gtk_selection_data_get_length(selection_data);
+   if ((selection_data != NULL) && (len >= 0)) {
       std::string uri_string;
       if (target_type == TEXT_URL) {
          // we have an url to deal with
-         uri_string = (gchar *)selection_data-> data;
+         uri_string = (gchar *) gtk_selection_data_get_text(selection_data);
          dnd_success = handle_drag_and_drop_string(uri_string);
       }
       else if (target_type == TEXT_URI) {
@@ -83,7 +95,7 @@ on_drag_data_received (GtkWidget *widget,
          gchar **uris;
          gint i = 0;
          gchar *res = 0;
-         uris = g_uri_list_extract_uris((gchar*)selection_data-> data);
+         uris = g_uri_list_extract_uris((gchar*) gtk_selection_data_get_text(selection_data));
          if (uris) {
             while (uris[i] != 0) {
                res = g_filename_from_uri(uris[i], NULL, NULL);
@@ -94,7 +106,7 @@ on_drag_data_received (GtkWidget *widget,
                } else {
                   // not a file (shouldnt necessary happen - urls are dealt above and 
                   // simple strings below
-                  uri_string = (gchar *)selection_data-> data;
+                  uri_string = (gchar *) gtk_selection_data_get_data(selection_data);
                   dnd_success = handle_drag_and_drop_string(uri_string);
                }
             }
@@ -104,14 +116,16 @@ on_drag_data_received (GtkWidget *widget,
       }
       else if (target_type == TARGET_STRING) {
          // simple string could call an extra function here too
-         uri_string = (gchar *)selection_data-> data;
+         uri_string = (gchar *) gtk_selection_data_get_text(selection_data);
          dnd_success = handle_drag_and_drop_string(uri_string);
       }
       delete_selection_data = TRUE;
       
    }
    gtk_drag_finish (context, dnd_success, delete_selection_data, time);
+#endif
 }
+#endif
 
 
 //! \brief handle the string that get when an URL (or text from an url) is dropped.
@@ -237,7 +251,6 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
 	 else
 	    std::cout << "INFO:: " << file_name << " was not a coordinates file" << std::endl;
       } else { 
-	 std::string ext = coot::util::file_name_extension(file_name);
 	 if (ext == ".mtz") {
 	    std::vector<int> imol_map = auto_read_make_and_draw_maps(file_name.c_str());
 	    if (is_valid_map_molecule(imol_map.front()))

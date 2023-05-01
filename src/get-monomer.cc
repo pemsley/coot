@@ -61,7 +61,7 @@ int get_monomer_molecule_by_network_and_dict_gen(const std::string &text) {
 } 
 
 
-// Return the new molecule number, or else a negitive error code.
+// Return the new molecule number, or else a negative error code.
 // 
 int get_monomer(const std::string &comp_id_in) {
 
@@ -88,8 +88,6 @@ int get_monomer(const std::string &comp_id_in) {
 
    if (coot::util::is_standard_residue_name(comp_id_in)) {
 
-      // this is ugly. get_standard_residue_instance should be in coot-utils
-      //
       molecule_class_info_t molci;
       mmdb::Residue *std_res = molci.get_standard_residue_instance(comp_id_in);
 
@@ -106,33 +104,6 @@ int get_monomer(const std::string &comp_id_in) {
 	 g.molecules[imol].install_model(imol, asc, g.Geom_p(), comp_id_in, true);
 	 move_molecule_to_screen_centre_internal(imol);
 	 graphics_draw();
-      }
-
-   } else {
-
-      // OK, the slow path, using LIBCHECK.
-
-      std::string function_name = "monomer-molecule-from-3-let-code";
-      std::vector<coot::command_arg_t> args;
-      args.push_back(coot::util::single_quote(comp_id));
-
-      // now add in the bespoke cif library if it was given.  It is
-      // ignored in the libcheck script if cif_lib_filename is "".
-      //
-      // However, we only want to pass the bespoke cif library if the
-      // monomer to be generated is in the cif file.
-      //
-      std::string cif_lib_filename = "";
-      if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
-	 std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-	 coot::simple_cif_reader r(dict_name);
-	 if (r.has_restraints_for(comp_id))
-	    cif_lib_filename = dict_name;
-      }
-      args.push_back(coot::util::single_quote(cif_lib_filename));
-      coot::command_arg_t retval = coot::scripting_function(function_name, args);
-      if (retval.type == coot::command_arg_t::INT) {
-	 imol = retval.i;
       }
    }
 
@@ -181,6 +152,7 @@ int get_monomer_from_dictionary(const std::string &comp_id,
       atom_selection_container_t asc = make_asc(mol);
       std::string name = comp_id;
       name += "_from_dict";
+      std::cout << "debug:: get_monomer_from_dictionary() installing " << name << " into model " << imol << std::endl;
       graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       move_molecule_to_screen_centre_internal(imol);
       graphics_draw();
@@ -218,7 +190,6 @@ int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc) {
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
 	       mmdb::Residue *residue_p;
-	       mmdb::Atom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  name = residue_p->GetResName();

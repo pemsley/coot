@@ -26,7 +26,11 @@
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
-#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "geometry/residue-and-atom-specs.hh"
+#include "geometry/mol-utils.hh"
+
+// what does this give us?
+// #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "neighbour-sorter.hh"
 
 
@@ -78,7 +82,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		bool do_undelocalize) {
 
    bool debug = false;
-   
+
    if (debug)
       std::cout << "=========== in rdkit_mol() with restraints that have "
 		<< restraints.atom_info.size() << " atoms, "
@@ -86,7 +90,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		<< do_undelocalize
 		<< " for residue " << residue_spec_t(residue_p) << " and alt conf "
 		<< "\"" << alt_conf << "\"" << std::endl;
-   
+
+   if (debug)
+      for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++)
+	 std::cout << ii << "   " << restraints.atom_info[ii] << std::endl;
+
    RDKit::RWMol m;
 
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
@@ -199,7 +207,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << "!!!! Problem? atom name \"" << atom_name
 		      << "\" was already added" << std::endl;
 
-	 } else { 
+	 } else {
 	    RDKit::Atom *rdkit_at = new RDKit::Atom;
 	    try {
 	       std::string ele_capped =
@@ -253,6 +261,17 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       }
 
 	       set_atom_chirality(rdkit_at, at, residue_p, restraints);
+
+               if (false) {
+                  RDKit::Atom::ChiralType ct = rdkit_at->getChiralTag();
+                  std::string cts = "!";
+                  if (ct == RDKit::Atom::CHI_UNSPECIFIED)     cts = "-";
+                  if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)  cts = " CW";
+                  if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW) cts = "CCW";
+                  if (ct == RDKit::Atom::CHI_OTHER)           cts = "Oth";
+                  // std::cout << "############# After chiral set: atom name " << atom_name
+                  // << " Chir: " << ct << " " << cts << std::endl;
+               }
 
 	       m.addAtom(rdkit_at);
 	       
@@ -326,13 +345,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    if (idx_2 != -1) {
 
 	       // wedge bonds should have the chiral centre as the first atom.
-	       // 
+	       //
 	       bool swap_order = false;
 	       if (restraints.chiral_restraint.size()) {
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], restraints.chiral_restraint);
 	       } else {
 		  // use the atoms rdkit chiral status
+		  // 20170810: this makes sense for atoms that are marked as S/R in the pdbx_stereo_config
+		  //           but not for other ones that RDKit conjures up for as yet unknown reason
+		  //           e.g. CT in FAK
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+	       }
+
+	       // Finally, heuristic: so that atoms with more than 1 bond are end atom if the
+	       // other atom has just 1 bond (this one).
+	       if (! swap_order) {
+		  swap_order = chiral_check_order_swap_singleton(m[idx_1], m[idx_2], restraints);
 	       }
 
 	       if (! swap_order) {  // normal
@@ -356,7 +384,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       // Or increment the read number.
 	       //
 	       //
-	       m.addBond(bond); // worry about ownership or memory leak.
+	       m.addBond(bond); // by default, this does a copy of bond. It can take the ownership
 
 	    } else {
 	       if (ele_2 != " H") {
@@ -368,9 +396,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			       << "failed to get atom index idx_2 for atom name: "
 			       << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
-		     std::cout << "Here's the atoms we have:\n";
-		     for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-			std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+                     if (false) {
+                        std::cout << "Here's the atoms we have:\n";
+                        for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+                           std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+                     }
 		  }
 		  // give up trying to construct this thing then.
 		  std::string message = "Failed to get atom index for atom name \"";
@@ -391,11 +421,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			    << "failed to get atom index idx_1 for atom name: \""
 			    << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
-		  std::cout << "Here's the atoms we have:\n";
-		  for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-		     std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":";
-		  // give up trying to construct this thing then.
-		  std::cout << std::endl;
+                  if (false) {
+                     std::cout << "Here's the atoms we have:\n";
+                     for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+                        std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":";
+                     // give up trying to construct this thing then. (Come back with a full dictionary molecule)
+                     std::cout << std::endl;
+                  }
 	       }
 	       std::string message = "Failed to get atom index for atom name \"";
 	       message += atom_name_1;
@@ -407,6 +439,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       throw std::runtime_error(message);
 	    }
 	 }
+         delete bond;
       }
  
       if (debug) { 
@@ -445,8 +478,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
 	       try {
 		  std::string name;
-		  RDKit::ATOM_SPTR at_p = m[iat];
-		  at_p->getProp("name", name);
+                  RDKit::Atom *at_p = m[iat];
+                  at_p->getProp("name", name);
 		  if (name == atom_name_1)
 		     idx_1 = iat;
 		  if (name == atom_name_2)
@@ -533,8 +566,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		   << std::endl;
 	 int n_mol_atoms = m.getNumAtoms();
 	 for (int iat=0; iat<n_mol_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = m[iat];
-	    std::string name = "";
+       RDKit::Atom* at_p = m[iat];
+       std::string name = "";
 	    try {
 	       at_p->getProp("name", name);
 	    }
@@ -612,9 +645,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       unsigned int n_atoms = m.getNumAtoms();
 
       if (n_atoms > 0) {
-	 RDKit::UINT_VECT ranks(m.getNumAtoms(),-1);
+	 RDKit::UINT_VECT ranks(m.getNumAtoms(), -1);
 	 RDKit::Chirality::assignAtomCIPRanks(m, ranks);
-	 // 
+	 //
 	 for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 	    const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
       
@@ -634,22 +667,25 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			       << " atoms" << std::endl;
 		  } else {
 		     // happy path
-		     RDKit::Atom *rdkit_at = m[idx_iat].get();  // probably - or always?
+                     RDKit::Atom *rdkit_at = m[idx_iat];  // probably - or always?
 
 		     RDKit::ROMol::OEDGE_ITER beg,end;
 		     boost::tie(beg,end) = m.getAtomBonds(rdkit_at);
-		     while(beg!=end){
-			const RDKit::Bond *bond=m[*beg].get();
+		     while(beg != end){
+                        const RDKit::Bond *bond=m[*beg];
 			++beg;
 			const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
 			unsigned int cip_rank = 0;
 			nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
+                        if (false)
+                           std::cout << "debug:: in rdkit_mol(residue *version) iat bonded: "
+                                     << iat << " cip_rank neighb: " << cip_rank << std::endl;
 			std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
 			neighbs.push_back(p);
 		     }
 
 		     if (false) {
-			std::cout << "atom " << rdkit_at << " has stereoconfig "
+			std::cout << "in rdkit_mol(residue, ..) atom " << rdkit_at << " has stereoconfig "
 				  << atom_info.pdbx_stereo_config.second << " and "
 				  << neighbs.size() << " non-H neighbours " << std::endl;
 			std::cout << "---------- unsorted neighbs: " << std::endl;
@@ -662,13 +698,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
 
 		     if (false) {
-			std::cout << "---------- sorted neighbs: " << std::endl;
+			std::cout << "---------- CIP sorted neighbs: " << std::endl;
 			for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
 			   std::cout << jj << " " << sorted_neighbs[jj].first << " "
 				     << sorted_neighbs[jj].second << std::endl;
 			}
 		     }
-	    
+
 		     bool inverted = true; // set this using cleverness
 
 		     if (neighbs.size() == 3) {
@@ -908,7 +944,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
 
-   bool debug = false;
+   bool debug = false;;
 
    if (dict_atom.pdbx_stereo_config.first) {
       if (dict_atom.pdbx_stereo_config.second == "R") {
@@ -934,7 +970,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
       }
       if (dict_atom.pdbx_stereo_config.second == "N") {
 	 if (false) // otherwise too noisy
-	    std::cout << "No pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
+	    std::cout << "pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
       }
    } else {
       if (false)
@@ -952,9 +988,15 @@ coot::cip_rank_sorter(const std::pair<const RDKit::Atom *, unsigned int> &at_1,
 }
 
 
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
 bool
-coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+coot::chiral_check_order_swap(RDKit::Atom* at_1, RDKit::Atom* at_2,
 			      const std::vector<dict_chiral_restraint_t>  &chiral_restraints) {
+#else
+bool
+coot::chiral_check_order_swap(RDKit::Atom *at_1, RDKit::Atom *at_2,
+                              const std::vector<dict_chiral_restraint_t>  &chiral_restraints) {
+#endif
    bool status = false;
 
    // set status to true (only) if the first atom is not chiral and the
@@ -994,9 +1036,13 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
    return status;
 }
 
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
 bool
-coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
-   
+coot::chiral_check_order_swap(RDKit::Atom* at_1, RDKit::Atom* at_2) {
+#else
+bool
+coot::chiral_check_order_swap(RDKit::Atom *at_1, RDKit::Atom *at_2) {
+#endif
    bool status = false;
 
    RDKit::Atom::ChiralType chiral_tag_1 = at_1->getChiralTag();
@@ -1011,6 +1057,52 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
 
    return status;
 }
+
+bool
+coot::chiral_check_order_swap_singleton(RDKit::Atom *at_1, RDKit::Atom *at_2,
+					const dictionary_residue_restraints_t  &restraints) {
+
+   // This improves things, but needs further improvement because it doesn't correct the
+   // atom order of a bond of a CH3 connected to a C that is connected to 3 other CH3s -
+   // e.g. GN5
+   //
+
+   bool status = false;
+
+   try {
+      std::string name_1;
+      std::string name_2;
+      at_1->getProp("name", name_1);
+      at_2->getProp("name", name_2);
+
+      bool allow_H = true;
+      std::vector<std::string> n_1 = restraints.neighbours(name_1, allow_H);
+      std::vector<std::string> n_2 = restraints.neighbours(name_2, allow_H);
+      if (n_1.size() == 1)
+	 if (n_2.size() > 1)
+	    status = true;
+
+      // perhaps it was an OH?
+      if (! status) {
+	 allow_H = false;
+	 n_1 = restraints.neighbours(name_1, allow_H);
+	 n_2 = restraints.neighbours(name_2, allow_H);
+	 if (n_1.size() == 1)
+	    if (n_2.size() > 1)
+	       status = true;
+
+	 // actually, let's turn around everything where the second atom has more
+	 // non-H bonds than the first
+	 if (n_2.size() > n_1.size())
+	    status = true;
+      }
+   }
+   catch (...) {
+      // this should not catch anything, the names should be set as properties
+   }
+   return status;
+}
+
 
 
 // fill the coords from the dictionary if you can.
@@ -1039,9 +1131,9 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 at->setProp("name", atom_name);
 
 	 if (false)
-	    std::cout << iat << " " << atom_name << " "
-		      << r.atom_info[iat].formal_charge.first << " "
-		      << r.atom_info[iat].formal_charge.second << std::endl;
+	    std::cout << "debug:: in rdkit_mol(restraints) iat " << iat << " name: " << atom_name
+                      << " formal charge set "   << r.atom_info[iat].formal_charge.first
+		      << " formal charge value " << r.atom_info[iat].formal_charge.second << std::endl;
 
 	 // formal charge
 	 if (r.atom_info[iat].formal_charge.first)
@@ -1050,7 +1142,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 // set the chirality (if this atom is a chiral centre of a chiral restraint).
 	 //
 	 bool done_chiral = false;
-	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
+	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) {
 	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
 	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
@@ -1068,10 +1160,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
 	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
 	 //
-	 if (! done_chiral) {
+	 if (! done_chiral)
 	    set_atom_chirality(at, r.atom_info[iat]);
-	 }
-
 
          if (false) {
 	    RDKit::Atom::ChiralType ct = at->getChiralTag();
@@ -1080,8 +1170,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)  cts = " CW";
 	    if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW) cts = "CCW";
 	    if (ct == RDKit::Atom::CHI_OTHER)           cts = "Oth";
-	    std::cout << "After chiral set: atom name " << atom_name
-		      << " Chir: " << ct << " " << cts << std::endl;
+	    // std::cout << "############# After chiral set: atom name " << atom_name
+            // << " Chir: " << ct << " " << cts << std::endl;
          }
 	 
 	 int idx = m.addAtom(at);
@@ -1095,7 +1185,10 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    // 20160702 add atoms to a conformer
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
-   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+      if (false)
+         std::cout << "atom info loop iat " << iat << " " << r.atom_info[iat].pdbx_model_Cartn_ideal.first
+                   << " " << r.atom_info[iat].model_Cartn.first << std::endl;
       try {
 	 if (r.atom_info[iat].pdbx_model_Cartn_ideal.first) {
 	    RDGeom::Point3D pos(r.atom_info[iat].pdbx_model_Cartn_ideal.second.x(),
@@ -1120,14 +1213,23 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    
    // ------------------------------------ Bonds -----------------------------
 
+   if (false) { // for checking spaces in atom names
+      // the check in the below loop uses atom names with whitespace stripped.
+      for (const auto &item : added_atoms) {
+         std::cout << "debug added_atom \"" << item.first << "\" " << item.second << std::endl;
+      }
+   }
+
    int n_atoms = m.getNumAtoms();
    std::map<std::string, int>::const_iterator it_1;
    std::map<std::string, int>::const_iterator it_2;
    int idx_1, idx_2;
    for (unsigned int ib=0; ib<r.bond_restraint.size(); ib++) {
       const dict_bond_restraint_t &br = r.bond_restraint[ib];
-      it_1 = added_atoms.find(br.atom_id_1_4c());
-      it_2 = added_atoms.find(br.atom_id_2_4c());
+      std::string at_1 = coot::util::remove_whitespace(br.atom_id_1());
+      std::string at_2 = coot::util::remove_whitespace(br.atom_id_2());
+      it_1 = added_atoms.find(at_1);
+      it_2 = added_atoms.find(at_2);
       if (it_1 != added_atoms.end()) { 
 	 if (it_2 != added_atoms.end()) {
 	    idx_1 = it_1->second;
@@ -1148,7 +1250,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     // use the atoms rdkit chiral status
 		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
 		  }
-		  if (! swap_order) {  // normal
+		  if (! swap_order) { // normal
 		     bond->setBeginAtomIdx(idx_1);
 		     bond->setEndAtomIdx(  idx_2);
 		  } else {
@@ -1161,17 +1263,19 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     m[idx_1]->setIsAromatic(true);
 		     m[idx_2]->setIsAromatic(true);
 		  }
-		  m.addBond(bond); // worry about ownership or memory leak.
+		  m.addBond(bond); // does a copy (it can take ownership with extra arg)
 	       } else {
 		  std::cout << "ERROR:: atom indexing problem " << idx_2 << " " << n_atoms << std::endl;
 	       }
 	    } else {
 	       std::cout << "ERROR:: atom indexing problem " << idx_1 << " " << n_atoms << std::endl;
 	    }
+            delete bond;
 	 }
       }
    }
 
+   std::cout << "##### numbonds " << m.getNumBonds() << std::endl;
    set_3d_conformer_state(&m);
 
    bool debug = false;
@@ -1725,7 +1829,8 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 	 RDKit::Bond *bond = new RDKit::Bond(RDKit::Bond::SINGLE);
 	 bond->setBeginAtomIdx(idx);
 	 bond->setEndAtomIdx(idx_for_H);
-	 mol->addBond(bond);
+         bool take_ownership = true;
+	 mol->addBond(bond, take_ownership);
       }
    }
    return r;
@@ -1872,7 +1977,7 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       int n_mol_atoms = rdkm.getNumAtoms();
 
       for (int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = rdkm[iat];
+         const RDKit::Atom* at_p = rdkm[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 std::string name = "ZZZZ";
 	 try {
@@ -2027,25 +2132,26 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
       RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
       int idx_1 = bond_p->getBeginAtomIdx();
       int idx_2 = bond_p->getEndAtomIdx();
-      RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_1];
-      RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_2];
+
+      RDKit::Atom* at_p_1 = (*rdkm)[idx_1];
+      RDKit::Atom* at_p_2 = (*rdkm)[idx_2];
       // If this was a bond for a hydrogen attached to a carbon, delete it.
       if ((at_p_1->getAtomicNum() == 1) && (at_p_2->getAtomicNum() == 6)) {
-	 // rdkm->removeBond(idx_1, idx_2);
-	 atoms_to_be_deleted.push_back(at_p_1.get());
-      }
-      if ((at_p_2->getAtomicNum() == 1) && (at_p_1->getAtomicNum() == 6)) { 
-	 // rdkm->removeBond(idx_1, idx_2);
-	 atoms_to_be_deleted.push_back(at_p_2.get());
-      }
+            // rdkm->removeBond(idx_1, idx_2);
+            atoms_to_be_deleted.push_back(at_p_1);
+         }
+      if ((at_p_2->getAtomicNum() == 1) && (at_p_1->getAtomicNum() == 6)) {
+            // rdkm->removeBond(idx_1, idx_2);
+            atoms_to_be_deleted.push_back(at_p_2);
+         }
       if ((at_p_1->getAtomicNum() == 1) && (at_p_2->getAtomicNum() == 5)) {
-	 // rdkm->removeBond(idx_1, idx_2);
-	 atoms_to_be_deleted.push_back(at_p_1.get());
-      }
-      if ((at_p_2->getAtomicNum() == 1) && (at_p_1->getAtomicNum() == 5)) { 
-	 // rdkm->removeBond(idx_1, idx_2);
-	 atoms_to_be_deleted.push_back(at_p_2.get());
-      }
+            // rdkm->removeBond(idx_1, idx_2);
+            atoms_to_be_deleted.push_back(at_p_1);
+         }
+      if ((at_p_2->getAtomicNum() == 1) && (at_p_1->getAtomicNum() == 5)) {
+            // rdkm->removeBond(idx_1, idx_2);
+            atoms_to_be_deleted.push_back(at_p_2);
+         }
    }
    for (unsigned int i=0; i<atoms_to_be_deleted.size(); i++) { 
       rdkm->removeAtom(atoms_to_be_deleted[i]);
@@ -2086,7 +2192,11 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 
    unsigned int n_mol_atoms = rdkm->getNumAtoms();   
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
+      RDKit::Atom* at_p = (*rdkm)[iat];
+#else
+         RDKit::Atom *at_p = (*rdkm)[iat];
+#endif
       if (at_p->getAtomicNum() == 7) {
 	 
 	 int e_valence = at_p->getExplicitValence();
@@ -2096,17 +2206,17 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 	 if (e_valence == 4) { 
 
 	    RDKit::ROMol::OEDGE_ITER current, end;
-	    boost::tie(current, end) = rdkm->getAtomBonds(at_p.get());
+            boost::tie(current, end) = rdkm->getAtomBonds(at_p);
 	    RDKit::Atom *last_hydrogen_p = NULL;
 	    while (current != end) {
-	       RDKit::BOND_SPTR bond=(*rdkm)[*current];
+               RDKit::Bond* bond=(*rdkm)[*current];
 	       // is this a bond to a hydrogen?
 	       int idx = bond->getOtherAtomIdx(iat);
-	       RDKit::ATOM_SPTR at_other_p = (*rdkm)[iat];
-	       if (at_other_p->getAtomicNum() == 1)
-		  last_hydrogen_p = at_other_p.get();
-	       current++;
-	    }
+               RDKit::Atom* at_other_p = (*rdkm)[iat];
+               if (at_other_p->getAtomicNum() == 1)
+                  last_hydrogen_p = at_other_p;
+               current++;
+            }
 
 	    if (last_hydrogen_p) {
 	       // delete it then
@@ -2128,7 +2238,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 		<< " atoms -----------" << std::endl;
 
    for (int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      RDKit::Atom* at_p = (*rdkm)[iat];
       // debug
       if (0)
 	 std::cout << "in assign_formal_charges() calcExplicitValence on atom "
@@ -2138,7 +2248,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    }
    
    for (int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      RDKit::Atom* at_p = (*rdkm)[iat];
       if (debug) 
 	 std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
 		   << " with valence " << at_p->getExplicitValence()
@@ -2218,7 +2328,7 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 
 	    coot::undelocalise(&m_no_Hs);
 	    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	       RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
+               RDKit::Atom* at_p = m_no_Hs[iat];
 	       at_p->calcImplicitValence(true);
 	    }
 
@@ -2256,7 +2366,7 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 	       std::vector<std::string> H_names_already_added;
 	 
 	       for (unsigned int iat=0; iat<n_atoms_new; iat++) {
-		  RDKit::ATOM_SPTR at_p = m[iat];
+                  RDKit::Atom* at_p = m[iat];
 		  RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 		  std::string name = "";
 		  try {
@@ -2278,23 +2388,23 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 		     // typically when we get here, that's because the
 		     // atom is a new one, generated by RDKit.
 		  
-		     std::string name = coot::infer_H_name(iat, at_p, &m, restraints,
+		     std::string name_i = coot::infer_H_name(iat, at_p, &m, restraints,
 							   H_names_already_added);
-		     if (name != "") {
+		     if (! name_i.empty()) {
 
 			// add atom if the name is not already there:
 			// 
 			if (std::find(existing_H_names.begin(),
 				      existing_H_names.end(),
-				      name) == existing_H_names.end()) {
+				      name_i) == existing_H_names.end()) {
 			
-			   H_names_already_added.push_back(name);
+			   H_names_already_added.push_back(name_i);
 			
 			   int n = at_p->getAtomicNum();
 			   std::string element = tbl->getElementSymbol(n);
 			
 			   mmdb::Atom *at = new mmdb::Atom;
-			   at->SetAtomName(name.c_str());
+			   at->SetAtomName(name_i.c_str());
 			   // at->SetElementName(element.c_str()); // FIXME?
 			   at->SetElementName(" H");  // PDBv3 FIXME
 			   at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
@@ -2328,21 +2438,21 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 // 
 std::string
 coot::infer_H_name(int iat,
-		   RDKit::ATOM_SPTR atom_p,
+         RDKit::Atom* atom_p,
 		   const RDKit::ROMol *mol,
 		   const dictionary_residue_restraints_t &restraints,
 		   const std::vector<std::string> &H_names_already_added) {
 
    std::string r = "";
 
-   unsigned int deg = mol->getAtomDegree(atom_p.get());
+   unsigned int deg = mol->getAtomDegree(atom_p);
    if (deg == 1) {
       RDKit::ROMol::OEDGE_ITER current, end;
-      boost::tie(current, end) = mol->getAtomBonds(atom_p.get());
+      boost::tie(current, end) = mol->getAtomBonds(atom_p);
       while (current != end) {
-	 RDKit::BOND_SPTR bond=(*mol)[*current];
-	 int idx = bond->getOtherAtomIdx(iat);
-	 RDKit::ATOM_SPTR other_atom_p = (*mol)[idx];
+            const RDKit::Bond* bond=(*mol)[*current];
+            int idx = bond->getOtherAtomIdx(iat);
+            const RDKit::Atom* other_atom_p = (*mol)[idx];
 	 std::string bonding_atom_name;
 	 try {
 	    other_atom_p->getProp("name", bonding_atom_name);
@@ -2452,7 +2562,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    // without calling calcImplicitValence() and that results in problems].
    //
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = (*rdk_mol)[iat];
+      RDKit::Atom* at_p = (*rdk_mol)[iat];
       at_p->calcImplicitValence(true);
    }
 
@@ -2468,13 +2578,13 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    RDKit::Conformer conf = rdk_mol->getConformer(icurrent_conf);
    int ic_index = 0;
    for (unsigned int iat=1; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR iat_p = (*rdk_mol)[iat];
+      RDKit::Atom* iat_p = (*rdk_mol)[iat];
       if (iat_p->getAtomicNum() != 1) { 
 	 RDGeom::Point3D &pos_1 = conf.getAtomPos(iat);
 	 // std::cout << "   in 3d conformer: pos " << iat << " is " << pos_1 << std::endl;
 	 for (unsigned int jat=0; jat<iat; jat++) {
-	    RDKit::ATOM_SPTR jat_p = (*rdk_mol)[jat];
-	    if (jat_p->getAtomicNum() != 1) { 
+          RDKit::Atom* jat_p = (*rdk_mol)[jat];
+          if (jat_p->getAtomicNum() != 1) { 
 	       RDGeom::Point3D &pos_2 = conf.getAtomPos(jat);
 	       RDGeom::Point3D diff = pos_1 - pos_2;
 
@@ -2530,15 +2640,15 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 		<< std::endl;
       conf = rdk_mol->getConformer(iconf);
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdk_mol)[iat];
-	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-	 std::string name = "";
-	 try {
-	    at_p->getProp("name", name);
-	 }
-	 catch (const KeyErrorException &kee) {
-	 }
-	 std::cout << "   " << iat << " " << name << "  " << r_pos << std::endl;
+         RDKit::Atom* at_p = (*rdk_mol)[iat];
+         RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+         std::string name = "";
+         try {
+            at_p->getProp("name", name);
+         }
+         catch (const KeyErrorException &kee) {
+         }
+         std::cout << "   " << iat << " " << name << "  " << r_pos << std::endl;
       }
    }
 
@@ -2613,7 +2723,7 @@ coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
 	    while(nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+               const RDKit::Atom* at = (*rdkm)[*nbrIdx];
 	       if (at->getAtomicNum() == 8) { 
 		  RDKit::Bond *bond_inner = rdkm->getBondBetweenAtoms(C_at->getIdx(), *nbrIdx);
 		  if (bond_inner) {
@@ -2648,7 +2758,7 @@ coot::undelocalise_nitros(RDKit::RWMol *rdkm) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(N_at);
 	    while(nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+             const RDKit::Atom* at = (*rdkm)[*nbrIdx];
 	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 8) { 
 		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_n, *nbrIdx);
 		  if (bond) {
@@ -2691,7 +2801,7 @@ coot::undelocalise_carboxylates(RDKit::RWMol *rdkm) {
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
 	 while(nbrIdx != endNbrs) {
-	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+            const RDKit::Atom* at = (*rdkm)[*nbrIdx];
 	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
 	    if (bond) {
 	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
@@ -2886,8 +2996,8 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(P_at);
 	 while(nbrIdx != endNbrs) {
-	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
-	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
+          const RDKit::Atom* at = (*rdkm)[*nbrIdx];
+          RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
 	    if (bond) {
 	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
 		  deloc_O_bonds.push_back(bond);
@@ -2906,9 +3016,9 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    int idx_o_1 = deloc_O_bonds[1]->getOtherAtomIdx(idx_1);
 	    int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
 	    int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
-	    RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_o_1];
-	    RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
-	    RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
+            RDKit::Atom* at_p_1 = (*rdkm)[idx_o_1];
+            RDKit::Atom* at_p_2 = (*rdkm)[idx_o_2];
+            RDKit::Atom* at_p_3 = (*rdkm)[idx_o_3];
 	    at_p_1->setFormalCharge(-1);
 	    at_p_2->setFormalCharge(-1);
 	    at_p_3->setFormalCharge(-1);
@@ -2921,8 +3031,9 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    deloc_O_bonds[2]->setBondType(RDKit::Bond::DOUBLE);
 	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
 	    int idx_o_1 = deloc_O_bonds[1]->getOtherAtomIdx(idx_1);
-	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
-	    RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_o_1];
+
+            RDKit::Atom* at_p_0 = (*rdkm)[idx_o_0];
+            RDKit::Atom* at_p_1 = (*rdkm)[idx_o_1];
 	    at_p_0->setFormalCharge(-1);
 	    at_p_1->setFormalCharge(-1);
 	 }
@@ -2932,7 +3043,7 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
 	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
 	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
-	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
+            RDKit::Atom* at_p_0 = (*rdkm)[idx_o_0];
 	    at_p_0->setFormalCharge(-1);
 	 }
       }
@@ -2954,13 +3065,13 @@ coot::undelocalise_sulphates(RDKit::ROMol *rdkm) {
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(S_at);
 	 while(nbrIdx != endNbrs) {
-	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
-	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
-	    if (bond) {
-	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
-		  deloc_O_bonds.push_back(bond);
-	    } 
-	    ++nbrIdx;
+            const RDKit::Atom* at = (*rdkm)[*nbrIdx];
+            RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
+            if (bond) {
+               if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
+                  deloc_O_bonds.push_back(bond);
+            } 
+            ++nbrIdx;
 	 }
 	 
 	 if (deloc_O_bonds.size() >= 3) {
@@ -2974,13 +3085,13 @@ coot::undelocalise_sulphates(RDKit::ROMol *rdkm) {
 	       // Handle formal charge too.
 	       int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
 	       int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
-	       RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
-	       RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
+               RDKit::Atom* at_p_2 = (*rdkm)[idx_o_2];
+               RDKit::Atom* at_p_3 = (*rdkm)[idx_o_3];
 	       at_p_2->setFormalCharge(-1);
 	       at_p_3->setFormalCharge(-1);
 	    } else {
 	       int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1); // this single-bonded O
-	       RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
+               RDKit::Atom* at_p_2 = (*rdkm)[idx_o_2];
 	       at_p_2->setFormalCharge(-1);
 	    } 
 	 }
@@ -3039,7 +3150,7 @@ coot::charge_undelocalized_guanidinos(RDKit::RWMol *rdkm) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
 	    while(nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+               const RDKit::Atom* at = (*rdkm)[*nbrIdx];
 	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 7) { 
 		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
 		  // std::cout << ".... found a C-N bond " << bond->getBondType() << std::endl;
@@ -3082,7 +3193,7 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(P_at);
 	 while(nbrIdx != endNbrs) {
-	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+          const RDKit::Atom* at = (*rdkm)[*nbrIdx];
 	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
 	    if (bond) {
 	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
@@ -3146,27 +3257,28 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = m->getAtomNeighbors(P_at);
 	 while (nbrIdx != endNbrs) {
-	    const RDKit::ATOM_SPTR at = (*m)[*nbrIdx];
-	    RDKit::Bond *bond = m->getBondBetweenAtoms(idx_1, *nbrIdx);
-	    if (bond) {
+            RDKit::Atom* at = (*m)[*nbrIdx];
+            RDKit::Bond *bond = m->getBondBetweenAtoms(idx_1, *nbrIdx);
+            if (bond) {
 
                if (at->getAtomicNum() == 8) {
 	          if (bond->getBondType() == RDKit::Bond::SINGLE) { 
                      const int &idx_O = *nbrIdx;
-                     const RDKit::ATOM_SPTR O_at = at;
+                     const RDKit::Atom* O_at = at;
 
                      // Is the other atom of the O a hydrogen?
-	             RDKit::ROMol::OEDGE_ITER current, end;
-	             boost::tie(current, end) = m->getAtomBonds(O_at.get());
-	             while (current != end) {
-	                RDKit::BOND_SPTR o_bond=(*m)[*current];
+                     RDKit::ROMol::OEDGE_ITER current, end;
+                     boost::tie(current, end) = m->getAtomBonds(O_at);
+                     while (current != end) {
+
+                        RDKit::Bond* o_bond=(*m)[*current];
 	                // is this a bond to a hydrogen?
 	                int idx_H = o_bond->getOtherAtomIdx(idx_O);
-	                RDKit::ATOM_SPTR at_other_p = (*m)[idx_H];
-	                if (at_other_p->getAtomicNum() == 1) {
-		           single_PO_bonds.push_back(bond);
-                           O_atoms_for_charging.push_back(at.get());
-                           probable_phosphate_hydrogens.push_back(at_other_p.get());
+                        RDKit::Atom* at_other_p = (*m)[idx_H];
+                        if (at_other_p->getAtomicNum() == 1) {
+                           single_PO_bonds.push_back(bond);
+                           O_atoms_for_charging.push_back(at);
+                           probable_phosphate_hydrogens.push_back(at_other_p);
                         } else {
 			   // std::cout << at_other_p << " was not a hydrogen" << std::endl;
 			}
@@ -3174,7 +3286,7 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
 	             }
 
                   }
-	          if (bond->getBondType() == RDKit::Bond::DOUBLE) {
+                  if (bond->getBondType() == RDKit::Bond::DOUBLE) {
 		     double_PO_bonds.push_back(bond);
 		     // 20171217 surely we can't mean to charge an O with a double bond?
                      // O_atoms_for_charging.push_back(at.get());
@@ -3253,13 +3365,14 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
       RDKit::ROMol::OEDGE_ITER current, end;
       boost::tie(current, end) = m->getAtomBonds(H_atoms_to_be_deleted[idel]);
       while (current != end) {
-	 RDKit::BOND_SPTR bond= (*m)[*current];
+         RDKit::Bond* bond= (*m)[*current];
 	 int idx = H_atoms_to_be_deleted[idel]->getIdx();
 	 int idx_other = bond->getOtherAtomIdx(idx);
 	 if (debug) { // debug
 	    std::string name_1;
 	    std::string name_2;
-	    RDKit::Atom *other_at = (*m)[idx_other].get();
+
+            RDKit::Atom *other_at = (*m)[idx_other];
 	    H_atoms_to_be_deleted[idel]->getProp("name", name_1);
 	    other_at->getProp("name", name_2);
 	    std::cout << "----- removeBond between " << idx << " " << idx_other << " " << name_1 << " " << name_2
@@ -3314,7 +3427,7 @@ coot::remove_carboxylate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = m->getAtomNeighbors(C_at);
 	    while (nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*m)[*nbrIdx];
+             const RDKit::Atom* at = (*m)[*nbrIdx];
 	       RDKit::Bond *bond = m->getBondBetweenAtoms(idx_C, *nbrIdx);
 	       if (bond) {
 
@@ -3339,7 +3452,7 @@ coot::remove_carboxylate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
 		     RDKit::ROMol::ADJ_ITER nbrIdx_inner, endNbrs_inner;
 		     boost::tie(nbrIdx_inner, endNbrs_inner) = m->getAtomNeighbors(O_at);
 		     while (nbrIdx_inner != endNbrs_inner) {
-			const RDKit::ATOM_SPTR at = (*m)[*nbrIdx_inner];
+                        const RDKit::Atom* at = (*m)[*nbrIdx_inner];
 			RDKit::Bond *bond_inner = m->getBondBetweenAtoms(idx_O, *nbrIdx_inner);
 			if (bond_inner) {
 			   RDKit::Atom *at_H = bond_inner->getOtherAtom(O_at);
@@ -3369,7 +3482,7 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
    std::cout << "---- Atoms: " << rdkm->getNumAtoms() << std::endl;
    for (unsigned int iat=0; iat<rdkm->getNumAtoms(); iat++) { 
 
-      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      const RDKit::Atom* at_p = (*rdkm)[iat];
       std::string name;
       try {
 	 at_p->getProp("name", name);
@@ -3435,9 +3548,9 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       int idx_2 = bond_p->getEndAtomIdx();
 
       std::string n_1, n_2;
-      
-      RDKit::ATOM_SPTR at_1 = (*rdkm)[idx_1];
-      RDKit::ATOM_SPTR at_2 = (*rdkm)[idx_2];
+
+      const RDKit::Atom* at_1 = (*rdkm)[idx_1];
+      const RDKit::Atom* at_2 = (*rdkm)[idx_2];
       try { 
 	 at_1->getProp("name", n_1);
 	 at_2->getProp("name", n_2);
@@ -3484,7 +3597,7 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, mmdb::Residue *residue_
       std::string residue_atom_name(residue_atoms[iat]->name);
       mmdb::Atom *r_at = residue_atoms[iat];
       for (int jat=0; jat<n_atoms; jat++) { 
-	 RDKit::ATOM_SPTR at_p = (*mol_p)[jat];
+         RDKit::Atom* at_p = (*mol_p)[jat];
 	 try {
 	    std::string rdkit_atom_name;
 	    at_p->getProp("name", rdkit_atom_name);
@@ -3519,12 +3632,14 @@ coot::is_aromatic_ring(const std::vector<int> &ring_atom_indices,
       // presuming that ring_atom_indices[i] is not negative
       unsigned int idx(ring_atom_indices[i]);
 
-      RDKit::ATOM_SPTR at_p = rdkm[idx];
+
+      RDKit::Atom* at_p = rdkm[idx];
       RDKit::ROMol::OEDGE_ITER current, end;
-      boost::tie(current, end) = rdkm.getAtomBonds(at_p.get());
+      boost::tie(current, end) = rdkm.getAtomBonds(at_p);
 
       while (current != end) {
-	 RDKit::BOND_SPTR bond= rdkm[*current];
+
+         RDKit::Bond* bond= rdkm[*current];
 	 int idx_other = bond->getOtherAtomIdx(idx);
 
 	 std::vector<int>::const_iterator it = std::find(ring_atom_indices.begin(),
@@ -3580,13 +3695,14 @@ coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
 	    considered.push_back(idx_1); // not the picked atom;
 	    considered.push_back(idx_2); // not the first neighbour of idx_1.
 	    // what are the neighbours of idx_1 that is not idx_2?
-	    RDKit::ATOM_SPTR at_p = (*working_mol)[idx_1];
-	    RDKit::ROMol::OEDGE_ITER current, end;
-	    boost::tie(current, end) = working_mol->getAtomBonds(at_p.get());
+
+            RDKit::Atom* at_p = (*working_mol)[idx_1];
+            RDKit::ROMol::OEDGE_ITER current, end;
+            boost::tie(current, end) = working_mol->getAtomBonds(at_p);
 
 	    // add some atoms to the queue
 	    while (current != end) {
-	       RDKit::BOND_SPTR bond= (*working_mol)[*current];
+               RDKit::Bond* bond= (*working_mol)[*current];
 	       int idx = bond->getOtherAtomIdx(idx_1);
 	       if (idx != idx_2) {
 		  q.push(idx);
@@ -3599,11 +3715,11 @@ coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
 	    while (q.size()) {
 	       int current_atom_idx = q.front();
 	       q.pop();
-	       RDKit::ATOM_SPTR at_p = (*working_mol)[current_atom_idx];
-	       boost::tie(current, end) = working_mol->getAtomBonds(at_p.get());
-	       // std::cout << "current and end: " << current << " " << end << std::endl;
+          RDKit::Atom* at_p = (*working_mol)[current_atom_idx];
+          boost::tie(current, end) = working_mol->getAtomBonds(at_p);
+          // std::cout << "current and end: " << current << " " << end << std::endl;
 	       while (current != end) {
-		  RDKit::BOND_SPTR bond=(*working_mol)[*current];
+                RDKit::Bond* bond=(*working_mol)[*current];
 		  int idx = bond->getOtherAtomIdx(current_atom_idx);
 		  if (std::find(considered.begin(),
 				considered.end(),
@@ -3630,9 +3746,9 @@ coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
 	       std::vector<RDKit::Atom *> atoms_to_be_deleted;
 	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++) {
 		  // std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
-		  RDKit::ATOM_SPTR at_p = (*working_mol)[R_group_atoms[iat]];
-		  atoms_to_be_deleted.push_back(at_p.get());
-	       }
+                  RDKit::Atom* at_p = (*working_mol)[R_group_atoms[iat]];
+                  atoms_to_be_deleted.push_back(at_p);
+               }
 	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++)
 		  working_mol->removeAtom(atoms_to_be_deleted[iat]);
 
@@ -3659,8 +3775,8 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
 
    bool i_joining_atom_found = false;
    for (unsigned int iat=0; iat<trial_fragment.getNumAtoms(); iat++) {
-      RDKit::ATOM_SPTR at_p = trial_fragment[iat];
-
+      const RDKit::Atom* at_p = trial_fragment[iat];
+      
       // Was it the '*' atom of the trial_fragment?
       //
       if (at_p->getAtomicNum() == 0) {
@@ -3704,13 +3820,12 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
 	    
 	    std::cout << "------ atom idx map ---------" << std::endl;
 	    std::map<unsigned int, unsigned int>::const_iterator it;
-	    for (it=atom_idx_map.begin(); it!=atom_idx_map.end(); it++) {
+	    for (it=atom_idx_map.begin(); it!=atom_idx_map.end(); ++it) {
 	       std::cout << "    atom_name " << it->first << " -> " << it->second << std::endl;
 	    } 
 	    std::cout << "------ end of atom idx map ---------" << std::endl;
 	 }
 
-	 
 	 for (unsigned int ibond=0; ibond<trial_fragment.getNumBonds(); ibond++) {
 	    const RDKit::Bond *bond = trial_fragment.getBondWithIdx(ibond);
 	    unsigned int itb = bond->getBeginAtomIdx();

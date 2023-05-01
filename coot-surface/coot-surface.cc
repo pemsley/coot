@@ -69,9 +69,9 @@ coot::surface::fill_from(mmdb::Manager *mol, int selHnd, float col_scale, bool a
    }
 
    
-   theSurface = new CXXSurface;
-   CXXChargeTable theChargeTable;
-   CXXUtils::assignCharge(mol, selHnd, &theChargeTable); // magic happens
+   theSurface = new CXX_mot::CXXSurface;
+   CXX_mot::CXXChargeTable theChargeTable;
+   CXXUtils_old::assignCharge(mol, selHnd, &theChargeTable); // magic happens
 
    if (! assign_charges) 
       // restore charges 
@@ -104,10 +104,10 @@ coot::surface::fill_surface(mmdb::Manager *mol, int SelHnd_selection, int SelHnd
 
    // e.g. selection handles: residues_of_the_active_site, residues_of_the_chain
    // the first is a subset of the other.
-   theSurface = new CXXSurface;
+   theSurface = new CXX_mot::CXXSurface;
    if (assign_charges) { 
-      CXXChargeTable theChargeTable;
-      CXXUtils::assignCharge(mol, SelHnd_all, &theChargeTable);
+      CXX_mot::CXXChargeTable theChargeTable;
+      CXXUtils_old::assignCharge(mol, SelHnd_all, &theChargeTable);
    } 
    theSurface->calculateFromAtoms(mol, SelHnd_selection, SelHnd_all, 1.4, 0.5, false);
    evaluateElectrostaticPotential(mol, SelHnd_all, col_scale);
@@ -245,7 +245,7 @@ coot::surface::evaluatePhiAndColourWithDefaultScheme(mmdb::Manager *theManager, 
 int coot::surface::evaluatePhiAndColourWithScheme(mmdb::Manager *theManager, const int selHnd, CColourScheme &colourScheme){
   cout << "In evaluatePhiAndColourWithScheme\n"; cout.flush();
   //Instantiate and calculate electrostatic potential
-  CXXCreator theCreator(theManager, selHnd);
+  CXX_mot::CXXCreator theCreator(theManager, selHnd);
   theCreator.calculate();	
   
   mmdb::realtype a, b, c;
@@ -281,7 +281,7 @@ int coot::surface::colourByScalarValue(const std::string &scalarType, CColourSch
     if (!scalarRead){
        // double *newColour = colourScheme.GetRGB(scalar);
        std::vector<double>  newColour = colourScheme.GetRGB(scalar);
-      CXXCoord colour (newColour[0]/255., newColour[1]/255., newColour[2]/255.);
+      CXX_mot::CXXCoord colour (newColour[0]/255., newColour[1]/255., newColour[2]/255.);
       theSurface->setCoord("colour", i, colour);
     }
   }

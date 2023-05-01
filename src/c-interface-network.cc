@@ -1,3 +1,4 @@
+
 /* src/c-interface-network.cc
  * 
  * Copyright 2009, 2012 by The University of Oxford
@@ -20,6 +21,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -61,6 +63,11 @@ int coot_get_url(const char *url, const char *file_name) {
 int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 					short int activate_curl_hook_flag) {
 
+   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
+	     << url << " " << file_name
+             << std::endl;
+
+
    // This can take a while to download files - i.e. can block.  If
    // this is called in a guile thread, then that is bad because it
    // stops the syncing of guile threads (1.8 behavour). See "Blocking
@@ -82,11 +89,19 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       // of mallocing.  So the memory is messed up elsewhere and beforehand.
       CURL *c = curl_easy_init();
       long int no_signal = 1;
+      int to = 31;
+      std::string ext = coot::util::file_name_extension(file_name);
+      if (ext == ".gz") {
+         std::string ext_2 = coot::util::file_name_extension(coot::util::name_sans_extension(file_name));
+         if (ext_2 == ".xml")
+            to = 6; // bored of a waiting for slow EBI server
+      }
 
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
+      curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
       curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
@@ -100,12 +115,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
 #ifdef USE_GUILE
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
-	 // good return values (same as the non-wrapped function call)
 	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
-#else
-	 std::cout << "Can't do this with this old guile" << std::endl;
-#endif
 #else
 #ifdef USE_PYTHON
          Py_BEGIN_ALLOW_THREADS;
@@ -148,17 +158,24 @@ std::string coot_get_url_as_string_internal(const char *url) {
    std::string user_agent = PACKAGE;
    user_agent += " ";
    user_agent += VERSION;
-   user_agent += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
+   user_agent += " https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
+   char buff[1024];
 
    long int no_signal = 1; 
    CURL *c = curl_easy_init();
    curl_easy_setopt(c, CURLOPT_URL, url);
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
-   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 4);
+   curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
    curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
+   CURLcode cc = curl_easy_setopt(c, CURLOPT_ERRORBUFFER, buff);
    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
    curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
    CURLcode success = curl_easy_perform(c);
+   if (success != 0) {
+      std::cout << "WARNING:: coot_get_url_as_string_internal with arg " << url << " failed" << std::endl;
+      std::cout << "ERROR: " << buff << std::endl;
+   }
    curl_easy_cleanup(c);
    return s;
 }
@@ -178,7 +195,7 @@ SCM coot_get_url_as_string(const char *url) {
 PyObject *coot_get_url_as_string_py(const char *url) {
    PyObject *r  = Py_False;
    std::string s = coot_get_url_as_string_internal(url);
-   r = PyString_FromString(s.c_str());
+   r = myPyString_FromString(s.c_str());
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -310,8 +327,8 @@ get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
    command += single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
-   if (PyString_Check(r))
-      s = PyString_AsString(r);
+   if (PyUnicode_Check(r))
+     s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(r));
    Py_XDECREF(r);
    return s;
 }
@@ -337,16 +354,16 @@ SCM curl_progress_info(const char *file_name) {
       info = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
       CURLcode status = curl_easy_getinfo(c, info, &dv);
       if (status == CURLE_OK) {
-	 SCM scm_v   = scm_double2num(dv);
-	 SCM scm_sym = scm_str2symbol("content-length-download");
+	 SCM scm_v   = scm_from_double(dv);
+	 SCM scm_sym = scm_string_to_symbol(scm_from_locale_string("content-length-download"));
 	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
       }
 
       info = CURLINFO_SIZE_DOWNLOAD;
       status = curl_easy_getinfo(c, info, &dv);
       if (status == CURLE_OK) {
-	 SCM scm_v   = scm_double2num(dv);
-	 SCM scm_sym = scm_str2symbol("size-download");
+	 SCM scm_v   = scm_from_double(dv);
+	 SCM scm_sym = scm_string_to_symbol(scm_from_locale_string("size-download"));
 	 r = scm_cons(scm_cons(scm_sym, scm_v), r);
       }
    } else {
@@ -375,7 +392,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
      CURLcode status = curl_easy_getinfo(c, info, &dv);
      if (status == CURLE_OK) {
        PyObject *py_v   = PyFloat_FromDouble(dv);
-       PyObject *py_sym = PyString_FromString("content-length-download");
+       PyObject *py_sym = myPyString_FromString("content-length-download");
        PyDict_SetItem(r, py_sym, py_v);
      }
 
@@ -383,7 +400,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
      status = curl_easy_getinfo(c, info, &dv);
      if (status == CURLE_OK) {
        PyObject *py_v   = PyFloat_FromDouble(dv);
-       PyObject *py_sym = PyString_FromString("size-download");
+       PyObject *py_sym = myPyString_FromString("size-download");
        PyDict_SetItem(r, py_sym, py_v);
      }
    } else {
@@ -396,6 +413,86 @@ PyObject *curl_progress_info_py(const char *file_name) {
 }
 #endif // USE_PYTHON
 #endif /* USE_LIBCURL */
+
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+
+void fetch_and_superpose_alphafold_models_using_active_molecule() {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      int imol = aa.second.first;
+      fetch_and_superpose_alphafold_models(imol);
+   }
+}
+
+void fetch_and_superpose_alphafold_models(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         bool found_a_uniprot_dbref = false;
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_refs = chain_p->GetNumberOfDBRefs();
+               std::string chain_id = chain_p->GetChainID();
+               for (int ref_no=0; ref_no<n_refs; ref_no++) {
+                  mmdb::DBReference  *ref = chain_p->GetDBRef(ref_no);  // 0..nDBRefs-1
+                  std::string db = ref->database;
+                  std::string db_accession = ref->dbAccession;
+                  std::cout << "INFO:: DBREF Chain " << chain_id << " " << db << " " << db_accession << std::endl;
+                  if (db == "UNP") {  // uniprot
+                     found_a_uniprot_dbref = true;
+                     int imol_af = fetch_alphafold_model_for_uniprot_id(db_accession);
+                     if (is_valid_model_molecule(imol_af)) {
+                        superpose_with_chain_selection(imol, imol_af, chain_id.c_str(), "A", 1, 0, 0);
+                        graphics_info_t g;
+                        g.molecules[imol_af].ca_plus_ligands_representation(g.Geom_p(), true);
+                        graphics_draw();
+                     }
+                  }
+               }
+            }
+         }
+         if (!found_a_uniprot_dbref) {
+            std::cout << "INFO:: no DBREF found in molecule header " << imol << std::endl;
+         }
+      }
+   }
+}
+
+int
+fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
+
+   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   // make coot-download if needed
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+   bool needs_downloading = true;
+   int imol = -1;
+   if (coot::file_exists_and_non_tiny(fn, 500))
+      needs_downloading = false;
+   if (needs_downloading) {
+      coot_get_url(url.c_str(), fn.c_str());
+      if (coot::file_exists_and_non_tiny(fn, 500)) {
+         imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+      } else {
+         std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
+         info_dialog(m.c_str());
+      }
+   } else {
+      graphics_info_t g;
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+      graphics_draw();
+   }
+   return imol;
+}
+
 
 
 #ifdef USE_LIBCURL
@@ -430,7 +527,7 @@ void curl_test_make_a_post() {
    std::cout << "posting " << post_string << std::endl;
    std::cout << "posting to  " << url << std::endl;
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
-   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 
@@ -452,7 +549,7 @@ curl_post(const std::string &url, const std::string &post_string) {
    CURL *c = curl_easy_init();
    long int no_signal = 1; // for multi-threading
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
-   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 
@@ -463,3 +560,20 @@ curl_post(const std::string &url, const std::string &post_string) {
    curl_easy_cleanup(c);
 }
 #endif // USE_LIBCURL
+
+
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Client/Server                                           */
+/*  ----------------------------------------------------------------------- */
+//! \brief client/server functions
+#ifdef USE_PYTHON
+void set_python_draw_function(const std::string &s) {
+
+   graphics_info_t g;
+   g.set_python_draw_function(s);
+
+}
+#endif // USE_PYTHON
+

@@ -50,7 +50,7 @@
 #include "coords/mmdb.h"
 #include <mmdb2/mmdb_manager.h>
 
-#include "coot-surface/rgbreps.h"
+// #include "coot-surface/rgbreps.h"
 
 
 // Dummy definitions for stand alone version
@@ -69,41 +69,6 @@ extern "C" {
 // void accept_phi_psi_moving_atoms() {}
 // void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol) {}
 
-void setup_rgb_reps();
-
-// needed?
-void setup_rgb_reps() {
-
-   std::string colours_file = coot::package_data_dir() + "/";
-   std::string colours_def = "colours.def";
-   colours_file += colours_def;
-
-   struct stat buf;
-   int status = stat(colours_file.c_str(), &buf);
-   if (status == 0) { // colours file was found in default location
-      RGBReps r(colours_file);
-      if (1)
-         std::cout << "INFO:: Colours file: " << colours_file << " loaded"
-                   << std::endl;
-
-      // test:
-      //       std::vector<std::string> test_col;
-      //       test_col.push_back("blue");
-      //       test_col.push_back("orange");
-      //       test_col.push_back("magenta");
-      //       test_col.push_back("cyan");
-
-      //       std::vector<int> iv = r.GetColourNumbers(test_col);
-      //       for (int i=0; i<iv.size(); i++) {
-      // 	 std::cout << "Colour number: " << i << "  " << iv[i] << std::endl;
-      //       }
-
-
-   } else {
-      std::cout << "WARNING! Can't find file: colours.def at " << coot::package_data_dir()
-                << std::endl;
-   }
-}
 
 void
 print_help(std::string cmd) {
@@ -120,7 +85,6 @@ print_help(std::string cmd) {
              << "[--help (this help)]\n"
              << "\n";
    std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
-
 
 }
 
@@ -168,42 +132,42 @@ main(int argc, char *argv[]) {
       switch(ch) {
 
       case 0:
-         if (optarg) {
+         if (coot_optarg) {
             std::string arg_str = long_options[option_index].name;
 
             if (arg_str == "pdbin") {
-               pdb_file_name = optarg;
+               pdb_file_name = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "pdbin2") {
-               pdb_file_name2 = optarg;
+               pdb_file_name2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "selection") {
-               selection = optarg;
+               selection = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "selection2") {
-               selection2 = optarg;
+               selection2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "chain") {
-               chain_id = optarg;
+               chain_id = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "chain2") {
-               chain_id2 = optarg;
+               chain_id2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "edit") {
-               edit_res_no = coot::util::string_to_int(optarg);
+               edit_res_no = coot::util::string_to_int(coot_optarg);
                n_used_args += 2;
             }
             if (arg_str == "blocksize") {
-               block_size = coot::util::string_to_float(optarg);
+               block_size = coot::util::string_to_float(coot_optarg);
                n_used_args += 2;
             }
          } else {
@@ -230,42 +194,42 @@ main(int argc, char *argv[]) {
          break;
 
       case 'i':
-         pdb_file_name = optarg;
+         pdb_file_name = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'j':
-         pdb_file_name2 = optarg;
+         pdb_file_name2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 's':
-         selection = optarg;
+         selection = coot_optarg;
          n_used_args += 2;
          break;
 
       case 't':
-         selection2 = optarg;
+         selection2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'c':
-         chain_id = optarg;
+         chain_id = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'd':
-         chain_id2 = optarg;
+         chain_id2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'e':
-         edit_res_no = coot::util::string_to_int(optarg);
+         edit_res_no = coot::util::string_to_int(coot_optarg);
          n_used_args += 2;
          break;
 
       case 'b':
-         block_size = coot::util::string_to_float(optarg);
+         block_size = coot::util::string_to_float(coot_optarg);
          n_used_args += 2;
          break;
 
@@ -293,13 +257,18 @@ main(int argc, char *argv[]) {
          do_help = false;
          break;
 
+      case '?':
+         std::cout << "Unrecognised option: " << optopt << std::endl;
+         break;
+
       default:
-         std::cout << "default optarg: " << optarg << std::endl;
+         std::cout << "default coot_optarg: " << coot_optarg << std::endl;
          break;
       }
    }
 
-   for (index = optind; index < argc; index++) {
+   // any unhandled arguments which could be a pdb?
+   for (index = n_used_args+1; index < argc; index++) {
       if (coot::util::extension_is_for_coords(coot::util::file_name_extension(argv[index])))
          pdb_file_name = argv[index];
       else {
@@ -324,7 +293,6 @@ main(int argc, char *argv[]) {
       }
 
       gtk_init (&argc, &argv);
-      setup_rgb_reps();
 
       float level_prefered = 0.02;
       float level_allowed = 0.002;
@@ -520,6 +488,9 @@ main(int argc, char *argv[]) {
 
       gtk_init(&argc, &argv);
    }
+
+   std::cout << "BL DBEUG:: returning now n_used_args" << n_used_args <<std::endl;
+
    return 0;
 
 }
@@ -538,6 +509,8 @@ extern "C" {
    void accept_phi_psi_moving_atoms() {}
    void clear_moving_atoms_object() {}
 }
+
+#include <iostream>
 
 int
 main(int argc, char *argv[]) {

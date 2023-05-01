@@ -39,12 +39,12 @@
 (define (add-synthetic-pyranose-planes)
   (for-each (lambda(comp-id)
 	      (add-pyranose-pseudo-ring-plane-restraints comp-id))
-	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP" "BGC")))
 
 (define (use-unimodal-pyranose-ring-torsions)
   (for-each (lambda(tlc)
 	      (use-unimodal-ring-torsion-restraints tlc))
-	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP" "BGC")))
 
 ;; fill this later
 ;; (define (add-cho-restraints-for-residue imol new-res-spec)
@@ -52,10 +52,10 @@
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 
-  (format #t "---------------- multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
+  (format #t "INFO:: multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
   (set-go-to-atom-molecule imol)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 4))
+    (set-matrix (/ wm 2))
 
     (let ((current-refinement-rate (dragged-refinement-steps-per-frame)))
 
@@ -239,11 +239,6 @@
       (if (list? res-centre)
 	  (apply set-rotation-centre res-centre))))
 
-  (define (delete-residue-by-spec spec)
-    (delete-residue imol
-		    (residue-spec->chain-id spec)
-		    (residue-spec->res-no   spec)
-		    (residue-spec->ins-code spec)))
 
   ;; main line
   ;;
@@ -254,7 +249,7 @@
 	#f)
       (if (not (pair? res-pair))
 	  (begin
-	    (format #t "Oops - not a residue-link string pair when adding res-pair~%" res-pair)
+	    (format #t "WARNING:: Oops - not a residue-link string pair when adding res-pair: ~s~%" res-pair)
 	    #f)
 	  ;; OK! go!
 	  (let ((new-link     (car res-pair))
@@ -299,7 +294,7 @@
 			      (format #t "------------ That was not well-fitting. Deleting ~s: ~%"
 				      preped-new-res-spec)
 			      (delete-extra-restraints-for-residue-spec imol preped-new-res-spec)
-			      (delete-residue-by-spec preped-new-res-spec)
+			      (delete-residue-by-spec imol preped-new-res-spec)
 			      ;; restore glyco-tree residues from imol-save
 			      (replace-fragment imol imol-save "//")
 			      ;; (with-auto-accept (refine-residues imol local-ls))
@@ -358,7 +353,7 @@
   (use-unimodal-pyranose-ring-torsions)
   (set-refine-with-torsion-restraints 1)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 4))
+    (set-matrix (/ wm 2))
     (set-residue-selection-flash-frames-number 1)
     (set-go-to-atom-molecule imol)
     (set-go-to-atom-from-res-spec parent)
@@ -402,7 +397,7 @@
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
   (let ((wm (matrix-state)))
-    (set-matrix (/ wm 8))
+    (set-matrix (/ wm 2))
     (set-refine-with-torsion-restraints 1)
     (set-add-linked-residue-do-fit-and-refine 0)
     (using-active-atom

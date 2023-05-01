@@ -2,28 +2,28 @@
 def new_molecule_with_nudged_residues(imol, residue_spec,
                                       residue_delta, nudge_by):
 
-    imol_new = copy_molecule(imol)
-    chain_id = residue_spec_to_chain_id(residue_spec)
-    resno_start = residue_spec_to_res_no(residue_spec) - residue_delta
-    resno_end = residue_spec_to_res_no(residue_spec) + residue_delta
+    imol_new = coot.copy_molecule(imol)
+    chain_id = res_spec_utils.residue_spec_to_chain_id(residue_spec)
+    resno_start = res_spec_utils.residue_spec_to_res_no(residue_spec) - residue_delta
+    resno_end = res_spec_utils.residue_spec_to_res_no(residue_spec) + residue_delta
 
-    if debug():
-        print "imol:", imol
-        print "residue_spec:", residue_spec
-        print "residue_delta:", residue_delta
-        print "resno_start:", resno_start
-        print "resno_end:", resno_end
-        print "nudge_by:", nudge_by
+    if coot_utils.debug():
+        print("imol:", imol)
+        print("residue_spec:", residue_spec)
+        print("residue_delta:", residue_delta)
+        print("resno_start:", resno_start)
+        print("resno_end:", resno_end)
+        print("nudge_by:", nudge_by)
 
-    status = nudge_residue_sequence(imol_new, chain_id, resno_start, resno_end,
+    status = coot.nudge_residue_sequence(imol_new, chain_id, resno_start, resno_end,
                                     nudge_by, 1)
 
     if (status == 0):
         # fail
         s = "Failed to nudge around " + chain_id + " " + \
-            str(residue_spec_to_res_no(residue_spec))
-        add_status_bar_text(s)
-        close_molecule(imol_new)
+            str(coot_utils.residue_spec_to_res_no(residue_spec))
+        coot.add_status_bar_text(s)
+        coot.close_molecule(imol_new)
         return -1  # return a bad new molecule id
     else:
         return imol_new
@@ -41,7 +41,7 @@ def nudge_residues_gui(imol, residue_spec):
         try:
             rd = int(rdt)
         except:
-            print "BL WARNING:: could not convert %s to a number, set to 1 then." %rdt
+            print("BL WARNING:: could not convert %s to a number, set to 1 then." %rdt)
             # or shall we bail!?
             rd = 1
         residue_delta = rd
@@ -55,38 +55,38 @@ def nudge_residues_gui(imol, residue_spec):
     hbox_0 = gtk.HBox(False, 4)
     hbox_1 = gtk.HBox(False, 4)
     hbox_2 = gtk.HBox(False, 4)
-    label_1 = gtk.Label(" Nudge by ")
-    label_2 = gtk.Label(" residues ")
-    label_n = gtk.Label(" Nudge ")
+    label_1 = gtk.Label(label=" Nudge by ")
+    label_2 = gtk.Label(label=" residues ")
+    label_n = gtk.Label(label=" Nudge ")
     res_lab = " residues up and down from " + \
-              residue_spec_to_chain_id(residue_spec) + " " + \
-              str(residue_spec_to_res_no(residue_spec))
-    label_a = gtk.Label(res_lab)
+              res_spec_utils.residue_spec_to_chain_id(residue_spec) + " " + \
+              str(coot_utils.residue_spec_to_res_no(residue_spec))
+    label_a = gtk.Label(label=res_lab)
     m_lab = " Nudging residues from Molecule:\n   " + \
             str(imol) + ": " + \
-            strip_path(molecule_name(imol))
-    label_m = gtk.Label(m_lab)
+            coot_utils.strip_path(coot.molecule_name(imol))
+    label_m = gtk.Label(label=m_lab)
     entry = gtk.Entry()
     h_sep = gtk.HSeparator()
     adj = gtk.Adjustment(0., -30., 59., 0.01, 1., 29.)
     slider = gtk.HScale(adj)
     buttons_hbox = gtk.HBox(False, 4)
-    cancel_button = gtk.Button(" Close ")
+    cancel_button = gtk.Button(label=" Close ")
     residue_delta = 5 # but isnt it a variable?!
 
     window.set_title("Nudge Residues")
-    vbox.pack_start(hbox_0, False, False, 4)
-    vbox.pack_start(hbox_1, False, False, 4)
-    vbox.pack_start(hbox_2, False, False, 4)
-    vbox.pack_start(h_sep, False, False, 4)
-    vbox.pack_start(buttons_hbox, False, False, 4)
-    hbox_0.pack_start(label_m, False, False, 4)
-    hbox_1.pack_start(label_n, False, False, 2)
-    hbox_1.pack_start(entry, False, False, 2)
-    hbox_1.pack_start(label_a, False, False, 2)
-    hbox_2.pack_start(label_1, False, False, 4)
-    hbox_2.pack_start(slider, True, True, 4)
-    hbox_2.pack_start(label_2, False, False, 4)
+    vbox.append(hbox_0)
+    vbox.append(hbox_1)
+    vbox.append(hbox_2)
+    vbox.append(h_sep)
+    vbox.append(buttons_hbox)
+    hbox_0.append(label_m)
+    hbox_1.append(label_n)
+    hbox_1.append(entry)
+    hbox_1.append(label_a)
+    hbox_2.append(label_1)
+    hbox_2.append(slider)
+    hbox_2.append(label_2)
     buttons_hbox.pack_end(cancel_button, False, False, 4)
     window.add(vbox)
     window.set_size_request(350, 200)

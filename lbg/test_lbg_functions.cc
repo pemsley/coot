@@ -22,10 +22,10 @@
 
 #include <iostream>
 
-#include "lbg.hh"
-
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
+
+#include "lbg.hh"
 
 // #include "graphics-c-interface-functions-blanks.cc"
 
@@ -38,8 +38,18 @@ int test_molfile() {
 }
 
 int test_split_molecule() {
+
    int status = 0;
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   // ifdef this out because:
+   // 
+   // Undefined symbols for architecture x86_64:
+   //   "lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t>::~molecule_t()", referenced from:
+   //       widgeted_molecule_t::widgeted_molecule_t() in test_lbg_functions.o
+   // ld: symbol(s) not found for architecture x86_64
+   // clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+#ifdef XYZ_ABC
 
    lig_build::molfile_molecule_t mol;
    // mol.read("FPX.mdl");
@@ -162,11 +172,33 @@ int test_ccp4srs_graph_search() {
    return r;
 }
 
+
+// #include "cairo-molecule.hh"
+
+// this needs to be here (also).  It is in wmolecule.cc and hence the library also.
+// But if this is not here I get unresovled symbol for this destructor when compiling
+// this exectuable on the mac (clang).
+// 20210504-PE No longer needed
+// template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
+
+int test_mol_to_cairo(int argc, char **argv) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+   return 1;
+}
+
 int main(int argc, char **argv) {
 
    gtk_init(&argc, &argv);
    Py_Initialize();
-   PySys_SetArgv(argc, argv);
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   for (int i=0; i<argc; i++) {
+      wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
+      _argv[i] = arg;
+   }
+   PySys_SetArgv(argc, _argv);
 
    int r = 0;
 
@@ -180,7 +212,9 @@ int main(int argc, char **argv) {
 
    // r = test_split_molecule();
 
-   r = test_ccp4srs_graph_search();
+   // r = test_ccp4srs_graph_search();
+
+   r = test_mol_to_cairo(argc, argv);
 
    if (r == 0)
       std::cout << "test failed" << std::endl;

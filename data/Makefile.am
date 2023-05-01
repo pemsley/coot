@@ -17,7 +17,7 @@
 
 cootdatadir = $(pkgdatadir)/data
 
-SUBDIRS = rama-coeffs cho-models cho-acedrg
+SUBDIRS = rama-coeffs cho-models cho-acedrg metal
 
 dist_cootdata_DATA = \
 	tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db

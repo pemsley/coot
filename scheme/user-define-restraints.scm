@@ -52,7 +52,7 @@
 
 (define (user-defined-add-arbitrary-length-bond-restraint)
   (generic-single-entry "Add a User-defined extra distance restraint"
-			"2.0"
+			"2.8"
 			"OK..."
 			(lambda (text) 
 			  (let ((s  "Now click on 2 atoms to define the additional bond restraint"))
@@ -72,7 +72,7 @@
 						 (list-ref atom-specs 0)
 						 (list-ref atom-specs 1))
 					 
-					 (add-extra-bond-restraint 
+					 (add-extra-bond-restraint
 					  imol
 					  (list-ref (list-ref atom-specs 0) 2)
 					  (list-ref (list-ref atom-specs 0) 3)
@@ -84,7 +84,7 @@
 					  (list-ref (list-ref atom-specs 1) 4)
 					  (list-ref (list-ref atom-specs 1) 5)
 					  (list-ref (list-ref atom-specs 1) 6)
-					  bl 0.035))))))))))
+					  bl 0.01))))))))))
 
 ;; spec-1 and spec-2 are 7-element atom-specs
 ;; 
@@ -285,42 +285,6 @@
 			      (format port "VALUE ~s SIGMA ~s~%" value esd)))))
 		      restraints))))))
 
-;; target is my molecule, ref is the homologous (high-res) model
-;; 
-(define (run-prosmart imol-target imol-ref include-side-chains?)
-  (let ((dir-stub "coot-ccp4"))
-    (make-directory-maybe dir-stub)
-    (let ((target-pdb-file-name (append-dir-file dir-stub 
-						 (string-append (molecule-name-stub imol-target 0)
-								"-prosmart.pdb")))
-	  (reference-pdb-file-name (append-dir-file dir-stub
-						    (string-append (molecule-name-stub imol-ref 0)
-								   "-prosmart-ref.pdb")))
-	  (prosmart-out (append-dir-file "ProSMART_Output"
-					 (string-append
-					  (coot-replace-string (molecule-name-stub imol-target 0) 
-							       " " "_" )
-					  "-prosmart.txt"))))
-			 
-      (write-pdb-file imol-target target-pdb-file-name)
-      (write-pdb-file imol-ref reference-pdb-file-name)
-      (goosh-command "prosmart" 
-		     (let ((l (list "-p1" target-pdb-file-name
-				    "-p2" reference-pdb-file-name
-				    "-restrain_seqid" "30")))
-		       (if include-side-chains? 
-			   (append l (list "-side"))
-			   l))
-		     '()
-		     (append-dir-file dir-stub "prosmart.log")
-		     #f)
-      (if (not (file-exists? prosmart-out))
-	  (begin
-	    (format #t "file not found ~s~%" prosmart-out))
-	  (begin 
-	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
-	    (add-refmac-extra-restraints imol-target prosmart-out))))))
-
 
 (define (res-name->plane-atom-name-list res-name)
 
@@ -356,6 +320,7 @@
     (lambda (port)
       (display "EXTE STACK PLAN 1 FIRST RESIDUE " port)
       (display (residue-spec->res-no res-spec-0) port)
+      (display " INS . " port)
       (display " CHAIN " port)
       (display (residue-spec->chain-id res-spec-0) port)
       (display " ATOMS { " port)
@@ -366,6 +331,7 @@
 		atom-list-0)
       (display " } PLAN 2 FIRST RESIDUE " port)
       (display (residue-spec->res-no res-spec-1) port)
+      (display " INS . " port)
       (display " CHAIN " port)
       (display (residue-spec->chain-id res-spec-1) port)
       (display " ATOMS { " port)
@@ -416,49 +382,6 @@
        user-defined-DNA-B-form)
 
       (add-simple-coot-menu-menuitem
-       menu "ProSMART..."
-       (lambda ()
-	 (let ((window (gtk-window-new 'toplevel))
-	       (hbox (gtk-hbox-new #f 0))
-	       (vbox (gtk-vbox-new #f 0))
-	       (h-sep (gtk-hseparator-new))
-	       (chooser-hint-text-1 " Target molecule ")
-	       (chooser-hint-text-2 " Reference (high-res) molecule ")
-	       (go-button (gtk-button-new-with-label " ProSMART "))
-	       (cancel-button (gtk-button-new-with-label " Cancel "))
-	       (check-button (gtk-check-button-new-with-label "Include Side-chains")))
-			  
-	   (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser 
-						 vbox chooser-hint-text-1))
-		 (option-menu-mol-list-pair-ref (generic-molecule-chooser 
-						 vbox chooser-hint-text-2)))
-
-	     (gtk-box-pack-start vbox check-button  #f #f 2)
-	     (gtk-box-pack-start vbox h-sep         #f #f 2)
-	     (gtk-box-pack-start vbox hbox          #f #f 2)
-	     (gtk-box-pack-start hbox go-button     #f #f 6)
-	     (gtk-box-pack-start hbox cancel-button #f #f 6)
-	     (gtk-container-add window vbox)
-
-	     (gtk-signal-connect cancel-button "clicked"
-				 (lambda ()
-				   (gtk-widget-destroy window)))
-
-	     (gtk-signal-connect go-button "clicked"
-				 (lambda ()
-				   (let ((imol-tar 
-					  (apply get-option-menu-active-molecule
-						 option-menu-mol-list-pair-tar))
-					 (imol-ref
-					  (apply get-option-menu-active-molecule
-						 option-menu-mol-list-pair-ref))
-					 (do-side-chains? (gtk-toggle-button-get-active check-button)))
-				     (run-prosmart imol-tar imol-ref do-side-chains?)
-				     (gtk-widget-destroy window))))
-	     (gtk-widget-show-all window)))))
-
-
-      (add-simple-coot-menu-menuitem
        menu "Read Refmac Extra Restraints..."
        (lambda ()
          (generic-chooser-and-file-selector 
@@ -475,13 +398,13 @@
 				 (delete-all-extra-restraints imol)))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 0.5"
+       menu "Interesting limit to 0.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -0.5 0.5))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 2.5"
+       menu "Interesting limit to 2.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -2.5 2.5))))
@@ -493,7 +416,7 @@
           (set-show-extra-restraints aa-imol 0))))
          
       (add-simple-coot-menu-menuitem
-       menu "Display ProSMART Extra Restraints"
+       menu "Display Extra Restraints"
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))
@@ -503,7 +426,6 @@
        (lambda ()
          (using-active-atom
           (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
-
 
       (add-simple-coot-menu-menuitem
        menu "Extra Restraints Standard Representation"
@@ -530,18 +452,6 @@
 				   (if (number? n)
 				       (using-active-atom
 					(delete-extra-restraints-worse-than aa-imol n))))))))
-
-
-      (add-simple-coot-menu-menuitem
-       menu "Save as REFMAC restraints..."
-       (lambda ()
-	 (generic-chooser-and-file-selector "Save REFMAC restraints for molecule " 
-					    valid-model-molecule?
-					    " Restraints file name:  " 
-					    "refmac-restraints.txt"
-					    (lambda (imol file-name)
-					      (extra-restraints->refmac-restraints-file imol file-name)))))
-
 
     (let ((menu (coot-menubar-menu "Restraints")))
       (add-simple-coot-menu-menuitem 

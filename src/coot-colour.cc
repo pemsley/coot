@@ -23,7 +23,10 @@
 #include <iostream>
 #include <math.h>
 
+#include "compat/coot-sysdep.h"
+
 #include "coot-colour.hh"
+
 
 namespace coot { 
    std::ostream& operator<<(std::ostream &s, colour_t col) {
@@ -125,6 +128,7 @@ namespace coot {
       }
    }
 
+   // this should be rotate_to()
    void colour_t::rotate(float amount) {
       std::vector<float> hsv = convert_to_hsv();
       hsv[0] += amount;
@@ -132,3 +136,4 @@ namespace coot {
       convert_from_hsv(hsv);
    }
 }
+   

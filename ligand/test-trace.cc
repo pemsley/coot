@@ -19,109 +19,256 @@
  * 02110-1301, USA
  */
 
+#ifndef _MSC_VER
+#include <unistd.h> // for getopt(3)
+#endif
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifdef __GNU_LIBRARY__
+#include "compat/coot-getopt.h"
+#else
+#define __GNU_LIBRARY__
+#include "compat/coot-getopt.h"
+#undef __GNU_LIBRARY__
+#endif
+
+#include <stdlib.h>
+
 #include <clipper/ccp4/ccp4_map_io.h>
 
-#include "../utils/coot-utils.hh"
-#include "../geometry/residue-and-atom-specs.hh"
-#include "../coot-utils/coot-coord-utils.hh"
-#include "../coot-utils/coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "utils/coot-fasta.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "multi-peptide.hh"
 #include "trace.hh"
 
+void show_usage(const std::string &pname) {
+   std::cout << "Usage: " << pname
+	     << " --pdbin pdb-in-filename" << " --hklin mtz-file-name"
+	     << " --f f_col_label"
+	     << " --phi phi_col_label"
+	     << " --pdbout output-file-name"
+	     << "\n"
+	     << "   --mapin ccp4-map-name can be used"
+	     << " instead of --hklin --f --phi\n";
+   std::cout << "   where pdbin is used for seeding (debugging option).\n"
+	     << "   pdbout is the output model file name.\n";
+}
+
 int main(int argc, char **argv) {
 
-   bool debug = false;
+   if (argc < 2) {
+      show_usage(argv[0]);
+   } else {
+      const char *optstr = "i:h:f:p:o:s:e:c:m";
+      struct option long_options[] = {
+	 {"pdbin",  1, 0, 0},
+	 {"hklin",  1, 0, 0},
+	 {"f",      1, 0, 0},
+	 {"phi",    1, 0, 0},
+	 {"pdbout", 1, 0, 0},
+	 {"mapin",  1, 0, 0},
+	 {"chain-id", 1, 0, 0},
+	 {"res-no",   1, 0, 0},
+	 {"sequence-file",   1, 0, 0},
+	 {0, 0, 0, 0}
+      };
 
-   std::string map_file_name = "trace-test.map";
+      std::string pdb_file_name;
+      std::string map_file_name;
+      std::string output_pdb;
+      std::string hklin_file_name;
+      std::string f_col_label;
+      std::string phi_col_label;
+      std::string chain_id;
+      std::string res_no_str;
+      std::string sequence_file_name;
+      bool self_seed = true;
+      bool debugging = false;
 
-   if (argc > 1) map_file_name = argv[1];
+      int ch;
+      int option_index = 0;
 
-   if (coot::file_exists(map_file_name)) {
+      // it seems that this loop gets skipped. not sure why (coot_getopt_long() returns -1)
 
-      try {
-	 clipper::CCP4MAPfile file;
-	 clipper::Xmap<float> xmap;
-	 file.open_read(map_file_name);
-	 file.import_xmap(xmap);
-	 file.close_read();
+      while ( -1 !=
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
-	 coot::trace t(xmap);
+	 switch(ch) {
 
-	 if (argc > 3) {
-	    std::string pdb_name = argv[2];
-	    mmdb::Manager *mol = new mmdb::Manager;
-	    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-	    mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_name.c_str());
-	    if (err) {
-	       std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-	       std::cout << "ERROR " << err << " READ: "
-			 << mmdb::GetErrorDescription(err) << std::endl;
-	    } else {
+	 case 0:
+	    if (coot_optarg) {
+	       std::string arg_str = long_options[option_index].name;
 
-	       coot::residue_spec_t spec("A", 425, "");
-	       mmdb::Residue *r = coot::util::get_residue(spec, mol);
+	       std::cout << "arg_str (loop) " << arg_str << std::endl;
 
-	       if (r) {
-
-		  coot::protein_geometry geom;
-		  geom.init_standard();
-		  geom.remove_planar_peptide_restraint();
-		  std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
-		  coot::minimol::fragment fN =
-		     coot::multi_build_N_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
-		  coot::minimol::fragment fC =
-		     coot::multi_build_C_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
+	       if (arg_str == "pdbin") {
+		  pdb_file_name = coot_optarg;
 	       }
-	    }
-	 } else {
-
-	    // not testing rama multi-build
-
-
-	    // test from a pdb file
-	    std::string test_pdb_file_name = "test-trace-template.pdb";
-
-	    if (argc > 2) {
-	       std::string fn = argv[2];
-	       if (coot::file_exists(fn)) 
-		  test_pdb_file_name = fn;
-	    }
-
-	 
-	    // test with a null moll or flood mol
-	    if (coot::file_exists(test_pdb_file_name)) {
-
-	       mmdb::Manager *mol = new mmdb::Manager;
-	       mmdb::ERROR_CODE err = mol->ReadCoorFile(test_pdb_file_name.c_str());
-	       if (! err) {
-
-		  if (coot::file_exists("test-scales")) {
-		     t.optimize_weights(mol);
-
-		     std::cout << "------------- Done optimize_weights() " << std::endl;
-
-		  } else { 
-		     std::cout << "----------------------------------------------------\n";
-		     std::cout << "----------------------------------------------------\n";
-		     std::cout << "running with test mol: " << std::endl;
-		     std::cout << "----------------------------------------------------\n";
-		     std::cout << "----------------------------------------------------\n";
-		     t.test_model(mol);
-		  }
+	       if (arg_str == "mapin") {
+		  map_file_name = coot_optarg;
+		  std::cout << "debug:: setting map_file_name to " << map_file_name << std::endl;
 	       }
-	    } else {
-
-	       t.action();
-
+	       if (arg_str == "pdbout") {
+		  output_pdb = coot_optarg;
+	       }
+	       if (arg_str == "hklin") {
+		  hklin_file_name = coot_optarg;
+	       }
+	       if (arg_str == "f") {
+		  f_col_label = coot_optarg;
+	       }
+	       if (arg_str == "phi") {
+		  phi_col_label = coot_optarg;
+	       }
+	       if (arg_str == "chain-id") {
+		  chain_id = coot_optarg;
+	       }
+	       if (arg_str == "res-no") {
+		  res_no_str = coot_optarg;
+	       }
+	       if (arg_str == "sequence-file") {
+		  sequence_file_name = coot_optarg;
+	       }
+	       if (arg_str == "debug") {
+		  debugging = true;
+	       }
 	    }
 	 }
       }
-      
-      // problem reading the map, perhaps?
-      // 
-      catch (const clipper::Message_fatal &mess) {
-	 std::cout << "ERROR:: " << mess.text() << std::endl;
+
+      clipper::Xmap<float> xmap;
+      if (! f_col_label.empty()) {
+	 if (! phi_col_label.empty()) {
+	    std::cout << "Read mtz file " << hklin_file_name
+		      << " " << f_col_label << " " << phi_col_label<< std::endl;
+	    bool use_weights = false;
+	    bool is_diff_map = false;
+	    bool stat = coot::util::map_fill_from_mtz(&xmap, hklin_file_name,
+						      f_col_label, phi_col_label, "",
+						      use_weights, is_diff_map);
+	 }
+      }
+
+      if (! map_file_name.empty()) {
+	 if (coot::file_exists(map_file_name)) {
+
+	    try {
+	       std::cout << "reading map " << map_file_name << std::endl;
+	       clipper::CCP4MAPfile file;
+	       file.open_read(map_file_name);
+	       file.import_xmap(xmap);
+	       file.close_read();
+	    }
+	    // problem reading the map, perhaps?
+	    //
+	    catch (const clipper::Message_fatal &mess) {
+	       std::cout << "ERROR:: " << mess.text() << std::endl;
+	    }
+	 } else {
+	    std::cout << "Map " << map_file_name << " does not exist " << std::endl;
+	 }
+      }
+
+      if (xmap.is_null()) {
+
+	 std::cout << "xmap is null " << std::endl;
+
+      } else {
+
+	 coot::protein_geometry geom;
+	 geom.set_verbose(0);
+	 geom.init_standard();
+	 geom.remove_planar_peptide_restraint();
+	 std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+	 // This (and the use of set_cell() and set_spacegroup() later) is inelegant.
+	 float acell[6];
+	 acell[0] = xmap.cell().descr().a();
+	 acell[1] = xmap.cell().descr().b();
+	 acell[2] = xmap.cell().descr().c();
+	 acell[3] = clipper::Util::rad2d(xmap.cell().descr().alpha());
+	 acell[4] = clipper::Util::rad2d(xmap.cell().descr().beta());
+	 acell[5] = clipper::Util::rad2d(xmap.cell().descr().gamma());
+	 std::string spacegroup_str_hm = xmap.spacegroup().symbol_hm();
+
+	 std::cout << "here with pdb_file_name " << pdb_file_name << std::endl;
+
+	 if (pdb_file_name.empty()) {
+
+	    std::vector<std::pair<std::string, std::string> > sequences;
+	    std::string ch_id("A");
+	    if (! sequence_file_name.empty()) {
+	       coot::fasta_multi fm(sequence_file_name);
+	       for (std::size_t i=0; i<fm.size(); i++) {
+		  const coot::fasta &seq  = fm[i];
+		  std::pair<std::string, std::string> p(seq.name, seq.sequence);
+		  sequences.push_back(p);
+	       }
+	    }
+
+	    // self seed
+	    //
+	    coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv, sequences);
+
+	 } else {
+
+	    // seed from a residue in a PDB file (for devel/debug/testing)
+
+	    coot::trace t(xmap);
+	    if (coot::file_exists(pdb_file_name)) {
+	       mmdb::Manager *mol = new mmdb::Manager;
+	       std::cout << "Reading coordinate file for seeding: " << pdb_file_name.c_str() << "\n";
+	       mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_file_name.c_str());
+	       if (err) {
+		  std::cout << "There was an error reading " << pdb_file_name.c_str() << ". \n";
+		  std::cout << "ERROR " << err << " READ: "
+			    << mmdb::GetErrorDescription(err) << std::endl;
+		  delete mol;
+	       } else {
+
+		  std::cout << "here with chain_id " << chain_id << std::endl;
+		  if (! chain_id.empty()) {
+		     int res_no = -999;
+		     if (! res_no_str.empty()) {
+			try {
+			   int r = coot::util::string_to_int(res_no_str);
+			   res_no = r;
+			}
+			catch (const std::runtime_error &rte) {
+			   std::cout << "ERROR:: res-no extraction: " << rte.what() << std::endl;
+			}
+		     }
+                     std::cout << "res_no " << res_no << std::endl;
+		     if (res_no > -999) {
+
+			std::cout << "Here 1 " << res_no << std::endl;
+			coot::residue_spec_t spec(chain_id, res_no, "");
+			mmdb::Residue *r = coot::util::get_residue(spec, mol);
+			if (r) {
+			   mmdb::Residue *r_prev = coot::util::previous_residue(r);
+			   float b_fact = 30.0;
+			   int n_trials = 20010; // 20000 is a reasonable minimal number
+			   std::vector<std::pair<std::string, std::string> > sequences; // empty, atm
+			   coot::multi_build_terminal_residue_addition mbtra(geom, xmap, mv, sequences);
+			   coot::minimol::fragment fC =
+			      mbtra.forwards_2018(0, r, r_prev, "A", b_fact, n_trials,
+						  geom, xmap, mv, debugging);
+			   std::string file_name = "trace-frag-forwards-build.pdb";
+			   coot::minimol::molecule mmm(fC);
+			   mmm.write_file(file_name, 10);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
       }
    }
+
    return 0;
 }

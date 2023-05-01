@@ -34,24 +34,23 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <iostream>
+
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <iostream>
-
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "clipper/core/map_utils.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "coot-utils/coot-map-heavy.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 int
 main(int argc, char **argv) {
-   
+
    if (argc < 6) { 
       std::cout << "Usage: " << argv[0] 
 		<< " --pdbin pdb-in-filename" << " --hklin mtz-filename"
@@ -96,40 +95,40 @@ main(int argc, char **argv) {
       int ch;
       int option_index = 0;
       while ( -1 != 
-	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
-	 switch(ch) { 
-	    
+	 switch(ch) {
+
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 	       }
 	       if (arg_str == "mapout") {
-		  map_out_file_name = optarg;
+		  map_out_file_name = coot_optarg;
 	       }
 	       if (arg_str == "resolution") {
-		  resolution_string = optarg;
+		  resolution_string = coot_optarg;
 	       }
 	       if (arg_str == "angle-step") {
-		  angle_step = atof(optarg);
+		  angle_step = atof(coot_optarg);
 	       }
 	       
 	    } else { 
@@ -140,27 +139,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 
 	 case 'r':
-	    resolution = atof(optarg);
+	    resolution = atof(coot_optarg);
 	    
 	 default:
 	    break;
@@ -241,7 +240,7 @@ main(int argc, char **argv) {
 	 }
 
 	 atom_selection_container_t atom_sel =
-	    get_atom_selection(pdb_file_name, 1, 0);
+	    get_atom_selection(pdb_file_name, true, false, false);
 
 	 coot::util::fffear_search f(atom_sel.mol,
 				     atom_sel.SelectionHandle,
@@ -317,8 +316,7 @@ main(int argc, char **argv) {
 	       std::string filename("fffear-ori-test-");
 	       filename += coot::util::int_to_string(iop);
 	       filename += ".pdb";
-	       new_mol->WritePDBASCII((char *) filename.c_str());
-	       // new_mol->WritePDBASCII((char *) output_pdb.c_str());
+	       new_mol->WritePDBASCII(filename.c_str());
 	    }
 
 	    for (unsigned int iop=0; iop<p.size(); iop++) {
@@ -352,12 +350,12 @@ main(int argc, char **argv) {
 		     }
 		  }
 	       }
+
 	       // write the file:
 	       std::string filename("fffear-results-");
 	       filename += coot::util::int_to_string(iop);
 	       filename += ".pdb";
-	       new_mol->WritePDBASCII((char *) filename.c_str());
-	       // new_mol->WritePDBASCII((char *) output_pdb.c_str());
+	       new_mol->WritePDBASCII(filename.c_str());
 	    }
 	    
 	 } else { 

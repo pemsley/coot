@@ -16,11 +16,11 @@ rendering ray trace number: 3
 done raytrace.
 calling render...
 calling display...
-((safe_scheme_command) Error in proc: key:  system-error  args:  (execlp ~A (No such file or directory) (..... scm_catch done 
+((safe_scheme_command) Error in proc: key:  system-error  args:  (execlp ~A (No such file or directory) (..... scm_catch done
 scm_catch returns: 20152
 
 2)))
-..... scm_catch done 
+..... scm_catch done
 scm_catch returns: #<unspecified>
 
 Xlib: unexpected async reply (sequence 0xb9f30)!
@@ -75,12 +75,12 @@ Fri Jun 15 13:09:53 BST 2007
    In real space refinement, don't move the atoms with zero occ.
 
 ------
- 
+
   INFO::
 
   old guile convert to string:
     std::string name_target = SCM_STRING_CHARS(name_target_scm);
-   new guile convert to string:
+  new guile convert to string:
     std::string name_target = scm_to_locale_string(name_target_scm);
 
    all guile convert from string:
@@ -103,7 +103,7 @@ i.e. NO DEBUGGING!
 
 cycle ~/compile/g/guile-gtk-2.0> ./configure --prefix=/lmb/wear/emsley/guile-1.8.1  --without-gtkgl
 
-make 
+make
 make install
 
 -
@@ -112,7 +112,7 @@ in guile-gtk-2.0's gdk-glue.c add
 #define PANGO_PIXELS_CEIL(d) (((int)(d) + 1023) >> 10)
 #define PANGO_PIXELS_FLOOR(d) (((int)(d)) >> 10)
 
-- 
+-
 also need goosh:
 ./configure --prefix=/lmb/wear/emsley/guile-1.8.1
 make install
@@ -152,13 +152,13 @@ Mon Jul 16 23:18:03 BST 2007
 	in creating a GTK2 gl context:
 
 
-> WARNING:: Can't enable stereo visual - falling back 
+> WARNING:: Can't enable stereo visual - falling back
 > INFO:: Hardware stereo widget opened successfully
 > INFO:: switch to hardware_stereo_mode succeeded
 
 So in gl_extras():
 
-We need a "stereo_successful" flag set before we get to saying 
+We need a "stereo_successful" flag set before we get to saying
 "Hardware stereo widget opened successfully"
 
 
@@ -180,15 +180,15 @@ Sat Jul 21 10:25:29 MDT 2007
 	version.
 
 * Don't see it any more.
-	
+
 -----
 Wed Aug  1 19:48:19 BST 2007
 
 	How about an Env Var to specify where to read and write
 	startup files (state, history etc) so that you can run coot
 	cleanly from the Desktop.
-    
-     Good idea.  Bit tedious though?  
+
+     Good idea.  Bit tedious though?
 
 -----
 Wed Aug  1 22:55:35 BST 2007
@@ -251,7 +251,7 @@ Fri Aug 10 12:56:36 BST 2007
    check that the OE1 was where the OE2 was
    and vica versa.
 
-   also test torsions from running correct-nomenclature 
+   also test torsions from running correct-nomenclature
 
 
 -----
@@ -318,7 +318,7 @@ Sat Aug 11 15:51:42 BST 2007
 -----
 
 http://www.itbusiness.ca/it/client/en/home/News.asp?id=44529&cid=11
-	
+
 The Novell SUSE Linux subscription model is considerably less painful,
 Chevalier argues, because it doesn't hit the capital expense budget
 and it can often be considered an operational expense, which is better
@@ -337,9 +337,9 @@ Tue Aug 21 14:26:00 BST 2007
     Structure with 0 occupancy
 
 	What is a good (bad) Ramachandran?
-	    
+
             What is a bad Kleywegt plot?
-	
+
 	Good (bad) geometry graph.
 
 	Chiral volume outliers
@@ -354,7 +354,7 @@ Tue Aug 21 14:26:00 BST 2007
 	How to use with Molprobity (web output and local exes)
 
 	B-factor variance.  What's good and bad.
-	
+
    Priority: Low
 
 
@@ -366,8 +366,8 @@ Tue Aug 21 14:44:14 BST 2007
 	B factor average, variance vs resolution for each residue type.
 
 	Probably best to have a shell script to provide the pdb files
-	
-	c++ program reads pdbs and does b-factor analysis, 
+
+	c++ program reads pdbs and does b-factor analysis,
 
             on completion appends to files "ARG.tab" "ASP.tab" etc
             with average and variance for each residue of that type in
@@ -440,7 +440,7 @@ Thu Aug 30 10:15:37 BST 2007
 -----
 Fri Aug 31 16:28:42 BST 2007
 
-	Do a NCS ghosts for a blue map, 
+	Do a NCS ghosts for a blue map,
 
 	Do it again for the difference map.
 
@@ -454,10 +454,10 @@ Tue Aug 28 14:31:25 BST 2007
 
    And if the display manager would automatically resize itself when
    more objects are loaded, would be great.
- 
+
   Marko Hyvönen
-  Department of Biochemistry    
-  University of Cambridge        
+  Department of Biochemistry
+  University of Cambridge
 
    Priority: Low, Difficulty: Medium.
    A thing for GSoC.
@@ -467,7 +467,7 @@ Tue Aug 28 14:31:25 BST 2007
 Tue Aug 28 14:48:50 BST 2007
 
       http://blog.mithis.net/
-      lython and SchemePy 
+      lython and SchemePy
 
 ------
 From: 	Matthew Wilce <matthew.wilce@med.monash.edu.au>
@@ -485,7 +485,7 @@ Date: 	Tue, 17 May 2005 10:39:44 +1000  (01:39 BST)
 
     fragment library for each nucleotide
 
-    a version of baton would be useful - either base to base and/or  
+    a version of baton would be useful - either base to base and/or
     phosphate to phosphate
 
       o is that still needed?
@@ -509,9 +509,9 @@ Date: 	Tue, 17 May 2005 10:39:44 +1000  (01:39 BST)
 -----
 
    make dist runs a scsh script.  configure should check for scsh?
-   (not easy to convert to guile) 
+   (not easy to convert to guile)
 
- 
+
 -----
 Sun Sep 16 00:33:44 BST 2007
 
@@ -575,7 +575,7 @@ Tue Sep 18 12:01:13 BST 2007
 ----
 Tue Sep 18 16:12:29 BST 2007
 
-   Mischa 
+   Mischa
 
 	if pick centering on an atom fails, can you fall back to test
 	against having clicked on the intermediate atoms?
@@ -586,7 +586,7 @@ Tue Sep 18 16:12:29 BST 2007
 -----
 Fri Sep 21 18:17:52 BST 2007
 
-	
+
 	When there is a sytax error in ~/.coot, is it obvious what has
 	happened?
 
@@ -624,22 +624,22 @@ Wed Sep 26 14:52:14 BST 2007
 	note that model 0 is not a valid model.
 
 
-    
+
 -------
 
 
 	A168 on 1A0F fails to properly find the right rotamer, even
 	though we select the rotamer by hand and do rigid body refine
-	it works fine. 
+	it works fine.
 
 	Bug?
 
 
 -------
 
-	Residue 13 of 1UBQ fails to Rigid body refine after chi1 was 
+	Residue 13 of 1UBQ fails to Rigid body refine after chi1 was
         rotated by 180.
-	
+
 	Bug?
 
         In fact, it looks like nothing with Rigid body refine.  Hmmm!
@@ -701,12 +701,12 @@ Tue Oct  2 09:05:25 BST 2007
 
    A must-do for 1.0:
 
-        ***** 
+        *****
 
 	Put backrub into minimizer for auto-fit-rotamer - as an
 	alternative.
 
-        ***** 
+        *****
 ----
 Wed Oct  3 12:23:09 BST 2007
 
@@ -731,11 +731,11 @@ Sat Oct  6 08:04:36 BST 2007
 
 pkg-config libglade-2.0 --cflags
 
--I/usr/include/libglade-2.0 -I/usr/include/gtk-2.0 -I/usr/include/libxml2 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12  
+-I/usr/include/libglade-2.0 -I/usr/include/gtk-2.0 -I/usr/include/libxml2 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12
 
 pkg-config libglade-2.0 --libs
 
--lglade-2.0 -lgtk-x11-2.0 -lxml2 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0  
+-lglade-2.0 -lgtk-x11-2.0 -lxml2 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0
 
 
 ----
@@ -758,22 +758,22 @@ Mon Oct 29 09:36:34 GMT 2007
    Clemens:
 
    Add function that does
-   copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id, 
+   copy_residue_range_from_ncs_master_to_others(int imol, const char *master_chain_id,
 					  int residue_range_start, int residue_range_end)
    but to a specific chain only:
 
    i.e.:
 
-   copy_residue_range_from_ncs_master_to_chain(int imol, const char *target_chain_id, 
+   copy_residue_range_from_ncs_master_to_chain(int imol, const char *target_chain_id,
 					  int residue_range_start, int residue_range_end)
 
    which looks up the master_chain_id from the ghost of the target_chain_id
-   
+
 
 ------
 
-   I would like to report a bug in the 0.4 pre-release.  In the clash 
-   panel generated by probe, the vertical bar doesn't work anymore.  
+   I would like to report a bug in the 0.4 pre-release.  In the clash
+   panel generated by probe, the vertical bar doesn't work anymore.
    Could you fix it?n
 
 Jianghai
@@ -792,23 +792,23 @@ Adam Okerlund
 Using host libthread_db library "/lib64/libthread_db.so.1".
 Core was generated by `/usr/local/coot/bin/coot-real'.
 Program terminated with signal 11, Segmentation fault.
-#0  0x081acbad in lookup_widget (widget=0x33203a66, 
+#0  0x081acbad in lookup_widget (widget=0x33203a66,
     widget_name=0x84a151c "geometry_distance_togglebutton") at support.c:33
         in support.c
-#0  0x081acbad in lookup_widget (widget=0x33203a66, 
+#0  0x081acbad in lookup_widget (widget=0x33203a66,
     widget_name=0x84a151c "geometry_distance_togglebutton") at support.c:33
 #1  0x080d31ec in graphics_info_t::unset_geometry_dialog_distance_togglebutton
     (this=0xffc0e7cb) at graphics-info.cc:5328
 #2  0x0811fdda in graphics_info_t::check_if_in_geometry_range_defines (
     this=0xffc0e7cb, event=0x8662118) at graphics-info-defines.cc:393
-#3  0x081232c6 in graphics_info_t::check_if_in_range_defines (this=0xffc0e7cb, 
+#3  0x081232c6 in graphics_info_t::check_if_in_range_defines (this=0xffc0e7cb,
     event=0x8662118, state=@0xffc0e7bc) at graphics-info-defines.cc:201
 #4  0x081aab02 in glarea_button_press (widget=0xab91428, event=0x8662118)
     at globjects.cc:3344
-#5  0x55f24f64 in gtk_marshal_BOOL__POINTER (object=0xab91428, 
-    func=0x81aa812 , 
+#5  0x55f24f64 in gtk_marshal_BOOL__POINTER (object=0xab91428,
+    func=0x81aa812 ,
     func_data=0x0, args=0xffc0e938) at gtkmarshal.c:28
-#6  0x55f594d2 in gtk_handlers_run (handlers=0xc4cc200, signal=0xffc0e8b8, 
+#6  0x55f594d2 in gtk_handlers_run (handlers=0xc4cc200, signal=0xffc0e8b8,
     object=0xab91428, params=0xffc0e938, after=0) at gtksignal.c:1917
 #7  0x55f5bba3 in gtk_signal_real_emit (object=) at gtksignal.c:1477
 #8  0x55f5c1e8 in gtk_signal_emit (object=) at gtksignal.c:552
@@ -817,7 +817,7 @@ Program terminated with signal 11, Segmentation fault.
 #10 0x55f230b8 in gtk_propagate_event (widget=0xab91428, event=0x8662118)
     at gtkmain.c:1378
 #11 0x55f241ee in gtk_main_do_event (event=0x8662118) at gtkmain.c:803
-#12 0x55fdf71b in gdk_event_dispatch (source_data=0x0, 
+#12 0x55fdf71b in gdk_event_dispatch (source_data=0x0,
     current_time=0xffc0ed50, user_data=0x0) at gdkevents.c:2139
 #13 0x56012bc9 in g_main_dispatch (dispatch_time=0xffc0ed50) at gmain.c:656
 #14 0x5601345d in g_main_iterate (block=) at gmain.c:877
@@ -870,7 +870,7 @@ crash from EJD, not much to report:
     residue generated (add terminal residue) then graph is asked to be
     updated?
 
-    
+
 ----
 Tue Oct 30 15:49:12 GMT 2007
 
@@ -889,7 +889,7 @@ Tue Oct 30 15:52:39 GMT 2007
    on calculating a skeleton after deleting a map (and skeleton) and
    reading in a new map.
 
-   
+
 ----
 Tue Oct 30 15:53:49 GMT 2007
 
@@ -908,7 +908,7 @@ Tue Oct 30 15:54:27 GMT 2007
 ---
 Mon Nov  5 11:49:30 GMT 2007
 
-  Maria Solà Vilarrubias: 
+  Maria Solà Vilarrubias:
 
    I want to display ILE, LEU, VAL residues with just sidechains (in a
    different colour), the rest with Mainchain CAs.
@@ -917,7 +917,7 @@ Mon Nov  5 11:49:30 GMT 2007
 ----
 Tue Nov 13 23:30:57 GMT 2007
 
-   what is read_number in cif reading for. 
+   what is read_number in cif reading for.
 
    try to get rid of it.
 
@@ -961,7 +961,7 @@ Fri Nov 16 20:23:19 GMT 2007
 ----
 Sat Nov 17 12:14:46 GMT 2007
 
-	phosphorylate-active-residue: 
+	phosphorylate-active-residue:
 
 	what about phospholysine?
 
@@ -1023,15 +1023,15 @@ Wed Dec  5 14:13:31 GMT 2007
       bond_thickness
       colour_rotation
       atom_selection_description { residue_type, residue_range_type, chain_type
-	chain_id 
+	chain_id
         resno_1
         resno_2;
 	insode_1;
 	insode_2;
       }
     };
-      
-    We shall use a std::vector<line_representation> line_rep_vec;  
+
+    We shall use a std::vector<line_representation> line_rep_vec;
     New items are pushed back.  You can't delete an item from this
     vector, mearly not display it (the handles are passed back - and
     we don't want them to go out of date).
@@ -1040,7 +1040,7 @@ Wed Dec  5 14:13:31 GMT 2007
 
     Questions:  How shall we create new represenations for this molecule?
 
-    // return 
+    // return
     int add_representation imol represenation-spec
 
     // used by GUI
@@ -1065,8 +1065,8 @@ Wed Dec  5 14:13:31 GMT 2007
 -----
 Wed Dec 12 13:20:33 GMT 2007
 
-   Make nice images for nucleic acid base chooser.  
- 	
+   Make nice images for nucleic acid base chooser.
+
    The buttons don't need to be small.
 
 
@@ -1089,7 +1089,7 @@ Sat Dec 15 12:18:46 GMT 2007
 -----
 Sat Dec 15 13:12:08 GMT 2007
 
-	Randy Read: 
+	Randy Read:
 
     (copy-residue-range-from-ncs-master-to-others 0 "A" 1 5) needs to
     work if residues 1 to 5 are not in the B and C chains (because
@@ -1109,16 +1109,16 @@ Sat Dec 15 13:13:45 GMT 2007
     Other Modelling Tools -> Apply Symmetry to fragment
     [click on a atom]
 
-    Coot finds fragment by selecting residues that have contiguous residue 
+    Coot finds fragment by selecting residues that have contiguous residue
     numbering (does minimol do that?)
- 
+
     -> Intermediate atoms
 
     Now pop up a gui
 
     A box of symmetry ops:
     X, Y, Z,
-    -X+1/2, -Y, Z+1/2 
+    -X+1/2, -Y, Z+1/2
     (etc)
 
        X:  - +
@@ -1154,14 +1154,14 @@ Mon Dec 17 16:52:20 GMT 2007
 
     One can see something similar if you peak search the difference
     map, I think.  Tweak the difference map algorithm to filter out
-    sub-sites that are close to already found sites.  
+    sub-sites that are close to already found sites.
     Weighted average, maybe?
 
 
 ------
 Tue Dec 18 13:41:58 GMT 2007
 
-in 
+in
 void
 graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
@@ -1253,7 +1253,7 @@ Loading: ncs.py
 Loading: cns2coot.py
 Loading: tips.py
 Loading: americanisms.py
-Loading: group_settings.py 
+Loading: group_settings.py
 
 
 Note that it is not starting up in python_gui mode.
@@ -1287,11 +1287,11 @@ A valgrind thing to think about:
 ==15565==    by 0x8FDE10C: scm_dapply (in /home/paule/x64/lib/libguile.so.17.1.1)
 ==15565==    by 0x8FE2801: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
 ==15565==    by 0x8FE2F44: deval (in /home/paule/x64/lib/libguile.so.17.1.1)
-==15565== 
+==15565==
 
 -----
 Mon Dec 24 16:48:47 GMT 2007
-	
+
   BL has introduced split in on_open_coordinates1_activate.  Needs
   rationalizing.
 
@@ -1305,16 +1305,16 @@ Sun Dec 30 10:29:43 GMT 2007
 -----
 Mon Dec 31 16:44:49 GMT 2007
 
-   on doing a refinement: 
+   on doing a refinement:
 
 INFO:: graphics_info_t::clear_up_moving_atoms...
 clearing intermediate object...
 c-interface clear_up_moving_atoms...
 INFO:: graphics_info_t::clear_up_moving_atoms...
 WARNING:: attempting to delete NULL moving_atoms_asc.atom_selection
-Ignoring. 
+Ignoring.
 attempting to delete NULL moving_atoms_asc.mol
-ignoring 
+ignoring
 clearing intermediate object...
 
     (ugliness)
@@ -1324,13 +1324,13 @@ Mon Dec 31 16:53:00 GMT 2007
 
    For 0.5:
 
-   o Tests for chi angles: 
+   o Tests for chi angles:
        Make some residue that you know the chi angles of.
           Generate values, compare.
        Chi angles of a Water
        Chi angles of 3GP
 
-     Where should this code go?  In a new testing.cc/testing.hh?  
+     Where should this code go?  In a new testing.cc/testing.hh?
      test_chi_angles(imol_3gp, imol_ref, imol_water);
         and the actual target values are embedded in the test code.
         Hmm...  Well, I could try it.
@@ -1350,10 +1350,10 @@ Fri Dec 28 17:12:58 GMT 2007
     Hmm...
 
     So we make molecules every n*10 degress
- 
+
     rotate the bond the other -n*10.
 
-    Overlap results.  
+    Overlap results.
        Test for closeness.
 
 -----
@@ -1379,7 +1379,7 @@ Wed Jan  2 18:57:42 GMT 2008
 
    Funny shapped protein?
 
-	1l7l 
+	1l7l
 
 -----
 Mon Jan  7 08:48:31 GMT 2008
@@ -1392,10 +1392,10 @@ Tue Jan  8 04:12:57 GMT 2008
 
   Make a test for alt conf split a residue?
   What is the test?  There is not functions at the scripting layer:
-  add_alt_conf( [residue spec] ) 
-  or 
-  split_residue ( [residue spec] ) 
-  
+  add_alt_conf( [residue spec] )
+  or
+  split_residue ( [residue spec] )
+
   Hmmm...
 
 -----
@@ -1422,14 +1422,14 @@ Tue Jan  8 09:41:15 GMT 2008
 Tue Jan  8 10:42:12 GMT 2008
 
 this needs filling
-set_monomer_restraints(). 
+set_monomer_restraints().
 and the function should be in c-interface-build.cc I think.
 
 
 ---
 Tue Jan  8 11:56:22 GMT 2008
 
-   A script that identifies badly fitting residues, 
+   A script that identifies badly fitting residues,
    (by density fit and geometry and rotamer say - these residue
    attributes need to be exported to scripting surface)
 
@@ -1448,12 +1448,12 @@ Tue Jan  8 11:56:22 GMT 2008
 
 ----
 
-    PSK18 has tunnel for C16, long chain fatty acid 
+    PSK18 has tunnel for C16, long chain fatty acid
     Ruckmini 2004
     Might be fun to do an annimatation of this.
 
     Priority: (Fun), Low
- 
+
 
 ----
 Tue Jan  8 13:06:56 GMT 2008
@@ -1471,7 +1471,7 @@ Tue Jan  8 13:06:56 GMT 2008
     accept refinement
     get atom attributes for fixed atom
     check that it is where it should be (fixed position)
-   
+
 
 ----
 Tue Jan  8 13:14:48 GMT 2008
@@ -1524,8 +1524,8 @@ is that right?
 
 -----
 Thu Jan 10 08:19:19 GMT 2008
-	
-   write a testing.cc test for 
+
+   write a testing.cc test for
 	std::vector<std::pair<int, int> >
 	coot::util::pair_residue_atoms(CResidue *a_residue_p,
 				       CResidue *b_residue_p) {
@@ -1586,23 +1586,23 @@ Sun Jan 13 15:11:30 GMT 2008
    Residue info should also contain phi psi values and a percentile
    (like molprobity)
 
-   How about a graph of Ramachandran percentile? 
+   How about a graph of Ramachandran percentile?
 
 
 ----
 Sun Jan 13 15:36:10 GMT 2008
 
-    Test that skip-to-next-ncs-chain works with a2b2 hemoglobin.  
+    Test that skip-to-next-ncs-chain works with a2b2 hemoglobin.
 
 
 ----
 Sun Jan 13 18:42:32 GMT 2008
 
     How To Add Another Geometry Graph
-  
+
     in geometry_graphs.hh:
     --------------------------
-    Add new type to geometry_graph_type 
+    Add new type to geometry_graph_type
 
     in geometry_graphs.cc
     --------------------------
@@ -1610,7 +1610,7 @@ Sun Jan 13 18:42:32 GMT 2008
 
     in graphics-info-graphs.cc
     --------------------------
-    graphics_info_t::update_geometry_graphs(...) 
+    graphics_info_t::update_geometry_graphs(...)
     Add a function to update new graph.
 
       coot::geometry_graphs *gr =
@@ -1638,24 +1638,24 @@ Sun Jan 13 18:42:32 GMT 2008
    --------------
   char *type = "density-fit";
   GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "density_fit_analysis1");
-  if (menu) { 
+  if (menu) {
     add_on_validation_graph_mol_options(menu, type);
-  } else { 
+  } else {
     printf("failed to get menu in on_density_fit1_activate\n");
   }
-    
+
    in c-interface-validate.cc
    -------------------------
 
    Add another option to add_on_validation_graph_mol_options()
 
    The validation_type must match that from callbacks.c
-   The sub_menu_name must match that from main.cc 
+   The sub_menu_name must match that from main.cc
      create_initial_validation_graph_submenu_generic()
 
    Also unset_geometry_graph(GtkWidget *dialog) needs to know about the new graph
 
-   in graphics_info_graphs.cc 
+   in graphics_info_graphs.cc
    --------------------------
    set_validation_graph need to know about the new graph
 
@@ -1669,13 +1669,13 @@ Mon Jan 14 13:22:33 GMT 2008
 ----
 Mon Jan 14 13:22:48 GMT 2008
 
-    Really test out Ca Zone -> Mainchain.  
+    Really test out Ca Zone -> Mainchain.
 
     It seems to me that most of the time it works well, but there are
     regions where it does not. e.g. CA - N bonds of less than 0.5A.
     I am thinking that that can only be coming from a bug.
 
-    Think about how to test that. 
+    Think about how to test that.
 
     Very few reference structures?
 
@@ -1704,7 +1704,7 @@ Thu Jan 17 10:14:18 GMT 2008
 -----
 Thu Jan 17 11:56:57 GMT 2008
 
-    ubuild, ie. without python out the box please.  
+    ubuild, ie. without python out the box please.
     i.e. coot_wrap_python.cc needs to be not compiled somehow.
 
    Priority: Important.
@@ -1724,7 +1724,7 @@ bragg3 fails: can't compile a working guile 1.8.3
 ----
 Sat Jan 19 11:56:58 GMT 2008
 
-    Molprobity interaction dots around a ligand.  
+    Molprobity interaction dots around a ligand.
     Surely that would be super cool?
 
     Yes it would.
@@ -1746,7 +1746,7 @@ Mon Jan 21 13:04:37 GMT 2008
 
     glib 2.12.13 straightforward
     pango 1.16.4 straightforward
-    fine.  
+    fine.
     Oh for gtk2 though, cairo is not an option.  It is a must.  Baah.
     That was not clear in www.gtk.org.
 
@@ -1755,7 +1755,7 @@ Mon Jan 21 13:04:37 GMT 2008
     which means get glitz from http://cairographics.org/snapshots/
     (gotta have glitz, right?)
 
-    glitz-0.5.6 
+    glitz-0.5.6
     ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
     Compiles OK.
 
@@ -1784,11 +1784,11 @@ Mon Jan 21 13:04:37 GMT 2008
     Coot now compiles OK.  And runs! Great.
     But - it doesn't load svgs.
 
-    OK, back-up. 
+    OK, back-up.
 
     config.log for cairo tells us we need a newer librsvg:
     http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/
-    http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-2.20.0.tar.gz (2 days old at 
+    http://ftp.gnome.org/pub/GNOME/sources/librsvg/2.20/librsvg-2.20.0.tar.gz (2 days old at
     time of writting)
 
     ./configure --prefix=$HOME/autobuild/Linux/Coot-0.4
@@ -1875,8 +1875,8 @@ Mon Jan 21 15:49:32 GMT 2008
 
  Title: The Uppsala Electron-Density Server
 Author(s): Kleywegt GJ, Harris MR, Zou JY, Taylor TC, Wahlby A, Jones TA
-Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 Part 12 Sp. Iss. 1, DEC 2004 
-  
+Source: ACTA CRYSTALLOGRAPHICA SECTION D-BIOLOGICAL CRYSTALLOGRAPHY 60: 2240-2249 Part 12 Sp. Iss. 1, DEC 2004
+
 * This is in the manual already.
 
 
@@ -1921,11 +1921,11 @@ Sat Jan 26 20:49:44 GMT 2008
     set the scroll wheel map correctly from a cif phs
     molecule-class-info.cc:4018
 
-    add tests for reading phs and cif files, 
+    add tests for reading phs and cif files,
     test that they return sensible molecule numbers.
 
     add a test for creating a new molecule from water fitting.
-    using void find_waters(imol_for_map,  imol_for_protein,  new_waters_mol_flag, 
+    using void find_waters(imol_for_map,  imol_for_protein,  new_waters_mol_flag,
 		 sigma_cut_off, show_blobs_dialog);
 
 
@@ -1953,7 +1953,7 @@ Tue Jan 29 14:49:39 GMT 2008
 -----
 Wed Jan 30 13:57:25 GMT 2008
 
-   Randy Read: 
+   Randy Read:
 
    "I've just run across what seems like a bug for proteins with
    hydrogens, in coot 0.4.1.  I've just been refitting something
@@ -1988,14 +1988,14 @@ on compiling freeglut on impala:
 
  -o CallbackMaker-CallbackMaker.o `test -f CallbackMaker.c || echo './'`CallbackMaker.c
 /bin/sh ../../../libtool --mode=link gcc  -I/usr/X11R6/include   -o CallbackMaker -export-dynamic ../../../src/
-libglut.la CallbackMaker-CallbackMaker.o  
+libglut.la CallbackMaker-CallbackMaker.o
 mkdir .libs
-gcc -I/usr/X11R6/include -o .libs/CallbackMaker CallbackMaker-CallbackMaker.o  -L../../../src/.libs -lglut -lm 
+gcc -I/usr/X11R6/include -o .libs/CallbackMaker CallbackMaker-CallbackMaker.o  -L../../../src/.libs -lglut -lm
 -L/usr/X11/lib -lGL -lGLU -lXxf86vm -lXext -lX11 -lXdmcp -lXau
 ld: cycle in dylib re-exports with /usr/X11/lib/libGL.
 
 http://www.mail-archive.com/fink-devel@lists.sourceforge.net/msg16105.html
-  
+
    Problem solved - I have it working.
    To the ConfigureParams section of the info file I added:
 
@@ -2006,7 +2006,7 @@ PE: This worked for me too:
 
 ./configure --prefix=/Users/paule/autobuild/Darwin/coot-pre-release-gtk2 --disable-warnings LDFLAGS=-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
 
-for OpenGL (in gtkglext building) 
+for OpenGL (in gtkglext building)
 
  ./configure --prefix=/Users/paule/autobuild/Darwin/coot-pre-release-gtk2 --disable-warnings LDFLAGS="-dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"
 
@@ -2014,7 +2014,7 @@ for OpenGL (in gtkglext building)
 Wed 30 Jan 2008 14:50:08 GMT
 
    cairo depends on freetype
-   
+
    (but it fails during compile, not cofigure, baah)
 
    http://download.savannah.gnu.org/releases/freetype/
@@ -2049,7 +2049,7 @@ Thu Jan 31 00:48:53 GMT 2008
 Thu Jan 31 00:49:48 GMT 2008
 
    Francis Reyes:
- 
+
    > I'm trying to merge / append two molecules. However, when I click
    > on Merge, I get ...  INFO:: adding molecule 6 to merging list
 
@@ -2105,7 +2105,7 @@ Fri Feb  1 19:03:34 GMT 2008
 
 ------
 
-	look in ejd/2a4d something and residue 
+	look in ejd/2a4d something and residue
 	218A rotamers, fails.
 	But works after regularization
 
@@ -2153,7 +2153,7 @@ Wed Feb  6 16:17:51 GMT 2008
     Make a method to save the symmetry colour.
 
     Priority: High.  Do it for 0.5
-    Difficulty: Easy 
+    Difficulty: Easy
 
 
 ---
@@ -2163,11 +2163,11 @@ Doug Kuntz:
 
 > > > 2) The selection of active molecules seems screwed up.
 > > >
-> > > I can now only have one active molecule.  Even though all the active 
-> > > boxes are nice and pink in the Display Manager window.  To move a 
-> > > molecule I have to ensure all the others are turned to inactive. But 
-> > > there seems no way to make more than one molecule active at a time. If 
-> > > I want to compare two superimposed molecules for distances between 
+> > > I can now only have one active molecule.  Even though all the active
+> > > boxes are nice and pink in the Display Manager window.  To move a
+> > > molecule I have to ensure all the others are turned to inactive. But
+> > > there seems no way to make more than one molecule active at a time. If
+> > > I want to compare two superimposed molecules for distances between
 > > > them  at a particular atom I can no longer  pick both atoms
 
       Ingo Korndoefer reported something similar.
@@ -2176,7 +2176,7 @@ Doug Kuntz:
 -----
 Wed Feb  6 23:18:23 GMT 2008
 
-    After graphs moved over to molecules class, 
+    After graphs moved over to molecules class,
 
     Need to test Ramachandran plot and sequence view for molecules
 
@@ -2184,7 +2184,7 @@ Wed Feb  6 23:18:23 GMT 2008
 -----
 Thu Feb  7 00:00:14 GMT 2008
 
-    Why is there a delete plot in 
+    Why is there a delete plot in
     void
     graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol)
 
@@ -2208,7 +2208,7 @@ bunyip ~> pkg-config --modversion gtk+-2.0
 A FC4 machine:
 
 cycle ~> pkg-config --modversion gtk+-2.0
-2.6.7 
+2.6.7
 
 -----
 Mon Feb 11 08:26:02 GMT 2008
@@ -2226,7 +2226,7 @@ Mon Feb 11 13:02:51 GMT 2008
     Which caused problems in startup.  If I ran the slim function by
     hand to a clean directory, it worked (woop!)
 
-    diagnosed by using 
+    diagnosed by using
     diff -r dir-1 dir-2
 
     Now rebuilding fc5 (bragg3) from scratch.
@@ -2242,7 +2242,7 @@ Tue Feb 12 01:37:53 GMT 2008
 
     coot-real from kalypso ~/Projects/build-coot-fc4-gtk2/src> ./coot-real
 
-    Try to open an mtz file from tutorials, 
+    Try to open an mtz file from tutorials,
 
     on changing to  "tutorials" in the ccp4i project option menu:
 
@@ -2263,8 +2263,8 @@ Wed Feb 13 10:48:53 GMT 2008
 Thu Feb 14 20:55:59 GMT 2008
 
    handle_symmetry_colour_change(int mol, gdouble* col)
- 
-   is the same functionality as 
+
+   is the same functionality as
 
    set_symmetry_colour().
 
@@ -2336,7 +2336,7 @@ INFO:: canvas size: 3220 270
 DEBUG:: min_resno: 1 max_resno: 288 chain_number 0
 DEBUG:: min_resno: 1 max_resno: 288 chain_number 1
 DEBUG:: min_resno: 1 max_resno: 302 chain_number 2
-INFO:: trying to centre on:  1  O  
+INFO:: trying to centre on:  1  O
 (set-go-to-atom-molecule 0)
 Segmentation fault (core dumped)
 
@@ -2350,11 +2350,11 @@ Wed Feb 20 05:27:36 GMT 2008
 ----
 Wed Feb 20 11:27:37 GMT 2008
 
-   Here: 
+   Here:
    void
    graphics_info_t::start_baton_here()
 
-   we do: 
+   we do:
       int *imol_copy = new int;
       *imol_copy = imol_for_skel;
       gtk_object_set_user_data(GTK_OBJECT(w), (char *)imol_copy);
@@ -2395,17 +2395,17 @@ ARP/wARP peptide torsion from pseudo bonds
 
 -----
 
- D. Gayathri 
+ D. Gayathri
 gaya_raju@rediffmail.com, dcbgaya@gmail.com
 
- 
+
 ------
 
    Crash by Martyn
 
    do unmodeled blobs.
    dont close results
-   
+
    get unmodelled blobs dialog again
    and martyn said that he didn't click...
 
@@ -2416,8 +2416,8 @@ Fri Feb 22 08:36:20 GMT 2008
 
     Redo the ligand fitting slides.
 
-    Easy to do 
-   
+    Easy to do
+
 ----
 
  Sergs' presentation:
@@ -2430,7 +2430,7 @@ Fri Feb 22 08:36:20 GMT 2008
 
  and use the blob that is closest to the protein (Frank is sceptical
  about that).
- 
+
  there is some sort of shape function too (I missed how).  ah, 7
  statistics, sufrace to volume ratio, eigen values etc.
 
@@ -2485,7 +2485,7 @@ Fri Feb 22 09:45:25 GMT 2008
 Sun Feb 24 09:55:35 GMT 2008
 
     Try running baton mode without first making a skeleton.
-    
+
     It doesn't work properly.
 
     Priority: Medium
@@ -2509,9 +2509,9 @@ program problems).  Grrr.
 ----
 Wed Feb 27 09:18:50 GMT 2008
 
-    Residue Info on a residue with alt confs.  
+    Residue Info on a residue with alt confs.
     Problem in CHI angles?
- 
+
 -----
 Wed Feb 27 15:38:28 GMT 2008
 
@@ -2537,16 +2537,16 @@ Sat Mar  1 06:11:26 GMT 2008
 Wed Mar  5 17:52:08 GMT 2008
 
   pick_info
-  graphics_info_t::find_atom_index_from_goto_info(int imol) 
+  graphics_info_t::find_atom_index_from_goto_info(int imol)
 
   very convoluted!?
 
-  Why not use graphics_info_t::molecules[imol].atom_to_atom_index()? 
+  Why not use graphics_info_t::molecules[imol].atom_to_atom_index()?
 
 ----
 Thu Mar  6 13:31:13 GMT 2008
 
-    Get rid of (MyCMMDBManager *) 
+    Get rid of (MyCMMDBManager *)
 
 ----
 Fri Mar  7 13:40:51 GMT 2008
@@ -2557,11 +2557,11 @@ Fri Mar  7 13:40:51 GMT 2008
 ----
 Fri Mar  7 14:48:47 GMT 2008
 
-    Useful fun.  
+    Useful fun.
     Write a parse for gdk/gdkkeysyms.h
     if field-1 is #define if NF == 3
     split field-2 after GDK_ and decode field-3 to decimal
-    
+
     now we can have a function gdk-key-symbol->key
 
     e.g
@@ -2610,9 +2610,9 @@ Fri Mar 21 10:54:01 GMT 2008
 
    INFO::    Raising window e.g for display control:
 
-   if (widget) { 
+   if (widget) {
       // raise/uniconify (or whatever) what we have:
-      // 
+      //
       if (!GTK_WIDGET_MAPPED(widget))
 	 gtk_widget_show(widget);
       else
@@ -2735,7 +2735,7 @@ Tue Mar 25 15:01:27 GMT 2008
 Thu Mar 27 07:44:50 GMT 2008
 
 
-    Frank: 
+    Frank:
 
    "torsion general - crappy tail?"  I think I meant: why can't one
    use torsion general to swing a whole lot of protein around a main
@@ -2790,7 +2790,7 @@ Fri Mar 28 10:48:25 GMT 2008
 
       Somehow allow me to set that I want "Colour by Chain" on by
       default. (i.e. set-colour-by-chain for future molecules).
- 
+
     Same for CA mode.
 
     (Pass default representation type to molecule_class_info_t's
@@ -2804,18 +2804,18 @@ Fri Mar 28 10:51:31 GMT 2008
 ----
 Fri Mar 28 22:47:43 GMT 2008
 
-Randy Read: 
-Some time back I sent you a bug report about split-screen stereo.  Don't know 
-if you've been able to reproduce it, but since then I've worked out the 
-problems.  Basically, coot doesn't like the "Side by Side (Wall Eyed)" option 
-any more.  Part of the problem is the saved state.  If the saved state is 
-Mono or normal "Side by Side", then you're fine -- coot comes up the way you 
-left it.  (Don't know about hardware, as I don't have access to an 
-appropriate machine.)  If the saved state is "Side by Side (Wall Eyed)", then 
-Draw -> Stereo... brings up a box claiming that you're still in that mode, 
-but the view is a mono one.  The only way to get wall-eyed stereo from this 
-state is to click "Mono" then "Side by Side" then finally "Side by Side (Wall 
-Eyed)".  If you come up in Mono mode, you also can't go directly to 
+Randy Read:
+Some time back I sent you a bug report about split-screen stereo.  Don't know
+if you've been able to reproduce it, but since then I've worked out the
+problems.  Basically, coot doesn't like the "Side by Side (Wall Eyed)" option
+any more.  Part of the problem is the saved state.  If the saved state is
+Mono or normal "Side by Side", then you're fine -- coot comes up the way you
+left it.  (Don't know about hardware, as I don't have access to an
+appropriate machine.)  If the saved state is "Side by Side (Wall Eyed)", then
+Draw -> Stereo... brings up a box claiming that you're still in that mode,
+but the view is a mono one.  The only way to get wall-eyed stereo from this
+state is to click "Mono" then "Side by Side" then finally "Side by Side (Wall
+Eyed)".  If you come up in Mono mode, you also can't go directly to
 wall-eyed -- first you have to go into normal side-by-side mode.
 
 
@@ -2868,7 +2868,7 @@ chains that the user select i.e. a plot with one chain at a time.
 ---
 Fri Apr 18 17:43:12 BST 2008
 
-    There is a EM software wiki (scripps?) 
+    There is a EM software wiki (scripps?)
 
 -----
 Mon Apr 14 09:41:32 BST 2008
@@ -2879,15 +2879,15 @@ Mon Apr 14 09:41:32 BST 2008
 ----
 Mon Apr 14 09:42:28 BST 2008
 
-    There is a server with uremediated files - from Kim? 
+    There is a server with uremediated files - from Kim?
     Use this to validate new software.
 
 -----
 
-PISA: 
+PISA:
 
 Buried surface area (average in pdb is about 40%).
-	
+
 Test for connected crystal
 
 And min number of interfaces per chain (needs to be at lest 3 or the
@@ -2897,7 +2897,7 @@ crystal is not held in 3 dimensions)
 ---
 Mon Apr 14 10:57:18 BST 2008
 
-    add a function to display (a set of) spheres, 
+    add a function to display (a set of) spheres,
     radius, position, colour
 
 ----
@@ -2912,15 +2912,15 @@ ARP/warp
 
 ----
 Mon Apr 14 11:43:59 BST 2008
-    
+
   question to self: can you make a packing check quick?
   (I guess not).
-    
+
 
 ----
 Mon Apr 14 23:07:06 BST 2008
 
-    chat with Nigel M.  
+    chat with Nigel M.
     Use CONNECT records in bonding (if possible)
 
 -----
@@ -2943,12 +2943,12 @@ however, need to do it for each linkage type.
 
 ----
 Tue Apr 15 15:25:38 BST 2008
-    
-    Kim says Hursthouse for Portsmouth, Southhampton etc 
-    small molecule crystal structures.  
+
+    Kim says Hursthouse for Portsmouth, Southhampton etc
+    small molecule crystal structures.
 
 * eCrystals
-    
+
 ----
 Wed Apr 16 11:23:49 BST 2008
 
@@ -2957,7 +2957,7 @@ Wed Apr 16 11:23:49 BST 2008
 ----
 Wed Apr 16 11:36:44 BST 2008
 
-    What is the RSR Z score from EDS?  
+    What is the RSR Z score from EDS?
     Can we make something similar?
 
     Correlation?
@@ -2969,14 +2969,14 @@ Fri Apr 25 12:39:14 BST 2008
    When the startup script is not given as a dialog option but not
    accepted, then, on
    exiting, don't create a new state file.
-    
+
     (better would be to give a GUI on exiting, shall we overwrite?)
 
 
 ---
 Mon Apr 28 18:21:07 BST 2008
 
-    
+
 valgrinding migels rl shelx file:
 
 (saving as pdb)
@@ -3021,7 +3021,7 @@ Thu May  1 20:55:01 EDT 2008
 
 -------
 
-   When activating the restriants editor dialog, make the option menu 
+   When activating the restriants editor dialog, make the option menu
    be the residue type at the centre of the screen.
 
    Priority: High
@@ -3032,8 +3032,8 @@ Thu May  1 20:55:01 EDT 2008
 
     A must before 1.0:
 
-    revist add strand here, 
-    check in low res maps.  
+    revist add strand here,
+    check in low res maps.
     Try other orientations of the cylinder
         score more badly atoms in negative density.
 
@@ -3063,12 +3063,12 @@ Sat May 10 07:22:54 CST 2008
 
   For Sabine Schneider:
 
-  How about "ideal geometry" restraints, that try to idealize torsion 
+  How about "ideal geometry" restraints, that try to idealize torsion
   angles to A or B form geometry?
 
 -----
 
-   How does side by side stereo work for maps when using (default on Mac) 
+   How does side by side stereo work for maps when using (default on Mac)
    (set-display-lists-for-maps 1)
 
 -----
@@ -3095,7 +3095,7 @@ Sat May 10 07:22:54 CST 2008
 
 ----
 Tue Jun  3 16:19:39 BST 2008
-    
+
     valgrinding a greg test run:
 
 
@@ -3128,7 +3128,7 @@ Tue Jun  3 16:19:39 BST 2008
 ==13600==    by 0x4559B90: scm_gsubr_apply (gsubr.c:221)
 
 
-==13600== 
+==13600==
 ==13600== 1 errors in context 5 of 212:
 ==13600== Invalid read of size 8
 ==13600==    at 0x828797E: molecule_class_info_t::closest_atom(coot::Cartesian const&, bool) const (molecule-class-info.cc:330)
@@ -3144,7 +3144,7 @@ Tue Jun  3 16:19:39 BST 2008
 ==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
 ==13600==    by 0x45A2F1F: scm_body_thunk (throw.c:356)
 ==13600==  Address 0x5BBCB78 is not stack'd, malloc'd or (recently) free'd
-==13600== 
+==13600==
 
 
 ==13600== 1 errors in context 6 of 212:
@@ -3163,7 +3163,7 @@ Tue Jun  3 16:19:39 BST 2008
 ==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
 
 
-==13600== 
+==13600==
 ==13600== 1 errors in context 1 of 212:
 ==13600== Invalid read of size 4
 ==13600==    at 0x49FF2A9: CResidue::GetAtomTable(CAtom**&, int&) (mmdb_atom.cpp:2568)
@@ -3179,7 +3179,7 @@ Tue Jun  3 16:19:39 BST 2008
 ==13600==    by 0x45408B2: scm_apply (eval.c:4796)
 ==13600==    by 0x45454DC: scm_call_0 (eval.c:4651)
 ==13600==  Address 0x3E10912E is not stack'd, malloc'd or (recently) free'd
-==13600== 
+==13600==
 
 ---
 Tue Jun  3 17:14:33 BST 2008
@@ -3210,7 +3210,7 @@ Tue Jun  3 17:14:33 BST 2008
 
     Priority: Critical.
 
-    
+
 ----
 Thu Jun  5 16:17:38 BST 2008
 
@@ -3293,11 +3293,11 @@ Wed Jun 18 22:40:45 BST 2008
 
    Loop modelling with section not currently modelled in input PDB:
 
-rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" -seq ~AAA~ --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib 
+rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" -seq ~AAA~ --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib
 
    Loop modelling with section already modelling in input PDB file using electron density:
 
-rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib 
+rapper params.xml model-loops --pdb "test.pdb" --map "test.map" --chain-id "B" --models "1" --cryst-d-high "1.77" --start 705 -stop 708 --use-CCP4i-file-name true --ccp4i-file-name "rapper_1" --runs-dir "test_dir" --edm-fit true --sidechain-mode smart --sidechain-radius-reduction 0.75 --sidechain-library RAPPER-DIR/data/richardson.lib
 
 -----
 Thu Jun 19 09:13:48 BST 2008
@@ -3325,7 +3325,7 @@ Sat Jun 21 01:55:45 BST 2008
 
     Priority: Medium/Low  (fix refine by sphere first)
 
-    
+
 
 ----
 Sat Jun 21 12:39:55 BST 2008
@@ -3356,7 +3356,7 @@ Mon Jun 30 15:20:48 BST 2008
 
     asc_to_graphics() and all of atom-utils can go (need to fix up
     skeleton/BuildCas.cc)
-    
+
     For 0.6
 
 
@@ -3368,22 +3368,22 @@ Wed Jul  2 08:27:50 BST 2008
     Do Residue Info.  Intermediate atoms disappear.  Why?
 
 ----
-> > In message <B0848263-CEEB-48EF-B991-4ED71F81E9D4@idi.harvard.edu>  
+> > In message <B0848263-CEEB-48EF-B991-4ED71F81E9D4@idi.harvard.edu>
 > > Jianghai Zhu
 > > <jzhu@idi.harvard.edu> writes:
-> >> 
+> >>
 > >> I am using the nightly build of coot prerelease.  I found out that
 > >> every time when I switch the stereo on and off, I lose the electron
-> >> density map.  If I scroll the mouse, I can bring the map back.  But  
+> >> density map.  If I scroll the mouse, I can bring the map back.  But
 > >> if
-> >> I have multiple maps on display, then only one map can be brought  
+> >> I have multiple maps on display, then only one map can be brought
 > >> back.
 
 ----
 Thu Jul  3 12:44:23 BST 2008
 
 
-    on_draw_hydrogens_yes_radiobutton_toggled 
+    on_draw_hydrogens_yes_radiobutton_toggled
 
     This draw hydrogens thing should be a single check button, not 2
     radio toggle buttons.
@@ -3399,11 +3399,11 @@ Mon 14 Jul 02:17:01 2008 BST
 
    molecule_class_info_t::handle_read_draw_molecule() has:
 
-      // update the maps so that they appear around the new centre. 
-      // 
-      if (reset_rotation_centre) 
+      // update the maps so that they appear around the new centre.
+      //
+      if (reset_rotation_centre)
 	 for (int ii=0; ii<g.n_molecules(); ii++) {
-	    g.molecules[ii].update_map(); 
+	    g.molecules[ii].update_map();
 	 }
 
    It should not be there.  That should be outside of the
@@ -3438,7 +3438,7 @@ Mon Jul 14 23:20:37 BST 2008
 Thu Jul 17 13:43:34 BST 2008
 
 in void
-on_refine_params_use_torsions_checkbutton_toggled (GtkToggleButton *togglebutton, 
+on_refine_params_use_torsions_checkbutton_toggled (GtkToggleButton *togglebutton,
 						   gpointer         user_data)
 
 do we need to unset the Rama angle refinement?  (and toggle the box too?)
@@ -3501,7 +3501,7 @@ Wed Jul 23 12:28:06 BST 2008
 ----
 Thu Jul 24 10:40:06 BST 2008
 
-    1mn8 D52 do-180-degree-side-chain-flip must work! 
+    1mn8 D52 do-180-degree-side-chain-flip must work!
     chi5 must be recognised.
 
 
@@ -3518,14 +3518,14 @@ Mon Jul 21 12:33:21 BST 2008
 in molecule_class_info_t::handle_read_draw_molecule():
 
 
-      // update the maps so that they appear around the new centre. 
-      // 
-      if (reset_rotation_centre) 
+      // update the maps so that they appear around the new centre.
+      //
+      if (reset_rotation_centre)
 	 for (int ii=0; ii<g.n_molecules(); ii++) {
-	    g.molecules[ii].update_map(); 
+	    g.molecules[ii].update_map();
 	 }
 
-    
+
     and symmetry likewise.
 
     Bleugh - needs a fix.  Needs to be in
@@ -3543,7 +3543,7 @@ Mon Jul 28 23:39:48 BST 2008
 
     rework const char *atom_info_string(int imol, const char *chain_id, int resno,
 			     const char *ins_code, const char *atname,
-			     const char *altconf) 
+			     const char *altconf)
 
     to return a SCM.  And test that it gives #f when atom not exist.
 
@@ -3631,10 +3631,10 @@ Sun Sep 14 09:49:35 BST 2008
    o Recover session didn't work - "Nothing to Recover".
 
    o "Add Strand here" failed - dictionary of structures, either
-     didn't exist or was in the wrong place: 
+     didn't exist or was in the wrong place:
      C:\share\coot\ss-reference-structure..  found 0 pdb files
 
-   o Rotamer probability tables not found - falling back to simple 
+   o Rotamer probability tables not found - falling back to simple
      (confusing) rotamer probabilities
      C:\msys\home\bernhard\autobuild\MINGW..\share\coot\rama-.. not found
 
@@ -3754,7 +3754,7 @@ Fri Oct  3 15:23:51 CEST 2008
 
 ---
 Mon Oct  6 13:56:44 BST 2008
-   
+
 	It's not the algorithms
 
    After the release, there are no pre-release source tars, so the
@@ -3789,7 +3789,7 @@ Mon Oct  6 13:56:44 BST 2008
    check the torsions of the best fitting (hopefully correctly
    fitting) model.
 
-   
+
 
 ---- Wed Oct 8 14:11:40 BST 2008
 
@@ -3807,15 +3807,15 @@ Fri Oct 17 13:43:26 BST 2008
 ---
 Fri Oct 17 14:13:50 BST 2008
 
-   main.cc: 
+   main.cc:
    // else we need to pass cld.alternate_splash_screen_file_name
    // to a function that accepts a file_name a makes a splash
    // screen.  Hmm..
 
 ----
 Thu Oct 23 11:54:39 BST 2008
-  
-   It would be nice if baton building would orient as it translates 
+
+   It would be nice if baton building would orient as it translates
    so that the baton is along the screen Y.
 
 ----
@@ -3825,7 +3825,7 @@ Sat Oct 25 03:11:07 BST 2008
   select the top N for energy minimization.
 
   Instead of search the maps for ligand sites, try to position the
-  ligand at a give postion (e.g. the screen centre). 
+  ligand at a give postion (e.g. the screen centre).
 
   Try a 27 pt box search around the centre position.  Try different
   rigid body angles at the box points.
@@ -3891,7 +3891,7 @@ Sat Nov 29 15:08:44 GMT 2008
 
    In make_link_restraints() we need to make sure that we are sensibly
    setting the fixed atom/residue flag.
-	
+
    Where is the test that these residues are L-peptides? in
    add_rama()?  No.  So it should be in make_rama_triples() then.
    Perhaps.  But it should be somewhere.
@@ -3900,7 +3900,7 @@ Sat Nov 29 15:08:44 GMT 2008
 Thu Dec  4 16:27:58 GMT 2008
 
    Conversation with Ed:
- 
+
   o Nice to have ^S bound to Save Coords (Add accelerator to gui)
 
   o Can you generate "arrow key-press events" from rotating the
@@ -3924,11 +3924,11 @@ Sun Dec  7 19:36:04 GMT 2008
 	    // memory/selection is deleted again in
 	    // clear_up_moving_atoms(). It *should* be done here of
 	    // course, but we'll save that for the future.
-	    // 
-	    //if (atom) { 
+	    //
+	    //if (atom) {
 	    // mol->DeleteSelection(SelHnd_atom);
 	    // atom = NULL;
-	    // } 
+	    // }
 
    NOTE: In future problems of memory when using a CRresidue * vector
    could be due to restraints_container_t deconstuctor.
@@ -3955,7 +3955,7 @@ Fri Dec 12 00:01:19 GMT 2008
 ----
 Fri Dec 12 00:07:18 GMT 2008
 
-   Tutorial II ideas: 
+   Tutorial II ideas:
 
    Find and fix the bad trans bond in 1h4p
 
@@ -3972,30 +3972,62 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o Run the damn tests - don't be lazy
+   o make check
+   o try the build on the virtual machines - ubuntu at work, debian at home.
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
-   o artists acknowledged in glade/aboutdialog?
-   o change the splash screen
-        Use glade-2
-        Fix the release name in the About dialog (aboutdialog)
+   o Artists acknowledged in glade/aboutdialog?
+   o Use glade-2
+        Change the splash screen
+        Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
-        To correct the transparency, duplicate layer, bucket fill with white 
+        To correct the transparency, duplicate layer, bucket fill with white
         the bottom layer, merge and bevel 6.
+        git commit pixmaps/coot-0.9.5.png
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
+   o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
+     rm src/coot_wrap*.cc
+     configure with configure-it-for-release
+   o make dist to make a tar-ball
+        Use this to untar and make a build - this will test that the tarball has
+        all the files before commit: cd ../build-test-dist and untar it there, copy into
+        the new directory the script configure-it. configure and make check
+   o git status # what did you forget to add?
+   o are the shaders up to date?
+   o Is the glade file up to date? (header-bars)
    o git commit -a
-   o git push [maybe here? not sure]
    o git tag Release-0.x.y
-   o git commit
    o git push origin Release-0.x.y  # publish the tag
+   o git push # push the actual release commit
    o Passes build (build-latest) on pc?
-        OK, disable the build-latest cron-job 
-   o clear out pre-releases
-   o check for updates - needs consideration?
-   o Build binaries on some hosts
-   o Update latest version info on coot web page, Projects/coot/web/index.html
+     cd build-for-release, configure it, make and make dist.
+     So that works? Now use md...
+   o on charybdis: md: check that it builds, the build will put the release in the
+                   pre-release directory. So move it to release (and remove the
+                   revision tag)
+                   cd ~/fuse/ftp/coot/source/pre-releases/
+                   mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
+                   mv coot-0.9.4.1.tar.gz ../releases/
+                   give-read-permission coot-0.9.4.1.tar.gz
+   o on charybdis: disable the build-latest cron-job
+   o on charybdis: clear out pre-releases
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+                   unfortunately the 1.0 complicated the extraction of the latest release.
+                   So the version is hard coded now! You will need to change it.
+   o on charybdis: bash wrap-build-it-for-release.sh
+                   that doesn't do the transfer to web server at the moment, so:
+                   cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
+                   cd ~/fuse/ftp/coot/binaries/release/
+                   give-read-permission to the new files
+   o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
+   o on charybdis: Update latest version info on coot web page:
+                   cd Projects/coot/web/index.html
+                   bash transfer-the-file.sh
+   o Blog post
    o Mail mailing list
 
 ---
@@ -4022,13 +4054,14 @@ Mon Jan 12 17:26:40 GMT 2009
 
    Nice example of sphere refinement:
 
-   set 37 B (or A) to rotamer 1.  
+   set 37 B (or A) to rotamer 1.
 
    Do "r" refinement.  -> Wrong solution
 
    Do "R" (sphere) refinment, PHE gets kicked and goes to the right
    solution (I wonder if refmac would do that?)
 
+   # not any more - they both work.
 
 ---
 Mon Jan 12 22:43:50 GMT 2009
@@ -4043,7 +4076,7 @@ Tue 20 Jan 2009 10:13:19 EST
     Heres a failure that should not be...
 
     Get monomer -> PAD.
- 
+
     Delete residue 3 from 1a72 and try to fit libchecked PAD.
 
 
@@ -4052,16 +4085,16 @@ Fri 23 Jan 2009 17:31:50 EST
 
   Paul Hubbard:  I want to do rigid body refinement on the fragment
    of the active residue - don't make me click 2 residues to define
-   the fragment - find it yourself 
+   the fragment - find it yourself
 
 * You can do this now with "X" key binding (laertes)
 
 
 ----
 Sun 25 Jan 2009 04:57:33 EST
- 
-   How about adding the rmsd bonds, angles (etc?) along with the 
-   chi squareds. 
+
+   How about adding the rmsd bonds, angles (etc?) along with the
+   chi squareds.
 
 
 ----
@@ -4075,19 +4108,18 @@ Tue Feb  3 14:55:32 GMT 2009
 ----
 Wed Mar  4 13:12:21 GMT 2009
 
-    Metal distances: 
+    Metal distances:
 
     http://tanna.bch.ed.ac.uk/
 
 -----
 Sat Feb 28 19:36:50 GMT 2009
 
-	when testing new tree code:
+     when testing new tree code:
 
      test: torsion general
      test: wiggly ligand best solution C* N9 C1* C2* is correct
      test: var4 and var4 for ATP and var1s for MPR
-
 
      Note: revision 1917 has "new" mgtree code, which seems to work
      for wiggly ligands, but torsion angles are horrifically broken.
@@ -4126,20 +4158,19 @@ Wed Mar 25 19:09:38 GMT 2009
 
 ----
 
-     Add a residue/chain selector (an mmdb string entry) to allow the 
+     Add a residue/chain selector (an mmdb string entry) to allow the
      selction for a ramachandran plot (put it at the bottom of the dialog).
 
 
 -----
 Thu Mar 26 18:39:42 GMT 2009
-   
-     Adding a terminal residue: 
+
+     Adding a terminal residue:
 
      the phi/psi pairs from a ramamchandran plot can't be the phi/psi
      for *one* residue, they
      must be psi of one and phi of the next (or the other way round).
      Hmm... needs some though.
-     
 
 ---
 Fri Apr 17 17:38:02 BST 2009
@@ -4176,8 +4207,8 @@ Fri May 15 14:37:13 BST 2009
 http://whynotwiki.com/How_I_moved_my_code_repository_to_Google_Code
 
 
-   how to svn revert a particular revision (just this one) 
-   $ svn merge -c -5702 . 
+   how to svn revert a particular revision (just this one)
+   $ svn merge -c -5702 .
 
 --
 Sun 17 May 2009 13:01:52 BST
@@ -4194,14 +4225,14 @@ c-interface-mmdb.cc:424: warning: deprecated conversion from string constant to 
 Sun 24 May 2009 11:27:12 BST
 
 	gtk2-build-status on cycle seems to being written by a gtk2
-	build.  
+	build.
 
 ----
 Mon May 18 23:28:41 BST 2009
 
 	Add to GUI talk: What's the difference between:
         Some function
-	and 
+	and
 	Some function...
        	?
 
@@ -4209,11 +4240,11 @@ Mon May 18 23:28:41 BST 2009
 Wed May 20 00:16:05 BST 2009
 
 	Have go to atom open... on a bulding structure
-	
-	file -> get 1gxt from pdb 
-	
+
+	file -> get 1gxt from pdb
+
 	(change molecule to (new) 1gxt
-	
+
 	but the chains in the residue/chain tree do not change!
 
 	Bug!
@@ -4245,7 +4276,7 @@ Tue Jun  2 02:52:49 EDT 2009
    option menu.
 
    It should start up as default showing only unsaved molecules.
-  
+
    See graphics_info_t::fill_unsaved_changes_dialog().
 
 
@@ -4303,7 +4334,7 @@ Tue Jun  9 06:30:49 BST 2009
      Think about providing a syncing "service"
 
      sync from here:
- 
+
      rsync is basically a free lib?
 
      rsyncing from an ftp server directory tree?
@@ -4457,7 +4488,7 @@ Mon Jul 13 09:16:18 CDT 2009
    there could be a paper in this.
 
   Another:
- 
+
    Add Pre-pro to Rama plot possibilities (may need to enhance
    clipper).
 
@@ -4478,10 +4509,10 @@ Tue Jul 14 15:11:53 CDT 2009
 ---
 Tue Jul 14 19:19:07 CDT 2009
 
-	in backrubbing 
-float 
+	in backrubbing
+float
 molecule_class_info_t::backrub_rotamer(const std::string &...
-  
+
     can we (should we) delete the fragment_asc?
 
 
@@ -4508,7 +4539,7 @@ Sun Aug  2 21:52:04 BST 2009
 ----
 Mon Aug  3 12:29:37 BST 2009
 
-   Show (4 sigma by default) outliers in the geometry analysis. 
+   Show (4 sigma by default) outliers in the geometry analysis.
 
 ----
 Wed Aug  5 18:28:07 BST 2009
@@ -4525,7 +4556,7 @@ Tue Aug  4 13:04:58 BST 2009
 ---
 Sat Aug  8 09:10:22 BST 2009
 
-openexr fink on mac uses OpenGL and frameworks.  
+openexr fink on mac uses OpenGL and frameworks.
 
 
 ---
@@ -4551,9 +4582,9 @@ Tue Aug 18 08:42:28 BST 2009
 ---
 Thu 20 Aug 2009 10:13:21 EDT
 
-   JB et al: 
+   JB et al:
 
-   Copy fragment 2bz1 //B/1-305  -> no atoms selected 
+   Copy fragment 2bz1 //B/1-305  -> no atoms selected
 
    Make the image type png
 
@@ -4575,7 +4606,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    reduce.
 
    It is reasonble for me to say he period is 0 and the sd is 0 on a
-   rotatable bond.  So coot should deal with that.   
+   rotatable bond.  So coot should deal with that.
 
       i.e. if the sd is 0, then no torsion restraint on that tor.
        also if the period is 0, there souold ben no torsion
@@ -4588,7 +4619,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    file men (Word does it).  Same for cif and mtz.  We need to make
    the open_coords_dialog() acceccesable from scripting.
 
-   split residue (his) and rotamers (try both from CA, and all). 
+   split residue (his) and rotamers (try both from CA, and all).
 
    Try rotamers on a alt confed residue.
 
@@ -4611,7 +4642,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    in a dialog that I can use . and , with. Like questionable waters.
 
    Backrub rotamer search on a PHE in a helix.  -> terrible solution.
-   Need to include clash terms. 
+   Need to include clash terms.
 
    User-define-click resets the cursor after it has run the
    function. This can be inconvenient, when user-defined-click calls
@@ -4622,7 +4653,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    Try sphere refinement with hydrogens on. Check that convergence
    happens.
 
-   "SSM all" to this: give me a dialog, with an "all on" button.  
+   "SSM all" to this: give me a dialog, with an "all on" button.
 
    chains ligands
    A        D
@@ -4645,7 +4676,7 @@ Thu 20 Aug 2009 10:13:21 EDT
    We then dis alignment-mismatches-gui by hand and it gave us a gui.
 
    An "Insert residue" should take you to the nearest residue.
-  
+
    But the residue number is wrong for insertions.
    Mutations look fine.
 
@@ -4660,7 +4691,7 @@ Thu 20 Aug 2009 10:13:21 EDT
 
 * Done.
 
-     Doing go to blob when the refiement map has not been set, 
+     Doing go to blob when the refiement map has not been set,
      needs better feedback.
 
 * Done.
@@ -4669,13 +4700,13 @@ Thu 20 Aug 2009 10:13:21 EDT
 
 * Fixed
 
-     I want a function to set the refinment weight for me, 
+     I want a function to set the refinment weight for me,
      i.e.  it should do a triple refine and look at the chi squareds.
      Keep doing that with different weights until we get to 1.0.
 
 * Scheduled.
 
-     The very low level map from phenix, makes refinement fail to 
+     The very low level map from phenix, makes refinement fail to
      converge without setting the map weight to 3000!
 
      How about doing Ramachandran refinement with optional sphere refinement.
@@ -4708,20 +4739,20 @@ Mon Aug 24 17:02:29 EDT 2009
 
    Use the option menu to change to 0.
    Use the option menu to change to 3.
-	
+
    -> updates the residue list.
 
-    Probably due to this: 
+    Probably due to this:
 
     set-go-to-atom-molecule 3 (before post-go-to-atom-window)
- 
+
     but go to atom dialog starts up showing molecule 0.
 
- 
+
 ----
 Mon Aug 24 17:17:35 EDT 2009
-  
-    how do I start up coot and force it to read the state script? 
+
+    how do I start up coot and force it to read the state script?
 
 ---
 Mon Aug 24 17:17:40 EDT 2009
@@ -4758,7 +4789,7 @@ Mon Aug 24 17:42:55 EDT 2009
 ----
 Mon Aug 24 17:52:10 EDT 2009
 
-   Close the application with the X, don't save the state. 
+   Close the application with the X, don't save the state.
 
    Perhaps, needs thinking about.
 
@@ -4768,7 +4799,7 @@ Mon Aug 24 17:53:32 EDT 2009
 
    On exit (or optional exit) save all modified moelcules with default
    save names.
-  
+
 
 ---
 Tue Aug 25 10:09:07 EDT 2009
@@ -4819,19 +4850,19 @@ Tue Aug 25 14:30:19 EDT 2009
 parse-pisa-xml.scm :371 should check for #f in status
 
 
-148  in coot-utils.scm   
+148  in coot-utils.scm
 
-0 "E" -10000 #f 
+0 "E" -10000 #f
 
-wrong type in position 1: #f 
+wrong type in position 1: #f
 
 ----
 Wed Aug 26 05:00:42 EDT 2009
 
-   Align & Mutate changes the residue numbers 
-      
+   Align & Mutate changes the residue numbers
+
    Align & Mutate seems to do a rotamer fit of all residues, I didn't ask for that
- 
+
    In Align & Mutate, if I do not click the "autofit residues" nothing
       seems to happen, the sequence is not mutated.  Oh, or possibly
       it mutated residues in the wrong place.
@@ -4977,7 +5008,7 @@ Sat Sep 19 18:11:45 BST 2009
 
 ----
 Sat Sep 19 18:36:06 BST 2009
-	
+
     The bond parameters and bond colours dialogs need to be consolidated.
 
 ----
@@ -4995,7 +5026,7 @@ Mon Sep 21 15:43:47 BST 2009
 ----
 Tue Sep 22 17:24:48 BST 2009
 
-     http://www.chembiogrid.org/index.html 
+     http://www.chembiogrid.org/index.html
      What services do they provide that we can use?  SMILES->3D?
 
 
@@ -5008,7 +5039,7 @@ Wed 23 Sep 2009 22:08:41 BST
 
 ----
 Thu 24 Sep 2009 18:07:02 BST
-   
+
    Student project:
    The use of sound as a form of user-feedback in molecular
    model-building
@@ -5046,7 +5077,7 @@ Wed Sep 30 14:55:21 BST 2009
 
 ----
 Wed Oct  7 15:44:59 BST 2009
-   
+
    Ingo K: if you try to add a c-terminal residue, coot does recognize
    the residue number correctly, but will not do any real space
    refinement. if you output the coordinates, you will see that the
@@ -5085,13 +5116,13 @@ set-default-bond-thickness needs to be added to the history
 
 ----
 Wed Oct 14 11:05:03 BST 2009
- 
+
 
    student project: implement hole:
 
-    O.S. Smart, J.M. Goodfellow and B.A. Wallace (1993) 
-    The Pore Dimensions of Gramicidin A 
-    Biophysical Journal 65:2455-2460. 
+    O.S. Smart, J.M. Goodfellow and B.A. Wallace (1993)
+    The Pore Dimensions of Gramicidin A
+    Biophysical Journal 65:2455-2460.
 
 http://d2o.bioch.ox.ac.uk:38080/doc/index.html
 http://d2o.bioch.ox.ac.uk:38080/
@@ -5103,7 +5134,7 @@ http://d2o.bioch.ox.ac.uk:38080/
 
   o nucleic acid analog of Ramachandran plot (theta, eta), see message
     from Bill Scott:
-    http://www.csb.yale.edu/people/pyle/software/index.html 
+    http://www.csb.yale.edu/people/pyle/software/index.html
 
 
 ----
@@ -5124,7 +5155,7 @@ Mon Oct 19 10:09:42 EDT 2009
 ----
 Fri Oct 16 14:38:00 BST 2009
 
-  o INFO:: mac compile problems: 
+  o INFO:: mac compile problems:
     check out the static analyser:
     http://arstechnica.com/apple/reviews/2009/08/mac-os-x-10-6.ars/9
 
@@ -5134,15 +5165,15 @@ Mon Oct 19 10:39:58 EDT 2009
 
     The baton build problem:  Gina
 
-   Produce like this (not verified):  
+   Produce like this (not verified):
    Calc -> Map Skeleton -> On
 
    Ca Baton mode mode, open, close, open, undo, close
    [candidate positions displayed]
-   Ca mode, 
-   Undo 
-   Accept 
-   Undo 
+   Ca mode,
+   Undo
+   Accept
+   Undo
    Accept -> Now the baton positions atoms are gone.
 
 
@@ -5150,12 +5181,12 @@ Mon Oct 19 10:39:58 EDT 2009
 Tue Oct 20 11:29:07 EDT 2009
 
    Need to add Pre-PRO to clipper.
- 
+
 
 ---
 
    consider looking for unsatified H-bond donors and acceptors, for
-   NMR structures in particular c.f. cing? 
+   NMR structures in particular c.f. cing?
 
 
 ----
@@ -5172,21 +5203,21 @@ Wed Oct 21 16:49:43 EDT 2009
    levels of density.
 
 
- 
+
 ----
 
     Jane: some comment about someone who made a server? program that
     searches for (general?) active sites in proteins.
-   
+
     Find out more.
 
 
 ---
 Sat Oct 24 00:30:39 EDT 2009
 
-    Filling density with close dummy atoms and then refining them: 
+    Filling density with close dummy atoms and then refining them:
 
-    Acta Cryst. (1997). D53, 540-543  
+    Acta Cryst. (1997). D53, 540-543
     Local Improvement of Electron-Density Maps
     A. G. Urzhumtsev
 
@@ -5196,7 +5227,7 @@ Sat Oct 24 00:30:39 EDT 2009
 ----
 Sun Oct 25 17:54:59 EDT 2009
 
-	
+
 (from Garib)
 >
 > libcheck
@@ -5228,7 +5259,7 @@ Sat Nov 14 19:58:48 GMT 2009
       g.delete_residue_from_geometry_graphs(imol, spec);
    }
 
-   This needs to be rationalised into (perhaps) 
+   This needs to be rationalised into (perhaps)
    delete_residue_from_geometry_graphs_maybe(chain_id, resno, ins_code);
 
 
@@ -5250,7 +5281,7 @@ Mon Nov 30 10:23:48 GMT 2009
 ---
 Tue Nov 24 17:07:20 GMT 2009
 
-    An extension to backrub rotamer: 
+    An extension to backrub rotamer:
 
     For each rotamer: try chi-by-chi to improve the fit to the density
     of the side chain.  It will probably only need 2 rounds.  Needs
@@ -5300,7 +5331,7 @@ Mon Dec  7 17:43:08 GMT 2009
 ----
 Mon Dec 21 11:14:22 GMT 2009
 
-    In the Go To Atom, rightmouse should activate a pop-up, 
+    In the Go To Atom, rightmouse should activate a pop-up,
 
     Highlight "MET"s  (for example) taking the residue type of the residue label we clicked on
     Highlight type -> entry
@@ -5348,7 +5379,7 @@ Fri Jan 15 21:06:12 GMT 2010
 ----
 Sat Jan 16 09:16:32 GMT 2010
 
-   tutorial example 
+   tutorial example
 
    1bav, Difference map peaks, Bad rotamers, missing NCS waters
 
@@ -5372,7 +5403,7 @@ Thu Jan 21 23:23:30 GMT 2010
 
    o Refine: click on ASN, click on terminal NAG, get residues that
      are linked and use "sphere" refinement for just those residues.
-   
+
 
 ---
 Mon Jan 25 15:10:19 GMT 2010
@@ -5423,7 +5454,7 @@ Mon Feb 15 02:32:00 GMT 2010
 
    (Refmac) Additional restraints:
 
-exte dist first chain A resi 2 atom CA second chain A resi 5 atom CA value 4.0 sigma 0.02 
+exte dist first chain A resi 2 atom CA second chain A resi 5 atom CA value 4.0 sigma 0.02
 http://www.ccp4.ac.uk/dist/html/refmac5/keywords/keywords_5_5.html#External
 
 ----
@@ -5435,7 +5466,7 @@ Wed Feb 17 03:05:21 GMT 2010
 ----
 Fri Feb 26 11:21:07 GMT 2010
 
-  
+
    All pairs NCS rmsd comparison. (Requested by FvD)
 
   GK:
@@ -5459,7 +5490,7 @@ Wed Mar  3 14:16:25 GMT 2010
 
   INFO:: To stop being in DOS mode:
 
-  M-x set-buffer-file-coding-system 
+  M-x set-buffer-file-coding-system
   undecided-unix
 
   -> save
@@ -5508,7 +5539,7 @@ Mon May 17 16:46:04 BST 2010
     BEZ and BOX
     many: methyl mercury
 
-* a problem for PDBe, not Eugene.         
+* a problem for PDBe, not Eugene.
 
 ----
 
@@ -5542,7 +5573,7 @@ Fri May  7 12:48:16 UYT 2010
 
 ----
 Thu May 20 18:38:52 BST 2010
-  
+
    o Bob Nolte:  "clean up structure button"
 
 	 reorder chains - renumber waters - arrange water around
@@ -5555,13 +5586,13 @@ Sun May 23 13:35:38 BST 2010
    2WOT: lbg the ligand and re-import back to Coot main.  Now try to
    fit the ligand.
 
-   It's hard.  Make it easier. Identify matched atom (atom name map) and 
-   the rotatable bonds and match them between reference ligand and new 
-   ligand.  Now set the rotatable bonds to those values (before 
+   It's hard.  Make it easier. Identify matched atom (atom name map) and
+   the rotatable bonds and match them between reference ligand and new
+   ligand.  Now set the rotatable bonds to those values (before
    minimisation).
 
-   o need some cleverness to match and set the chi angles of the 
-     rotatable bonds (before lsqing, even, I guess)  (or at least, 
+   o need some cleverness to match and set the chi angles of the
+     rotatable bonds (before lsqing, even, I guess)  (or at least,
      an LSQ is needed afterwards).
 
 
@@ -5606,7 +5637,7 @@ Sun May 23 13:37:55 BST 2010
 
 -----
 
-    integration of calcuated chemical shift with molecular dynamics... 
+    integration of calcuated chemical shift with molecular dynamics...
     interesting..
 
 ----
@@ -5628,7 +5659,7 @@ Funny - I was annoyed by that lack of feature just last night.
 > will still draw the environment distances between them, making the
 > view quite crowded.
 
-Bleugh.  quite right. 
+Bleugh.  quite right.
 
 
 > 3. For covalent ligands (but also for SS-bonds etc): if I change the
@@ -5643,7 +5674,7 @@ Agreed.
 
 
 > 4. Currently it is frustratingly tedious to set the occupancy for
-> newly added alt conf ligands. 
+> newly added alt conf ligands.
 
 Do you know about:
 
@@ -5679,8 +5710,8 @@ Wed Jun  9 12:13:44 CEST 2010
    Janssen et al. 2005, J. Med Chem. 48, 1901 (perhaps)
 
    hydrophobic pocket - adaptabilty to changes:
-    
-   2004 Das, 
+
+   2004 Das,
 
    2008
 
@@ -5704,7 +5735,7 @@ Wed Jun  9 13:17:27 CEST 2010
    Open Display Manager
 
        -> the "All" button has disappeared.
-   
+
 
 ----
 Fri Jun 11 11:56:15 CEST 2010
@@ -5730,7 +5761,7 @@ Add to docs.
 1T5S nice map to play with?
 
   TT:
-  flood fill density with dummy atom, 
+  flood fill density with dummy atom,
   move the atoms the centre line.
   find characteristic ca-ca-ca-ca geometry.
   link bits together.  15 residues/second
@@ -5739,16 +5770,16 @@ Add to docs.
 Thu Jul 22 21:40:12 EDT 2010
 
   John Spence: Molecular movies:
-   -> make it easy to make movies from a series of electron density 
-      maps (mtz files).  
+   -> make it easy to make movies from a series of electron density
+      maps (mtz files).
 
       Consider interpolation.
 
 ----
 
-   Update NCS maps based on local NCS. 
+   Update NCS maps based on local NCS.
    generate NCS matrix by local LSQing.
- 
+
 -------
 
   Garib: new refmac restraints type:
@@ -5770,7 +5801,7 @@ Thu Aug  5 05:23:49 BST 2010
 Thu Aug  5 06:32:43 BST 2010
 
    Do I have the surface normals reversed?
-   Try reversing the normals - does that make backface culling work?  
+   Try reversing the normals - does that make backface culling work?
 
 -----
 Mon Aug  9 08:12:35 BST 2010
@@ -5793,7 +5824,7 @@ Sun Aug 15 12:59:12 BST 2010
 -----
 Wed Sep 29 10:35:58 BST 2010
 
-Transparent sphere with glutsphere:  
+Transparent sphere with glutsphere:
 
    martinm:
 
@@ -5818,7 +5849,7 @@ Thu Sep  2 11:40:03 BST 2010
 
    Libraries have been installed in:
        /lmb/wear/emsley/coot/fed-12/lib
-    
+
     use the `-Wl,-rpath -Wl,LIBDIR' linker flag
 
 
@@ -5835,7 +5866,7 @@ Interesting valgrind problems:
 ==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
 ==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
 ==23673==    by 0x4A257B: main (main.cc:269)
-==23673== 
+==23673==
 
 another:
 
@@ -5847,7 +5878,7 @@ another:
 ==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
 ==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
 ==23673==    by 0x4A257B: main (main.cc:269)
-==23673== 
+==23673==
 
 another:
 
@@ -5861,7 +5892,7 @@ another:
 ==23673==    by 0x643F0F9: coot::protein_geometry::init_standard() (protein-geometry.cc:2751)
 ==23673==    by 0x4A5E2C: graphics_info_t::init() (graphics-info.h:856)
 ==23673==    by 0x4A257B: main (main.cc:269)
-==23673== 
+==23673==
 
 Another:
 
@@ -5889,7 +5920,7 @@ Sun Oct 10 12:14:21 EDT 2010
 -------
 Sat Nov 13 16:34:37 GMT 2010
 
-     o JED: environment distances when there are hydrogens on the ligand should not 
+     o JED: environment distances when there are hydrogens on the ligand should not
        show interactions with the hydrogen base atom when there is an interaction
        with the hydrogen.
 
@@ -5902,7 +5933,7 @@ Sat Nov 13 16:34:37 GMT 2010
      o JED: Sphere refine on a water should do something sensible.
 
      o (There should be a key that goes to hetatms)
- 
+
      o question to self: do we need restraints to layout molecules?  e.g. 2bzh
 
 
@@ -5920,7 +5951,7 @@ Wed Nov 17 14:01:30 GMT 2010
 
     o Out of plane distances should have graphical output c.f. a distance.
 
-    o 'findligand --help' does not list x-pos, y-pos,... (there may be more) 
+    o 'findligand --help' does not list x-pos, y-pos,... (there may be more)
 
     o we may want to lose the HID part of the tutorial
 
@@ -5940,7 +5971,7 @@ Sat Nov 27 10:58:27 GMT 2010
 ---
 Tue Nov 30 02:42:51 GMT 2010
 
-  o The hydrogens on DTT are drawn wrongly (additional half-bond).  
+  o The hydrogens on DTT are drawn wrongly (additional half-bond).
 
 * Too complicated for now
 
@@ -5972,11 +6003,11 @@ Tue Dec  7 15:25:30 GMT 2010
 Wed Dec  8 14:37:58 GMT 2010
 
   Francis Reyes
-   
-  On pressing Esc during refinement: 
+
+  On pressing Esc during refinement:
 
 	Can we have a dialog box pop up summarizing the geometry and
-	asking us to accept/reject instead of reverting back? 
+	asking us to accept/reject instead of reverting back?
 	Sometimes a real space refine takes too long/gets lost when
 	the best fit to the density is observed before that happens.
 
@@ -5986,13 +6017,13 @@ Mon Feb 28 17:01:48 GMT 2011
 
    in make a difference map (say for overlayed ligand structures)
    find the scale the maps (around a given spot) mean, standard
-   deviation perhaps? 
+   deviation perhaps?
 
 
 ----
 Sun Jan  9 17:21:10 GMT 2011
- 
-   How about this: map the surface of a protein onto a cylinder, 
+
+   How about this: map the surface of a protein onto a cylinder,
 
    Then unwrap the cylinder and display as a 2d plot.
 
@@ -6016,7 +6047,7 @@ Mon Jan 10 10:50:29 GMT 2011
     an install in src, to update installed coot.py
 
 
- 
+
 ---
 Sun Mar 20 23:08:50 GMT 2011
 
@@ -6041,7 +6072,7 @@ Sun Jun 19 14:15:19 BST 2011
 
 ---
 Sun Jun 19 14:18:41 BST 2011
- 
+
     JED:
 
     Tool to WC base-pair a residue range and put the results into the
@@ -6059,7 +6090,7 @@ Wed Jul 20 19:34:25 BST 2011
 ----
 Fri Jul 22 16:43:47 BST 2011
 
-    Make a small tutorial for jligand link making.  
+    Make a small tutorial for jligand link making.
 
     Find something from the PDB?
 
@@ -6069,7 +6100,7 @@ Fri Jul 22 16:43:47 BST 2011
 ---
 Sun Jul 10 23:29:32 BST 2011
 
-   Note: 
+   Note:
    When making a scrolled list to add things in to, don't forget to put
    the vbox into a viewport and the viewport into the scrolled window
    (e.g. nomenclature errors dialog).
@@ -6093,7 +6124,7 @@ Tue Jul 26 23:11:17 BST 2011
     Mutate and autofit to an MSE should change the atoms to HETATM,
     but it does not.
 
-    So, minimol's atom class needs 'bool is_hetatm' flag.  
+    So, minimol's atom class needs 'bool is_hetatm' flag.
 
     Import: minimol's residue constructors from CResidue * need to set
     the is_hetatm flag by testing at->Het.
@@ -6111,10 +6142,10 @@ Thu Jul 28 14:26:13 BST 2011
 
 ----
 Thu Jul 28 14:42:51 BST 2011
-  
+
     Must have user defined colour system! (for reading prosmart
     output)
-	
+
     here: green (good alignment), red (bad alignment), white (not aligned)
 
 
@@ -6145,7 +6176,7 @@ Fri Aug 12 16:05:07 BST 2011
    In the sequence view (the window needs a title) it would be nice if
    the ligands had a highlighting background colour and showed the TLC
    (and molecule name?) as a tooltip.
-    
+
    Yes.  Very nice.
 
 ----
@@ -6155,7 +6186,7 @@ Fri Aug 12 16:07:05 BST 2011
 
    Add a Glycerol using Solvent Ligands.
 
-   Add another.  
+   Add another.
 
    They go into different chains.
 
@@ -6185,7 +6216,7 @@ Fri Aug 12 12:29:03 BST 2011
    http://www.ebi.ac.uk/pdbe-srv/view/files/$code.ent
    http://www.ebi.ac.uk/pdbe-srv/view/files/r{$code}sf.ent
 
-   Then cif_to_mtz 
+   Then cif_to_mtz
 
 * Done!  For the most part...
 
@@ -6199,13 +6230,13 @@ dbi for COD:
 guile> (use-modules (dbi dbi))
 guile> (define db-obj (dbi-open "mysql" "cod_reader::molecules:tcp:www.crystallography.net::")
 ... )
-guile> db-obj 
+guile> db-obj
 #<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . db connected)>
 guile> db-obj
 #<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . query ok, got results)>
 guile> (display db-obj)
 #<guile-dbi open mysql cod_reader::molecules:tcp:www.crystallography.net:: (0 . query ok, got results)>
-guile> 
+guile>
 guile> (dbi-query db-obj "select * from numbers")
 guile> db-obj
 
@@ -6219,14 +6250,14 @@ Wed Aug 17 16:05:36 CEST 2011
 
 Some ideas for Control key bindings:
 
-    C-c to copy residue 
+    C-c to copy residue
 
     Shift C-c to copy a molecule
 
     C-v to paste residue/molecule to new molecule
 
     C-x to delete residue
-   
+
     Shift C-x to delete (undisplay) molecule.
 
 
@@ -6234,8 +6265,8 @@ Some ideas for Control key bindings:
 
   learnable (discoverable),
   usable (get stuff done with least amount of clicking).
-  forgiving (undo), 
-  repsonsive (feedback), 
+  forgiving (undo),
+  repsonsive (feedback),
   asthetics (pretty)
 
 
@@ -6271,14 +6302,14 @@ Thu Aug 18 16:25:07 CEST 2011
    Dale Tronrud structures: 1qlw - nice difference map peaks, waters,
                                    phosphate, disulphide
 
-                            3ls9 - lots of model-building errors, 
+                            3ls9 - lots of model-building errors,
                                    missing ligand? badly built loop
                                   THR-ILE mutation
 
                             3oeg - BCL fantasy.
 
 
-                            2qns - retracted structure - lots of substantial 
+                            2qns - retracted structure - lots of substantial
                                    mistakes good for tutorial?
 
 
@@ -6296,8 +6327,8 @@ Fri Oct 28 11:20:15 EDT 2011
 
 ----
 Sat Oct 29 16:36:25 EDT 2011
-  
-   allow colour by c-a deviation , c-b deviations etc.  (user-defined scale and 
+
+   allow colour by c-a deviation , c-b deviations etc.  (user-defined scale and
    colour map of course)
 
 -----
@@ -6389,7 +6420,7 @@ Mon Jan 30 11:45:55 GMT 2012
 ----
 Fri Feb  3 16:36:37 GMT 2012
 
-   relative rpath: 
+   relative rpath:
 
   http://groups.google.com/group/gnu.gcc.help/browse_thread/thread/1b713af28905247b?pli=1
 
@@ -6410,7 +6441,7 @@ consider chrpath
 http://stackoverflow.com/questions/6323603/ld-using-rpath-origin-inside-a-shared-library-recursive
 
     how about this:
-   LIBS=-Wl,-rpath,'$${ORIGIN}/../lib -Wl,-rpath,/usr/lib' 
+   LIBS=-Wl,-rpath,'$${ORIGIN}/../lib -Wl,-rpath,/usr/lib'
 
 
 ---
@@ -6465,7 +6496,7 @@ Wed Apr  4 15:19:44 BST 2012
 
   ---> we drop the image url
 
-  such as 
+  such as
 
   http://www.chemspider.com/ImagesHandler.ashx?id=24747352&w=200&h=200
 
@@ -6475,7 +6506,7 @@ Wed Apr  4 15:19:44 BST 2012
   "http://www.chemspider.com/FilesHandler.ashx?type=str&striph=yes&id=" + chemspider_id
 
 
-  and while you are at it, you might get the wikipedia page, look for 
+  and while you are at it, you might get the wikipedia page, look for
 
   href="http://www.chemspider.com/Chemical-Structure.24747352" to extract the chemspider_id
 
@@ -6485,10 +6516,10 @@ Tue Apr  3 17:04:40 BST 2012
 
 valgrind:
 
- valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
+ valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real
 
-# valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
- valgrind --leak-check=full --suppressions=../../coot/git/coot/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
+# valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin
+ valgrind --leak-check=full --suppressions=../../coot/git/coot/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin
 
 
   Where are the python suppressions?
@@ -6514,7 +6545,7 @@ valgrind:
    Show results:
 
    ms_print massif.out.<pid>
-     
+
 ----
 Mon Apr  9 16:45:32 BST 2012
 
@@ -6526,7 +6557,7 @@ Tue May  1 12:29:50 BST 2012
 
    To get and set string on widgets use
    g_object_set_data()
-   and 
+   and
    g_object_get_data()
 
    coot::dictionary_residue_restraints_t *t =
@@ -6555,7 +6586,7 @@ Thu May  3 18:45:01 BST 2012
 Fri May 18 12:34:38 BST 2012
 
 // I think that graphics_info_t::Geom_p() should be passed to this function.
-// 
+//
 void
 molecule_class_info_t::makebonds() {
 
@@ -6563,7 +6594,7 @@ molecule_class_info_t::makebonds() {
 ----
 Tue May 29 19:35:49 BST 2012
 
-    projects: 
+    projects:
 
     make graphics look nice on white background
 
@@ -6578,7 +6609,7 @@ Tue May 29 19:35:49 BST 2012
 Fri May 18 12:34:38 BST 2012
 
 // I think that graphics_info_t::Geom_p() should be passed to this function.
-// 
+//
 void
 molecule_class_info_t::makebonds() {
 
@@ -6591,10 +6622,10 @@ can redefine functions be done with a macro? using symbol->string and string->sy
 
 ----
 Tue May 22 06:34:20 BST 2012
-	
+
    Burrow-owl:
 
-   Needed starparse, g-wrap-1.9.14, guile-cairo-1.9.91, guile-gnome-platform-2.16.2   
+   Needed starparse, g-wrap-1.9.14, guile-cairo-1.9.91, guile-gnome-platform-2.16.2
    and guile-1.8.8.  Becuase guile does not have the same prefix as
    target, we need to set PKG_CONFIG_PATH.  guile-cairo is needed to
    get gtk parts of guile-gnome-platform to compile and install.
@@ -6640,8 +6671,8 @@ Sun May 27 22:55:54 BST 2012
     Here's an interesting function:
 
     given a molecule (model) (and an optional atom selection?) implement
-    get_distances(min_dist, max_dist, max_n_distances) 
- 
+    get_distances(min_dist, max_dist, max_n_distances)
+
 
     which finds all atom-atom distances in the atom selection and
     makes a random selection of them and returns max_n_distances
@@ -6676,11 +6707,11 @@ Wed Jun 27 10:29:54 BST 2012
    INFO:: format in scheme/guile
 
 (format #t "~3,'0d~%" 5)
--> 
-005 
+->
+005
 
 (format #t "~4f%" 6.321567)
--> 
+->
 6.322
 
 
@@ -6692,7 +6723,7 @@ Wed Jun 27 22:48:01 BST 2012
 
    building carbohydrate
 
-   nicotinic acetylcholine receptor alpha bungarotoxin: 2qc1 
+   nicotinic acetylcholine receptor alpha bungarotoxin: 2qc1
 
    a structure with interesting carbohydrate to build:  3zr6
    also 4fom (low res)
@@ -6715,7 +6746,7 @@ public:
    std::string s;
    // the constructor, can be information that needs to be used
    // internally in the operator() function.  This is run once
-   // 
+   //
    eraser(const std::string &s_in) {
       s = s_in;
    }
@@ -6741,7 +6772,7 @@ int main(int argc, char **argv) {
    // remove() and remove_if() generate a useful pointer used by erase()
    v.erase(std::remove(v.begin(), v.end(), "Two"), v.end());
    v.erase(std::remove_if(v.begin(), v.end(), eraser(bad_boy)), v.end());
-   
+
    for (unsigned int i=0; i<v.size(); i++)
       std::cout << "   " << i << " " << v[i] << std::endl;
    return 0;
@@ -6761,12 +6792,12 @@ gtk2-devel
 (for coot clipper config)
 
 libXt-devel (for gtkglext)
-libgnomecanvas-devel for coot configure 
+libgnomecanvas-devel for coot configure
 
 for mosflm (ccp4)
 ncurses-devel
 
-for xemacs: 
+for xemacs:
 yum install Xaw3d-devel libXp-devel xorg-x11-xbitmaps libXaw-devel
 
 bison for rdkit.
@@ -6782,33 +6813,33 @@ Thu Jul 26 19:47:52 EDT 2012
 
     INFO:: other projects
 
-    Mac Coot, 
+    Mac Coot,
     Native Mac Coot
     All-molecule scoring modifications, 2011 presentation follow-up
     cif-merge
     cif-grep
     cif2mtz (clipper)
     understand what's in COD
-    look at pi-pi stacking in ligand protein complexes. 
-        get statistics for plane distances and angle offsets, 
-        so that I can model that distribution to generate a penalty function 
+    look at pi-pi stacking in ligand protein complexes.
+        get statistics for plane distances and angle offsets,
+        so that I can model that distribution to generate a penalty function
         in the regularizer
     zernike-like moments for ligand fitting
 
     b value distribution histogram
 
 
-    --comp_id x 
+    --comp_id x
 
 
 ----
 Sun Jul 29 16:31:40 EDT 2012
 
-    Roberto:  
+    Roberto:
 
     I want a button that splits a water into A and B conformers 50 50
     occs, 0.7A appart and jiggle-fitted
-    
+
     Call it WASP.
 
 
@@ -6821,7 +6852,7 @@ Tue Jul 31 08:56:41 EDT 2012
 ----
 Tue Jul 31 11:16:57 EDT 2012
 
-   Howard: 
+   Howard:
    given an mtz file with anomalous data (deltas) and a pdb file, show
    the anomalous map
 
@@ -6831,7 +6862,7 @@ Tue Jul 31 11:17:55 EDT 2012
 
    Why is refmac not run after libcheck SMILES?
 
-   4th spears lecture 
+   4th spears lecture
 
    William asbury
 
@@ -6842,7 +6873,7 @@ Tue Aug  7 00:13:03 BST 2012
 make coot-user-manual.html
 texi2html ../../coot-read-only/trunk/doc/coot-user-manual.texi
 *** Duplicate node found: Sectionless functions (in ../../coot-read-only/trunk/doc/cc-interface.hh.texi l. 411)
-** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ 
+** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ
 ** `Sectionless functions' is up for `ligand-search-make-conformers-scm', but has no menu entry for this node
 splitstr='-split_chapter' ; \
 	texi2html --version ; \
@@ -6851,14 +6882,14 @@ splitstr='-split_chapter' ; \
 	cd ..
 1.82
 *** Duplicate node found: Sectionless functions (in ../../coot-read-only/trunk/doc/cc-interface.hh.texi l. 411)
-** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ 
+** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ
 ** `Sectionless functions' is up for `ligand-search-make-conformers-scm', but has no menu entry for this node
 make coot-user-manual.html done
 dvips -o coot-user-manual.ps coot-user-manual.dvi
 This is dvips(k) 5.96.1 Copyright 2007 Radical Eye Software (www.radicaleye.com)
 ' TeX output 2012.03.09:1647' -> coot-user-manual.ps
 </usr/share/texmf/dvips/base/tex.pro></usr/share/texmf/dvips/base/texps.pro>
-</usr/share/texmf/dvips/base/special.pro>. 
+</usr/share/texmf/dvips/base/special.pro>.
 
 
 
@@ -6877,7 +6908,7 @@ Thu Aug 30 12:17:31 BST 2012
    what is this? dictionary default values:
 
     Ponder, J. & Case, D. (2003). Adv. Protein Chem. 66, 27±85.
- 
+
    from the refmac monomer library paper
 
    It's (from) a book.
@@ -6890,7 +6921,7 @@ Sat Sep  1 11:38:51 BST 2012
 
 ----
 
-    things for MRC: 
+    things for MRC:
         carbohydrate building paper
         glsl
         build on a mac
@@ -6912,7 +6943,7 @@ Thu Sep 13 04:55:20 EDT 2012
   atoms in refinement.
 
 
----  
+---
 
    plif-related
 
@@ -6932,7 +6963,7 @@ Thu Sep 13 04:55:20 EDT 2012
 Tue Sep 18 12:47:57 BST 2012
 
 simplify_numbering() needs a scripting interface - and to work over
-all chains.  
+all chains.
 
    That will give us a function to remove insertion codes
 
@@ -6966,11 +6997,11 @@ Jeff
 
 For presentation next time:
 
-   Add "it takes a brain to validate" slide	
-   figure for bond and angle restraints, 
+   Add "it takes a brain to validate" slide
+   figure for bond and angle restraints,
    Dig out the bayes slide, mention validation
-     introduce probability and likelihood 
-   
+     introduce probability and likelihood
+
 Does zero-occupancy-residue-range work?
 
 
@@ -6983,7 +7014,7 @@ Tue Nov 13 15:46:06 GMT 2012
 ---
 Tue Nov 20 10:27:38 GMT 2012
 
-	
+
    Phil Evans:
 
 mutate then refine
@@ -7017,7 +7048,7 @@ Wed Apr 17 16:47:04 UYT 2013
 Thu May 16 13:29:43 BST 2013
 
    Find areas of a map that should have model but do not:
-   
+
    o make a partial model, run refmac, make a map, low res filter it,
      mask out the protein parts that we have, fill big blobs with dummy atoms - zero occ
      (these should be added to the partial model for sending back to
@@ -7049,7 +7080,7 @@ Traceback (most recent call last):
   File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 357, in load_entry_point
     """Yield named metadata resource as list of non-blank non-comment lines
   File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2394, in load_entry_point
-    
+
   File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2108, in load
     parse_map = classmethod(parse_map)
   File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/__init__.py", line 10, in <module>
@@ -7090,7 +7121,7 @@ Tue Mar  4 14:27:39 GMT 2014
             |   |   |
 	 -O-P-O-P-O-P=0
             H   H   |
-            O   O   O-  
+            O   O   O-
 
       H = vertical double bond
 
@@ -7107,7 +7138,7 @@ http://nothings.org/stb/font/
 ---
 Fri May 30 03:55:36 CEST 2014
 
-   mmdb documentation 
+   mmdb documentation
    http://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_surf.html
    http://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_selfnc.html
 
@@ -7132,15 +7163,17 @@ Tue Jul  8 11:03:33 BST 2014
 ---
 Sat Jul 19 13:17:01 BST 2014
 
-#include <iomanip> 
+#include <iomanip>
 
    // the width settings specify the *minimum* width (i.e. the field
    must be at least specified number of characters).  If the number is
    longer than the minimum width, it just is wider.
 
    std::setw() before strings
+
    std::cout.width() before numbers # this is nonsense I now think. Use setw() for both 
-                                      strings and ints
+                                      strings and ints.
+   std::setw(6) to set the min width for a floating point field -0.123 doesn't seem to work.
 
 	 // Formatted output:
 	 //
@@ -7194,7 +7227,7 @@ IUCr Note
    o Sameer: java to javascript compiler - used to make javascript astexviewer
 
 ----
-IUCr Note: 
+IUCr Note:
 
    Put the mogul/refmac colour annotations over the lbg representation
    of the figure.  Make it interactive.
@@ -7255,7 +7288,7 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
 ---
 
-   Read this paper: 
+   Read this paper:
 
    Acta Cryst. (2007). D63, 42-49  [ doi:10.1107/S0907444906041059 ]
 
@@ -7270,18 +7303,18 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    configuration is presented.
 
 
----- 
+----
 
   CSHL 2nd Talk:
 
-  Pirate, Parrot, Buccaneer, Prosmart and refinement(?) 
+  Pirate, Parrot, Buccaneer, Prosmart and refinement(?)
 
 ----
 
    How can we find compact domains that are misplaced in density?
 
 ----
-  
+
    Read this:
 
    practicalfragments.blogspot.com
@@ -7294,8 +7327,8 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
    http://www.cbloom.com/3d/
 
-   Thomas Busser, “PolySlerp, A Fast and Accurate Polynomial Approximation of 
-   Slerp”, Game Developer Magazine, February, 2004. 
+   Thomas Busser, “PolySlerp, A Fast and Accurate Polynomial Approximation of
+   Slerp”, Game Developer Magazine, February, 2004.
 
    http://mollyrocket.com/forums/molly_forum_246.html
 
@@ -7313,21 +7346,21 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    http://caig.cs.nctu.edu.tw/course/CA/Lecture/slerp.pdf
 
 ----
- 
+
   Refinement of hydrogens:  Allow them to be refined by gemetry gradients
-     but not by density map (Garib). 
+     but not by density map (Garib).
 
 
 
 ----
-    
+
    How to do file -> string vector
 
    std::ifstream f(file_name.c_str());
    if (f) {
       std::vector<std::string> lines;
       std::string line;
-      while (std::getline(f, line)) { 
+      while (std::getline(f, line)) {
 	 lines.push_back(line);
       }
     }
@@ -7337,12 +7370,12 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
     How to use prefer_python
 
-	 if (graphics_info_t::prefer_python) { 
+	 if (graphics_info_t::prefer_python) {
 #if defined USE_PYTHON
 	    std::string python_command("xxx()");
 	    safe_python_command(python_command);
 #endif // USE_PYTHON
-	 } else { 
+	 } else {
 #if defined USE_GUILE
 	    std::string scheme_command("(xxx)");
 	    safe_scheme_command(scheme_command);
@@ -7359,7 +7392,7 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    4bie (Ask1/Compound4).
 
    http://onlinelibrary.wiley.com/enhanced/doi/10.1002/pro.2298
- 
+
 
 ---
 
@@ -7368,7 +7401,7 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    https://blogs.oracle.com/dipol/entry/dynamic_libraries_rpath_and_mac
 
 
----- 
+----
 
    librsvg gdk-pixbuf-query-loaders:
 
@@ -7418,7 +7451,7 @@ fragment of loaders.cache:
 
    using lldb:
 
-   lldb .libs/coot-bin 
+   lldb .libs/coot-bin
    process launch -- --no-graphics
 
    http://lldb.llvm.org/lldb-gdb.html
@@ -7435,13 +7468,23 @@ fragment of loaders.cache:
 
    break set --name coot::restraints_container_t::bonded_flanking_residues_by_residue_vector
 
+   using gdb:
+
+   break Shader::Use()
+
+   Hmm... It seems that 
+   break g_application_run() doesn't work,
+   but
+   break g_application_run
+   does.
+
 ----
-  
-   torsion fit this residue should do a rigid body refinement after each modification, 
+
+   torsion fit this residue should do a rigid body refinement after each modification,
    or perhaps store the best torsion set and RBR the best ones.
 
 
---- 
+---
 
 Thu Jul 23 12:31:24 BST 2015
 
@@ -7450,15 +7493,15 @@ Thu Jul 23 12:31:24 BST 2015
    pyranose, projection of C1-C4 onto the LSQ plane and Plane->O2 for
    "up" - the cross of these will give the other dimension.  Make a
    grid.  Sample map around NAGs, BMA and MANs. Use low points
-   (convert to internal coordinates) (making dummy atoms?) to assist 
+   (convert to internal coordinates) (making dummy atoms?) to assist
    score from z_weighted_density_score_new() in multi_residue_torsion_fit_map().
    Low points may be resolution dependent.
 
----- 
+----
 
    Student/paper project:
 
-   Where mbf is median b factor 
+   Where mbf is median b factor
    What's is the mbf(res)/mbf(protein) for each of the residues in an N-linked tree?
    Is this resolution dependent?
 
@@ -7470,16 +7513,23 @@ Thu Jul 23 12:31:24 BST 2015
     https://gist.github.com/jarvist/4570215
 
 ------
- 
+
     Topological RS Chirality
 
     http://www.chemcomp.com/journal/chiral.htm
 
     Clever old Labute.
 
+-----
+
+    Is this interesting?
+
+http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6_404
+
+
 ----
 
-   o experiment: use Rdkit with pdb perception to generate molecules and 
+   o experiment: use Rdkit with pdb perception to generate molecules and
      compare them with molecules generated from reading the cif.
 
 ------
@@ -7492,7 +7542,14 @@ Thu Jul 23 12:31:24 BST 2015
 
 ------
 
-    Pathology scatter plots: holiday project.  
+    Pathology scatter plots: holiday project.
+    Use matplotlib
+
+------
+
+    gtk font size:
+
+    http://stackoverflow.com/questions/1269326/how-can-i-change-the-font-size-in-gtk
 
 ------
 
@@ -7500,7 +7557,7 @@ Thu Jul 23 12:31:24 BST 2015
 
 ------
 
-    openmp notes: 
+    openmp notes:
 
     http://www.compunity.org/events/pastevents/parco07/parco_cpp_openmp.pdf
 
@@ -7513,7 +7570,7 @@ Thu Jul 23 12:31:24 BST 2015
     readline:  Add -lcurses to shlib/Makefile:
 
     SHLIB_XLDFLAGS =  -Wl,-rpath,$(libdir) -Wl,-soname,`basename $@ $(SHLIB_MINOR)` -lcurses
- 
+
     (or change support/shobj-conf which creates this)
 
     Does this mean I can now use command line editing in coot --no-graphics
@@ -7523,14 +7580,60 @@ Thu Jul 23 12:31:24 BST 2015
 
 -----
 
+   New Presentation slides
+
      to CSHL talk: A front page: accession code, comp-id
+
+   non-Pro cis-peptides
+
+     why is cis-Pro so much more common than non-cis Pro?
+
+   non-Pro cis-peptides in structures
+
+     1) "if you don't know what a cis-peptide is and don't care to
+        find out when Coot tells you that you've introduced one, then on
+        your own head be it - there is a validation tool that will navigate
+	you to all the cis-peptides in your structure should you care to
+	press the button. Validations tests won't help you if you choose
+	not to run them."
+
+     2) ... but there was a bug ... as I was writing the code and
+     testing it, I could see that there was a danger of flipping the N
+     to the same (of the CA-CA vector) side as the CO and then coot
+     would happily use plane restraint minimization to create a
+     cis-peptide... so I tried to make this less probable by
+     introducing a non-linearity term so that the atoms further from
+     the pull point are pulled less than their linear fraction (by
+     raising a fraction to a power). Unfortunately I made an
+     arithmetic error which meant that I had made such pull
+     transformations *more* likely than less.
+
+     October 2014 I heard Jane Richardson discuss the problem and
+     reviewed, fixed the problem that afternoon.
+
+     Given that several papers have recently (now) been published about
+     non-Pro cis-peptides in the PDB, it seems that my expectation of
+     skill had not been met in large part and it necessary for me to
+     rework the interface to remove the possibility unitentional
+     creation of non-Pro cis-peptides during refinement.
+
+  trans-restraints:
+
+     what's trans, cis? draw arrows to mid-line.  Why is this
+     restraint necessary (because user can create non-local changes
+     that have large energy difference (and accidentally create a
+     peptide with and omega of 89 degress)).
+
+     how does this help refinement?  Before and after video?
+
+
 
 -----
 
      Quickly estimate B-factor of atoms:
 
-     Using PDB data, do a plot of density vs radius for atoms at various 
-     resolutions so that 
+     Using PDB data, do a plot of density vs radius for atoms at various
+     resolutions so that
 
      rpo(r) -> resolution
 
@@ -7545,10 +7648,10 @@ Thu Jul 23 12:31:24 BST 2015
    GLSL cylinders and more:
 
    http://stackoverflow.com/questions/9595300/cylinder-impostor-in-glsl
- 
+
 ----
 
-   Modeling Local Structural Rearrangements Using FEP/REST: Application to 
+   Modeling Local Structural Rearrangements Using FEP/REST: Application to
    Relative Binding Affinity Predictions of CDK2 Inhibitors
 
    http://pubs.acs.org/doi/abs/10.1021/ct300911a?journalCode=jctcce
@@ -7561,10 +7664,10 @@ PDB: 1oi9
 PDB: 1oiy
 PDB: 1ioy
 
-   Also: 
+   Also:
 
    Accurate Binding Free Energy Predictions in Fragment Optimization
-   Thomas B. Steinbrecher, Markus Dahlgren, Daniel Cappel, Teng Lin, 
+   Thomas B. Steinbrecher, Markus Dahlgren, Daniel Cappel, Teng Lin,
    Lingle Wang, Goran Krilov, Robert Abel, Richard Friesner, and Woody Sherman
 
    Journal of Chemical Information and Modeling 2015 55 (11), 2411-2420
@@ -7572,8 +7675,8 @@ PDB: 1ioy
 
 ----
 
-     2bmd resdiue 72 is good for trans peptide restraints testing. 
-     kw5124 Touw et al (2015): Trans-cis and peptide plane flips 
+     2bmd resdiue 72 is good for trans peptide restraints testing.
+     kw5124 Touw et al (2015): Trans-cis and peptide plane flips
 
 ----
 
@@ -7593,7 +7696,7 @@ PDB: 1ioy
      $ gdb /lmb/home/public/xtal/CCP4/ccp4-64/ccp4-7.0/libexec/coot-bin core.14139
 
 
----- 
+----
 
      FLEV and Residue->2D Problems:
 
@@ -7604,7 +7707,7 @@ PDB: 1ioy
      R-2D: 3p8x: ZYD A 1:   OH on tail should be HO (also HUD ligand)
 
 
----- 
+----
 
      Dictionary files:
 
@@ -7638,12 +7741,17 @@ imort rdkit # we need this of course
 # but don't forget:
 from rdkit import Chem
 
+----
+
+   Keep an eye on this:
+
+   https://apps.fedoraproject.org/packages/coot
 
 -----
 
 
-when trying to bundle, and run coot-bin:
-   
+when trying to lib bundle, and run coot-bin:
+
 * thread #1: tid = 0x0000, 0x000000010bf485e1 libcoot-bundle.0.dylib`set_model_toolbar_docked_position + 337, stop reason = signal SIGSTOP
 use_graphics_interface_state ()
 Running python script /Users/pemsley/.coot-preferences/00-console.py
@@ -7698,12 +7806,10 @@ failed to lookup toolbar
     frame #15: 0x00007fff893645c9 libdyld.dylib`start + 1
 (lldb) ^D
 
-
 ----
 Thu Aug 18 12:03:32 BST 2016
 
    RNA building test: coot-download/5fw1.ent
-
 
 ---
 Wed 24 Aug 2016 00:54:22 BST
@@ -7713,6 +7819,16 @@ Redo the torsion energy/distortion:
 
 http://www.cryst.bbk.ac.uk/PPS2/course/section7/os_cov.html#tor_graph_back
 
+----
+Fri 26 Aug 2016 20:59:55 BST
+
+   http://osiris.laya.com/coding/dylib_linking.html
+
+   libtool -dynamic -flat_namespace -install_name @executable_path/../lib/libbz2.1.0.2.dylib \
+    -lSystem -compatibility_version 1.0 -current_version 1.0.2 \
+    -o libbz2.1.0.2.dylib $(OBJS)
+
+   this should be in libtool archive_cmds
 
 ---
 Mon Sep  5 23:19:46 BST 2016
@@ -7747,6 +7863,12 @@ Thu  1 Dec 2016 23:08:27 GMT
    https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
 
 ---
+Sun 26 Feb 2017 14:41:03 GMT
+
+   for soft mode/hard mode, look at the way (when)
+   turn_off_when_close_target_position_restraint_eraser is evoked
+
+---
 Sat  4 Mar 2017 01:13:08 GMT
 
    How to set a breakpoint in lldb:
@@ -7755,6 +7877,10 @@ Sat  4 Mar 2017 01:13:08 GMT
 
    puts a breakpoint in all methods/functions called set_dihedral()
 
+   breakpoint set -b malloc_error_break
+
+   for malloc errors
+
 ----
 Sat  4 Mar 2017 12:05:58 GMT
 
@@ -7762,8 +7888,8 @@ Sat  4 Mar 2017 12:05:58 GMT
 
    http://science.sciencemag.org/content/355/6328/eaal4326.full
 
-   The atomic coordinates have been deposited in the Protein Data Bank (PDB) with accession 
-   code 5X0M, and the EM map has been deposited in the Electron Microscopy Data Bank 
+   The atomic coordinates have been deposited in the Protein Data Bank (PDB) with accession
+   code 5X0M, and the EM map has been deposited in the Electron Microscopy Data Bank
    with accession code EMD-6698.
 
 ----
@@ -7800,7 +7926,7 @@ http://rdkit.org/docs_temp/Chem/Fragments.m.html
 ----
 Sat  1 Jul 2017 18:27:09 BST
 
-   Makefile variables $@ $^ $<
+   Makefile rules variables $@ $^ $<
    $@ -> target,      $^ -> all dependences,   $< -> first dependency
 
    https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
@@ -7825,7 +7951,7 @@ http://www.blopig.com/blog/2016/11/how-to-calculate-plifs-using-rdkit-and-plip/
 ---
 Wed 12 Jul 2017 21:55:28 BST
 
-look this up:
+Project: look this up:
 
 Ho, B. K. & Gruswitz, F. HOLLOW: generating accurate representations
 of channel and interior surfaces in molecular structures. BMC
@@ -7857,7 +7983,7 @@ Sun 16 Jul 2017 22:43:37 BST
 
     convert an RDKit molecule to boost::python::object
 
-   	             std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
+   	             std::pair<bool, coot::dictionary_residue_restraints_t> rp =
 		     geom.get_monomer_restraints(res_name, imol);
 		     RDKit::RWMol rdkm = rdkit_mol(residue_p, rp.second);
                      boost::python::list rdkit_mols_list;
@@ -7876,7 +8002,14 @@ what's this?
    PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
    and 3D database screening: 1. Methodology and preliminary results.
    J. Comput. Aided Mol. Des. 20, 647-671,
-   doi: 10.1007/s10822-006-9087-6   (2006).
+  doi: 10.1007/s10822-006-9087-6   (2006).
+
+---
+Sat 19 Aug 2017 00:09:10 BST
+
+   jupyter notebook intereting rdkit and pymol usage from years ago
+
+   http://nbviewer.jupyter.org/gist/greglandrum/4316435
 
 ---
 Thu Jul 27 19:48:52 BST 2017
@@ -7893,6 +8026,13 @@ Thu Jul 27 20:07:08 BST 2017
 
    $ pip install ipython --upgrade
 
+   to force PIL (say)
+
+   $ pip install --upgrade --force-reinstall PIL
+
+   (this didn't work for version-related issues)
+
+   $ pip install --upgrade --force-reinstall pillow
 
 ---
 Sat 29 Jul 2017 15:37:06 BST
@@ -7950,7 +8090,7 @@ Thunderbird says this:
 ----
 Fri 29 Sep 2017 06:03:42 BST
 
- Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than 
+ Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than
        -R. ephemient Mar 30 '09 at 17:35
 
  also
@@ -7993,7 +8133,7 @@ Thu 14 Dec 2017 14:45:13 GMT
 --- Modules/Setup.dist.orig	2017-12-14 14:24:16.314852316 +0000
 +++ Modules/Setup.dist	2017-12-14 14:30:02.601760197 +0000
 @@ -215,10 +215,10 @@
- 
+
  # Socket module helper for SSL support; you must comment out the other
  # socket line above, and possibly edit the SSL variable:
 -#SSL=/usr/local/ssl
@@ -8098,7 +8238,7 @@ Sun 18 Feb 2018 18:06:29 EET
 Tue 20 Feb 2018 23:47:55 EET
 
    MDFF example:
- 
+
    http://pubs.rsc.org/en/content/articlehtml/2014/fd/c4fd00005f
 
    Actually, maybe not - needs close reading.
@@ -8213,7 +8353,7 @@ Tue 22 May 2018 15:12:04 BST
      reopen std out as a static string stream?
 
 
-	
+
 ---
 Mon 28 May 2018 12:33:02 BST
 
@@ -8311,6 +8451,25 @@ In refmac
 
 divides sigma by 2
 
+----
+Sat 21 Jul 2018 21:59:38 BST
+
+
+  Scapin Potter Carragher 2018 Cell Chem Bio  in press
+
+ maps between 4 and 2.5. standard MR is still possible but lodel building/rebuilding and refinement
+need to be guided.  Ligands are a guessing game.
+
+Maps worse than 5A standard MR likely to fail model building/rebuilding and refinement need to
+be guided Ligands? What ligands?
+
+A good model is essential for god modelling. Validation.
+
+Insulin receptor and Insulin 2018 Nature 556 122-125.
+
+But still very few examples of cryo-EM in SBDD. (something... ?) bottom left panel reference?
+What was it?
+
 ---
 Sat 14 Jul 2018 02:23:20 BST
 
@@ -8387,7 +8546,6 @@ Thu 26 Jul 2018 14:43:36 BST
 for difference map for cryoem from refmac:
 
 mapcalc vector
-
 
 ---
 Fri 27 Jul 2018 14:45:14 BST
@@ -8490,6 +8648,8 @@ Fri 21 Sep 2018 10:49:26 BST
     Jane Richardon: packing in 1cgi looks nice.
                     non-Pro cis 3er0 (should be 1 in 3,000 or 1 in 10,000 for non-carbohydrate proteins)
                     cablam outlier: 3ja8 Leu 235
+
+    Make a figure of 1cgi in new coot.
 
 ---
 Tue 11 Sep 23:10:09 BST 2018
@@ -8620,6 +8780,12 @@ Sun 16 Dec 2018 14:48:21 GMT
    set_thread *is* run just once at the start of ctpl.h.
 
 ---
+Sun 13 Jan 2019 19:13:55 GMT
+
+ CUDA
+ http://people.maths.ox.ac.uk/gilesm/cuda/lecs/lec4.pdf
+
+---
 Sun  6 Jan 2019 14:57:30 GMT
 
    check my blob
@@ -8637,7 +8803,6 @@ Tue  8 Jan 2019 14:42:58 GMT
    Here is homebrew's patch for Python
 
    https://github.com/Homebrew/homebrew-core/blob/master/Formula/python.rb
-
 
 ---
 Wed  9 Jan 2019 02:25:27 GMT
@@ -8680,7 +8845,6 @@ Fri 25 Jan 2019 20:54:54 GMT
 Software Violations in Binary Code
 https://nixos.org/~eelco/pubs/clones-msr2011-final.pdf
 
-
 ----
 Tue  5 Feb 2019 11:44:27 PST
 
@@ -8698,7 +8862,8 @@ Tue  5 Feb 2019 11:44:27 PST
 ----
 Mon 11 Feb 2019 13:05:44 PST
 
-   compiling readline from  source
+
+   compiling readline from source
 
 https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
 
@@ -8733,19 +8898,60 @@ https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
    http://en.wikipedia.org/wiki/Rosenbrock_function
 
 ---
+Thu 14 Mar 2019 11:03:04 CET
+
+    EMD 3908 helix at (125, 118, 103)
+
+---
+Tue 26 Mar 2019 14:14:51 GMT
+
+vulkan and cuda:
+
+https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
+
+So can I do marching cubes with CUDA and display them with vulkan?
+
+Does that mean moving everything to vulkan?
+
+----
+Sun 31 Mar 2019 23:41:34 BST
+
+   Advances in the molecular dynamics flexible fitting method for cryo-EM modeling
+   There are tutorials:
+   https://www.sciencedirect.com/science/article/pii/S1046202316300093?via%3Dihub
+
+----
+Mon  1 Apr 2019 00:11:03 BST
+
+   Rosetta: Read this:
+   https://www.nature.com/articles/nmeth.3286
+
+---
 Sun 10 Mar 2019 12:39:28 GMT
 
    use pip to install xmltramp2 to use muscle.py
 
    https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
 
+* Forget that, clustalw2 can be installed as part of the build. Now there's an interface for that.
 
 ---
 Tue 12 Mar 2019 17:34:23 GMT
 
  Is this what I need to test that svg works? (found in gtk3-opengl/Makefile)
- 
+
  rsvg-convert --format png --output $@ $^
+
+----
+Tue 16 Apr 2019 06:18:36 BST
+
+   2D Vector Graphics:
+   https://blend2d.com/
+
+---
+Thu 18 Apr 2019 04:32:45 BST
+
+   Angle-modulated transparency in VMD
 
 
 ---
@@ -8754,10 +8960,10 @@ Mon 29 Apr 2019 12:23:07 BST
    o Converting to GTK3: At some stage Use define (GTK_DISABLE_DEPRECATED) in the gtk2 build
      gtk_combo_box_get_active_text is deprecated
 
- * Deprecated: 2.24: If you used this with a #GtkComboBox constructed with 
- * gtk_combo_box_new_text() then you should now use #GtkComboBoxText and 
+ * Deprecated: 2.24: If you used this with a #GtkComboBox constructed with
+ * gtk_combo_box_new_text() then you should now use #GtkComboBoxText and
  * gtk_combo_box_text_get_active_text() instead. Or if you used this with a
- * #GtkComboBoxEntry then you should now use #GtkComboBox with 
+ * #GtkComboBoxEntry then you should now use #GtkComboBox with
  * #GtkComboBox:has-entry as %TRUE and use
  * gtk_entry_get_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox)))).
 
@@ -8779,6 +8985,15 @@ Tue 30 Apr 2019 15:30:25 BST
 
    Good stuff - not sure how to get the vulkan directory :-)
 
+--
+Wed  8 May 2019 17:44:23 BST
+
+   GLU unproject:
+
+   https://forum.libcinder.org/topic/glu-s-gluunproject-substitute
+
+
+---
    Vulkan Fish! and other things:
    https://developer.nvidia.com/gameworks-vulkan-and-opengl-samples
 
@@ -8814,6 +9029,40 @@ Sun 12 May 2019 14:38:04 BST
    Lots of good stuff about how to work with GTK3 on Mac OS X:
 
    https://wiki.gnome.org/Projects/GTK/OSX
+
+---
+Thu  6 Jun 22:13:09 BST 2019
+
+   Here is how to get rid of gtk_misc_get_type and others:
+   https://github.com/abrt/libreport/commit/fbd0a76180633c7d50be01ea69ad734749db18a8
+
+---
+Wed 12 Jun 2019 03:07:48 BST
+
+   Thinking about getting rid of plane restraints for CuDA: replace
+   by improper dihedrals:
+
+   https://salilab.org/modeller/9v6/manual/node436.html
+   Use [van Schaik et al., 1993] to handle numerical instability.
+
+
+---
+Wed 12 Jun 2019 09:13:48 BST
+
+   For faster map iterpolation in CUDA:
+
+   Z-order curves/Morton 3d:
+
+   http://graphics.cs.kuleuven.be/publications/BLD13OCCSVO/
+
+   https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
+
+Tue 11 Jun 22:39:15 BST 2019
+---
+
+   https://stackoverflow.com/questions/14519267/algorithm-for-generating-a-3d-hilbert-space-filling-curve-in-python
+
+   http://www.math.uwaterloo.ca/~wgilbert/Research/HilbertCurve/HilbertCurve.html
 
 ---
 Wed 22 May 2019 11:34:42 BST
@@ -8978,6 +9227,7 @@ Tue  9 Jul 2019 21:51:00 BST
 ---
 Tue 16 Jul 2019 00:09:20 BST
 
+     Project: tutorial/video examples
      elifesciences.org/articles/16105 for extra examples of big shift molecules
 
 ---
@@ -8986,4 +9236,1629 @@ Thu 18 Jul 2019 09:44:15 BST
 Scalable parallel programming
 
    read this https://ieeexplore.ieee.org/abstract/document/7476525
+
+----
+Mon  9 Sep 18:16:04 BST 2019
+
+
+render to texture in OpenGL:
+
+   http://in2gpu.com/2014/09/24/render-to-texture-in-opengl/
+
+-----
+Look at this too for Frame Buffer Objects
+
+   http://www.songho.ca/opengl/gl_fbo.html
+
+---
+Mon 16 Sep 16:59:51 BST 2019
+
+   MolProbity Score:
+
+   http://kinemage.biochem.duke.edu/suppinfo/CASP8/methods.html
+
+   interesting.
+
+---
+Wed  4 Sep 2019 08:54:02 BST
+
+   o Project:
+     what is this? Systematic residue side-chain optimizations using grid searches in torsion-angle
+     space (Oldfield, 2001).
+
+     A number of real-space torsion-angle refinement techniques for proteins, nucleic acids,
+     ligands and solvent
+
+---
+Tue 17 Sep 2019 08:36:22 BST
+
+    example of morphing from Chimera X documentation:
+
+    inactive structure (PDB 3C4F, chain A)
+    activated structure (PDB 3GQI, chain A)
+
+---
+Wed 18 Sep 2019 15:46:47 BST
+
+    o https://github.com/mozilla/DeepSpeech
+
+---
+Fri 20 Sep 21:13:27 BST 2019
+
+   de novo model building using Coot:
+
+   https://www.pnas.org/content/116/33/16535
+
+   How would you do it today?
+
+---
+Wed  9 Oct 2019 16:12:16 BST
+
+   zink:
+
+   https://kusma.xyz/blog/2018/10/31/introducing-zink.html
+
+---
+Tue 15 Oct 2019 00:18:40 BST
+
+    const iterators are not const on the left hand side!
+
+---
+Fri  6 Dec 2019 14:32:43 GMT
+
+   Kevin says that structure factor calculation is in csfcalc.cpp
+
+---
+Tue  3 Dec 11:03:55 GMT 2019
+
+   threaded sort:
+
+   http://quick-bench.com/n55SzmJ2k-FowEP_ERhre56ODWA
+   https://hastebin.com/uceyumepis.cpp
+
+---
+Tue 14 Jan 2020 02:09:52 GMT
+
+   Project: What is this and can we do better?
+   OPUS‐Rota: A fast and accurate method for side‐chain modeling
+   https://onlinelibrary.wiley.com/doi/full/10.1110/ps.035022.108
+
+
+---
+Fri 24 Jan 2020 16:10:04 ICT
+
+   4ebl B 70 SER has linked ligand - nice for tutorial.
+        Has NCS, but not complete for all chains.
+        Also wrong glycerols
+
+
+---
+Sun  2 Feb 05:53:57 GMT 2020
+
+   mmdb bug I think: If you set the residue name to 2 chars, then
+   in the pdb file the 2 chars are in the wrong columns (right
+   justified - should be left).
+
+
+---
+Thu 13 Feb 18:40:56 GMT 2020
+
+    EPG in 2xgb is an example of incorrect/changing chemistry
+    on ligand covalent bond formation A 184 GLU
+
+
+---
+Fri 14 Feb 16:21:30 GMT 2020
+
+   install gtk3+ on Ubuntu:
+
+   sudo apt-get install libgtk-3-dev
+
+---
+Thu 20 Feb 21:40:34 GMT 2020
+
+   Project:
+
+   https://www.cell.com/structure/pdf/S0969-2126(15)00511-0.pdf 3jci
+
+   They mention emringer - test this.
+
+-----
+Thu 27 Feb 2020 12:48:11 IST
+
+   clustalw is LGPL? Use that for alignments.
+
+* Done!
+
+---
+Sat 29 Feb 2020 17:52:41 IST
+
+
+   o Ronan's talk:
+
+     Get the 1tj3 "bad" model without splitting - 1tj3 is the data or the model?
+     Data presumably.  Calculate/update maps? Likelihood improvements?
+
+     Get the "jelly body" refined map and model too. 3td6
+
+     Misha: has FimD-plug and FimDNTD needs jelly body refinement
+            get the codes (2011?)
+
+   o domains with hinges: can you find a way to generate models that
+     have a "hinge" - 3 angles to test? One is more common than the
+     others?
+
+   o put sfcheck functions (graphs) into coot.
+
+
+---
+ HEAD
+Fri 10 Apr 17:07:51 BST 2020
+
+   o Gtk/Gdk mode touches OpenGL at glXChooseVisual
+     THis is not called in Gtk3.24.11
+
+
+---
+Fri 15 May 13:24:21 BST 2020
+
+   building from scratch
+
+   run the build-it-3-3 script
+   pip3 install pycairo
+   cd ~/compile/PyGObject-xyz
+   python setup.py build
+   python setup.py install
+
+   cd ~/autobuild/Linux-penelope-gtk3-python/include/
+   ln -s ../lib/python3.6/site-packages/PyGObject-3.36.0-py3.6-linux-x86_64.egg/include/pygobject-3.0
+
+   now import gi works from python
+
+   ... or does it?
+
+
+   make sure that g-ir-scanner is correctly installed (from gobject-introspection-1.50.0 or so)
+
+   cd PyGObject-3.36.0 # or so
+   meson -Dprefix=/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python build
+   cd build
+   ninja
+   ninja install
+
+
+   example:
+   prfx=/home/paule/autobuild/Linux-penelope-pre-release-gtk3
+   meson -Dprefix=$prfx build
+   ninja
+   ninja install
+   # now we can use Gtk in python!
+
+
+---
+Sun 17 May 03:08:44 BST 2020
+
+ problems with python:
+
+ This is trying to use python3.8. It used to work with 3.6 - I don't know if that is related.
+
+enelope coot-gtk3/build/src> ./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'coot'
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fa9847def90
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.8.2 (default, May 17 2020, 01:35:28)
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import _coot
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+>>>
+
+penelope coot-gtk3/build/src> nm .libs/coot-bin | grep n_models
+00000000000ce800 T n_models
+0000000000055234 t n_models.cold
+00000000003f9660 T _ZNK21molecule_class_info_t8n_modelsEv
+
+So, Does _coot.so want to be linked with all of coot, despite being "part of" coot-bin. Has the linking
+in 3.8 changed?
+
+Read about embedding here: https://docs.python.org/3/whatsnew/3.8.html
+
+   ... but I get the same problems in 3.6?
+
+./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/python3.6/site-packages/coot.py", line 15, in <module>
+    import _coot
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fbaf1d5b318
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.6.5 (default, Mar 29 2020, 05:23:17)
+[GCC 9.2.1 20191008] on linux
+
+   delete all *coot* in site-packages. Try again.
+
+
+Fri 10 Apr 10:49:21 BST 2020
+
+   o 3tib is a good structure for adding carbohydrates (tutorial)
+
+----
+Sat 23 May 03:05:12 BST
+
+python -m ensurepip --default-pip
+python -m pip install --upgrade pip setuptools wheel
+
+https://packaging.python.org/tutorials/installing-packages/
+
+# use that to install pycairo
+pip3 install  pycairo
+now we are ready to install PyGObject?
+
+
+----
+Mon 15 Jun 09:28:20 BST 2020
+
+   Fresnel and related:
+
+---
+Wed 20 May 17:37:12 BST 2020
+
+   to install pip from python
+
+   python -m ensurepip --default-pip
+
+---
+Wed 20 May 19:11:11 BST 2020
+
+   http://click2drug.org/ for interesting applications
+
+---
+Mon 25 May 2020 11:13:41 BST
+
+   o How does ChimeraX do model morphing?
+     https://www.rbvi.ucsf.edu/chimera/data/sbgrid-apr2017/cryomovie.html
+
+---
+Thu  4 Jun 10:53:57 BST 2020
+
+   The test-out-of-the-box build for hal is on teraraid
+
+---
+Tue  9 Jun 20:34:17 BST 2020
+
+   other than NED
+   NASA/IPAC Extragalactic Database: ned.ipac.caltech.edu
+   there is
+   The Extragalactic Distance Database (EDD)
+   http://edd.ifa.hawaii.edu/
+
+---
+Mon 15 Jun 08:57:41 BST 2020
+
+    ERRAT notes and improvement:
+
+    https://yeateslab.mbi.ucla.edu/structure-validation/
+
+    One weakness of the program was a high sensitivity to small
+    deviations in atomic positions, owing mainly to the discontinuous
+    nature of the error function arising from the distance
+    cutoff. Around 2002, another undergraduate student Dennis Obukov,
+    rewrote ERRAT with a continuous distance weighting scheme, which
+    led to more stable and robust behavior.
+
+
+---
+
+   Fresnel
+   https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
+
+---
+lipids Carol Robinson
+
+http://blogs.nature.com/ofschemesandmemes/2014/06/09/under-the-covers-nature-revealed-5-june-2014
+
+---
+Mon 24 Aug 2020 16:52:58 BST
+
+   high res dna 3p4j
+
+---
+Mon 24 Aug 2020 17:50:49 BST
+
+  what is the "ERRASER set" (published with the paper describing the rosetta updates)
+
+---
+Fri 21 Aug 15:46:31 BST 2020
+
+    Header-only C++ libraries
+
+    https://github.com/p-ranav/awesome-hpp
+
+    A Treasure Trove.
+
+    Look at stack trace and command line argument parser(s)
+
+    https://github.com/bombela/backward-cpp
+
+---
+Fri  4 Sep 15:13:15 BST 2020
+
+   header guards, wrapper ifndef
+   http://www.dawnofthedata.com/2013/08/a-handful-of-emacs-utilities.html
+
+   https://elpy.readthedocs.io/en/latest/
+
+   https://martinsosic.com/development/emacs/2017/12/09/emacs-cpp-ide.html
+
+---
+Sat 12 Sep 07:22:01 BST 2020
+
+   assimp compiles out of the box
+
+   817	7:19	cmake -DCMAKE_INSTALL_PREFIX=$HOME/assimp CMakeLists.txt
+   818	7:20	make -j 15
+   819	7:21	make install
+
+---
+Tue 29 Sep 14:55:03 BST 2020
+
+   examples of how how to do stuff:
+
+   https://cpp.hotexamples.com/
+
+---
+ Wed 14 Oct 16:09:39 BST 2020
+
+   bash iterate
+
+   for i in $(seq 1 $END) ;
+   do
+      echo $i
+   done
+
+   https://stackoverflow.com/questions/169511/how-do-i-iterate-over-a-range-of-numbers-defined-by-variables-in-bash
+
+---
+Mon 12 Oct 15:28:53 BST 2020
+
+
+   o microtubule - massive structure: code: 6u42
+
+---
+Tue 20 Oct 15:01:34 BST 2020
+
+   Merging vertices:
+
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi1 = pumpkin();
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi2 = pumpkin_stalk();
+
+   unsigned int idx_base = vi1.first.size();
+   unsigned int tri_base = vi1.second.size();
+
+    vi1.first.insert(vi1.first.end(), vi2.first.begin(), vi2.first.end());
+    vi1.second.insert(vi1.second.end(), vi2.second.begin(), vi2.second.end());
+    for (unsigned int i=tri_base; i<vi1.second.size(); i++)
+       vi1.second[i].rebase(idx_base);
+
+----
+Wed 11 Nov 18:41:11 GMT 2020
+
+   Flex-EM tutorial is 4ki8 into 6422.
+   (hahahaha!)
+
+----
+Wed 18 Nov 06:39:54 GMT 2020
+
+   Project: fix up the "no-density" "control points for (multi) add-terminal residue.
+   The positions and the weights need optimization. Tests using experimental maps
+   and deposited models?
+
+
+----
+Wed 18 Nov 06:46:15 GMT 2020
+
+    How to do better baked AO for Python 3 Coot?
+
+----
+Wed 18 Nov 19:12:26 GMT 2020
+
+   2ddx is real non-pro cis peptide high res.
+
+--
+
+
+ 11203 map model correlation and unmodelled density - linoleic acid
+
+----
+Fri 27 Nov 20:36:14 GMT 2020
+
+Hateful python. Sigh... what the hell is going wrong? So difficult to diagnose...
+
+
+penelope coot-gtk3/build-into-release-dir/src> ./coot-bin --python --no-graphics
+debug:: in setup_python() pydirectory is /home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot
+INFO:: coot.py imported
+###debug require_version() available version: Gtk 3.0 []
+Traceback (most recent call last):
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_load_modules.py", line 131, in <module>
+    import fitting
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/fitting.py", line 21, in <module>
+    import coot_gui
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_gui.py", line 35, in <module>
+    gi.require_version('Gtk', '3.0')
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/gi/__init__.py", line 130, in require_version
+    raise ValueError('Namespace %s not available' % namespace)
+ValueError: Namespace Gtk not available
+
+# but
+
+penelope coot-gtk3/build-into-release-dir/src> which python3
+/home/paule/autobuild/Linux-penelope-gtk3/bin/python3
+penelope coot-gtk3/build-into-release-dir/src> python3
+Python 3.6.5 (default, Nov 26 2020, 23:50:25)
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import gi
+>>> gi.require_version('Gtk', '3.0')
+require_version() available version: Gtk 3.0 ['3.0', '2.0']
+>>>
+
+---
+Sat 12 Dec 03:15:07 GMT 2020
+
+   background mode for blender
+
+$ for n in `seq 1 500`; do blender --background scene.blend -x 1 -f $n ; done
+
+-x n render n frames
+-f N starting at frame N
+
+----
+
+
+ 11203 map model correlation and unmodelled density - linoleic acid
+  -- is that part of the EMDA paper now?
+
+----
+Fri 27 Nov 12:28:00 GMT 2020
+
+
+   https://aur.archlinux.org/packages/coot-git/
+
+
+----
+Fri 27 Nov 20:04:12 GMT 2020
+
+   How to use GEMMI for sfs calc using electron scattering factors?
+
+---
+Fri 27 Nov 20:12:15 GMT 2020
+
+  get rid of libGLU
+
+	libMoleculesToTrianglesCXXSurface.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/libMoleculesToTrianglesCXXSurface.so.0 
+	libGLU.so.1 => /lib/x86_64-linux-gnu/libGLU.so.1
+
+
+----
+Tue  8 Dec 15:05:10 GMT 2020
+
+
+recordmydesktop -x 800 -y 30 '--width=1600' --height='1080'
+
+bluray resolution is 1920x1080
+
+---
+Mon 14 Dec 14:37:02 GMT 2020
+
+   NVidia stereo and monitors:
+
+   https://nvidia.custhelp.com/app/answers/detail/a_id/4845
+
+----
+Sun 16 Dec 12:26:55 GMT 2020
+
+Thanks to Takanori and Charles for the hints and prompts. You have
+brought 3 days of confusion and frustration to an end.
+
+The answer (or current fix) is
+
+export GI_TYPELIB_PATH /usr/lib/x86_64-linux-gnu/girepository-1.0
+
+so that the gobject that I compiled uses the system girepository
+also. And that's where Gtk+3 lives.
+
+It might be possible to properly populate that directory at
+compile/installation time and so the env var would not be needed (that
+would be my preferred solution). But this is certainly good enough for
+now.
+
+----
+Sat 27 Feb 15:30:21 GMT 2021
+ 
+   convert gtk2 glade to gtk3 glade:
+
+   Seems that its easy enough - at least for one file that I have tried:
+   Replace the <glade-interface> tag with <interface> and replace all "widget
+   class=" statements with "object class=". Glade 3 seems to read the edited file
+   and even fix some discrepancies. Saving the file converts it to glade 3 format,
+   which should be compatible with GTK+-3, I hope. It will take a lot more work to
+   migrate the application source, before I find out ;-)
+
+   https://bbs.archlinux.org/viewtopic.php?id=145374
+
+Mon 18 Jan 19:08:12 GMT 2021
+
+Gtk-Message: 19:07:14.114: Failed to load module "appmenu-gtk-module"
+Gtk-Message: 19:07:14.119: Failed to load module "canberra-gtk-module"
+
+   $ sudo apt-get install appmenu-gtk2-module appmenu-gtk3-module
+
+---
+Wed 24 Feb 16:52:51 GMT 2021
+
+Paul Bourke:
+
+   "Standard" character ramp for grey scale pictures, black -> white.
+      "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. "
+   A more convincing but shorter sequence for representing 10 levels of grey is
+      " .:-=+*#%@"
+
+
+----
+Fri 26 Feb 15:42:29 GMT 2021
+
+   fill_map_sections() in slurp_map uses set_coord() on a set of map sections.
+   Use as a template for threaded map manipulation.  Can this be used in xmap_stats?
+
+
+---
+Sun 28 Feb 19:25:50 GMT 2021
+
+in ARG: CD-NE-CZ-NH1 should be cis:
+
+Geometry of guanidinium groups in arginines
+Maura Malinska
+Miroslawa Dauter
+Zbigniew Dauter
+First published: 21 June 2016
+https://doi.org/10.1002/pro.297
+
+  In several instances, the nomenclature of the terminal nitrogen
+  atoms in the deposited structures is wrong, but all cases were
+  inspected and the atomic names reverted, if necessary, to ensure that
+  the NH1 atoms are cis and NH2 atoms are trans with respect to the
+  CZ‐NE bond.
+
+---
+Sun 28 Feb 2021 11:11:40 GMT
+
+   https://www.fluentcpp.com/2018/03/30/is-stdfor_each-obsolete/
+
+
+----
+Fri  2 Apr 18:43:26 BST 2021
+
+pip install oddt
+
+depends on:
+   oddt
+   scikit_learn
+   joblib
+   pandas
+   sphinx
+   Jinja2
+   Babel-2
+   alabaster
+   pytz
+   snowballstemmer
+   imagesize
+   docutils
+   requests
+   MarkupSafe
+   pyparsing
+   chardet
+   urllib3
+   idn
+   certifi
+
+/home/autobuild/Linux-penelope-pre-release-gtk2-python/bin/pip
+penelope coot-refinement/build/src> pip install oddt
+DEPRECATION: Python 2.7 reached the end of its life on January 1st, 2020. Please upgrade your Python as Python 2.7 is no longer maintained. pip 21.0 will drop support for Python 2.7 in January 2021. More details about Python 2 support in pip can be found at https://pip.pypa.io/en/latest/development/release-process/#python-2-support pip 21.0 will remove support for this functionality.
+Collecting oddt
+  Downloading oddt-0.7.tar.gz (2.3 MB)
+     |████████████████████████████████| 2.3 MB 202 kB/s 
+Collecting numpydoc
+  Downloading numpydoc-0.9.2.tar.gz (27 kB)
+Requirement already satisfied: six in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from oddt) (1.14.0)
+Requirement already satisfied: numpy>=1.11 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages/numpy-1.16.6-py2.7-linux-x86_64.egg (from oddt) (1.16.6)
+Requirement already satisfied: scipy>=0.17 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from oddt) (1.2.3)
+Collecting scikit-learn>=0.18
+  Downloading scikit_learn-0.20.4-cp27-cp27m-manylinux1_x86_64.whl (5.5 MB)
+     |████████████████████████████████| 5.5 MB 217 kB/s 
+Collecting joblib>=0.9.4
+  Downloading joblib-0.14.1-py2.py3-none-any.whl (294 kB)
+     |████████████████████████████████| 294 kB 206 kB/s 
+Collecting pandas>=0.19.2
+  Downloading pandas-0.24.2.tar.gz (11.8 MB)
+     |████████████████████████████████| 11.8 MB 203 kB/s 
+Collecting sphinx>=1.6.5
+  Downloading Sphinx-1.8.5-py2.py3-none-any.whl (3.1 MB)
+     |████████████████████████████████| 3.1 MB 209 kB/s 
+Collecting Jinja2>=2.3
+  Downloading Jinja2-2.11.3-py2.py3-none-any.whl (125 kB)
+     |████████████████████████████████| 125 kB 212 kB/s 
+Collecting python-dateutil>=2.5.0
+  Using cached python_dateutil-2.8.1-py2.py3-none-any.whl (227 kB)
+Collecting pytz>=2011k
+  Using cached pytz-2021.1-py2.py3-none-any.whl (510 kB)
+Collecting babel!=2.0,>=1.3
+  Downloading Babel-2.9.0-py2.py3-none-any.whl (8.8 MB)
+     |████████████████████████████████| 8.8 MB 353 kB/s 
+Collecting alabaster<0.8,>=0.7
+  Downloading alabaster-0.7.12-py2.py3-none-any.whl (14 kB)
+Collecting packaging
+  Downloading packaging-20.9-py2.py3-none-any.whl (40 kB)
+     |████████████████████████████████| 40 kB 241 kB/s 
+Collecting snowballstemmer>=1.1
+  Downloading snowballstemmer-2.1.0-py2.py3-none-any.whl (93 kB)
+     |████████████████████████████████| 93 kB 238 kB/s 
+Requirement already satisfied: Pygments>=2.0 in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from sphinx>=1.6.5->numpydoc->oddt) (2.5.2)
+Collecting sphinxcontrib-websupport
+  Downloading sphinxcontrib_websupport-1.1.2-py2.py3-none-any.whl (39 kB)
+Collecting typing; python_version < "3.5"
+  Downloading typing-3.7.4.3-py2-none-any.whl (26 kB)
+Requirement already satisfied: setuptools in /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/python2.7/site-packages (from sphinx>=1.6.5->numpydoc->oddt) (39.0.1)
+Collecting imagesize
+  Downloading imagesize-1.2.0-py2.py3-none-any.whl (4.8 kB)
+Collecting docutils>=0.11
+  Downloading docutils-0.16-py2.py3-none-any.whl (548 kB)
+     |████████████████████████████████| 548 kB 250 kB/s 
+Collecting requests>=2.0.0
+  Using cached requests-2.25.1-py2.py3-none-any.whl (61 kB)
+Collecting MarkupSafe>=0.23
+  Downloading MarkupSafe-1.1.1-cp27-cp27m-manylinux1_x86_64.whl (24 kB)
+Collecting pyparsing>=2.0.2
+  Using cached pyparsing-2.4.7-py2.py3-none-any.whl (67 kB)
+Collecting chardet<5,>=3.0.2
+  Using cached chardet-4.0.0-py2.py3-none-any.whl (178 kB)
+Collecting urllib3<1.27,>=1.21.1
+  Downloading urllib3-1.26.4-py2.py3-none-any.whl (153 kB)
+     |████████████████████████████████| 153 kB 219 kB/s 
+Collecting idna<3,>=2.5
+  Using cached idna-2.10-py2.py3-none-any.whl (58 kB)
+Collecting certifi>=2017.4.17
+  Using cached certifi-2020.12.5-py2.py3-none-any.whl (147 kB)
+Using legacy 'setup.py install' for oddt, since package 'wheel' is not installed.
+Using legacy 'setup.py install' for numpydoc, since package 'wheel' is not installed.
+Using legacy 'setup.py install' for pandas, since package 'wheel' is not installed.
+Installing collected packages: pytz, babel, alabaster, MarkupSafe, Jinja2, pyparsing, packaging, snowballstemmer, sphinxcontrib-websupport, typing, imagesize, docutils, chardet, urllib3, idna, certifi, requests, sphinx, numpydoc, scikit-learn, joblib, python-dateutil, pandas, oddt
+    Running setup.py install for numpydoc ... done
+    Running setup.py install for pandas ... done
+    Running setup.py install for oddt ... done
+Successfully installed Jinja2-2.11.3 MarkupSafe-1.1.1 alabaster-0.7.12 babel-2.9.0 certifi-2020.12.5 chardet-4.0.0 docutils-0.16 idna-2.10 imagesize-1.2.0 joblib-0.14.1 numpydoc-0.9.2 oddt-0.7 packaging-20.9 pandas-0.24.2 pyparsing-2.4.7 python-dateutil-2.8.1 pytz-2021.1 requests-2.25.1 scikit-learn-0.20.4 snowballstemmer-2.1.0 sphinx-1.8.5 sphinxcontrib-websupport-1.1.2 typing-3.7.4.3 urllib3-1.26.4
+366.639u 8.658s 8:51.26 70.6%	0+0k 166488+2907208io 562pf+0w
+
+
+---
+Mon 19 Apr 2021 17:19:28 BST
+
+   what is woo? non-blocking HTTP server.  Sounds interesting.
+
+----
+Mon 10 May 16:42:18 BST 2021
+
+
+   what is zeromq? https://zeromq.org/ for inter-process communication?
+   (Art Lyubimov used it)
+
+-----
+Thu  3 Jun 17:25:58 BST 2021
+
+   print_lock is useful elsewhere
+
+   std::atomic<bool> print_lock(false);
+   auto get_print_lock = [&print_lock] () {
+                            bool unlocked = false;
+                            while (! print_lock.compare_exchange_weak(unlocked, true)) {
+                               std::this_thread::sleep_for(std::chrono::microseconds(1));
+                               unlocked = false;
+                            }
+                         };
+   auto release_print_lock = [&print_lock] () {
+                                print_lock = false;
+                             };
+   auto make_a_wiggled_ligand = [get_print_lock, release_print_lock] (int isample, const coot::minimol::molecule &ligand,
+                                    const std::vector<float> &torsion_set ..) {};
+
+----
+Sun  6 Jun 2021 04:54:53 BST
+
+   1abr has a nice 3-10 helix
+
+
+-----
+Thu 10 Jun 16:14:17 BST 2021
+
+https://stackoverflow.com/questions/14346090/importerror-no-module-named-backend-gdk
+
+In addition to Haldean Brown's answer, note that if you really need to use pip you can force it to
+recompile matplotlib locally and get "the deep magic that setup.py does" with the --no-binary option:
+
+pip uninstall matplotlib
+pip install matplotlib --no-binary=matplotlib
+
+As you want to use the GTKAgg backend, Using pip may prove useful in the future to freeze matplotlib
+ at a version where it is supported (the deprecation warning states it will be dropped in 3.0):
+
+pip install matplotlib==2.2.2 --no-binary=matplotlib
+
+----
+Mon 14 Jun 10:53:16 BST 2021
+
+was
+   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+now
+   gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+Thu  1 Jul 18:26:44 BST 2021
+
+Failed to load module "appmenu-gtk-module"
+
+$ sudo apt install appmenu-gtk2-module
+
+Failed to load module "canberra-gtk-module"
+
+$ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+----
+Sun  4 Jul 00:42:11 BST 2021
+
+This needs to be fixed
+
+==2187636== Conditional jump or move depends on uninitialised value(s)
+==2187636==    at 0x483EF58: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2187636==    by 0x60E5354: ccp4_cmap_set_symop (cmap_symop.c:128)
+==2187636==    by 0x4F25875: void clipper::CCP4MAPfile::export_xmap<float>(clipper::Xmap<float> const&) (ccp4_map_io.cpp:309)
+==2187636==    by 0x48A491A: coot::ligand::output_map(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) const (ligand.cc:1404)
+==2187636==    by 0x1116C4: get_flood_molecule(clipper::Xmap<float> const&, float) (res-tracer.cc:41)
+==2187636==    by 0x11BD1A: proc(clipper::Xmap<float> const&, coot::fasta_multi const&, double, float) (res-tracer.cc:1815)
+==2187636==    by 0x1104F1: main (res-tracer.cc:1897)
+
+
+----
+Sun  4 Jul 01:08:21 BST 2021
+
+rdkit linking:
+
+
+/home/paule/Projects/coot/git/coot-refinement/build/ligand/.libs/res-tracer: error while loading shared libraries: libRDKitmaeparser.so.1: cannot open shared object file: No such file or directory
+	linux-vdso.so.1 (0x00007ffe09add000)
+	libcoot-ligand.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-ligand.so.0 (0x00007fa5b41bc000)
+	libcoot-ideal.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-ideal.so.0 (0x00007fa5b4055000)
+	libcoot-coord-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-coord-utils.so.0 (0x00007fa5b3ea9000)
+	libcoot-map-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-map-utils.so.0 (0x00007fa5b3e3a000)
+	libcoot-geometry.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-geometry.so.0 (0x00007fa5b3d30000)
+	libcoot-mini-mol.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-mini-mol.so.0 (0x00007fa5b3d09000)
+	libcoot-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-utils.so.0 (0x00007fa5b3ccb000)
+	libclipper-ccp4.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-ccp4.so.2 (0x00007fa5b3c7f000)
+	libclipper-core.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-core.so.2 (0x00007fa5b3a93000)
+	libmmdb2.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libmmdb2.so.0 (0x00007fa5b3943000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007fa5b3738000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fa5b371b000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fa5b36f8000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fa5b3506000)
+	libcootaneer.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcootaneer.so.0 (0x00007fa5b34d9000)
+	libcoot-db-main.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-db-main.so.0 (0x00007fa5b34b0000)
+	libccp4mg-utils.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libccp4mg-utils.so.0 (0x00007fa5b3470000)
+	libcoot-coord-extras.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-coord-extras.so.0 (0x00007fa5b3408000)
+	libcoot-analysis.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-analysis.so.0 (0x00007fa5b33b3000)
+	libclipper-minimol.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-minimol.so.2 (0x00007fa5b3363000)
+	libclipper-contrib.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-contrib.so.2 (0x00007fa5b32c4000)
+	libsqlite3.so.0 => /lib/x86_64-linux-gnu/libsqlite3.so.0 (0x00007fa5b319b000)
+	libgsl.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libgsl.so.0 (0x00007fa5b2f65000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fa5b2e16000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fa5b43a4000)
+	libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007fa5b2dd4000)
+	libcoot-map-heavy.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-map-heavy.so.0 (0x00007fa5b2db3000)
+	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007fa5b2d7b000)
+	libmvec.so.1 => /lib/x86_64-linux-gnu/libmvec.so.1 (0x00007fa5b2d4d000)
+	libcoot-lidia-core.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libcoot-lidia-core.so.0 (0x00007fa5b2cb5000)
+	libclipper-mmdb.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libclipper-mmdb.so.2 (0x00007fa5b2cac000)
+	libgslcblas.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libgslcblas.so.0 (0x00007fa5b2c6a000)
+	libRDKitFileParsers.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitFileParsers.so.1 (0x00007fa5b2b29000)
+	libRDKitRDGeneral.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitRDGeneral.so.1 (0x00007fa5b2b09000)
+	libccp4c.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libccp4c.so.0 (0x00007fa5b2ad0000)
+	librfftw.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/librfftw.so.2 (0x00007fa5b2a9c000)
+	libfftw.so.2 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libfftw.so.2 (0x00007fa5b2a5d000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fa5b2a55000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007fa5b2a39000)
+	libRDKitForceFieldHelpers.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitForceFieldHelpers.so.1 (0x00007fa5b29cf000)
+	libRDKitDescriptors.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitDescriptors.so.1 (0x00007fa5b296d000)
+	libRDKitForceField.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitForceField.so.1 (0x00007fa5b28b1000)
+	libRDKitSubstructMatch.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitSubstructMatch.so.1 (0x00007fa5b288f000)
+	libRDKitDepictor.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitDepictor.so.1 (0x00007fa5b284e000)
+	libRDKitMolChemicalFeatures.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitMolChemicalFeatures.so.1 (0x00007fa5b2825000)
+	libRDKitRDGeometryLib.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitRDGeometryLib.so.1 (0x00007fa5b2805000)
+	libRDKitGraphMol.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitGraphMol.so.1 (0x00007fa5b26a2000)
+	libRDKitSmilesParse.so.1 => /home/paule/autobuild/Linux-penelope-pre-release-gtk2-python/lib/libRDKitSmilesParse.so.1 (0x00007fa5b2610000)
+	libRDKitmaeparser.so.1 => not found
+	libRDKitPartialCharges.so.1 => not found
+	libRDKitSubgraphs.so.1 => not found
+	libRDKitcoordgenlib.so.1 => not found
+	libRDKitDataStructs.so.1 => not found
+
+
+----
+Sun  4 Jul 02:30:28 BST 2021
+
+  if the atom selection is misteriously going out of date, or changing, then check the function that
+  calls this function hasn't deleted the atom selection before this function is called, DeleteSelection()
+
+
+----
+Thu  8 Jul 16:48:13 BST 2021
+
+   a lambda function capturing a mutable reference:
+
+      auto update_worst = [&worst_score_in_top_10_local] (const std::pair<double, int> &s_inner) mutable {
+                  if (s_inner.first < worst_score_in_top_10_local) worst_score_in_top_10_local = s_inner.first; };
+
+
+----
+Sat 17 Jul 15:40:16 BST 2021
+
+   the sfs calculation is
+
+   molecule_class_info_t::calculate_sfs_and_make_map
+
+   called by molecule_class_info_t::make_map_from_mtz_by_calc_phases
+
+   called by API function map_from_mtz_by_calc_phases()
+
+
+----
+Mon  2 Aug 22:18:50 BST 2021
+
+Different genomes have been sequenced by different institutes with
+different motivations and interests. As such there is no single site
+where you can find all the genome information that you may want.
+
+Thus said the NCBI is a good place to start as they curate GenBank
+database whose contents get mirrored and exchanged with other
+meta-genomic warehouses such as EMBL and DDBJ.
+
+Please have a look at this as well
+http://www.ncbi.nlm.nih.gov/sites/genome and this to download genome
+data for various organisms. ftp://ftp.ncbi.nlm.nih.gov/genomes/
+
+   -- hadasa https://www.biostars.org/p/9202/
+
+
+----
+Wed  4 Aug 22:26:25 BST 2021
+
+   glade multiple uses of a dialog:
+
+   https://stackoverflow.com/questions/52703513/how-do-i-show-multiple-times-a-dialog-defined-with-glade
+
+----
+Thu 19 Aug 12:28:50 BST 2021
+
+      // for gtk2
+      // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // for gtk3
+      gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
+
+      gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+
+---
+Wed  1 Sep 01:28:24 BST 2021
+
+   ebassi:
+
+   If you build GTK with debugging support, what happens when you set the GDK_DEBUG=opengl environment variable?
+   If you’re using Mesa, what happens when you set the MESA_DEBUG=1 environment variable
+
+---
+Sat  4 Sep 18:37:06 BST 2021
+
+    iterator example
+
+         Shader shader_for_hud_lines;
+         shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::HUD_TEXT);
+         std::vector<glm::vec2> data;
+         data.reserve(frame_time_history_list.size());
+         unsigned int time_count = 0;
+         std::list<std::chrono::time_point<std::chrono::high_resolution_clock> >::const_iterator it;
+         for (it = frame_time_history_list.begin(); it != frame_time_history_list.end(); it++) {
+            if (it != frame_time_history_list.begin()) {
+               float x = static_cast<float>(time_count);
+               const std::chrono::time_point<std::chrono::high_resolution_clock> tp_this = *it;
+               const std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev= *std::prev(it);
+               auto delta_t = std::chrono::duration_cast<std::chrono::microseconds>(tp_this - tp_prev).count();
+               data.push_back(glm::vec2(x, delta_t));
+            }
+         }
+
+---
+Mon  6 Sep 23:54:21 BST 2021
+
+    cryo_fit:
+
+    https://phenix-online.org/documentation/reference/cryo_fit.html
+
+    has interesting citations
+
+    Have a look at this:
+
+    https://www.embopress.org/doi/full/10.15252/embj.2020106807
+
+    Model building, refinement, validation, and analysis
+    EMD-10553 EMD-10554
+    Uses PDB ID 4wrn as starting model
+
+---
+Wed 29 Sep 18:09:40 BST 2021
+
+   to add a dialog that uses response_id:
+   When you add the buttons, don't give them callback in Signals, *do* give them a Response ID in General.
+
+   See add_reps_dialog, but note that "Close" button is a Response, not connected to
+   on_add_reps_dialog_response_gtkbuilder_callback() (I am not sure how to activeate that callback).
+
+---
+Thu  7 Oct 07:37:59 BST 2021
+
+   freetype font atlas implementation
+
+   https://gist.github.com/baines/b0f9e4be04ba4e6f56cab82eef5008ff
+
+---
+
+ https://github.com/SuperflyJon/VulkanPlayground
+ including font atlas
+
+https://en.m.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_02
+
+----
+Tue 19 Oct 08:18:30 BST 2021
+
+   Lots of blender materials - good stuff!
+   https://blenderartists.org/t/yet-another-thread-about-cycles-materials/562346/276
+
+---
+Tue 19 Oct 14:09:13 BST 2021
+
+   Here's how to do a modern python Gtk molecule combobox
+
+    combobox = Gtk.ComboBox()
+    combobox_mol_items = make_store_for_model_molecule_combobox()
+    combobox.set_model(combobox_mol_items)
+    renderer_text = Gtk.CellRendererText()
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+    combobox.set_active(0) # or whatever
+
+    When the gui/dialog is read, use this:
+
+    def get_molecule():
+        tree_iter = combobox_molecule.get_active_iter()
+        imol = -1
+        if tree_iter is not None:
+            model = combobox_molecule.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
+---
+Wed 20 Oct 14:02:54 BST 2021
+
+   Here's how to do a modern dialog with molecule combobox
+
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
+   GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
+   int imol = g.get_active_atom().first;
+
+   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
+                                 if (GTK_IS_COMBO_BOX(widget))
+                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
+   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
+   GtkWidget *combobox = gtk_combo_box_new();
+   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
+   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
+   GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
+   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
+   gtk_widget_show(combobox);
+   gtk_widget_show(dialog);
+
+   // Here's the callback
+
+   if (response_id == GTK_RESPONSE_OK) {
+      graphics_info_t g;
+      GtkWidget *entry = widget_from_builder("copy_fragment_entry");
+      std::string text = gtk_entry_get_text(GTK_ENTRY(entry));
+      GtkWidget *combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "combobox"));
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+      int imol_new = copy_fragment(imol, text);
+   }
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+
+
+---
+Fri 22 Oct 06:52:45 BST 2021
+
+   o Does your HOLE look like this? https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4078027/
+
+
+---
+Sat  6 Nov 2021 12:28:51 GMT
+
+   This is how to update AC_TRY_LINK usage:
+
+   https://gitlab.gnome.org/GNOME/glib/-/merge_requests/1899/diffs
+
+---
+Mon 15 Nov 01:06:56 GMT 2021
+
+old style function (as a executable string)
+
+        func = "go_to_view_number(" + str(button_number) + ",0)" 20211115-PE no to string functions
+        buttons.append([button_label, func, desciption])
+
+so try this:
+
+        func = lambda w : coot.go_to_view_number(button_number, 0)
+        buttons.append([button_label, func, desciption])
+
+Doesn't work because button_number is not captured. We need a generator
+
+    def generator(button_number):
+        func = lambda button_number_c=button_number : coot.go_to_view_number(button_number_c, 0)
+        def action(arg):
+            print("debug in action() arg is", arg, "button_number is", button_number)
+            func(button_number)
+        return action
+
+   ...
+        func = generator(button_number)
+        buttons.append([button_label, func, desciption])
+
+
+  maybe this could be made more compact.
+
+  here's how I did it in pukka_puckers_qm():
+
+Was:
+
+    if (len(residue_list) == 0):
+        info_dialog("No bad puckers.")
+    else:
+        buttons = []
+        for residue in residue_list:
+            residue_spec = residue[1]
+            pucker_atom = residue[0]
+            at_name = get_ribose_residue_atom_name(imol, residue_spec, pucker_atom)
+            ls = [residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] + \
+                  ": " + residue[2],
+                  ["set_go_to_atom_molecule("+ str(imol) +")",
+                   "set_go_to_atom_chain_residue_atom_name(" +\
+                   "\"" + str(residue_spec[0]) + "\", " +\
+                   str(residue_spec[1]) + ", " +\
+                   "\"" + str(at_name) + "\")"]
+                  ]
+            buttons.append(ls)
+        dialog_box_of_buttons("Non-pukka puckers",
+                              [370, 250],
+                              buttons,
+                              "  Close  ")
+
+Now:
+
+    def go(imol, residue_spec, at_name):
+        ch_id = residue_spec_to_chain_id(residue_spec)
+        res_no = residue_spec_to_res_no(residue_spec)
+        coot.set_go_to_atom_molecule(imol)
+        coot.set_go_to_atom_chain_residue_atom_name(ch_id, res_no, at_name)
+
+    def generator(imol, residue_spec, at_name):
+        func = lambda imol_c = imol, residue_spec_c = residue_spec, at_name_c = at_name : go(imol_c, residue_spec_c, at_name_c)
+        def action(arg):
+            func(imol, residue_spec, at_name)
+        return action
+
+    if len(residue_list) == 0:
+        coot.info_dialog("No bad puckers.")
+    else:
+        buttons = []
+        for residue in residue_list:
+            residue_spec = residue[1]
+            pucker_atom  = residue[0]
+            something    = residue[2]
+            at_name = get_ribose_residue_atom_name(imol, residue_spec, pucker_atom)
+            label = residue_spec[0] + " " + str(residue_spec[1]) + residue_spec[2] + ": " + something
+            func = generator(imol, residue_spec, at_name)
+            ls = [label, func]
+            buttons.append(ls)
+        coot_gui.dialog_box_of_buttons("Non-pukka puckers", [370, 250], buttons, "  Close  ")
+
+----
+Fri 25 Feb 2022 07:14:47 GMT
+
+    Mac:
+
+# glib-compile-schemas ~/gtk/inst/share/glib-2.0/schemas
+# makes gschemas.compiled in that directory
+
+setenv XDG_DATA_DIRS ~/gtk/inst/share
+
+Thu  9 Sep 22:15:06 BST 2021
+
+   Re: alphafold: 4lnz example from Tristan's presentation
+
+   There were a few snapshots from Janes' presentation that are worth more thought.
+
+----
+Fri 10 Sep 15:20:23 BST 2021
+
+  CCP4 workshop:
+  Rob's ligand 00E got tangled in conformer generation?
+
+---
+Sun 19 Sep 2021 02:28:11 BST
+
+   interesting game design https://www.youtube.com/watch?v=7L1B5YaxxoA
+   Jonas Tyroller
+
+---
+Mon 20 Sep 2021 17:16:29 BST
+
+   gtk3: a flipped residue (or rotamer fit residue) should flash "white" and emit
+   particles (say little diamond shapes - 12 of them)
+
+   Maybe (like "active residue" marking) - render just the active residue, and blur it?
+
+   Rising pitch feed-back - I like the sound of a marimba
+
+---
+Mon 20 Sep 2021 17:43:55 BST
+
+
+Sat 23 Oct 08:02:34 BST 2021
+
+    implement this: (density contouring)
+    http://www.sci.utah.edu/~csilva/papers/noskinny.pdf
+
+
+----
+Wed  5 Jan 18:57:11 GMT 2022
+
+5rdh rupp presentation
+
+
+---
+Tue 18 Jan 17:29:37 GMT 2022
+
+   the function to generate a dictionary from a residue (the Roberto function) is
+   dictionary_residue_restraints_t(mmdb::Residue *residue_p);
+   search protein-geometry.hh for "fake up some bond"
+
+---
+Fri 28 Jan 12:58:25 GMT 2022
+
+   anom map only # get anom maps from refmac
+
+----
+Sat 29 Jan 00:00:13 GMT 2022
+
+    Cory Bloyd says look at this: https://0fps.net/2012/07/12/smooth-voxel-terrain-part-2/
+    Do a literature search for Bloyd to find articles about improved contouring.
+
+
+---
+Mon  7 Feb 17:14:06 GMT 2022
+
+   To make widget warnings such as:
+
+   (coot-bin:66652): Gtk-CRITICAL **: 17:13:54.340: gtk_widget_unref: assertion 'GTK_IS_WIDGET (widget)' failed
+
+   into crashes, use --g-fatal-warnings on the command line
+
+   but it might not help much (because it seems that the gtk_widget_unref() happens after the callback finishes.
+
+---
+Thu  3 Mar 23:42:55 GMT 2022
+
+   War and Peace is 600,000 words
+
+
+----
+Tue  8 Mar 18:57:30 GMT 2022
+
+    what is this?
+   https://cactus.nci.nih.gov/chemical/structure
+
+----
+Sun 13 Mar 08:39:24 GMT 2022
+
+   for decoding molecule buttons in a vbox
+
+   GtkWidget *map_vbox     = widget_from_builder("find_waters_map_vbox");
+   GtkWidget *protein_vbox = widget_from_builder("find_waters_protein_vbox");
+
+   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
+                                     if (GTK_IS_TOGGLE_BUTTON(item)) {
+                                        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
+                                           int *imol_ptr = static_cast<int *>(data);
+                                           int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
+                                           *imol_ptr = imol;
+                                        }
+                                     }
+                                  };
+
+   if (GTK_IS_BOX(map_vbox)) {
+      int imol_map = -1;
+      void *imol_ptr = &imol_map;
+      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_map_molecule(imol_map)) {
+         find_waters_map_mol = imol_map;
+      }
+   }
+   if (GTK_IS_BOX(protein_vbox)) {
+      int imol_protein = -1;
+      void *imol_ptr = &imol_protein;
+      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
+      if (is_valid_model_molecule(imol_protein)) {
+         find_waters_protein_mol = imol_protein;
+      }
+   }
+
+   // example of how to interate through children of a vbox:
+
+      GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
+      GList *free_list = dlist;
+
+      while (dlist) {
+         GtkWidget *list_item = GTK_WIDGET(dlist->data);
+         if (GTK_IS_TOGGLE_BUTTON(list_item)) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
+               int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+               closed_molecules.push_back(imol);
+            }
+         } else {
+            std::cout << "not a toggle button" << std::endl;
+         }
+         dlist = dlist->next;
+      }
+      g_list_free(free_list);
+
+ 
+
+----
+Mon 14 Mar 09:25:01 GMT 2022
+
+
+Failed to load module "appmenu-gtk-module"
+
+sudo apt-get install appmenu-gtk3-module
+
+
+----
+Wed 16 Mar 10:30:38 GMT 2022
+
+conkit-validate simkovic et al (involves alphafold)
+
+
+----
+Fri 18 Mar 13:26:34 GMT 2022
+
+   Use libglyphy for text rendering:
+
+   https://github.com/behdad/glyphy/
+
+
+----
+Sat 26 Mar 14:10:12 GMT 2022
+
+  Catalase map: 7P8W and EMD-13256
+
+  https://academic.oup.com/jmicro/article/71/Supplement_1/i51/6530492?login=true
+
+  Interaction of human erythrocyte catalase with air–water interface in cryoEM
+
+
+----
+Sat  9 Apr 18:47:03 BST 2022
+
+   gtk_window_deiconify() - is this what I want to do when I get a dialog from builder?
+
+----
+Wed  2 Mar 11:33:42 GMT 2022
+
+  Update CentOS7 compiler:
+
+   $ yum install centos-release-scl
+   $ yum install devtoolset-8
+
+   as a user, to use the new compiler:
+   $ scl enable devtoolset-8 tcsh
+
+   Thank you Charles.  I chose devtoolset-11
+
+---
+Wed  2 Mar 16:52:53 GMT 2022
+
+  python with ctypes (libffi)
+https://unix.stackexchange.com/questions/631725/how-do-i-build-pkgconf-and-libffi-and-subsequently-python3-9-with-ctypes-support
+
+---
+Fri 15 Apr 20:13:37 BST 2022
+
+   1781 occurrances of _gtkbuilder_callback in *.cc *.h *.hh ../a6.glade
+
+
+---
+Sat 23 Apr 22:56:05 BST 2022
+
+  In the Makefile
+  CXXLD = $(CXX) -fuse-ld=gold
+
+-----
+Sun  5 Jun 18:02:01 BST 2022
+
+  How to set a GtkBox to style ToolBar
+
+  gtk_widget_add_css_class (toolbar, "toolbar");
+  same can be done in xml file too.
+
+  <object class="GtkBox">
+    ... childs here
+    <style>
+        <class name="toolbar"/>
+    </style>
+  </object>
+
+
+https://discourse.gnome.org/t/hope-gtktoolbar-back-to-gtk4/6201/5
+
+-----
+Sun  5 Jun 22:34:51 BST 2022
+
+  GNOME standard
+  
+  Ctrl ? to open keyboard shortcuts (do they mean Ctrl /?)
+
+  Ctrl + to open Preferences (Ctrl =?)
+
+
+https://developer.gnome.org/hig/reference/keyboard.html
+
+----
+Sat 11 Jun 02:38:27 BST 2022
+
+   GTK4 FIXME dates:
+
+20220528-PE
+20220602-PE
+
+---
+Wed 15 Jun 2022 16:27:05 BST
+
+CGLCreateContext
+
+https://github.com/servo/surfman/issues/82
+
+----
+Tue 14 Jun 01:12:05 BST 2022
+
+  OpenGL on Mac
+
+https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_contexts/opengl_contexts.html
+
+
+----
+Wed 15 Jun 18:31:56 BST 2022
+
+
+   GTK4 Tutorials
+
+   https://github.com/ToshioCP/Gtk4-tutorial
+
+----
+Thu  9 Jun 01:00:03 BST 2022
+
+   Structures for "Let's Build"
+
+   7SC0
+   7P8V
+   catalase: https://www.ebi.ac.uk/emdb/EMD-13256
+
+---
+Wed 29 Jun 04:10:16 BST 2022
+
+
+  Look for "maching learning exmples" here
+
+  https://www.neuraldesigner.com/blog - you will need to sign up first though.
+
+
+----
+Wed  3 Aug 06:46:59 BST 2022
+
+ Here's how to do a protected download:
+
+   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   // make coot-download if needed
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
+   bool needs_downloading = true;
+   if (coot::file_exists_and_non_empty(fn))
+      needs_downloading = false;
+   if (needs_downloading) {
+      coot_get_url(url.c_str(), fn.c_str());
+   }
+
+----
+
+   Wayland for MacOS:  https://github.com/owl-compositor/owl
+
+----
+
+   Project items
+
+   1: Compile GooCanvas with GTK4? Possible?
+
+   2: How to get PyGObject working with GTK4?
+
+   3: Put coot_utils coot_gui and extenstion and all the others inside the coot module in Python
+
+   4: Doxygen, Breathe, Sphinx documentation
+
+   5: How to make a flatpak for coot?
+
+   6: Restore the command line arguments
+
+
+---
+Sat 13 Aug 08:42:27 BST 2022
+
+   how to iterate through a widget's children in GTK4:
+
+   GtkWidget *item_widget = gtk_widget_get_first_child(scrolled_window);
+   while (item_widget) {
+      if (some_test) {
+         some assignment
+      }
+      item_widget = gtk_widget_get_next_sibling(item_widget);
+   };
+
+
+---
+Tue 16 Aug 2022 11:47:59 BST
+
+  PyGObject and GTK4 info:
+
+  https://discourse.gnome.org/t/gtk4-pygobject-testing/4197
+  It is not clear to me at the moment what to try next from the above page.
+
+  Ah. Here:
+
+  https://github.com/Taiko2k/GTK4PythonTutorial/blob/main/README.md
+
+
+---
+Tue 16 Aug 2022 18:21:12 BST
+
+   Maybe this will fix the linking problems on introducing MoleculesToTriangles:
+
+https://stackoverflow.com/questions/35006614/what-does-symbol-not-found-expected-in-flat-namespace-actually-mean
+
+
+---
+Wed 10 Aug 07:45:45 BST 2022
+
+  how to make sphinx documentation:
+
+  "Sphinx documentation requires first generating Doxygen documentation, then using the outputted xml with Breathe,
+  to generated the sphinx documentation."
+
+  https://github.com/tbattz/openGLPlotLive
+
+----
+Wed 10 Aug 08:58:04 BST 2022
+
+  OpenGL text (better than I have done it so far)
+
+  https://sourceforge.net/projects/ftgl/
+
+---
+Tue 30 Aug 03:11:57 BST 2022
+
+   How to run a safe python command for create-menu-item-actions.cc
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      short int lang = coot::STATE_PYTHON;
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
+      std::string sc = g.state_command("coot_utils", "", args, lang);
+      safe_python_command("import coot_utils");
+      safe_python_command(sc);
+   }
+
+
+---
+Tue 30 Aug 17:41:18 BST 2022
+
+   when trying to add an overlay dialog to the main graphics window, you need to use the vbox of the
+   dialog - and not the dialog itself. The vbox should not be part of a dialog - that should be stripped
+   out in the .ui file.
+
+
+---
+Mon 12 Sep 18:29:06 BST 2022
+
+   have a look at vkbasalt - related to mangohud maybe?
+
+---
+Tue 27 Sep 17:26:28 BST 2022
+
+convert to overlay:
+
+-   set_transient_for_main_window(window);
+-   gtk_widget_show(window);
++   // set_transient_for_main_window(window);
++   // gtk_widget_show(window);
++
++
++   //  ---------------- User an overlay ---------
++
++   {
++      GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
++      GtkWidget *vbox    = widget_from_builder("new_accession_code_vbox"); // create this
++
++      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), vbox);
++      gtk_widget_set_halign(vbox, GTK_ALIGN_CENTER);
++      gtk_widget_set_valign(vbox, GTK_ALIGN_START);
++
++      GtkWidget *entry = widget_from_builder("new_get_accession_code_entry");
++      gtk_widget_set_can_focus(entry, TRUE);
++      gtk_widget_set_focusable(entry, TRUE);
++      gtk_widget_grab_focus(entry);
++
++      gtk_widget_show(vbox);
++   }
++
+
+---
+Thu 27 Apr 07:15:04 BST 2023
+
+  gtk4 iterate through children:
+
+   for (GtkWidget* child = gtk_widget_get_first_child(vbox_for_molecules);
+       child != nullptr;
+       child = gtk_widget_get_next_sibling(child)) {
+
+      int imol_for_child = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(child), "imol"));
+      if (imol_for_child == imol)
+         gtk_box_remove(GTK_BOX(vbox_for_molecules), child);
+         break; // child no longer valid
+   }
 

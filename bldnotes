@@ -15,6 +15,10 @@ KCX, TPP
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+Fix a preferences dir function (in graphics-info already)
+Make requirement for probe/reduce more obvious, i.e. give better error message
+ and better info in installer (which no one reads).
+
 Aniso not working on windows machines 0.8.8 (incl build machine) was ok 0.8.2 
 	rev 5761 (ok on my machine too) => check libraries
 
@@ -44,6 +48,7 @@ Windows:
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
  o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.cc
+ o try (again) using backward.cpp
 
 ---- FINISH URGENT ----
 
@@ -1151,3 +1156,12 @@ Osaka 2010
    o new gtk/gtkglext disappears with Dexpot
 
 * not done but fixed by showing on all desktops. Nothing else can be done AFAIK.
+
+   o use -Os (and not -g) for release build to save space. no debugging symbols needed for Windows (at this point).
+
+* Done (use make install-strip now)
+
+   o use #define _USE_MATH_DEFINES instead of extra M_PI (and derivative) defines
+
+* Done
+

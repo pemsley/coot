@@ -29,19 +29,21 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh \
-	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
+        refinement-lights.hh refinement-results-t.hh rama-types.hh new-linked-residue-t.hh
 
 pkgincludedir = $(includedir)/coot/ideal
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(CLIPPER_CXXFLAGS)        \
+	-I$(top_srcdir)     \
+	$(CLIPPER_CXXFLAGS) \
+        $(BOOST_CPPFLAGS)   \
 	$(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
-     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) 
-AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
 
+AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
 #libcoot_ideal_la_LIBADD = ../coot-utils/libcoot-utils.la                       \
 #	../coot-utils/libcoot-coord-utils.la                                   \
@@ -58,43 +60,51 @@ AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 # change dependency_libs in the .la file though).
 # 
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+# reworking library order  $(top_builddir)/coords/libcoot-coords.la           
 
 libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la     \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la     \
    $(top_builddir)/geometry/libcoot-geometry.la        \
-   $(top_builddir)/coords/libcoot-coords.la            \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
-   $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS)
+   $(top_builddir)/utils/libcoot-utils.la              \
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS) -lm
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc \
+libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
 	mods.cc distortion.cc chirals.cc flanking.cc gradients.cc extra-restraints.cc \
-	pepflip.cc regularize-minimol.cc lograma.cpp \
+	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc process-dfs-in-range.hh \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
-	parallel-planes.cc trans-peptide.cc model-bond-deltas.cc \
-	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc
+	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
+	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc neutron.cc
 
-libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
-check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
+check_PROGRAMS =  crankshaft-test test-rama-plot
+# removed for now: with-geometry logramatest
+
 if OS_WIN32
 bin_PROGRAMS = mini-rsr-bin
 else
-libexec_PROGRAMS = mini-rsr-bin
+libexec_PROGRAMS = mini-rsr-bin coot-ligand-validation-bin
 endif
 
-logramatest_SOURCES = logramatest.cpp
+# logramatest_SOURCES = logramatest.cpp
 
 crankshaft_test_SOURCES = crankshaft-test.cc
 
-crankshaft_test_LDADD = ./libcoot-ideal.la
+crankshaft_test_LDADD = ./libcoot-ideal.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/utils/libcoot-utils.la            \
+        $(top_builddir)/compat/libcoot-compat.la -lm -lpthread
 
-with_geometry_SOURCES = with-geometry.cc
+# with_geometry_SOURCES = with-geometry.cc
 
 mini_rsr_bin_SOURCES = mini-rsr.cc
 
@@ -102,35 +112,52 @@ test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la
 
+coot_ligand_validation_bin_SOURCES = lv.cc
+
+coot_ligand_validation_bin_LDADD = ./libcoot-ideal.la      \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
+        $(top_builddir)/compat/libcoot-compat.la -lpthread
+
 # test_indexing_SOURCES = test-indexing.cc
 
 # note that we need libcoot-coords only because we use 
 # atom_selection_container_t asc get_atom_selection(filename).  If we get rid of that 
 # in the future the dependency on libcoot-coords goes away.
 #
-with_geometry_LDADD = \
-        ./libcoot-ideal.la                                 \
-	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-	$(top_builddir)/utils/libcoot-utils.la             \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-	$(GLOB_LIBS) \
-	$(RDKIT_LIBS) \
-        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+# wrong build order
+# with_geometry_LDADD = \
+#         ./libcoot-ideal.la                                 \
+# 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+# 	$(top_builddir)/geometry/libcoot-geometry.la       \
+# 	$(top_builddir)/coords/libcoot-coords.la           \
+# 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+# 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+# 	$(top_builddir)/utils/libcoot-utils.la             \
+#         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+# 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+# 	$(GLOB_LIBS) \
+# 	$(RDKIT_LIBS) \
+#         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
+#
+# 20191226-PE I have added -lpthread to mini_rsr linking and coot-ideal
+#    linking - maybe that's a mistake - there *should* only be one (but
+#    I tried adding it to just the library, but mini-rsr didn't link).
+#    Not sure either that this is the canonical way of adding threads.
+#
 mini_rsr_bin_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
@@ -139,7 +166,7 @@ mini_rsr_bin_LDADD =  \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
-        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) -lpthread
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \
@@ -152,17 +179,19 @@ mini_rsr_bin_LDADD =  \
 
 # Why do I need all these libraries to simply link a trivial test program?
 # Badness....
-logramatest_LDADD = \
-	./libcoot-ideal.la \
-	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
-	$(top_builddir)/coords/libcoot-coords.la           \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la       \
-	$(RDKIT_LIBS) \
-	$(CLIPPER_LIBS) $(GSL_LIBS)
+# oops wrong build order
+# logramatest_LDADD = \
+# 	./libcoot-ideal.la \
+# 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+# 	$(top_builddir)/geometry/libcoot-geometry.la      \
+# 	$(top_builddir)/coords/libcoot-coords.la           \
+#         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+# 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+# 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+# 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+# 	$(top_builddir)/utils/libcoot-utils.la       \
+# 	$(RDKIT_LIBS) \
+# 	$(CLIPPER_LIBS) $(GSL_LIBS)
 
-dist_bin_SCRIPTS = coot-mini-rsr
+dist_bin_SCRIPTS = coot-mini-rsr coot-ligand-validation
+

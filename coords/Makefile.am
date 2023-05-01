@@ -23,35 +23,51 @@ lib_LTLIBRARIES=libcoot-coords.la
 pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
 	coot-close.hh phenix-geo.hh ramachandran-container.hh \
-	loop-path.hh
+	loop-path.hh rotamer-container.hh graphical-bonds-container.hh \
+	graphics-line.hh torus-description.hh rama-plot-phi-psi.hh \
+	phi-psi-prob.hh ramachandran-validation.hh
 
 pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
-	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
+	-I$(top_srcdir)                      \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)    \
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)  \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'   	\
+	-DDATADIR='"$(datadir)"'       \
 	$(COOT_WINDOWS_CFLAGS)
 
-libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
-		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
-		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc \
-		 loop-path.cc
+# other in merge:
+# libcoot_coords_la_SOURCES = Bond_lines.cc Cartesian.cc cos-sin.cc \
+# 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
+#		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc 
 
+libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
+		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
+		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc \
+		 rotamer-markup.cc \
+		 loop-path.cc rama-plot-phi-psi.cc phi-psi-prob.cc ramachandran-validation.cc
+
+
+#   $(top_builddir)/ideal/libcoot-ideal.la not needed here I think
+
+# we use rotamer probabilites, hence need libcoot-ligand
 libcoot_coords_la_LIBADD = \
-   $(top_builddir)/geometry/libcoot-geometry.la      \
-   $(top_builddir)/coot-utils/libcoot-shelx.la       \
+   $(top_builddir)/ligand/libcoot-ligand.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+   $(top_builddir)/cootaneer/libcootaneer.la         \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(MMDB_LIBS) \
-   $(RDKIT_LIBS)
+   $(CLIPPER_LIBS) -lpthread
+
+
+#   $(MMDB_LIBS) \
+#   $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lssl -lcrypto -lldap -lz
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -59,10 +75,12 @@ check_PROGRAMS = test-phenix-geo test-transform
 
 test_transform_SOURCES = test-transform.cc
 
-test_transform_LDADD = libcoot-coords.la
+test_transform_LDADD = libcoot-coords.la \
+   $(MMDB_LIBS)
 
 test_phenix_geo_SOURCES = test-phenix-geo.cc
 
 test_phenix_geo_LDADD = libcoot-coords.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/utils/libcoot-utils.la           
+   $(top_builddir)/utils/libcoot-utils.la  \
+   $(MMDB_LIBS)

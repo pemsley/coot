@@ -201,7 +201,15 @@ std::ofstream& coot::operator<<(std::ofstream& s, coot::CartesianPair pair) {
 
    return s; 
 
-} 
+}
+
+float
+coot::CartesianPair::amplitude() const {
+
+   Cartesian d = start - finish;
+   return d.amplitude();
+}
+
 
 
 // not a member function
@@ -257,6 +265,16 @@ float coot::Cartesian::amplitude(void) const {
 
    return sqrt(x_*x_ + y_*y_ + z_*z_);
 }
+
+// static
+float
+coot::Cartesian::lengthsq(const Cartesian &atom_1_pos, const Cartesian &atom_2_pos) {
+   return
+      (atom_1_pos.x() - atom_2_pos.x()) * (atom_1_pos.x() - atom_2_pos.x()) +
+      (atom_1_pos.y() - atom_2_pos.y()) * (atom_1_pos.y() - atom_2_pos.y()) +
+      (atom_1_pos.z() - atom_2_pos.z()) * (atom_1_pos.z() - atom_2_pos.z());
+}
+
 
 coot::Cartesian
 coot::Cartesian::mid_point(const coot::Cartesian &other) const {

@@ -21,10 +21,12 @@
  */
 
 #include <stdexcept>
+#include <fstream>
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
+#include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
 void
@@ -421,6 +423,19 @@ coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 
+// return HB_UNASSIGNED when not found
+//
+coot::hb_t
+coot::protein_geometry::get_h_bond_type(const std::string &te) const {
+
+   hb_t hb_type = HB_UNASSIGNED;
+   std::map<std::string, energy_lib_atom>::const_iterator it = energy_lib.atom_map.find(te);
+   if (it != energy_lib.atom_map.end()) {
+      hb_type = it->second.hb_type;
+   }
+   return hb_type;
+}
+
 coot::hb_t
 coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 					const std::string &monomer_name,
@@ -428,7 +443,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 
    bool debug = false;  // before debugging this, is ener_lib.cif being
 		        // read correctly?
-   
+
    // this is heavy!
    // 
    std::pair<bool, dictionary_residue_restraints_t> r =
@@ -481,7 +496,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 	 
    return hb_type;
 
-} 
+}
 
 
 // Find the non_bonded_contact distance, get_nbc_dist()
@@ -494,13 +509,13 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 				     bool in_same_residue_flag,
 				     bool in_same_ring_flag) const {
 
-   if (in_same_ring_flag)
-      std::cout << "::::::::::::::::::::::::::::: nbc of atoms in same ring " << std::endl;
+   if (false)
+      if (in_same_ring_flag)
+	 std::cout << "::::::::::::::::::::::::::::: nbc of atoms in same ring " << std::endl;
 
    float radius_1;
    float radius_2;
-   //mmdb::Atom at_1 = mmdb::Atom();
-   //mmdb::Atom at_2 = mmdb::Atom();
+
    mmdb::Atom *at_1 = new mmdb::Atom(); // for metal check 
    mmdb::Atom *at_2 = new mmdb::Atom();
    
@@ -597,7 +612,208 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
    delete at_1;
    delete at_2;
    return r;
-} 
+}
+
+
+// faster, when the caller has cached the metal state
+std::pair<bool, double>
+coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
+					const std::string &energy_type_2,
+                                        const std::string &element_1,
+                                        const std::string &element_2,
+					bool is_metal_atom_1,
+					bool is_metal_atom_2,
+					bool extended_atoms_mode, // turn this on when model has no Hydrogen atoms
+					bool in_same_residue_flag,
+					bool in_same_ring_flag) const {
+
+   std::pair<bool, double> r(false, 0);
+   const std::string H(" H");
+
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
+   std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
+
+   if (it_1 != energy_lib.atom_map.end()) {
+      if (it_2 != energy_lib.atom_map.end()) {
+
+         // What am I trying to do here? - this is worrying.
+         const std::string &energy_type_1(it_1->first);
+         const std::string &energy_type_2(it_2->first);
+
+	 // Use vdwh_radius of called in "No hydrogens in the model" mode.
+	 float radius_1 = it_1->second.vdw_radius;
+	 float radius_2 = it_2->second.vdw_radius;
+
+         // std::cout << "debug get_nbc_dist_v2 " << energy_type_1 << " " << energy_type_2 << std::endl;
+
+         if (extended_atoms_mode) {
+            radius_1 = it_1->second.vdwh_radius;
+            radius_2 = it_2->second.vdwh_radius;
+            // 20220719-PE add these to make base stacking not (molprobity) clashing.
+            radius_1 += 0.12; // about right, not tuned
+            radius_2 += 0.12;
+         }
+
+         if (! extended_atoms_mode) { // These improve (reduce) the bad NBCs.
+            radius_1 += 0.1;
+            radius_2 += 0.1;
+         }
+
+         if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
+         if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+
+	 r.second = radius_1 + radius_2;
+
+	 if (in_same_residue_flag) {
+	    // I need to reject atoms that have bond (done), angle and
+	    // torsion interactions from NBC interactions, I think.  Then
+	    // I can set r.second multiplier to 1.0 maybe.
+	    //
+	    // r.second *= 0.84;
+	 }
+
+	 if (in_same_ring_flag) {
+	    // ring atoms should not be NBCed to each other.  Not sure
+	    // that 5 atom rings need to be excluded in this manner.
+	    //
+	    if (energy_type_1 == "CR15" || energy_type_1 == "CR16" || energy_type_1 == "CR1"  ||
+		energy_type_1 == "CR6"  ||
+		energy_type_1 == "CR56" || energy_type_1 == "CR5"  || energy_type_1 == "CR66" ||
+		energy_type_1 == "NPA"  || energy_type_1 == "NPB"  || energy_type_1 == "NRD5" ||
+		energy_type_1 == "NRD6" || energy_type_1 == "NR15" || energy_type_1 == "NR16" ||
+		energy_type_1 == "NR6"  || energy_type_1 == "NR5") {
+
+	       if (energy_type_2 == "CR15" || energy_type_2 == "CR16" || energy_type_2 == "CR1"  ||
+		   energy_type_2 == "CR6"  ||
+		   energy_type_2 == "CR56" || energy_type_2 == "CR5"  || energy_type_2 == "CR66" ||
+		   energy_type_2 == "NPA"  || energy_type_2 == "NPB"  || energy_type_2 == "NRD5" ||
+		   energy_type_2 == "NRD6" || energy_type_2 == "NR15" || energy_type_2 == "NR16" ||
+		   energy_type_2 == "NR6"  || energy_type_2 == "NR5") {
+		  r.second = 2.2;
+	       }
+	    }
+	 }
+
+	 // atoms in hydrogen bonds can be closer, e.g mainchain N and O 1.55 + 1.52 -> 2.83
+	 // Molprobity distance seems to be 2.93. Hmm
+
+         // add a flag so that we don't HB-shorten twice when both are HB_BOTH
+         bool done_hb_shorten = false;
+	 if ((it_1->second.hb_type == coot::HB_DONOR ||
+	      it_1->second.hb_type == coot::HB_BOTH  ||
+	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
+	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
+	      it_2->second.hb_type == coot::HB_BOTH)) {
+            if (extended_atoms_mode) {
+               r.second -= 0.24; // was 0.4
+            } else {
+               // actual hydrogens to acceptors can be shorter still
+               if (it_1->second.hb_type == coot::HB_HYDROGEN)
+                  r.second -= 0.38; // was 0.4
+            }
+            done_hb_shorten = true;
+	 } else {
+            if (it_1->second.hb_type == coot::HB_HYDROGEN)
+               r.second += 0.08; //  experimental
+         }
+
+         if (! done_hb_shorten) {
+	    if ((it_2->second.hb_type == coot::HB_DONOR ||
+	         it_2->second.hb_type == coot::HB_BOTH  ||
+	         it_2->second.hb_type == coot::HB_HYDROGEN) &&
+	        (it_1->second.hb_type == coot::HB_ACCEPTOR ||
+	         it_1->second.hb_type == coot::HB_BOTH)) {
+               if (extended_atoms_mode) {
+                  r.second -= 0.24; // was 0.4
+               } else {
+                  // as above
+                  // actual hydrogens to acceptors can be shorter still
+                  if (it_2->second.hb_type == coot::HB_HYDROGEN)
+                     r.second -= 0.38; // was 0.4
+               }
+	    } else {
+
+               if (element_1 == H)
+                  if (element_2 == H)
+                     r.second = 2.48; // override 1.2 + 1.2 to match phenix/molprobity.
+                                      // Amber radius is 1.48 for H-C(sp3) and H-arom
+            }
+	 } else {
+            if (it_2->second.hb_type == coot::HB_HYDROGEN)
+               r.second += 0.08; //  experimental
+	 }
+
+         r.first = true;
+      }
+   }
+   return r;
+}
+
+// extract values from these sets - return 0.0 on failure
+double
+coot::protein_geometry::get_metal_O_distance(const std::string &metal) const {
+
+   double d = 0.0;
+   std::map<std::string, double>::const_iterator it = metal_O_map.find(metal);
+   if (it != metal_O_map.end())
+      d = it->second;
+   return d;
+}
+
+double
+coot::protein_geometry::get_metal_N_distance(const std::string &metal) const {
+   double d = 0.0;
+   std::map<std::string, double>::const_iterator it = metal_N_map.find(metal);
+   if (it != metal_N_map.end())
+      d = it->second;
+   return d;
+}
+
+bool
+coot::protein_geometry::parse_metal_NOS_distance_tables() {
+
+   bool status = false;
+   std::vector<std::string> v;
+   v.push_back("metal-O-distance.table");
+   v.push_back("metal-N-distance.table");
+   v.push_back("metal-S-distance.table");
+
+   for (std::size_t i=0; i<v.size(); i++) {
+      std::string d1 = package_data_dir(); // $prefix/share/coot
+      std::string d2 = util::append_dir_dir(d1, "data");
+      std::string d3 = util::append_dir_dir(d2, "metal");
+      std::string fn = util::append_dir_file(d3, v[i]);
+      std::string line;
+      std::ifstream f(fn.c_str());
+      if (!f) {
+	 std::cout << "Failed to open " << fn << std::endl;
+      } else {
+	 while (std::getline(f, line)) {
+	    std::vector<std::string> ss = util::split_string(line, " ");
+	    if (ss.size() == 2) {
+	       try {
+		  std::string metal_1 = ss[0];
+		  std::string metal = util::upcase(metal_1);
+		  double bl = util::string_to_double(ss[1]);
+		  if (i == 0) // bleugh :-)
+		     metal_O_map[metal] = bl;
+		  if (i == 1)
+		     metal_N_map[metal] = bl;
+		  if (i == 2)
+		     metal_S_map[metal] = bl;
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "ERROR:: rte " << rte.what() << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+
+}
+
 
 // throw a std::runtime_error if bond not found
 // 
@@ -616,7 +832,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
       }
       catch (const std::runtime_error &rte2) {
 
-	 if (1)
+	 if (false) // too noisy for now
 	    std::cout << "WARNING:: energy-lib search: falling back to "
 		      << "permissive search for bond "
 		      << energy_type_1 << " " << energy_type_2 << " "
@@ -854,4 +1070,20 @@ coot::energy_lib_t::get_torsion(const std::string &energy_type_2,
       }
    }
    throw std::runtime_error("torsion for types not found in dictionary");
+}
+
+
+coot::energy_lib_atom
+coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const {
+
+   coot::energy_lib_atom at;
+   
+   std::map<std::string, energy_lib_atom>::const_iterator it =
+      energy_lib.atom_map.find(ener_type);
+
+   if (it != energy_lib.atom_map.end())
+      at = it->second;
+   
+   return at;
+   
 }

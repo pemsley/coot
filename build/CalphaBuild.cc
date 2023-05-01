@@ -134,7 +134,6 @@ coot::CalphaBuild::next_ca_internal(const std::vector<clipper::Coord_orth> &Prev
 
       clipper::Grid_map grid( box0.coord_grid(map.grid_sampling()),
 			      box1.coord_grid(map.grid_sampling()));
-  
 
       std::vector<coot::scored_skel_coord> interesting;
       clipper::Xmap_base::Map_reference_coord ix( skel_map, grid.min() ), iu, iv, iw;

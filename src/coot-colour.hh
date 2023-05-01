@@ -2,11 +2,20 @@
 #ifndef COOT_COLOUR_HH
 #define COOT_COLOUR_HH
 
+#include <vector>
+#include <glm/glm.hpp>
+
 #if __APPLE__
 #   include <OpenGL/gl.h>
 #else
 #   include <GL/gl.h>
 #endif
+
+std::vector<float> rotate_rgb(std::vector<float> &in_vals, float amount); 
+std::vector<float> convert_rgb_to_hsv(const std::vector<float> &rgb);
+std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
+
+#include "utils/colour-holder.hh"  // funny old thing. Consolidate the colour class one day.
 
 namespace coot { 
    class colour_t {
@@ -23,7 +32,6 @@ namespace coot {
       colour_t() { init(0.5, 0.5, 0.5); }
       colour_t(float r, float g, float b) { init(r,g,b); }
       void set(float r, float g, float b) { init(r,g,b); }
-      void glcolor() const { glColor3f(col[0], col[1], col[2]); }
       float &operator[](const unsigned int &idx) { return col[idx]; }
       const float &operator[](const unsigned int &idx) const { return col[idx]; }
       void rotate(float f);
@@ -37,6 +45,12 @@ namespace coot {
 	 for (unsigned int idx=0; idx<3; idx++)
 	    if (col[idx] > 1.0)
 	       col[idx] = 1.0;
+      }
+      glm::vec4 to_glm() const {
+         return glm::vec4(col[0], col[1], col[2], 1.0f);
+      }
+      colour_holder to_colour_holder() const {
+         return colour_holder(col[0], col[1], col[2]);
       }
    };
    std::ostream& operator<<(std::ostream &s, colour_t col);

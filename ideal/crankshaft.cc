@@ -1511,7 +1511,8 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 				       const coot::protein_geometry &geom,
 				       const clipper::Xmap<float> &xmap,
 				       float map_weight,
-				       const std::string &output_pdb_file_name) {
+				       const std::string &output_pdb_file_name,
+				       ctpl::thread_pool *thread_pool_p, int n_threads_in) {
 
    molecule_score_t score;
 
@@ -1528,7 +1529,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
       bool make_trans_peptide_restraints = true;
       short int print_chi_sq_flag = 1;
       bool do_rama_plot_restraints = true;
-      coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+      pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       int restraints_rama_type = restraints_container_t::RAMA_TYPE_ZO;
 
       std::vector<std::pair<bool, mmdb::Residue *> > refine_residues;
@@ -1540,32 +1541,32 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 	 }
       }
 
-#ifdef HAVE_CXX_THREAD
+
       auto tp_0 = std::chrono::high_resolution_clock::now();
-#endif
-      coot::restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, xmap);
+
+      restraints_container_t restraints(refine_residues, links, geom, mol, fixed_atom_specs, &xmap);
+      restraints.thread_pool(thread_pool_p, n_threads_in);
       restraints.set_quiet_reporting();
       restraints.add_map(map_weight);
       restraints.set_rama_type(restraints_rama_type);
       restraints.set_rama_plot_weight(1);
       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-				 1.0, do_rama_plot_restraints, pseudos);
+				 1.0, do_rama_plot_restraints, true, true, false, pseudos);
       restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
       if (! output_pdb_file_name.empty())
 	 restraints.write_new_atoms(output_pdb_file_name);
 
-      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions(flags);
+      coot::geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
 	 // std::cout << "   " << gdic.geometry_distortion[id] << std::endl;
       }
 
-#ifdef HAVE_CXX_THREAD
+
       auto tp_1 = std::chrono::high_resolution_clock::now();
-#endif // HAVE_CXX_THREAD
+
       bool mainchain_only_flag = true;
       float score_map = coot::util::map_score_by_residue_specs(mol, residue_specs_for_scoring,
 							       xmap, mainchain_only_flag);
-#ifdef HAVE_CXX_THREAD
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -1576,7 +1577,7 @@ coot::crankshaft::refine_and_score_mol(mmdb::Manager *mol,
 	 std::cout << "scores map: " << score_map << " distortion " << gdic.distortion()
 		   << " " << output_pdb_file_name << std::endl;
       }
-#endif
+
       score.density_score = score_map;
       score.model_score = gdic.distortion();
    }
@@ -1595,14 +1596,16 @@ coot::crankshaft::refine_and_score_mols(std::vector<mmdb::Manager *> mols,
 					const coot::protein_geometry &geom,
 					const clipper::Xmap<float> &xmap,
 					float map_weight,
-					std::vector<molecule_score_t> *mol_scores) {
+					std::vector<molecule_score_t> *mol_scores,
+					ctpl::thread_pool *thread_pool_p, int n_threads) {
 
    for (std::size_t i=0; i<mols_thread_vec.size(); i++) {
+
       molecule_score_t ms = refine_and_score_mol(mols[mols_thread_vec[i]],
 						 residue_specs_for_refining,
 						 residue_specs_for_scoring,
-						 geom, xmap, map_weight, "");
-      (*mol_scores)[mols_thread_vec[i]] = ms;
+						 geom, xmap, map_weight, "", thread_pool_p, n_threads);
+      mol_scores->at(mols_thread_vec[i]) = ms;
    }
 }
 
@@ -1616,26 +1619,27 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 					 // atom_selection_container_t asc,
 					 mmdb::Manager *mol_in,
 					 float map_weight,
-					 int n_samples, int n_solutions) {
+					 int n_samples, int n_solutions,
+					 ctpl::thread_pool *thread_pool_p, int n_threads_in) {
 
    std::vector<mmdb::Manager *> solution_molecules;
 
    // promote this to an argument for this function
    float log_prob_filter_n_sigma = 1.0; // only the top few.
 
-   mmdb::Residue *prev_res = coot::util::get_previous_residue(rs, mol_in);
+   mmdb::Residue *prev_res = util::get_previous_residue(rs, mol_in);
    if (! prev_res) {
       std::cout << "WARNING:: No residue previous to " << rs << std::endl;
    } else {
-      coot::crankshaft cs(mol_in);
+      crankshaft cs(mol_in);
       zo::rama_table_set zorts;
 
-      coot::residue_spec_t prev_residue_spec(prev_res);
+      residue_spec_t prev_residue_spec(prev_res);
       std::cout << "INFO:: using residue specifier: " << rs << std::endl;
 
       if (n_samples == -1) {
 	 // choose for me (based on the number of threads and the number of peptides
-#ifdef HAVE_CXX_THREAD
+
 	 unsigned int n_threads = coot::get_max_number_of_threads();
 
 	 // the more peptides, the less samples
@@ -1645,9 +1649,6 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	    n_samples = 5;
 	 std::cout << "INFO:: Chose n_samples " << n_samples << " for " << n_peptides
 		   << " peptides " << " and using " << n_threads << " threads" << std::endl;
-#else
-	 n_samples = 5; // hmm.
-#endif // HAVE_CXX_THREAD
       }
 
       // changed the API to find_maxima to be the middle of the n_peptides (3)
@@ -1698,7 +1699,7 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 mols[i] = mol;
       }
 
-#ifdef HAVE_CXX_THREAD
+
       unsigned int n_threads = coot::get_max_number_of_threads();
 
       if (n_threads > 0) {
@@ -1740,7 +1741,7 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	       threads.push_back(std::thread(refine_and_score_mols, mols, mols_thread_vec[i_thread],
 					     std::cref(local_residue_specs), std::cref(local_residue_specs),
 					     std::cref(geom), std::cref(xmap), map_weight,
-					     &mol_scores));
+					     &mol_scores, thread_pool_p, n_threads));
 	       // threads.push_back(std::thread(dummy_func, mols)); // testing
 	       auto tp_1 = std::chrono::high_resolution_clock::now();
 	       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -1760,7 +1761,6 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       } else {
 	 std::cout << "ERROR:: No threads" << std::endl;
       }
-#endif // HAVE_CXX_THREAD
 
       for (std::size_t i=0; i<sas.size(); i++) {
 

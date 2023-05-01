@@ -213,7 +213,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
    // BOND to_atom_x to_atom_y colour_name
    //
 
-   atom_selection_container_t flat = get_atom_selection(prodrg_output_flat_pdb_file_name, true, true);
+   atom_selection_container_t flat = get_atom_selection(prodrg_output_flat_pdb_file_name, true, false, false);
    if (flat.read_success) {
       if (is_valid_model_molecule(imol_ligand_fragment)) {
 
@@ -442,8 +442,10 @@ void fle_view_with_rdkit_to_svg(int imol, const char *chain_id, int res_no, cons
 void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *output_image_file_name) {
 
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
-# else
 
+   std::cout << "WARNING:: fle_view_with_rdkit_internal() not enhanced ligand " << std::endl;
+
+# else
 
    double weight_for_3d_distances = 0.4; // for 3d distances
    double water_dist_max = 3.25;
@@ -502,7 +504,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 	       // assign atom names
 	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
-		  std::cout << "WARNING:: failure to construct rdkit molecule " << std::endl;
+		  std::cout << "WARNING:: failure to construct rdkit molecule " << rdkm.getNumAtoms() << " vs " << res_ref->GetNumberOfAtoms()
+	                    << std::endl;
 	       } else {
 		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
@@ -723,10 +726,10 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
       coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id,
  					 COOT_LSQ_ALL);
        matches.push_back(match);
-       std::pair<short int, clipper::RTop_orth> lsq_mat = 
+       std::pair<short int, clipper::RTop_orth> lsq_mat =
 	  coot::util::get_lsq_matrix(flat_mol, mol_containing_residue_ligand, matches, every_nth);
       // Now make the residues
-      
+
       // std::vector<coot::fle_residues_helper_t> centres(residues.size());
       centres.resize(residues.size());
       for (unsigned int ires=0; ires<residues.size(); ires++) { 
@@ -1246,7 +1249,7 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
 					     const std::string &prodrg_3d_ligand_file_name,
 					     const coot::dictionary_residue_restraints_t &restraints) {
 
-   atom_selection_container_t asc = get_atom_selection(prodrg_3d_ligand_file_name, true, true);
+   atom_selection_container_t asc = get_atom_selection(prodrg_3d_ligand_file_name, true, false, false);
    if (asc.read_success) {
       cannonballs(ligand_residue_3d, asc.mol, restraints);
    }

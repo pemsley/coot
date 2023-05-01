@@ -38,8 +38,10 @@
 
 #include <stdlib.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 #include "ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -93,7 +95,9 @@ main(int argc, char **argv) {
       std::string max_dist_str;
       short int do_flood_flag = 0;
       short int do_chop_flag = 0;
-      float flood_atom_mask_radius = 1.4; 
+      float flood_atom_mask_radius = 1.4;
+      float water_to_protein_max_dist = 99.9;
+      float water_to_protein_min_dist = 1.5;
 
       const char *optstr = "i:h:f:p:o:s:e:c:m";
       struct option long_options[] = {
@@ -107,6 +111,8 @@ main(int argc, char **argv) {
 	 {"min-dist",  1, 0, 0},
 	 {"max-dist",  1, 0, 0},
 	 {"flood-atom-radius",  1, 0, 0},
+	 {"water-to-protein-max-dist",  1, 0, 0},
+	 {"water-to-protein-min-dist",  1, 0, 0},
 	 {"flood",  0, 0, 0},
 	 {"chop",   0, 0, 0},
 	 {0, 0, 0, 0}
@@ -120,49 +126,72 @@ main(int argc, char **argv) {
 	 switch(ch) { 
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "sigma") {
-		  sigma_str = optarg;
+		  sigma_str = coot_optarg;
 	       }
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 	       }
 	       if (arg_str == "min-dist") {
-		  min_dist_str = optarg;
+		  min_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "max-dist") {
-		  max_dist_str = optarg;
+		  max_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "flood-atom-radius") {
-
 		  try {
 		     flood_atom_mask_radius =
-			coot::util::string_to_float(optarg);
+			coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::exception &e) {
 		     std::cout << "argument for --flood_atom_mask_radius"
-			       << " is not a number: " << optarg
+			       << " is not a number: " << coot_optarg
 			       << std::endl;
 		     exit(1);
 		  } 
 	       }
+               if (arg_str == "water-to-protein-max-dist") {
+		  try {
+		     water_to_protein_max_dist =
+			coot::util::string_to_float(coot_optarg);
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "argument for --water-to-protein-max-dist"
+			       << " is not a number: " << coot_optarg
+			       << std::endl;
+		     exit(1);
+		  } 
+               }
+               if (arg_str == "water-to-protein-min-dist") {
+		  try {
+		     water_to_protein_min_dist =
+			coot::util::string_to_float(coot_optarg);
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "argument for --water-to-protein-min-dist"
+			       << " is not a number: " << coot_optarg
+			       << std::endl;
+		     exit(1);
+		  } 
+               }
 	       
 	    } else { 
 	       std::string arg_str = long_options[option_index].name;
@@ -181,27 +210,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 	    
 	 case 's':
-	    sigma_str = optarg;
+	    sigma_str = coot_optarg;
 	    break;
 
 	 case 'e':
@@ -367,16 +396,31 @@ main(int argc, char **argv) {
 		  clipper::Xmap<float> xmap;
 		  coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", 
 						use_weights, is_diff_map);
-		  atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
-		  short int waters_only_flag = 1;
-		  short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
-		  clipper::Map_stats stats(xmap);
-		  float map_level = stats.mean() + input_sigma_level * stats.std_dev();
-		  int n_atoms = coot::util::trim_molecule_by_map(asc.mol, xmap, map_level,
-								 remove_or_zero_occ_flag,
-								 waters_only_flag);
-		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
-		  asc.mol->WritePDBASCII(output_pdb.c_str());
+
+		  // we can't use atom_selection_container_t here
+		  // libcoot-coords depends on libcoot-ligand - not the other way round.
+		  //
+		  // atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+		  mmdb::Manager *mol = new mmdb::Manager;
+		  std::cout << "Reading coordinate file: " << pdb_file_name.c_str() << "\n";
+		  mmdb::ERROR_CODE err = mol->ReadCoorFile(pdb_file_name.c_str());
+
+		  if (err) {
+		     std::cout << "There was an error reading " << pdb_file_name.c_str() << ". \n";
+		     std::cout << "ERROR " << err << " READ: "
+			       << mmdb::GetErrorDescription(err) << std::endl;
+		  } else {
+		     short int waters_only_flag = 1;
+		     short int remove_or_zero_occ_flag = coot::util::TRIM_BY_MAP_DELETE;
+		     clipper::Map_stats stats(xmap);
+		     float map_level = stats.mean() + input_sigma_level * stats.std_dev();
+		     int n_atoms = coot::util::trim_molecule_by_map(mol, xmap, map_level,
+								    remove_or_zero_occ_flag,
+								    waters_only_flag);
+		     std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
+		     mol->WritePDBASCII(output_pdb.c_str());
+		  }
 	       }
 	    }
 	 } else {
@@ -388,16 +432,18 @@ main(int argc, char **argv) {
 	    if (pdb_file_name.length() > 0) {
 	       std::cout << "INFO:: masking map by coords in " << pdb_file_name
 			 << std::endl;
-	       lig.set_map_atom_mask_radius(1.9);
+	       // lig.set_map_atom_mask_radius();
 	       lig.mask_by_atoms(pdb_file_name);
 	    } 
 	    lig.set_cluster_size_check_off();
 	    lig.set_chemically_sensible_check_off();
 	    lig.set_sphericity_test_off();
-	       
+
 	    lig.set_map_atom_mask_radius(flood_atom_mask_radius);
-	    lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
-                                                                 // used in lig.
+	    // lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be 
+                                                                    // used in lig.
+            lig.set_water_to_protein_distance_limits(water_to_protein_max_dist,
+                                                     water_to_protein_min_dist);
 	    lig.flood2(input_sigma_level); // with atoms
 	    coot::minimol::molecule water_mol = lig.water_mol();
 	    water_mol.write_file(output_pdb, 30.0);

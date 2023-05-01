@@ -47,37 +47,59 @@
 	    (read-cif-dictionary cif-out-file-name))
 	  (info-dialog "WARNING:: Bad exit status for Acedrg\n - see acedrg.log")))))
 
+(define (import-from-cif-using-acedrg cif-file-name comp-id)
+  
+  (let* ((pdb-out-file-name (string-append "acedrg-" comp-id ".pdb"))
+	 (cif-out-file-name (string-append "acedrg-" comp-id ".cif"))
+	 (stub (string-append "acedrg-" comp-id)))
+
+    (let ((status (goosh-command 
+		   "acedrg"
+		   (list "-c" cif-file-name "-r" comp-id "-o" stub)
+		   '() "acedrg.log" #f)))
+      (if (ok-goosh-status? status)
+	  (begin
+	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
+	    (read-cif-dictionary cif-out-file-name))
+	  (info-dialog "WARNING:: Bad exit status for Acedrg\n - see acedrg.log")))))
 
 (define (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
 
   (if (not (command-in-path? "pyrogen"))
       
-      (info-dialog "pyrogen not found in path")
+      (info-dialog "WARNING:: pyrogen not found in path")
 
       ;; happy path
       (let ((status
-	     (goosh-command
-	      "pyrogen"
-	      (list "-m" mdl-file-name "--residue-type" comp-id)
-	      '()
-	      "pyrogen.log"
-	      #t)))
+	     (if *use-mogul*
+		 (goosh-command
+		  "pyrogen"
+		  (list "-m" mdl-file-name "--residue-type" comp-id)
+		  '()
+		  "pyrogen.log"
+		  #t)
+		 (goosh-command
+		  "pyrogen"
+		  (list "--no-mogul" "-M" "-m" mdl-file-name "--residue-type" comp-id)
+		  '()
+		  "pyrogen.log"
+		  #t))))
 
 	(if (ok-goosh-status? status)
 
-	    (let* ((active-res (active-residue))
-		   (pdb-out-file-name (string-append comp-id "-pyrogen.pdb"))
+	    (let* ((pdb-out-file-name (string-append comp-id "-pyrogen.pdb"))
 		   (cif-out-file-name (string-append comp-id "-pyrogen.cif"))
 		   (imol-ligand (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)))
 	      (if (not (valid-model-molecule? imol-ligand))
 		  (begin
 		    (info-dialog "WARNING:: Something bad happened running pyrogen.\nSee pyrogen.log"))
 		  (begin
-		    (read-cif-dictionary cif-out-file-name)
+		    ;; (read-cif-dictionary cif-out-file-name)
+		    (handle-cif-dictionary-for-molecule cif-out-file-name imol-ligand 0)
 		    imol-ligand)))
 
 	    ;; fail
-	    (info-dialog "Bad exit status for pyrogen\n - see pyrogen.log")))))
+	    (info-dialog "WARNING:: Bad exit status for pyrogen\n - see pyrogen.log")))))
 
 
 
@@ -330,39 +352,6 @@
 		  working-dir))))
     
 
-  (define (use-libcheck three-letter-code)
-
-    (let* ((smiles-file (string-append "coot-" three-letter-code ".smi"))
-	   (libcheck-data-lines
-	    (list "N"
-		  (string-append "MON " three-letter-code)
-		  (string-append "FILE_SMILE " smiles-file)
-		  ""))
-	   (log-file-name (string-append "libcheck-" three-letter-code))
-	   (pdb-file-name (string-append "libcheck_" three-letter-code ".pdb"))
-	   (cif-file-name (string-append "libcheck_" three-letter-code ".cif")))
-      
-      ;; write the smiles strings to a file
-      (call-with-output-file smiles-file
-	(lambda (port)
-	  (format port "~a~%" smiles-text)))
-      
-      (let ((status (goosh-command libcheck-exe '() libcheck-data-lines log-file-name #t)))
-	;; the output of libcheck goes to libcheck.lib, we want it in
-	;; (i.e. overwrite the minimal description in cif-file-name
-	(if (number? status)
-	    (if (= status 0)
-		(begin
-		  (if (file-exists? "libcheck.lib")
-		      (rename-file "libcheck.lib" cif-file-name))
-		  (let ((sc (rotation-centre))
-			(imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
-		    (if (valid-model-molecule? imol)
-			(let ((mc (molecule-centre imol)))
-			  (apply translate-molecule-by (cons imol (map - sc mc))))))
-		  (read-cif-dictionary cif-file-name)))
-	    (format #t "OOPs.. libcheck returned exit status ~s~%" status)))))
-
   (define (use-pyrogen three-letter-code)
 
     ;; OK, let's run pyrogen
@@ -414,6 +403,9 @@
 	      ((> (string-length tlc-text) 0)
 	       (substring tlc-text 0 3))
 	      (else "XXX"))))
+
+	(format #t "::::::::::::::::::::: three-letter-code: ~s~%" three-letter-code)
+	(format #t "::::::::::::::::::::: enhanced-ligand-coot?: ~s~%" (enhanced-ligand-coot?))
 	
 	(if (not (enhanced-ligand-coot?))
 
@@ -429,25 +421,23 @@
 	(display tlc-str port)
 	(newline port)))
 	
-  (let* ((stub (string-append "acedrg-" comp-id))
+  (let* ((stub (string-append "acedrg-" tlc-str))
 	 (pdb-out-file-name (string-append stub ".pdb"))
 	 (cif-out-file-name (string-append stub ".cif")))
-    
+
     (let ((goosh-status
 	   (goosh-command 
 	    "acedrg" 
-	    (list "-i" smi-file "-r" tlc-str -o stub)
+	    (list "-i" smi-file "-r" tlc-str "-o" stub)
 	    '()
 	    (string-append "acedrg-" tlc-str ".log")
 	    #t)))
 
-      (if (ok-goosh-status? status)
+      (if (ok-goosh-status? goosh-status)
 	  (begin
 	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
 	    (read-cif-dictionary cif-out-file-name))
 	  (info-dialog "Bad exit status for Acedrg\n - see acedrg log"))))))
-  
-
 
 
 

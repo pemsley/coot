@@ -14,11 +14,11 @@
    height="48"
    id="svg3803"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="side-chain-180.svg"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/side-chain-180.png"
-   inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100"
+   inkscape:export-filename="/home/paule/Projects/coot/git/coot-gtk3/coot/pixmaps/side-chain-180.png"
+   inkscape:export-xdpi="31.555956"
+   inkscape:export-ydpi="31.555956"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1">
   <defs
@@ -78,17 +78,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.7747252"
-     inkscape:cx="-67.325677"
-     inkscape:cy="-9.9285379"
+     inkscape:zoom="5.5494504"
+     inkscape:cx="15.444067"
+     inkscape:cy="25.657251"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1138"
-     inkscape:window-height="722"
-     inkscape:window-x="229"
-     inkscape:window-y="76"
+     inkscape:window-width="1376"
+     inkscape:window-height="1031"
+     inkscape:window-x="1078"
+     inkscape:window-y="92"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata3808">
@@ -112,10 +112,12 @@
        width="48.215885"
        height="48.049915"
        x="0.219761"
-       y="-32.435646" />
+       y="-32.435646"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <path
        sodipodi:type="arc"
-       style="fill:url(#linearGradient3244);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:url(#linearGradient3244);fill-opacity:1.0;fill-rule:evenodd;stroke:url(#linearGradient3236);stroke-width:1.0063051;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="path3811"
        sodipodi:cx="8.7170792"
        sodipodi:cy="8.093812"
@@ -125,17 +127,31 @@
        sodipodi:start="0"
        sodipodi:end="3.1551388"
        sodipodi:open="true"
-       transform="matrix(3.7603255,0,0,4.3845671,-8.290414,-45.529891)" />
+       transform="matrix(3.7603255,0,0,4.3845671,-8.290414,-45.529891)"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:18.16336632px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Microsoft Sans Serif, Bitstream Vera Sans, Helvetica, Arial"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Microsoft Sans Serif', 'Bitstream Vera Sans', Helvetica, Arial;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="4.0767069"
        y="-15.608515"
        id="text3813"
-       sodipodi:linespacing="100%"><tspan
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan3246"
          x="4.0767069"
-         y="-15.608515">Side</tspan></text>
+         y="-15.608515"
+         style="font-size:18.16400019px;line-height:1;-inkscape-font-specification:'Noto Sans, Normal';font-family:'Noto Sans';font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;fill:#cbcbcb;fill-opacity:1">Side</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="30.273268"
+       y="13.297031"
+       id="text1432"><tspan
+         sodipodi:role="line"
+         id="tspan1430"
+         x="30.273268"
+         y="34.531403"></tspan></text>
   </g>
 </svg>

@@ -19,13 +19,7 @@
  * 02110-1301, USA
  */
 
-#ifdef __GNU_LIBRARY__
 #include "compat/coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
-#include "compat/coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
@@ -67,7 +61,6 @@ compare_dictionaries(const std::string &type,
 		     bool quiet) {
 
    int status = 0;
-   std::string dir = ".";
    // bool found_type_in_dictionary_1 = true; // not used
    bool found_type_in_dictionary_2 = true;
 
@@ -85,7 +78,6 @@ compare_dictionaries(const std::string &type,
    std::pair<bool, coot::dictionary_residue_restraints_t> r2 = 
       pg_2.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
 
-   
 
    if (!r1.first) { 
       std::cout << "Failed to find restraints for type " << type << " in "
@@ -132,7 +124,6 @@ compare_dictionaries(const std::string &type,
       std::cout << "Trying Graph matching..." << std::endl;
 
       if (pg_2.size() == 1) {
-	 int zeroth = 0;
 	 std::string ref_type = pg_2[0].second.comp_id();
 	 std::cout << "getting dictionary for " << ref_type << " from " << file_name_2 << std::endl;
 	 r2 = pg_2.get_monomer_restraints(ref_type, coot::protein_geometry::IMOL_ENC_ANY);
@@ -181,7 +172,9 @@ void print_help(std::string cmd) {
       "        --include-hydrogens (default: geometry excludes hydrogens)\n" << 
       std::endl;
    
-} 
+}
+
+
 
 int main(int argc, char **argv) {
 
@@ -228,44 +221,44 @@ int main(int argc, char **argv) {
 	 switch(ch) {
 	    
 	 case 0:
-	    if (optarg) {
+	    if (coot_optarg) {
 	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "type")
-		  type = optarg;
+		  type = coot_optarg;
 	       if (arg_str == "dict-1")
-		  file_name_1 = optarg;
+		  file_name_1 = coot_optarg;
 	       if (arg_str == "dict-2")
-		  file_name_2 = optarg;
+		  file_name_2 = coot_optarg;
 	       if (arg_str == "bond-length-tol") { 
 		  try {
-		     bond_length_tolerance = coot::util::string_to_float(optarg);
+		     bond_length_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "bond-length-esd-tol") { 
 		  try {
-		     bond_esd_tolerance = coot::util::string_to_float(optarg);
+		     bond_esd_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "angle-tol") { 
 		  try {
-		     angle_tolerance = coot::util::string_to_float(optarg);
+		     angle_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "angle-esd-tol") { 
 		  try {
-		     angle_esd_tolerance = coot::util::string_to_float(optarg);
+		     angle_esd_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 

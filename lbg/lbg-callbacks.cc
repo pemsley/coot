@@ -22,9 +22,7 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
 #include <Python.h>
-#endif
 
 #include <gtk/gtk.h>
 #include <stdlib.h> // for system()
@@ -35,7 +33,7 @@
 extern "C" G_MODULE_EXPORT void
 on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -53,9 +51,10 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_lbg_close_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l->is_stand_alone())
-      gtk_exit(0);
+      //       gtk_exit(0);
+      exit(0);
    else
       gtk_widget_hide(l->lbg_window);
 }
@@ -63,7 +62,7 @@ on_lbg_close_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_lbg_search_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
 #ifdef HAVE_CCP4SRS   
    l->search();
 #else
@@ -81,7 +80,7 @@ extern "C" G_MODULE_EXPORT void
 on_other_element_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_X);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->show_atom_x_dialog();
    } 
@@ -143,8 +142,7 @@ on_nitrogen_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user
 extern "C" G_MODULE_EXPORT void
 on_info_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-   // std::cout << "lbg_info_t pointer is " << l << std::endl;
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       GtkWidget *w = l->about_dialog;
       // std::cout << "about_dialog widget is " << w << std::endl;
@@ -159,7 +157,7 @@ extern "C" G_MODULE_EXPORT void
 on_about_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
    
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       GtkWidget *w = l->about_dialog;
       gtk_widget_show(w);
@@ -172,7 +170,7 @@ on_about_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_undo_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l)
       l->undo();
 }
@@ -181,7 +179,7 @@ extern "C" G_MODULE_EXPORT void
 on_delete_item_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::DELETE_MODE);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) { 
       if (gtk_toggle_tool_button_get_active(button)) {
 	 l->set_in_delete_mode(1);
@@ -195,7 +193,7 @@ extern "C" G_MODULE_EXPORT void
 on_clear_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
    GtkWidget *canvas = get_canvas_from_scrolled_win(GTK_WIDGET(user_data));
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l)
       l->clear(true);
 }
@@ -282,7 +280,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_save_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
 	 l->write_mdl_molfile_using_default_file_name();
    }
@@ -295,7 +293,7 @@ extern "C" G_MODULE_EXPORT void
 on_print_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       std::string file_name = "coot-lidia.pdf";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog), file_name.c_str());
@@ -307,7 +305,7 @@ extern "C" G_MODULE_EXPORT void
 on_export_as_png_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       std::string file_name = "coot-lidia.png";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog), file_name.c_str());
@@ -319,7 +317,7 @@ extern "C" G_MODULE_EXPORT void
 on_export_as_svg_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       std::string file_name = "coot-lidia.svg";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_svg_dialog), file_name.c_str());
@@ -333,14 +331,14 @@ on_lbg_aboutdialog_response (GtkDialog       *dialog,
 			     gint             response_id,
 			     gpointer         user_data) {
 
-  GtkWidget *canvas = GTK_WIDGET(user_data);
-  lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-  if (l) {
-     GtkWidget *w = l->about_dialog;
-     gtk_widget_hide(w);
-  } else {
-     std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
-  } 
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
+   if (l) {
+      GtkWidget *w = l->about_dialog;
+      gtk_widget_hide(w);
+   } else {
+      std::cout << "failed to get lbg_info_t from canvas " << canvas << " " << user_data << std::endl;
+   }
 }
 
 
@@ -348,7 +346,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_aboutdialog_close (GtkDialog       *dialog,
 			  gpointer         user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       GtkWidget *w = l->about_dialog;
       gtk_widget_hide(w);
@@ -361,11 +359,11 @@ on_lbg_aboutdialog_close (GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT void
 on_lbg_open_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
-  GtkWidget *canvas = GTK_WIDGET(user_data);
-  lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-  if (l) {
-     gtk_widget_show(l->open_dialog);
-  }
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
+   if (l) {
+      gtk_widget_show(l->open_dialog);
+   }
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -375,7 +373,7 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->open_dialog));
 	 l->import_molecule_from_file(file_name);
@@ -388,7 +386,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_open_filechooserdialog_close(GtkDialog       *dialog,
 				    gpointer         user_data){
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(l->open_dialog);
    }
@@ -401,7 +399,7 @@ on_lbg_sbase_search_results_dialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_CLOSE) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 gtk_widget_hide(GTK_WIDGET(dialog));
       }
@@ -414,7 +412,7 @@ on_lbg_save_as_filechooserdialog_close(GtkDialog       *dialog,
 				       gpointer         user_data) {
    std::cout << "on_lbg_save_as_filechooserdialog_close() " << std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -427,7 +425,7 @@ on_lbg_save_as_filechooserdialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->save_as_dialog));
 	 l->set_default_mdl_file_name(file_name);
@@ -442,7 +440,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_save_as_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->save_as_dialog), "coot.mol");
       gtk_widget_show(l->save_as_dialog);
@@ -453,17 +451,17 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_new_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->new_lbg_window();
    }
 }
 
 extern "C" G_MODULE_EXPORT void
-on_lbg_display_standard_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+on_lbg_display_standard_menuitem_activate (GtkMenuItem *item, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->set_display_atom_names(false);
       l->set_display_atom_numbers(false);
@@ -475,7 +473,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_display_indices_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->set_display_atom_names(false);
       l->set_display_atom_numbers(true);
@@ -487,7 +485,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_display_names_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->set_display_atom_numbers(false);
       l->set_display_atom_names(true);
@@ -498,9 +496,9 @@ on_lbg_display_names_menuitem_activate (GtkMenuItem *item, gpointer         user
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_pdf_filechooserdialog_close(GtkDialog       *dialog,
-				       gpointer         user_data){
+                                             gpointer         user_data){
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -513,7 +511,7 @@ on_lbg_export_as_pdf_filechooserdialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog));
 	 l->write_pdf(file_name);
@@ -523,23 +521,24 @@ on_lbg_export_as_pdf_filechooserdialog_response(GtkDialog       *dialog,
 }
 
 extern "C" G_MODULE_EXPORT void
-on_lbg_close_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+on_lbg_close_menuitem_activate (GtkMenuItem *item, gpointer user_data) {
 
-  GtkWidget *canvas = GTK_WIDGET(user_data);
-  lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-  if (l) {
-     if (l->is_stand_alone())
-	gtk_exit(0);
-     else
-	gtk_widget_hide(l->lbg_window);
-  }
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
+   if (l) {
+      if (l->is_stand_alone())
+         // gtk_exit(0);
+         exit(0);
+      else
+         gtk_widget_hide(l->lbg_window);
+   }
 }
 
 extern "C" G_MODULE_EXPORT void
 on_libcheckify_button_clicked(GtkButton *button, gpointer user_data) {
    
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       std::string fn = "coot-lbg-for-libcheck-minimal.cif";
       std::cout << "writing cif file " << fn << std::endl;
@@ -554,7 +553,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_png_filechooserdialog_close(GtkDialog       *dialog,
 				       gpointer         user_data){
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -567,7 +566,7 @@ on_lbg_export_as_png_filechooserdialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog));
 	 l->write_png(file_name);
@@ -583,7 +582,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_svg_filechooserdialog_close(GtkDialog       *dialog,
 					     gpointer         user_data){
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    }
@@ -597,7 +596,7 @@ on_lbg_export_as_svg_filechooserdialog_response(GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_svg_dialog));
 	 l->write_svg(file_name);
@@ -616,7 +615,7 @@ extern "C" G_MODULE_EXPORT void
 on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
 
       if (l->is_stand_alone()) { 
@@ -637,7 +636,7 @@ extern "C" G_MODULE_EXPORT void
 on_residue_circles_toggle_toolbutton_toggled(GtkToggleToolButton *toggle_button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
 
       if (gtk_toggle_tool_button_get_active(toggle_button)) {
@@ -657,7 +656,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
 
       std::string smiles_text = l->get_smiles_string_from_mol();
@@ -671,7 +670,7 @@ on_lbg_smiles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_lbg_smiles_dialog_ok_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -684,7 +683,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_smiles_dialog_close (GtkDialog *dialog,
 			    gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       gtk_widget_hide(GTK_WIDGET(dialog));
    } else {
@@ -697,7 +696,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_key_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::DELETE_MODE);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) { 
       if (gtk_toggle_tool_button_get_active(button)) {
 	 l->show_key();
@@ -717,7 +716,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_delete_hydrogens_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       l->delete_hydrogens();
    } 
@@ -727,7 +726,7 @@ on_lbg_delete_hydrogens_toolbutton_clicked(GtkToolButton *button, gpointer user_
 extern "C" G_MODULE_EXPORT void
 on_lbg_atom_x_dialog_close_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -747,7 +746,7 @@ on_lbg_atom_x_entry_changed (GtkEditable *editable,
 			     gpointer     user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -761,7 +760,7 @@ on_lbg_get_drug_entry_changed (GtkEditable *editable,
 			       gpointer     user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -774,7 +773,7 @@ on_lbg_get_drug_entry_changed (GtkEditable *editable,
 extern "C" G_MODULE_EXPORT void
 on_lbg_get_drug_ok_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -786,7 +785,7 @@ on_lbg_get_drug_ok_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_lbg_get_drug_cancel_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -799,7 +798,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_get_drug_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
    
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
       GtkWidget *w = l->lbg_get_drug_dialog;
       gtk_widget_show(w);
@@ -814,9 +813,9 @@ on_lbg_show_alerts_checkbutton_toggled(GtkToggleButton *togglebutton,
 				       gpointer         user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l) {
-      if (togglebutton->active) {
+      if (gtk_toggle_button_get_active(togglebutton)) {
 	 gtk_widget_show(l->lbg_alert_hbox_outer);
 	 l->show_alerts_user_control = true;
 	 l->update_descriptor_attributes();
@@ -832,7 +831,7 @@ on_lbg_show_alerts_checkbutton_toggled(GtkToggleButton *togglebutton,
 extern "C" G_MODULE_EXPORT void
 on_pe_test_function_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -844,7 +843,7 @@ on_pe_test_function_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_lbg_view_rotate_apply_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -858,7 +857,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_view_flip_around_x_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -870,7 +869,7 @@ on_lbg_view_flip_around_x_button_clicked(GtkButton *button, gpointer user_data) 
 extern "C" G_MODULE_EXPORT void
 on_lbg_view_flip_around_y_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
@@ -892,7 +891,7 @@ lbg_import_from_smiles_dialog_response_cb (GtkDialog       *dialog,
 					   gpointer         user_data) {
    if (response_id == GTK_RESPONSE_OK) { // -5
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 GtkWidget *entry = l->lbg_import_from_smiles_entry;
 	 if (entry) {
@@ -922,7 +921,7 @@ on_lbg_import_from_comp_id_dialog_response (GtkDialog       *dialog,
 					    gpointer         user_data) {
    if (response_id == GTK_RESPONSE_OK) { // -5
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 GtkWidget *entry = l->lbg_import_from_comp_id_entry;
 	 if (entry) {
@@ -947,7 +946,7 @@ on_lbg_import_from_comp_id_dialog_response (GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT void
 on_lbg_clean_up_2d_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l)
       l->clean_up_2d_representation();
 }
@@ -956,7 +955,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_import_smiles_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l)
       gtk_widget_show(l->lbg_import_from_smiles_dialog);
 }
@@ -965,7 +964,7 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_import_comp_id_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
-   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
    if (l)
       gtk_widget_show(l->lbg_import_from_comp_id_dialog);
    

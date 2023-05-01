@@ -19,7 +19,7 @@ def connection_proc(port, hostname):
 
     # main body
 
-    print "BL DEBUG:: host, port", hostname,port
+    print("BL DEBUG:: host, port", hostname,port)
     #Setup a standard internet socket.
     #The sockopt call lets this server use the given port even if
     #it was recently used by another server
@@ -30,24 +30,24 @@ def connection_proc(port, hostname):
 
     #Handle a client request
     request, clientAddress = sock.accept()
-    print "################ Got a connection!"
+    print("################ Got a connection!")
 
     request.send("\n")
 
-    print "BL DEBUG:: read ACT"
+    print("BL DEBUG:: read ACT")
     request.send("read_pdb('monomer-ACT.pdb')\n")
     end_transmission()
 
     import time
     time.sleep(5)
     # more!?
-    print "BL DEBUG:: read PIN"
-    request.send("imol = read_pdb('monomer-PIN.pdb')\n")
+    print("BL DEBUG:: read PIN")
+    request.send("imol = coot.read_pdb('monomer-PIN.pdb')\n")
     request.send("set_rotation_centre(5, 5, 5)\n")
     request.send("move_molecule_to_screen_centre(imol)\n")
     end_transmission()
     # close transmission
-    print "BL DEBUG:: send close"
+    print("BL DEBUG:: send close")
     close_transmission()
     sock.close()
 

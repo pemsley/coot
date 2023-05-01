@@ -43,6 +43,8 @@
 
 #include "coot-fileselections.h"
 
+#include "widget-from-builder.hh"
+
 void
 graphics_info_t::clear_pending_picks() {
    a_is_pressed = 0;
@@ -147,11 +149,7 @@ graphics_info_t::model_fit_refine_button_name_list() {
    std::vector<std::string> names;
    names.push_back("model_refine_dialog_refine_params_button");
    names.push_back("model_refine_dialog_map_select_button");
-#if (GTK_MAJOR_VERSION >1)
    names.push_back("model_refine_dialog_fixed_atoms_button");
-#else
-   names.push_back("model_refine_dialog_fix_atoms_button");
-#endif
 //   names.push_back("model_refine_dialog_find_waters_button");
    names.push_back("model_refine_dialog_add_alt_conf_button");
    names.push_back("model_refine_dialog_pointer_atom_button");
@@ -195,9 +193,11 @@ graphics_info_t::set_model_fit_refine_button_names(GtkWidget *widget) {
       button_names.push_back(normal_button_names[i]);
 
    for (unsigned int i=0; i<button_names.size(); i++) {
-      GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      GtkWidget *w = widget_from_builder(button_names[i].c_str());
       if (w) {
-	 gtk_widget_set_name(w, button_names[i].c_str());
+	 gtk_widget_set_name(w, button_names[i].c_str());     // 20220311-PE old way
+         char *s = g_strdup(button_names[i].c_str()); // leaked?
+         g_object_set_data(G_OBJECT(w), "name", s);           // new way
       }
    }
 }
@@ -206,8 +206,7 @@ graphics_info_t::set_model_fit_refine_button_names(GtkWidget *widget) {
 void
 graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) { 
 
-   std::vector<std::string> other_button_names =
-     other_modelling_tools_button_name_list();
+   std::vector<std::string> other_button_names = other_modelling_tools_button_name_list();
 
    std::vector<std::string> button_names = other_button_names;
    // dont need extra ones here yet
@@ -215,27 +214,33 @@ graphics_info_t::set_other_modelling_tools_button_names(GtkWidget *widget) {
    //   button_names.push_back(other_button_names[i]);
 
    for (unsigned int i=0; i<button_names.size(); i++) {
-      GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      // GtkWidget *w = lookup_widget(widget, button_names[i].c_str());
+      GtkWidget *w = widget_from_builder(button_names[i].c_str());
       if (w) {
-        gtk_widget_set_name(w, button_names[i].c_str());
+         gtk_widget_set_name(w, button_names[i].c_str()); // old way.
+         char *s = g_strdup(button_names[i].c_str()); // leaked?
+         g_object_set_data(G_OBJECT(w), "name", s); // new way
       }
    }
 }
 
-   
+GtkWidget *
+graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
 
+   // GtkWidget *w = create_residue_type_chooser_window();
+   GtkWidget *w = widget_from_builder("residue_type_chooser_window");
+   GtkWidget *b = widget_from_builder("residue_type_chooser_stub_checkbutton");
 
-// static
-void
-graphics_info_t::untoggle_model_fit_refine_buttons_except(const std::string &button_name) {
+   if (show_stub_option_flag == 0) 
+      gtk_widget_hide(b);
 
-   std::vector<std::string> button_name_vec =
-      graphics_info_t::model_fit_refine_toggle_button_name_list();
-   for (unsigned int i=0; i<button_name_vec.size(); i++)
-      if (button_name_vec[i] != button_name)
-	 model_fit_refine_unactive_togglebutton(button_name_vec[i]);
+   return w;
 }
 
+
+#if 0 // -------------------------------------------------------------------------------------------------------------------
+
+// FIXME event button functions! 
 
 int
 graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
@@ -283,7 +288,7 @@ graphics_info_t::check_if_in_user_defined_define(GdkEventButton *event) {
 
    graphics_info_t g;
    if (g.in_user_defined_define) {
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 in_user_defined_define--;
 	 int im = nearest_atom_index_info.imol;
@@ -311,11 +316,13 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
    //
    graphics_info_t info;
    if (info.in_residue_info_define == 1) { 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) { 
 	 int im = nearest_atom_index_info.imol; 
 	 // std::cout << "info: clicked on imol: " << im << std::endl;
 	 // a c-interface-info function...
+         std::cout << "debug:: in check_if_in_residue_info_define() calling output_residue_info_dialog() "
+                   << std::endl;
 	 output_residue_info_dialog(im, nearest_atom_index_info.atom_index); 
 	 info.in_residue_info_define = 0;
 	 normal_cursor();
@@ -326,58 +333,67 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
 
 
 int
-graphics_info_t::check_if_in_refine_define(GdkEventButton *event) { 
+graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
 
    int iv = 0;
 
-   if (in_range_define_for_refine) { 
+   if (in_range_define_for_refine) {
 
       iv = 1;
 
       //       int auto_range_flag = 0;
-      pick_info naii = atom_pick(event);
+      pick_info naii = atom_pick_gtk3(false);
       if (naii.success == GL_TRUE) { 
 	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
-	 if (in_range_define_for_refine == 1) { 
-	    
-	    residue_range_atom_index_1 = naii.atom_index;
-	    residue_range_mol_no = naii.imol;
-	    in_range_define_for_refine = 2;
-	    // removed autorange code, on suggestion of Kevin.  Put
-	    // into A key callback now.
+         if (is_valid_model_molecule(naii.imol)) {
 
-	 } else { 
+            molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
-	    // (in_range_define_for_refine == 2)
+            if (in_range_define_for_refine == 1) {
 
-	    if (naii.imol == residue_range_mol_no) {
-	       watch_cursor();
-	       residue_range_atom_index_2 = naii.atom_index;
-	       int auto_range_flag = 0;
-	       rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
-						   // mouse behaviour (we
-						   // don't want to rotate
-						   // the atoms)
-	       refine(residue_range_mol_no,
-		      auto_range_flag,
-		      residue_range_atom_index_1,
-		      residue_range_atom_index_2);
-	    }
-	    
-	    in_range_define_for_refine = 0;
-	    normal_cursor();
-	    pick_pending_flag = 0;
-	    model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
-	 }
-	 graphics_draw(); // let's see the label
+               residue_range_atom_index_1 = naii.atom_index;
+               residue_range_mol_no = naii.imol;
+               in_range_define_for_refine = 2;
+               // removed autorange code, on suggestion of Kevin.  Put
+               // into A key callback now.
+
+            } else {
+
+               // (in_range_define_for_refine == 2)
+
+               if (naii.imol == residue_range_mol_no) {
+                  watch_cursor();
+                  residue_range_atom_index_2 = naii.atom_index;
+                  int auto_range_flag = 0;
+                  rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
+                  // mouse behaviour (we
+                  // don't want to rotate
+                  // the atoms)
+
+                  residue_type_selection_was_user_picked_residue_range = true;
+                  refine(residue_range_mol_no,
+                         auto_range_flag,
+                         residue_range_atom_index_1,
+                         residue_range_atom_index_2);
+               }
+
+               in_range_define_for_refine = 0;
+               normal_cursor();
+               pick_pending_flag = 0;
+               model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+            }
+            graphics_draw(); // let's see the label
+         }
+      } else {
+         std::cout << "WARNING:: that was a successful pick but not a valid molecule " << std::endl;
       }
    }
    return iv;
 }
 
-int 
-graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) { 
+int
+graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
 
    int iv = 0;
 
@@ -385,7 +401,7 @@ graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
 
       iv = 1;
       
-      pick_info naii = atom_pick(event);
+      pick_info naii = atom_pick_gtk3(false);
       int auto_range_flag = 0;
       if (naii.success == GL_TRUE) { 
 	 int imol = naii.imol;
@@ -437,14 +453,14 @@ graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
    return iv;
 }
 
-// distances/angles
+// distances and angles
 void
 graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
    if (in_distance_define) {
       
       pick_info nearest_atom_index_info; 
-      nearest_atom_index_info = atom_pick(event);
+      nearest_atom_index_info = atom_pick_gtk3(false);
 	    
       if ( nearest_atom_index_info.success == GL_TRUE ) {
 
@@ -464,20 +480,17 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	 } else {
 
 	    // in_distance_define == 2
-	    geometry_atom_index_2 =
-	       nearest_atom_index_info.atom_index;
-	    geometry_atom_index_2_mol_no =
-	       nearest_atom_index_info.imol;
+	    geometry_atom_index_2 = nearest_atom_index_info.atom_index;
+	    geometry_atom_index_2_mol_no = nearest_atom_index_info.imol;
 
 	    mmdb::Atom *atom2 = molecules[im].atom_sel.atom_selection[geometry_atom_index_2];
 	    coot::Cartesian pos2 = coot::Cartesian(atom2->x, atom2->y, atom2->z);
 
 	    // 20190104-PE Why were we using the symmetry function?
-// 	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
-// 					   geometry_atom_index_2_mol_no, pos2);
+            // 	    display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
+            // 					   geometry_atom_index_2_mol_no, pos2);
 
-	    display_geometry_distance(geometry_atom_index_1_mol_no, distance_pos_1,
-				      geometry_atom_index_2_mol_no, pos2); // calls graphics_draw()
+	    add_measure_distance(distance_pos_1, pos2); // calls graphics_draw()
 
 	    unset_geometry_dialog_distance_togglebutton();
 	    in_distance_define = 0;  // clear flag
@@ -510,8 +523,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	       // in_distance_define == 2
 	       coot::Cartesian pos2 = symm_nearest_atom_index_info.hybrid_atom.pos;
 	       geometry_atom_index_2_mol_no = symm_nearest_atom_index_info.imol;
-	       display_geometry_distance(geometry_atom_index_1_mol_no, distance_pos_1,
-					 geometry_atom_index_2_mol_no, pos2);
+	       add_measure_distance(distance_pos_1, pos2);
 	       unset_geometry_dialog_distance_togglebutton();
 	       in_distance_define = 0;
 	       pick_pending_flag = 0;
@@ -527,7 +539,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
       // We need a cleaner way to know if this was an atom pick or a symm atom pick.
       // Let's sort it out in the beginning:
       short int picked = 0; 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       mmdb::Atom *atom = 0;
       coot::Cartesian pos;
       
@@ -569,8 +581,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	       angle_tor_pos_3 = pos;
 	       graphics_draw();
 	       
-	       display_geometry_angle(); // uses class members
-	                                 // that we have just set
+	       add_measure_angle(); // uses class members that we have just set
 
 	       in_angle_define = 0;  // clear flag
 	       pick_pending_flag = 0;
@@ -588,7 +599,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
       // We need a cleaner way to know if this was an atom pick or a symm atom pick.
       // Let's sort it out in the beginning:
       short int picked = 0; 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       mmdb::Atom *atom = 0;
       coot::Cartesian pos;
       
@@ -649,7 +660,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	 std::cout << "in_dynamic_distance_define check "
 		   << in_dynamic_distance_define << std::endl;
 	 if (in_dynamic_distance_define == 1) { 
-	    pick_info nearest_atom_index_info = atom_pick(event);
+	    pick_info nearest_atom_index_info = atom_pick_gtk3(false);
 	    pick_info nearest_intermediate_atom_info = pick_intermediate_atom(*moving_atoms_asc);
 	    bool do_static_atom = 0;
 	    bool do_intermediate_atom = 0;
@@ -693,7 +704,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
 	    if (in_dynamic_distance_define == 2) {
 	       if (running_dynamic_distance.atom_is_filled()) {
-		  pick_info naii = atom_pick(event);
+		  pick_info naii = atom_pick_gtk3(false);
 		  if (naii.success == GL_TRUE) {
 		     std::cout << "in_dynamic_distance_define pick 2 static atom "
 			       << in_dynamic_distance_define << std::endl;
@@ -733,7 +744,7 @@ void
 graphics_info_t::check_if_in_pepflip_define(GdkEventButton *event) {
 
    if (in_pepflip_define == 1) {
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 imol_pepflip = nearest_atom_index_info.imol;
 	 atom_index_pepflip = nearest_atom_index_info.atom_index;
@@ -745,71 +756,206 @@ graphics_info_t::check_if_in_pepflip_define(GdkEventButton *event) {
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
 	 graphics_draw();
       }
-   } 
+   }
 }
 
+#include "pulse-data.hh"
 
 void
 graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
-						const GdkModifierType &state) {
+                                                const GdkModifierType &state) {
 
    if (false)
       std::cout << "DEBUG:: delete_item atom " << delete_item_atom
-		<< " residue " << delete_item_residue
-		<< " water " << delete_item_water
-		<< " sidechain " << delete_item_sidechain
-		<< " sidechain-range " << delete_item_sidechain_range
-		<< " chain " << delete_item_chain
-		<< " range " << delete_item_residue_zone
-		<< " hydrogens " << delete_item_residue_hydrogens
-		<< std::endl;
+                << " residue " << delete_item_residue
+                << " water " << delete_item_water
+                << " sidechain " << delete_item_sidechain
+                << " sidechain-range " << delete_item_sidechain_range
+                << " chain " << delete_item_chain
+                << " range " << delete_item_residue_zone
+                << " hydrogens " << delete_item_residue_hydrogens
+                << std::endl;
+
+
+   auto mmdb_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   auto delete_item_pulse_func = [] (GtkWidget *widget,
+                                     GdkFrameClock *frame_clock,
+                                     gpointer data) {
+
+                                    gboolean continue_status = 1;
+                                    pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+                                    pulse_data->n_pulse_steps += 1;
+                                    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+                                       continue_status = 0;
+                                       lines_mesh_for_delete_item_pulse.clear();
+                                       delete_item_pulse_centres.clear();
+                                    } else {
+                                       float ns = pulse_data->n_pulse_steps;
+                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                    }
+                                    graphics_draw();
+                                    return gboolean(continue_status);
+                                 };
+
+   auto residue_to_positions = [] (mmdb::Residue *residue_p, bool hydrogen_atoms_only_flag=false) {
+                                  std::vector<glm::vec3> v;
+                                  mmdb::Atom **residue_atoms = 0;
+                                  int n_residue_atoms = 0;
+                                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                                  for(int iat=0; iat<n_residue_atoms; iat++) {
+                                     mmdb::Atom *at = residue_atoms[iat];
+                                     if (! at->isTer()) {
+                                        if (! hydrogen_atoms_only_flag) {
+                                           glm::vec3 p(at->x, at->y, at->z);
+                                           v.push_back(p);
+                                        } else {
+                                           std::string ele(at->element);
+                                           if (ele == " H") {
+                                              glm::vec3 p(at->x, at->y, at->z);
+                                              v.push_back(p);
+                                           }
+                                        }
+                                     }
+                                  }
+                                  return v;
+                               };
+
+   auto residue_to_side_chain_positions = [mmdb_to_glm] (mmdb::Residue *residue_p) {
+                                             std::vector<glm::vec3> v;
+                                             mmdb::Atom **residue_atoms = 0;
+                                             int n_residue_atoms = 0;
+                                             residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                                             for(int iat=0; iat<n_residue_atoms; iat++) {
+                                                mmdb::Atom *at = residue_atoms[iat];
+                                                if (! at->isTer()) {
+                                                   if (! (coot::is_main_chain_or_cb_p(at))) {
+                                                      v.push_back(mmdb_to_glm(at));
+                                                   }
+                                                }
+                                             }
+                                             return v;
+                                          };
+
+   auto setup_delete_atom_pulse = [mmdb_to_glm, delete_item_pulse_func] (mmdb::Atom *at) {
+                                     glm::vec3 p = mmdb_to_glm(at);
+                                     pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+                                     gpointer user_data = reinterpret_cast<void *>(pulse_data);
+                                     std::vector<glm::vec3> positions = {p};
+                                     delete_item_pulse_centres = positions;
+                                     gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+                                     bool broken_line_mode = true;
+                                     lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+                                     gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+                                  };
+
+   auto setup_delete_residue_pulse = [residue_to_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
+
+      pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = residue_to_positions(residue_p);
+      delete_item_pulse_centres = positions;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+      bool broken_line_mode = true;
+      lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+      gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+   };
+
+
+   auto setup_delete_residues_hydrogen_atoms_pulse = [residue_to_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
+      pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = residue_to_positions(residue_p, true);
+      delete_item_pulse_centres = positions;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+      bool broken_line_mode = true;
+      lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+      gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+   };
+
+
+   auto setup_delete_residues_pulse = [residue_to_positions, delete_item_pulse_func] (const std::vector<mmdb::Residue *> &residues) {
+
+      pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> all_positions;
+      for (unsigned int i=0; i<residues.size(); i++) {
+         mmdb::Residue *residue_p = residues[i];
+         std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
+         all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
+      }
+      delete_item_pulse_centres = all_positions;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+      bool broken_line_mode = true;
+      lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+      gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+   };
+
+   auto setup_delete_residue_sidechain_pulse = [residue_to_side_chain_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
+                                                  pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+                                                  gpointer user_data = reinterpret_cast<void *>(pulse_data);
+                                                  std::vector<glm::vec3> positions = residue_to_side_chain_positions(residue_p);
+                                                  delete_item_pulse_centres = positions;
+                                                  gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+                                                  bool broken_line_mode = true;
+                                                  lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+                                                  gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+                                               };
+
 
    bool item_deleted = false;
    int imol_delete = -1;
+
    graphics_info_t g;
    short int destroy_delete_dialog_flag_by_ctrl_press = 1;
    if (state & GDK_CONTROL_MASK)
       destroy_delete_dialog_flag_by_ctrl_press = 0;
-   
-   if (g.delete_item_widget) { 
+
+   if (true) {
+
       // atom
-      if (g.delete_item_atom) {
-	 pick_info naii = atom_pick(event);
+      if (delete_item_atom) {
+	 pick_info naii = atom_pick_gtk3(false);
 	 if (naii.success == GL_TRUE) {
-	    mmdb::Residue *res = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
-	    std::string resname(res->name);
+            mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	    mmdb::Residue *res = at->residue;
+	    std::string resname(res->GetResName());
 	    if (resname == "WAT" || resname == "HOH") {
 	       std::string w = "Protection measure: ";
 	       w += "Waters can only be deleted using Delete Water";
 	       add_status_bar_text(w);
 	    } else {
 	       normal_cursor();
-	       delete_atom_by_atom_index(naii.imol, naii.atom_index,
-					 destroy_delete_dialog_flag_by_ctrl_press);
+               setup_delete_atom_pulse(at);
+	       delete_atom_by_atom_index(naii.imol, naii.atom_index, destroy_delete_dialog_flag_by_ctrl_press);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
 	       item_deleted = true;
 	       imol_delete = naii.imol;
+               delete_item_atom = false;
 	    }
-	 } else { 
+	 } else {
 
 	    if (show_symmetry) {
-	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick(); 
+	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick();
 
 	       if (1) {
 
 		  if (symm_nearest_atom_index_info.success == GL_TRUE) {
 		     int im = symm_nearest_atom_index_info.imol;
 		     int index = symm_nearest_atom_index_info.atom_index;
-		     delete_atom_by_atom_index(im, index,
-					       destroy_delete_dialog_flag_by_ctrl_press);
+		     delete_atom_by_atom_index(im, index, destroy_delete_dialog_flag_by_ctrl_press);
 		     normal_cursor();
 		     run_post_manipulation_hook(naii.imol, DELETED);
 		     pick_pending_flag = 0;
 		     item_deleted = true;
 		     imol_delete = im;
+                     delete_item_atom = false;
 		  }
-		  
+
 	       } else {
 
 		  // old code - WARNING, not executed
@@ -826,82 +972,89 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
       }
 
       // water
-      if (g.delete_item_water) {
-	 pick_info naii = atom_pick(event);
-	 if (naii.success == GL_TRUE) {
-	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	    mmdb::Residue *res = at->residue;
-	    std::string resname(res->name);
-	    if (resname == "WAT" || resname == "HOH") { 
-	       normal_cursor();
+      if (delete_item_water) {
+         pick_info naii = atom_pick_gtk3(false);
+         if (naii.success == GL_TRUE) {
+            mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+            mmdb::Residue *res = at->residue;
+            std::string resname(res->name);
+            if (resname == "WAT" || resname == "HOH") {
+               normal_cursor();
 
-	       // Delete (any) hydrogens in the residue, then delete
-	       // the atom.
-	       // What if they click on a hydrogen in the residue?
-	       // The oxygen gets left.
-	       //
-	       //   So, we should check the element and if it is a
-	       //      hydrogen, we should delete the residue.
-	       //   else
-	       //      do what we do now
-	       //        (i.e. delete residue hydrogens,
-	       //         delete_atom())
-	       // OK.
+               // Delete (any) hydrogens in the residue, then delete
+               // the atom.
+               // What if they click on a hydrogen in the residue?
+               // The oxygen gets left.
+               //
+               //   So, we should check the element and if it is a
+               //      hydrogen, we should delete the residue.
+               //   else
+               //      do what we do now
+               //        (i.e. delete residue hydrogens,
+               //         delete_atom())
+               // OK.
 
-	       std::string chain_id(res->GetChainID());
-	       int resno = res->GetSeqNum();
-	       std::string altloc(at->altLoc);
-	       std::string inscode(at->GetInsCode());
-	       std::string atom_name(at->name);
-	       std::string ele = at->element;
-	       if (ele == " H") {
-		  delete_residue_with_full_spec(naii.imol, naii.model_number, chain_id.c_str(),
-						resno, inscode.c_str(), altloc.c_str());
-	       } else { 
-		  molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
-		  delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
-			      atom_name.c_str(), altloc.c_str());
-		  delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
-		  pick_pending_flag = 0;
-		  run_post_manipulation_hook(naii.imol, DELETED);
-		  item_deleted = true;
-		  imol_delete = naii.imol;
-	       }
-	    }
-	 } else {
+               std::string chain_id(res->GetChainID());
+               int resno = res->GetSeqNum();
+               std::string altloc(at->altLoc);
+               std::string inscode(at->GetInsCode());
+               std::string atom_name(at->name);
+               std::string ele = at->element;
+               coot::atom_spec_t at_spec(at);
+               coot::residue_spec_t res_spec(at_spec);
+               setup_delete_residue_pulse(res);
+               if (ele == " H") {
+                  delete_residue_with_full_spec(naii.imol, naii.model_number, chain_id.c_str(),
+                                                resno, inscode.c_str(), altloc.c_str());
+                  delete_item_water = false;
+               } else {
+                  molecules[naii.imol].delete_residue_hydrogens(chain_id, resno, inscode, altloc);
+                  delete_atom(naii.imol, chain_id.c_str(), resno, inscode.c_str(),
+                              atom_name.c_str(), altloc.c_str());
+                  // this dialog no longer exists
+                  // delete_object_handle_delete_dialog(destroy_delete_dialog_flag_by_ctrl_press);
+                  pick_pending_flag = 0;
+                  run_post_manipulation_hook(naii.imol, DELETED);
+                  item_deleted = true;
+                  imol_delete = naii.imol;
+                  delete_item_water = false;
+               }
+            }
+         } else {
 
-	    if (show_symmetry) {
-	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick(); 
+            if (show_symmetry) {
+               coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick();
 
-	       if (symm_nearest_atom_index_info.success == GL_TRUE) {
-		  int im = symm_nearest_atom_index_info.imol;
-		  int index = symm_nearest_atom_index_info.atom_index;
-		  mmdb::Residue *res = molecules[im].atom_sel.atom_selection[index]->residue;
-		  std::string resname(res->name);
-		  if (resname == "WAT" || resname == "HOH") {
-		     // Note of course if we don't delete residue
-		     // hydrogens as we do above, then the atom_index
-		     // doesn't go out of date, so delete_atom_by_atom_index() is fine.
-		     delete_atom_by_atom_index(im, index,
-					       destroy_delete_dialog_flag_by_ctrl_press);
-		     normal_cursor();
-		     run_post_manipulation_hook(im, DELETED);
-		     pick_pending_flag = 0;
-		     item_deleted = true;
-		     imol_delete = im;
-		  }
-	       }
-	    }
-	 }
+               if (symm_nearest_atom_index_info.success == GL_TRUE) {
+                  int im = symm_nearest_atom_index_info.imol;
+                  int index = symm_nearest_atom_index_info.atom_index;
+                  mmdb::Residue *res = molecules[im].atom_sel.atom_selection[index]->residue;
+                  std::string resname(res->name);
+                  if (resname == "WAT" || resname == "HOH") {
+                     // Note of course if we don't delete residue
+                     // hydrogens as we do above, then the atom_index
+                     // doesn't go out of date, so delete_atom_by_atom_index() is fine.
+                     delete_atom_by_atom_index(im, index, destroy_delete_dialog_flag_by_ctrl_press);
+                     normal_cursor();
+                     run_post_manipulation_hook(im, DELETED);
+                     pick_pending_flag = 0;
+                     item_deleted = true;
+                     imol_delete = im;
+                     delete_item_water = false;
+                  }
+               }
+            }
+         }
       }
 
       // side chain
-      if (g.delete_item_sidechain) {
+      if (delete_item_sidechain) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
 	    mmdb::Residue *res = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
 	    std::string resname(res->name);
 	    if (resname != "WAT" && resname != "HOH") {
+               setup_delete_residue_sidechain_pulse(res);
 	       normal_cursor();
 	       int resno = res->GetSeqNum();
 	       const char *ins_code = res->GetInsCode();
@@ -912,12 +1065,13 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       item_deleted = true;
 	       imol_delete = naii.imol;
+               delete_item_sidechain = false;
 	    }
 	 }
       }
 
       // side chain range
-      if (g.delete_item_sidechain_range) {
+      if (delete_item_sidechain_range) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
 	    if (g.delete_item_sidechain_range == 1) {
@@ -941,6 +1095,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 			run_post_manipulation_hook(naii.imol, DELETED);
 			item_deleted = true;
 			imol_delete = naii.imol;
+                        delete_item_sidechain_range = false;
 		     } else {
 			pick_pending_flag = 0;
 			normal_cursor();
@@ -960,92 +1115,86 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
       }
 
       // chain
-      if (g.delete_item_chain) {
+      if (delete_item_chain) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
 	    normal_cursor();
 	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	    std::string chain_id = at->residue->chain->GetChainID();
+            mmdb::Chain *chain_p = at->residue->chain;
+	    std::string chain_id = chain_p->GetChainID();
+            std::vector<mmdb::Residue *> residues = coot::util::residues_in_chain(chain_p);
+            setup_delete_residues_pulse(residues);
 	    delete_chain(naii.imol, chain_id.c_str()); // handles dialog
 	    graphics_draw();
 	    run_post_manipulation_hook(naii.imol, DELETED);
 	    item_deleted = true;
 	    imol_delete = naii.imol;
+            delete_item_chain = false;
 	 }
       }
 
       // residue
-      if (g.delete_item_residue) {
+      if (delete_item_residue) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
 	    mmdb::Residue *res = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
 	    std::string resname(res->name);
 	    if (resname != "WAT" && resname != "HOH") {
+               setup_delete_residue_pulse(res);
 	       normal_cursor();
-	       delete_residue_by_atom_index(naii.imol, naii.atom_index,
-					    destroy_delete_dialog_flag_by_ctrl_press);
+	       delete_residue_by_atom_index(naii.imol, naii.atom_index, destroy_delete_dialog_flag_by_ctrl_press);
 	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
 	       item_deleted = true;
 	       imol_delete = naii.imol;
+               delete_item_residue = false;
 	    }
-	 } else { 
+	 } else {
 
-	    if (show_symmetry) { 
+	    if (show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick();
 
-	       if (1) {
-		  if (symm_nearest_atom_index_info.success == GL_TRUE) {
-		     int im = symm_nearest_atom_index_info.imol;
-		     int index = symm_nearest_atom_index_info.atom_index;
-		     mmdb::Residue *res = molecules[im].atom_sel.atom_selection[index]->residue;
-		     std::string resname(res->name);
-		     if (resname != "WAT" && resname != "HOH") {
-			pick_pending_flag = 0;
-			normal_cursor();
-			int im = symm_nearest_atom_index_info.imol;
-			delete_residue_by_atom_index(im, index,
-						     destroy_delete_dialog_flag_by_ctrl_press);
-			run_post_manipulation_hook(im, DELETED);
-			item_deleted = true;
-			imol_delete = im;
-		     }
-		  }
-	       } else { // not used
-	       
-		  if (symm_nearest_atom_index_info.success == GL_TRUE) {
-		  
-		     std::string s = "That was a symmetry atom\n";
-		     s += "Coot currently doesn't delete symmetry items";
-		     GtkWidget *w = wrapped_nothing_bad_dialog(s);
-		     gtk_widget_show(w);
-		  }
-	       } 
+               if (symm_nearest_atom_index_info.success == GL_TRUE) {
+                  int im = symm_nearest_atom_index_info.imol;
+                  int index = symm_nearest_atom_index_info.atom_index;
+                  mmdb::Residue *res = molecules[im].atom_sel.atom_selection[index]->residue;
+                  std::string resname(res->name);
+                  if (resname != "WAT" && resname != "HOH") {
+                     pick_pending_flag = 0;
+                     normal_cursor();
+                     delete_residue_by_atom_index(im, index, destroy_delete_dialog_flag_by_ctrl_press);
+                     run_post_manipulation_hook(im, DELETED);
+                     item_deleted = true;
+                     imol_delete = im;
+                     delete_item_residue = false;
+                  }
+	       }
 	    }
 	 }
       }
 
       // residue's hydrogens
-      if (g.delete_item_residue_hydrogens) {
+      if (delete_item_residue_hydrogens) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
-	    delete_residue_hydrogens_by_atom_index(naii.imol, naii.atom_index,
-						   destroy_delete_dialog_flag_by_ctrl_press);
+            mmdb::Residue *residue_p = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
+            setup_delete_residues_hydrogen_atoms_pulse(residue_p);
+	    delete_residue_hydrogens_by_atom_index(naii.imol, naii.atom_index, destroy_delete_dialog_flag_by_ctrl_press);
 	    normal_cursor();
 	    pick_pending_flag = 0;
-	 } else { 
+            delete_item_residue_hydrogens = false;
+	 } else {
 	    // Let's face it, this is pretty unlikely ever to happen....
 
-	    if (show_symmetry) { 
+	    if (show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_nearest_atom_index_info = symmetry_atom_pick();
 
 	       if (1) {
 		  if (symm_nearest_atom_index_info.success == GL_TRUE) {
 		     int index = symm_nearest_atom_index_info.atom_index;
 		     int im = symm_nearest_atom_index_info.imol;
-		     delete_residue_hydrogens_by_atom_index(im, index,
-							    destroy_delete_dialog_flag_by_ctrl_press);
+		     delete_residue_hydrogens_by_atom_index(im, index, destroy_delete_dialog_flag_by_ctrl_press);
 		     run_post_manipulation_hook(im, DELETED);
 		     pick_pending_flag = 0;
 		     normal_cursor();
@@ -1069,7 +1218,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
       }
 
       // residue zone
-      if (g.delete_item_residue_zone) {
+      if (delete_item_residue_zone) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
 	    if (g.delete_item_residue_zone == 1) {
@@ -1093,13 +1242,25 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       // c-interface.h
 	       if (naii.imol == g.delete_item_residue_zone_1_imol) {
 		  if (res2.model_number == g.delete_item_residue_zone_1.model_number) {
-
-		     delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
-		     pick_pending_flag = 0;
-		     g.delete_item_residue_zone = 1; //reset for next time
-		     run_post_manipulation_hook(naii.imol, DELETED);
-		     item_deleted = true;
-		     imol_delete = naii.imol;
+                     mmdb::Manager *mol = molecules[naii.imol].atom_sel.mol;
+                     std::string chain_id_1 = at->GetChainID();
+                     std::string chain_id_2 = delete_item_residue_zone_1.chain_id;
+                     if (chain_id_1 == chain_id_2) {
+                        int resno_start = delete_item_residue_zone_1.res_no;
+                        int resno_end = res2.res_no;
+                        if (resno_start > resno_end) std::swap(resno_start, resno_end);
+                        std::vector<mmdb::Residue *> residues = coot::util::get_residues_in_range(mol, chain_id_1, resno_start, resno_end);
+                        setup_delete_residues_pulse(residues);
+                        delete_residue_range(naii.imol, g.delete_item_residue_zone_1, res2);
+                        pick_pending_flag = 0;
+                        g.delete_item_residue_zone = 1; //reset for next time
+                        run_post_manipulation_hook(naii.imol, DELETED);
+                        item_deleted = true;
+                        imol_delete = naii.imol;
+                        delete_item_residue_zone = false;
+                     } else {
+                        add_status_bar_text("Picked atoms not in the same chain");
+                     }
 		  } else {
 		     pick_pending_flag = 0;
 		     normal_cursor();
@@ -1155,9 +1316,9 @@ graphics_info_t::check_if_in_rigid_body_define(GdkEventButton *event) {
 		  execute_rigid_body_refine(0);
 
 	       } else {
-		  cout << "Rigid Body: That atom was not in the "; 
-		  cout << "same molecule as the previous atom" << endl; 
-		  cout << "Cancelling selection" << endl;
+                  std::cout << "Rigid Body: That atom was not in the "; 
+                  std::cout << "same molecule as the previous atom" << std::endl; 
+                  std::cout << "Cancelling selection" << std::endl;
 	       }
 	    }
 	    g.in_rigid_body_define = 0;
@@ -1220,25 +1381,40 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 } 
 
 int
-graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) { 
+graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
+
+   graphics_info_t g;
    
    int state = 0;
-   graphics_info_t g;
    if (g.in_rot_trans_object_define) {
-      if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) { 
-	 pick_info naii = atom_pick(event); 
-	 if (naii.success == GL_TRUE) { 
-	    molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
-	    if (g.in_rot_trans_object_define == 1) { 
+
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_RESIDUE) {
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            g.rot_trans_atom_index_1 = naii.atom_index;
+            g.rot_trans_atom_index_2 = naii.atom_index;
+            g.imol_rot_trans_object = naii.imol;
+            g.execute_rotate_translate_ready();
+            fleur_cursor();
+            g.in_rot_trans_object_define = 0;
+            pick_pending_flag = 0;
+         }
+      }
+
+      if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) {
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+            if (g.in_rot_trans_object_define == 1) {
 	       g.rot_trans_atom_index_1 = naii.atom_index;
 	       g.in_rot_trans_object_define = 2;
 	       g.imol_rot_trans_object = naii.imol;
-	    } else { 
-	       
+	    } else {
+
 	       if (g.in_rot_trans_object_define == 2) { 
 		  if (naii.imol == g.imol_rot_trans_object) { 
 		     g.rot_trans_atom_index_2 = naii.atom_index;
-		     
+
 		     // now we are setup to move:
 		     g.execute_rotate_translate_ready();
 		     fleur_cursor();
@@ -1299,9 +1475,9 @@ graphics_info_t::check_if_in_db_main_define(GdkEventButton *event) {
 
    // 20180721 change this so that it needs only a single click.
 
-   if (g.in_db_main_define) { 
+   if (g.in_db_main_define) {
       pick_info naii = atom_pick(event);
-      if (naii.success == GL_TRUE) { 
+      if (naii.success == GL_TRUE) {
 	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 	 if (g.in_db_main_define == 1) {
 	    g.db_main_atom_index_1 = naii.atom_index;
@@ -1330,7 +1506,7 @@ graphics_info_t::check_if_in_rotamer_define(GdkEventButton *event) {
 	 pick_pending_flag = 0;
 	 normal_cursor();
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_rotamer_togglebutton");
-	 if (0) { 
+	 if (false) {
 	    if (moving_atoms_asc) {
 	       std::cout << "debug moving atoms to moving-atoms.pdb" << std::endl;
 	       moving_atoms_asc->mol->WritePDBASCII("moving-atoms.pdb");
@@ -1349,30 +1525,54 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
    if (g.in_mutate_define) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
-	 g.mutate_residue_imol = naii.imol;
-	 g.mutate_residue_atom_index = naii.atom_index;
-	 mmdb::Residue *r = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
+         // 20220302-PE There is a reported crash here on Apple Silicon. So add lots of protection
+         // But then again, maybe this is not the problematic function.
+         if (is_valid_model_molecule(naii.imol)) {
+            g.mutate_residue_imol = naii.imol;
+            auto &m = molecules[naii.imol];
+            if (naii.atom_index < 0) return;
+            if (naii.atom_index < m.atom_sel.n_selected_atoms) {
+               g.mutate_residue_atom_index = naii.atom_index;
+               mmdb::Atom *at = m.atom_sel.atom_selection[naii.atom_index];
+               if (at) {
+                  mmdb::Residue *r = at->GetResidue();
 
-	 // is it sensible to do it two ways like this?  I'm not sure.
-	 // Perhaps there should be one function that wraps both
-	 // methods?
-	 bool is_nuc = 0;
-	 is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
-	 if (! is_nuc)
-	    is_nuc = coot::util::is_nucleotide(r);
-	 
-	 if (is_nuc) {
-	    GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
-	    gtk_widget_show(w);
-	 } else { 
-	    GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
-	    gtk_widget_show(widget);
-	 }
-	 g.in_mutate_define = 0;
-	 g.residue_type_chooser_auto_fit_flag = 0;
-	 pick_pending_flag = 0;
-	 normal_cursor();
-	 model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_togglebutton");
+                  if (r) {
+
+                     // is it sensible to do it two ways like this?  I'm not sure.
+                     // Perhaps there should be one function that wraps both
+                     // methods?
+                     bool is_nuc = false;
+                     is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
+                     if (! is_nuc)
+                        is_nuc = coot::util::is_nucleotide(r);
+
+                     if (is_nuc) {
+                        // GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
+                        GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
+                        if (w)
+                           gtk_widget_show(w);
+                     } else {
+                        GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
+                        gtk_widget_show(widget);
+                     }
+                     g.in_mutate_define = 0;
+                     g.residue_type_chooser_auto_fit_flag = 0;
+                     pick_pending_flag = 0;
+                     normal_cursor();
+                     model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_togglebutton");
+                  } else {
+                     std::cout << "ERROR:: in check_if_in_mutate_define()   bad residue " << std::endl;
+                  }
+               } else {
+                  std::cout << "ERROR:: in check_if_in_mutate_define()   bad atom " << std::endl;
+               }
+            } else {
+               std::cout << "ERROR:: in check_if_in_mutate_define()   bad atom index " << std::endl;
+            }
+         } else {
+            std::cout << "ERROR:: in check_if_in_mutate_define()  invalide model molecule " << std::endl;
+         }
       }
    }
 } 
@@ -1384,30 +1584,19 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
    if (g.in_mutate_auto_fit_define) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
-	 g.mutate_auto_fit_residue_imol = naii.imol;
-	 g.mutate_auto_fit_residue_atom_index = naii.atom_index;
-	 GtkWidget *widget = wrapped_create_residue_type_chooser_window(0);
-	 gtk_widget_show(widget);
-	 g.in_mutate_auto_fit_define = 0;
-	 g.residue_type_chooser_auto_fit_flag = 1;
-	 pick_pending_flag = 0;
-	 normal_cursor();
-	 model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
+         g.mutate_auto_fit_residue_imol = naii.imol;
+         g.mutate_auto_fit_residue_atom_index = naii.atom_index;
+         GtkWidget *widget = wrapped_create_residue_type_chooser_window(0); // uses builder
+         gtk_widget_show(widget);
+         g.in_mutate_auto_fit_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 1;
+         pick_pending_flag = 0;
+         normal_cursor();
+         model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
+         run_post_manipulation_hook(naii.imol, MOVINGATOMS);
       }
    } 
 }
-
-GtkWidget *
-graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_option_flag) const {
-
-   GtkWidget *w = create_residue_type_chooser_window();
-   GtkWidget *b = lookup_widget(w, "residue_type_chooser_stub_checkbutton");
-
-   if (show_stub_option_flag == 0) 
-      gtk_widget_hide(b);
-
-   return w;
-} 
 
 void
 graphics_info_t::check_if_in_auto_fit_define(GdkEventButton *event) { 
@@ -1554,56 +1743,73 @@ graphics_info_t::check_if_in_edit_chi_angles_define(GdkEventButton *event) {
    }
 }
 
+#include "ligand/side-chain.hh"
+
 
 void
 graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
 
    if (in_180_degree_flip_define) {
-      pick_info naii = atom_pick(event);
-      if (naii.success == GL_TRUE) {
-	 mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	 int resno = at->GetSeqNum();
-	 mmdb::Residue *residue = at->residue;
-	 std::string chain_id = at->GetChainID();
-	 std::string inscode  = at->GetInsCode();
-	 std::string alt_conf = at->altLoc;
-	 std::string resname  = at->GetResName();
-	 int istatus =
-	    molecules[naii.imol].do_180_degree_side_chain_flip(chain_id, resno,
-								 inscode, alt_conf, Geom_p());
-	 std::string s;
-	 if (istatus) { 
-	    s = "Chi angle on residue ";
-	    s += chain_id;
-	    s += graphics_info_t::int_to_string(resno);
-	    s += " ";
-	    s += resname;
-	    s += " successfully flipped.";
-	    // update graphs here
-	    // make a molecule from the residue so that we can call
-	    // update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	    std::pair<mmdb::Manager *, int> mp = 
-	       coot::util::create_mmdbmanager_from_res_selection(molecules[naii.imol].atom_sel.mol,
-								 &residue, 1, 0, 0,
-								 alt_conf, chain_id, 0);
-	    atom_selection_container_t asc = make_asc(mp.first);
-	    asc.UDDOldAtomIndexHandle = mp.second;
-	    update_geometry_graphs(asc, naii.imol);
-	    graphics_draw();
-	 } else {
-	    s = "Problem flipping chi angle on residue ";
-	    s += chain_id;
-	    s += graphics_info_t::int_to_string(resno);
-	    s += " ";
-	    s += resname;
-	    s += ". Not done.";
-	 }
-	 add_status_bar_text(s);
-	 
-	 in_180_degree_flip_define = 0;
-	 pick_pending_flag = 0;
-	 normal_cursor();
- 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
+
+      if (moving_atoms_displayed_p()) {
+
+         pick_info nearest_intermediate_atom_info = pick_intermediate_atom(*moving_atoms_asc);
+         if (nearest_intermediate_atom_info.success == GL_TRUE) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[nearest_intermediate_atom_info.atom_index];
+            std::string alt_conf(at->altLoc);
+            coot::atom_spec_t at_spec(at);
+            coot::residue_spec_t spec(at_spec);
+            side_chain_flip_180_moving_atoms_residue(spec, alt_conf);
+            
+         }
+
+      } else {
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+            int resno = at->GetSeqNum();
+            mmdb::Residue *residue = at->residue;
+            std::string chain_id = at->GetChainID();
+            std::string inscode  = at->GetInsCode();
+            std::string alt_conf = at->altLoc;
+            std::string resname  = at->GetResName();
+            int istatus =
+               molecules[naii.imol].do_180_degree_side_chain_flip(chain_id, resno,
+                                                                  inscode, alt_conf, Geom_p());
+            std::string s;
+            if (istatus) {
+               s = "Chi angle on residue ";
+               s += chain_id;
+               s += graphics_info_t::int_to_string(resno);
+               s += " ";
+               s += resname;
+               s += " successfully flipped.";
+               // update graphs here
+               // make a molecule from the residue so that we can call
+               // update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+               std::pair<mmdb::Manager *, int> mp =
+                  coot::util::create_mmdbmanager_from_res_selection(molecules[naii.imol].atom_sel.mol,
+                                                                    &residue, 1, 0, 0,
+                                                                    alt_conf, chain_id, 0);
+               atom_selection_container_t asc = make_asc(mp.first);
+               asc.UDDOldAtomIndexHandle = mp.second;
+               update_geometry_graphs(asc, naii.imol);
+               graphics_draw();
+            } else {
+               s = "Problem flipping chi angle on residue ";
+               s += chain_id;
+               s += graphics_info_t::int_to_string(resno);
+               s += " ";
+               s += resname;
+               s += ". Not done.";
+            }
+            add_status_bar_text(s);
+
+            in_180_degree_flip_define = 0;
+            pick_pending_flag = 0;
+            normal_cursor();
+            model_fit_refine_unactive_togglebutton("model_refine_dialog_do_180_degree_sidechain_flip_togglebutton");
+         }
       }
    }
 }
@@ -1623,19 +1829,19 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
 	    torsion_general_atom_index_1 = nearest_atom_index_info.atom_index;
 	    torsion_general_atom_index_1_mol_no = im;
 	    in_torsion_general_define = 2;
-	 } else { 
+	 } else {
 	    if (in_torsion_general_define == 2) {
 	       std::cout << " 2" << std::endl;
 	       torsion_general_atom_index_2 = nearest_atom_index_info.atom_index;
 	       torsion_general_atom_index_2_mol_no = im;
 	       in_torsion_general_define = 3;
-	    } else { 
+	    } else {
 	       if (in_torsion_general_define == 3) {
 		  std::cout << " 3" << std::endl;
 		  torsion_general_atom_index_3 = nearest_atom_index_info.atom_index;
 		  torsion_general_atom_index_3_mol_no = im;
 		  in_torsion_general_define = 4;
-	       } else { 
+	       } else {
 		  if (in_torsion_general_define == 4) {
 		     std::cout << " 4" << std::endl;
 		     torsion_general_atom_index_4 = nearest_atom_index_info.atom_index;
@@ -1655,7 +1861,7 @@ graphics_info_t::check_if_in_torsion_general_define(GdkEventButton *event) {
 }
 
 
-void 
+void
 graphics_info_t::check_if_in_edit_backbone_torsion_define(GdkEventButton *event) {
 
    if (in_backbone_torsion_define) { 
@@ -1719,7 +1925,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 coot::Symm_Atom_Pick_Info_t *save_pick_info = new coot::Symm_Atom_Pick_Info_t;
 	 *save_pick_info = naii;
 
-	 gtk_object_set_user_data(GTK_OBJECT(w), save_pick_info);
+	 g_object_set_data(G_OBJECT(w), "save_pick_info", save_pick_info);
 
 // 	 std::string filename = "molecule-";
 // 	 filename += int_to_string(naii.imol);
@@ -1756,16 +1962,11 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 // 
 	 filename += ".pdb";
 
-	 if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w),
-                                         filename.c_str());
-	 } else {
-	 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
-					 filename.c_str());
-	 }
+	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w), filename.c_str());
 
-	 add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
-         
+         // bye bye CCP4i interface.
+	 // add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
+
          add_filename_filter_button(w, COOT_COORDS_FILE_SELECTION);
 
 	 normal_cursor();
@@ -1823,6 +2024,8 @@ graphics_info_t::check_if_in_lsq_plane_define(GdkEventButton *event) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
 	 add_lsq_plane_atom(naii.imol, naii.atom_index);
+	 int im = naii.imol;
+	 molecules[im].add_to_labelled_atom_list(naii.atom_index);
       }
    }
 }
@@ -1840,6 +2043,8 @@ graphics_info_t::check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event
    }
 }
 
+
+#include "widget-from-builder.hh"
 
 void
 graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
@@ -1864,7 +2069,7 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
       if (naii.success == GL_TRUE) {
 	 coot::atom_spec_t as(molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]);
 	 mark_atom_as_fixed(naii.imol, as, pick_state);
-	 std::cout << "   " << as << " is a marked as fixed " << pick_state << std::endl;
+	 std::cout << "INFO:: " << as << " is a marked as fixed: " << pick_state << std::endl;
 	 graphics_draw();
 
 	 // Sadly, Ctrl + left mouse click is intercepted upstream of
@@ -1872,11 +2077,16 @@ graphics_info_t::check_if_in_fixed_atom_define(GdkEventButton *event,
 	 
 	 if (! (state & GDK_CONTROL_MASK)) { 
 	    // Ctrl key is not pressed.
+
+            GtkWidget *fixed_atom_dialog = widget_from_builder("fixed_atom_dialog");
+
 	    if (!fixed_atom_dialog) {
-	       std::cout << "Ooops fixed atom dialog has gone!" << std::endl;
-	    } else { 
-	       GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
-	       GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+	       std::cout << "ERROR:: Ooops fixed atom dialog has gone!" << std::endl;
+	    } else {
+	       // GtkWidget *button1 = lookup_widget(fixed_atom_dialog,   "fix_atom_togglebutton");
+	       // GtkWidget *button2 = lookup_widget(fixed_atom_dialog, "unfix_atom_togglebutton");
+               GtkWidget *button1 = widget_from_builder("fixed_atom_dialog_fix_atom_togglebutton");
+               GtkWidget *button2 = widget_from_builder("fixed_atom_dialog_unfix_atom_togglebutton");
 	       if (button1)
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button1), FALSE);
 	       if (button2)
@@ -1902,8 +2112,7 @@ graphics_info_t::check_if_in_base_pairing_define(GdkEventButton *event) {
 	 std::string chain_id = at->GetChainID();
 	 watson_crick_pair(naii.imol, chain_id.c_str(), res_no);
 	 if (other_modelling_tools_dialog) {
-	    GtkWidget *w = lookup_widget(other_modelling_tools_dialog,
-					 "other_tools_base_pair_toggle_button");
+	    GtkWidget *w = widget_from_builder("other_tools_base_pair_toggle_button");
 	    if (w) {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
 	    } 
@@ -1923,7 +2132,7 @@ graphics_info_t::check_if_in_multi_residue_torsion_define(GdkEventButton *event)
       if (naii.success == TRUE) {
 	 int im = naii.imol;
 	 mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	 coot::residue_spec_t residue_spec(at);
+	 coot::residue_spec_t residue_spec(at->GetResidue());
 	 if (std::find(multi_residue_torsion_picked_residue_specs.begin(),
 		       multi_residue_torsion_picked_residue_specs.end(),
 		       residue_spec) ==
@@ -1937,3 +2146,4 @@ graphics_info_t::check_if_in_multi_residue_torsion_define(GdkEventButton *event)
    }
 }
 
+#endif

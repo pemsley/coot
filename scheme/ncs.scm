@@ -16,14 +16,15 @@
 ;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
+;; Find the first model molecule
+;; 
 (define find-first-model-molecule
   (lambda ()
-    
-    (for-each 
-     (lambda (molecule)
-       (if (valid-model-molecule? molecules)
-	   (break molecule)))
-     (molecule-number-list))))
+    (let loop ((imols (molecule-number-list)))
+      (cond
+       ((null? imols) #f)
+       ((valid-model-molecule? (car imols)) (car imols))
+       (else (loop (cdr imols)))))))
 
 ;; Skip the residue in the next chain (typically of a molecule with
 ;; NCS) with the same residue number.  If on the last chain, then wrap

@@ -18,13 +18,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
  
+// 20211201-PE was #ifdef HAVE_GOOCANVAS
+#if 0 // don't compile anything here - old interface, will need to be converted before
+      // resurection.
+
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
 #include "compat/coot-sysdep.h"
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
 #if defined _MSC_VER
 #define snprintf _snprintf
@@ -43,36 +46,11 @@
 coot::sequence_view *coot::sequence_view_object_t::seq_view = NULL; 
 #endif
 
-
-#ifdef HAVE_GNOME_CANVAS
-  typedef GnomeCanvasPoints GtkCanvasPoints;
-  #define GTK_CANVAS GNOME_CANVAS
-  #define GTK_CANVAS_TYPE_CANVAS_RECT GNOME_TYPE_CANVAS_RECT
-  #define GTK_CANVAS_TYPE_CANVAS_LINE GNOME_TYPE_CANVAS_LINE
-  #define GTK_CANVAS_TYPE_CANVAS_TEXT GNOME_TYPE_CANVAS_TEXT
-  #define gtk_canvas_init gnome_canvas_init
-  #define gtk_canvas_new  gnome_canvas_new
-  #define gtk_canvas_root gnome_canvas_root
-  #define gtk_canvas_item_new gnome_canvas_item_new
-  #define gtk_canvas_points_new gnome_canvas_points_new
-  #define gtk_canvas_points_free gnome_canvas_points_free
-  #define gtk_canvas_item_w2i gnome_canvas_item_w2i
-  #define gtk_canvas_item_grab gnome_canvas_item_grab
-  #define gtk_canvas_item_lower_to_bottom gnome_canvas_item_lower_to_bottom
-  #define gtk_canvas_item_lower gnome_canvas_item_lower
-  #define gtk_canvas_set_scroll_region gnome_canvas_set_scroll_region
-  #define gtk_canvas_item_raise_to_top gnome_canvas_item_raise_to_top
-  #define gtk_canvas_item_raise gnome_canvas_item_raise
-  #define gtk_canvas_item_move gnome_canvas_item_move
-  #define gtk_canvas_item_ungrab gnome_canvas_item_ungrab
-  #define gtk_canvas_rect_get_type gnome_canvas_rect_get_type
-  #define gtk_canvas_window_to_world gnome_canvas_window_to_world
-#endif
-
 coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int coot_mol_no_in) {
 
-   GtkWidget *top_lev = create_sequence_view_dialog();
-   gtk_widget_set_usize(GTK_WIDGET(top_lev), 500, 160);
+   // GtkWidget *top_lev = create_sequence_view_dialog();
+   GtkWidget *top_lev = widget_from_builder("sequence_view_dialog");
+   gtk_widget_set_size_request(GTK_WIDGET(top_lev), 500, 160);
    molecule_names.push_back(name);
    setup_internal(mol_in);
    mol.push_back(mol_in);
@@ -87,8 +65,8 @@ coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int 
 
    // connect canvas (which was created in setup_internal) to top_lev:
    //
-   GtkWidget *scrolled_window = seq_lookup_widget(GTK_WIDGET(top_lev),
-					      "sequence_view_scrolledwindow");
+   // GtkWidget *scrolled_window = seq_lookup_widget(GTK_WIDGET(top_lev), "sequence_view_scrolledwindow");
+   GtkWidget *scrolled_window = 0; // 20220309-PE FIXME set the scolled_window correctly by name lookup.
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
    gtk_widget_show(top_lev);
@@ -111,8 +89,7 @@ coot::sequence_view::setup_internal(mmdb::Manager *mol_in) {
    fixed_font = "monospace";
    res_scale = 8;
 #endif   
-   GdkFont *font;
-   font = gdk_font_load(fixed_font.c_str());
+   GdkFont *font = gdk_font_load(fixed_font.c_str());
    gint res_width = gdk_string_width(font, "m");
    //std::cout <<"BL DEBUG:: font width calc "<<res_width <<" and set " << res_scale<< std::endl;
    res_scale = res_width + 2;
@@ -192,7 +169,7 @@ coot::sequence_view::setup_canvas(int max_n_res, int n_chains) {
 				 // label, but for now it isn't.
    scroll_height = usize_y;
 
-   gtk_widget_set_usize(GTK_WIDGET(canvas), usize_x, usize_y);
+   gtk_widget_set_size_request(GTK_WIDGET(canvas), usize_x, usize_y);
    gtk_widget_show(GTK_WIDGET(canvas));
 
    gtk_widget_set_events(GTK_WIDGET(canvas),
@@ -370,7 +347,11 @@ coot::sequence_view::seq_view_motion_notify(GtkWidget *widget, GdkEventMotion *e
    // move the mouse
    // 
    if (event->is_hint) {
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType mask;
+      GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+      GdkDevice *mouse = gdk_seat_get_pointer(seat);
+      gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
    }
    x = event->x;
    y = event->y;
@@ -691,4 +672,4 @@ coot::sequence_view::max_number_of_residues_in_a_chain(mmdb::Manager *mol_in) co
 }
 
  
-#endif //  HAVE_GTK_CANVAS
+#endif //  HAVE_GOOCANVAS

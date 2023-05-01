@@ -45,6 +45,7 @@ try_read_phs_file(const char *filename) {
  /* if the extention of filename was ".phs", then try to read it as if
     it were a XtalView .phs file. */
 
+#if 0 // I'll come back and fix this one day.  Or remove it.
    char *f_pt;
    GtkWidget *widget; 
    /* int is_pha_extension;   pha is a phs file too (shelx) */
@@ -61,8 +62,8 @@ try_read_phs_file(const char *filename) {
 	 printf("%s is a .phs file\n", filename); 
 
 	 if (! possible_cell_symm_for_phs_file()) {  /* question */
-	   widget = create_phs_info_box();	/* this returns a GtkWidget */
-	   gtk_widget_show(widget); 
+	   widget = 0; /* create_phs_info_box(); */
+	   /* gtk_widget_show(widget);  */
 	 } else { 
 	   do_phs_cell_choice_window(); 
 	 }
@@ -71,14 +72,17 @@ try_read_phs_file(const char *filename) {
 	 return 1;			/* we try to deal with a .phs file */
 	 
       } else {
-	printf("%s is not a .phs file\n", filename); 
+	printf("INFO:: %s is not a .phs file\n", filename);
       }
    }
+#endif
    
    return 0;			/* we do not try to deal with a .phs file */
 }
 
 void do_phs_cell_choice_window() { 
+
+#if 0 // 20220405-PE Porting to GTK4: - come back to fix it one day.
 
   GtkWidget *window; 
   GtkEntry  *entry; 
@@ -220,6 +224,7 @@ void do_phs_cell_choice_window() {
 
    gtk_window_set_transient_for(GTK_WINDOW(window), mw);
    gtk_window_present(GTK_WINDOW(window));
+#endif
 } 
 
 
@@ -236,25 +241,24 @@ void do_phs_cell_choice_window() {
 */
 int phs_pdb_cell_symm() {
 
+#if 0 //  come back and fix this one day.
+
    GtkWidget *widget; 
 
-   if (file_chooser_selector_state()) {
-     GtkWidget *file_filter_button;
-     GtkWidget *sort_button;
-     widget = create_phs_coordinates_filechooserdialog1();
-     // we use th coords filter button, that should be ok
-     add_ccp4i_project_optionmenu(widget, COOT_COORDS_FILE_SELECTION);
-     file_filter_button = add_filename_filter_button(widget, 
-                                                     COOT_COORDS_FILE_SELECTION);
-     sort_button = add_sort_button_fileselection(widget);
-     push_the_buttons_on_fileselection(file_filter_button, sort_button, 
-                                       widget);
-   } else {
-     widget = create_phs_coordinates_fileselection(); 
-     set_directory_for_fileselection(widget);
-   }
+   GtkWidget *file_filter_button;
+   GtkWidget *sort_button;
+   widget = create_phs_coordinates_filechooserdialog1();
+   // we use th coords filter button, that should be ok
+   // add_ccp4i_project_optionmenu(widget, COOT_COORDS_FILE_SELECTION);
+   file_filter_button = add_filename_filter_button(widget, 
+                                                   COOT_COORDS_FILE_SELECTION);
+   sort_button = add_sort_button_fileselection(widget);
+   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
+                                     widget);
 
-   gtk_widget_show(widget); 
+   gtk_widget_show(widget);
+
+#endif
 
    return 0; 
 

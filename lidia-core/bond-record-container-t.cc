@@ -35,7 +35,7 @@
 #include "cod-atom-types.hh"
 #include "bond-record-container-t.hh"
 
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh" out of order now
 
 // can throw std::runtime_error.
 // 
@@ -53,7 +53,7 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
    
    unsigned int n_mol_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = mol[iat];
+      const RDKit::Atom *at_p = mol[iat];
       try {
 	 std::string name = "";
 	 at_p->getProp("name", name);
@@ -528,7 +528,7 @@ cod::bond_record_container_t::get_is_hydrogen_flags(const RDKit::RWMol &rdkm) co
    unsigned int n_mol_atoms = rdkm.getNumAtoms();
    std::vector<bool> flags(n_mol_atoms);
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = rdkm[iat];
+      const RDKit::Atom *at_p = rdkm[iat];
       try {
 	 if (at_p->getAtomicNum() == 1) {
 	    flags[iat] = true;
@@ -571,7 +571,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 
 	       std::cout << "---- validate() types table ----- " << std::endl;
 	       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-		  RDKit::ATOM_SPTR at_p = rdkm[iat];
+		  RDKit::Atom *at_p = rdkm[iat];
 		  try {
 		     std::string name;
 		     at_p->getProp("name", name);
@@ -1039,8 +1039,8 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
 
       if (at_1 && at_2) {
 
-	 clipper::Coord_orth pt_1 = coot::co(at_1);
-	 clipper::Coord_orth pt_2 = coot::co(at_2);
+	 clipper::Coord_orth pt_1 = co(at_1);
+	 clipper::Coord_orth pt_2 = co(at_2);
 
 	 d = clipper::Coord_orth::length(pt_1, pt_2);
       }

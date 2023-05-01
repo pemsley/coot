@@ -46,29 +46,49 @@
 
 
 (if (defined? 'coot-main-menubar)
-    ;; --------------------------------------------------
-    ;;           coordinated water validation dialog
-    ;; --------------------------------------------------
     (let ((menu (coot-menubar-menu "Validate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps (Coot)"
+       (lambda ()
+         (using-active-atom
+          (coot-all-atom-contact-dots aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "All-Atom Contact Dots (Molprobity)"
+       (lambda ()
+         (using-active-atom
+          (probe  aa-imol))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps Dialog"
+       (lambda ()
+         (using-active-atom
+          (molecule-atom-overlaps-gui aa-imol))))
+
       (add-simple-coot-menu-menuitem 
        menu "Highly coordinated waters..."
        (lambda ()
 	 (water-coordination-gui)))
 
-		(add-simple-coot-menu-menuitem
-		 menu "Validation Outliers"
-		 (lambda ()
-			(using-active-atom
-			 (let ((imol-map (imol-refinement-map)))
-				(if (not (valid-map-molecule? imol-map))
-					 (add-status-bar-text "Refinement Map is currently not set")
-					 (validation-outliers-dialog aa-imol imol-map))))))))
+      (add-simple-coot-menu-menuitem
+       menu "Pepflips from Difference Map..."
+       (lambda ()
+         (pepflips-by-difference-map-gui)))
 
+      (add-simple-coot-menu-menuitem
+       menu "Validation Outliers"
+       (lambda ()
+           (using-active-atom
+           (let ((imol-map (imol-refinement-map)))
+              (if (not (valid-map-molecule? imol-map))
+                 (add-status-bar-text "Refinement Map is currently not set")
+                 (validation-outliers-dialog aa-imol imol-map))))))))
 
-(define (add-module-user-defined-restraints)
-  (if (defined? 'coot-main-menubar)
-      (let ((menu (coot-menubar-menu "Restraints")))
-	(load-by-search "user-define-restraints.scm"))))
+;(define (add-module-user-defined-restraints)
+;  (if (defined? 'coot-main-menubar)
+;      (let ((menu (coot-menubar-menu "Restraints")))
+;	(load-by-search "user-define-restraints.scm"))))
 
 
 
@@ -77,7 +97,7 @@
     ;;           extensions
     ;; ---------------------------------------------
     ;; 
-    (let ((menu (coot-menubar-menu "Extensions")))
+    (let ((menu #f)) ;; 20180606 was (coot-menubar-menu "Extensions")))
 
       ;; make the submenus:
       (let ((submenu-all-molecule (gtk-menu-new))
@@ -101,52 +121,147 @@
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
 
-	(gtk-menu-item-set-submenu menuitem-2 submenu-all-molecule)
-	(gtk-menu-append menu menuitem-2)
-	(gtk-widget-show menuitem-2)
+	;; (gtk-menu-item-set-submenu menuitem-2 submenu-all-molecule)
+	;; (gtk-menu-append menu menuitem-2)
+	;; (gtk-widget-show menuitem-2)
 
-	(gtk-menu-item-set-submenu menuitem-3 submenu-maps)
-	(gtk-menu-append menu menuitem-3)
-	(gtk-widget-show menuitem-3)
+	;; (gtk-menu-item-set-submenu menuitem-3 submenu-maps)
+	;; (gtk-menu-append menu menuitem-3)
+	;; (gtk-widget-show menuitem-3)
 
-	(gtk-menu-item-set-submenu menuitem-4 submenu-models)
-	(gtk-menu-append menu menuitem-4)
-	(gtk-widget-show menuitem-4)
+	;; (gtk-menu-item-set-submenu menuitem-4 submenu-models)
+	;; (gtk-menu-append menu menuitem-4)
+	;; (gtk-widget-show menuitem-4)
 
-	(gtk-menu-item-set-submenu menuitem-ncs submenu-ncs) 
-	(gtk-menu-append menu menuitem-ncs)
-	(gtk-widget-show menuitem-ncs)
-	
-	(gtk-menu-item-set-submenu menuitem-5 submenu-refine)
-	(gtk-menu-append menu menuitem-5)
-	(gtk-widget-show menuitem-5)
+	;; (gtk-menu-item-set-submenu menuitem-5 submenu-refine)
+	;; (gtk-menu-append menu menuitem-5)
+	;; (gtk-widget-show menuitem-5)
 
-	(gtk-menu-item-set-submenu menuitem-6 submenu-representation)
-	(gtk-menu-append menu menuitem-6)
-	(gtk-widget-show menuitem-6)
+	;; (gtk-menu-item-set-submenu menuitem-ncs submenu-ncs) 
+	;; (gtk-menu-append menu menuitem-ncs)
+	;; (gtk-widget-show menuitem-ncs)
 
-	(gtk-menu-item-set-submenu menuitem-pisa submenu-pisa)
-	(gtk-menu-append menu menuitem-pisa)
-	(gtk-widget-show menuitem-pisa)
+	;; (gtk-menu-item-set-submenu menuitem-6 submenu-representation)
+	;; (gtk-menu-append menu menuitem-6)
+	;; (gtk-widget-show menuitem-6)
 
-	(gtk-menu-item-set-submenu menuitem-7 submenu-settings)
-	(gtk-menu-append menu menuitem-7)
-	(gtk-widget-show menuitem-7)
+	;; (gtk-menu-item-set-submenu menuitem-pisa submenu-pisa)
+	;; (gtk-menu-append menu menuitem-pisa)
+	;; (gtk-widget-show menuitem-pisa)
 
-	(gtk-menu-item-set-submenu menuitem-modules submenu-modules)
-	(gtk-menu-append menu menuitem-modules)
-	(gtk-widget-show menuitem-modules)
+	;; (gtk-menu-item-set-submenu menuitem-7 submenu-settings)
+	;; (gtk-menu-append menu menuitem-7)
+	;; (gtk-widget-show menuitem-7)
 
-	(gtk-menu-item-set-submenu menuitem-pdbe submenu-pdbe)
-	(gtk-menu-append menu menuitem-pdbe)
-	(gtk-widget-show menuitem-pdbe)
+	;; (gtk-menu-item-set-submenu menuitem-modules submenu-modules)
+	;; (gtk-menu-append menu menuitem-modules)
+	;; (gtk-widget-show menuitem-modules)
+
+        (let ((get-coot-menu-from-item
+               (lambda (top-label sub-menu-label)
+                 (let ((top-menu (coot-menubar-menu top-label)))
+                   (if top-menu
+                       (let ((menu-bar-label-list
+                              (map
+                               (lambda (menu-child)
+                                 (let* ((ac-lab-ls (gtk-container-children menu-child))
+                                        ;; ac-lab-ls is a GtkAccelLabel in a list
+                                        ;; (nov (format #t "##### ac-lab-ls: ~s~%" ac-lab-ls))
+                                        (ac-lab (if (null? ac-lab-ls) ;; e.g. a separator
+                                                    #f
+                                                    (car ac-lab-ls)))
+                                        ;; ac-lab is a simple GtkAccelLabel
+                                        (label-text (if (not ac-lab)
+                                                        "" ;; a non-matching/fake string
+                                                        (gtk-label-get ac-lab))))
+                                   (list menu-child label-text (gtk-menu-item-submenu menu-child))))
+                               (gtk-container-children top-menu))))
+
+			 (let f ((ls menu-bar-label-list))
+			   (cond
+			    ((null? ls) #f)
+			    ((string=? sub-menu-label (list-ref (car ls) 1))
+			     ;; add a menu for this item and set submenu-models
+			     (list-ref (car ls) 0))
+			    (else (f (cdr ls)))))))))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Modelling...")))
+	    ;; (format #t "############### 1 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-models menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Map Tools...")))
+	    ;; (format #t "############### 2 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-maps menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "All Molecule...")))
+	    ;; (format #t "############### 3 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-all-molecule menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "PISA...")))
+	    ;; (format #t "############### 4 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-pisa menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "Modules...")))
+	    ;; (format #t "############### 5 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-modules menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Calculate" "NCS Tools...")))
+	    ;; (format #t "############### 6 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-ncs menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Draw" "Representation Tools...")))
+	    ;; (format #t "############### 7 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-representation menu)))))
+
+	  (let ((coot-built-in-menu (get-coot-menu-from-item "Edit" "Settings...")))
+	    ;; (format #t "############### 8 coot-built-in-menu: ~s~%" coot-built-in-menu)
+	    (if coot-built-in-menu
+		(begin
+		  (let ((menu (gtk-menu-new)))
+		    (gtk-menu-item-set-submenu coot-built-in-menu menu)
+		    (set! submenu-settings menu)))))
+
+	  )
+
+
+	;; (gtk-menu-item-set-submenu menuitem-pdbe submenu-pdbe)
+	;; (gtk-menu-append menu menuitem-pdbe)
+	;; (gtk-widget-show menuitem-pdbe)
 
 	
 	;; ---------------------------------------------------------------------
 	;;     Post MR
 	;;
 	;; ---------------------------------------------------------------------
-	
+
 	(add-simple-coot-menu-menuitem
 	 submenu-all-molecule "[Post MR] Fill Partial Residues..."
 	 (lambda ()
@@ -278,7 +393,7 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-maps "Copy Map Molecule...."
+	 submenu-maps "Copy Map..."
 	 (lambda ()
 	   (map-molecule-chooser-gui "Molecule to Copy..."
 				     (lambda (imol)
@@ -360,7 +475,7 @@
 				     (lambda (imol)
 				       (format #t "setting map number ~s to be a difference map~%"
 					       imol)
-				       (set-map-is-difference-map imol)))))
+				       (set-map-is-difference-map imol 1)))))
 
 
 	(add-simple-coot-menu-menuitem
@@ -385,6 +500,12 @@
 	;; ---------------------------------------------------------------------
 
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Add Hydrogen Atoms"
+	 (lambda ()
+	   (using-active-atom
+	    (coot-reduce aa-imol))))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Add Hydrogens using Refmac"
 	 (lambda ()
 	   (using-active-atom
@@ -402,20 +523,24 @@
 				 (lambda (imol)
 				   (move-waters-to-around-protein imol)))))
 
-
       (add-simple-coot-menu-menuitem 
        submenu-models "Assign (force) HETATMs for this Residue"
        (lambda ()
 	 (using-active-atom
 	  (hetify-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
-
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Assign HETATM to molecule..."
 	 (lambda() 
 	   (molecule-chooser-gui "Assign HETATMs as per PDB definition"
 				 (lambda (imol)
-					  (assign-hetatms imol)))))
+                                   (assign-hetatms imol)))))
+
+        (add-simple-coot-menu-menuitem
+         submenu-models "Backrub Rotamers for Whole Chain"
+         (lambda ()
+           (using-active-atom
+            (backrub-rotamers-for-chain aa-imol aa-chain-id))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Copy Coordinates Molecule...."
@@ -423,7 +548,6 @@
 	   (molecule-chooser-gui "Molecule to Copy..."
 				 (lambda (imol)
 				   (copy-molecule imol)))))
-
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Copy Fragment..."
@@ -441,34 +565,46 @@
 				      #f
 				      )))
 
-	;; --- D --- 
+	;; --- D ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Hydrogen Atoms"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-hydrogens aa-imol))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Delete Side-chains for Active Chain"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-sidechains-for-chain aa-imol aa-chain-id))))
 
 	;; (add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
-	      (menuitem2 (gtk-menu-item-new-with-label "Dock Sequence...")))
-	  
+	      (menuitem2 (gtk-menu-item-new-with-label "Assign Sequence...")))
+
 	  (gtk-menu-item-set-submenu menuitem2 submenu)
-	  (gtk-menu-append menu menuitem2)
+	  (gtk-menu-append (coot-menubar-menu "Calculate") menuitem2)
 	  (gtk-widget-show menuitem2)
 	  
+	  (add-simple-coot-menu-menuitem
+	   submenu "1: Associate Sequence File...."
+	   (lambda ()
+	     (associate-sequence-file-with-molecule-gui)))
+
 	  ;; 
 	  (if (coot-has-pygtk?)
 	      (add-simple-coot-menu-menuitem
-	       submenu "Dock Sequence (py)..."
+	       submenu "2: Assign Sequence (py)..."
 	       (lambda ()
 		 (run-python-command "cootaneer_gui_bl()"))))
 	  
-	  (add-simple-coot-menu-menuitem
-	   submenu "Associate Sequence...."
-	   (lambda ()
-	     (associate-pir-with-molecule-gui #f))) ;; don't do alignement gui on OK press
-
 	  ;; only add this to the GUI if the python version is not available.
 	  (if (not (coot-has-pygtk?))
 	      (add-simple-coot-menu-menuitem
-	       submenu "Dock sequence on this fragment..."
+	       submenu "Assign the sequence to this fragment..."
 	       (lambda ()
 		 (molecule-chooser-gui "Choose a molecule to apply sequence assignment"
 				       (lambda (imol)
@@ -499,6 +635,12 @@
 				      (let ((status (get-SMILES-for-comp-id-from-pdbe comp-id)))
 					(get-monomer comp-id))))))
 
+          (add-simple-coot-menu-menuitem
+           submenu-models "Fill Partial Residues"
+           (lambda()
+             (using-active-atom
+              (fill-partial-residues aa-imol))))
+
 	  (add-simple-coot-menu-menuitem
 	   submenu "Find Helices"
 	   (lambda ()
@@ -508,7 +650,6 @@
 	   submenu "Find Strands"
 	   (lambda ()
 	     (find-strands))))
-
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Fix Nomenclature Errors..."
@@ -645,16 +786,27 @@
 	 (lambda ()
 	   (phosphorylate-active-residue)))
 	
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Prodrg-ify this residue (generate restraints)"
-	 (lambda ()
-	   (using-active-atom 
-	    (prodrg-ify aa-imol aa-chain-id aa-res-no aa-ins-code))))
-
+	;; (add-simple-coot-menu-menuitem
+        ;; submenu-models "Prodrg-ify this residue (generate restraints)"
+        ;; (lambda ()
+        ;;(using-active-atom
+        ;; (prodrg-ify aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
 	;; ---- R ---------
 
-	;; --- Ren --- 
+	;; --- Ren ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Small)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 0))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Bigger)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 1))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Rename Residue..."
@@ -947,7 +1099,7 @@
 	(if (coot-has-pygtk?)
 
 	    (add-simple-coot-menu-menuitem
-	     submenu-refine "Set Refinement Options (py)..."
+	     submenu-settings "Set Refinement Options (py)..."
 	     (lambda ()
 	       (run-python-command "refinement_options_gui()"))))
 
@@ -955,7 +1107,7 @@
 	      (menuitem2 (gtk-menu-item-new-with-label "Peptide Restraints...")))
 	  
 	  (gtk-menu-item-set-submenu menuitem2 submenu) 
-	  (gtk-menu-append submenu-refine menuitem2)
+	  (gtk-menu-append submenu-settings menuitem2)
 	  (gtk-widget-show menuitem2)
 	  
 	  (add-simple-coot-menu-menuitem
@@ -970,47 +1122,50 @@
 	     (format #t "Planar Peptide Restraints removed~%")
 	     (remove-planar-peptide-restraints))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-refine "SHELXL Refine..."
-	 (lambda ()
+;; SHELX has it's own module - this shouldn't be here
 
-	   (let ((window (gtk-window-new 'toplevel))
-		 (hbox (gtk-vbox-new #f 0))
-		 (vbox (gtk-hbox-new #f 0))
-		 (go-button (gtk-button-new-with-label "  Refine  "))
-		 (cancel-button (gtk-button-new-with-label "  Cancel  "))
-		 (entry-hint-text "HKL data filename \n(leave blank for default)")
-		 (chooser-hint-text " Choose molecule for SHELX refinement  ")
-		 (h-sep (gtk-hseparator-new)))
+; 	(add-simple-coot-menu-menuitem
+; 	 submenu-refine "SHELXL Refine..."
+; 	 (lambda ()
 
-	     (gtk-container-add window hbox)
-	     (let ((option-menu-mol-list-pair (generic-molecule-chooser 
-					       hbox chooser-hint-text))
-		   (entry (file-selector-entry hbox entry-hint-text)))
-	       (gtk-signal-connect go-button "clicked"
-				   (lambda () 
-				     (let ((txt (gtk-entry-get-text entry))
-					   (imol (apply get-option-menu-active-molecule 
-							option-menu-mol-list-pair)))
-				       (if (number? imol)
-					   (if (= (string-length txt) 0)
-					       (shelxl-refine imol)
-					       (shelxl-refine imol txt)))
-				       (gtk-widget-destroy window))))
-	       (gtk-signal-connect cancel-button "clicked"
-				   (lambda ()
-				     (gtk-widget-destroy window)))
+; 	   (let ((window (gtk-window-new 'toplevel))
+; 		 (hbox (gtk-vbox-new #f 0))
+; 		 (vbox (gtk-hbox-new #f 0))
+; 		 (go-button (gtk-button-new-with-label "  Refine  "))
+; 		 (cancel-button (gtk-button-new-with-label "  Cancel  "))
+; 		 (entry-hint-text "HKL data filename \n(leave blank for default)")
+; 		 (chooser-hint-text " Choose molecule for SHELX refinement  ")
+; 		 (h-sep (gtk-hseparator-new)))
 
-	       (gtk-box-pack-start hbox h-sep #f #f 2)
-	       (gtk-box-pack-start hbox vbox #f #f 2)
-	       (gtk-box-pack-start vbox go-button #t #f 0)
-	       (gtk-box-pack-start vbox cancel-button #t #f 0)
-	       (gtk-widget-show-all window)))))
+; 	     (gtk-container-add window hbox)
+; 	     (let ((option-menu-mol-list-pair (generic-molecule-chooser 
+; 					       hbox chooser-hint-text))
+; 		   (entry (file-selector-entry hbox entry-hint-text)))
+; 	       (gtk-signal-connect go-button "clicked"
+; 				   (lambda () 
+; 				     (let ((txt (gtk-entry-get-text entry))
+; 					   (imol (apply get-option-menu-active-molecule 
+; 							option-menu-mol-list-pair)))
+; 				       (if (number? imol)
+; 					   (if (= (string-length txt) 0)
+; 					       (shelxl-refine imol)
+; 					       (shelxl-refine imol txt)))
+; 				       (gtk-widget-destroy window))))
+; 	       (gtk-signal-connect cancel-button "clicked"
+; 				   (lambda ()
+; 				     (gtk-widget-destroy window)))
+
+; 	       (gtk-box-pack-start hbox h-sep #f #f 2)
+; 	       (gtk-box-pack-start hbox vbox #f #f 2)
+; 	       (gtk-box-pack-start vbox go-button #t #f 0)
+; 	       (gtk-box-pack-start vbox cancel-button #t #f 0)
+; 	       (gtk-widget-show-all window)))))
 
 
 	(if (coot-has-pygtk?)
 	    (add-simple-coot-menu-menuitem
-	     submenu-refine "Read Refmac logfile (py)..."
+	     (coot-menubar-menu "Validate")
+	     "Read Refmac logfile (py)..."
 	     (lambda ()
 	       (generic-chooser-and-file-selector "Read Refmac log file"
 						  valid-model-molecule?
@@ -1028,40 +1183,43 @@
 	      (menuitem2 (gtk-menu-item-new-with-label "Refinement Speed...")))
 
 	  (gtk-menu-item-set-submenu menuitem2 submenu) 
-	  (gtk-menu-append submenu-refine menuitem2)
+	  (gtk-menu-append submenu-settings menuitem2)
 	  (gtk-widget-show menuitem2)
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Molasses Refinement mode"
 	   (lambda ()
 	     (format #t "Molasses...~%")
-	     (set-dragged-refinement-steps-per-frame 5)))
+	     (set-dragged-refinement-steps-per-frame 4)))
 
 	  (add-simple-coot-menu-menuitem
-	   submenu "Crocodile Refinement mode"
+	   submenu "Smooth Refinement mode"
 	   (lambda ()
-	     (format #t "Crock...~%")
-	     (set-dragged-refinement-steps-per-frame 220)))
+	     (set-dragged-refinement-steps-per-frame 42)))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Default Refinement mode"
 	   (lambda ()
 	     (format #t "Default Speed...~%")
-	     (set-dragged-refinement-steps-per-frame 140))))
+	     (set-dragged-refinement-steps-per-frame 140)))
+
+	  (add-simple-coot-menu-menuitem
+	   submenu "Crocodile Refinement mode"
+	   (lambda ()
+	     (set-dragged-refinement-steps-per-frame 220))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-refine "Auto-weight refinement"
+	 submenu-settings "Auto-weight refinement"
 	 auto-weight-for-refinement)
 
-
 	(add-simple-coot-menu-menuitem
-	 submenu-refine "Set Undo Molecule..."
+	 submenu-settings "Set Undo Molecule..."
 	 (lambda () 
 	   (molecule-chooser-gui "Set the Molecule for \"Undo\" Operations"
 				 (lambda (imol)
 				   (set-undo-molecule imol)))))
 
-	(add-simple-coot-menu-menuitem submenu-refine "B factor bonds scale factor..."
+	(add-simple-coot-menu-menuitem submenu-settings "B factor bonds scale factor..."
 				       (lambda ()
 					 (generic-chooser-and-entry 
 					  "Choose a molecule to which the b-factor colour scale is applied:"
@@ -1071,70 +1229,6 @@
 					      (if (number? n)
 						  (set-b-factor-bonds-scale-factor imol n)))))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-refine "Set Matrix (Refinement Weight)..."
-	 (lambda ()
-	   (generic-single-entry "set matrix: (smaller means better geometry)" 
-				 (number->string (matrix-state))
-				 "  Set it  " (lambda (text) 
-						(let ((t (string->number text)))
-						  (if (number? t)
-						      (begin
-							(let ((s (string-append "Matrix set to " text)))
-							  (set-matrix t)
-							  (add-status-bar-text s)))
-						      (begin
-							(add-status-bar-text 
-							 "Failed to read a number"))))))))
-	
-
-	;; ---------------------------------------------------------------------
-	;;     Recent structures from the PDBe
-	;; ---------------------------------------------------------------------
-	;;
-	;; 20110921 too crashy at the moment (something to do with lots of threads?)
-	;; 
-	(add-simple-coot-menu-menuitem
-	 submenu-pdbe "PDBe recent structures..."
-	 pdbe-latest-releases-gui)
-
-	(add-simple-coot-menu-menuitem
-	 submenu-pdbe "Get from PDBe..."
-	 (lambda () 
-	   (let ((mess
-		  (if (command-in-path? "refmac5")
-		      "Get PDBe accession code"
-		      (string-append
-		       "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
-		       "Get PDBe accession code"))))
-	     (generic-single-entry mess
-				   "" " Get it "
-				   (lambda (text)
-				     ;; fire off something that is controlled by a time-out -
-				     ;; doesn't return a useful value.
-				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text)))))))
-
-
-	;; ---------------------------------------------------------------------
-	;;     Tutorial data
-	;; ---------------------------------------------------------------------
-	;; 
-	(add-simple-coot-menu-menuitem 
-	 menu "Load tutorial model and data"
-	 (lambda ()
-	   (let* ((prefix-dir (getenv "COOT_PREFIX")))
-
-	     (let* ((pkg-data-dir
-		     (if (string? prefix-dir)
-			 (append-dir-dir (append-dir-dir prefix-dir "share") "coot")
-			 (pkgdatadir)))
-		    (data-dir (append-dir-dir pkg-data-dir "data"))
-		    (pdb-file-name (append-dir-file data-dir "tutorial-modern.pdb"))
-		    (mtz-file-name (append-dir-file data-dir "rnasa-1.8-all_refmac1.mtz")))
-
-	       (read-pdb pdb-file-name)
-	       (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
-	       (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
 
 
 	
@@ -1145,7 +1239,6 @@
 	(if (coot-has-pygtk?)
 	    (run-python-command "import_rcrane_wrapper()"))
 	     
-	 
 
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
@@ -1316,7 +1409,7 @@
 	      (menuitem2 (gtk-menu-item-new-with-label "Views")))
 	  
 	  (gtk-menu-item-set-submenu menuitem2 submenu) 
-	  (gtk-menu-append menu menuitem2)
+	  (gtk-menu-append (coot-menubar-menu "Draw") menuitem2)
 	  (gtk-widget-show menuitem2)
 	  
 	  (add-simple-coot-menu-menuitem
@@ -1452,34 +1545,49 @@
 
 
 	(add-simple-coot-menu-menuitem
+	 submenu-modules "Carbohydrate"
+	 (lambda ()
+	   (add-module-carbohydrate)))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-modules "CCP4"
 	 (lambda ()
 	   (add-module-ccp4)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "SHELX"
+	 submenu-modules "Cryo-EM"
 	 (lambda ()
-	   (add-module-shelx)))
+	   (add-module-cryo-em)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "User-defined Restraints"
+	 submenu-modules "Refine"
 	 (lambda ()
-	   (add-module-user-defined-restraints)))
+	   (add-module-refine)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Restraints"
+	 (lambda ()
+	   (add-module-restraints)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "PDBe"
+	 (lambda ()
+	   (add-module-pdbe)))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-modules "ProSMART"
 	 (lambda ()
 	   (add-module-prosmart)))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-modules "Carbohydrate"
-	 (lambda ()
-	   (add-module-carbohydrate)))
+;	(add-simple-coot-menu-menuitem
+;	 submenu-modules "User-defined Restraints"
+;	 (lambda ()
+;	   (add-module-user-defined-restraints)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Cryo-EM"
+	 submenu-modules "SHELX"
 	 (lambda ()
-	   (add-module-cryo-em)))
+	   (add-module-shelx)))
 
 
 	;; ---------------------------------------------------------------------
@@ -1539,7 +1647,7 @@
 	   (nudge-screen-centre-gui)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-refine "All Molecules use \"Near Chains\" Symmetry"
+	 submenu-settings "All Molecules use \"Near Chains\" Symmetry"
 	 (lambda ()
 	   (for-each (lambda (imol)
 		       (if (valid-model-molecule? imol)
@@ -1547,7 +1655,7 @@
 		     (molecule-number-list))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-refine "Question Accept Refinement"
+	 submenu-settings "Question Accept Refinement"
 	 (lambda ()
 	   (set-refinement-immediate-replacement 0)))
 
@@ -1639,5 +1747,5 @@
      ;; (wrapper-alignment-mismatches-gui imol))))))
 
      (let ((do-alignment? #t))
-     (associate-pir-with-molecule-gui do-alignment?)))))
+       (associate-pir-with-molecule-gui do-alignment?)))))
 

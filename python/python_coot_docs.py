@@ -18,7 +18,7 @@
 
 def is_empty_file(file_name):
 
-    print "to be done?"
+    print("to be done?")
 
 def make_texi_file(python_file, doc_file):
 
@@ -57,7 +57,7 @@ def make_texi_file(python_file, doc_file):
         docout.write("@deffn procedure " + extracted_function(stop_line) + "\n")
         for i in range(start_line, stop_line):
             line = lines[i][2:]
-	    if line == "":
+            if line == "":
                 docout.write("\n")
             else:
                 docout.write(line)
@@ -72,7 +72,7 @@ def make_texi_file(python_file, doc_file):
         if "def" in line[0:3]:
             extract_info(i)
         # This is for xtra documentations!
-	elif "# deftexi" in line[0:9]:
+        elif "# deftexi" in line[0:9]:
             lines[i] = "def" + line[9:]
             extract_info(i)
         else:
@@ -111,10 +111,10 @@ import glob, os
 source_files = glob.glob("*.py")
 # take out coot.py if there
 try:
-	source_files.remove("coot.py")
-	source_files.remove("python_coot_docs.py")
+    source_files.remove("coot.py")
+    source_files.remove("python_coot_docs.py")
 except: 
-	pass
+    pass
 
 all_doc_file_name = "coot-python-functions.texi"
 
@@ -149,4 +149,3 @@ for source_file in source_files:
 
     remove_file(section_file)
     remove_file(doc_file)
-    

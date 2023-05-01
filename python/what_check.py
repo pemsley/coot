@@ -26,19 +26,23 @@ def go_to_residue_by_spec(imol, spec):
         return (len(spec) == 5)
 
     # main line
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     if (atom_spec_qm(spec)):
         atom_name = spec[3]
     else:
         atom_name = " CA "
 
-    set_go_to_atom_chain_residue_atom_name(spec[0],
+    coot_utils.set_go_to_atom_chain_residue_atom_name(spec[0],
                                            spec[1],
                                            atom_name)
 
 # consider for coot_utils
 def residue_spec_to_string(spec):
-    return (spec[0] + str(spec[1]) + spec[2])
+    print("DEBUG:: in residue_spec_to_string() with spec", spec)
+    if len(spec) == 4:
+        return (spec[1] + str(spec[2]) + spec[3])
+    else:
+        return (spec[0] + str(spec[1]) + spec[2])
 
 # make this internal 
 # 
@@ -64,7 +68,7 @@ def get_flip_residue(line):
         else:
             inscode = inscode_pre
         chain_id = line[18:19]
-        print "found", resno, inscode, chain_id
+        print("found", resno, inscode, chain_id)
         return [chain_id, resno, inscode]
 
 def convert_to_button_info(problemed_res_list):
@@ -104,7 +108,7 @@ def problem_residues2dialog(imol, problemed_res_list_list):
             #print "BL DEBUG:: returning button_list", ret
             return ret
 
-        dialog_box_of_pairs_of_buttons(imol,
+        coot_gui.dialog_box_of_pairs_of_buttons(imol,
                                        "What-Check Report",
                                        [270, 300],
                                        # buttons is a list of: [[button_1_label, button_1_action,],
@@ -122,21 +126,21 @@ def parse_check_db(imol, file_name, action):
     #
     global my_flip, my_rsr, my_delete_atom, my_rotamer_search
     def my_flip(imol_local, res_spec):
-        do_180_degree_side_chain_flip(imol_local,
+        coot.do_180_degree_side_chain_flip(imol_local,
                                       res_spec[0],
                                       res_spec[1],
                                       res_spec[2],
                                       "")
 
     def my_rsr(imol_local, res_spec):
-        with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
+        coot_utils.with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
                            res_spec[1], ""])
 
     #
     def my_delete_atom(imol, atom_spec):
         ls = [imol] + atom_spec
-        print "calling delete_atom with args", ls
-        delete_atom(*ls)
+        print("calling delete_atom with args", ls)
+        coot.delete_atom(*ls)
 
     #
     def my_rotamer_search(imol, res_spec):
@@ -145,13 +149,13 @@ def parse_check_db(imol, file_name, action):
         ins_code = res_spec[2]
         altloc   = ""
 
-        imol_map = imol_refinement_map()
-        if (valid_map_molecule_qm(imol_map)):
-            print "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
-                  %(imol, chain_id, resno, ins_code)
-            auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
+        imol_map = coot.imol_refinement_map()
+        if (coot_utils.valid_map_molecule_qm(imol_map)):
+            print( "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
+                  %(imol, chain_id, resno, ins_code))
+            coot.auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
         else:
-            add_status_bar_text("No refinement map available, no rotamer fit")
+            coot.add_status_bar_text("No refinement map available, no rotamer fit")
 
     # return False or a residue spec:
     def line2residue_spec(line):
@@ -160,7 +164,7 @@ def parse_check_db(imol, file_name, action):
             try:
                 resno = int(resno_string)
             except:
-                print "BL WARNING:: no int resno -> return"
+                print("BL WARNING:: no int resno -> return")
                 return False
             inscode_pre = line[40:41]
             if (inscode_pre == "_"):
@@ -188,9 +192,8 @@ def parse_check_db(imol, file_name, action):
             atom_name_pre = line[47:51]
             atom_name = atom_name_pre
             alt_conf = ""
-            print "found atom name %s resno %s (from %s) inscode %s (%s) chain_id %s" \
-                  %(atom_name, resno, resno_string, inscode_pre, inscode, chain_id)
-            print "line:", line
+            print("found atom name %s resno %s (from %s) inscode %s (%s) chain_id %s" \
+                  %(atom_name, resno, resno_string, inscode_pre, inscode, chain_id))
             return [chain_id, resno, inscode, atom_name, alt_conf]
 
     def apply_actions(imol, action_list):
@@ -198,15 +201,15 @@ def parse_check_db(imol, file_name, action):
         for action in action_list:
             func = action[0]
             baddie_list = action[1]
-            print "BL DEBUG:: action and baddie_list", action, baddie_list
+            print( "BL DEBUG:: action and baddie_list", action, baddie_list)
             imol_list = map(lambda x: imol, baddie_list)
-            print "BL DEBUG:: imol_list", imol_list
-            print "applying %s to %s" %(func, baddie_list)
-            print "BL DEBUG:: len of lists", len(imol_list), len(baddie_list)
+            print( "BL DEBUG:: imol_list", imol_list)
+            print( "applying %s to %s" %(func, baddie_list))
+            print( "BL DEBUG:: len of lists", len(imol_list), len(baddie_list))
             map(func, imol_list, baddie_list)
 
     # main line
-    print "parse_whatcheck_report: parsing output of what-if..."
+    print( "parse_whatcheck_report: parsing output of what-if...")
     found_flip_table     = False
     found_h2ohbo_table   = False
     found_BMPCHK_table   = False
@@ -292,7 +295,7 @@ def parse_check_db(imol, file_name, action):
         #print "Here flip_list is", flip_list
         #print "Here h2o-h-bond-less-list is", h2o_h_bond_less_list
         #print "Here bump_list is", bump_list
-        print "Here plane_list is", plane_list
+        print( "Here plane_list is", plane_list)
         if (action == 'gui'):
             problem_residues2dialog(imol, [
                 ["Needs flipping", "Flip it", "my_flip", flip_list],
@@ -308,8 +311,8 @@ def parse_check_db(imol, file_name, action):
                 # [my_flip, namchk_list]
                 ])
         else:
-            print "INFO:: wrong action input"
+            print( "INFO:: wrong action input")
                      
             
     else:
-        print "file not found", file_name
+        print( "file not found", file_name)
