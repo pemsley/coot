@@ -45,7 +45,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -781,10 +781,7 @@ void validation_graph_ncs_diffs_mol_selector_activate (GMenuItem     *menuitem,
    
    int imol = GPOINTER_TO_INT(user_data);
    graphics_info_t g;
-#ifdef HAVE_GOOCANVAS
-   g.ncs_diffs_from_mol(imol);
-#endif
-
+   // g.ncs_diffs_from_mol(imol); // 20230501-PE one day it will be back...
 }
 
 void

@@ -53,7 +53,6 @@ coot::atom_quad::atom_quad(mmdb::Residue *first, mmdb::Residue *second, const st
    if (link == "ALPHA1-6" || link == "BETA1-6" )
       O_name = " O6 ";
 
-
    if (! O_name.empty()) {
       // is standard (non-SIA) link
       std::vector<std::string> v;
@@ -76,13 +75,25 @@ coot::atom_quad::atom_quad(mmdb::Residue *first, mmdb::Residue *second, const st
 	 v.push_back(atom_4_name); // chiral centre
 	 quad = setup_chiral_quad(second, first, O_name, v);
       }
+
+      if (link == "ALPHA2-6") {
+	 O_name = " O6 ";
+	 atom_2_name = " O6 ";
+	 atom_3_name = " C3 ";
+	 atom_4_name = " C2 "; // chiral centre (on 1st residue)
+	 std::vector<std::string> v;
+	 v.push_back(atom_2_name);
+	 v.push_back(atom_3_name);
+	 v.push_back(atom_4_name); // chiral centre
+	 quad = setup_chiral_quad(first, second, O_name, v);
+      }
    }
 
    // all or nothing
    // 
    if (quad.atom_1 == NULL || quad.atom_2 == NULL || quad.atom_3 == NULL || quad.atom_4 == NULL) {
 
-      if (0) {
+      if (false) {
 	 std::cout << "WARNING:: atom_quad() problems given "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
 		   << "  and "

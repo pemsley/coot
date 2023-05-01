@@ -82,6 +82,41 @@ public:
       }
       return false;
    }
+
+   float get_radius_scale_for_atom(mmdb::Atom *atom_p) const {
+
+      float scale = 1.0f;
+      mmdb::Residue *r = atom_p->GetResidue();
+      if (r) {
+         std::string ele(atom_p->element);
+         if (ele == " H") return 0.5f;
+         std::string res_name = r->GetResName();
+         if (res_name == "HOH")
+            return 2.6f;
+         if (res_name == "CA")
+            return 4.0f;
+         if (res_name == "MG")
+            return 4.0f;
+         if (res_name == "IOD")
+            return 4.0f;
+         if (res_name == "CL")
+            return 4.0f;
+         if (res_name == "NA")
+            return 4.0f;
+         if (res_name == "K")
+            return 4.0f;
+      }
+      return scale;
+   }
+
+   void set_radius_scale_for_atom(mmdb::Atom *at, bool make_fat_atom) {
+      // 20230224-PE if there is no dictionary, then we want big fat atoms
+      radius_scale = get_radius_scale_for_atom(at);
+      if (make_fat_atom)
+         radius_scale = 6.0;
+      if (radius_scale > 6.0) radius_scale = 6.0;
+   }
+
 };
 
 template<class T> class graphical_bonds_points_list {
@@ -255,7 +290,7 @@ class graphical_bonds_container {
       rotamer_markups = NULL;
    }
 
-   graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
+   explicit graphical_bonds_container(const std::vector<graphics_line_t> &a) {
 
       std::cout << "constructing a graphical_bonds_container from a vector " 
 		<< "of size " << a.size() << std::endl;
@@ -276,6 +311,8 @@ class graphical_bonds_container {
       n_zero_occ_spots = 0;
       deuterium_spots_ptr = NULL;
       n_deuterium_spots = 0;
+      bad_CA_CA_dist_spots_ptr = NULL;
+      n_bad_CA_CA_dist_spots = 0;
       atom_centres_colour_ = NULL;
       atom_centres_ = NULL; 
       n_atom_centres_ = 0;
@@ -285,6 +322,8 @@ class graphical_bonds_container {
       n_consolidated_atom_centres = 0;
       n_cis_peptide_markups = 0;
       cis_peptide_markups = NULL;
+      n_rotamer_markups = 0;
+      rotamer_markups = NULL;
    }
       
    void add_colour(const std::vector<graphics_line_t> &a);

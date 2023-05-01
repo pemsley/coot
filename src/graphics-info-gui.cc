@@ -56,7 +56,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -420,7 +420,8 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
 
 
 // static
-GtkWidget *
+// 20230218-PE webassembly merge: make this void
+void
 graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
 
    GtkWidget *w = NULL;
@@ -454,7 +455,6 @@ graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
       }
       gtk_widget_show(w);
    }
-   return w;
 }
 
 void
@@ -473,15 +473,13 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
 
    std::string s = mutation_info.alignment_string;
 
-   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) {
-      // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
-      GtkWidget *label = widget_from_builder("nothing_bad_label");
-      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+   info_dialog(s); // get trashed by markup text
+   // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+   GtkWidget *label = widget_from_builder("nothing_bad_label");
+   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 
-      // guessing that we need > 6, could be more than 6.
-      gtk_label_set_markup(GTK_LABEL(label), s.c_str());
-   }
+   // guessing that we need > 6, could be more than 6.
+   gtk_label_set_markup(GTK_LABEL(label), s.c_str());
 }
 
 void
@@ -509,13 +507,10 @@ graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair
       s += "   That would cause exploding atoms, so the refinement didn't start\n";
    }
 
-
-   GtkWidget *dialog = info_dialog(s); // get trashed by markup text
-   if (dialog) {
-      // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
-      GtkWidget *label = widget_from_builder("nothing_bad_label");
-      gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-   }
+   info_dialog(s); // get trashed by markup text
+   // GtkWidget *label = lookup_widget(dialog, "nothing_bad_label");
+   GtkWidget *label = widget_from_builder("nothing_bad_label");
+   gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
 }
 
 
@@ -1338,7 +1333,7 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
 }
 
 // coot::rama_plot is an unknown type if we don't have canvas
-#ifdef HAVE_GOOCANVAS // or DO_RAMA_PLOT maybe.
+#ifdef HAVE_GOOCANVAS // 20230501-PE old (Goocanvas) version of the Rama plot
 void
 graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 
@@ -1425,19 +1420,20 @@ graphics_info_t::output_residue_info_as_text(int atom_index, int imol) {
 
    // It would be cool to flash the residue here.
    // (heh - it is).
+   // 20230111-PE gone now.
    //
    graphics_info_t g;
    mmdb::Atom *picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
 
    if (picked_atom) {
 
-      g.flash_selection(imol,
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->residue->seqNum,
-                        picked_atom->GetInsCode(),
-                        picked_atom->altLoc,
-                        picked_atom->residue->GetChainID());
+      // g.flash_selection(imol,
+      //                   picked_atom->residue->seqNum,
+      //                   picked_atom->GetInsCode(),
+      //                   picked_atom->residue->seqNum,
+      //                   picked_atom->GetInsCode(),
+      //                   picked_atom->altLoc,
+      //                   picked_atom->residue->GetChainID());
 
       mmdb::PAtom *atoms = NULL;
       int n_atoms = 0;
@@ -2046,8 +2042,7 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *d
 
 // static
 void
-graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
-						float val) {
+graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai, float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -2066,8 +2061,7 @@ graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai,
 
 // static
 void
-graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai,
-					   float val) {
+graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai, float val) {
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
@@ -2693,22 +2687,27 @@ graphics_info_t::fill_combobox_with_undo_options(GtkWidget *combobox_molecule) {
    // make the first undo molecule (a molecule with changes) be the active one.
 
    // 20220708-PE this is how to clear a combobox
-   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
 
-   int imol_active = -1;
-   for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_model()) {
-	 if (molecules[i].atom_sel.mol) {
-	    if (molecules[i].Have_modifications_p()) {
-	       imol_active = i;
-	       break;
-	    }
-	 }
+   if (combobox_molecule) {
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
+
+      int imol_active = -1;
+      for (int i=0; i<n_molecules(); i++) {
+         if (molecules[i].has_model()) {
+            if (molecules[i].atom_sel.mol) {
+               if (molecules[i].Have_modifications_p()) {
+                  imol_active = i;
+                  break;
+               }
+            }
+         }
       }
-   }
 
-   GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
-   fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
+      GCallback callback = G_CALLBACK(undo_molecule_combobox_changed);
+      fill_combobox_with_coordinates_options(combobox_molecule, callback, imol_active);
+   } else {
+      std::cout << "ERROR:: in fill_combobox_with_undo_options() combobox_molecule is null" << std::endl;
+   }
 }
 
 
@@ -3755,6 +3754,8 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 //    std::cout << pp.first.first  << " " << pp.first.second << "      "
 // 	     << pp.second.first << " " << pp.second.second << std::endl;
 
+#ifdef DO_RAMA_PLOT
+
    if (edit_phi_psi_plot) {
       std::vector <coot::util::phi_psi_t> vp;
       std::string label = int_to_string(c_atom_p->GetSeqNum());
@@ -3772,6 +3773,7 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
       vp.push_back(phipsi2);
       edit_phi_psi_plot->draw_it(vp);
    }
+#endif
 
 
    regularize_object_bonds_box.clear_up();

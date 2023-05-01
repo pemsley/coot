@@ -35,7 +35,7 @@
 
 #include "coords/cos-sin.h"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h" //need for Bond_lines now
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"

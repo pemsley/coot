@@ -7663,6 +7663,16 @@ void on_generic_objects_dialog_response(GtkDialog       *dialog,
     }
 }
 
+extern "C" G_MODULE_EXPORT
+gboolean
+on_generic_objects_dialog_delete_event(GtkWidget       *widget,
+                                       GdkEvent        *event,
+                                       gpointer         user_data) {
+   gtk_widget_hide(widget);
+   return TRUE;
+}
+
+
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 // what a terrible function name!
@@ -8601,17 +8611,6 @@ on_model_toolbar_menutoolbutton1_show_menu (GtkMenuToolButton *menutoolbutton,
    // 20220601-PE delete this function
 }
 #endif
-
-extern "C" G_MODULE_EXPORT
-void
-on_model_toolbar_display_manager_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
-                                                      gpointer         user_data) {
-
-   if (gtk_toggle_button_get_active(toggletoolbutton)) {
-      g_print("BL DEBUG:: display menu toggled");
-   }
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -11173,11 +11172,11 @@ void
 on_curlew_install_button_clicked(GtkButton *button,
                                  gpointer   user_data) {
 
-  GtkWidget *dialog = widget_from_builder("curlew_dialog");
-  if (dialog) {
-     int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
-    curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
-  }
+   GtkWidget *dialog = widget_from_builder("curlew_dialog");
+   if (dialog) {
+      int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+      curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
+   }
 }
 
 
@@ -11541,7 +11540,8 @@ extern "C" G_MODULE_EXPORT
 void
 on_curlew1_activate              (GMenuItem     *menuitem,
                                                       gpointer         user_data) {
-  curlew();
+
+   curlew();
 }
 
 extern "C" G_MODULE_EXPORT

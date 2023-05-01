@@ -81,7 +81,7 @@ AX_CXX_HAVE_THREAD
 
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
-   CXXFLAGS="$CXXFLAGS -std=c++11"
+   CXXFLAGS="$CXXFLAGS -std=c++17"
 else
    echo we can\'t compile coot then
 fi
@@ -325,10 +325,22 @@ fi
 
 echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
-AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
+AC_ARG_ENABLE(lidia-only, [  --enable-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
  lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
+
+AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only (not coot) ],
+[case "${enableval}" in
+  yes) libcootapi_only=true ;;
+  no)  libcootapi_only=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[libcootapi_only=false])
+AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
+
+echo testingA libcootapi_only is $libcootapi_only
+echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
+echo testingB lidia_only is $lidia_only
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
@@ -348,7 +360,8 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
+# Use swig flags properly. Remove COOT_USE_GTK2_INTERFACE
+SWIG_FLAGS="-DSWIG -DCOOT_USE_GTK2_INTERFACE"
 AC_SUBST(SWIG_FLAGS)
 
 
@@ -433,11 +446,8 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-lbg/Makefile
 doc/Makefile
 test-validation/Makefile
-src/Makefile
-src/coot
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile
@@ -450,6 +460,7 @@ pixmaps/icons/Makefile
 textures/Makefile
 rama-data/Makefile
 man/Makefile
+api/Makefile
 pli/Makefile
 fonts/Makefile
 pyrogen/Makefile
@@ -465,12 +476,20 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
-rcrane/Makefile
+lbg/Makefile
+src/Makefile
+src/coot
 ])
 AC_OUTPUT
+
 # removed setup/Makefile
 # po/Makefile.in
+
+# 2022-10-28
 # lbg/Makefile
+# rcrane/Makefile
+# src/Makefile
+# src/coot
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile

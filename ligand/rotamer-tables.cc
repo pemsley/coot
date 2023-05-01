@@ -432,9 +432,9 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
    }
 }
 
-
+// ignore_lys_and_arg_flag is a default arg (false, don't ignore)
 void
-coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
+coot::rotamer_probability_tables::fill_tables(const std::string &dir, bool ignore_lys_and_arg_flag) {
 
    if (is_well_formatted_)
       return; // filled already.
@@ -461,9 +461,11 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
    res.push_back(std::pair<std::string, std::string> ("MSE", "rota500-met.data"));
    res.push_back(std::pair<std::string, std::string> ("GLU", "rota500-glu.data"));
    res.push_back(std::pair<std::string, std::string> ("GLN", "rota500-gln.data"));
-		 
-   res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
-   res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
+
+   if (! ignore_lys_and_arg_flag) {
+      res.push_back(std::pair<std::string, std::string> ("ARG", "rota500-arg.data"));
+      res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
+   }
 
    std::string file_name_stub = dir;
    bool bad_read = 0;
@@ -509,10 +511,10 @@ coot::rotamer_probability_tables::operator[](unsigned int idx) const {
 
 // float, a state and a name:
 coot::rotamer_probability_info_t
-coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table, 
+coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 							   const std::vector<std::pair<int,float> > &chi_angles) const {
 
-   if (0)
+   if (false)
       std::cout << "rotamer_probability_tables::probability_this_rotamer()" << std::endl;
    
    std::vector<int> bins = chi_angles_to_bins(i_table, chi_angles);
@@ -531,7 +533,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       throw std::runtime_error(mess);
    }
 
-   if (0) { // debugging 
+   if (false) { // debugging
       if (n == 1) std::cout << "  bin: " << bins[0] << std::endl;
       if (n == 2) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second
 			    << "  bins: " << bins[0] << " " << bins[1] << std::endl;
@@ -559,8 +561,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       throw std::runtime_error(mess);
    }
    
-   return coot::rotamer_probability_info_t(coot::rotamer_probability_info_t::OK,
-					   pr*100.0, tables[i_table].residue_name);
+   return rotamer_probability_info_t(rotamer_probability_info_t::OK, pr*100.0, tables[i_table].residue_name);
 
 }
 

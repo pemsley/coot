@@ -65,7 +65,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "coords/cos-sin.h"
@@ -507,46 +507,7 @@ init_gl_widget(GtkWidget *widget) {
 
 void
 setup_molecular_triangles() {
-
-#ifdef USE_MOLECULES_TO_TRIANGLES
-
-   std::cout << "################ setup_for_mol_triangles() started ############" << std::endl;
-
-   GLenum err = glGetError(); std::cout << "   setup_for_mol_triangles() A err " << err << std::endl;
-
-   graphics_info_t::mol_tri_renderer = RendererGLSL::create();
-
-   err = glGetError(); std::cout << "   setup_for_mol_triangles() B calling init() currently err "
-                                 << err << std::endl;
-
-   graphics_info_t::mol_tri_renderer->init();
-
-   err = glGetError(); std::cout << "   setup_for_mol_triangles() C err " << err << std::endl;
-
-   graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
-
-   err = glGetError(); std::cout << "   setup_for_mol_triangles() D err " << err << std::endl;
-
-   //Add a simple light..set some parameters and move it
-   auto simpleLight = Light::defaultLight();
-   simpleLight->setIntensity(0.8);
-   simpleLight->setAmbient(FCXXCoord(0.2, 0.2, 0.2, 0.0));
-   simpleLight->setDrawLight(false); // crash on true, why is that?
-   simpleLight->setLightType(Light::Directional);
-   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
-
-   //Add another simple light
-   auto simpleLight2 = Light::defaultLight();
-   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
-   simpleLight2->setIntensity(0.7);
-   simpleLight2->setDrawLight(false);
-   simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
-
-   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is "
-             << graphics_info_t::mol_tri_scene_setup << std::endl;
-
-#endif // USE_MOLECULES_TO_TRIANGLES
-
+   //g goodby innards
 }
 
 void

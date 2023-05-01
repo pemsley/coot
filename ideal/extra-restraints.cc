@@ -29,6 +29,24 @@
 
 #include "simple-restraint.hh"
 
+
+void
+coot::extra_restraints_t::add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in) {
+   bool already_exists = false;
+   for (unsigned int i=0; i<start_pos_restraints.size(); i++) {
+      if (start_pos_restraints[i].atom_1 == atom_1_in) {
+         start_pos_restraints[i].esd = esd_in;
+         already_exists = true;
+         break;
+      }
+   }
+   if (! already_exists) {
+      extra_start_pos_restraint_t e(atom_1_in, esd_in);
+      start_pos_restraints.push_back(e);
+   }
+}
+
+
 void
 coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_name) {
 

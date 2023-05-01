@@ -70,7 +70,8 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
         coot.info_dialog("No prosmart")
 
 
-
+# this should not be in gui_prosmart. Put it in restraints_gui.py
+#
 def add_module_restraints():
     menu = attach_module_menu_button("Restraints")
 

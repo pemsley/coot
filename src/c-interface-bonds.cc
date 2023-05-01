@@ -1,3 +1,4 @@
+
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -13,7 +14,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "coords/mmdb-crystal.h"
 
@@ -30,6 +31,9 @@
 #include "cc-interface-scripting.hh"
 
 #include "c-interface-bonds.hh"
+
+#include "coot-utils/coot-h-bonds.hh"
+#include "glarea_tick_function.hh"
 
 #ifdef USE_PYTHON
 
@@ -165,10 +169,6 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm) {
    return r;
 }
 #endif
-
-
-#include "coot-utils/coot-h-bonds.hh"
-#include "glarea_tick_function.hh"
 
 
 void set_draw_hydrogen_bonds(int state) {

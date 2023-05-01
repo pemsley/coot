@@ -38,6 +38,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_rama_balls,
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
+                                                           shader_for_extra_distance_restraints,
                                                            shader_for_happy_face_residue_markers,
                                                            shader_for_happy_face_residue_markers_for_ssao,
                                                            shader_for_rama_plot_phi_phis_markers,
@@ -48,6 +49,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_dof_blur_by_texture_combination,
                                                            shader_for_texture_meshes,
                                                            shader_for_meshes,
+                                                           shader_for_background_image,
                                                            // camera_facing_quad_shader,
 
                                                            // from crows
@@ -107,6 +109,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
    shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_extra_distance_restraints.init("extra-distance-restraints.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
@@ -117,6 +120,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
+   shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
    shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
    shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
    shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);

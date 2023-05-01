@@ -42,9 +42,14 @@ LigandViewMesh::setup_buffers() {
    if (first_time)
       glGenVertexArrays(1, &vao_lines);
 
-   glBindVertexArray(vao_lines);
-   for (unsigned int i=0; i<5; i++) {
-      std::cout << i << " " << glm::to_string(lines_vertices[i]) << std::endl;
+   if (n_lines_vertices == 0) return;
+   if (n_triangles_vertices == 0) return;
+
+   if (lines_vertices.size() > 5) {
+      glBindVertexArray(vao_lines);
+      for (unsigned int i=0; i<5; i++) {
+         std::cout << i << " " << glm::to_string(lines_vertices[i]) << std::endl;
+      }
    }
 
    if (first_time) {

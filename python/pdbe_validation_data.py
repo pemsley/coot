@@ -564,6 +564,8 @@ class validation_entry_to_canvas:
     def on_drawing_area_expose(self, da, event):
 
         style = da.get_style()
+        print(dir(style))
+        # there is no fg_gc in style
         gc = style.fg_gc[Gtk.STATE_NORMAL]
 
         n_sliders = self.draw_sliders(da, gc)

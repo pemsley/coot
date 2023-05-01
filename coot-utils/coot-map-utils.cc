@@ -49,10 +49,10 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               std::string phi_col,
                               std::string weight_col,
                               short int use_weights,
-                              short int is_diff_map) {
+                              float sampling_rate) {
 
    return coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
-                                 use_weights, is_diff_map, 0, 0);
+                                        use_weights, 0, 0, sampling_rate);
 }
 
 bool
@@ -62,9 +62,9 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               std::string phi_col,
                               std::string weight_col,
                               short int use_weights,
-                              short int is_diff_map,
                               float reso_limit_high,
-                              short int use_reso_limit_high) {
+                              short int use_reso_limit_high,
+                              float sampling_rate) {
 
   if (!file_exists(mtz_file_name))
       return 0;
@@ -73,7 +73,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
   clipper::MTZdataset myset;
   clipper::MTZcrystal myxtl;
 
-  std::cout << "reading mtz file..." << std::endl;
+  // std::cout << "reading mtz file..." << std::endl;
   clipper::CCP4MTZfile mtzin;
   mtzin.open_read( mtz_file_name );       // open new file
   mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
@@ -90,7 +90,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      std::cout << dataname << "\n";
      mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
      mtzin.close_read();
-     std::cout << "We should use the weights: " << weight_col << std::endl;
+     // std::cout << "We should use the weights: " << weight_col << std::endl;
 
      fphidata.compute(f_sigf_data, phi_fom_data,
                       clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
@@ -100,8 +100,8 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      mtzin.import_hkl_data(     fphidata, myset, myxtl, dataname );
      mtzin.close_read();
   }
-  std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
-  std::cout << "finding ASU unique map points..." << std::endl;
+  // std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
+  // std::cout << "finding ASU unique map points..." << std::endl;
 
   clipper::Resolution fft_reso;
   if (use_reso_limit_high) {
@@ -112,14 +112,12 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
   }
 
-  xmap->init( myhkl.spacegroup(), myhkl.cell(),
-              clipper::Grid_sampling( myhkl.spacegroup(),
-                                      myhkl.cell(),
-                                      fft_reso));
-  std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
-  std::cout << "doing fft..." << std::endl;
+  clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
+  xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
+  // std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
+  // std::cout << "doing fft..." << std::endl;
   xmap->fft_from( fphidata );                  // generate map
-  std::cout << "done fft..." << std::endl;
+  // std::cout << "done fft..." << std::endl;
   return 1;
 }
 
@@ -2516,8 +2514,9 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
                                                  float atom_radius, // for masking
                                                  const clipper::Xmap<float> &reference_map) {
 
-   std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
-             << specs.size() << std::endl;
+   if (false)
+      std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
+                << specs.size() << std::endl;
 
    std::vector<std::pair<residue_spec_t, float> > v;
    int SelHnd = mol->NewSelection(); // d
@@ -3562,7 +3561,7 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
                             centre_at_grid_point_f.w() + new_box_c/input_xmap.cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(input_gs), box1.coord_grid(input_gs));
-   std::cout << "grid in reference map: " << grid.format() << std::endl;
+   std::cout << "DEUBG:: grid in reference map: " << grid.format() << std::endl;
 
    clipper::Xmap_base::Map_reference_coord ix(input_xmap);
    for (int u = grid.min().u(); u < grid.max().u(); u++) {
@@ -3572,13 +3571,13 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
             float f = input_xmap[ix];
 	    clipper::Coord_grid cg = ix.coord() - offset;
 	    xmap.set_data(cg, f);
-	    if (true)
+	    if (false)
 	      std::cout << "set xmap: from " << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
          }
       }
    }
 
-   {
+   if (false) {
       clipper::Xmap_base::Map_reference_coord ix(input_xmap);
       for (int u = grid.min().u(); u < grid.max().u(); u++) {
          for (int v = grid.min().v(); v < grid.max().v(); v++) {
@@ -3587,7 +3586,7 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
                clipper::Coord_grid cg = ix.coord() - offset;
                float f1 = input_xmap[ix];
                float f2 = xmap.get_data(cg);
-               std::cout << " test-get from " << ix.coord().format() << " to " << cg.format() << " "
+               std::cout << "DEBUG:: test-get from " << ix.coord().format() << " to " << cg.format() << " "
                          << f1 << " " << f2 << std::endl;
             }
          }

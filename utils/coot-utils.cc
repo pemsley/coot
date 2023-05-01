@@ -130,21 +130,16 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
 // occurred.
 //
 int
-coot::util::create_directory(const std::string &dir_name) {
+coot::util::create_directory(const std::string &dir_name_in) {
 
    int istat = -1;
    struct stat s;
    // on Windows stat works only properly if we remove the last / (if it exists)
    // everything else following seems to be fine with the /
-#ifdef WINDOWS_MINGW
-   std::string tmp_name = dir_name;
-   if (dir_name.find_last_of("/") == dir_name.size() - 1) {
-     tmp_name = dir_name.substr(0, dir_name.size() - 1);
-   }
-   int fstat = stat(tmp_name.c_str(), &s);
-#else
+
+   std::string dir_name = remove_trailing_slash(dir_name_in);
+
    int fstat = stat(dir_name.c_str(), &s);
-#endif // MINGW
 
    // 20060411 Totally bizarre pathology!  (FC4) If I comment out the
    // following line, we fail to create the directory, presumably
@@ -155,16 +150,24 @@ coot::util::create_directory(const std::string &dir_name) {
       // not exist
       std::cout << "INFO:: Creating directory " << dir_name << std::endl;
 
+      bool change_permission = true;
+
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
       istat = mkdir(dir_name.c_str());
 #else
-      mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR; // over-ridden
-      mode = 511; // octal 777
-      mode_t mode_o = umask(0);
-      mode_t mkdir_mode = mode - mode_o;
+
+#ifdef EMSCRIPTEN
+      mode_t mkdir_mode = 0755;
       istat = mkdir(dir_name.c_str(), mkdir_mode);
-      umask(mode_o); // oh yes we do, crazy.
-#endif
+#else
+      if (change_permission) {
+         mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR; // over-ridden
+         mode = 511; // octal 777
+         mode_t mode_o = umask(0);
+         mode_t mkdir_mode = mode - mode_o;
+         istat = mkdir(dir_name.c_str(), mkdir_mode);
+         umask(mode_o); // oh yes we do, crazy.
+      }
 
    } else {
       if ( ! S_ISDIR(s.st_mode) ) {
@@ -174,7 +177,21 @@ coot::util::create_directory(const std::string &dir_name) {
 	 // was a directory already
 	 istat = 0; // return as if we made it
       }
+#endif
+#endif
    }
+
+   // and finally some output: was the directory actually created?
+
+   struct stat buf;
+   int err = stat(dir_name.c_str(), &buf);
+   if (err == 0) {
+      istat = 0; // all OK then.
+      // std::cout << "INFO:: in create_directory() " << dir_name << " confirmed as existing" << std::endl;
+   } else {
+      std::cout << "ERROR:: in create_directory() " << dir_name << " does not exist!" << std::endl;
+   }
+
    return istat;
 }
 
@@ -882,8 +899,22 @@ coot::prefix_dir() {
       s = env;
    } else {
       std::string dds = package_data_dir();
-      std::string ds = util::append_dir_dir(dds,"..");
-      s = util::append_dir_dir(ds,"..");
+      if (! dds.empty())
+         if (dds.back() == '/')
+            dds.erase(dds.size() - 1);    // or pop_back
+      std::string ds = util::file_name_directory(dds);
+      if (! ds.empty())
+         if (ds.back() == '/')
+            ds.erase(ds.size() - 1);
+      s = util::file_name_directory(ds);
+      if (! s.empty())
+         if (s.back() == '/')
+            s.erase(s.size() - 1);
+      if (false) {
+         std::cout << "dds: " << dds << std::endl;
+         std::cout << "ds:  " <<  ds << std::endl;
+         std::cout << "s:   " <<   s << std::endl;
+      }
    }
    return s;
 }
@@ -915,8 +946,13 @@ coot::package_data_dir() {
    std::string pkgdatadir = PKGDATADIR;
    // For binary installers, they use the environment variable:
    char *env = getenv("COOT_DATA_DIR");
-   if (env)
+   if (env) {
       pkgdatadir = std::string(env);
+   } else {
+      char *env = getenv("COOT_PREFIX");
+      if (env)
+         pkgdatadir = std::string(env) + std::string("/share/coot");
+   }
    return pkgdatadir;
 }
 

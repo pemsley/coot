@@ -133,7 +133,8 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    }
    r1f /= clipper::Util::max(f1f, 0.1);
    r1w /= clipper::Util::max(f1w, 0.1);
-   std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
+   if (false)
+      std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
 
    // now make a map
 
@@ -142,7 +143,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    xmap_p->fft_from(f_diff);
 
    // DIAGNOSTIC OUTPUT
-   if (true) {
+   if (false) {
       std::cout << "\n Bulk Correction Volume: " << bulkfrc;
       std::cout << "\n Bulk Correction Factor: " << bulkscl << "\n";
       std::cout << "\nNumber of spline params: " << sfw.params_scale().size() << "\n";
@@ -157,6 +158,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    }
 }
 
+#include <chrono>
 
 coot::util::sfcalc_genmap_stats_t
 coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
@@ -165,6 +167,9 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
                                               const clipper::Cell &cell_for_fobs,
                                               clipper::Xmap<float> *xmap_2fofc_p,
                                               clipper::Xmap<float> *xmap_fofc_p) {
+   bool show_timings = false; // pass this?
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
 
    sfcalc_genmap_stats_t sfcgs;
 
@@ -173,7 +178,8 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       return sfcgs;
    }
 
-   if (true) {
+   if (false) {
+
       // sanity check
       const clipper::HKL_info &hkls_check = fobs_in.base_hkl_info();
       const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
@@ -206,19 +212,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    // modifyable fobs (because we want to anisotropically scale Fobs)
    clipper::HKL_data<clipper::data32::F_sigF> fobs(fobs_in);
 
-   if (true) {
-      // sanity check
-      const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
-      const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
-
-      std::cout << "DEBUG:: Sanity check B in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                << "cell_for_fobs: " << cell_for_fobs.format() << " "
-                << "cell of fobs: " << hkls_check.cell().format() << " "
-                << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                << "resolution: " << hkls_check.resolution().limit() << " "
-                << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                << std::endl;
-   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
 
 
    // get a list of all the atoms
@@ -230,6 +224,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    clipper::MMDBAtom_list atoms(atom_sel, nsel);
    // std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() nsel for atoms " << nsel << std::endl;
 
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    // clipper::MTZcrystal cxtl;
    clipper::HKL_info hkls;
    hkls.init(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling(), true); // init this correctly - how?
@@ -239,23 +234,10 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    //
    // clipper::HKL_data<clipper::data32::F_phi> fc(hkls, cxtl);
    clipper::HKL_data<clipper::data32::F_phi> fc(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling());
+
+   auto tp_3 = std::chrono::high_resolution_clock::now();
    if (bulk) {
       clipper::SFcalc_obs_bulk<float> sfcb;
-
-      if (true) {
-         // sanity check
-         const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
-         const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
-
-         std::cout << "DEBUG:: Sanity check C in sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                   << "cell_for_fobs: " << cell_for_fobs.format() << " "
-                   << "cell of fobs: " << hkls_check.cell().format() << " "
-                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                   << "resolution: " << hkls_check.resolution().limit() << " "
-                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                   << std::endl;
-      }
-
       sfcb(fc, fobs, atoms);
       bulkfrc = sfcb.bulk_frac();
       bulkscl = sfcb.bulk_scale();
@@ -264,6 +246,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       sfc(fc, atoms);
       bulkfrc = bulkscl = 0.0;
    }
+   auto tp_4 = std::chrono::high_resolution_clock::now();
 
   // do anisotropic scaling
    if (aniso != NONE)  {
@@ -285,11 +268,15 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    clipper::HKL_data<clipper::data32::Phi_fom> phiw(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling());
    clipper::HKL_data<clipper::data32::Flag>    flag(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling());
 
+   auto tp_5 = std::chrono::high_resolution_clock::now();
+
    for (HRI ih = flag.first(); !ih.last(); ih.next())
       if (!fobs[ih].missing() && (free[ih].missing()||free[ih].flag()==freeflag))
          flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
       else
          flag[ih].flag() = clipper::SFweight_spline<float>::NONE;
+
+   auto tp_6 = std::chrono::high_resolution_clock::now();
 
    // do sigmaa calc
    clipper::SFweight_spline<float> sfw(n_refln, n_param);
@@ -306,14 +293,12 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
             if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
          }
       }
-
-
-      // std::cout << "DEBUG:: sfcalc_genmaps_using_bulk_solvent(): the nan count: "
-      //           << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
-
+      // std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
    }
 
-   // Calc abcd (needed?)
+   auto tp_7 = std::chrono::high_resolution_clock::now();
+
+   // calc abcd (needed?)
    // clipper::HKL_data<clipper::data32::ABCD> abcd(hkls);
    // abcd.compute(phiw, clipper::data32::Compute_abcd_from_phifom());
 
@@ -329,8 +314,6 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    for (HRI ih = fobs.first(); !ih.last(); ih.next()) {
       if (!fobs[ih].missing()) {
          Fo = fobs[ih].f();
-         std::cout << "DEBUG: " << ih.hkl().format() << " resolution-func: " << rfn.f(ih) << " Fcalc: " << fc[ih].f()
-                   << std::endl;
          if (clipper::Util::isnan(rfn.f(ih))) {
          } else {
             Fc = sqrt( rfn.f(ih) ) * fc[ih].f();
@@ -344,7 +327,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
          }
       }
    }
-
+   auto tp_8 = std::chrono::high_resolution_clock::now();
    r1f /= clipper::Util::max(f1f, 0.1);
    r1w /= clipper::Util::max(f1w, 0.1);
    sfcalc_genmap_stats_t::loc_table_t loct;
@@ -356,19 +339,27 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       loct.add(item);
    }
 
-   std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent(): capturing rfactors " << r1w << " and " << r1f << std::endl;
+   auto tp_9 = std::chrono::high_resolution_clock::now();
+
+   if (false)
+      std::cout << "debug:: capturing rfactors " << r1w << " and " << r1f << std::endl;
+
    sfcgs = sfcalc_genmap_stats_t(r1w, r1f, bulkfrc, bulkscl, sfw.params_scale().size(), loct);
-   std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
+   if (false)
+      std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
+   auto tp_10 = std::chrono::high_resolution_clock::now();
 
    // now make a map
 
    // test
    // xmap_p->fft_from(fc);
    xmap_2fofc_p->fft_from(f_best);
+   auto tp_11 = std::chrono::high_resolution_clock::now();
    xmap_fofc_p->fft_from(f_diff);
+   auto tp_12 = std::chrono::high_resolution_clock::now();
 
    // DIAGNOSTIC OUTPUT
-   if (true) {
+   if (false) {
       std::cout << "\n Bulk Correction Volume: " << bulkfrc;
       std::cout << "\n Bulk Correction Factor: " << bulkscl << "\n";
       std::cout << "\nNumber of spline params: " << sfw.params_scale().size() << "\n";
@@ -379,6 +370,25 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
          printf("%6.3f %12.3f %12.3f\n", s, basisfn_table.f_s(s,sfw.params_scale()), basisfn_table.f_s(s,sfw.params_error()));
       }
       printf(" $$\n");
+   }
+
+   if (show_timings) {
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+      auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+      auto d65 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_6 - tp_5).count();
+      auto d76 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7 - tp_6).count();
+      auto d87 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8 - tp_7).count();
+      auto d98 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9 - tp_8).count();
+      auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_9).count();
+      auto d1110 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_11 - tp_10).count();
+      auto d1211 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_12 - tp_11).count();
+
+      std::cout << "sfs calc timings: d10 " << d10 << " d21 " << d21 << " d32 " << d32 << " d43 " << d43 << " d54 " << d54
+                << " d65 " << d65 << " d76 " << d76 << " " << d87 << " d98 " << d98 << " d10-9 " << d109
+                << " d11-10 " << d1110 << " d12-11 " << d1211 << "\n";
    }
 
    return sfcgs;

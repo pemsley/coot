@@ -1,6 +1,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 #include "coot-utils.hh"
 
 #ifdef  _WIN32

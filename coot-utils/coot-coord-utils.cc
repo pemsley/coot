@@ -102,6 +102,7 @@ std::vector<std::string>
 coot::util::non_standard_residue_types_in_molecule(mmdb::Manager *mol) {
 
    std::vector<std::string> r;
+   if (! mol) return r;
    std::vector<std::string> v = residue_types_in_molecule(mol);
    std::vector<std::string> standards = coot::util::standard_residue_types();
    
@@ -4059,7 +4060,7 @@ coot::mol_is_anisotropic(mmdb::Manager *mol) {
          for (int iat=0; iat<n_atoms; iat++) {
             at = residue_p->GetAtom(iat);
             if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
-               is_aniso;
+               is_aniso = true;
                break;
             }
          }
@@ -4120,17 +4121,18 @@ coot::util::create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
                                                    bool invert_seletion) {
 
    if (invert_seletion)
-      return coot::util::create_mmdbmanager_from_inverted_atom_selection(orig_mol,
-                                                                         SelectionHandle);
+      return coot::util::create_mmdbmanager_from_inverted_atom_selection(orig_mol, SelectionHandle);
    else
-      return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol,
-                                                                         SelectionHandle);
+      return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol, SelectionHandle);
 }
 
 // ignore atom index transfer
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
-                                                            int SelectionHandle) { 
+                                                            int SelectionHandle) {
+
+   std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
+
    mmdb::Manager *atoms_mol = new mmdb::Manager;
 
    mmdb::PPAtom atoms;
@@ -4432,6 +4434,8 @@ coot::util::transfer_links(mmdb::Manager *mol_orig, mmdb::Manager *mol_new) {
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
+
+   std::cout << "----------------- create_mmdbmanager_from_inverted_atom_selection() " << std::endl;
 
    // The idea here is that we want to have a selection that is
    // logical NOT of the SelectionHandle selection.
@@ -5120,6 +5124,8 @@ coot::util::three_letter_to_one_letter_with_specials(const std::string &resname)
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::util::extents(mmdb::Manager *mol) {
 
+   if (! mol) return std::pair<clipper::Coord_orth, clipper::Coord_orth>
+                       (clipper::Coord_orth(0,0,0), clipper::Coord_orth(0,0,0));
 
    int selHnd = mol->NewSelection();
    mol->SelectAtoms(selHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",

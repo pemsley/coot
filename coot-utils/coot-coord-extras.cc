@@ -189,7 +189,7 @@ coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
                }
 
 
-               if (residue_has_deuterium_atoms) {
+               if (has_deuterium_atoms) {
                   // same again, but change the dictionary atom names on the fly
 
                   std::string dict_atom_name_1 = dict.bond_restraint[ibr].atom_id_1_4c();
@@ -1111,4 +1111,154 @@ coot::util::multi_parse_prosmart_log_and_gen_CO_plot() {
          }
       }
    }
+}
+
+
+coot::util::missing_atom_info
+coot::util::missing_atoms(mmdb::Manager *mol,
+                          bool do_missing_hydrogen_atoms_flag,
+                          protein_geometry *geom_p) {
+
+   bool ignore_missing_OXT = true;
+   bool ignore_missing_OP3 = true;
+
+   std::vector<mmdb::Residue *> residues_with_missing_atoms;
+   std::vector<std::string> residues_no_dictionary;
+   std::map<mmdb::Residue *, std::vector<std::string> > residue_missing_atom_names_map;
+   // and these atoms will need to be deleted when we auto-complete the residue.
+   std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
+
+   if (mol) {
+
+      // residue_atoms is a vector of residues names (monomer comp_id)
+      // together with a vector of atoms.  On each check in this list
+      // for the residue type, associated with each atom name is a
+      // flag which says if this is a hydrogen or not.
+      std::vector<coot::util::dict_residue_atom_info_t> residue_atoms;
+
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+         chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::PResidue residue_p;
+         mmdb::Atom *at;
+         for (int ires=0; ires<nres; ires++) {
+            residue_p = chain_p->GetResidue(ires);
+            std::string residue_name(residue_p->GetResName());
+            short int found_dict = 0;
+            std::vector<coot::util::dict_atom_info_t> residue_dict_atoms;
+            for (unsigned int idict=0; idict<residue_atoms.size(); idict++) {
+               std::string tmp_str = residue_atoms[idict].residue_name;
+               if (residue_name == tmp_str) {
+                  residue_dict_atoms = residue_atoms[idict].atom_info;
+                  found_dict = 1;
+               }
+            }
+            if (!found_dict) {
+               // we need to try to make it from the dict_info restraint info.
+               // (dymamic_add will happen automatically).
+               //
+               // set found_dict if we get it and make it.
+               coot::util::dict_residue_atom_info_t residue_atoms_for_a_residue(residue_name,
+                                                                                geom_p);
+               if (!residue_atoms_for_a_residue.is_empty_p()) {
+                  residue_atoms.push_back(residue_atoms_for_a_residue);
+                  residue_dict_atoms = residue_atoms_for_a_residue.atom_info;
+                  found_dict = 1;
+               }
+            }
+
+            if (!found_dict) {
+
+               // No dictionary available, even after we try to make
+               // it (dynamic add failed, presumably).  So add this
+               // residue type to the list of residues for which we
+               // can't find the restraint info:
+               residues_no_dictionary.push_back(residue_name);
+
+            } else {
+
+               // OK, we have a dictionary. Deal with hydrogens, by
+               // assigning them as present if we don't care if they
+               // don't exist.
+               //
+               // Note: this kludges the isHydrogen? flag.  We are
+               // testing if it was set (existed) or not!
+               //
+               std::vector<coot::util::dict_atom_info_t> dict_atom_names_pairs;
+               for (unsigned int iat=0; iat<residue_dict_atoms.size(); iat++) {
+                  // Let's not add hydrogens to the dictionary atoms
+                  // if we don't care if the don't exist.
+                  if ((do_missing_hydrogen_atoms_flag == false) &&
+                      (residue_dict_atoms[iat].is_Hydrogen_flag == 1)) {
+                     // do nothing
+                  } else {
+                     // put it in the list and initially mark it as not found.
+                     coot::util::dict_atom_info_t p(residue_dict_atoms[iat].name, 0);
+                     // PDBv3 FIXME
+                     bool really_missing = true;
+
+                     if (ignore_missing_OXT) {
+                        if (residue_dict_atoms[iat].name == " OXT")
+                           really_missing = false;
+                     }
+                     if (ignore_missing_OP3) {
+                        if (residue_dict_atoms[iat].name == " OP3")
+                           really_missing = false;
+                     }
+
+                     if (really_missing) {
+                        dict_atom_names_pairs.push_back(p);
+                     }
+                  }
+               }
+
+               // OK for every atom in the PDB residue, was it in the dictionary?
+               //
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  at = residue_p->GetAtom(iat);
+                  std::string atom_name(at->name);
+                  // check against each atom in the dictionary:
+                  for (unsigned int idictat=0; idictat<dict_atom_names_pairs.size(); idictat++) {
+                     if (atom_name == dict_atom_names_pairs[idictat].name) {
+                        // kludge the is_Hydrogen_flag! Use as a marker
+                        dict_atom_names_pairs[idictat].is_Hydrogen_flag = 1; // mark as found
+                        break;
+                     }
+                  }
+               }
+
+               // OK, so we have run through all atoms in the PDB
+               // residue.  How many atoms in the dictionary list for
+               // this residue were not found? Counterintuitive: the
+               // is_Hydrogen_flag is used as a marker of being found!
+               //
+               std::vector<std::string> missing_atom_names;
+               for (unsigned int idictat=0; idictat<dict_atom_names_pairs.size(); idictat++) {
+                  if (! dict_atom_names_pairs[idictat].is_Hydrogen_flag) {
+                     missing_atom_names.push_back(dict_atom_names_pairs[idictat].name);
+                  }
+               }
+
+               if (! missing_atom_names.empty()) {
+                  residues_with_missing_atoms.push_back(residue_p);
+                  residue_missing_atom_names_map[residue_p] = missing_atom_names;
+               }
+            }
+         }
+      }
+   }
+
+   coot::util::missing_atom_info mai(residues_no_dictionary,
+                                     residues_with_missing_atoms,
+                                     atoms_in_coords_but_not_in_dict);
+   mai.residue_missing_atom_names_map = residue_missing_atom_names_map; // a bit kludgy.
+
+   return mai;
+
 }

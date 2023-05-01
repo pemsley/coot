@@ -110,7 +110,9 @@ mini_rsr_bin_SOURCES = mini-rsr.cc
 
 test_rama_plot_SOURCES = test-rama-plot.cc
 
-test_rama_plot_LDADD = ./libcoot-ideal.la
+test_rama_plot_LDADD = ./libcoot-ideal.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la 
 
 coot_ligand_validation_bin_SOURCES = lv.cc
 

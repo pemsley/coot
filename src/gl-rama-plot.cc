@@ -243,12 +243,12 @@ gl_rama_plot_t::generate_phi_psis(int imol, const std::string &residue_selection
    for (int imod=1; imod<=n_models; imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
+         int nchains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 2) { 
-	       for (int ires=1; ires<(nres-1); ires++) { 
+            int nres = chain_p->GetNumberOfResidues();
+            if (nres > 2) {
+               for (int ires=1; ires<(nres-1); ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		  mmdb::Residue *res_prev = coot::util::previous_residue(residue_p);
 		  mmdb::Residue *res_next = coot::util::next_residue(residue_p);
@@ -469,6 +469,17 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    GLenum err;
    err = glGetError();
    if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() --start-- error " << err << std::endl;
+
+   // first check that there is something to draw before drawing anything.
+   //
+   if (hud_tmesh_for_other_normal.have_no_instances()  &&
+       hud_tmesh_for_other_outlier.have_no_instances() &&
+       hud_tmesh_for_pro_normal.have_no_instances()    &&
+       hud_tmesh_for_pro_outlier.have_no_instances()   &&
+       hud_tmesh_for_gly_normal.have_no_instances()    &&
+       hud_tmesh_for_gly_outlier.have_no_instances()) {
+      return;
+   }
 
    glDisable(GL_BLEND);
 

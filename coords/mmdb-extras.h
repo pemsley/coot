@@ -71,7 +71,10 @@ mmdb::LinkContainer empty_links_container();
 // DARK_ORANGE is Fe
 enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, MAGENTA_BOND,
 		    GREY_BOND, ORANGE_BOND, CYAN_BOND, HYDROGEN_GREY_BOND,
-		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND, DEUTERIUM_PINK };
+		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND, DEUTERIUM_PINK,
+                    DARK_VIOLET, // I
+                    VIOLET // Li, NA, K, Rb, Cs, Fr
+};
 
 float max_bond_length(const std::string &element);
 

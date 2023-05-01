@@ -93,12 +93,18 @@ def with_auto_accept(*funcs):
 
     replace_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
+    ret = None
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
-        # print "BL DEBUG:: func %s and args %s" %(func, args)
-        ret = func(*args)
-        coot.accept_regularizement()
+        try:
+            func(*args)
+            ret = coot.accept_moving_atoms_py()
+        except SystemError as e:
+            print("Py -----------------------------")
+            print('WARNING:: with_auto_accept() caught a SystemError exception')
+            print(e)
+            print("Py -----------------------------")
 
     if (replace_state == 0):
         coot.set_refinement_immediate_replacement(0)
@@ -1280,7 +1286,7 @@ def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
 
 
 def residue_info_dialog_displayed_qm():
-    if (residue_info_dialog_is_displayed == 1):
+    if (coot.residue_info_dialog_is_displayed() == 1):
         return True
     else:
         return False
@@ -2220,7 +2226,7 @@ def decode_key(key_val_name):
 
 def add_key_binding(name, key, thunk):
 
-    if (use_gui_qm):
+    if use_gui_qm:
 
         from types import IntType, StringType
 
@@ -2662,7 +2668,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
         aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
                    "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
-                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
+                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO", "MSE"]
         rn = coot.residue_name(imol, ch_id, res_no, "")
         if not isinstance(rn, str):
             return False
@@ -2680,13 +2686,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
                               imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
 
-        print("BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %
-              (imol_mov, imol_ref))
         coot.clear_lsq_matches()
-        list(map(lambda atom_name:
-                 add_lsq_atom_pair([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
-                                   [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "]))
-        apply_lsq_matches(imol_ref, imol_mov)
+        map(lambda atom_name:
+            coot.add_lsq_atom_pair_py([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
+                                      [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "])
+        coot.apply_lsq_matches_py(imol_ref, imol_mov)
 
     def is_purine(res_name):
         type_list = ["G", "A", "DA", "DG"]
@@ -2730,6 +2734,12 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 atom_list_1 = pyrimidine_to_purine_set
                 atom_list_2 = purine_to_pyrimidine_set
 
+        for atom_name_1, atom_name_2 in zip(atom_list_1, atom_list_2):
+            coot.add_lsq_atom_pair_py(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
+                                      chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
+
+        coot.apply_lsq_matches(imol_ref, imol_mov)
+        
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
     # then use it.
@@ -2763,10 +2773,13 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             coot.delete_atom(imol_ligand, "A", 1, "", " OXT", "")
-            if (is_amino_acid(imol_ligand, "A", 1) and
-                    is_amino_acid(imol, chain_id_in, resno)):
-                overlap_by_main_chain(imol_ligand, "A", 1, "",
-                                      imol, chain_id_in, resno, "")
+
+            # 20230207-PE match torsion before main-chain superposition
+            if not is_nucleotide(imol_ligand, "A", 1):
+                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+
+            if is_amino_acid(imol_ligand, "A", 1) and is_amino_acid(imol, chain_id_in, resno):
+                overlap_by_main_chain(imol_ligand, "A", 1, "", imol, chain_id_in, resno, "")
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
@@ -2775,21 +2788,25 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 if coot.residue_exists_qm(imol, chain_id_in, resno-1, ""):
                     coot.delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
-            if not is_nucleotide(imol_ligand, "A", 1):
-                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+            if (is_nucleotide(imol_ligand, "A", 1) and
+                is_nucleotide(imol, chain_id_in, resno)):
+                overlap_by_base(imol_ligand, "A", 1, "", imol, chain_id_in, resno, "")
+            else:
+                overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+
             coot.delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             merge_status = new_chain_id_info[0]
+
             # merge_status is sometimes a spec, sometimes a chain-id pair
             # BL says:: the rest of it is, merge_status should be 1
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)
-                print("BL DEBUG:: new res spec", new_res_spec)
                 coot.change_residue_number(imol, new_chain_id,
                                       residue_spec_to_res_no(new_res_spec),
-                                      residue_spec_to_ins_code(new_res_spec),
-                                      resno, "")
+                                      residue_spec_to_ins_code(new_res_spec), resno, "")
+
                 if not (new_chain_id == chain_id_in):
                     coot.change_chain_id(imol, new_chain_id, chain_id_in, 1,
                                     residue_spec_to_res_no(new_res_spec),
@@ -2797,26 +2814,29 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
                 replacement_state = coot.refinement_immediate_replacement_state()
                 imol_map = coot.imol_refinement_map()
-                coot.set_refinement_immediate_replacement(1)
-                if imol_map == -1:
-                    coot.regularize_zone(imol, chain_id_in, resno, resno, "")
-                else:
-                    spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
-                    phos_dir = {
-                        'PTR': [" CZ ", " OH "],
-                        'SEP': [" CB ", " OG "],
-                        'TPO': [" CB ", " OG1"]}
-                    if tlc in list(phos_dir.keys()):
-                        dir_atoms = phos_dir[tlc]
-                    else:
-                        dir_atoms = False
-                    coot.refine_zone(imol, chain_id_in, resno, resno, "")
-                    if dir_atoms:
-                        spin_search(imol_map, imol, chain_id_in,
-                                    resno, "", dir_atoms, spin_atoms)
-                        coot.refine_zone(imol, chain_id_in, resno, resno, "")
-                coot.accept_regularizement()
-                coot.set_refinement_immediate_replacement(replacement_state)
+
+                # 20230207-PE doing refinement with a residue that that type non-polymer
+                # is bad news. Let's skip that for now
+
+                # coot.set_refinement_immediate_replacement(1)
+                # if imol_map == -1:
+                #     coot.regularize_zone(imol, chain_id_in, resno, resno, "")
+                # else:
+                #     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
+                #     phos_dir = {
+                #         'PTR': [" CZ ", " OH "],
+                #         'SEP': [" CB ", " OG "],
+                #         'TPO': [" CB ", " OG1"]}
+                #     if tlc in list(phos_dir.keys()):
+                #         dir_atoms = phos_dir[tlc]
+                #     else:
+                #         dir_atoms = False
+                #     #refine_zone(imol, chain_id_in, resno, resno, "")
+                #     if dir_atoms:
+                #         spin_search(imol_map, imol, chain_id_in, resno, "", dir_atoms, spin_atoms)
+                #         #refine_zone(imol, chain_id_in, resno, resno, "")
+                # coot.accept_regularizement()
+                # coot.set_refinement_immediate_replacement(replacement_state)
 
                 coot.set_mol_displayed(imol_ligand, 0)
                 coot.set_mol_active(imol_ligand, 0)
@@ -2913,13 +2933,13 @@ def label_all_CAs(imol):
 
 def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
 
-    import types
-
     atom_list = coot.residue_info_py(imol, chain_id, resno, inscode)
-    if type(atom_list) is ListType:
+    try:
         for atom_info in atom_list:
             coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
-        coot.graphics_draw()
+    except KeyError as e:
+        print(e)
+    coot.graphics_draw()
 
 
 def label_all_active_residue_atoms():
@@ -3272,8 +3292,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
         prodrg_log = os.path.join(prodrg_dir, "prodrg.log")
 
         coot.delete_residue_hydrogens(new_mol, chain_id, res_no, ins_code, "")
-        coot.delete_residue_hydrogens(
-            imol,    chain_id, res_no, ins_code, "")  # otherwise they fly
+        coot.delete_residue_hydrogens(imol,    chain_id, res_no, ins_code, "")  # otherwise they fly
         coot.write_pdb_file(new_mol, prodrg_xyzin)
         coot.close_molecule(new_mol)
         prodrg_exe = find_exe("cprodrg", "CBIN", "CCP4_BIN", "PATH")
@@ -3299,8 +3318,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 rn = coot.residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
                 overlap_ligands(imol_new, imol, chain_id, res_no)
-                coot.match_ligand_torsions(
-                    imol_new, imol, chain_id, res_no)  # broken?
+                coot.match_ligand_torsions(imol_new, imol, chain_id, res_no)  # broken?
                 overlap_ligands(imol_new, imol, chain_id, res_no)
                 coot.set_residue_name(imol_new, "", 1, "", rn)
                 coot.change_chain_id(imol_new, "", chain_id, 1, 1, 1)
@@ -3317,8 +3335,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 # coot.replace_fragment(imol, imol_new,
                 #                 "//" + chain_id + "/" + str(res_no))
 
-                imol_replacing = coot.add_ligand_delete_residue_copy_molecule(
-                    imol_new, chain_id, res_no, imol, chain_id, res_no)
+                imol_replacing = coot.add_ligand_delete_residue_copy_molecule(imol_new, chain_id, res_no, imol, chain_id, res_no)
                 col = coot.get_molecule_bonds_colour_map_rotation(imol)
                 new_col = col + 5
                 coot.set_molecule_bonds_colour_map_rotation(imol_replacing, new_col)
@@ -3489,7 +3506,7 @@ def coot_split_version_string(stri):
 # convert file to string
 
 
-def file2string(file_name):
+def file_to_string(file_name):
     if not os.path.isfile(file_name):
         return False
     else:
@@ -3514,7 +3531,7 @@ def load_default_sequence():
 
     default_seq = "default.seq"
     if os.path.isfile(default_seq):
-        s = file2string(default_seq)
+        s = file_to_string(default_seq)
         coot.align_to_closest_chain(s, 0.95)
 
 
@@ -3770,7 +3787,9 @@ def file_to_preferences(filename):
 
     coot_python_dir = os.getenv("COOT_PYTHON_DIR")
     if not coot_python_dir:
-        if is_windows():
+        coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
+        if not os.path.isdir(coot_python_dir) and is_windows():
+            # maybe its old an in another place!?!
             coot_python_dir = os.path.normpath(os.path.join(sys.prefix,
                                                             'lib', 'site-packages', 'coot'))
         else:
@@ -3778,7 +3797,7 @@ def file_to_preferences(filename):
                 sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
     if not os.path.isdir(coot_python_dir):
-        coot.add_status_bar_text("Missing COO_PYTHON_DIR")
+        coot.add_status_bar_text("Missing COOT_PYTHON_DIR")
     else:
         ref_py = os.path.join(coot_python_dir, filename)
 
@@ -3818,6 +3837,75 @@ def file_to_preferences(filename):
                             exec(compile(open(pref_file, "rb").read(),
                                          pref_file, 'exec'), globals())
 
+
+
+# something like this for intermediate atoms also?
+#
+# n-neighbs is either 0 or 1
+#
+def rebuild_residues_using_db_loop(imol, middle_residue_spec, n_neighbs):
+
+    global db_loop_preserve_residue_names
+
+    # utility function
+    #
+    def remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low):
+
+        for residue_idx, res_name in enumerate(saved_residue_names):
+            if isinstance(res_name, str):
+                if res_name == "GLY":
+                    res_no_gly = resno_low + residue_idx
+                    delete_atom(imol_db_loop, ch_id, res_no_gly, "", " CB ", "")
+
+    # main line
+
+    resno_mid = residue_spec_to_res_no(middle_residue_spec)
+    resno_low = resno_mid - n_neighbs
+    resno_high = resno_mid + n_neighbs
+    r = range(resno_mid - 4 - n_neighbs, resno_mid + n_neighbs + 0) + \
+        range(resno_mid + 1 + n_neighbs, resno_mid + 3 + n_neighbs)
+    ch_id = residue_spec_to_chain_id(middle_residue_spec)
+    residue_specs = map(lambda res_no: [ch_id, res_no, ""], r)
+
+    loop_mols = protein_db_loops(imol, residue_specs, imol_refinement_map(),
+                                 1, db_loop_preserve_residue_names)
+    residue_spec_of_residues_to_be_replaced = [middle_residue_spec] \
+        if n_neighbs == 0 else map(lambda rno: [ch_id, rno, ""],
+                                   range(resno_low, resno_high + 1))
+
+    saved_residue_names = map(lambda rno: residue_spec_to_residue_name(imol, rno),
+                              residue_spec_of_residues_to_be_replaced)
+
+    if len(loop_mols) > 0:
+        # loop-mols have the correct residue numbering but the wrong chain-id
+        # and residue type
+        imol_db_loop = loop_mols[1][0]
+        tmp_loop_mols = loop_mols[0]
+        chain_id_db_loop = chain_id(imol_db_loop, 0)
+        if not ch_id == chain_id_db_loop:
+            change_chain_id(imol, imol_db_loop, chain_id_db_loop, ch_id, 0, 0, 0)
+        selection = "//" + ch_id + "/" + str(resno_low) + "-" + str(resno_high)
+
+        # if the original residue was a GLY, the imol-db-loop might (probably
+        # will) have CB. If that is the case, then we should remove the CBs now
+        #
+        remove_any_GLY_CBs(imol_db_loop, saved_residue_names, ch_id, resno_low)
+
+        # this moves atoms, adds atoms if needed, doesn't change the residue name
+        #
+        replace_fragment(imol, imol_db_loop, selection)
+        # tidy up
+        for i in tmp_loop_mols:
+            close_molecule(i)
+
+def go_to_box_middle():
+
+    ls = map_molecule_list()
+    if ls:
+        imol_map = ls[0]
+        c = cell(imol_map)
+        rc = map(lambda a: a * 0.5, c[:3])
+        set_rotation_centre(*rc)
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a
@@ -4101,53 +4189,56 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
     import sys
     import string
     import os
+    import subprocess
 
     major, minor, micro, releaselevel, serial = sys.version_info
 
     cmd_execfile = ""
-    if not(command_in_path_qm(cmd)):
-        print("command ", cmd, " not found in $PATH!")
-        print("BL INFO:: Maybe we'll find it somewhere else later...")
+    if not command_in_path_qm(cmd):
+        print("WARNING:: run_concurrently(): command ", cmd, " not found in $PATH!")
     else:
         cmd_execfile = find_exe(cmd, "CBIN", "CCP4_BIN", "PATH")
 
-    if (cmd_execfile):
+    if cmd_execfile:
         if (major >= 2 and minor >= 4):
             # subprocess
-            import subprocess
             cmd_args = [cmd_execfile] + args
             log = logfile
-            if (logfile):
+            if logfile:
                 log = open(logfile, 'w')
             try:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
-                                           stdout=log)
-                if (data_list):
+                print("DEBUG:: run_concurrently() log", log)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
+                print("DEBUG:: run_concurrently() process", process)
+                if data_list:
                     for data in data_list:
-                        process.stdin.write(data + "\n")
+                        d = data + "\n"
+                        print("DEBUG:: run_concurrently(): sending data: ", d.encode())
+                        process.stdin.write(d.encode())
 
                 pid = process.pid
+                
+                print("DEBUG:: run_concurrently() pid", pid)
 
                 if log:
                     return (process, log)
                 else:
                     return pid
-            except:
-                print("BL WARNING:: could not run process with args", cmd_args)
+            except KeyError as e:
+                print(e)
+                print("WARNING:: run_concurrently(): could not run process with args", cmd_args)
                 return False
 
         else:
             # spawn (old)
             try:
-                pid = os.spawnv(os.P_NOWAIT, cmd_execfile,
-                                [cmd_execfile] + args)
+                pid = os.spawnv(os.P_NOWAIT, cmd_execfile, [cmd_execfile] + args)
                 return pid
             except:
-                print("BL WARNING:: could not run program %s with args %s"
-                      % (cmd_execfile, args))
+                print("WARNING:: run_concurrently(): could not run program %s with args %s" % (cmd_execfile, args))
                 return False
     else:
-        print("WARNING:: could not find %s, so not running this program" % cmd)
+        print("WARNING:: run_concurrently(): could not find %s, so not running this program" % cmd)
         return False
 
 # python command to see if we have pygtk available
@@ -4526,8 +4617,9 @@ def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
 
 # Necessary for jligand to find libcheck. Mmmh. Was this required before?!
 # does similar things to the ccp4 console batch. Win only
-
-
+# Shouldnt be necessary since we try to setup CCP4 in the startup script.
+# And, $CCP4 probably wont be set any more...
+#
 def setup_ccp4():
     """This will append ccp4 (e.g. CBIN) to PATH, so that we can find
     CCP4 programs in PATH and not only in CBIN. But only if not already
@@ -4547,7 +4639,7 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\\ccp4temp"],
+                "CCP4_SCR": ["C:\ccp4temp"],
                 "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
                 "CBIN": [CCP4, "bin"],
                 "CLIB": [CCP4, "lib"],
@@ -4556,10 +4648,10 @@ def setup_ccp4():
                 "CHTML": [CCP4, "html"],
                 "CINCL": [CCP4, "include"],
                 "CCP4I_TOP": [CCP4, "share", "ccp4i"],
-                "CLIBD_MON": [CCP4, "lib", "data", "monomers"],
+                "CLIBD_MON": [CCP4, "lib", "data", "monomers\\"],
                 "MMCIFDIC": [CCP4, "lib", "ccp4", "cif_mmdic.lib"],
                 "CRANK": [CCP4, "share", "ccp4i", "crank"],
-                "CCP4_OPEN": ["unknown"],
+                "CCP4_OPEN": ["UNKNOWN"],
                 "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
             }
             for env_var in ccp4_env_vars:
@@ -4808,20 +4900,86 @@ def make_specs_list(file_name):
 
 
 def alphafold_pLDDT_colours(imol):
-    file_name = molecule_name(imol)
+    file_name = coot.molecule_name(imol)
     colours = make_alphafold_colours()
-    set_user_defined_colours_py(colours)
+    coot.set_user_defined_colours_py(colours)
     specs_list = make_specs_list(file_name)
-    set_user_defined_atom_colour_by_residue_py(imol, specs_list)
-    graphics_to_user_defined_atom_colours_representation(imol)
+    coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
+    coot.graphics_to_user_defined_atom_colours_representation(imol)
 
+
+def write_current_sequence_as_pir(imol, ch_id, file_name):
+    coot.print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+
+def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
+
+    def get_clustalw2_command():
+        clustalw2_command = "clustalw2"
+        ccp4_libexec_path = os.path.join(os.getenv("CCP4"), "libexec") \
+            if os.getenv("CCP4") else ""
+        return find_exe(clustalw2_command, ["PATH", ccp4_libexec_path, "CBIN"])
+
+    current_sequence_pir_file = "current-sequence.pir"
+    aligned_sequence_pir_file = "aligned-sequence.pir"
+    clustalw2_output_file_name = "clustalw2-output-file.log"
+
+    clustalw2_command = get_clustalw2_command()
+    if not clustalw2_command:
+        print("ERROR:: No clustalw2 command")
+        return False
+    else:
+
+        if os.path.exists("aligned-sequence.pir"):
+            os.remove("aligned-sequence.pir")
+        if os.path.exists("aligned-sequence.dnd"):
+            os.remove("aligned-sequence.dnd")
+        if os.path.exists("current-sequence.dnd"):
+            os.remove("current-sequence.dnd")
+
+        write_current_sequence_as_pir(imol, ch_id, current_sequence_pir_file)
+
+        data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
+                      "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
+        popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
+        associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
+        apply_pir_alignment(imol, ch_id)
+        simple_fill_partial_residues(imol)
+        resolve_clashing_sidechains_by_deletion(imol)
+
+# Backrub rotamers for chain. After alignment mutation we should run this.
+#
+# this function cannot be in fitting.py because fitting.py depends on coot_gui
+#
+def backrub_rotamers_for_chain(imol, ch_id):
+
+    """Backrub rotamers for chain. After alignment mutation we should run this."""
+
+    coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
+    coot.make_backup(imol)
+
+    with NoBackups(imol):
+        n_times = 2
+        imol_map = coot.imol_refinement_map()
+        if valid_map_molecule_qm(imol_map):
+            n_res = coot.chain_n_residues(ch_id, imol)
+            for i_round in range(n_times):
+                for serial_number in range(n_res):
+                    res_name = coot.resname_from_serial_number(imol, ch_id, serial_number)
+                    res_no = coot.seqnum_from_serial_number(imol, ch_id, serial_number)
+                    ins_code = coot.insertion_code_from_serial_number(imol, ch_id, serial_number)
+                    if isinstance(ins_code, str):   # valid residue check :-)
+                        if not res_name == "HOH":
+                            coot.auto_fit_best_rotamer(imol, ch_id, res_no, ins_code, "", imol_map, 1, 0.1)
+
+
+
+
+####### Back to Paul's scripting.
+####### This needs to follow find_exe
 
 # if you don't have mogul, set this to False
 global use_mogul
+use_mogul = True
+if (not command_in_path_qm("mogul")):
+    use_mogul = False
 
-# use_mogul = True
-use_mogul = False
-
-# this kill's Ctrl-C. So kill this instead.
-# if not command_in_path_qm("mogul"):
-#    use_mogul = False

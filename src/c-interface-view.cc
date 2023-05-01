@@ -115,7 +115,7 @@ void screendump_tga(const std::string &file_name) {
 /*                         perspective,blur,AO on/off */
 /*  ----------------------------------------------------------------------- */
 
-               // maybe these functions need their own file?
+// maybe these functions need their own file? Yes. shader-settings.cc
 
 void set_use_perspective_projection(short int state) {
 
@@ -281,6 +281,27 @@ void set_model_material_ambient(int imol, float r, float g, float b, float a) {
    graphics_draw();
 }
 
+//! \brief
+void set_model_goodselliness(float pastelization_factor) {
+
+   graphics_info_t::goodselliness = pastelization_factor;
+
+   // if the molecule is drawn in goodsell mode, then force a redraw of it
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
+         std::set<int> s; // dummy
+         bool g = false; // goodsell_mode
+         bool force_rebonding = true;
+         // graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g, force_rebonding);
+         set_colour_by_chain_goodsell_mode(imol); // you wanted goodsell mode, right?
+      }
+   }
+   graphics_draw();
+}
+
+
+
 
 
 
@@ -395,12 +416,17 @@ void set_effects_shader_gamma(float f) {
    graphics_draw();
 }
 
-
 void set_fps_timing_scale_factor(float f) {
 
    graphics_info_t::fps_times_scale_factor = f;
    graphics_draw();
 
+}
+
+//! \brief draw background image
+void set_draw_background_image(bool state) {
+   graphics_info_t::draw_background_image_flag = state;
+   graphics_draw();
 }
 
 //! \brief set the shadow softness (1, 2 or 3)
@@ -443,7 +469,14 @@ void set_use_fancy_lighting(short int state) {
 //! \brief set bond smoothness (default 1 (not smooth))
 void set_bond_smoothness_factor(unsigned int fac) {
    graphics_info_t::bond_smoothness_factor = fac;
-   // rebonding of the molecules might be needed here.
+
+   // rebonding of the molecules needed here.
+   //
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         graphics_info_t::molecules[imol].make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
    graphics_draw();
 }
 

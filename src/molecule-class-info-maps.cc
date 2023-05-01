@@ -2001,17 +2001,10 @@ molecule_class_info_t::draw_skeleton(bool is_dark_background) {
 void
 molecule_class_info_t::set_skeleton_bond_colour(float f) {
 
+#if 0 // 20230218-PE webassembly merge: comment out this function for now
    float rotation_size = float(imol_no) * 2.0*graphics_info_t::rotate_colour_map_on_read_pdb/360.0;
    while (rotation_size > 1.0) {
       rotation_size -= 1.0;
-   }
-
-   if (0) {
-      std::vector<float> c(3);
-      c[0] = 0.1+0.6*f*graphics_info_t::skeleton_colour[0];
-      c[1] = 0.1+0.9*f*graphics_info_t::skeleton_colour[1];
-      c[2] = 0.1+0.2*f*graphics_info_t::skeleton_colour[2];
-      std::vector<float> rgb_new = rotate_rgb(c, rotation_size);
    }
 
    std::vector<float> rgb_new(3);
@@ -2019,6 +2012,7 @@ molecule_class_info_t::set_skeleton_bond_colour(float f) {
       rgb_new[i] = graphics_info_t::skeleton_colour[i];
 
    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
+#endif
 }
 
 
@@ -4805,7 +4799,7 @@ molecule_class_info_t::export_molecule_as_gltf(const std::string &file_name) con
 }
 
 bool
-molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices_in,
+molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<coot::api::vertex_with_rotation_translation> &vertices_in,
                                                           const std::vector<g_triangle> &triangles) {
 
    // write to export_vertices_and_triangles_file_name_for_func, which is set below

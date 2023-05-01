@@ -21,7 +21,7 @@
 lib_LTLIBRARIES=libcoot-coords.la
 
 pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
-	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
+	mmdb.hh mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
 	coot-close.hh phenix-geo.hh ramachandran-container.hh \
 	loop-path.hh rotamer-container.hh graphical-bonds-container.hh \
 	graphics-line.hh torus-description.hh rama-plot-phi-psi.hh \
@@ -43,7 +43,7 @@ AM_CXXFLAGS = \
 # other in merge:
 # libcoot_coords_la_SOURCES = Bond_lines.cc Cartesian.cc cos-sin.cc \
 # 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
-#		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc 
+#		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
@@ -71,7 +71,21 @@ libcoot_coords_la_LIBADD = \
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS = test-phenix-geo test-transform
+check_PROGRAMS = test-phenix-geo test-transform test-side-chain-densities
+
+# wrong build order - coords depends on this directory (because it uses rotamer info)
+# solve by changing the directory for test-side-chain-densities to be in coords
+
+test_side_chain_densities_SOURCES = test-side-chain-densities.cc
+
+test_side_chain_densities_LDADD = \
+	$(top_builddir)/ligand/libcoot-ligand.la \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coords/libcoot-coords.la        \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 test_transform_SOURCES = test-transform.cc
 

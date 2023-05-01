@@ -278,12 +278,11 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
 }
 
 
-
 void probe_radius_graph_close_callback( GtkWidget *button,
  					GtkWidget *dialog) {
 
    gtk_widget_hide(dialog);
-} 
+}
 
 
 #ifdef USE_GUILE
@@ -427,6 +426,5 @@ void import_bild(const std::string &file_name) {
    } else {
       std::cout << "WARNING:: file not found " << file_name << std::endl;
    }
-
 
 }

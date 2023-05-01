@@ -25,7 +25,7 @@
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
-#include "sdf-interface.hh"
+  // #include "sdf-interface.hh"
 #include "probe-clash-score.hh"
 #include "cmtz-interface.hh"
 #include "coot-version.hh"
@@ -59,7 +59,10 @@ namespace std {
   init_coot_as_python_module();
 %}
 
-%feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
+%feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
+// If the following line is enabled, then the comments extracted
+// using -doxygen on the command line are lost.
+// %feature("docstring");
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
@@ -93,7 +96,7 @@ namespace std {
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
-%include "sdf-interface.hh"
+ // %include "sdf-interface.hh" // 20230108-PE remove this while reworking chemical feature code for API and gtk3
 %include "geometry/residue-and-atom-specs.hh" // for atom_spec_t
 %include "probe-clash-score.hh"
 %include "coot-version.hh"
