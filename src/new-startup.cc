@@ -702,9 +702,9 @@ new_startup_application_activate(GtkApplication *application,
       // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 300, 300);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 300);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_size_request(gl_area, 700, 400); // bigger than the window size - for testing.
+      gtk_widget_set_size_request(gl_area, 900, 500); // Hmm
       gtk_widget_show(app_window);
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
@@ -740,7 +740,8 @@ int new_startup(int argc, char **argv) {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
-   setup_symm_lib();
+   mmdb::InitMatType();
+ setup_symm_lib();
    check_reference_structures_dir();
    gtk_init();
 

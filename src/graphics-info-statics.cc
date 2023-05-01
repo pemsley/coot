@@ -1745,3 +1745,9 @@ std::string graphics_info_t::active_validation_graph_chain_id = std::string();
 
 GtkListStore* graphics_info_t::ramachandran_plot_model_list = nullptr;
 std::vector<graphics_info_t::widgeted_rama_plot_t> graphics_info_t::rama_plot_boxes;
+
+// 20230430-PE updating maps
+int graphics_info_t::updating_maps_imol_map      = -1;
+int graphics_info_t::updating_maps_imol_diff_map = -1;
+std::vector<api::rail_points_t> graphics_info_t::rail_point_history;
+

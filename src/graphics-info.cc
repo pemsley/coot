@@ -6659,9 +6659,12 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                    clipper::Xmap<float> *xmap_2fofc_p, // 2mFo-DFc I mean, of course
                                                    clipper::Xmap<float> *xmap_fofc_p) {
 
+   std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() start " << std::endl;
+
    coot::util::sfcalc_genmap_stats_t stats;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() A " << std::endl;
          try {
             if (! on_going_updating_map_lock) {
                on_going_updating_map_lock = true;
@@ -6676,9 +6679,12 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
                clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_map_with_data_attached].get_original_rfree_flags();
 
+               std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() B " << std::endl;
                if (fobs_data_p && free_flag_p) {
 
                   if (true) {
+
+                     std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() C " << std::endl;
                      // sanity check data
                      const clipper::HKL_info &hkls_check = fobs_data_p->base_hkl_info();
                      const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
@@ -6691,7 +6697,7 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                      std::cout << "DEBUG:: Sanity check in graphics_info_t:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
                                << "base_cell: " << cell_check.format() << " "
                                << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                               << "sampling is null: " << sampling_check.is_null() << " "
+                               << "sampling-is-null?: " << sampling_check.is_null() << " "
                                << "resolution: " << hkls_check.resolution().limit() << " "
                                << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
                                << "num_reflections: " << hkls_check.num_reflections()

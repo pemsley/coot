@@ -184,6 +184,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "utils/logging.hh" // 20221008-PE - aftter years of thinking about it, let's do it.
 
+#include "rail-points.hh"
+
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
 	 NEW_COORDS_ADD = 1,                 // not used?
@@ -1026,6 +1028,16 @@ public:
        }
      }
      return v;
+   }
+
+   static bool is_difference_map(int imol) {
+      bool status = false;
+      if (imol >= 0) {
+         if (imol < n_molecules()) {
+            status = molecules[imol].is_difference_map_p();
+         }
+      }
+      return status;
    }
 
    static bool display_mode_use_secondary_p() {
@@ -4672,6 +4684,26 @@ string   static std::string sessionid;
    static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
 
    static void poke_the_refinement();
+
+   // -------------------------------- Rail Points ------------------------------------------
+   //! \name Rail Points!
+
+   // 20230430-PE did I define the somewhere else also?
+   static int updating_maps_imol_map;
+   static int updating_maps_imol_diff_map;
+   static std::vector<api::rail_points_t> rail_point_history; // map and model (model currently not used)
+
+   //! calling this adds to the rail_points history. Make this pairs when we add model scoring.
+   //! @returns the new rail points (since last modification)
+   int calculate_new_rail_points(const updating_model_molecule_parameters_t &ummp);
+
+   //! the total rail points
+   //! @returns the sum of all rail points accumulated since the maps were connected.
+   int rail_points_total() const;
+
+   void updating_maps_update_the_coot_points_overlay();
+
+   // --------------------------------------------------------------------------------------
 
    // by default, user-defined colours are on a colour wheel, but we can overwride that
    // by setting actual user defined colours for give colour indices

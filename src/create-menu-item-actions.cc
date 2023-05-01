@@ -856,7 +856,7 @@ mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
    g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
-   
+
    set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 
@@ -1079,7 +1079,63 @@ void
 calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
-   show_calculate_updating_maps_gui();
+
+   // show_calculate_updating_maps_pythonic_gui();
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto get_diff_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           if (g.is_difference_map(i))
+                                              vec.push_back(i);
+                                     return vec;
+                                  };
+
+   graphics_info_t g;
+   GtkWidget *dialog            = widget_from_builder("updating_maps_dialog");
+   GtkWidget *model_combobox    = widget_from_builder("updating_maps_model_combobox");
+   GtkWidget *map_combobox      = widget_from_builder("updating_maps_map_combobox");
+   GtkWidget *diff_map_combobox = widget_from_builder("updating_maps_diff_map_combobox");
+
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+
+   auto    model_list =    get_model_molecule_vector();
+   auto      map_list =      get_map_molecule_vector();
+   auto diff_map_list = get_diff_map_molecule_vector();
+
+   std::cout << "::::::::::::::::::::::: diff_map_list size " << diff_map_list.size() << std::endl;
+
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   g.fill_combobox_with_molecule_options(   model_combobox, func, imol_mol_active,    model_list);
+   g.fill_combobox_with_molecule_options(     map_combobox, func, imol_map_active,      map_list);
+   g.fill_combobox_with_molecule_options(diff_map_combobox, func, imol_map_active, diff_map_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 

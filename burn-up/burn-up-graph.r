@@ -141,6 +141,9 @@ text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
 betterArrow(55, 25, 45, 16, 0.2, col='grey30', code=2)
 text(89, 25., labels="Moorhen", col='grey30', cex=1.0)
 
+betterArrow(280, 10, 260, 15, 0.2, col='grey30', code=2)
+text(290, 5, labels="Validation\nGraphs", col='grey30', cex=1.0)
+
 
 # text(43, 9., labels="Illness", col='grey', cex=1.0)
 

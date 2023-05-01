@@ -203,6 +203,10 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
       return s;
    };
 
+   coot::util::sfcalc_genmap_stats_t stats;
+
+   // construct return value
+   //
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol_model)) {
       graphics_info_t g;
@@ -210,20 +214,24 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
          if (is_valid_map_molecule(imol_map_fofc)) {
             clipper::Xmap<float> &xmap_2fofc = g.molecules[imol_map_2fofc].xmap;
             clipper::Xmap<float> &xmap_fofc  = g.molecules[imol_map_fofc].xmap;
-            coot::util::sfcalc_genmap_stats_t stats =
-               g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_2fofc, &xmap_2fofc, &xmap_fofc);
+            stats = g.sfcalc_genmaps_using_bulk_solvent(imol_model, imol_map_2fofc, &xmap_2fofc, &xmap_fofc);
             g.molecules[imol_map_2fofc].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
             g.molecules[imol_map_fofc ].set_mean_and_sigma(false, g.ignore_pseudo_zeros_for_map_stats);
             float cls_2fofc = g.molecules[imol_map_2fofc].get_contour_level_by_sigma();
             float cls_fofc  = g.molecules[imol_map_fofc].get_contour_level_by_sigma();
             g.molecules[imol_map_2fofc].set_contour_level_by_sigma(cls_2fofc); // does an update
             g.molecules[imol_map_fofc].set_contour_level_by_sigma(cls_fofc);   // does an update
-	    std::string sbt = make_status_bar_text(stats);
-	    add_status_bar_text(sbt.c_str());
+            std::string sbt = make_status_bar_text(stats);
+            add_status_bar_text(sbt.c_str());
             r = pythonize_stats(stats);
          }
       }
    }
+
+   graphics_info_t g;
+   updating_model_molecule_parameters_t ummp(imol_model, imol_map_2fofc, imol_map_2fofc, imol_map_fofc);
+   g.calculate_new_rail_points(ummp);
+
    graphics_draw();
    std::vector<coot::command_arg_t> commands;
    std::string cmd = "calculate-maps-and-stats";
@@ -244,23 +252,9 @@ PyObject *calculate_maps_and_stats_py(int imol_model,
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */
 /*  ----------------------------------------------------------------------- */
+// 20230501-PE remove this
 void set_display_lists_for_maps(int istat) {
 
-   std::cout << "-------------- set_display_lists_for_maps " << istat << std::endl;
-   graphics_info_t::display_lists_for_maps_flag = istat;
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      for (int i=0; i<graphics_info_t::n_molecules(); i++)
-	 if (graphics_info_t::molecules[i].has_xmap() ||
-	     graphics_info_t::molecules[i].has_nxmap())
-	    graphics_info_t::molecules[i].update_map(graphics_info_t::auto_recontour_map_flag);
-   }
-   std::string cmd = "set-display-lists-for-maps";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(istat);
-   add_to_history_typed(cmd, args);
-   if (graphics_info_t::use_graphics_interface_flag)
-      graphics_draw();
 }
 
 int display_lists_for_maps_state() {
@@ -272,8 +266,8 @@ int display_lists_for_maps_state() {
 void update_maps() {
    for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
       if (is_valid_map_molecule(ii)) {
-	 // std::cout << "DEBUG:: updating " << ii << std::endl;
-	 graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
+         // std::cout << "DEBUG:: updating " << ii << std::endl;
+         graphics_info_t::molecules[ii].update_map(graphics_info_t::auto_recontour_map_flag);
       }
    }
 }
@@ -2727,6 +2721,10 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map) {
 
+   std::cout << "::::::::: set_auto_updating_sfcalc_genmap() --- start " << imol_model
+             << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
+             << std::endl;
+
    // we need a notification that imol_model has been modified. Hmm.
    // Maybe the way to do that is that make_bonds type checked looks to see
    // if there is an "update_map" attached/related to this model - and then
@@ -2742,13 +2740,14 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
             if (map_is_difference_map(imol_updating_difference_map)) {
 
                if (false)
-                  std::cout << "DEBUG:: making a uump " << imol_model
+                  std::cout << "DEBUG:: in set_auto_updating_sfcalc_genmap() making a uump " << imol_model
                             << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
                             << std::endl;
+
                updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
                updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
-               g_timeout_add(500, f, u);
+               g_timeout_add(400, f, u);
             }
          }
       }

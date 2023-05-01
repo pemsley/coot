@@ -615,9 +615,12 @@ int make_updating_model_molecule(const char *filename) {
    return status;
 }
 
-void show_calculate_updating_maps_gui() {
+void show_calculate_updating_maps_pythonic_gui() {
 
    std::cout << "debug:: in show_calculate_updating_maps_gui()" << std::endl;
+
+   // 20230430-PE Don't use Python.
+
 #ifdef USE_PYTHON
    std::string cmd = "import coot_gui ; coot_gui.show_updating_maps_chooser()";
    std::cout << "debug:: in show_calculate_updating_maps_gui() calling safe_python_command() cmd " << cmd << std::endl;

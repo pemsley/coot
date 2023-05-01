@@ -950,14 +950,14 @@ on_delete_item_residue_item_activate(GMenuItem *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_delete_item_residue_range_item_activate(GMenuItem *menuitem,
-                                                               gpointer     user_data) {
+                                           gpointer     user_data) {
    set_delete_residue_zone_mode();
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_delete_item_chain_item_activate(GMenuItem *menuitem,
-                                                       gpointer     user_data) {
+                                   gpointer     user_data) {
 
    set_delete_chain_mode();
 }
@@ -965,9 +965,9 @@ on_delete_item_chain_item_activate(GMenuItem *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_calculate_updating_maps1_activate(GMenuItem *menuitem,
-                                                         gpointer     user_data) {
+                                     gpointer     user_data) {
 
-   show_calculate_updating_maps_gui();
+   show_calculate_updating_maps_pythonic_gui();
 
 }
 

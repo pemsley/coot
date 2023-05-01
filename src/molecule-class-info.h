@@ -1501,7 +1501,8 @@ public:        //                      public
 
    //
    float map_mean()  const { return map_mean_;  }
-   float map_sigma() const { return map_sigma_; }
+   float map_sigma() const { return map_sigma_; } // cached
+   float get_map_sigma_current(); // regen stats and update map_sigma_
 
    map_statistics_t map_statistics() const;
 
@@ -2366,7 +2367,7 @@ public:        //                      public
 
    //
    void set_map_is_difference_map(bool flag);
-   short int is_difference_map_p() const;
+   bool is_difference_map_p() const;
 
 
    // Scripting Refinement:

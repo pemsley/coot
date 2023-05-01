@@ -436,6 +436,17 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    }
 }
 
+
+// regen stats and update map_sigma_
+float
+molecule_class_info_t::get_map_sigma_current() {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, false); // sharpen()
+   map_sigma_ = sqrt(mv.variance);
+   return map_sigma_;
+};
+
+
 void
 molecule_class_info_t::clear_draw_vecs() {
 
@@ -3654,13 +3665,13 @@ molecule_class_info_t::set_map_is_difference_map(bool flag) {
    }
 }
 
-short int
+bool
 molecule_class_info_t::is_difference_map_p() const {
 
-   short int istat = 0;
+   bool istat = false;
    if (has_xmap() || has_nxmap())
       if (xmap_is_diff_map)
-	 istat = 1;
+	 istat = true;
    return istat;
 }
 
@@ -4684,26 +4695,39 @@ molecule_class_info_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data
    if (sane) {
 
       clipper::Cell cell = xmap_2fofc_p->cell();
-      if (true) {
-         // sanity check data
-         const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
-         const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+      float cv = cell.volume();
 
-         std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                   << "cell: " << hkls_check.cell().format() << " "
-                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                   << "resolution: " << hkls_check.resolution().limit() << " "
-                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                   << std::endl;
+      if (cv > 3.0) {
+
+         if (true) {
+            // sanity check data
+            const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
+            const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+
+            std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                      << "cell: " << hkls_check.cell().format() << " "
+                      << "cell-volume: " << cv << " "
+                      << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                      << "resolution: " << hkls_check.resolution().limit() << " "
+                      << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                      << std::endl;
+         }
+
+         try {
+            stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
+
+            // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
+            std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
+            std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
+            std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
+            std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+         }
+         catch (const std::length_error &le) {
+            std::cout << "ERROR:: mcit::sfcalc_genmaps_using_bulk_solvent(): " << le.what() << std::endl;
+         }
+      } else {
+         std::cout << "ERROR:: in mcit:sfcalc_genmaps_using_bulk_solvent() Bad cell. Cell is " << cell.format() << std::endl;
       }
-
-      stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
-
-      // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
-      std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
-      std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
-      std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
-      std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
 
    } else {
       std::cout << "ERROR:: coordinates were not sane" << std::endl;

@@ -10280,37 +10280,79 @@ molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
+   // The bulk of this function should be in graphics_info_t.
+   // This function should merely call that function
+
    int status = 1; // continue
 
    if (data) {
       updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
-      int imol_coords = ummp_p->imol_coords;
-      int imol_map = ummp_p->imol_fofc_map;
+      int imol_coords    = ummp_p->imol_coords;
+      int imol_2fofc_map = ummp_p->imol_2fofc_map;
+      int imol_diff_map  = ummp_p->imol_fofc_map;
       int imol_data = ummp_p->imol_map_with_data_attached;
+
+      // std::cout << "DEBUG:: in watch_coordinates_updates() ummp: " << ummp_p->format() << std::endl;
+
       graphics_info_t g;
-      if (g.is_valid_map_molecule(imol_map)) {
-         if (g.is_valid_model_molecule(imol_coords)) {
-            int backup_index_current = g.molecules[imol_map].get_other_molecule_backup_index();
-            // Do we need to update the map?
-            // We don't want to update the map the first time around
-            int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
-            if (false)
-               std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
-                         << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
-            if (backup_index_current != backup_index_for_molecule) {
-               if (backup_index_current == -1) {
-                  std::cout << "DEBUG:: watch_coordinates_updates() First time, do nothing " << std::endl;
-               } else {
-                  std::cout << "DEBUG:: watch_coordinates_updates() Update the map " << imol_map << std::endl;
-                  g.sfcalc_genmap(imol_coords, imol_data, imol_map);
-               }
-               g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
-            } else {
+      if (g.is_valid_map_molecule(imol_data)) {
+         if (g.is_valid_map_molecule(imol_diff_map)) {
+            if (g.is_valid_model_molecule(imol_coords)) {
+               int backup_index_current = g.molecules[imol_diff_map].get_other_molecule_backup_index();
+               // Do we need to update the map?
+               // We don't want to update the map the first time around
+               int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
                if (false)
-                  std::cout << "DEBUG:: watch_coordinates_updates() No need for an update "
-                            << backup_index_current << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
+                            << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
+               if (backup_index_current != backup_index_for_molecule) {
+
+                  // 20230430-PE We *do* want the maps to be updated at the first time.
+                  // if (backup_index_current == -1) {
+                  //    std::cout << "DEBUG:: watch_coordinates_updates() First time, do nothing " << std::endl;
+                  // } else {
+                  //    std::cout << "DEBUG:: watch_coordinates_updates() Update the map " << imol_map << std::endl;
+                  //    g.sfcalc_genmap(imol_coords, imol_data, imol_map);
+                  // }
+                  // g.sfcalc_genmap(imol_coords, imol_data, imol_map);
+
+                  clipper::Xmap<float> *xmap_2fofc_p = &g.molecules[imol_data].xmap;
+                  clipper::Xmap<float> *xmap_fofc_p  = &g.molecules[imol_diff_map].xmap;
+
+                  coot::util::sfcalc_genmap_stats_t stats =
+                     g.sfcalc_genmaps_using_bulk_solvent(imol_coords, imol_data, xmap_2fofc_p, xmap_fofc_p);
+
+                  // 20230501-PE tweak the contour levels so that the levels (number of lines in the mesh)
+                  // are about the same
+                  //
+                  if (backup_index_current == -1) {
+                     g.molecules[imol_data].set_contour_level(    1.3  *     g.molecules[imol_data].get_contour_level());
+                     g.molecules[imol_diff_map].set_contour_level(0.55 * g.molecules[imol_diff_map].get_contour_level());
+                  }
+
+                  g.molecules[imol_diff_map].update_map(true);
+                  g.molecules[imol_data].update_map(true);
+
+                  g.calculate_new_rail_points(*ummp_p);
+                  g.updating_maps_update_the_coot_points_overlay();
+
+                  g.molecules[imol_diff_map].other_molecule_backup_index = backup_index_for_molecule;
+
+                  g.graphics_draw(); // so that we can see the results of the recontouring.
+
+               } else {
+                  if (false)
+                     std::cout << "DEBUG:: watch_coordinates_updates() No need for an update "
+                               << backup_index_current << std::endl;
+               }
+            } else {
+               std::cout << "ERROR:: bad model index in watch_coordinates_updates() " << imol_coords << std::endl;
             }
+         } else {
+            std::cout << "ERROR:: bad diff map index in watch_coordinates_updates() " << imol_diff_map << std::endl;
          }
+      } else {
+         std::cout << "ERROR:: bad 2fofc map index in watch_coordinates_updates() " << imol_2fofc_map << std::endl;
       }
    }
    return status;

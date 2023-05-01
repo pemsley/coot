@@ -6340,6 +6340,72 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="coot-points-frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="coot-points-frame-points-label">
+                        <property name="halign">end</property>
+                        <property name="margin-end">15</property>
+                        <property name="opacity">0.9</property>
+                        <property name="valign">center</property>
+                        <property name="visible">True</property>
+                        <property name="label">Coot-Points-Here!</property>
+                        <attributes>
+                          <attribute name="weight" value="PANGO_WEIGHT_THIN"/>
+                          <attribute name="scale" value="1.25" />
+                          <!-- <attribute name="family" value="monospace" /> -->
+                        </attributes>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="coot-points-frame-r-factor-label">
+                        <property name="label">R-factor-Here!</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">15</property>
+                        <property name="opacity">0.9</property>
+                        <property name="valign">center</property>
+                        <property name="visible">True</property>
+                        <property name="label">Clipper R-Factor Here</property>
+                        <attributes>
+                          <attribute name="weight" value="PANGO_WEIGHT_THIN"/>
+                          <attribute name="scale" value="1.0" />
+                        </attributes>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="coot-points-frame-free-r-factor-label">
+                        <property name="label">Free R-factor-Here!</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">15</property>
+                        <property name="opacity">0.9</property>
+                        <property name="valign">center</property>
+                        <property name="visible">True</property>
+                        <property name="label">Clipper R-free Here</property>
+                        <attributes>
+                          <attribute name="weight" value="PANGO_WEIGHT_THIN"/>
+                          <attribute name="scale" value="1.0" />
+                        </attributes>
+                     </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+
             <child type="overlay">
               <object class="GtkFrame" id="geometry_frame">
                 <property name="halign">start</property>
@@ -7322,6 +7388,152 @@ density (too big to be waters):
       </object>
     </child>
     <child type="titlebar">
+    </child>
+  </object>
+
+  <object class="GtkDialog" id="updating_maps_dialog">
+    <property name="title" translatable="yes">Coot: Set Updating Maps</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+
+
+        <child>
+          <object class="GtkFrame">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Select Model:</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="updating_maps_model_combobox">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkFrame">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Select Map (with data info attached):</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="updating_maps_map_combobox">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkFrame">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Select Difference_Map:</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="updating_maps_diff_map_combobox">
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkCheckButton" id="updating_maps_auto_update_checkbutton">
+            <property name="label" translatable="yes">Auto Update</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+            <property name="homogeneous">1</property>
+            <child>
+              <object class="GtkButton" id="updating_maps_cancel_button">
+                <property name="label">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">10</property>
+                <signal name="clicked" handler="on_updating_maps_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="updating_maps_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <signal name="clicked" handler="on_updating_maps_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
+
+      </object>
     </child>
   </object>
 

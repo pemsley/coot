@@ -102,7 +102,7 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
             if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
          }
       }
-      std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+      std::cout << "DEBUG:: sfcalc_genmap() the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
    }
 
    // calc abcd (needed?)
@@ -187,6 +187,12 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
                 << std::endl;
    }
 
+   float cv = cell_for_fobs.volume();
+   if (cv < 3) {
+      std::cout << "ERROR:: bad cell_for_fobs " << cv << " " << cell_for_fobs.format() << std::endl;
+      return sfcgs;
+   }
+
 
    enum ANISO { NONE, FOBS, FCAL };
    bool bulk  = true;
@@ -214,6 +220,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
                 << std::endl;
    }
 
+
    // get a list of all the atoms
    clipper::mmdb::CAtom **atom_sel = 0;
    int nsel = 0;
@@ -221,6 +228,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    mol->SelectAtoms(hndl, 0, 0, ::mmdb::SKEY_NEW);
    mol->GetSelIndex(hndl, atom_sel, nsel);
    clipper::MMDBAtom_list atoms(atom_sel, nsel);
+   // std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent() nsel for atoms " << nsel << std::endl;
 
    // clipper::MTZcrystal cxtl;
    clipper::HKL_info hkls;
@@ -277,7 +285,7 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    clipper::HKL_data<clipper::data32::Phi_fom> phiw(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling());
    clipper::HKL_data<clipper::data32::Flag>    flag(fobs.spacegroup(), cell_for_fobs, fobs.hkl_sampling());
 
-   for ( HRI ih = flag.first(); !ih.last(); ih.next() )
+   for (HRI ih = flag.first(); !ih.last(); ih.next())
       if (!fobs[ih].missing() && (free[ih].missing()||free[ih].flag()==freeflag))
          flag[ih].flag() = clipper::SFweight_spline<float>::BOTH;
       else
@@ -292,16 +300,20 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
       unsigned int n_nans_fc     = 0;
       unsigned int n_nans_f_diff = 0;
       for (HRI ih = fobs.first(); !ih.last(); ih.next()) {
-         if (!fobs[ih].missing() && (free[ih].missing()||free[ih].flag()==freeflag)) {
-            if (clipper::Util::isnan(fobs[ih].f())) n_nans_fobs++;
-            if (clipper::Util::isnan(fc[ih].f()))   n_nans_fc++;
+         if (!fobs[ih].missing() && (free[ih].missing() || free[ih].flag() == freeflag)) {
+            if (clipper::Util::isnan(fobs[ih].f()))   n_nans_fobs++;
+            if (clipper::Util::isnan(fc[ih].f()))     n_nans_fc++;
             if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
          }
       }
-      std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+
+
+      // std::cout << "DEBUG:: sfcalc_genmaps_using_bulk_solvent(): the nan count: "
+      //           << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+
    }
 
-   // calc abcd (needed?)
+   // Calc abcd (needed?)
    // clipper::HKL_data<clipper::data32::ABCD> abcd(hkls);
    // abcd.compute(phiw, clipper::data32::Compute_abcd_from_phifom());
 
@@ -317,27 +329,34 @@ coot::util::sfcalc_genmaps_using_bulk_solvent(mmdb::Manager *mol,
    for (HRI ih = fobs.first(); !ih.last(); ih.next()) {
       if (!fobs[ih].missing()) {
          Fo = fobs[ih].f();
-         Fc = sqrt( rfn.f(ih) ) * fc[ih].f();
-         if (free[ih].flag() == freeflag) {
-            r1f += fabs(Fo - Fc);
-            f1f += Fo;
+         std::cout << "DEBUG: " << ih.hkl().format() << " resolution-func: " << rfn.f(ih) << " Fcalc: " << fc[ih].f()
+                   << std::endl;
+         if (clipper::Util::isnan(rfn.f(ih))) {
          } else {
-            r1w += fabs(Fo - Fc);
-            f1w += Fo;
+            Fc = sqrt( rfn.f(ih) ) * fc[ih].f();
+            if (free[ih].flag() == freeflag) {
+               r1f += fabs(Fo - Fc);
+               f1f += Fo;
+            } else {
+               r1w += fabs(Fo - Fc);
+               f1w += Fo;
+            }
          }
       }
    }
+
    r1f /= clipper::Util::max(f1f, 0.1);
    r1w /= clipper::Util::max(f1w, 0.1);
    sfcalc_genmap_stats_t::loc_table_t loct;
    for (int i = 0; i <= 20; i++) {
       double s = hkls.resolution().invresolsq_limit()*double(i)/20.0;
       // printf("%6.3f %12.3f %12.3f\n", s, basisfn.f_s(s,sfw.params_scale()), basisfn.f_s(s,sfw.params_error()));
-      sfcalc_genmap_stats_t::loc_table_t::loc_table_item_t item(s, basisfn.f_s(s,sfw.params_scale()), basisfn.f_s(s,sfw.params_error()));
+      sfcalc_genmap_stats_t::loc_table_t::loc_table_item_t item(s, basisfn.f_s(s,sfw.params_scale()),
+                                                                basisfn.f_s(s,sfw.params_error()));
       loct.add(item);
    }
 
-   std::cout << "debug:: capturing rfactors " << r1w << " and " << r1f << std::endl;
+   std::cout << "DEBUG:: in sfcalc_genmaps_using_bulk_solvent(): capturing rfactors " << r1w << " and " << r1f << std::endl;
    sfcgs = sfcalc_genmap_stats_t(r1w, r1f, bulkfrc, bulkscl, sfw.params_scale().size(), loct);
    std::cout << "\n R-factor      : " << r1w << "\n Free R-factor : " << r1f << "\n";
 

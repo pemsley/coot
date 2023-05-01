@@ -672,7 +672,7 @@ int make_updating_model_molecule(const char *filename);
 
 this function is called from callbacks.c and calls a python gui function
 */
-void show_calculate_updating_maps_gui();
+void show_calculate_updating_maps_pythonic_gui();
 
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();

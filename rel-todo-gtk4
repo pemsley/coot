@@ -30,12 +30,25 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 * It works on the PC.
 
 Restart the refinement on button-release when dragging an atom ::: 1
+call poke_the_refinement().
 
 "All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
 
 Coot Points in updating maps ::: 4
 
+Merge Molecules gui ::: 1
+
+Find Waters gui ::: 1
+
+Find Ligands gui ::: 1
+
+Difference Map Peaks ::: 2
+
+Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+
 Start up from Saved state. ::: 1
+
+Ctrl Arrow keys for ligand rotation and translation ::: 2
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
 
@@ -49,6 +62,12 @@ Consider using double-click to do go to blob.  Where does "label atom" go then? 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
 Curlew: ::: 4
+
+Get rid of "Other Modelling Tools" ::: 1
+
+Double-click to recentre (G: go to blob) ::: 1
+
+How do I add a single water? ::: 1
 
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
@@ -75,6 +94,8 @@ Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
 Find Somewhere for "Choose Undo Molecule" ::: 1
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+
+Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
 Dotted Surface ::: 1
 

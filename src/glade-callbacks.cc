@@ -4254,8 +4254,8 @@ on_run_state_file_cancel_button_clicked (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 gboolean
 on_run_state_file_dialog_delete_event(GtkWidget       *widget,
-                                                          GdkEvent        *event,
-                                                          gpointer         user_data) {
+                                      GdkEvent        *event,
+                                      gpointer         user_data) {
 
    gtk_widget_hide(widget);
    return TRUE;
@@ -4264,11 +4264,10 @@ on_run_state_file_dialog_delete_event(GtkWidget       *widget,
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_backbone_torsions_dialog_destroy
-                                        (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-  clear_moving_atoms_object();
+on_edit_backbone_torsions_dialog_destroy(GtkWidget       *object,
+                                        gpointer         user_data) {
+
+   clear_moving_atoms_object();
   /* FIXME: also clear out the edib backbone ramaplot, if it exists. */
   /*   destroy_edit_backbone_rama_plot(); */
 }
@@ -4276,10 +4275,8 @@ on_edit_backbone_torsions_dialog_destroy
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_backbone_torsion_rotate_peptide_button_pressed
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_edit_backbone_torsion_rotate_peptide_button_pressed (GtkButton       *button,
+                                                        gpointer         user_data) {
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
@@ -12057,3 +12054,49 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
 
 }
+
+// ----------------------------------- updating maps 
+
+extern "C" G_MODULE_EXPORT
+void
+on_updating_maps_cancel_button_clicked(GtkButton       *button,
+                                       gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("updating_maps_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_updating_maps_ok_button_clicked(GtkButton       *button,
+                                   gpointer         user_data) {
+
+   GtkWidget *model_combobox    = widget_from_builder("updating_maps_model_combobox");
+   GtkWidget *map_combobox      = widget_from_builder("updating_maps_map_combobox");
+   GtkWidget *diff_map_combobox = widget_from_builder("updating_maps_diff_map_combobox");
+   GtkWidget *check_button      = widget_from_builder("updating_maps_auto_update_checkbutton");
+
+   int imol          = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+   int imol_map      = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+   int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(diff_map_combobox));
+
+   std::cout << "55555555555555555 in on_updating_maps_ok_button_clicked() here are the molecules indices "
+             << imol << " " << imol_map << " " << imol_diff_map << std::endl;
+
+   bool auto_update_flag = false;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) auto_update_flag = true;
+
+   if (auto_update_flag) {
+      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 1 " << imol << " " << imol_map << " " << imol_diff_map << std::endl;
+      set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map);
+   } else {
+      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 2 " << std::endl;
+      calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map);
+   }
+
+   GtkWidget *dialog = widget_from_builder("updating_maps_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+}
+

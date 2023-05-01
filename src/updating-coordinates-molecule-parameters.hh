@@ -57,6 +57,25 @@ public:
    }
    updating_model_molecule_parameters_t(int imol_coords_in, int imol_data, int imol_map_2fofc_in, int imol_map_fofc_in) :
       imol_coords(imol_coords_in), imol_map_with_data_attached(imol_data), imol_2fofc_map(imol_map_2fofc_in), imol_fofc_map(imol_map_fofc_in) {}
+   std::string format() const {
+      std::string ss;
+      ss += "imol_coords: ";
+      ss += std::to_string(imol_coords);
+      ss += std::string(" ");
+
+      ss += "imol_map_with_data_attached: ";
+      ss += std::to_string(imol_map_with_data_attached);
+      ss += std::string(" ");
+
+      ss += "imol_2fofc_map: ";
+      ss += std::to_string(imol_2fofc_map);
+      ss += std::string(" ");
+
+      ss += "imol_fofc_map: ";
+      ss += std::to_string(imol_fofc_map);
+
+      return ss;
+   }
 };
 
 #endif

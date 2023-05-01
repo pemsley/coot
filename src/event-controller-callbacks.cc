@@ -369,7 +369,6 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double
 
 void load_tutorial_model_and_data_ec() {
 
-
    std::string p = coot::package_data_dir();
    std::string d = coot::util::append_dir_dir(p, "data");
 
@@ -391,11 +390,9 @@ void load_tutorial_model_and_data_ec() {
 							  g.convert_to_v2_atom_names_flag,
 							  bw, bonds_box_type, true);
 
-   // return; // for now
-
-   int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
+   int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "",
+                                                       0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
    int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
-
 
 }
 
@@ -404,6 +401,23 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
                                                       guint                  keyval,
                                                       guint                  keycode,
                                                       guint                  modifiers) {
+
+   auto coot_points_frame_callback = +[] (gpointer user_data) {
+      GtkWidget *frame = get_widget_from_builder("coot-points-frame");
+      if (frame) {
+         gtk_widget_set_visible(frame, FALSE);
+      }
+      return FALSE;
+   };
+
+   auto test_function = [coot_points_frame_callback] () {
+      GtkWidget *frame = get_widget_from_builder("coot-points-frame");
+      if (frame) {
+         gtk_widget_set_visible(frame, TRUE);
+         GSourceFunc cb = G_SOURCE_FUNC(coot_points_frame_callback);
+         g_timeout_add(3000, cb, nullptr);
+      }
+   };
 
 
    gboolean handled = false;
@@ -417,6 +431,9 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    if (true)
       std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
+
+   if (keyval == 101)
+      test_function();
 
    if (keyval == 113)
       load_tutorial_model_and_data_ec(); // ec: event-controller

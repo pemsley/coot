@@ -676,6 +676,7 @@ libcootsumo_la_SOURCES = \
 	python-3-interface.hh 	 \
 	Particle.cc Particle.hh  \
 	pulse-data.hh            \
+	rail-points.hh           \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
