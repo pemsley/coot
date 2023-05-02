@@ -101,6 +101,9 @@ Map Utils
 .. doxygenfile:: coot-utils/coot-map-utils.hh
        :project: libcootapi
 
+.. doxygenfile:: api-cell.hh
+       :project: libcootapi
+
 Colour
 ======
 
