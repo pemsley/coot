@@ -667,6 +667,16 @@ public:
    coot::symmetry_info_t
    get_symmetry(int imol, float symmetry_search_radius, float centre_x, float centre_y, float centre_z) const;
 
+   //! Get the cell
+   //!
+   //! Check that `is_set` is true before use.
+   //! @return a `cell_t`
+   ::api::cell_t get_cell(int imol)  const;
+
+   //! Get the middle of the "molecule blob" in cryo-EM reconstruction maps
+   //! @return a `coot::util::map_molecule_centre_info_t`.
+   coot::util::map_molecule_centre_info_t get_map_molecule_centre(int imol) const;
+
    //! undo
    //! @return 1 on successful undo, return 0 on failure
    int undo(int imol);

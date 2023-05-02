@@ -142,11 +142,16 @@ namespace coot {
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
                                        float sharpen_factor);
 
+      //! map molecule centre
       class map_molecule_centre_info_t {
       public:
+         //! success flag
          bool success;
+         //! new centre
          clipper::Coord_orth updated_centre;
+         //! suggested contour level
          float suggested_contour_level;
+         //! sum of densities - for whatever use that may be.
          double sum_of_densities; // for scoring origins
          map_molecule_centre_info_t() {
             success = false;

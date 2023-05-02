@@ -21,7 +21,8 @@ json.hpp 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
 add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh                     \
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
 phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh                     \
-generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh
+generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
+api-cell.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 

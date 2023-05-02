@@ -110,6 +110,43 @@ molecules_container_t::get_molecule_name(int imol) const {
    return std::string("");
 }
 
+api::cell_t
+molecules_container_t::get_cell(int imol) const {
+
+   api::cell_t c;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Cell cell = molecules[imol].xmap.cell();
+      c = api::cell_t(cell.a(), cell.b(), cell.c(), cell.alpha(), cell.beta(), cell.gamma());
+   }
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      mmdb::realtype a[6];
+      mmdb::realtype vol;
+      int orthcode;
+      mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
+      c = api::cell_t(a[0], a[1], a[2],
+                      clipper::Util::d2rad(a[3]),
+                      clipper::Util::d2rad(a[4]),
+                      clipper::Util::d2rad(a[5]));
+   }
+   return c;
+}
+
+//! Get the middle of the "molecule blob" in cryo-EM reconstruction maps
+//! @return a `coot::util::map_molecule_centre_info_t`.
+coot::util::map_molecule_centre_info_t
+molecules_container_t::get_map_molecule_centre(int imol) const {
+
+   coot::util::map_molecule_centre_info_t mc;
+   if (is_valid_map_molecule(imol)) {
+      mc = molecules[imol].get_map_molecule_centre();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
+   }
+   return mc;
+}
+
 
 void
 molecules_container_t::display_molecule_names_table() const {
