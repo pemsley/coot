@@ -20,13 +20,21 @@ Let's load some data:
 _Moorhen displays a protein model, a blue 2Fo-Fc-style map and an Fo-Fc-style map in green (positive) and red (negative)._
 
  - Use Left-Mouse click and drag to rotate the view.
+   (just click and drag, when using at trackpad)
+
  - Use scroll-wheel scroll to zoom in and out
+   (use 2-finger drag on a trackpad)
+
+ - Use middle-mouse click to centre on an atom
+    (use Option-click on a trackpad on a Mac)
+
+ - To pan the view, use middle-mouse click and drag
+   (use Shift Option click and drag on a trackpad on a Mac)
 
 You can change the speed that moving the mouse spins the view:
 
   - **Preferences** &rarr; "Mouse Sensitivity" &rarr; 0.4 (# for example)
   - Click off the Preferences dialog to make the dialog disappear.
-
 
   - Similarly, you can change the thickness of the map lines if you wish.
   - Use "[" and "]" on the keyboard to adjust the radius of the density.
