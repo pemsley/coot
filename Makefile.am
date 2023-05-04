@@ -46,7 +46,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli api greg-tests \
 	python-tests cootilus fonts pyrogen lbg data \
-	man rama-data doc glTF pixmaps textures src
+	man rama-data doc glTF pixmaps textures test-validation src
 endif
 endif
 
