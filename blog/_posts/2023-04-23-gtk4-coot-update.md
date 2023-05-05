@@ -6,7 +6,7 @@ date: Sun 23 Apr 07:36:06 BST 2023
 
 After something of a hiatus, I have refreshed my efforts on GTK4-based Coot!
 
-To that end Jakub Smulski has been recruited to the team, funded by
+Additionally Jakub Smulski has been recruited to the team, funded by
 Global Phasing. Jakub has been working on the the two major stumbling
 blocks in the conversion of Coot to use GTK4.  Those are (or were!)
 the validation graphics and the ligand-building gui.
