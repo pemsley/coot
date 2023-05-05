@@ -43,8 +43,6 @@ call poke_the_refinement().
 
 Coot Points in updating maps ::: 4
 
-Merge Molecules gui ::: 1
-
 Find Waters gui ::: 1
 
 Find Ligands gui ::: 1
@@ -295,3 +293,6 @@ Key-binding for "clear all atom labels" ::: 0.25
 
 Key-bindings in general ::: 1
 May need revisiting.
+
+Merge Molecules gui ::: 0.5
+

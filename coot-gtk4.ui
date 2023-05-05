@@ -7888,6 +7888,7 @@ density (too big to be waters):
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="merge_molecuoes_scrolledwindow">
+                    <property name="height-request">280</property>
                     <child>
                       <object class="GtkViewport" id="viewport7">
                         <child>
@@ -7945,6 +7946,9 @@ density (too big to be waters):
                 <property name="margin-end">4</property>
                 <property name="margin-bottom">4</property>
                 <property name="margin-top">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
