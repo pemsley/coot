@@ -105,6 +105,9 @@ coot::restraints_container_t::release_print_lock() {
 
 
 coot::restraints_container_t::~restraints_container_t() {
+
+   unset_fixed_during_refinement_udd();
+
    if (from_residue_vector) {
       if (atom) {
 	 // this is constructed manually.
@@ -698,7 +701,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    // blank out those atoms from seeing electron density map gradients
 
    std::set<int>::const_iterator it;
-   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
       use_map_gradient_for_atom[*it] = false;
 
    if (verbose_geometry_reporting == VERBOSE)
@@ -728,6 +731,20 @@ coot::restraints_container_t::set_fixed_during_refinement_udd() {
 	 at->PutUDData(uddHnd, 0);
       else
 	 at->PutUDData(uddHnd, 1);
+   }
+}
+
+void
+coot::restraints_container_t::unset_fixed_during_refinement_udd() {
+
+   if (! mol) {
+      std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
+      return;
+   }
+   int uddHnd = mol->GetUDDHandle(mmdb::UDR_ATOM , "FixedDuringRefinement");
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      at->PutUDData(uddHnd, 0);
    }
 }
 

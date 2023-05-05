@@ -203,6 +203,9 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
    bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
                                              // stupid when it comes to thining.
 
+   // std::cout << "::::::: in make_colour_by_chain_bonds() bonds_box n_rotamer_markups "
+   // << bonds_box.n_rotamer_markups << " :::::::::" << std::endl;
+
    // testing previous values of bonds_box_type
    if (bonds_box_type != coot::COLOUR_BY_CHAIN_BONDS)
       force_rebonding = true;

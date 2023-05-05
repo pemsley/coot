@@ -1793,7 +1793,6 @@ molecules_container_t::get_rotamer_dodecs_instanced(int imol) {
 }
 
 
-
 int
 molecules_container_t::auto_fit_rotamer(int imol,
                                         const std::string &chain_id, int res_no, const std::string &ins_code,
