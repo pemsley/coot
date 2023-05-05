@@ -7453,11 +7453,11 @@ import_python_module(const char *module_name, int use_namespace) {
 }
 
 
-// 20230501-PE during merge, not sure this is a thing now.
-void add_on_rama_choices() {  // the the menu
-   GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
-   add_on_validation_graph_mol_options(menu_item, "ramachandran");
-}
+// // 20230501-PE during merge, not sure this is a thing now.
+// void add_on_rama_choices() {  // the the menu
+//    GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
+//    add_on_validation_graph_mol_options(menu_item, "ramachandran");
+// }
 
 
 void destroy_edit_backbone_rama_plot() {

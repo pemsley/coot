@@ -10224,6 +10224,16 @@ on_go_to_ligand_button_clicked(GtkButton *button,
   go_to_ligand();
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_graphics_grab_focus_button_clicked (GtkButton       *button,
+                                       gpointer         user_data) {
+   graphics_info_t g;
+   g.graphics_grab_focus();
+}
+
+
 extern "C" G_MODULE_EXPORT
 void
 on_move_molecule_here_big_molecules_checkbutton_toggled

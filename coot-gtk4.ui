@@ -1216,7 +1216,6 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                   <object class="GtkLabel" id="label198">
                     <property name="label" translatable="yes">Add OXT to Chain:</property>
                     <property name="justify">center</property>
-                    <property name="xalign">0.05999999865889549</property>
                   </object>
                 </child>
                 <child>
@@ -1300,34 +1299,37 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
           </object>
         </child>
         <child type="action">
-              <object class="GtkBox" id="hbox99">
-                <property name="homogeneous">1</property>
-                <property name="spacing">4</property>
-                <child>
-                  <object class="GtkButton" id="add_OXT_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="add_OXT_ok_button">
-                    <property name="label" translatable="yes">  Add it  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                  </object>
-                </child>
+          <object class="GtkBox" id="hbox99">
+            <property name="homogeneous">1</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkButton" id="add_OXT_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="add_OXT_ok_button">
+                <property name="label" translatable="yes">  Add it  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -5863,6 +5865,15 @@ Do you want to continue?
                 </object>
               </child>
 
+
+              <child>
+                <object class="GtkButton" id="graphics-grab-focus-button">
+                  <property name="label" translatable="yes">Graphics Grab Focus</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_graphics_grab_focus_button_clicked" swapped="no"/>
+                </object>
+              </child>
+
             </object>
           </child>
           <child>
@@ -7527,6 +7538,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_updating_maps_ok_button_clicked" swapped="no"/>
               </object>
             </child>

@@ -26,6 +26,13 @@ Sun 23 Apr 21:33:42 BST 2023
 
 Fix "Edit Chi Angles" button ::: 1
 
+Have a look at adding thing this:
+<style>
+   <class name="suggested-action"/>
+</style>
+after a buttons's properties
+
+
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
 

@@ -973,10 +973,20 @@ public:
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
+   static void graphics_grab_focus() {
+
+      if (use_graphics_interface_flag) {
+         if (! glareas.empty()) {
+            GtkWidget *glarea = glareas[0];
+            gtk_widget_grab_focus(glarea);
+         }
+      }
+   }
+
    static void graphics_draw() {
 
       // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
-      if (true) {
+      if (use_graphics_interface_flag) {
          if (! glareas.empty()) {
             for (unsigned int i=0; i<glareas.size(); i++) {
                GtkWidget *glarea = glareas[i];
