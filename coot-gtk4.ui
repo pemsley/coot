@@ -4399,7 +4399,7 @@ that you wish to delete.               </property>
   </object>
 
   <object class="GtkDialog" id="find_ligand_dialog">
-    <property name="title" translatable="yes">Coot Find Ligands</property>
+    <property name="title" translatable="yes">Coot: Find Ligands</property>
     <child>
       <object class="GtkBox" id="dialog-vbox2">
         <property name="orientation">vertical</property>
@@ -4408,6 +4408,38 @@ that you wish to delete.               </property>
           <object class="GtkBox" id="vbox44">
             <property name="orientation">vertical</property>
             <property name="spacing">4</property>
+            <child>
+              <object class="GtkBox" id="vbox47">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label75">
+                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
+                    <property name="justify">center</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frame37">
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <child>
+                      <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
+                        <child>
+                          <object class="GtkViewport" id="viewport16">
+                            <child>
+                              <object class="GtkBox" id="find_ligand_ligands_vbox">
+                                <property name="orientation">vertical</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
             <child>
               <object class="GtkBox" id="vbox45">
                 <property name="orientation">vertical</property>
@@ -4477,6 +4509,11 @@ that you wish to delete.               </property>
                 <property name="margin-end">8</property>
                 <property name="margin-top">4</property>
                 <property name="margin-bottom">4</property>
+                <child type="label">
+                  <object class="GtkLabel" id="label279">
+                    <property name="label" translatable="yes">Mask Waters?</property>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox" id="vbox112">
                     <property name="orientation">vertical</property>
@@ -4486,6 +4523,7 @@ that you wish to delete.               </property>
                         <property name="label" translatable="yes">Treat waters like protein (mask) atoms</property>
                         <property name="can-focus">1</property>
                         <property name="use-underline">1</property>
+                        <property name="active">1</property>
                       </object>
                     </child>
                     <child>
@@ -4498,41 +4536,36 @@ that you wish to delete.               </property>
                     </child>
                   </object>
                 </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label279">
-                    <property name="label" translatable="yes">Mask Waters?</property>
-                  </object>
-                </child>
               </object>
             </child>
             <child>
-              <object class="GtkBox" id="vbox47">
-                <property name="orientation">vertical</property>
+              <object class="GtkFrame">
+                <property name="label" translatable="yes">Where to Search?</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <child>
-                  <object class="GtkLabel" id="label75">
-                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame37">
-                    <property name="margin-start">8</property>
-                    <property name="margin-end">8</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
+                  <object class="GtkBox">
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
-                        <child>
-                          <object class="GtkViewport" id="viewport16">
-                            <child>
-                              <object class="GtkBox" id="find_ligand_ligands_vbox">
-                                <property name="orientation">vertical</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                      <object class="GtkCheckButton" id="find_ligands_search_all_radiobutton">
+                        <property name="label" translatable="yes">Everywhere</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="active">0</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkCheckButton" id="find_ligands_search_here_radiobutton">
+                        <property name="label" translatable="yes">Right Here</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="active">1</property>
+                        <property name="group">find_ligands_search_all_radiobutton</property>
+                      </object>b
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -4568,6 +4601,134 @@ that you wish to delete.               </property>
                 </child>
               </object>
             </child>
+
+            <child>
+              <object class="GtkFrame" id="ligand_conformers_frame">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="label">Conformer Options</property>
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkLabel" id="label261">
+                        <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkEntry" id="ligand_n_samples_entry">
+                        <property name="width-request">5</property>
+                        <property name="can-focus">1</property>
+                      </object>
+                    </child>
+                    
+                  </object>
+                </child>
+              </object>
+            </child>
+
+
+            <child>
+              <object class="GtkFrame" id="ligand_multi_solution_frame">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="label">Multi-Solution Options</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkCheckButton" id="find_ligands_multi_solution_checkbutton">
+                        <property name="label" translatable="yes">Multi-Solutions</property>
+                        <property name="active">0</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkGrid">
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Fraction for Scoring </property>
+                            <property name="justify">right</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_1">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <layout>
+                              <property name="row">0</property>
+                              <property name="column">1</property>
+                            </layout>
+                          </object>
+                        </child>
+                        
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Fraction for Correlation </property>
+                            <property name="justify">right</property>
+                            <layout>
+                              <property name="row">1</property>
+                              <property name="column">0</property>
+                            </layout>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_2">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <layout>
+                              <property name="row">1</property>
+                              <property name="column">1</property>
+                            </layout>
+                          </object>
+                        </child>
+                        
+
+                      </object>
+                    </child>
+
+                   </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkFrame" id="ligand_fitting_post_fit_options">
+                <property name="label">Post-Fit Options</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+
+                <child>
+                  <object class="GtkCheckButton" id="find_ligand_real_space_refine_solutions_checkbutton">
+                    <property name="label" translatable="yes">Real Space Refine Solutions</property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+            
             <child>
               <object class="GtkFrame" id="ligand_expert_frame">
                 <property name="margin-start">8</property>
@@ -4580,34 +4741,12 @@ that you wish to delete.               </property>
                     <child>
                       <object class="GtkGrid">
                         <child>
-                          <object class="GtkLabel" id="label261">
-                            <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
-                            <property name="justify">center</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkLabel" id="label262">
                             <property name="label" translatable="yes">  Search Number of Top Sites:        </property>
                             <property name="justify">center</property>
                             <layout>
                               <property name="column">0</property>
                               <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="ligand_n_samples_entry">
-                            <property name="width-request">5</property>
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
                             </layout>
                           </object>
                         </child>
@@ -4644,39 +4783,42 @@ that you wish to delete.               </property>
             </child>
           </object>
         </child>
-         <child type="action">
-              <object class="GtkBox" id="hbox35">
+        <child type="action">
+          <object class="GtkBox" id="hbox35">
+            <property name="homogeneous">1</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkBox" id="hbox36">
                 <property name="homogeneous">1</property>
                 <property name="spacing">4</property>
                 <child>
-                  <object class="GtkBox" id="hbox36">
-                    <property name="homogeneous">1</property>
-                    <property name="spacing">4</property>
-                    <child>
-                      <object class="GtkButton" id="button4">
-                        <property name="label" translatable="yes">Cancel</property>
-                        <property name="can-focus">1</property>
-                        <signal name="clicked" handler="on_find_ligand_cancel_button_clicked" swapped="no"/>
-                        <property name="margin-start">4</property>
-                        <property name="margin-end">4</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="find_ligand_ok_button">
-                        <property name="label" translatable="yes">Find Ligands</property>
-                        <property name="can-focus">1</property>
-                        <signal name="clicked" handler="on_find_ligand_ok_button_clicked" swapped="no"/>
-                        <property name="margin-start">4</property>
-                        <property name="margin-end">4</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
+                  <object class="GtkButton" id="button4">
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_find_ligand_cancel_button_clicked" swapped="no"/>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">8</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="find_ligand_ok_button">
+                    <property name="label" translatable="yes">Find Ligands</property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_find_ligand_ok_button_clicked" swapped="no"/>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">8</property>
+                    <style>
+                      <class name="suggested-action"/>
+                    </style>
                   </object>
                 </child>
               </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -4812,7 +4954,7 @@ Do you want to continue?
                       <object class="GtkLabel" id="label108">
                         <property name="label" translatable="yes">Waters should be:</property>
                         <property name="justify">center</property>
-                        <property name="xalign">0.029999999329447746</property>
+                        <property name="xalign">0.03</property>
                       </object>
                     </child>
                     <child>
@@ -9190,7 +9332,7 @@ Nucleotide Builder
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="cis_trans_conversion_toggle_button">
-                    <property name="label" translatable="yes">   Cis &lt;-&gt; Trans   </property>
+                    <property name="label" translatable="yes">   Cis ↔ Trans  </property>
                     <property name="can-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="toggled" handler="on_cis_trans_conversion_toggle_button_toggled" swapped="no"/>
