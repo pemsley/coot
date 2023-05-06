@@ -37,7 +37,7 @@ _[A dialog is presented with Interesting/Outliers listed by chain-id and residue
 
 - Click on the first button (for A 2)
 - Take a look at what is interacting with this VAL
-    - It's actually the PHE at A 93 that's wrong.
+    - It's actually the PHE at A 89 that's wrong.
     - Recentre on that residue (middle-mouse click on the CB)
 
 Fix the rotamer:
@@ -154,7 +154,7 @@ When the ligand is corrected placed, let's merge it into the main molecule
 You can see on the right hand side of the sequce view that the A chain is mssing the residues "QTC"
 
  - Right-mouse over the sequence view to **Close** it.
- - Middle-mouse click the "C" atom of residue A 89.
+ - Middle-mouse click the "C" atom of residue A 93.
  - **Calculate** &rarr; **Fit Loop** &rarr; **Fit Loop by Rama Search...**
  - Choose Residue numbers 94 and 96 in the A chain
  - Add the sequence "QTC"
