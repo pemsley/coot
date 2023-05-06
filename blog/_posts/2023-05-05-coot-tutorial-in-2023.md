@@ -43,7 +43,7 @@ _[A dialog is presented with Interesting/Outliers listed by chain-id and residue
 Fix the rotamer:
  - `J` (on the keyboard)
 
-If things have gond to plan, the sidechain will jump into the density and the maps will update and the difference maps will disappear in this region.
+If things have gone to plan, the sidechain will jump into the density and the maps will update and the difference maps will disappear in this region.
 
  - `Shift R` to tidy up the geometry
  - **Accept**
@@ -68,7 +68,10 @@ _[The number of Rama spots decreases]_
 If you mouse over the red spots they will tell you the residue number.
 
  - Let's click on the spot for A 41
- - **OK** on the dialog to undisplay it for now.
+
+_[Coot recentres onto the specified residue]_
+
+ - **OK** on the Ramachandran dialog to undisplay it for now.
  - See that there is red density, green density and a red non-pro _cis_ peptide and a twisted trans (yellow ribbon)
  - Use **Sphere Refine** to tidy this up
 
@@ -116,7 +119,7 @@ Blobs are sorted by size.
 
 What are we looking at?
 
-Blob 4 and Blob 3 are the same thing. Let's do Blob 3 first because the density is better. Notice the shape of the blobs and the environement. The precipitant for this structure was ammonium sulfate. So let's add a SO4 here:
+Blob 4 (if present in the dialog) and Blob 3 are the same thing. Let's do Blob 3 first because the density is better. Notice the shape of the blobs and the environement. The precipitant for this structure was ammonium sulfate. So let's add a SO4 here:
 
  - **Calculate** &rarr; **Modelling** &rarr; **Add Other Solvent Molecules**
  - **SO4: SULPHATE ION**
@@ -126,7 +129,7 @@ _[Coot adds a sulfate ion using "Jiggle Fit"]_
  - Now you can do the same thing for **Blob 4** if you wish
  - **Close** the **Solvent Ligands** dialog
 
-Blob 2 is the ligand. Let's build a ligand into that
+Blob 2 is the ligand. Let's build a ligand into that:
 
  - File &rarr; Get Monomer
  - `3GP` (this is 3'-guanosine monophosphate)
