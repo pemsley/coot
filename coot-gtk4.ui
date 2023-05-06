@@ -2452,6 +2452,10 @@ Calculate a skeleton now?
                 </child>
                 <child>
                   <object class="GtkComboBoxText" id="change_chain_id_molecule_combobox">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                   </object>
                 </child>
                 <child>
@@ -2591,6 +2595,10 @@ Calculate a skeleton now?
                 <property name="label" translatable="yes">  Cancel  </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_change_chain_cancel_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -2599,6 +2607,13 @@ Calculate a skeleton now?
                 <property name="label" translatable="yes">  Apply New Chain ID  </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_change_chains_rechain_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -7859,6 +7874,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_mask_map_by_atom_selection_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -13132,6 +13150,9 @@ Move a copy?</property>
                 <property name="margin-bottom">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
               </object>
             </child>
