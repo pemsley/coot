@@ -129,7 +129,7 @@ _[Coot adds a sulfate ion using "Jiggle Fit"]_
 Blob 2 is the ligand. Let's build a ligand into that
 
  - File &rarr; Get Monomer
- - `3GP`
+ - `3GP` (this is 3'-guanosine monophosphate)
  - **OK**
  - Check the chemistry (yes the phosphate is on the 3' end)
  - Undisplay the new 3GP using the Display Manager
@@ -167,8 +167,11 @@ _[Coot builds the loop]_
 
 Is there still work to be done?
 
-Maybe. You can use Ctrl Shift Arrow keys to reorient the CYS A 96 if needed (Use Ctrl Arrow keys to rotate the residue (about an axis that's into the screen)).
+Maybe. You can use Ctrl Shift Arrow keys to reorient the CYS A 96 if needed (Use Ctrl Arrow keys to
+rotate the residue (about an axis that's into the screen)).
 
-This tutorial is based on the structure 2sar
+---
 
-`
+This tutorial is based on the structure 2sar.
+
+
