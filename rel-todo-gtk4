@@ -35,6 +35,15 @@ Have a look at adding thing this:
    <class name="suggested-action"/>
 </style>
 after a buttons's properties
+Here are other styles:
+
+    .image-button: used when the button contains only an image
+    .text-button: used when the button contains only a label
+    .flat: used for buttons with no border or background
+    .keyboard-activating: used when the button is activated by keyboard input
+    .suggested-action: used for buttons that are recommended or suggested actions
+    .destructive-action: used for buttons that perform a destructive action, such as deleting data
+    .circular: used for circular buttons
 
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
@@ -47,8 +56,6 @@ call poke_the_refinement().
 
 Coot Points in updating maps ::: 4
 
-Find Waters gui ::: 1
-
 Find Ligands gui ::: 1
 
 Difference Map Peaks ::: 2
@@ -56,8 +63,6 @@ Difference Map Peaks ::: 2
 Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
 
 Start up from Saved state. ::: 1
-
-Ctrl Arrow keys for ligand rotation and translation ::: 2
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
 
@@ -304,3 +309,6 @@ May need revisiting.
 
 Merge Molecules gui ::: 0.5
 
+Find Waters gui ::: 0.4
+
+Ctrl Arrow keys for ligand rotation and translation ::: 1

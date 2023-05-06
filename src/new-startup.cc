@@ -615,7 +615,7 @@ new_startup_application_activate(GtkApplication *application,
 
    g_idle_add(+[](gpointer user_data) -> gboolean {
 
-      application_activate_data* activate_data = (application_activate_data*) user_data;
+      application_activate_data* activate_data = static_cast<application_activate_data*>(user_data);
 
       GtkWindow* splash_screen = GTK_WINDOW(activate_data->splash_screen);
       GtkWidget* app_window = activate_data->app_window;
@@ -749,7 +749,6 @@ int new_startup(int argc, char **argv) {
    gtk_widget_show(splash_screen);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_FLAGS_NONE);
