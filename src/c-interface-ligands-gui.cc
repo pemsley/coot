@@ -96,6 +96,8 @@ GtkWidget *wrapped_create_get_monomer_dialog() {
 //
 int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
+   // 20230506-PE put this in graphics_info_t
+
    int ifound_map, ifound_coords, ifound_ligand;
    short int diff_maps_only_flag = 0;
    graphics_info_t g;
@@ -104,9 +106,9 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    GtkWidget *find_ligand_protein_vbox = widget_from_builder("find_ligand_protein_vbox");
    GtkWidget *find_ligand_map_vbox     = widget_from_builder("find_ligand_map_vbox");
 
-   clear_out_container(find_ligand_map_vbox);
-   clear_out_container(find_ligand_protein_vbox);
-   clear_out_container(find_ligand_ligands_vbox);
+   // clear_out_container(find_ligand_map_vbox);
+   // clear_out_container(find_ligand_protein_vbox);
+   // clear_out_container(find_ligand_ligands_vbox);
 
    ifound_map = fill_ligands_dialog_map_bits(find_ligand_dialog, diff_maps_only_flag);
    if (ifound_map == 0) {
@@ -136,22 +138,28 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       gtk_widget_show(w);
    }
 
-   // The mask waters toggle buttons:
+   // The mask waters radio buttons:
+   //
+   GtkWidget *checkbutton_yes = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
+   GtkWidget *checkbutton_no  = widget_from_builder("find_ligand_mask_waters_no_radiobutton");
+   if (g.find_ligand_mask_waters_flag) {
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton_yes), TRUE);
+   } else {
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton_no), TRUE);
+   }
 
-   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
-   if (g.find_ligand_mask_waters_flag)
-      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), TRUE);
-   else
-      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), FALSE);
 
-
-   // The Search/Here toggle buttons:
+   // The Search/Here radio buttons:
    //
    GtkWidget *search_here_check_button;
+   GtkWidget *search_all_check_button;
    search_here_check_button = widget_from_builder("find_ligands_search_here_radiobutton");
+   search_all_check_button  = widget_from_builder("find_ligands_search_all_radiobutton");
    if (search_here_check_button) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
 	 gtk_check_button_set_active(GTK_CHECK_BUTTON(search_here_check_button), TRUE);
+      else
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(search_all_check_button), TRUE);
    } else {
       std::cout << "ERROR no search here check button" << std::endl;
    }
@@ -232,91 +240,52 @@ int fill_ligands_dialog_map_bits(GtkWidget *find_ligand_dialog,
 
 }
 
-// dialog_name is typically find_ligand_map
 //
+int fill_ligands_dialog_map_combobox(short int diff_maps_only_flag) {
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   GtkWidget *map_combobox = widget_from_builder("find_ligands_map_comboboxtext");
+   gtk_widget_set_visible(map_combobox, TRUE);
+   auto map_list = get_map_molecule_vector();
+   int imol_map_active = -1;
+   if (!map_list.empty()) imol_map_active = map_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active, map_list);
+   return map_list.size(); // checked to see that we have a map to search in
+
+}
+
 int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 						const char *dialog_name,
 						short int diff_maps_only_flag) {
 
-   // this funny passing of the dialog name is used beause I want to use the function
-   // for difference map peaks as well as ligands
-
-   int ifound = 0;
-   graphics_info_t g;
-   // Add map elements:
-   GSList *find_ligand_map_group = NULL;
-   //
-
-   // e.g. can be "generate_diff_map_peaks_map", + _"vbox"
-   std::string vbox_name = dialog_name;
-   vbox_name += "_vbox";
-
-   GtkWidget *find_ligand_map_vbox = widget_from_builder(vbox_name.c_str());
-
-   clear_out_container(find_ligand_map_vbox);
-
-   std::cout << "DEBUG:: in fill_ligands_dialog_map_bits_by_dialog_name() found find_ligand_map_vbox "
-             << find_ligand_map_vbox << std::endl;
-
-   if (find_ligand_map_vbox == NULL) {
-      std::cout << "ERROR:: disaster! find_ligand map vbox not found " << std::endl;
-   } else {
-      for (int imol=0; imol<g.n_molecules(); imol++) {
-	 if (g.molecules[imol].has_xmap()) {
-
-	    if ((!diff_maps_only_flag) ||
-		g.molecules[imol].is_difference_map_p()) {
-
-	       ifound++; // there was a map
-	       std::string map_str(dialog_name);
-	       map_str += "_radiobutton_";
-	       map_str += g.int_to_string(imol);
-	       std::string map_button_label = g.int_to_string(imol);
-	       map_button_label += " ";
-	       map_button_label += g.molecules[imol].name_;
-
-#if (GTK_MAJOR_VERSION >= 4)
-               // 20220602-PE FIXME radio buttons
-               std::cout << "in fill_ligands_dialog_map_bits_by_dialog_name() FIXME new radiobuttons - needs group" << std::endl;
-	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_check_button_new_with_label(map_button_label.c_str());
-#else
-	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_radio_button_new_with_label(find_ligand_map_group, map_button_label.c_str());
-	       find_ligand_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(find_ligand_map_radiobutton_imol));
-               g_object_set_data(G_OBJECT(find_ligand_map_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
-	       g_signal_connect(G_OBJECT(find_ligand_map_radiobutton_imol), "toggled",
-				G_CALLBACK(on_find_ligand_map_radiobutton_imol_toggled),
-				GINT_TO_POINTER(imol));
-	       gtk_widget_show(find_ligand_map_radiobutton_imol);
-#endif
-
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
- 	       gtk_box_append(GTK_BOX(find_ligand_map_vbox), find_ligand_map_radiobutton_imol);
-#else
-	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
-				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
-#endif
-	    }
-	 }
-      }
-   }
-   return ifound;
+   return fill_ligands_dialog_map_combobox(diff_maps_only_flag);
 }
 
 void
 on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
-					    gpointer         user_data) {
+                                            gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
    if (gtk_toggle_button_get_active(togglebutton)) {
       std::cout << "imol " << imol << " active "<< std::endl;
       GtkWidget *w = widget_from_builder("find_ligand_sigma_level_entry");
       if (w) {
-	 if (map_is_difference_map(imol)) {
-	    gtk_editable_set_text(GTK_EDITABLE(w), "3.0");
-	 } else {
-	    gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
-	 }
+         if (map_is_difference_map(imol)) {
+            gtk_editable_set_text(GTK_EDITABLE(w), "3.0");
+         } else {
+            gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
+         }
       }
    }
 }
@@ -324,14 +293,34 @@ on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
 
 int fill_ligands_dialog_protein_bits(GtkWidget *find_ligand_dialog) {
 
-   return fill_ligands_dialog_protein_bits_by_dialog_name(find_ligand_dialog,
-							  "find_ligand_protein");
+   // return fill_ligands_dialog_protein_bits_by_dialog_name(find_ligand_dialog, "find_ligand_protein");
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             if (g.molecules[i].atom_sel.n_selected_atoms > 100)
+                                                vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *coords_combobox = widget_from_builder("find_ligands_coords_comboboxtext");
+   gtk_widget_set_visible(coords_combobox, TRUE);
+   auto model_list = get_model_molecule_vector();
+   int imol_map_active = -1;
+   if (!model_list.empty()) imol_map_active = model_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(  coords_combobox, func, imol_map_active, model_list);
+   return model_list.size(); // checked to see that we have a map to search in
 
 }
 
 
 int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
-						    const char *dialog_name) {
+                                                    const char *dialog_name) {
 
 
    int ifound = 0;
@@ -811,8 +800,8 @@ int execute_get_mols_ligand_search_old(GtkWidget *button) {
 
    // Now, do we mask waters for the protein mask?
 
-   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+   GtkWidget *checkbutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       graphics_info_t::find_ligand_mask_waters_flag = 1;
    else
       graphics_info_t::find_ligand_mask_waters_flag = 0;

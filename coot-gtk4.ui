@@ -4426,14 +4426,15 @@ that you wish to delete.               </property>
             <child>
               <object class="GtkBox" id="vbox47">
                 <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkLabel" id="label75">
-                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label75"> -->
+                <!--     <property name="label" translatable="yes">Select Ligands to Search for:</property> -->
+                <!--     <property name="justify">center</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
                 <child>
                   <object class="GtkFrame" id="frame37">
+                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
                     <property name="margin-start">8</property>
                     <property name="margin-end">8</property>
                     <property name="margin-top">4</property>
@@ -4442,11 +4443,16 @@ that you wish to delete.               </property>
                       <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
                         <child>
                           <object class="GtkViewport" id="viewport16">
+                            <!-- <child> -->
+                            <!--   <object class="GtkBox" id="find_ligand_ligands_vbox"> -->
+                            <!--     <property name="orientation">vertical</property> -->
+                            <!--   </object> -->
+                            <!-- </child> -->
                             <child>
-                              <object class="GtkBox" id="find_ligand_ligands_vbox">
-                                <property name="orientation">vertical</property>
+                              <object class="GtkGrid" id="find_ligands_select_ligands_grid">
                               </object>
                             </child>
+
                           </object>
                         </child>
                       </object>
@@ -4459,27 +4465,24 @@ that you wish to delete.               </property>
               <object class="GtkBox" id="vbox45">
                 <property name="orientation">vertical</property>
                 <property name="spacing">4</property>
-                <child>
-                  <object class="GtkLabel" id="label73">
-                    <property name="label" translatable="yes">Select Map:</property>
-                  </object>
-                </child>
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label73"> -->
+                <!--     <property name="label" translatable="yes">Select Map:</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
                 <child>
                   <object class="GtkFrame" id="frame35">
+                    <property name="label" translatable="yes">Select Map:</property>
+
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_map_scrolledwindow">
-                        <property name="vexpand">1</property>
-                        <child>
-                          <object class="GtkViewport" id="viewport17">
-                            <child>
-                              <object class="GtkBox" id="find_ligand_map_vbox">
-                                <property name="orientation">vertical</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                      <object class="GtkComboBoxText" id="find_ligands_map_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                       </object>
                     </child>
+
                   </object>
                 </child>
               </object>
@@ -4488,30 +4491,28 @@ that you wish to delete.               </property>
               <object class="GtkBox" id="vbox46">
                 <property name="orientation">vertical</property>
                 <property name="spacing">4</property>
+
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label74"> -->
+                <!--     <property name="label" translatable="yes">Select Protein (Masks Map):</property> -->
+                <!--     <property name="justify">center</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
                 <child>
-                  <object class="GtkLabel" id="label74">
+                  <object class="GtkFrame">
                     <property name="label" translatable="yes">Select Protein (Masks Map):</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame36">
                     <property name="margin-start">8</property>
                     <property name="margin-end">8</property>
                     <property name="margin-top">4</property>
                     <property name="margin-bottom">4</property>
+
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_coords_scrolledwindow">
-                        <property name="vexpand">1</property>
-                        <child>
-                          <object class="GtkViewport" id="viewport15">
-                            <child>
-                              <object class="GtkBox" id="find_ligand_protein_vbox">
-                                <property name="orientation">vertical</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                      <object class="GtkComboBoxText" id="find_ligands_coords_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                       </object>
                     </child>
                   </object>
@@ -4536,16 +4537,13 @@ that you wish to delete.               </property>
                     <child>
                       <object class="GtkCheckButton" id="find_ligand_mask_waters_yes_radiobutton">
                         <property name="label" translatable="yes">Treat waters like protein (mask) atoms</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <property name="active">1</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="find_ligand_mask_waters_no_radiobutton">
                         <property name="label" translatable="yes">Ignore waters for mask</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
+                        <property name="active">0</property>
                         <property name="group">find_ligand_mask_waters_yes_radiobutton</property>
                       </object>
                     </child>
@@ -4578,7 +4576,7 @@ that you wish to delete.               </property>
                         <property name="use-underline">1</property>
                         <property name="active">1</property>
                         <property name="group">find_ligands_search_all_radiobutton</property>
-                      </object>b
+                      </object>
                     </child>
 
                   </object>
@@ -13209,29 +13207,32 @@ Move a copy?</property>
           </object>
         </child>
 
-         <child type="action">
-              <object class="GtkBox" id="hbox51">
-                <property name="spacing">12</property>
-                <property name="homogeneous">1</property>
-                <property name="margin-top">6</property>
-                <property name="margin-bottom">6</property>
-                <property name="margin-start">6</property>
-                <property name="margin-end">6</property>
-                <child>
-                  <object class="GtkButton" id="unsaved_changes_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="unsaved_changes_continue_button">
-                    <property name="label" translatable="yes">Continue Exit</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
-                  </object>
-                </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox51">
+            <property name="spacing">12</property>
+            <property name="homogeneous">1</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <child>
+              <object class="GtkButton" id="unsaved_changes_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked" swapped="no"/>
               </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="unsaved_changes_continue_button">
+                <property name="label" translatable="yes">Continue Exit</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
+                <style>
+                  <class name="destructive-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
         </child>
 
       </object>
