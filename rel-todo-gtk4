@@ -17,6 +17,10 @@ Canvas is gone, use widget lists instead (how?)
 
 ----
 
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be highlighted?
+
+
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
@@ -156,6 +160,10 @@ User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 
 CA Baton Mode
+
+New Mesh algorithms:
+https://swiftcoder.wordpress.com/planets/isosurface-extraction/
+https://www.sciencedirect.com/topics/engineering/isosurface-extraction
 
 --- Done Items ---
 

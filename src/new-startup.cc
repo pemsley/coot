@@ -699,7 +699,6 @@ new_startup_application_activate(GtkApplication *application,
       GtkWidget *gl_area = new_startup_create_glarea_widget();
       graphics_info_t::glareas.push_back(gl_area);
       gtk_widget_show(gl_area);
-      // gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area); // crows
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
       gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 300);
