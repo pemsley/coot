@@ -16,7 +16,7 @@ Load the tutorial:
 
  - **Calculate** &rarr; **Load Tutorial Model and Data**
 
-Let's turn on "Updating Maps"
+The map is quite nice looking - the resolution of the data is 1.8 A. Let's turn on "Updating Maps"
 
   - **Calculate** &rarr; **Updating Maps**
   - Check the **Auto-Update** button
@@ -37,7 +37,7 @@ _[A dialog is presented with Interesting/Outliers listed by chain-id and residue
 
 - Click on the first button (for A 2)
 - Take a look at what is interacting with this VAL
-    - It's actually the PHE at A 89 that's wrong.
+    - It's actually the PHE at A 93 that's wrong.
     - Recentre on that residue (middle-mouse click on the CB)
 
 Fix the rotamer:
@@ -168,3 +168,7 @@ _[Coot builds the loop]_
 Is there still work to be done?
 
 Maybe. You can use Ctrl Shift Arrow keys to reorient the CYS A 96 if needed (Use Ctrl Arrow keys to rotate the residue (about an axis that's into the screen)).
+
+This tutorial is based on the structure 2sar
+
+`
