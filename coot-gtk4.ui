@@ -4734,31 +4734,12 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="find_waters_dialog">
     <property name="title" translatable="yes">Coot: Find Waters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox10">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox43">
-                <property name="spacing">10</property>
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="find_waters_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_find_waters_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_waters_ok_button">
-                    <property name="label" translatable="yes">Find Waters</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox54">
             <property name="orientation">vertical</property>
@@ -4812,7 +4793,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel" id="label88">
-                            <property name="label" translatable="yes"> sigma </property>
+                            <property name="label" translatable="yes"> r.m.s.d. </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -4856,11 +4837,48 @@ Do you want to continue?
             </child>
           </object>
         </child>
+
+        <child type="action">
+          <object class="GtkBox" id="hbox43">
+            <property name="spacing">10</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="homogeneous">1</property>
+            <child>
+              <object class="GtkButton" id="find_waters_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_find_waters_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="find_waters_ok_button">
+                <property name="label" translatable="yes">Find Waters</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
+
   <object class="GtkDialog" id="fixed_atom_dialog">
     <property name="title" translatable="yes">Fixed Atoms for Refinement</property>
     <signal name="close" handler="on_fixed_atom_dialog_close" swapped="no"/>
