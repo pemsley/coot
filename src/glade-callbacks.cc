@@ -5397,12 +5397,12 @@ on_column_labels_use_resolution_limits_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_merge_molecules_ok_button_clicked   (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("merge_molecules_dialog");
-  do_merge_molecules(w);
-  gtk_widget_hide(w);
+on_merge_molecules_ok_button_clicked(GtkButton       *button,
+                                     gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("merge_molecules_dialog");
+   do_merge_molecules(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -10056,7 +10056,8 @@ on_find_ligands_search_here_radiobutton_toggled
                                         (GtkButton       *button,
                                         gpointer         user_data) {
 
-  set_ligand_dialog_number_of_sites_sensitivity(GTK_WIDGET(button));
+  // 2023-05-07-PE this function has gone? fix this one day.
+  // set_ligand_dialog_number_of_sites_sensitivity(GTK_WIDGET(button));
 
 }
 

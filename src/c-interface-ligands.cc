@@ -767,7 +767,7 @@ void execute_ligand_search() {
       // is run in install_simple_wiggly_ligand_idle_fn()
 
       if (lwld.immediate_execute_ligand_search)
-	 execute_ligand_search_internal(lwld.wlig);
+	      execute_ligand_search_internal(lwld.wlig);
 
    } else {
       ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
@@ -824,13 +824,13 @@ ligand_search_install_wiggly_ligands() {
    for(unsigned int i=0; i<ligands.size(); i++) {
 
       std::cout << "INFO:: ligand number " << i << " is molecule number "
-		<< g.find_ligand_ligand_mols()[i].first << "  "
-		<< " with wiggly flag: "
-		<< g.find_ligand_ligand_mols()[i].second << std::endl;
+		          << g.find_ligand_ligand_mols()[i].first << "  "
+		          << " with wiggly flag: "
+		          << g.find_ligand_ligand_mols()[i].second << std::endl;
 
       if (ligands[i].second) {
-	 // argh (i).
-	 coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+	      // argh (i).
+	      coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
 
 //	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
 // 	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
@@ -843,49 +843,49 @@ ligand_search_install_wiggly_ligands() {
 //	    }
 //	 }
 
-	 // std::pair<short int, std::string> istat_pair =
-	 try {
-	    bool optim_geom = true;
-	    bool fill_vec = false;
+	      // std::pair<short int, std::string> istat_pair =
+	      try {
+	         bool optim_geom = true;
+	         bool fill_vec = false;
 
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
-	       lfwd.imol_ligand = ligands[i].first;
-	       lfwd.progress_bar        = lfwd_local.progress_bar;
-	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
-	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
-	       lfwd.immediate_execute_ligand_search = false;
+	         if (graphics_info_t::use_graphics_interface_flag) {
+	            ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
+               lfwd.imol_ligand = ligands[i].first;
+               lfwd.progress_bar        = lfwd_local.progress_bar;
+               lfwd.progress_bar_window = lfwd_local.progress_bar_window;
+               lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+               lfwd.immediate_execute_ligand_search = false;
 
-	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
+               setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
 
-	       // this GtkFunction returns a gint and takes a widget
-	       // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
-	       // progress_bar);
+               // this GtkFunction returns a gint and takes a widget
+               // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
+               // progress_bar);
 
-	       // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
-	       // g.ligand_wiggly_ligand_n_samples,
-	       // optim_geom, fill_vec);
+               // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+               // g.ligand_wiggly_ligand_n_samples,
+               // optim_geom, fill_vec);
 
-	    } else {
+	         } else {
                unsigned int n_threads = coot::get_max_number_of_threads();
                ctpl::thread_pool thread_pool(n_threads);
-	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+	            wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
 						     optim_geom, fill_vec, &thread_pool, n_threads);
-	    }
-	 }
-	 catch (const std::runtime_error &mess) {
-	    std::cout << "ERROR:: failure in flexible ligand definition.\n";
-	    std::cout << mess.what() << std::endl;
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	       gtk_widget_show(w);
-	    }
-	    // return solutions;
-	 }
+	         }
+	      }
+	      catch (const std::runtime_error &mess) {
+	         std::cout << "ERROR:: failure in flexible ligand definition.\n";
+	         std::cout << mess.what() << std::endl;
+	         if (graphics_info_t::use_graphics_interface_flag) {
+	            GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
+	            gtk_widget_show(w);
+	         }
+	         // return solutions;
+	      }
       } else {
-	 // argh (ii).
-	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
+	      // argh (ii).
+	      wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
    return lfwd;
@@ -897,6 +897,9 @@ std::vector<int>
 execute_ligand_search_internal(coot::wligand *wlig_p) {
 
    std::vector<int> solutions;
+
+   std::cout << "in execute_ligand_search_internal() find_ligand_here_cluster_flag "
+             << graphics_info_t::find_ligand_here_cluster_flag << std::endl;
 
    graphics_info_t g;
 
@@ -916,6 +919,12 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       return solutions;
    }
 
+   std::cout << "::::::: Debug in execute_ligand_search" << g.find_ligand_ligand_mols().size() << std::endl;
+   for (size_t i=0; i < g.find_ligand_ligand_mols().size(); i++) {
+      std::cout << i << " " << g.find_ligand_ligand_mols()[i].first << " " << g.find_ligand_ligand_mols()[i].second << std::endl;
+   }
+
+
    mmdb::Manager *protein_mol =
       g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
 
@@ -926,21 +935,20 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       wlig_p->set_debug_wiggly_ligands();
    }
 
-   std::cout << "in execute_ligand_search_internal() import maps from mol "
-	     << g.find_ligand_map_mol() << std::endl;
+   std::cout << ":::::::::::: in execute_ligand_search_internal() import maps from mol "
+	          << g.find_ligand_map_mol() << std::endl;
    wlig_p->import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
-
 
    short int mask_waters_flag; // treat waters like other atoms?
    mask_waters_flag = g.find_ligand_mask_waters_flag;
    if (! g.find_ligand_here_cluster_flag) {
       int imol = graphics_info_t::create_molecule();
       if (graphics_info_t::map_mask_atom_radius > 0) {
-	 // only do this if it was set by the user.
-	 wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	      // only do this if it was set by the user.
+	      wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
       } else {
-	 wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
+	      wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
       }
 
       std::string name("ligand masked map");
@@ -994,8 +1002,8 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 
       // false is the default case
       if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
-	 nlc = 1;
-	 correl_frac_lim = 0.975;
+	      nlc = 1;
+	      correl_frac_lim = 0.975;
       }
 
       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
@@ -1380,13 +1388,6 @@ void do_find_ligands_dialog() {
 
       // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
       set_transient_for_main_window(dialog);
-
-      // add expansions for the scrolled windows
-      GtkWidget    *map_scrolled_window = widget_from_builder("find_ligands_map_scrolledwindow");
-      GtkWidget *coords_scrolled_window = widget_from_builder("find_ligands_coords_scrolledwindow");
-
-      gtk_widget_set_size_request(   map_scrolled_window, -1, 70);
-      gtk_widget_set_size_request(coords_scrolled_window, -1, 70);
 
       gtk_widget_show(dialog);
    }

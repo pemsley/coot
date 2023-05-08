@@ -654,32 +654,32 @@ void execute_recover_session(GtkWidget *widget) {
 
 GtkWidget *wrapped_create_merge_molecules_dialog() {
 
-   // GtkWidget *w = create_merge_molecules_dialog();
    GtkWidget *w = widget_from_builder("merge_molecules_dialog");
+
    // fill the dialog here
    // GtkWidget *molecule_option_menu = lookup_widget(w, "merge_molecules_optionmenu");
-   // GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");   
+   // GtkWidget *combobox = lookup_widget(w, "merge_molecules_combobox");
    // GtkWidget *molecules_vbox       = lookup_widget(w, "merge_molecules_vbox");
 
-   GtkWidget *combobox       = widget_from_builder("merge_molecules_combobox");   
+   GtkWidget *combobox       = widget_from_builder("merge_molecules_combobox");
    GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
    // GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(merge_molecules_menu_item_activate);
    GCallback callback_func = G_CALLBACK(merge_molecules_master_molecule_combobox_changed);
 
-   GCallback checkbox_callback_func = G_CALLBACK(on_merge_molecules_check_button_toggled);
+   GCallback checkbox_callback_func = G_CALLBACK(nullptr);
 
-   // the ligands vbox
+   // the molecules vbox
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
 
    int imol_master = graphics_info_t::merge_molecules_master_molecule;
    if (imol_master == -1) {
       for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-	 if (graphics_info_t::molecules[i].has_model()) {
-	    graphics_info_t::merge_molecules_master_molecule = i;
-	    imol_master = i;
-	    break;
-	 }
+	      if (graphics_info_t::molecules[i].has_model()) {
+	         graphics_info_t::merge_molecules_master_molecule = i;
+	         imol_master = i;
+	         break;
+	      }
       }
    }
 
@@ -718,49 +718,28 @@ void merge_molecules_master_molecule_combobox_changed(GtkWidget *combobox,
 }
 
 void fill_vbox_with_coordinates_options(GtkWidget *dialog,
-					GCallback checkbox_callback_func) {
+					                         GCallback checkbox_callback_func) {
 
-   GtkWidget *checkbutton;
-   std::string button_label;
-   // GtkWidget *molecules_vbox = lookup_widget(dialog, "merge_molecules_vbox");
    GtkWidget *molecules_vbox = widget_from_builder("merge_molecules_vbox");
 
    // Unset any preconceived notion of merging molecules:
    //
-   graphics_info_t::merge_molecules_merging_molecules->clear();
+   // graphics_info_t::merge_molecules_merging_molecules->clear();
 
    gtk_box_set_spacing(GTK_BOX(molecules_vbox), 4);
 
-   for (int i=0; i<graphics_info_t::n_molecules(); i++) {
-      if (graphics_info_t::molecules[i].has_model()) {
-	 button_label = graphics_info_t::int_to_string(i);
-	 button_label += " ";
-	 button_label += graphics_info_t::molecules[i].name_for_display_manager();
-	 std::string button_name = "merge_molecules_checkbutton_";
-	 button_name += graphics_info_t::int_to_string(i);
+   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+      if (graphics_info_t::molecules[imol].has_model()) {
+         std::string button_label;
+	      button_label = graphics_info_t::int_to_string(imol);
+	      button_label += " ";
+	      button_label += graphics_info_t::molecules[imol].name_for_display_manager();
+	      std::string button_name = "merge_molecules_checkbutton_";
+	      button_name += graphics_info_t::int_to_string(imol);
 
-	 checkbutton = gtk_check_button_new_with_label(button_label.c_str());
-  	 // gtk_widget_ref (checkbutton);
-  	 g_object_set_data_full(G_OBJECT (dialog),
-				button_name.c_str(), checkbutton,
-				NULL);
-	 // The callback (if active) adds this molecule to the merging molecules list.
-	 // If not active, it tries to remove it from the list.
-	 //
-	 // Why am I doing it like this instead of just looking at the
-	 // state of the checkbutton when the OK button is pressed?
-	 // Because (for the life of me) I can't seem to correctly
-	 // lookup the checkbuttons from the button (or dialog for
-	 // that matter).
-	 //
-	 //  We look at the state when the
-	 // "Merge" button is pressed - we don't need a callback to do
-	 // that.
-	 //
-  	 g_signal_connect(G_OBJECT (checkbutton), "toggled",
-			  G_CALLBACK(checkbox_callback_func),
-			  GINT_TO_POINTER(i));
-	 gtk_widget_show(checkbutton);
+	      GtkWidget *checkbutton = gtk_check_button_new_with_label(button_label.c_str());
+         g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
+         gtk_widget_show(checkbutton);
          gtk_box_append(GTK_BOX(molecules_vbox), checkbutton);
       }
    }
@@ -769,18 +748,18 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 // The callback (if active) adds this molecule to the merging molecules list.
 // If not active, it tries to remove it from the list.
 //
-void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
-					      gpointer         user_data) {
+void on_merge_molecules_check_button_toggled(GtkCheckButton *checkbutton,
+					                              gpointer        user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       std::cout << "INFO:: adding molecule " << imol << " to merging list\n";
       graphics_info_t::merge_molecules_merging_molecules->push_back(imol);
    } else {
       std::cout << "INFO:: removing molecule " << imol << " from merging list\n";
       if (coot::is_member_p(*graphics_info_t::merge_molecules_merging_molecules, imol)) {
-	 // passing a pointer
-	 coot::remove_member(graphics_info_t::merge_molecules_merging_molecules, imol);
+	      // passing a pointer
+	      coot::remove_member(graphics_info_t::merge_molecules_merging_molecules, imol);
       }
    }
 }
@@ -797,20 +776,36 @@ void do_merge_molecules_gui() {
 //
 void do_merge_molecules(GtkWidget *dialog) {
 
-   std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
-   if (add_molecules.size() > 0) {
+   auto get_molecules_for_merging = [] () {
+      std::vector<int> v;
+      GtkWidget *box = widget_from_builder("merge_molecules_vbox");
+      GtkWidget *item_widget = gtk_widget_get_first_child(box);
+      while (item_widget) {
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(item_widget))) {
+            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+            v.push_back(imol);
+         }
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+      };
+      return v;
+   };
+
+   // std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
+   std::vector<int> add_molecules = get_molecules_for_merging();
+
+   if (!add_molecules.empty()) {
 
       if (true)
-	 std::cout << "calling merge_molecules_by_vector into "
-		   << graphics_info_t::merge_molecules_master_molecule
-		   << " n-molecules " << add_molecules.size()
-		   << " starting with " << add_molecules[0]
-		   << std::endl;
+         std::cout << "calling merge_molecules_by_vector into "
+                  << graphics_info_t::merge_molecules_master_molecule
+                  << " n-molecules " << add_molecules.size()
+                  << " starting with " << add_molecules[0]
+                  << std::endl;
+
       std::pair<int, std::vector<merge_molecule_results_info_t> > stat =
-	 merge_molecules_by_vector(add_molecules,
-				   graphics_info_t::merge_molecules_master_molecule);
-      if (stat.first)
-	 graphics_draw();
+         merge_molecules_by_vector(add_molecules, graphics_info_t::merge_molecules_master_molecule);
+         if (stat.first)
+            graphics_draw();
    }
 }
 

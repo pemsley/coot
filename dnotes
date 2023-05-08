@@ -10933,3 +10933,10 @@ void graphics_info_t::remove_data_glob_extension(const std::string &extension)
 void graphics_info_t::remove_map_glob_extension(const std::string &extension)
 void graphics_info_t::remove_dictionary_glob_extension(const std::string &extension)
 
+
+---
+Mon  8 May 2023 03:33:30 BST
+
+   Make a macro for this function:
+         g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
+

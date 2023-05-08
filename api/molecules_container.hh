@@ -2,11 +2,11 @@
 #ifndef MOLECULES_CONTAINER_HH
 #define MOLECULES_CONTAINER_HH
 
-#include <vector>
-
 #ifdef SWIG
 #include "Python.h"
 #endif
+
+#include <vector>
 
 #ifdef HAVE_SSMLIB
 #include <ssm/ssm_align.h>

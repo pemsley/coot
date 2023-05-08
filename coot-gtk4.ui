@@ -4656,7 +4656,7 @@ that you wish to delete.               </property>
                     <property name="orientation">vertical</property>
 
                     <child>
-                      <object class="GtkCheckButton" id="find_ligands_multi_solution_checkbutton">
+                      <object class="GtkCheckButton" id="find_ligand_multi_solution_checkbutton">
                         <property name="label" translatable="yes">Multi-Solutions</property>
                         <property name="active">0</property>
                         <property name="margin-start">8</property>
@@ -4712,7 +4712,6 @@ that you wish to delete.               </property>
                             </layout>
                           </object>
                         </child>
-                        
 
                       </object>
                     </child>
@@ -8063,13 +8062,17 @@ density (too big to be waters):
                   </object>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="merge_molecuoes_scrolledwindow">
+                  <object class="GtkScrolledWindow" id="merge_molecules_scrolledwindow">
                     <property name="height-request">280</property>
                     <child>
-                      <object class="GtkViewport" id="viewport7">
+                      <object class="GtkViewport">
                         <child>
                           <object class="GtkBox" id="merge_molecules_vbox">
                             <property name="orientation">vertical</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
                           </object>
                         </child>
                       </object>

@@ -90,4 +90,4 @@ _coot_headless_api_la_CXXFLAGS = -DUSE_PYTHON -DSWIG
 
 _coot_headless_api_la_LIBADD = libcoot-api.la
 
-_coot_headless_api_la_LDFLAGS  = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_headless_api_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
