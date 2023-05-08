@@ -52,6 +52,8 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 Restart the refinement on button-release when dragging an atom ::: 1
 call poke_the_refinement().
 
+Pulling on atoms during refinement doesn't work with trackpad on macOS.
+
 "All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
 
 Coot Points in updating maps ::: 4
