@@ -52,13 +52,9 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 Restart the refinement on button-release when dragging an atom ::: 1
 call poke_the_refinement().
 
-Pulling on atoms during refinement doesn't work with trackpad on macOS.
-
-"All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Coot Points in updating maps ::: 4
-
-Find Ligands gui ::: 1
 
 Difference Map Peaks ::: 2
 
@@ -309,8 +305,13 @@ Key-binding for "clear all atom labels" ::: 0.25
 Key-bindings in general ::: 1
 May need revisiting.
 
-Merge Molecules gui ::: 0.5
+Merge Molecules gui ::: 1.0
 
 Find Waters gui ::: 0.4
 
 Ctrl Arrow keys for ligand rotation and translation ::: 1
+
+"All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+
+Find Ligands gui ::: 3
+
