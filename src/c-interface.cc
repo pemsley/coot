@@ -5954,7 +5954,6 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
       if (is_valid_map_molecule(imol))
          display_control_vbox = widget_from_builder("display_map_vbox");
       if (GTK_IS_BOX(display_control_vbox)) {
-         std::cout << "HERE B" << std::endl;
          GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
          while (item_widget) {
             GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
