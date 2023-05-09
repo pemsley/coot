@@ -2888,17 +2888,16 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 }
 
 void
-graphics_info_t::clear_out_container(GtkWidget *vbox) {
+graphics_info_t::clear_out_container(GtkWidget *box) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "FIXME in clear_out_container()" << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
-
-   if (GTK_IS_BOX(vbox))
-      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   if (box) {
+      GtkWidget *item_widget = gtk_widget_get_first_child(box);
+      while (item_widget) {
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         gtk_box_remove(GTK_BOX(box), w);
+      };
+   }
 }
 
 
@@ -4729,6 +4728,8 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
 
    // does nothing if the diff map peaks dialog is not realized.
 
+   std::cout << "fill_difference_map_peaks_button_box() --- start ---" << std::endl;
+
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                          float map_sigma) {
 
@@ -4754,13 +4755,16 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-                                                  clear_out_container(button_vbox);
-                                                  // a cutn'paste jobby from fill_rotamer_selection_buttons().
-                                                  for (unsigned int i=0; i<centres.size(); i++) {
-                                                     std::string label = make_label(i, centres, map_sigma);
+                                                   std::cout << "------ there are " << centres.size() << " centres" << std::endl;
+                                                   clear_out_container(button_vbox);
+                                                   // a cutn'paste jobby from fill_rotamer_selection_buttons().
+                                                   GtkWidget *group_button = nullptr; // initially
+                                                   for (unsigned int i=0; i<centres.size(); i++) {
+                                                      std::string label = make_label(i, centres, map_sigma);
 #if (GTK_MAJOR_VERSION >= 4)
-                                                     // 20220528-PE FIXME radio buttons
-                                                     std::cout << "in fill_difference_map_button_box_inner() FIXME " << std::endl;
+                                                      // 20220528-PE FIXME radio buttons
+                                                      GtkWidget *radio_button = gtk_check_button_new_with_label(label.c_str());
+
 #else
                                                      GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
                                                      std::string button_name = "difference_map_peaks_button_";
@@ -4808,12 +4812,18 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                  coot::peak_search ps(molecules[imol_map].xmap);
                                  ps.set_max_closeness(difference_map_peaks_max_closeness);
                                  std::vector<std::pair<clipper::Coord_orth, float> > centres;
-                                 if (is_valid_model_molecule(imol_coords))
-                                    if (is_valid_map_molecule(imol_map))
+                                 std::cout << "HHHHHHHHere A imol_coords " << imol_coords << std::endl;
+                                 if (is_valid_model_molecule(imol_coords)) {
+                                    std::cout << "HHHHHHHHere B imol_map " << imol_map << std::endl;
+                                    if (is_valid_map_molecule(imol_map)) {
+                                       std::cout << "HHHHHHHHere C" << std::endl;
+                                       std::cout << "calling ps.get_peaks() -------" << std::endl;
                                        centres = ps.get_peaks(molecules[imol_map].xmap,
                                                               molecules[imol_coords].atom_sel.mol,
                                                               n_sigma, do_positive_level_flag, do_negative_level_flag,
                                                               around_model_only_flag);
+                                    }
+                                 }
                                  return centres;
                               };
 
@@ -4822,6 +4832,7 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
    if (gtk_widget_get_realized(dialog) || force_fill) {
       std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(dialog);
+      std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
       GSList *diff_map_group = NULL;  // Hmm.
       float map_sigma = 0.5;
       int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));

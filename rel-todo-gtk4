@@ -15,21 +15,6 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
-----
-
-Wed  3 May 2023 14:43:36 BST
-check the HUD NBC blocks in 89A - shouldn't lots of them be highlighted?
-
-
-Sun 23 Apr 21:33:42 BST 2023
-
-   void HUDTextureMesh::setup_buffers() { ...
-   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
-
-   Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-Fix "Edit Chi Angles" button ::: 1
-
 Have a look at adding thing this:
 <style>
    <class name="suggested-action"/>
@@ -46,6 +31,22 @@ Here are other styles:
     .circular: used for circular buttons
 
 
+----
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
+Sun 23 Apr 21:33:42 BST 2023
+
+   void HUDTextureMesh::setup_buffers() { ...
+   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+
+   Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
+
+Difference Map Peaks ::: 2
+
+Fix "Edit Chi Angles" button ::: 1
+
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
 
@@ -53,10 +54,6 @@ Restart the refinement on button-release when dragging an atom ::: 1
 call poke_the_refinement().
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Coot Points in updating maps ::: 4
-
-Difference Map Peaks ::: 2
 
 Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
 
@@ -316,4 +313,6 @@ Ctrl Arrow keys for ligand rotation and translation ::: 1
 "All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
 
 Find Ligands gui ::: 3
+
+Coot Points in updating maps ::: 4
 

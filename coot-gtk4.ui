@@ -720,6 +720,10 @@
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
         <item>
+          <attribute name="label">Difference Map Peaks...</attribute>
+          <attribute name="action">app.difference_map_peaks_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
         </item>
@@ -3817,14 +3821,6 @@ that you wish to delete.               </property>
     <child>
       <object class="GtkBox" id="dialog-vbox78">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="diff_map_peaks_dialog_ok_button">
-                <property name="label" translatable="yes">   Close   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_diff_map_peaks_dialog_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow18">
             <child>
@@ -3853,9 +3849,15 @@ that you wish to delete.               </property>
             <signal name="clicked" handler="on_diff_map_peaks_dialog_update_button_clicked" swapped="no"/>
           </object>
         </child>
+         <child type="action">
+              <object class="GtkButton" id="diff_map_peaks_dialog_ok_button">
+                <property name="label" translatable="yes">   Close   </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_diff_map_peaks_dialog_ok_button_clicked" swapped="no"/>
+              </object>
+        </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -5220,6 +5222,7 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="general_coot_molecule_chooser_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response" swapped="no"/>
@@ -5249,6 +5252,7 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="general_coot_molecule_chooser_with_entry_and_checkbutton_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response" swapped="no"/>
@@ -5296,31 +5300,16 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="generate_diff_map_peaks_dialog">
-    <property name="title" translatable="yes">Difference Map Peak Analysis</property>
+    <property name="title" translatable="yes">Coot: Difference Map Peak Analysis</property>
     <child>
       <object class="GtkBox" id="dialog-vbox79">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox116">
-                <child>
-                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
-                    <property name="label" translatable="yes">     OK     </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkFrame" id="frame138">
             <child>
@@ -5331,6 +5320,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkBox" id="generate_diff_map_peaks_map_vbox">
                         <property name="orientation">vertical</property>
+
                         <child>
                           <object class="GtkFrame" id="no_difference_maps_frame1">
                             <child>
@@ -5341,6 +5331,12 @@ Do you want to continue?
                             </child>
                           </object>
                         </child>
+
+                        <child>
+                           <object class="GtkComboBoxText" id="generate_diff_map_peaks_map_combobox">
+                           </object>
+                        </child>
+
                       </object>
                     </child>
                     <child type="label">
@@ -5351,12 +5347,13 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame140">
+                  <object class="GtkFrame" id="generate_diff_map_peaks_model_frame">
                     <child>
                       <object class="GtkBox" id="generate_diff_map_peaks_model_vbox">
                         <property name="orientation">vertical</property>
+
                         <child>
-                          <object class="GtkFrame" id="no_models_frame">
+                          <object class="GtkFrame" id="generate_diff_maps_peaks_no_models_frame">
                             <child>
                               <object class="GtkLabel" id="label228">
                                 <property name="label" translatable="yes">WARNING:: No Models Available</property>
@@ -5365,6 +5362,12 @@ Do you want to continue?
                             </child>
                           </object>
                         </child>
+
+                        <child>
+                           <object class="GtkComboBoxText" id="generate_diff_map_peaks_molecule_combobox">
+                          </object>
+                        </child>
+
                       </object>
                     </child>
                     <child type="label">
@@ -5393,8 +5396,10 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel" id="label230">
-                            <property name="label" translatable="yes">  sigma  </property>
+                            <property name="label" translatable="yes">  sigma    </property>
                             <property name="justify">center</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
                           </object>
                         </child>
                       </object>
@@ -5408,6 +5413,10 @@ Do you want to continue?
                 </child>
                 <child>
                   <object class="GtkFrame" id="negative_level_frame">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="vbox165">
                         <property name="orientation">vertical</property>
@@ -5440,13 +5449,49 @@ Do you want to continue?
             </child>
           </object>
         </child>
+        <child>
+           <object class="GtkSeparator">
+           </object>
+        </child>
+        <child type="action">
+              <object class="GtkBox" id="hbox116">
+                 <property name="margin-start">4</property>
+                 <property name="margin-end">4</property>
+                 <property name="margin-top">4</property>
+                 <property name="margin-bottom">4</property>
+                <child>
+                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
+                     <property name="label" translatable="yes">  Cancel  </property>
+                     <property name="can-focus">1</property>
+                     <property name="margin-start">6</property>
+                     <property name="margin-end">6</property>
+                     <property name="margin-top">4</property>
+                     <property name="margin-bottom">4</property>
+                     <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
+                     <property name="label" translatable="yes">      OK      </property>
+                     <property name="can-focus">1</property>
+                     <property name="margin-start">6</property>
+                     <property name="margin-end">6</property>
+                     <property name="margin-top">4</property>
+                     <property name="margin-bottom">4</property>
+                     <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked" swapped="no"/>
+                     <style>
+                        <class name="suggested-action"/>
+                     </style>
+                  </object>
+                </child>
+              </object>
+        </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="generic_objects_dialog">
-    <property name="title" translatable="yes">Coot Generic Objects</property>
+    <property name="title" translatable="yes">Coot: Generic Objects</property>
     <property name="default-width">400</property>
     <property name="default-height">360</property>
     <signal name="response" handler="on_generic_objects_dialog_response" swapped="no"/>

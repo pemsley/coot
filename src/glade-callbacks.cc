@@ -6313,11 +6313,11 @@ on_diff_map_peaks_dialog_ok_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_diff_map_peaks_dialog_update_button_clicked(GtkButton       *button,
-                                                                   gpointer         user_data) {
+on_diff_map_peaks_dialog_update_button_clicked(GtkButton *button,
+                                                gpointer         user_data) {
    graphics_info_t g;
    g.fill_difference_map_peaks_button_box(true); // force fill.
-   
+
 }
 
 extern "C" G_MODULE_EXPORT
@@ -6346,11 +6346,13 @@ on_generate_diff_map_peaks_cancel_button_clicked
 }
 
 
+
+// This should not be needed now that we have menu actions.
 extern "C" G_MODULE_EXPORT
 void
 on_difference_map_peaks1_activate (GMenuItem     *menuitem,
-                                                       gpointer         user_data)
-{
+                                   gpointer         user_data) {
+
   GtkWidget *w = wrapped_create_generate_diff_map_peaks_dialog();
   gtk_widget_show(w);
 }

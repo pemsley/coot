@@ -1718,15 +1718,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-#ifdef HAVE_GOOCANVAS
-   GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
-   if (w) {
-      coot::rama_plot *plot = static_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
-      std::cout << "debug:: accept_moving_atoms:: updating rama plot for " << imol_moving_atoms << std::endl;
-      handle_rama_plot_update(plot);
-      update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);
-   }
-#endif
+   std::cout << "debug:: accept_moving_atoms:: GTK4 update: update rama plot for " << imol_moving_atoms << std::endl;
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
@@ -6640,11 +6632,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                            molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
                            molecules[imol_updating_difference_map].set_mean_and_sigma(false, ignore_pseudo_zeros_for_map_stats);
                            molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
-
-#ifndef EMSCRIPTEN // maybe put the condition inside fill_difference_map_peaks_button_box()?
                            fill_difference_map_peaks_button_box(); // do nothing if widget not realized.
-#endif
-
                         }
                         on_going_updating_map_lock = false;
                      } else {
@@ -6689,12 +6677,9 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                    clipper::Xmap<float> *xmap_2fofc_p, // 2mFo-DFc I mean, of course
                                                    clipper::Xmap<float> *xmap_fofc_p) {
 
-   std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() start " << std::endl;
-
    coot::util::sfcalc_genmap_stats_t stats;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
-         std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() A " << std::endl;
          try {
             if (! on_going_updating_map_lock) {
                on_going_updating_map_lock = true;
@@ -6709,12 +6694,10 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                clipper::HKL_data<clipper::data32::F_sigF> *fobs_data_p = molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
                clipper::HKL_data<clipper::data32::Flag>   *free_flag_p = molecules[imol_map_with_data_attached].get_original_rfree_flags();
 
-               std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() B " << std::endl;
                if (fobs_data_p && free_flag_p) {
 
                   if (true) {
 
-                     std::cout << "3333333333333333333333333333333333333333 graphics_info_t::sfcalc_genmaps_using_bulk_solvent() C " << std::endl;
                      // sanity check data
                      const clipper::HKL_info &hkls_check = fobs_data_p->base_hkl_info();
                      const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
@@ -6735,6 +6718,8 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                   }
 
                   stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, xmap_2fofc_p, xmap_fofc_p);
+
+                  // call fill_difference_map_peaks_button_box() from here like above.
 
                } else {
                   std::cout << "ERROR:: null data pointer in graphics_info_t::sfcalc_genmaps_using_bulk_solvent() " << std::endl;
