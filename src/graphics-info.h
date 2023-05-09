@@ -4693,6 +4693,7 @@ string   static std::string sessionid;
                                      int imol_map_with_data_attached,
                                      clipper::Xmap<float> *xmap_2fofc_p,
                                      clipper::Xmap<float> *xmap_fofc_p);
+   static coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
 
    static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
 

@@ -7134,18 +7134,14 @@ on_residue_info_occ_apply_to_altconf_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_residue_info_b_factor_apply_all_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-   // GtkWidget *entry = widget_from_builder("residue_info_master_atom_b_factor_entry");
+                                        (GtkCheckButton *checkbutton,
+                                        gpointer         user_data) {
 
    GtkWidget *entry = widget_from_builder("residue_info_master_atom_b_factor_entry");
-
-  if (gtk_toggle_button_get_active(togglebutton))
-    gtk_widget_set_sensitive(entry, TRUE);
-  else
-    gtk_widget_set_sensitive(entry, FALSE);
+   if (gtk_check_button_get_active(checkbutton))
+      gtk_widget_set_sensitive(entry, TRUE);
+   else
+      gtk_widget_set_sensitive(entry, FALSE);
 }
 
 
@@ -7154,12 +7150,8 @@ extern "C" G_MODULE_EXPORT
 void
 on_other_modelling_tools_close_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   // GtkWidget *w = widget_from_builder("other_model_tools_dialog");
+                                        gpointer         user_data) {
    GtkWidget *w = widget_from_builder("other_model_tools_dialog");
-
-   // gtk_widget_hide(w);
    gtk_widget_hide(w);
 }
 

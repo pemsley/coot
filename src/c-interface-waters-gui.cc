@@ -35,7 +35,7 @@
 #include <windows.h>
 #define snprintf _snprintf
 #endif
- 
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include <vector>
@@ -367,25 +367,25 @@ execute_find_waters() {
       float f2 = atof(t2);
       // slam in the distances to the static vars directly (not as
       // arguments to find_waters_real()).
-      g.ligand_water_to_protein_distance_lim_max = f1;      
+      g.ligand_water_to_protein_distance_lim_max = f1;
       g.ligand_water_to_protein_distance_lim_min = f2;
    }
 
    // Should the waters be added to a new molecule or the masking molecule?
    //
-   bool new_waters_mol_flag = true; // 1 mean a new molecule,
-				    // 0 means the masking molecule.
-   
-   // GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_protein_mask_radiobutton");
-   GtkWidget *waters_toggle_button = widget_from_builder("water_mol_protein_mask_radiobutton");
+   bool new_waters_mol_flag = true; // 1 means a new molecule,
+				                        // 0 means the masking molecule.
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
+   // GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_protein_mask_radiobutton");
+   GtkWidget *waters_check_button = widget_from_builder("water_mol_protein_mask_radiobutton");
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(waters_check_button)))
       new_waters_mol_flag = false;
    // waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_new_mol_radiobutton");
-   waters_toggle_button = widget_from_builder("water_mol_new_mol_radiobutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
+   waters_check_button = widget_from_builder("water_mol_new_mol_radiobutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(waters_check_button)))
       new_waters_mol_flag = true;
-   
+
    if (find_waters_map_mol != -1 && find_waters_protein_mol != -1) {
       execute_find_waters_real(find_waters_map_mol,
 			       find_waters_protein_mol,
@@ -395,27 +395,27 @@ execute_find_waters() {
       graphics_draw();
    } else {
       std::cout << "ERROR:: Something wrong in the selection of map/molecule" << std::endl;
-   } 
+   }
 }
 
 
-// fire up a waters dialog.  
-// 
+// fire up a waters dialog.
+//
 void find_waters(int imol_for_map,
 		 int imol_for_protein,
-		 short int new_waters_mol_flag, 
+		 short int new_waters_mol_flag,
 		 float sigma_cut_off,
 		 short int show_blobs_dialog) {
 
    if (!is_valid_model_molecule(imol_for_protein)) {
       std::cout << "WARNING:: in find_waters " << imol_for_protein
-		<< " is not a valid model" << std::endl;
-   } else { 
+		          << " is not a valid model" << std::endl;
+   } else {
       if (!is_valid_map_molecule(imol_for_map)) {
-	 std::cout << "WARNING:: in find_waters " << imol_for_map
-		   << " is not a valid map" << std::endl;
-      } else { 
-	 coot::ligand lig;
+	      std::cout << "WARNING:: in find_waters " << imol_for_map
+		             << " is not a valid map" << std::endl;
+      } else {
+	      coot::ligand lig;
 	 graphics_info_t g;
 	 int n_cycles = g.ligand_water_n_cycles; // 3 by default
 

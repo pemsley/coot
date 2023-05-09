@@ -10425,6 +10425,8 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                   coot::util::sfcalc_genmap_stats_t stats =
                      g.sfcalc_genmaps_using_bulk_solvent(imol_coords, imol_data, xmap_2fofc_p, xmap_fofc_p);
 
+                  g.latest_sfcalc_stats = stats;
+
                   // 20230501-PE tweak the contour levels so that the levels (number of lines in the mesh)
                   // are about the same
                   //

@@ -97,12 +97,14 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
    std::cout << "------------- update the overlay!" << std::endl;
 
    GtkWidget *label_1 = get_widget_from_builder("coot-points-frame-points-label");
-   GtkWidget *label_2 = get_widget_from_builder("coot-points-frame-r-factor-label");
-   GtkWidget *label_3 = get_widget_from_builder("coot-points-frame-free-r-factor-label");
+   GtkWidget *label_2 = get_widget_from_builder("coot-points-frame-r-factor-label"); // total
+   GtkWidget *label_3 = get_widget_from_builder("coot-points-frame-free-r-factor-label"); // R-factors
 
    if (rail_point_history.empty()) {
       std::cout << "------------- update the overlay! A" << std::endl;
       gtk_label_set_text(GTK_LABEL(label_1), "-----");
+      gtk_label_set_text(GTK_LABEL(label_2), "-----");
+      gtk_label_set_text(GTK_LABEL(label_3), "-----");
    } else {
       int d = rail_point_history.back().map_rail_points_delta;
       std::cout << "------------- update the overlay! B" << std::endl;
@@ -110,8 +112,14 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
       if (d > 0) plus = "+";
       std::string l_1 = "New Coot Points:   " + plus + std::to_string(d);
       std::string l_2 = "Total Coot Points: " + std::to_string(api::rail_points_t::total(rail_point_history));
+      std::string l_3 = "R-factors: ";
+      l_3 += coot::util::float_to_string_using_dec_pl(100.0f * latest_sfcalc_stats.r_factor, 2);
+      l_3 += "%, ";
+      l_3 += coot::util::float_to_string_using_dec_pl(100.0f * latest_sfcalc_stats.free_r_factor, 2);
+      l_3 += "%";
       gtk_label_set_text(GTK_LABEL(label_1), l_1.c_str());
       gtk_label_set_text(GTK_LABEL(label_2), l_2.c_str());
+      gtk_label_set_text(GTK_LABEL(label_3), l_3.c_str());
    }
 
    auto coot_points_frame_callback = +[] (gpointer user_data) {

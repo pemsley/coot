@@ -4913,9 +4913,17 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="find_waters_map_vbox">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label85">
                         <property name="label" translatable="yes">Select Map:</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
                       </object>
                     </child>
                   </object>
@@ -4941,10 +4949,18 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox57">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label87">
                         <property name="label" translatable="yes">Find Peaks above:</property>
                         <property name="justify">center</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
                       </object>
                     </child>
                     <child>
@@ -4973,6 +4989,10 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox80">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label108">
                         <property name="label" translatable="yes">Waters should be:</property>
