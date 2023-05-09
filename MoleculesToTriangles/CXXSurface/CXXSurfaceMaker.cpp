@@ -259,6 +259,48 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
     return calculateFromAtoms(allAtomsManager_in, selHnd, contextSelHnd, probeRadius, delta, radiusMultiplier, blend_edges);
 }
 
+void CXXSurfaceMaker::memberHandleCentralAtoms(
+        const int atomNr,
+        const vector<const CXXBall *> *vdwBallPntrs,
+        CXXSurface *elementSurfacesArray,
+        const float radiusMultiplier,
+        const float probeRadius,
+        const float delta,
+        const CXXSphereElement *unitSphereAtOrigin,
+        const std::map<const CXXBall *, std::vector<const CXXBall *>> *contactMap,
+        std::vector<CXXCircleNode> *splitReentrantProbesArray,
+        const int selHnd
+        )
+{
+
+    mmdb::Atom *centralAtom = static_cast<const CXXAtomBall *>((*vdwBallPntrs)[atomNr])->getAtomI();
+
+    CXXSurface &elementSurface = elementSurfacesArray[atomNr];
+
+    double radiusOfAtom1 = radiusMultiplier * getAtomRadius(centralAtom);
+    CXXNewHood theNewHood;
+    theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
+
+    // We have precalculated neighbours of the central atom, and now can use that
+    // to our advantage
+    std::map<const CXXBall *, std::vector<const CXXBall *>>::const_iterator contactMapIter = contactMap->find((*vdwBallPntrs)[atomNr]);
+
+    const std::vector<const CXXBall *> &neighbours(contactMapIter->second);
+    for (unsigned int sphereAtomNr = 0; sphereAtomNr < neighbours.size(); sphereAtomNr++)
+    {
+        theNewHood.addBall(*neighbours[sphereAtomNr]);
+    }
+
+    // Find the non-hidden segments of the circles
+    theNewHood.findSegments();
+    if (CXXNewHood::containsDrawable(theNewHood))
+    {
+        theNewHood.triangulateAsRegularHoodInto(elementSurface, delta, unitSphereAtOrigin);
+        theNewHood.identifyUniqueNodes(splitReentrantProbesArray[atomNr], selHnd);
+        elementSurface.compress(0.00001);
+    }
+}
+
 void handleCentralAtom(
     const int atomNr,
     CXXSurfaceMaker *parentSurfaceMaker,
@@ -272,6 +314,9 @@ void handleCentralAtom(
     std::vector<CXXCircleNode> *splitReentrantProbesArray,
     const int selHnd)
 {
+    parentSurfaceMaker->memberHandleCentralAtoms(atomNr, vdwBallPntrs, elementSurfacesArray, radiusMultiplier, probeRadius
+    , delta, unitSphereAtOrigin, contactMap, splitReentrantProbesArray, selHnd);
+    return;
     /*
           if (!(atomNr % 100) || atomNr == nSelAtoms - 1)
           {
@@ -312,22 +357,6 @@ void handleCentralAtom(
         theNewHood.identifyUniqueNodes(splitReentrantProbesArray[atomNr], selHnd);
         elementSurface.compress(0.00001);
     }
-}
-
-void ctplHandleCentralAtom(int id,
-                           const int atomNr,
-                           CXXSurfaceMaker *parentSurfaceMaker,
-                           const vector<const CXXBall *> *vdwBallPntrs,
-                           CXXSurface *elementSurfacesArray,
-                           const float radiusMultiplier,
-                           const float probeRadius,
-                           const float delta,
-                           const CXXSphereElement *unitSphereAtOrigin,
-                           const std::map<const CXXBall *, std::vector<const CXXBall *>> *contactMap,
-                           std::vector<CXXCircleNode> *splitReentrantProbesArray,
-                           const int selHnd)
-{
-    handleCentralAtom(atomNr, parentSurfaceMaker, vdwBallPntrs, elementSurfacesArray, radiusMultiplier, probeRadius, delta, unitSphereAtOrigin, contactMap, splitReentrantProbesArray, selHnd);
 }
 
 int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta, const double radiusMultiplier, const bool blend_edges)
@@ -371,7 +400,7 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
 
 #if !defined __APPLE__ && !defined _OPENMP
     // vector container stores threads
-    unsigned int n_threads = 2;//get_number_of_threads_by_system_call();
+    unsigned int n_threads = 2; // get_number_of_threads_by_system_call();
     ctpl::thread_pool the_thread_pool(n_threads);
     std::cout << "n_threads" << n_threads << "\n";
 #endif
@@ -383,10 +412,10 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
                         selHnd);
 #elif defined _OPENMP
 #warning Compiling for OMP
-      // compilation failure 9.2.1
-      // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
-      // 20230120-PE ... and again
-      // #pragma omp parallel for default(none) shared(vdwBallPntrs, &contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
+    // compilation failure 9.2.1
+    // #pragma omp parallel for default(none) shared(vdwBallPntrs,contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray) schedule(dynamic, 100)
+    // 20230120-PE ... and again
+    // #pragma omp parallel for default(none) shared(vdwBallPntrs, &contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
 #pragma omp parallel for default(none) shared(vdwBallPntrs, contactMap, splitReentrantProbesArray, nSelAtoms, cout, unitSphereAtOrigin, elementSurfacesArray, radiusMultiplier, probeRadius, delta, selHnd) schedule(dynamic, 100)
     for (int atomNr = 0; atomNr < nSelAtoms; atomNr++)
     {
@@ -396,11 +425,17 @@ int CXXSurfaceMaker::calculateFromAtoms(mmdb::Manager *allAtomsManager_in, const
 #else
     for (int atomNr = 0; atomNr < nSelAtoms; atomNr++)
     {
-        if (true)
+        if (false)
         {
-            the_thread_pool.push(ctplHandleCentralAtom, atomNr, this, &vdwBallPntrs, elementSurfacesArray, radiusMultiplier,
+            /*the_thread_pool.push(ctplHandleCentralAtom, atomNr, this, &vdwBallPntrs, elementSurfacesArray, radiusMultiplier,
                                  probeRadius, delta, &unitSphereAtOrigin, &contactMap, splitReentrantProbesArray,
                                  selHnd);
+                                 */
+            the_thread_pool.push([&vdwBallPntrs, &contactMap, &splitReentrantProbesArray, &nSelAtoms,
+                                  &unitSphereAtOrigin, &elementSurfacesArray, &radiusMultiplier, &probeRadius, &delta, &selHnd, this](int id)
+                                 { handleCentralAtom(id, this, &vdwBallPntrs, elementSurfacesArray, radiusMultiplier,
+                                                     probeRadius, delta, &unitSphereAtOrigin, &contactMap, splitReentrantProbesArray,
+                                                     selHnd); });
         }
         else
         {
