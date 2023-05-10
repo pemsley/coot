@@ -1660,8 +1660,6 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *dialog, int imol,
 						 const std::string residue_name,
 						 mmdb::PPAtom atoms, int n_atoms) {
 
-   std::cout << "==================== fill_output_residue_info_widget() " << n_atoms << std::endl;
-
    // first do the label of the dialog
    // GtkWidget *label_widget = lookup_widget(widget, "residue_info_residue_label");
    // GtkWidget *residue_name_widget = lookup_widget(widget, "residue_info_residue_name_label");
@@ -4758,12 +4756,27 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                    std::cout << "------ there are " << centres.size() << " centres" << std::endl;
                                                    clear_out_container(button_vbox);
                                                    // a cutn'paste jobby from fill_rotamer_selection_buttons().
-                                                   GtkWidget *group_button = nullptr; // initially
+                                                   GtkWidget *group = nullptr; // initially
                                                    for (unsigned int i=0; i<centres.size(); i++) {
                                                       std::string label = make_label(i, centres, map_sigma);
 #if (GTK_MAJOR_VERSION >= 4)
                                                       // 20220528-PE FIXME radio buttons
-                                                      GtkWidget *radio_button = gtk_check_button_new_with_label(label.c_str());
+                                                      GtkWidget *radio_button = gtk_toggle_button_new_with_label(label.c_str());
+
+                                                      std::string button_name = "difference_map_peaks_button_";
+                                                      button_name += int_to_string(i);
+                                                      if (group)
+                                                         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(radio_button), GTK_TOGGLE_BUTTON(group));
+                                                      else
+                                                         group = radio_button;
+
+                                                     coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
+                                                     hd->ipeak = i;
+                                                     hd->pos = centres[i].first;
+
+                                                     g_signal_connect(G_OBJECT (radio_button), "toggled",
+                                                                      G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
+                                                     gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
 #else
                                                      GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
@@ -4812,12 +4825,8 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                  coot::peak_search ps(molecules[imol_map].xmap);
                                  ps.set_max_closeness(difference_map_peaks_max_closeness);
                                  std::vector<std::pair<clipper::Coord_orth, float> > centres;
-                                 std::cout << "HHHHHHHHere A imol_coords " << imol_coords << std::endl;
                                  if (is_valid_model_molecule(imol_coords)) {
-                                    std::cout << "HHHHHHHHere B imol_map " << imol_map << std::endl;
                                     if (is_valid_map_molecule(imol_map)) {
-                                       std::cout << "HHHHHHHHere C" << std::endl;
-                                       std::cout << "calling ps.get_peaks() -------" << std::endl;
                                        centres = ps.get_peaks(molecules[imol_map].xmap,
                                                               molecules[imol_coords].atom_sel.mol,
                                                               n_sigma, do_positive_level_flag, do_negative_level_flag,
@@ -4859,7 +4868,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    std::vector<std::pair<clipper::Coord_orth, float> > centres = centres_in;
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
-   GtkWidget *dialog        = widget_from_builder("diff_map_peaks_dialog");
+   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
 
    gtk_window_set_title(GTK_WINDOW(dialog), dialog_title.c_str());
 
@@ -4891,6 +4900,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    diff_map_peaks->clear();
    for (unsigned int i=0; i<centres.size(); i++)
       diff_map_peaks->push_back(centres[i].first);
+
    max_diff_map_peaks = centres.size();
 
    if (! centres.empty()) {
@@ -4906,14 +4916,14 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
 
 // static
 void
-graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
-							    gpointer         user_data) {
+graphics_info_t::on_diff_map_peak_button_selection_toggled(GtkToggleButton  *button,
+							   gpointer         user_data) {
 
    coot::diff_map_peak_helper_data *hd = static_cast<coot::diff_map_peak_helper_data *>(user_data);
 
    coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
    int button_state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
-   if (false)
+   if (true)
       std::cout << "debug:: Here in on_diff_map_peak_button_selection_toggled() " << c << " "
                 <<  button_state << std::endl;
 

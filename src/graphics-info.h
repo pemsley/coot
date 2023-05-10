@@ -3823,7 +3823,7 @@ public:
                                                           bool around_model_only_flag,
                                                           const std::string &dialog_title);
    // the buttons callback for above:
-   static void on_diff_map_peak_button_selection_toggled (GtkButton       *button,
+   static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);
 
    static std::vector<clipper::Coord_orth> *diff_map_peaks;
