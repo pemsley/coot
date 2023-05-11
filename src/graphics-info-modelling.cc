@@ -821,7 +821,7 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          std::vector<coot::atom_spec_t> specs_for_removed_restraints =
 	    last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
          if (specs_for_removed_restraints.size()) {
-            if (true) {
+            if (false) {
                for (unsigned int i=0; i<specs_for_removed_restraints.size(); i++) {
                   std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i]
                             << std::endl;

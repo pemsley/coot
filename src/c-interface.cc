@@ -9370,10 +9370,11 @@ void load_tutorial_model_and_data() {
    int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
    int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
 
-   std::cout << "--------- imol: " << imol << std::endl;
-   std::cout << "--------- imol_map: " << imol_map << std::endl;
-   std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
-
+   if (false) {
+      std::cout << "--------- imol: " << imol << std::endl;
+      std::cout << "--------- imol_map: " << imol_map << std::endl;
+      std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
+   }
 
 }
 

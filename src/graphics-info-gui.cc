@@ -4923,7 +4923,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled(GtkToggleButton  *but
 
    coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
    int button_state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
-   if (true)
+   if (false)
       std::cout << "debug:: Here in on_diff_map_peak_button_selection_toggled() " << c << " "
                 <<  button_state << std::endl;
 

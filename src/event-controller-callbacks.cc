@@ -54,7 +54,6 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          move_atom_pull_target_position(x, y);
       }
    }
-
 }
 
 
@@ -63,9 +62,14 @@ graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gestur
 
    double xx = drag_begin_x + x;
    double yy = drag_begin_y + y;
-   bool clicked = check_if_hud_button_clicked(xx, yy);
+   bool hud_clicked = check_if_hud_button_clicked(xx, yy);
 
-   std::cout << "hud_button was clicked: " << clicked << std::endl;
+   if (!hud_clicked) {
+      if (last_restraints_size() > 0) {
+         moving_atoms_currently_dragged_atom_index = -1; // because we have dropped it now.
+         poke_the_refinement(); // this will remove the pull restraint if the pulled atom position was close to its target.
+      }
+   }
 
 }
 

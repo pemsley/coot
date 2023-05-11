@@ -83,7 +83,7 @@ predict = function(x_pos, y_pos) {
 
         nct = paste('Non-converging:', round(m_diff, digits=3))
         print(nct)
-        legend(34, 3.2, nct, cex=0.8, box.lwd=0)
+        legend(34, 3.6, nct, cex=0.8, box.lwd=0)
 
         ## (x-values), (y-values)
 

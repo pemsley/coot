@@ -814,8 +814,6 @@ difference_map_peaks(int imol, int imol_coords,
    // of graphics_info_t, because it uses clipper data in the
    // interface - and c-interface.h does not know about clipper.
 
-   std::cout << "Hhhhhhere in difference_map_peaks() with n_sigma " << n_sigma << std::endl;
-
    // I don't think we want ligand/cluster search.  We just want peak
    // searching.
    //

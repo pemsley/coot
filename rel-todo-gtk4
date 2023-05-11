@@ -6,6 +6,10 @@ Ligand Builder
 Validation Plots
 Ramachandran Plot
 
+coot_gui.smiles_gui() - is this a thing now?
+Not without --enhanced-ligand-gui it isn't
+Note that biscu-it needs to be ported to Python 3.
+
 --- Widgets that have changed in GTK ---
 
 Padding is gone, margins and layout are in.
@@ -41,17 +45,12 @@ Sun 23 Apr 21:33:42 BST 2023
    void HUDTextureMesh::setup_buffers() { ...
    // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
-   Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-Difference Map Peaks ::: 2
+   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
-
-Restart the refinement on button-release when dragging an atom ::: 1
-call poke_the_refinement().
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -62,10 +61,6 @@ Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" :::
 Start up from Saved state. ::: 1
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
-
-coot_gui.smiles_gui() - is this a thing now? ::: 1
-Not without --enhanced-ligand-gui it isn't
-Note that biscu-it needs to be ported to python 3.
 
 Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
 (pressing "G" on the keyboard is not intuitive). ::: 2
@@ -99,6 +94,7 @@ Enable the command line (e.g. --pdb and others) ::: 2
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
+Validation graphs colours
 
 Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
 
@@ -316,3 +312,7 @@ Find Ligands gui ::: 3
 
 Coot Points in updating maps ::: 4
 
+Restart the refinement on button-release when dragging an atom ::: 0.5
+call poke_the_refinement().
+
+Difference Map Peaks ::: 2.5
