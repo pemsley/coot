@@ -293,7 +293,7 @@ public:
    explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
       if (! verbose) geom.set_verbose(false);
       init();
-      std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
+      // std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
    }
 
    //! the refinement map - direct access. When refinement is performed, this is the map
@@ -666,6 +666,16 @@ public:
    //! now comes in a simple container that also includes the cell
    coot::symmetry_info_t
    get_symmetry(int imol, float symmetry_search_radius, float centre_x, float centre_y, float centre_z) const;
+
+   //! Get the cell
+   //!
+   //! Check that `is_set` is true before use.
+   //! @return a `cell_t`
+   ::api::cell_t get_cell(int imol)  const;
+
+   //! Get the middle of the "molecule blob" in cryo-EM reconstruction maps
+   //! @return a `coot::util::map_molecule_centre_info_t`.
+   coot::util::map_molecule_centre_info_t get_map_molecule_centre(int imol) const;
 
    //! undo
    //! @return 1 on successful undo, return 0 on failure

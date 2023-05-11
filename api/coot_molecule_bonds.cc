@@ -203,6 +203,9 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
    bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
                                              // stupid when it comes to thining.
 
+   // std::cout << "::::::: in make_colour_by_chain_bonds() bonds_box n_rotamer_markups "
+   // << bonds_box.n_rotamer_markups << " :::::::::" << std::endl;
+
    // testing previous values of bonds_box_type
    if (bonds_box_type != coot::COLOUR_BY_CHAIN_BONDS)
       force_rebonding = true;
@@ -1546,7 +1549,7 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
                                  coot::protein_geometry &geom) {
       graphical_bonds_container bonds_box_env;
       float environment_min_distance = 0.0f;
-      float environment_max_distance = 3.6f;
+      float environment_max_distance = 3.5f;
       bool draw_bonds_to_hydrogens_flag = true;
 
       mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);

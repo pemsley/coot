@@ -1423,8 +1423,6 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
             triangles[jj].rebase(idx_base);
       }
    }
-   std::cout << "DEBUG:: ending get_rotamer_dodecs() with mesh " << m.vertices.size() << " vertices and "
-             << m.triangles.size() << " triangle." << std::endl;
    return m;
 }
 
@@ -1449,8 +1447,8 @@ coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer
    make_colour_by_chain_bonds(geom_p, dummy, change_c_only_flag, goodsell_mode, draw_hydrogen_atoms_flag, draw_missing_loops_flag, do_rota_markup, rpt, force_rebonding);
 
    if (false)
-      std::cout << "DEBUG:: in get_rotamer_dodecs_instanced() bonds_box.n_rotamer_markups " << bonds_box.n_rotamer_markups
-                << std::endl;
+      std::cout << "DEBUG:: in get_rotamer_dodecs_instanced() bonds_box.n_rotamer_markups "
+                << bonds_box.n_rotamer_markups << std::endl;
 
    dodec d;
    std::vector<clipper::Coord_orth> coords = d.coords();
@@ -1521,6 +1519,8 @@ coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer
    }
 
    m.add(ig);
+   // std::cout << "in cm::get_rotamer_dodecs_instanced() geom size is " << m.geom.size()
+   // << " sending back " << m.geom[0].instancing_data_A.size() << " in 0th" << std::endl;
    return m;
 }
 
@@ -2233,6 +2233,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
    if (! refinement_is_quiet)
       gd.print();
+   restraints.unset_fixed_during_refinement_udd();
 
    save_info.new_modification("refine_direct");
 
