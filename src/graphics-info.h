@@ -113,7 +113,7 @@
 // #include "geometry-graphs.hh"
 // #endif
 
-#include "test-validation/validation-information.hh"
+#include "validation-graphs/validation-information.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"

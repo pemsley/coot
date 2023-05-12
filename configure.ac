@@ -443,7 +443,7 @@ greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
 doc/Makefile
-test-validation/Makefile
+validation-graphs/Makefile
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile

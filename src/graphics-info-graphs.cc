@@ -227,8 +227,8 @@ void remove_validation_graph(GtkWidget* graph) {
    }
 }
 
-#include "test-validation/validation-information.hh"
-#include "test-validation/validation-graph-widget.hh"
+#include "validation-graphs/validation-information.hh"
+#include "validation-graphs/validation-graph-widget.hh"
 
 coot::validation_information_t
 get_validation_data_for_density_fit_analysis(int imol) {
