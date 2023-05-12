@@ -10965,4 +10965,10 @@ Tue  9 May 2023 20:35:05 BST
    auto model_list = get_model_molecule_vector();
    g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
 
+Here is how you read the imol:
 
+   int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+   int imol_map    = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+
+
+---

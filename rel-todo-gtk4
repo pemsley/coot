@@ -75,7 +75,11 @@ Curlew: ::: 4
 
 rename draw-2.cc as tick-function.cc or some such
 
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
+
 Get rid of "Other Modelling Tools" ::: 1
+
+Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 
 How do I add a single water? ::: 1
 
@@ -302,7 +306,7 @@ May need revisiting.
 
 Merge Molecules gui ::: 1.0
 
-Find Waters gui ::: 0.4
+Find Waters gui ::: 1.0
 
 Ctrl Arrow keys for ligand rotation and translation ::: 1
 

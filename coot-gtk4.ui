@@ -4933,6 +4933,12 @@ Do you want to continue?
                         <property name="margin-bottom">6</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="find_waters_map_combobox">
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -4947,6 +4953,16 @@ Do you want to continue?
                         <property name="label" translatable="yes">Select Protein (which Masks Map):</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="find_waters_molecule_combobox">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>

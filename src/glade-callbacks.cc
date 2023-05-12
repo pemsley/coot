@@ -2229,8 +2229,8 @@ void
 on_find_waters_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkWidget *widget = widget_from_builder("find_waters_dialog");
    execute_find_waters();
+   GtkWidget *widget = widget_from_builder("find_waters_dialog");
    gtk_widget_hide(widget);
 }
 
