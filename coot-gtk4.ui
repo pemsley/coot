@@ -5037,7 +5037,6 @@ Do you want to continue?
             <property name="margin-end">4</property>
             <property name="margin-top">6</property>
             <property name="margin-bottom">6</property>
-            <property name="homogeneous">1</property>
             <child>
               <object class="GtkButton" id="find_waters_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
@@ -5473,6 +5472,9 @@ Do you want to continue?
                      <property name="margin-top">4</property>
                      <property name="margin-bottom">4</property>
                      <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked" swapped="no"/>
+                     <!-- <style> -->
+                     <!--    <class name="custom-button"/> -->
+                     <!-- </style> -->
                   </object>
                 </child>
                 <child>
@@ -7098,6 +7100,9 @@ Do you want to continue?
                 <property name="margin-end">4</property>
                 <property name="margin-bottom">4</property>
                 <property name="margin-top">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
@@ -13294,7 +13299,6 @@ Move a copy?</property>
         <child type="action">
           <object class="GtkBox" id="hbox51">
             <property name="spacing">12</property>
-            <property name="homogeneous">1</property>
             <property name="margin-top">6</property>
             <property name="margin-bottom">6</property>
             <property name="margin-start">6</property>

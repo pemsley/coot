@@ -733,6 +733,22 @@ new_startup_application_activate(GtkApplication *application,
 void setup_symm_lib();
 void check_reference_structures_dir();
 
+void load_css() {
+
+   std::string fn = "coot.css";
+   if (coot::file_exists(fn)) {
+      GdkDisplay *display = gdk_display_get_default();
+      GtkCssProvider *provider = gtk_css_provider_new();
+      GFile *gf = g_file_new_for_path(fn.c_str());
+      gtk_css_provider_load_from_file(provider, gf);
+      gtk_style_context_add_provider_for_display(display,
+                                                 GTK_STYLE_PROVIDER(provider),
+                                                 GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+      g_object_unref(provider);
+   }
+
+}
+
 
 int new_startup(int argc, char **argv) {
 
@@ -744,6 +760,8 @@ int new_startup(int argc, char **argv) {
  setup_symm_lib();
    check_reference_structures_dir();
    gtk_init();
+
+   load_css();
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_show(splash_screen);

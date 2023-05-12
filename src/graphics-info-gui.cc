@@ -4759,10 +4759,7 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                    GtkWidget *group = nullptr; // initially
                                                    for (unsigned int i=0; i<centres.size(); i++) {
                                                       std::string label = make_label(i, centres, map_sigma);
-#if (GTK_MAJOR_VERSION >= 4)
-                                                      // 20220528-PE FIXME radio buttons
                                                       GtkWidget *radio_button = gtk_toggle_button_new_with_label(label.c_str());
-
                                                       std::string button_name = "difference_map_peaks_button_";
                                                       button_name += int_to_string(i);
                                                       if (group)
@@ -4770,7 +4767,12 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                       else
                                                          group = radio_button;
 
-                                                     coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
+                                                      gtk_widget_set_margin_bottom(radio_button, 4);
+                                                      gtk_widget_set_margin_top(radio_button, 4);
+                                                      gtk_widget_set_margin_start(radio_button, 6);
+                                                      gtk_widget_set_margin_end(radio_button, 6);
+
+                                                      coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
                                                      hd->ipeak = i;
                                                      hd->pos = centres[i].first;
 
@@ -4778,29 +4780,6 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                                       G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
                                                      gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
-#else
-                                                     GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
-                                                     std::string button_name = "difference_map_peaks_button_";
-                                                     button_name += int_to_string(i);
-
-                                                     diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
-
-                                                     g_object_set_data_full(G_OBJECT(dialog), button_name.c_str(), radio_button, NULL);
-
-                                                     coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
-                                                     hd->ipeak = i;
-                                                     hd->pos = centres[i].first;
-
-                                                     g_signal_connect(G_OBJECT (radio_button), "toggled",
-                                                                      G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
-
-                                                     gtk_widget_show(radio_button);
-                                                     GtkWidget *frame = gtk_frame_new(NULL);
-                                                     gtk_container_add(GTK_CONTAINER(frame), radio_button);
-                                                     gtk_box_pack_start(GTK_BOX (button_vbox), frame, FALSE, FALSE, 0);
-                                                     gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
-                                                     gtk_widget_show(frame);
-#endif
                                                   }
                                                };
 
