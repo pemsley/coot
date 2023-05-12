@@ -1369,34 +1369,38 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
    std::string link_type; // set this
    bool order_switch_was_needed = false; // and this
 
-   std::string comp_id_1 =  first_residue->GetResName();
-   std::string comp_id_2 = second_residue->GetResName();
-   std::string group_1 = geom.get_group( first_residue);
-   std::string group_2 = geom.get_group(second_residue);
-   if (group_1 == "DNA") group_1 = "DNA/RNA";
-   if (group_1 == "RNA") group_1 = "DNA/RNA";
-   if (group_2 == "DNA") group_2 = "DNA/RNA";
-   if (group_2 == "RNA") group_2 = "DNA/RNA";
+   try {
+      std::string comp_id_1 =  first_residue->GetResName();
+      std::string comp_id_2 = second_residue->GetResName();
+      std::string group_1 = geom.get_group( first_residue);
+      std::string group_2 = geom.get_group(second_residue);
+      if (group_1 == "DNA") group_1 = "DNA/RNA";
+      if (group_1 == "RNA") group_1 = "DNA/RNA";
+      if (group_2 == "DNA") group_2 = "DNA/RNA";
+      if (group_2 == "RNA") group_2 = "DNA/RNA";
 
 
-   if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
-      std::string link_type_glyco;
-      bool use_links_in_molecule = true;
-      link_type_glyco = find_glycosidic_linkage_type(first_residue, second_residue, geom, use_links_in_molecule);
-      if (link_type_glyco.empty()) {
-         link_type_glyco = find_glycosidic_linkage_type(second_residue, first_residue, geom, use_links_in_molecule);
-         if (! link_type_glyco.empty()) {
+      if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
+         std::string link_type_glyco;
+         bool use_links_in_molecule = true;
+         link_type_glyco = find_glycosidic_linkage_type(first_residue, second_residue, geom, use_links_in_molecule);
+         if (link_type_glyco.empty()) {
+            link_type_glyco = find_glycosidic_linkage_type(second_residue, first_residue, geom, use_links_in_molecule);
+            if (! link_type_glyco.empty()) {
+               link_type = link_type_glyco;
+               order_switch_was_needed =  true;
+            }
+         } else {
             link_type = link_type_glyco;
-            order_switch_was_needed =  true;
          }
+
       } else {
-         link_type = link_type_glyco;
-      }
 
-   } else {
+         std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
+         std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
-      std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
-      std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
+         // std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
+         // std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
 
       if (debug_links) {
 	std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
@@ -1408,21 +1412,30 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       for (const auto &link : link_infos_b) chem_links.push_back(std::make_pair(link,  true));
 
 #if 0 // maybe I need this later - for other links?
-      for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
-         const coot::chem_link &link = chem_links[ilink].first;
-         bool order_switch_is_needed = chem_links[ilink].second;
-      }
+         for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+            const coot::chem_link &link = chem_links[ilink].first;
+            bool order_switch_is_needed = chem_links[ilink].second;
+         }
 #endif
 
-      // 20221120-PE just choose the top one. I can be more clever if/when needed.
-      if (! chem_links.empty()) {
-         link_type = chem_links[0].first.Id();
-         order_switch_was_needed = chem_links[0].second;
+         // 20221120-PE just choose the top one. I can be more clever if/when needed.
+         if (! chem_links.empty()) {
+            link_type = chem_links[0].first.Id();
+            order_switch_was_needed = chem_links[0].second;
+         }
       }
+
+      if (debug_links)
+         std::cout << "#################### find_link_type_2022() returns: " << link_type << " " << order_switch_was_needed << std::endl;
+
    }
 
-   if (debug_links)
-     std::cout << "#################### find_link_type_2022() returns: " << link_type << " " << order_switch_was_needed << std::endl;
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING:: no group found in find_link_type_2022() " << std::endl;
+      std::cout << e.what() << std::endl;
+      return std::pair<std::string, bool> ("", order_switch_was_needed);
+   }
+
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
 
