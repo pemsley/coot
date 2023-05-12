@@ -550,7 +550,7 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   atom_selection_container_t asc = get_atom_selection(file_name, false, false, false);
+   atom_selection_container_t asc = get_atom_selection(file_name, true, false, false);
    if (asc.read_success) {
 
       // 20221011-PE this constructor doesn't call make_bonds().

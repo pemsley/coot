@@ -103,6 +103,7 @@ Bond_lines_container::init() {
    do_sticks_for_waters = false;
    use_deuteranomaly_mode = false;
    n_atoms_in_atom_selection = 0;
+   geom = nullptr;
 }
 
 
