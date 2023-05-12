@@ -157,6 +157,11 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
    bool verbose = true;
+
+   input_molecule_was_in_mmcif = false;
+   if (coot::is_mmcif_filename(filename))
+      input_molecule_was_in_mmcif = true;
+
    atom_sel = get_atom_selection(filename, allow_duplseqnum, verbose, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
@@ -8771,7 +8776,10 @@ molecule_class_info_t::stripped_save_name_suggestion() {
    // As per George Sheldrick's suggestion, if this was from shelx,
    // suggest a .ins extension, not .pdb
    if (!is_from_shelx_ins_flag) {
-      stripped_name2 += ".pdb";
+      if (input_molecule_was_in_mmcif)
+         stripped_name2 += ".cif";
+      else
+         stripped_name2 += ".pdb";
    } else {
       stripped_name2 += ".ins";
    }

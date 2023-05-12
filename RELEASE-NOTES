@@ -1,3 +1,14 @@
+
+  Pre-release 0.9.8.8
+
+  o FEATURE: Better atom colours in colour-by-chain-and-dictionary mode.
+
+  o CHANGE:  Monomer search now uses the new dictionary
+
+  o BUG-FIX: the zoom state is not correctly set in the saved state file
+
+----
+
   Release 0.9.8.7
 
   o FEATURE: res_tracer() added to the API

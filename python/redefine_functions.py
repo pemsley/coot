@@ -47,6 +47,7 @@ alignment_results      = alignment_results_py
 nearest_residue_by_sequence = nearest_residue_by_sequence_py
 change_chain_id_with_result        = change_chain_id_with_result_py
 probe_available_p      = probe_available_p_py
+get_input_molecule_was_in_mmcif_state = get_input_molecule_was_in_mmcif_state_py
 # to be renamed later
 matching_compound_names_from_dictionary = matching_compound_names_from_dictionary_py
 # keep for compatibility reasons

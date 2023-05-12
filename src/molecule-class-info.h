@@ -405,7 +405,9 @@ class molecule_class_info_t {
    void insert_coords_atoms_into_residue_internal(const atom_selection_container_t &asc,
 						  int shelx_occ_fvar_number);
 
-   short int is_mmcif(const std::string &filename) const;
+   bool input_molecule_was_in_mmcif;
+   // public acces to this is below
+
    void unalt_conf_residue_atoms(mmdb::Residue *residue_p);
 
    // return status and a chain id [status = 0 when there are 26 chains...]
@@ -3024,6 +3026,11 @@ public:        //                      public
    // from HETATM molecule before merging with this one
    //
    bool molecule_has_hydrogens() const;
+
+   bool get_input_molecule_was_in_mmcif_state() const {
+      return input_molecule_was_in_mmcif;
+   }
+
 
    // -------- simply print it (at the moment) --------------
    void print_secondary_structure_info();
