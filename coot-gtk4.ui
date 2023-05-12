@@ -10497,16 +10497,14 @@ just the cell and symmetry)
                           <object class="GtkEntry" id="residue_info_master_atom_occ_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
+                            <signal name="changed" handler="on_residue_info_master_atom_occ_entry_changed" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="residue_info_master_atom_b_factor_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
+                            <signal name="changed" handler="on_residue_info_master_atom_b_factor_entry_changed" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -10515,7 +10513,6 @@ just the cell and symmetry)
                       <object class="GtkCheckButton" id="residue_info_occ_apply_all_checkbutton">
                         <property name="label" translatable="yes">Apply Occupancy to all atoms in residue?</property>
                         <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <signal name="toggled" handler="on_residue_info_occ_apply_all_checkbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -10523,7 +10520,6 @@ just the cell and symmetry)
                       <object class="GtkCheckButton" id="residue_info_b_factor_apply_all_checkbutton">
                         <property name="label" translatable="yes">Apply Temperature Factor to all atoms in residue?</property>
                         <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <signal name="toggled" handler="on_residue_info_b_factor_apply_all_checkbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -10621,6 +10617,9 @@ just the cell and symmetry)
                 <property name="label" translatable="yes">Apply</property>
                 <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>

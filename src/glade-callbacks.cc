@@ -3118,8 +3118,8 @@ on_residue_info_ok_button_clicked      (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_residue_info_cancel_button_clicked  (GtkButton       *button,
-                                                            gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
 
@@ -3132,9 +3132,37 @@ on_residue_info_cancel_button_clicked  (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_residue_info_master_atom_occ_entry_changed (GtkEditable     *editable,
+                                               gpointer         user_data) {
+
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+
+   if (txt) {
+      std::string s(txt);
+      std::cout << "master atom occ changed to " << s << std::endl;
+   }
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_master_atom_b_factor_entry_changed(GtkEditable     *editable,
+                                                   gpointer         user_data) {
+
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+
+   if (txt) {
+      std::string s(txt);
+      std::cout << "master atom b-factor changed to " << s << std::endl;
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_residue_info_dialog_destroy         (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
+   std::cout << "---------------------- this should not happen! on_residue_info_dialog_destroy()" << std::endl;
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
    residue_info_release_memory(widget);
    clear_residue_info_edit_list();
@@ -7088,20 +7116,16 @@ on_check_waters_by_difference_map_active_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_occ_apply_all_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   // GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
-   // GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+on_residue_info_occ_apply_all_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer        user_data) {
 
    GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
    GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       gtk_widget_set_sensitive(entry, TRUE);
    } else {
-      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(alt_conf_checkbutton)))
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbutton)))
          gtk_widget_set_sensitive(entry, FALSE);
    }
 }
@@ -7109,18 +7133,13 @@ on_residue_info_occ_apply_all_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_occ_apply_to_altconf_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-   // GtkWidget *occ_entry = widget_from_builder("residue_info_master_atom_occ_entry");
-   // GtkWidget *alt_conf_entry = widget_from_builder("residue_info_occ_apply_to_alt_conf_entry");
+on_residue_info_occ_apply_to_altconf_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                         gpointer        user_data) {
 
    GtkWidget *occ_entry      = widget_from_builder("residue_info_master_atom_occ_entry");
    GtkWidget *alt_conf_entry = widget_from_builder("residue_info_occ_apply_to_alt_conf_entry");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       gtk_widget_set_sensitive(occ_entry,      TRUE);
       gtk_widget_set_sensitive(alt_conf_entry, TRUE);
    } else {
@@ -7150,9 +7169,9 @@ on_residue_info_b_factor_apply_all_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_other_modelling_tools_close_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data) {
+on_other_modelling_tools_close_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("other_model_tools_dialog");
    gtk_widget_hide(w);
 }
@@ -7171,10 +7190,8 @@ on_other_modelling_tools1_activate     (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_cis_trans_conversion_toggle_button_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_cis_trans_conversion_toggle_button_toggled(GtkToggleButton *togglebutton,
+                                              gpointer         user_data) {
 
   if (gtk_toggle_button_get_active(togglebutton))
       do_cis_trans_conversion_setup(1);
@@ -7187,8 +7204,9 @@ on_cis_trans_conversion_toggle_button_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_other_model_tools_dialog_destroy    (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
+   std::cout << "---------------- this should not happen on_other_model_tools_dialog_destroy " << std::endl;
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
 }
@@ -7196,9 +7214,8 @@ on_other_model_tools_dialog_destroy    (GtkWidget       *object,
 
 extern "C" G_MODULE_EXPORT
 void
-on_undo_last_navigation1_activate      (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_undo_last_navigation1_activate(GMenuItem   *menuitem,
+                                  gpointer     user_data) {
    undo_last_move();
 }
 
@@ -7206,8 +7223,7 @@ on_undo_last_navigation1_activate      (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_undo_symmetry_view1_activate (GMenuItem     *menuitem,
-                                                     gpointer         user_data)
-{
+                                 gpointer         user_data) {
    undo_symmetry_view();
 }
 
@@ -7215,8 +7231,7 @@ on_undo_symmetry_view1_activate (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_get_pdb_and_map_using_eds1_activate (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
    int n = COOT_ACCESSION_CODE_WINDOW_EDS;
    // GtkWidget *window = create_accession_code_window();
    GtkWidget *window = widget_from_builder("accession_code_window");
@@ -7227,9 +7242,8 @@ on_get_pdb_and_map_using_eds1_activate (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_ligand_big_blob_dialog_destroy      (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+on_ligand_big_blob_dialog_destroy(GtkWidget       *object,
+                                  gpointer         user_data) {
   free_blob_dialog_memory(GTK_WIDGET(object));
 }
 
@@ -7251,7 +7265,7 @@ on_model_refine_dialog_do_180_degree_sidechain_flip_togglebutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_simple1_activate(GMenuItem     *menuitem,
-                                        gpointer         user_data) {
+                    gpointer         user_data) {
 
    GtkWidget *file_chooser = coot_screendump_chooser();
    set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);

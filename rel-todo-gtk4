@@ -37,6 +37,12 @@ Here are other styles:
 
 ----
 
+Enable the command line (e.g. --pdb and others) ::: 2
+
+Start up from Saved state. ::: 1
+
+Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
 
@@ -55,12 +61,6 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
-
-Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
-
-Start up from Saved state. ::: 1
-
-Enable the command line (e.g. --pdb and others) ::: 2
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
 
