@@ -21,7 +21,7 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    silicos_it_qed_default_func = NULL;
 
    // Build the name object
-   PyObject *pName = PyUnicode_FromString("silicos_it.descriptors.qed");
+   PyObject *pName = PyUnicode_FromString("silicos_it.descriptors.qed"); // 20230513-PE merge: was just "silicos_it" - hmm.
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {
@@ -29,6 +29,7 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
       // 
       std::cout << "Null pModule in get_qed() - biscu-it not installed? " << std::endl;
    } else { 
+      pName = PyUnicode_FromString("silicos_it.descriptors.qed");
       // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {

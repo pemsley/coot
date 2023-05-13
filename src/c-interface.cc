@@ -1025,6 +1025,37 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 }
 
 
+#ifdef USE_GUILE
+/*! \brief - get the name state of the input model. Return false if there was an erro with the molecule index */
+SCM get_input_model_was_cif_state_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.molecules[imol].get_input_molecule_was_in_mmcif_state())
+         r = SCM_BOOL_T;
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief - get the name state of the input model */
+PyObject *get_input_molecule_was_in_mmcif_state_py(int imol) {
+
+   PyObject *r = PyBool_FromLong(false);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.molecules[imol].get_input_molecule_was_in_mmcif_state())
+         r = PyBool_FromLong(true);
+   }
+   Py_INCREF(r);
+   return r;
+}
+#endif
+
+
+
 void set_draw_zero_occ_markers(int status) {
 
    graphics_info_t g;
