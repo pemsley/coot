@@ -442,16 +442,10 @@ on_dragged_map1_activate (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_show_symmetry1_activate             (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_show_symmetry1_activate(GMenuItem     *menuitem,
+                           gpointer         user_data) {
 
-   GtkWidget *show_symm_window;
-
-   show_symm_window = wrapped_create_show_symmetry_window();
-
-/* Now show the popup eventually */
-
+   GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
    gtk_widget_show(show_symm_window);
 
 }
@@ -460,78 +454,11 @@ on_show_symmetry1_activate             (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_show_symmetry_ok_button_clicked     (GtkButton       *button,
-                                                            gpointer         user_data) {
-   GtkEntry      *entry;
-   GtkWidget     *checkbutton;
-   const char *text;
+                                        gpointer         user_data) {
 
-/* Show Symmetry Radiobuttons */
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"))))
-      set_show_symmetry_master(1);
+   // 20230513-PE now the widget is active - we don't do anything other than hide
+   // (the actual button label is "Close")
 
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"))))
-      set_show_symmetry_master(0);
-
-/* Symmetry Radius Entry */
-
-   entry = (GTK_ENTRY(widget_from_builder(
-				    "symmetry_radius_entry")));
-
-   text = gtk_editable_get_text(GTK_EDITABLE(entry));
-
-   /* printf("ok button symmetry: radius text: %s\n",text); */
-
-   set_symmetry_size_from_widget(text);
-
-
-/* Show UnitCell Radiobuttons */
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("unit_cell_yes_radiobutton"))))
-      set_show_unit_cells_all(1);
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("unit_cell_no_radiobutton"))))
-      set_show_unit_cells_all(0);
-
-/* The Symmetry Colour Checkbutton */
-
-/*    checkbutton = widget_from_builder( */
-/* 			       "show_symmetry_molecule_rotate_colour_map_checkbutton"); */
-
-/*    if (GTK_TOGGLE_BUTTON(checkbutton)->active)  */
-/*      set_symmetry_molecule_rotate_colour_map(1); */
-/*    else */
-/*      set_symmetry_molecule_rotate_colour_map(0); */
-
-
-/* The Symmetry Colour by Symop Checkbutton */
-
-/*    checkbutton = widget_from_builder( */
-/* 			       "show_symmetry_colour_by_symop_checkbutton"); */
-/*    if (GTK_TOGGLE_BUTTON(checkbutton)->active)  */
-/*      set_symmetry_colour_by_symop(1); */
-/*    else */
-/*      set_symmetry_colour_by_symop(0); */
-
-
-/* The Symmetry Whole Chain Checkbutton */
-
-/*    checkbutton = widget_from_builder( */
-/* 			       "show_symmetry_whole_molecule_checkbutton"); */
-/*    if (GTK_TOGGLE_BUTTON(checkbutton)->active)  */
-/*      set_symmetry_whole_chain(1); */
-/*    else */
-/*      set_symmetry_whole_chain(0); */
-
-/* The Expanded Atom Label Checkbutton */
-
-   checkbutton = widget_from_builder("show_symmetry_expanded_labels_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-     set_symmetry_atom_labels_expanded(1);
-   else
-     set_symmetry_atom_labels_expanded(0);
-
-/* Goodbye Mr Widget */
    gtk_widget_hide(widget_from_builder( "show_symmetry_window"));
 
 }
@@ -7833,10 +7760,10 @@ on_ideal_rna_cancel_button_clicked     (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_unit_cell_yes_radiobutton_toggled   (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
+on_unit_cell_yes_radiobutton_toggled   (GtkCheckButton *checkbutton,
+                                        gpointer        user_data)
 {
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (gtk_check_button_get_active(checkbutton))
       set_show_unit_cells_all(1);
   else
       set_show_unit_cells_all(0);
@@ -7845,37 +7772,31 @@ on_unit_cell_yes_radiobutton_toggled   (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_unit_cell_no_radiobutton_toggled    (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
+on_unit_cell_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                    gpointer        user_data) {
+
+   if (gtk_check_button_get_active(checkbutton))
       set_show_unit_cells_all(0);
-  else
+   else
       set_show_unit_cells_all(1);
 }
 
 
-
-
 extern "C" G_MODULE_EXPORT
 void
-on_move_molecule_here1_activate        (GMenuItem     *menuitem,
-                                                            gpointer         user_data) {
+on_move_molecule_here1_activate(GMenuItem  *menuitem,
+                                gpointer    user_data) {
 
-   // GtkWidget *w = wrapped_create_move_molecule_here_dialog();
    GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
    fill_move_molecule_here_dialog(w);
    gtk_widget_show(w);
-
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_move_molecule_here_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_move_molecule_here_ok_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
 
   move_molecule_here_by_widget();
   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
@@ -11539,72 +11460,82 @@ on_accept_reject_backrub_rotamer_button_clicked
   backrub_rotamer_intermediate_atoms();
 }
 
+
+// 20230513-PE this isn't a thing these days, right?
 extern "C" G_MODULE_EXPORT
 void
-on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
-					   gpointer         user_data) {
-
-   GtkWidget *symmetry_on_radio_button = NULL;
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      add_symmetry_on_to_preferences_and_apply();
-      symmetry_on_radio_button = widget_from_builder("show_symmetry_yes_radiobutton");
-      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button)))
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button), TRUE);
-   }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_curlew1_activate              (GMenuItem     *menuitem,
-                                                      gpointer         user_data) {
+on_curlew1_activate(GMenuItem     *menuitem,
+                    gpointer       user_data) {
 
    curlew();
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_show_symmetry_no_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data) {
+on_symmetry_always_on_checkbutton_toggled (GtkCheckButton *checkbutton,
+					   gpointer        user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-      set_show_symmetry_master(0);
-  }
+   GtkWidget *symmetry_on_radio_button = NULL;
+   if (gtk_check_button_get_active(checkbutton)) {
+      add_symmetry_on_to_preferences_and_apply();
+      symmetry_on_radio_button = widget_from_builder("show_symmetry_yes_radiobutton");
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(symmetry_on_radio_button)))
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(symmetry_on_radio_button), TRUE);
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_show_symmetry_yes_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_show_symmetry_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                          gpointer       user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
+   // we don't need a callback for the "no" button - just to the opposite
+
+   std::cout << "on_show_symmetry_yes_radiobutton_toggled() "
+             << gtk_check_button_get_active(checkbutton) << std::endl;
+
+  if (gtk_check_button_get_active(checkbutton)) {
       set_show_symmetry_master(1);
+  } else {
+     set_show_symmetry_master(0);
   }
 }
 
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT
-gboolean
-on_symmetry_radius_entry_key_release_event
-                                        (GtkWidget       *widget,
-                                        GdkEventKey     *event,
-                                        gpointer         user_data)
-{
+void
+on_symmetry_radius_entry_activate(GtkEntry* self,
+                                  gpointer user_data) {
 
-  const char *text;
-  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-     text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(widget)));
-     set_symmetry_size_from_widget(text);
-  }
-  return TRUE;
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(self));
+   if (text) {
+      std::string t(text);
+      try {
+         float f = coot::util::string_to_float(t);
+         set_symmetry_size(f);
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
+   }
+
 }
-#endif
+
+// #ifdef FIX_THE_KEY_PRESS_EVENTS
+// extern "C" G_MODULE_EXPORT
+// gboolean
+// on_symmetry_radius_entry_key_release_event(GtkWidget       *widget,
+//                                            GdkEventKey     *event,
+//                                            gpointer         user_data) {
+
+//    const char *text;
+//    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+//       text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(widget)));
+//       set_symmetry_size_from_widget(text);
+//    }
+//    return TRUE;
+// }
+// #endif
 
 
 extern "C" G_MODULE_EXPORT

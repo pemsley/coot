@@ -41,7 +41,9 @@ Enable the command line (e.g. --pdb and others) ::: 2
 
 Start up from Saved state. ::: 1
 
-Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
+
+Click on symmetry atoms ::: 1
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
@@ -320,3 +322,7 @@ Restart the refinement on button-release when dragging an atom ::: 0.5
 call poke_the_refinement().
 
 Difference Map Peaks ::: 2.5
+* Done. Nice
+
+Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+* Done - good enough for now

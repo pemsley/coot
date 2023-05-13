@@ -3986,10 +3986,6 @@ GtkWidget *wrapped_create_show_symmetry_window() {
    // GtkWidget *show_symm_window = create_show_symmetry_window();
    GtkWidget *show_symm_window = widget_from_builder("show_symmetry_window");
 
-   /* Colour Merge */
-   GtkAdjustment *adjustment;
-   GtkScale *hscale;
-
    /* Symmetry Search Radius Entry */
    GtkWidget *entry;
    char *text;
@@ -4006,58 +4002,47 @@ GtkWidget *wrapped_create_show_symmetry_window() {
       }
    }
 
-/* The Show Symmetry RadioButtons */
+   /* The Show Symmetry RadioButtons */
 
-   GtkButton *button = nullptr;
+   GtkCheckButton *button = nullptr;
    if (get_show_symmetry() == 1) {
-      button = GTK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
+      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
    } else {
-      button = GTK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
+      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
    }
 
    gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
 
-/* Show Symmetry as Calphas checkbutton */
+#if 0 // 20230513-PE not now
 
-//    checkbutton = lookup_widget(GTK_WIDGET(button),
-// 			       "show_symmetry_as_calphas_checkbutton");
-//    if (get_symmetry_as_calphas_state()) {
-//      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-//    }
+   /* Colour Merge */
 
-/* The Colour Merge hscale */
-
-   // hscale = GTK_SCALE(lookup_widget(show_symm_window, "hscale_symmetry_colour"));
-   hscale = GTK_SCALE(widget_from_builder("hscale_symmetry_colour"));
-
-   adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
-
+   GtkScale *hscale = GTK_SCALE(widget_from_builder("hscale_symmetry_colour"));
+   GtkAdjustment *adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
    g_signal_connect(G_OBJECT (adjustment), "value_changed",
 		    G_CALLBACK(symmetry_colour_adjustment_changed),
 		    NULL);
 
-/*  The Symmetry Search Radius Entry */
+#endif
 
-   // entry = lookup_widget(show_symm_window, "symmetry_radius_entry");
+   /*  The Symmetry Search Radius Entry */
+
     entry = widget_from_builder("symmetry_radius_entry");
-
     text = get_text_for_symmetry_size_widget(); /* const gchar *text */
     gtk_editable_set_text(GTK_EDITABLE(entry), text);
-
     free (text);
 
-/* The Unit Cell Radiobuttons */
+    /* The Unit Cell Radiobuttons */
 
     if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+       GtkWidget *check_button = nullptr;
        if (get_show_unit_cell(imol) == 1) {
-	  // button = GTK_BUTTON(lookup_widget(show_symm_window, "unit_cell_yes_radiobutton"));
-	  button = GTK_BUTTON(widget_from_builder("unit_cell_yes_radiobutton"));
+	  check_button = widget_from_builder("unit_cell_yes_radiobutton");
        } else {
-	  // button = GTK_BUTTON(lookup_widget(show_symm_window, "unit_cell_no_radiobutton"));
-	  button = GTK_BUTTON(widget_from_builder("unit_cell_no_radiobutton"));
+	  check_button = widget_from_builder("unit_cell_no_radiobutton");
        }
-       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), TRUE);
     }
 
 
@@ -4065,10 +4050,10 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
     // checkbutton = lookup_widget(show_symm_window, "show_symmetry_expanded_labels_checkbutton");
     GtkWidget *checkbutton = widget_from_builder("show_symmetry_expanded_labels_checkbutton");
-
     if (graphics_info_t::symmetry_atom_labels_expanded_flag)
-       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
+#if 0
     // GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
     GtkWidget *colour_button = widget_from_builder("symmetry_colorbutton"); // a GtkButton
     if (colour_button) {
@@ -4081,6 +4066,31 @@ GtkWidget *wrapped_create_show_symmetry_window() {
        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_button), &bg_colour);
     } else {
        std::cout << "failed to lookup colourbutton" << std::endl;
+    }
+#endif
+
+    GtkWidget *box_for_colour_button = widget_from_builder("hbox_for_colour_button");
+    if (box_for_colour_button) {
+       GtkWidget *child_item = gtk_widget_get_first_child(box_for_colour_button);
+       if (child_item) {
+          // the colour button has already been added
+       } else {
+
+#if 0 // 20230513-PE color dialog is not in GTK 4.4.0 (it is in 4.10)
+          GtkWidget *col_dialog = gtk_color_dialog_new();
+          GtkWidget *colour_button_dialog = gtk_color_dialog_button_new(col_dialog);
+          gtk_box_append(GTK_BOX(box_for_colour_button), colour_button_dialog);
+#endif
+
+          GdkRGBA rgba;
+          rgba.red   = (graphics_info_t::symmetry_colour[0]);
+          rgba.green = (graphics_info_t::symmetry_colour[1]);
+          rgba.blue  = (graphics_info_t::symmetry_colour[2]);
+          rgba.alpha = 1.0f;
+          // std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
+          GtkWidget *colour_button = gtk_color_button_new_with_rgba(&rgba);
+          gtk_box_append(GTK_BOX(box_for_colour_button), colour_button);
+       }
     }
 
 //     // The symmetry colour molecule checkbutton

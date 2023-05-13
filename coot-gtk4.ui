@@ -12009,8 +12009,9 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Show Symmetry?</property>
+    <property name="title" translatable="yes">Coot: Show Symmetry?</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
@@ -12022,26 +12023,32 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkFrame" id="frame163">
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkBox" id="vbox169">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame" id="frame7">
+                    <child type="label">
+                      <object class="GtkLabel" id="label45">
+                        <property name="label" translatable="yes">Master Switch: Show Symmetry Atoms?</property>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkBox" id="vbox11">
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton">
                             <property name="label" translatable="yes">Yes</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="show_symmetry_no_radiobutton">
                             <property name="label" translatable="yes">No</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
                             <property name="active">1</property>
                             <property name="group">show_symmetry_yes_radiobutton</property>
                           </object>
@@ -12055,18 +12062,15 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                       </object>
                     </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label45">
-                        <property name="label" translatable="yes">Master Switch: Show Symmetry Atoms?</property>
-                      </object>
-                    </child>
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="show_symmetry_molecule_control_button">
                     <property name="label" translatable="yes">Symmetry by Molecule...</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                     <signal name="clicked" handler="on_show_symmetry_molecule_control_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -12083,22 +12087,27 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                         <child>
                           <object class="GtkBox" id="hbox7">
+                            <property name="margin-top">6</property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-end">6</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkLabel" id="label47">
-                                <property name="label" translatable="yes">Radius:</property>
+                                <property name="label" translatable="yes"> Radius: </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkEntry" id="symmetry_radius_entry">
-                                <property name="can-focus">1</property>
-                                <property name="primary-icon-activatable">0</property>
-                                <property name="secondary-icon-activatable">0</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <signal name="activate" handler="on_symmetry_radius_entry_activate" swapped="no"/>
                               </object>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label48">
-                                <property name="label" translatable="yes">A</property>
+                                <property name="label" translatable="yes">Å </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
@@ -12110,69 +12119,90 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame9">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="vbox13">
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox" id="hbox8">
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-end">6</property>
                             <child>
                               <object class="GtkLabel" id="label49">
-                                <property name="label" translatable="yes">Symmetry Colour</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-end">6</property>
+                                <property name="label" translatable="yes">Symmetry Colour </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
+                            <!-- <child> -->
+                            <!--   <object class="GtkButton" id="symmetry_colour_patch_button"> -->
+                            <!--     <property name="can-focus">1</property> -->
+                            <!--     <signal name="clicked" handler="on_symmetry_colour_patch_button_clicked" swapped="no"/> -->
+                            <!--     <child> -->
+                            <!--       <object class="GtkBox" id="hbox33"> -->
+                            <!--         <child> -->
+                            <!--           <object class="GtkFrame" id="frame33"> -->
+                            <!--             <child> -->
+                            <!--               <object class="GtkColorButton" id="symmetry_colorbutton"> -->
+                            <!--                 <signal name="color-set" handler="on_symmetry_colorbutton_color_set" swapped="no"/> -->
+                            <!--               </object> -->
+                            <!--             </child> -->
+                            <!--           </object> -->
+                            <!--         </child> -->
+                            <!--         <child> -->
+                            <!--           <object class="GtkLabel" id="label68"> -->
+                            <!--             <property name="label" translatable="yes"> Sym Colour</property> -->
+                            <!--             <property name="justify">center</property> -->
+                            <!--           </object> -->
+                            <!--         </child> -->
+                            <!--       </object> -->
+                            <!--     </child> -->
+                            <!--   </object> -->
+                            <!-- </child> -->
+
                             <child>
-                              <object class="GtkButton" id="symmetry_colour_patch_button">
-                                <property name="can-focus">1</property>
-                                <signal name="clicked" handler="on_symmetry_colour_patch_button_clicked" swapped="no"/>
-                                <child>
-                                  <object class="GtkBox" id="hbox33">
-                                    <child>
-                                      <object class="GtkFrame" id="frame33">
-                                        <child>
-                                          <object class="GtkColorButton" id="symmetry_colorbutton">
-                                            <property name="can-focus">1</property>
-                                            <signal name="color-set" handler="on_symmetry_colorbutton_color_set" swapped="no"/>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label68">
-                                        <property name="label" translatable="yes">Sym Colour</property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
+                              <object class="GtkBox" id="hbox_for_colour_button">
+                                <property name="orientation">horizontal</property>
                               </object>
                             </child>
-                          </object>
+
+                          </object> <!-- vertical box -->
                         </child>
-                        <child>
-                          <object class="GtkBox" id="hbox9">
-                            <child>
-                              <object class="GtkFrame" id="frame10">
-                                <child>
-                                  <object class="GtkBox" id="hbox10">
-                                    <child>
-                                      <object class="GtkLabel" id="label53">
-                                        <property name="label" translatable="yes">Colour Merge:</property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkScale">
-                                        <property name="can-focus">1</property>
-                                        <property name="round-digits">1</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+
+                        <!-- No colour merge for now -->
+                        <!-- <child> -->
+                        <!--   <object class="GtkBox" id="hbox9"> -->
+                        <!--     <child> -->
+                        <!--       <object class="GtkFrame" id="frame10"> -->
+                        <!--         <child> -->
+                        <!--           <object class="GtkBox" id="hbox10"> -->
+                        <!--             <property name="margin-start">6</property> -->
+                        <!--             <property name="margin-end">6</property> -->
+                        <!--             <child> -->
+                        <!--               <object class="GtkLabel" id="label53"> -->
+                        <!--                 <property name="label" translatable="yes"> Colour Merge: </property> -->
+                        <!--                 <property name="justify">center</property> -->
+                        <!--               </object> -->
+                        <!--             </child> -->
+                        <!--             <child> -->
+                        <!--               <object class="GtkScale"> -->
+                        <!--                 <property name="can-focus">1</property> -->
+                        <!--                 <property name="round-digits">1</property> -->
+                        <!--               </object> -->
+                        <!--             </child> -->
+                        <!--           </object> -->
+                        <!--         </child> -->
+                        <!--       </object> -->
+                        <!--     </child> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+
                       </object>
                     </child>
                   </object>
@@ -12180,8 +12210,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkCheckButton" id="show_symmetry_expanded_labels_checkbutton">
                     <property name="label" translatable="yes">Expanded Symmetry Atom Labels?</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
               </object>
@@ -12195,14 +12227,17 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkFrame" id="frame11">
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkBox" id="vbox15">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkCheckButton" id="unit_cell_yes_radiobutton">
                     <property name="label" translatable="yes">Yes</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="active">0</property>
                     <signal name="toggled" handler="on_unit_cell_yes_radiobutton_toggled" swapped="no"/>
                   </object>
                 </child>
@@ -12210,7 +12245,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   <object class="GtkCheckButton" id="unit_cell_no_radiobutton">
                     <property name="label" translatable="yes">No</property>
                     <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
                     <property name="active">1</property>
                     <property name="group">unit_cell_yes_radiobutton</property>
                     <signal name="toggled" handler="on_unit_cell_no_radiobutton_toggled" swapped="no"/>
@@ -12227,17 +12261,25 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkBox" id="hbox133">
+
+            <!-- there is only one button now "Close" - because the widget act when changed -->
+
+            <!-- <child> -->
+            <!--   <object class="GtkButton" id="show_symmetry_apply_button"> -->
+            <!--     <property name="label" translatable="yes">Apply</property> -->
+            <!--     <property name="can-focus">1</property> -->
+            <!--     <signal name="clicked" handler="on_show_symmetry_apply_button_clicked" swapped="no"/> -->
+            <!--   </object> -->
+            <!-- </child> -->
+
             <child>
-              <object class="GtkButton" id="show_symmetry_apply_button">
-                <property name="label" translatable="yes">Apply</property>
+              <object class="GtkButton" id="show_symmetry_ok_button">  <!-- change the id? -->
+                <property name="label" translatable="yes">Close</property>
                 <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_show_symmetry_apply_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="show_symmetry_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_show_symmetry_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -12248,6 +12290,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
+
   <object class="GtkDialog" id="simple_refmac_dialog">
     <property name="title" translatable="yes">Coot: Refine with Refmac</property>
     <signal name="response" handler="on_simple_refmac_dialog_response" swapped="no"/>
