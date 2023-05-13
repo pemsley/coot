@@ -705,6 +705,18 @@ int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
 /*! \brief read coordinates from filename */
 int read_pdb(const char *filename);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief - get the name state of the input model. Return false if there was an erro with the molecule index */
+SCM get_input_model_was_cif_state_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+/*! \brief - get the name state of the input model */
+PyObject *get_input_molecule_was_in_mmcif_state_py(int imol);
+#endif
+#endif
+
+
 /*! \brief some programs produce PDB files with ATOMs where there
   should be HETATMs.  This is a function to assign HETATMs as per the
   PDB definition. */

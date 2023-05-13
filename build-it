@@ -1610,6 +1610,9 @@ if test "$build_coot_prerelease" = 1 ; then
       awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html
 
       coot_version=$(awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+      coot_version=coot-0.9.8.5
+      coot_version=coot-0.9.8.6
+      coot_version=coot-0.9.8.7
       echo NNX:: coot_version $coot_version
 
    else
@@ -1646,6 +1649,7 @@ else
     echo ==============
     coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+    coot_version=coot-0.9.8.3 # the other one is used
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -4636,21 +4640,22 @@ unset PKG_CONFIG_PATH
 # refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
 # refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
 # refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
+# refmac_mon_lib=refmac-monomer-library.tar.gz
+# refmac_mon_lib=refmac-monomer-library-20210105.tar.gz
 
 # new style
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
-refmac_mon_lib=refmac-monomer-library.tar.gz
-refmac_mon_lib=refmac-monomer-library-20210105.tar.gz
+ccp4_mon_lib=monomers-2023-01-02-23:57:29.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
-else
-    echo INSTALLING refmac monomer library...
-    echo INSTALLING refmac monomer library... >&2
-    $WGET $mon_lib_dir/$refmac_mon_lib
+else 
+    echo INSTALLING CCP4 monomer library...
+    echo INSTALLING CCP4 monomer library... >&2
+    $WGET $mon_lib_dir/$ccp4_mon_lib
     mkdir -p $install_top_dir/share/coot/lib/data
-    tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
-fi
+    tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$ccp4_mon_lib
+fi 
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else
