@@ -720,9 +720,14 @@ new_startup_application_activate(GtkApplication *application,
 
       setup_python_with_coot_modules(argc, argv);
 
+      // if there is no command line arguments, the the function that sets this data is not run
+      // so cld is null
       command_line_data *cld = static_cast<command_line_data *>(g_object_get_data(G_OBJECT(application),
                                                                                   "command-line-data"));
-      handle_command_line_data(*cld);
+      if (cld) {
+         handle_command_line_data(*cld);
+         run_command_line_scripts();
+      }
 
       // load_tutorial_model_and_data();
 

@@ -37,13 +37,14 @@ Here are other styles:
 
 ----
 
-How do I add a single water? ::: 1
-
 File -> Delete Molecules dialog ::: 1
 
 Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
 
 Background colour ::: 1
+
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
+ Other Solvent Molecules"? ::: 1
 
 Click on symmetry atoms ::: 1
 
@@ -58,6 +59,8 @@ Sun 23 Apr 21:33:42 BST 2023
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
+
+Add back the icons in the info dialog ::: 1
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
@@ -86,6 +89,9 @@ rename draw-2.cc as tick-function.cc or some such
 "Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
 Get rid of "Other Modelling Tools" ::: 1
+
+When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
+on the atom that is blocking. ::: 1
 
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 
@@ -340,5 +346,10 @@ Double-click to recentre (G: go to blob) ::: 0.3
 
 Draw -> Molecule -> Bond colours ::: 1
 * A lot better.
+
+How do I add a single water? ::: 0.5
+* Added to key-bindings for now.  Take care to add it to the correct molecule though
+
+When I am adding waters, don't let me add to the molecule if it is not displayed. ::: 0.2
 
 

@@ -5012,9 +5012,16 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
    }
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
-      update_environment_distances_by_rotation_centre_maybe(imol);
-      graphics_draw();
+      if (molecules[imol].is_displayed_p()) {
+         molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+         update_environment_distances_by_rotation_centre_maybe(imol);
+         graphics_draw();
+      } else {
+         std::string message = "WARNING:: disallowed addition of ";
+         message += type;
+         message += "\nas the target molecule is not displayed";
+         info_dialog(message);
+      }
    }
 }
 

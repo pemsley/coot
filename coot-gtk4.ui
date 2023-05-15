@@ -9188,7 +9188,7 @@ If you need symmetry, setup ccp4 before starting coot
     </child>
   </object>
   <object class="GtkDialog" id="nothing_bad_dialog">
-    <property name="title" translatable="yes">Info:</property>
+    <property name="title" translatable="yes">Coot: Info</property>
     <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="orientation">vertical</property>
@@ -9224,6 +9224,7 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nothing_to_recover_dialog">
     <property name="title" translatable="yes">Nothing to Recover</property>
     <child>
