@@ -7449,26 +7449,6 @@ on_ncs_control_dialog_delete_event(GtkWidget       *widget,
 }
 
 
-extern "C" G_MODULE_EXPORT
-gboolean
-on_coords_colour_control_dialog_delete_event(GtkWidget       *widget,
-                                                                 GdkEvent        *event,
-                                                                 gpointer         user_data) {
-
-   gtk_widget_hide(widget);
-   return TRUE;
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_coords_colour_control_dialog_destroy
-                                        (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-   // do nothing!
-}
-
 
 extern "C" G_MODULE_EXPORT
 void

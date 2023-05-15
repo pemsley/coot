@@ -39,8 +39,6 @@ Here are other styles:
 
 How do I add a single water? ::: 1
 
-Draw -> Molecule -> Bond colours ::: 1
-
 File -> Delete Molecules dialog ::: 1
 
 Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
@@ -339,5 +337,8 @@ Consider using double-click to do go to blob.  Where does "label atom" go then? 
 (pressing "G" on the keyboard is not intuitive). ::: 0.2
 Double-click to recentre (G: go to blob) ::: 0.3
 * Done. Let's see if I like it.
+
+Draw -> Molecule -> Bond colours ::: 1
+* A lot better.
 
 

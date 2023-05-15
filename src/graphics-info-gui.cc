@@ -4332,33 +4332,32 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 
    // First the (global) step adjustment:
    GtkScale *hscale = GTK_SCALE(widget_from_builder("bond_parameters_colour_rotation_hscale"));
-   GtkAdjustment *adjustment = GTK_ADJUSTMENT
-      (gtk_adjustment_new(rotate_colour_map_on_read_pdb, 0.0, 370.0, 1.0, 20.0, 10.1));
+   std::cout << "in fill_bond_colours_dialog_internal() hscale " << hscale << std::endl;
+   GtkAdjustment *adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(rotate_colour_map_on_read_pdb, 0.0, 370.0, 1.0, 20.0, 10.1));
+   std::cout << "in fill_bond_colours_dialog_internal() adjustment " << adjustment << std::endl;
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
-		      G_CALLBACK(bond_parameters_colour_rotation_adjustment_changed), NULL);
+                    G_CALLBACK(bond_parameters_colour_rotation_adjustment_changed), NULL);
 
 
+   // Dead now.
+   //
    // Now the "C only" checkbutton:
-   GtkWidget *checkbutton = widget_from_builder("bond_parameters_rotate_colour_map_c_only_checkbutton");
-   if (rotate_colour_map_on_read_pdb_c_only_flag) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
+   // GtkWidget *checkbutton = widget_from_builder("bond_parameters_rotate_colour_map_c_only_checkbutton");
+   // n   if (rotate_colour_map_on_read_pdb_c_only_flag)
+   // gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
    // 20220315-PE  but it doesn't work and who wants this mode anyway? Pink nitrogens?
    //
-   GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
-   gtk_widget_hide(frame_c_only);
+   // GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
+   // gtk_widget_hide(frame_c_only);
+
 
    // Now the tricky bit, fill the scrolled vbox of molecule colour rotation step sliders:
-
-   GtkWidget *frame_molecule_N;
-   GtkWidget *coords_colour_control_dialog = w;
+   //
    GtkWidget *coords_colours_vbox = widget_from_builder("coords_colours_vbox");
-   GtkWidget *hbox136;
    GtkWidget *label269;
    GtkWidget *label270;
-   GtkWidget *coords_colour_hscale_mol_N;
 
    clear_out_container(coords_colours_vbox);
 
@@ -4369,71 +4368,53 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 m += coot::util::int_to_string(imol);
 	 m += " ";
 	 m += molecules[imol].name_for_display_manager();
-	 frame_molecule_N = gtk_frame_new (m.c_str());
+         GtkWidget *frame_molecule_N = gtk_frame_new(m.c_str());
+         gtk_widget_set_hexpand(frame_molecule_N, TRUE);
+         gtk_widget_set_margin_top(frame_molecule_N, 2);
+         gtk_widget_set_margin_bottom(frame_molecule_N, 2);
+         gtk_widget_set_margin_start(frame_molecule_N, 6);
+         gtk_widget_set_margin_end(frame_molecule_N, 6);
+
 	 // gtk_widget_ref (frame_molecule_N);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog),
-				"frame_molecule_N", frame_molecule_N,
-				NULL);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "frame_molecule_N", frame_molecule_N, NULL);
+
 	 gtk_box_append(GTK_BOX(coords_colours_vbox), frame_molecule_N);
 	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
-#else
-	 gtk_box_pack_start (GTK_BOX (coords_colours_vbox), frame_molecule_N, TRUE, TRUE, 0);
-	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
-	 gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
-#endif
 
-	 hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+         GtkWidget *hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+         gtk_widget_set_hexpand(hbox136, TRUE);
+
 	 // gtk_widget_ref (hbox136);
-	 g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136,
-				 NULL);
+	 // g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136, NULL);
+
 	 gtk_widget_show (hbox136);
 	 gtk_frame_set_child(GTK_FRAME(frame_molecule_N), hbox136);
 
-	 label269 = gtk_label_new (_("    "));
-	 // gtk_widget_ref (label269);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269,
-				NULL);
-	 gtk_widget_show (label269);
-#if (GTK_MAJOR_VERSION == 4)
-	 gtk_box_append(GTK_BOX (hbox136), label269);
-#else
-	 gtk_box_pack_start (GTK_BOX (hbox136), label269, FALSE, FALSE, 0);
-#endif
+	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269, NULL);
 
-	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT
-	    (gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
-				0.0, 370.0, 1.0, 20.0, 10.1));
-	 coords_colour_hscale_mol_N = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment_mol);
+	 label269 = gtk_label_new (_("    ")); // what does this do?
+	 gtk_box_append(GTK_BOX(hbox136), label269);
+
+	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT(gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
+                                                                           0.0, 370.0, 1.0, 20.0, 10.1));
+         GtkWidget *coords_colour_hscale_mol_N = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL, adjustment_mol);
+         gtk_widget_set_hexpand(coords_colour_hscale_mol_N, TRUE);
+
 	 gtk_range_set_adjustment(GTK_RANGE(coords_colour_hscale_mol_N), adjustment_mol);
 	 g_signal_connect(G_OBJECT(adjustment_mol), "value_changed",
 			  G_CALLBACK(bonds_colour_rotation_adjustment_changed), NULL);
 	 g_object_set_data(G_OBJECT(adjustment_mol), "imol", GINT_TO_POINTER(imol));
 
-	 // gtk_widget_ref (coords_colour_hscale_mol_N);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog),
-				"coords_colour_hscale_mol_N",
-				coords_colour_hscale_mol_N,
-				NULL);
 	 gtk_widget_show (coords_colour_hscale_mol_N);
 
-#if (GTK_MAJOR_VERSION == 4)
 	 gtk_box_append(GTK_BOX (hbox136), coords_colour_hscale_mol_N);
-#else
-	 gtk_box_pack_start (GTK_BOX (hbox136), coords_colour_hscale_mol_N, TRUE, TRUE, 0);
-#endif
 
 	 label270 = gtk_label_new (_("  degrees  "));
-	 // gtk_widget_ref (label270);
-	 g_object_set_data_full (G_OBJECT(coords_colour_control_dialog), "label270", label270,
-				 NULL);
+
 	 gtk_widget_show (label270);
-#if (GTK_MAJOR_VERSION == 4)
 	 gtk_box_append(GTK_BOX(hbox136), label270);
-#else
-	 gtk_box_pack_start(GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
-#endif
-	 // gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
+
+         // needed?
          gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
          gtk_label_set_yalign(GTK_LABEL(label270), 0.56);
 

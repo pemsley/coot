@@ -7107,6 +7107,9 @@ void post_scheme_scripting_window() {
 void
 run_command_line_scripts() {
 
+   std::cout << "---------------------------------------- run_command_line_scripts() ----------------"
+             << std::endl;
+
    if (graphics_info_t::command_line_scripts.size()) {
       std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
 		<< " command line scripts to run\n";

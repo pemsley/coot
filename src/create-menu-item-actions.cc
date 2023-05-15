@@ -1153,9 +1153,11 @@ void
 bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
