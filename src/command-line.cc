@@ -473,3 +473,28 @@ command_line_data::roberto_pdbs(int argc, char **argv) {
    }
 }
 
+
+void
+command_line_data::add(const std::string &file_name) {
+
+   // add to command_line_scripts or command_line_commands
+   // so that it behaves like it did before GtkApplication usage
+   //
+
+   std::string extension = coot::util::file_name_extension(file_name);
+   if (extension == ".pdb")
+      coords.push_back(file_name);
+   if (extension == ".map")
+      maps.push_back(file_name);
+   if (extension == ".mrc")
+      maps.push_back(file_name);
+   if (extension == ".mtz")
+      auto_datasets.push_back(file_name);
+   if (extension == ".cif")
+      dictionaries.push_back(file_name);
+   if (extension == ".py")
+      script.push_back(file_name);
+   if (extension == ".scm")
+      script.push_back(file_name);
+}
+

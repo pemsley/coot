@@ -43,7 +43,17 @@ Start up from Saved state. ::: 1
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
+How do I add a single water? ::: 1
+
 Click on symmetry atoms ::: 1
+
+Draw -> Molecule -> Bond colours ::: 1
+
+File -> Delete Molecules dialog ::: 1
+
+Background colour ::: 1
+
+"auto-read-mtz" mtz on the command line makes the maps in the wrong order.
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
@@ -75,6 +85,10 @@ Full-fat render path - i.e. framebuffer need to be set up correctly (at the righ
 
 Curlew: ::: 4
 
+Bring Python command history and completion into GTK4: ::: 2
+   a9d101aa69a767583a085de9e3c8ae2449fe71fa
+   3fc6cfe003683ab1180c0045387036068cc32294
+
 rename draw-2.cc as tick-function.cc or some such
 
 "Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
@@ -82,8 +96,6 @@ rename draw-2.cc as tick-function.cc or some such
 Get rid of "Other Modelling Tools" ::: 1
 
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
-
-How do I add a single water? ::: 1
 
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
