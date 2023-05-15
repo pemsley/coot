@@ -761,8 +761,8 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu);
 /* The callback for the above menuitems */
 void close_molecule_item_select(GtkWidget *item, GtkPositionType pos);
 
-/* New version of close molecule */
-void new_close_molecules(GtkWidget *window);
+/* New new version of close molecule 20230515-PE */
+void close_molecules_gtk4(GtkWidget *window);
 GtkWidget *wrapped_create_new_close_molecules_dialog();
 
 /* Used for unsetting the rotamer dialog when it gets destroyed. */

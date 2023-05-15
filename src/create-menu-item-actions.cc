@@ -505,7 +505,9 @@ void
 close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
+   set_transient_for_main_window(widget);
    gtk_widget_show(widget);
 }
 

@@ -742,8 +742,6 @@ new_startup_application_activate(GtkApplication *application,
 
    // delete activate_data; // 20230515-PE restore this when other command line stuff is working OK
 
-   std::cout << "new_startup_application_activate() --- returns --- " << std::endl;
-
 }
 
 // move these to the top.

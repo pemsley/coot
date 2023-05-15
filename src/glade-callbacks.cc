@@ -5660,16 +5660,12 @@ on_ligand_no_blobs_OK_button_clicked   (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_new_delete_molecules_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_new_delete_molecules_ok_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
 
-   // GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
-   new_close_molecules(w);
-
-  /*   gtk_widget_hide(w); */
+   close_molecules_gtk4(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -5679,7 +5675,6 @@ on_new_delete_molecules_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   // GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    gtk_widget_hide(w);
 
