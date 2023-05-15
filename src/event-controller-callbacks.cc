@@ -240,7 +240,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
       // the action has occured in above function
    } else {
 
-      // std::cout << "n_press " << n_press << std::endl;
+      std::cout << "n_press " << n_press << std::endl;
+
       // n_press can go up to 20, 30...
       //
       if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
@@ -260,8 +261,13 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                int imol = naii.imol;
                molecules[imol].add_to_labelled_atom_list(naii.atom_index);
                add_picked_atom_info_to_status_bar(imol, naii.atom_index);
+               handled = true;
                graphics_draw();
             }
+         }
+
+         if (! handled) {
+            blob_under_pointer_to_screen_centre();
          }
       }
 

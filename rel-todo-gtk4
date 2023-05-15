@@ -37,23 +37,17 @@ Here are other styles:
 
 ----
 
-Enable the command line (e.g. --pdb and others) ::: 2
-
-Start up from Saved state. ::: 1
-
-Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
-
 How do I add a single water? ::: 1
-
-Click on symmetry atoms ::: 1
 
 Draw -> Molecule -> Bond colours ::: 1
 
 File -> Delete Molecules dialog ::: 1
 
+Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
+
 Background colour ::: 1
 
-"auto-read-mtz" mtz on the command line makes the maps in the wrong order.
+Click on symmetry atoms ::: 1
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
@@ -67,19 +61,19 @@ Sun 23 Apr 21:33:42 BST 2023
 
 Fix "Edit Chi Angles" button ::: 1
 
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
+
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
-Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
+Enable the command line (e.g. --pdb and others) ::: 2
+
+Start up from Saved state. ::: 1
+For now I can start by passing startup.py on the command line.
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
-
-Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
-(pressing "G" on the keyboard is not intuitive). ::: 2
-
-Double-click to recentre (G: go to blob) ::: 1
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
@@ -338,3 +332,12 @@ Difference Map Peaks ::: 2.5
 
 Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
 * Done - good enough for now
+
+Enable basic files on the command line ::: 4
+
+Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
+(pressing "G" on the keyboard is not intuitive). ::: 0.2
+Double-click to recentre (G: go to blob) ::: 0.3
+* Done. Let's see if I like it.
+
+
