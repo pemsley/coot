@@ -3031,14 +3031,12 @@ on_hints1_activate                     (GMenuItem     *menuitem,
 /* this is the Apply button now */
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_ok_button_clicked      (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   apply_residue_info_changes(widget);
-   /*    gtk_widget_hide(widget); not now that it's the Apply button*/
+on_residue_info_apply_button_clicked(GtkButton       *button,
+                                     gpointer         user_data) {
 
+   apply_residue_info_changes();
+   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
+   // gtk_widget_hide(widget); maybe, maybe not. 20230515-PE
 }
 
 
@@ -3047,56 +3045,55 @@ void
 on_residue_info_cancel_button_clicked  (GtkButton       *button,
                                         gpointer         user_data) {
 
-   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
 
    residue_info_release_memory(widget);  // Hmmm! that seems dangerous
-
-   // gtk_widget_hide(widget); not now we use builder
    gtk_widget_hide(widget);
-   unset_residue_info_widget();
+   unset_residue_info_widget(); // 20230515-PE seems an ancient thing to do. Needed?
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_master_atom_occ_entry_changed (GtkEditable     *editable,
-                                               gpointer         user_data) {
+on_residue_info_master_atom_occ_entry_changed (GtkEntry     *entry,
+                                               gpointer      user_data) {
 
-   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    if (txt) {
       std::string s(txt);
       std::cout << "master atom occ changed to " << s << std::endl;
+      graphics_info_t g;
+      g.residue_info_edit_occ_apply_to_other_entries_maybe(GTK_WIDGET(entry));
    }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_master_atom_occ_entry_activate(GtkWidget *entry, gpointer user_data) {
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_master_atom_b_factor_entry_changed(GtkEditable     *editable,
-                                                   gpointer         user_data) {
+on_residue_info_master_atom_b_factor_entry_changed(GtkEntry     *entry,
+                                                   gpointer      user_data) {
 
-   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    if (txt) {
       std::string s(txt);
-      std::cout << "master atom b-factor changed to " << s << std::endl;
+      std::cout << "master atom B-factor changed to " << s << std::endl;
+      graphics_info_t g;
+      g.residue_info_edit_b_factor_apply_to_other_entries_maybe(GTK_WIDGET(entry));
    }
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_dialog_destroy         (GtkWidget       *object,
-                                        gpointer         user_data) {
-
-   std::cout << "---------------------- this should not happen! on_residue_info_dialog_destroy()" << std::endl;
-   GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   residue_info_release_memory(widget);
-   clear_residue_info_edit_list();
-   unset_residue_info_widget();
+on_residue_info_master_atom_b_factor_entry_activate(GtkWidget *entry, gpointer user_data) {
 
 }
-
 
 
 extern "C" G_MODULE_EXPORT

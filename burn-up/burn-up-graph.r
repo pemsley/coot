@@ -45,10 +45,10 @@ predict = function(x_pos, y_pos) {
                                         # print(paste("m2" + m2))
                                         # print(paste("m_diff" + m_diff))
 
-    print("m1")
-    print(m1)
-    print("m2")
-    print(m2)
+    # print("m1")
+    # print(m1)
+    # print("m2")
+    # print(m2)
     print("m_diff")
     print(m_diff)
 

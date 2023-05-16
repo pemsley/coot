@@ -1083,7 +1083,7 @@ std::string graphics_info_t::directory_for_saving_for_filechooser = "";
 short int graphics_info_t::residue_info_pending_edit_b_factor = 0;
 short int graphics_info_t::residue_info_pending_edit_occ = 0;
 int       graphics_info_t::residue_info_n_atoms = -1;
-std::vector<coot::select_atom_info> *graphics_info_t::residue_info_edits = NULL;
+std::vector<coot::select_atom_info> graphics_info_t::residue_info_edits; // used to be static (written in the very olden days)
 
 //  Backbone torsions:
 clipper::Coord_orth graphics_info_t::backbone_torsion_end_ca_1;

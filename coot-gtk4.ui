@@ -9194,6 +9194,7 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nothing_bad_dialog">
     <property name="title" translatable="yes">Coot: Info</property>
     <child>
@@ -9225,11 +9226,21 @@ If you need symmetry, setup ccp4 before starting coot
         </child>
       </object>
     </child>
+
+    <!-- <child> -->  <!-- something like this - not this though -->
+    <!--     <object class="GtkImage" id="info_dialog_warning_image"> -->
+    <!--       <property name="stock">gtk-dialog-warning</property> -->
+    <!--       <property name="icon_size">6</property> -->
+    <!--       <property name="xalign">0.5</property> -->
+    <!--       <property name="yalign">0.5</property> -->
+    <!--       <property name="xpad">0</property> -->
+    <!--       <property name="ypad">0</property> -->
+    <!--     </object> -->
+    <!-- </child> -->
+
     <action-widgets>
       <action-widget response="0">nothing_bad_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="nothing_to_recover_dialog">
@@ -10477,8 +10488,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="residue_info_dialog">
-    <property name="title" translatable="yes">Coot Residue Info</property>
-    <signal name="destroy" handler="on_residue_info_dialog_destroy" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Residue Info</property>
     <child>
       <object class="GtkBox" id="dialog-vbox14">
         <property name="orientation">vertical</property>
@@ -10514,6 +10524,8 @@ just the cell and symmetry)
                           <object class="GtkEntry" id="residue_info_master_atom_occ_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
+                            <signal name="activate" handler="on_residue_info_master_atom_occ_entry_activate" swapped="no"/>
+                            <!-- not used now? -->
                             <signal name="changed" handler="on_residue_info_master_atom_occ_entry_changed" swapped="no"/>
                           </object>
                         </child>
@@ -10522,6 +10534,7 @@ just the cell and symmetry)
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
                             <signal name="changed" handler="on_residue_info_master_atom_b_factor_entry_changed" swapped="no"/>
+                            <signal name="activate" handler="on_residue_info_master_atom_b_factor_entry_activate" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -10616,7 +10629,6 @@ just the cell and symmetry)
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox49">
-            <property name="halign">GTK_ALIGN_END</property>
             <property name="spacing">4</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
@@ -10625,15 +10637,21 @@ just the cell and symmetry)
             <child>
               <object class="GtkButton" id="residue_info_cancel_button">
                 <property name="label" translatable="yes">Close</property>
-                <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_residue_info_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="residue_info_ok_button">
+              <object class="GtkButton" id="residue_info_apply_button">
                 <property name="label" translatable="yes">Apply</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_residue_info_apply_button_clicked" swapped="no"/>
                 <style>
                   <class name="suggested-action"/>
                 </style>
@@ -10647,8 +10665,9 @@ just the cell and symmetry)
     </child>
   </object>
 
+  <!-- is this still a thing? needs checking -->
   <object class="GtkWindow" id="residue_type_chooser_window">
-    <property name="title" translatable="yes">Residu Type</property>
+    <property name="title" translatable="yes">Coot: Residue Type</property>
     <child>
       <object class="GtkFrame" id="frame50">
         <child>

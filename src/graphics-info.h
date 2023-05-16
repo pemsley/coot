@@ -3149,7 +3149,7 @@ public:
    // residue info
    //
    // Why not use just the atom index, you might ask.  Because, from
-   // scriting we will pass the atom attributes, not the atom index so
+   // scripting we will pass the atom attributes, not the atom index so
    // we don't have to pick an atom in the c-interface and then expand
    // it to the residue in graphics-info.
    //
@@ -3157,9 +3157,10 @@ public:
    static short int   residue_info_pending_edit_occ;
    static int         residue_info_n_atoms; // so that we can release the memory and
 					    // propogate the changes to the other widgets
-   static std::vector<coot::select_atom_info> *residue_info_edits;
+   static std::vector<coot::select_atom_info> residue_info_edits;
+
    void reset_residue_info_edits() { // set residue_info_edits to zero elements
-      residue_info_edits->resize(0);
+      residue_info_edits.clear();
    }
 
    void residue_info_release_memory(GtkWidget *dialog);
@@ -3169,9 +3170,9 @@ public:
    static void  residue_info_add_b_factor_edit(coot::select_atom_info sai, float val);
    static void  residue_info_add_occ_edit(     coot::select_atom_info sai, float val);
 
-   void apply_residue_info_changes(GtkWidget *t);
-   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
-   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *widget);
+   void apply_residue_info_changes(); // and clear the vector
+   static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
+   static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
 
    void add_picked_atom_info_to_status_bar(int imol, int atom_index);
 
@@ -5172,6 +5173,7 @@ string   static std::string sessionid;
    };
    static std::vector<widgeted_rama_plot_t> rama_plot_boxes;
    static void draw_rama_plots(); // draw the rama plots in the above vector
+   static void remove_plot_from_rama_plots(GtkWidget *rama_plot);
 
 };
 

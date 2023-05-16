@@ -1527,11 +1527,7 @@ graphics_info_t::output_residue_info_dialog(int imol, const coot::residue_spec_t
 
 
 
-// Called from a graphics-info-defines routine, would you believe? :)
-//
-// This should be a graphics_info_t function.
-//
-// The reader is graphics_info_t::apply_residue_info_changes(GtkWidget *dialog);
+// The reader is graphics_info_t::apply_residue_info_changes();
 //
 void
 graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
@@ -1586,7 +1582,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
                             }
                          };
 
-   if (graphics_info_t::residue_info_edits->size() > 0) {
+   if (graphics_info_t::residue_info_edits.size() > 0) {
 
       std::string s =  "You have pending (un-Applied) residue edits.\n";
       s += "Deal with them first.";
@@ -1621,17 +1617,6 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
 
                // Do I need to clear the signals from the previous time that this widget was shown?
                // Or how do I add these just once?
-
-#if FIX_THE_KEY_PRESS_EVENTS
-
-               g_signal_connect (G_OBJECT (master_occ_entry), "changed",
-                                 G_CALLBACK (graphics_info_t::on_residue_info_master_atom_occ_changed),
-                                 NULL);
-
-               g_signal_connect (G_OBJECT (master_b_factor_entry),
-                                 "changed", G_CALLBACK (graphics_info_t::on_residue_info_master_atom_b_factor_changed),
-                                 NULL);
-#endif
 
                gtk_editable_set_text(GTK_EDITABLE(master_occ_entry), "1.0");
 
@@ -1669,6 +1654,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *dialog, int imol,
 
    // GtkWidget *table = lookup_widget(widget, "residue_info_atom_table");
    GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
+   g_object_set_data(G_OBJECT(grid), "imol", GINT_TO_POINTER(imol));
 
    std::cout << "::::::::::::::::: fill_output_residue_info_widget() grid " << grid << std::endl;
 
@@ -1826,28 +1812,15 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
    g_object_set_data(G_OBJECT(dialog), widget_name.c_str(), residue_info_b_factor_entry);
 
    // gtk_widget_set_size_request(residue_info_b_factor_entry, 20, -1);
-#if (GTK_MAJOR_VERSION >= 4)
+
    gtk_editable_set_width_chars(GTK_EDITABLE(residue_info_b_factor_entry), 6);
-#else
-   gtk_entry_set_width_chars(GTK_ENTRY(residue_info_b_factor_entry), 8);
-#endif
 
    gtk_widget_show (residue_info_b_factor_entry);
    gtk_editable_set_text(GTK_EDITABLE(residue_info_b_factor_entry),
                          graphics_info_t::float_to_string(atom->tempFactor).c_str());
    g_object_set_data(G_OBJECT(residue_info_b_factor_entry), "select_atom_info", ai);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME events
-#else
-   gtk_widget_set_events(residue_info_b_factor_entry,
-			 GDK_KEY_PRESS_MASK     |
-			 GDK_KEY_RELEASE_MASK);
-#endif
-   // gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
-   //      	    left_attach, right_attach, top_attach, bottom_attach,
-   //      	    xopt, yopt, xpad, ypad);
-   gtk_grid_attach(GTK_GRID(grid), residue_info_b_factor_entry, left_attach, top_attach, 1, 1);
 
+   gtk_grid_attach(GTK_GRID(grid), residue_info_b_factor_entry, left_attach, top_attach, 1, 1);
 
    // Alt Conf label:
    GtkWidget *alt_conf_label = gtk_label_new(" ");
@@ -1890,80 +1863,21 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
 
 }
 
-#if 0
-// static
-gboolean
-graphics_info_t::on_residue_info_master_atom_occ_changed (GtkWidget       *entry,
-							  GdkEventKey     *event,
-							  gpointer         user_data) {
-   const gchar *s = gtk_editable_get_text(GTK_EDITABLE(widget));
-   if (s) {
-      // consider strtof:
-      //
-      // double f = atof(s);
-      graphics_info_t::residue_info_pending_edit_occ = 1;
-
-      graphics_info_t g;
-      GtkWidget *dialog = widget_from_builder("residue_info_dialog");
-      g.residue_info_edit_occ_apply_to_other_entries_maybe(dialog, entry);
-   }
-   return TRUE;
-}
-#endif
-
-#if 0
-// static
-gboolean
-graphics_info_t::on_residue_info_master_atom_b_factor_changed (GtkWidget       *entry,
-							       GdkEventKey     *event,
-							       gpointer         user_data) {
-
-   // Let's get the entry value:
-   //
-   const gchar *s = gtk_editable_get_text(GTK_EDITABLE(GTK)_ENTRY(widget));
-   if (s) {
-      // consider strtof:
-      //
-      // float f = atof(s);
-      graphics_info_t::residue_info_pending_edit_b_factor = 1;
-
-      graphics_info_t g;
-      GtkWidget *dialog = widget_from_builder("residue_info_dialog");
-      g.residue_info_edit_b_factor_apply_to_other_entries_maybe(dialog, entry);
-   }
-   return TRUE;
-}
-#endif
-
-
-
 
 //static
 void
-graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *start_entry) {
+graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *master_b_factor_entry) {
 
-   // first find the checkbox:
-   // GtkWidget *dialog = lookup_widget(start_entry, "residue_info_dialog");
-   // GtkWidget *checkbutton = lookup_widget(dialog, "residue_info_b_factor_apply_all_checkbutton");
    GtkWidget *checkbutton = widget_from_builder("residue_info_b_factor_apply_all_checkbutton");
+   GtkWidget *grid        = widget_from_builder("residue_info_atom_grid");
 
-   if (! checkbutton) {
-      std::cout << "ERROR:: residue_info_edit_b_factor_apply_to_other_entries_maybe() could not find checkbutton" << std::endl;
-   } else {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
-
-	 // propogate the change to the other b-factor widgets
-	 std::string entry_text(gtk_editable_get_text(GTK_EDITABLE(start_entry)));
-	 for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
-            std::string widget_name = "residue_info_b_factor_entry_";
-	    widget_name += int_to_string(i);
-            GtkWidget *atom_b_factor_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), widget_name.c_str()));
-	    if (atom_b_factor_entry) {
-	       gtk_editable_set_text(GTK_EDITABLE(atom_b_factor_entry), entry_text.c_str());
-	    } else {
-	       std::cout << "ERROR: in residue_info_edit_b_factor_apply_to_other_entries_maybe() no entry\n";
-	    }
-	 }
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
+      const char *txt = gtk_editable_get_text(GTK_EDITABLE(master_b_factor_entry));
+      // the first line is labels
+      for (int iat=1; iat<10000; iat++) {
+         GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), 2, iat);
+         if (!w) break;
+         gtk_editable_set_text(GTK_EDITABLE(w), txt);
       }
    }
 }
@@ -1971,68 +1885,24 @@ graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidg
 
 //static
 void
-graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *dialog, GtkWidget *master_occ_entry) {
-
-   // first find the checkbox:
-   // GtkWidget *dialog = lookup_widget(master_occ_entry, "residue_info_dialog");
-   // GtkWidget *occ_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_all_checkbutton");
-   // GtkWidget *alt_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_to_altconf_checkbutton");
-   // GtkWidget *alt_entry       = lookup_widget(dialog, "residue_info_occ_apply_to_alt_conf_entry");
+graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *master_occ_entry) {
 
    GtkWidget *occ_checkbutton = widget_from_builder("residue_info_occ_apply_all_checkbutton");
    GtkWidget *alt_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
    GtkWidget *alt_entry       = widget_from_builder("residue_info_occ_apply_to_alt_conf_entry");
+   GtkWidget *grid            = widget_from_builder("residue_info_atom_grid");
 
-
-   std::string widget_name;
-
-   if (! occ_checkbutton) {
-      std::cout << "ERROR:: residue_info_edit_occ_apply_to_other_entries_maybe(): could not find checkbutton" << std::endl;
-   } else {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(occ_checkbutton))) {
-
-	 // propogate the change to the other b-factor widgets
-	 std::string entry_text(gtk_editable_get_text(GTK_EDITABLE(master_occ_entry)));
-	 for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
-	    widget_name = "residue_info_occ_entry_";
-	    widget_name += int_to_string(i);
-	    // atom_occ_entry = lookup_widget(dialog, widget_name.c_str());
-            GtkWidget *atom_occ_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), widget_name.c_str()));
-	    // atom_occ_entry = nullptr;
-            // std::cout << "FIXME in residue_info_edit_occ_apply_to_other_entries_maybe() find occ entry correctly " << std::endl;
-	    if (atom_occ_entry) {
-	       gtk_editable_set_text(GTK_EDITABLE(atom_occ_entry), entry_text.c_str());
-	    } else {
-	       std::cout << "ERROR: in residue_info_edit_occ_apply_to_other_entries_maybe() no entry\n";
-	    }
-	 }
-      } else {
-
-	 // How about changing the occ of atoms give given alt conf then?
-	 //
-         // 20220809-PE these are check buttons and will need to use gtk_check_button_get_active in gtk4.
-         //             elsewhere also.
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(alt_checkbutton))) {
-	    std::string entry_text(gtk_editable_get_text(GTK_EDITABLE(master_occ_entry)));
-	    std::string target_alt_conf(gtk_editable_get_text(GTK_EDITABLE(alt_entry)));
-	    for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
-	       widget_name = "residue_info_occ_entry_";
-	       widget_name += int_to_string(i);
-               GtkWidget *atom_occ_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), widget_name.c_str()));
-	       widget_name = "residue_info_altloc_entry_";
-	       widget_name += int_to_string(i);
-               GtkWidget *atom_alt_conf_entry = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), widget_name.c_str()));
-	       if (atom_occ_entry && atom_alt_conf_entry) {
-		  std::string alt_conf_text = gtk_editable_get_text(GTK_EDITABLE(atom_alt_conf_entry));
-		  if (alt_conf_text == target_alt_conf) {
-		     gtk_editable_set_text(GTK_EDITABLE(atom_occ_entry), entry_text.c_str());
-		  }
-	       } else {
-                  std::cout << "ERROR:: in residue_info_edit_occ_apply_to_other_entries_maybe() failed to lookup widgets correctly"
-                            << std::endl;
-               }
-	    }
-	 }
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(occ_checkbutton))) {
+      const char *txt = gtk_editable_get_text(GTK_EDITABLE(master_occ_entry));
+      // the first line is labels
+      for (int iat=1; iat<10000; iat++) {
+         GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
+         if (!w) {
+            std::cout << "not editable at iat " << iat << std::endl;
+            break;
+         } else {
+            gtk_editable_set_text(GTK_EDITABLE(w), txt);
+         }
       }
    }
 }
@@ -2044,16 +1914,16 @@ graphics_info_t::residue_info_add_b_factor_edit(coot::select_atom_info sai, floa
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
-   for (unsigned int i=0; i<g.residue_info_edits->size(); i++) {
-      if (sai.udd == (*g.residue_info_edits)[i].udd) {
-	 (*g.residue_info_edits)[i].add_b_factor_edit(val);
+   for (unsigned int i=0; i<g.residue_info_edits.size(); i++) {
+      if (sai.udd == g.residue_info_edits[i].udd) {
+	 g.residue_info_edits[i].add_b_factor_edit(val);
 	 made_substitution_flag = 1;
 	 break;
       }
    }
    if (! made_substitution_flag) {
       sai.add_b_factor_edit(val);
-      g.residue_info_edits->push_back(sai);
+      g.residue_info_edits.push_back(sai);
    }
 }
 
@@ -2063,19 +1933,66 @@ graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai, float val
 
    graphics_info_t g;
    short int made_substitution_flag = 0;
-   for (unsigned int i=0; i<g.residue_info_edits->size(); i++) {
-      if (sai.udd == (*g.residue_info_edits)[i].udd) {
-	 (*g.residue_info_edits)[i].add_occ_edit(val);
+   for (unsigned int i=0; i<g.residue_info_edits.size(); i++) {
+      if (sai.udd == g.residue_info_edits[i].udd) {
+	 g.residue_info_edits[i].add_occ_edit(val);
 	 made_substitution_flag = 1;
 	 break;
       }
    }
    if (! made_substitution_flag) {
       sai.add_occ_edit(val);
-      g.residue_info_edits->push_back(sai);
+      g.residue_info_edits.push_back(sai);
    }
 }
 
+void
+graphics_info_t::apply_residue_info_changes() {
+
+   std::cout << "New apply_residue_info_changes() " << residue_info_n_atoms << std::endl;
+
+   GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
+
+   reset_residue_info_edits(); // clear them
+
+   if (residue_info_n_atoms > 0) {
+      // the first line in the grid is labels
+      for (int iat=1; iat <= residue_info_n_atoms; iat++) {
+         GtkWidget *occ_entry      = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
+         GtkWidget *b_factor_entry = gtk_grid_get_child_at(GTK_GRID(grid), 2, iat);
+         if (GTK_IS_EDITABLE(occ_entry)) {
+            if (GTK_IS_EDITABLE(b_factor_entry)) {
+               const gchar *t_occ  = gtk_editable_get_text(GTK_EDITABLE(occ_entry));
+               const gchar *t_bfac = gtk_editable_get_text(GTK_EDITABLE(b_factor_entry));
+               try {
+                  float f_occ  = coot::util::string_to_float(std::string(t_occ));
+                  float f_bfac = coot::util::string_to_float(std::string(t_bfac));
+                  coot::select_atom_info *ai_p = static_cast<coot::select_atom_info *>(g_object_get_data(G_OBJECT(occ_entry), "select_atom_info"));
+                  if (ai_p) {
+                     coot::select_atom_info &ai(*ai_p);
+                     ai.add_b_factor_edit(f_bfac);
+                     ai.add_occ_edit(f_occ);
+                     residue_info_edits.push_back(ai);
+                  }
+               }
+               catch (const std::runtime_error &e) {
+                  std::cout << "WARNING::" << e.what() << std::endl;
+               }
+            }
+         }
+      }
+   }
+
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(grid), "imol"));
+   if (is_valid_model_molecule(imol))
+      molecules[imol].apply_atom_edits(residue_info_edits);
+
+   reset_residue_info_edits();
+}
+
+
+
+#if 0 // old
 // This is the callback when the OK button of the residue info was pressed.
 //
 // The new way with a table:
@@ -2096,7 +2013,6 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
    //
    // int len = g_list_length(container_list);
    // std::cout << "=== The table has " << len << " elements" << std::endl;
-#if 0
    for(int i=0; i < len; i+=5) {
       if ((i+1) < len) {
 	 GtkWidget *widget_alt = 0; // (GtkWidget*) g_list_nth_data(container_list, i);
@@ -2173,10 +2089,8 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 
    residue_info_edits->clear();
    // delete res_spec; // can't do this: the user may press the button twice
-
-#endif
-
 }
+#endif // old
 
 // static
 // (should be called by the destroy event and the close button)

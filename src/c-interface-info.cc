@@ -175,7 +175,10 @@ int is_shelx_molecule(int imol) {
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog() {
 
-   if (graphics_info_t::residue_info_edits->size() > 0) {
+   // 20230515-PE It doesn't work like this now.
+   // Delete this function FIXME
+
+   if (graphics_info_t::residue_info_edits.size() > 0) {
 
       std::string s =  "WARNING:: You have pending (un-Applied) residue edits\n";
       s += "Deal with them first.";
@@ -2358,9 +2361,9 @@ void residue_info_apply_all_checkbutton_toggled() {
 }
 
 
-void apply_residue_info_changes(GtkWidget *widget) {
+void apply_residue_info_changes() {
    graphics_info_t g;
-   g.apply_residue_info_changes(widget);
+   g.apply_residue_info_changes();
    graphics_draw();
 }
 
@@ -2416,7 +2419,8 @@ void clear_last_measure_distance() {
 
 void clear_residue_info_edit_list() {
 
-   graphics_info_t::residue_info_edits->resize(0);
+   graphics_info_t g;
+   g.reset_residue_info_edits();
    std::string cmd = "clear-residue-info-edit-list";
    std::vector<coot::command_arg_t> args;
    add_to_history_typed(cmd, args);
@@ -2693,7 +2697,8 @@ void set_show_pointer_distances(int istate) {
       // std::cout << "in set_show_pointer_distances: done making distances.." << std::endl;
    }
    graphics_draw();
-   graphics_info_t::residue_info_edits->resize(0);
+   graphics_info_t g;
+   g.reset_residue_info_edits(); // 20230515-PE why?
    std::string cmd = "set-show-pointer-distances";
    std::vector<coot::command_arg_t> args;
    args.push_back(istate);

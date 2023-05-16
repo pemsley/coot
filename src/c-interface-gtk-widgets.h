@@ -570,7 +570,7 @@ void fill_move_molecule_here_dialog(GtkWidget *w);
 
 /* } */
 
-void apply_residue_info_changes(GtkWidget *widget);
+void apply_residue_info_changes();
 GtkWidget *wrapped_create_residue_info_dialog();
 void residue_info_release_memory(GtkWidget *widget);
 GtkWidget *wrapped_create_geometry_dialog();
