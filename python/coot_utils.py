@@ -458,8 +458,7 @@ def molecule_list(molecule_filter_function):
 def molecule_number_list():
     ret = []
     for mol_no in range(coot.graphics_n_molecules()):
-        if (valid_map_molecule_qm(mol_no) or
-                valid_model_molecule_qm(mol_no)):
+        if valid_map_molecule_qm(mol_no) or valid_model_molecule_qm(mol_no):
             ret.append(mol_no)
     return ret
 

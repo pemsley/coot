@@ -856,7 +856,7 @@ def make_store_for_diff_map_molecule_combobox():
 
 def make_store_for_model_molecule_combobox():
     mol_store = Gtk.ListStore(int, str)
-    for imol in coot_utils.molecule_number_list():
+    for imol in coot_utils.model_molecule_number_list():
         if coot.is_valid_model_molecule(imol) == 1:
             label_str = coot.molecule_name(imol)
             m_label_str = str(imol) + ' ' + label_str
