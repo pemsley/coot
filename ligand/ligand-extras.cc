@@ -794,7 +794,7 @@ coot::ligand::flood2(float n_sigma) {
 		      << peaks[ipeak].format() << " " << d << std::endl;
 	 }
       }
-      
+
       if (peaks.size() == 0) {
 	 std::cout << "INFO:: No extra peaks: breaking on round "
 		   << iround << " of " << n_rounds << std::endl;
@@ -811,6 +811,16 @@ coot::ligand::flood2(float n_sigma) {
       }
    }
 
+   if (false) { // hacking test
+      std::string ele = "NA";
+      // water_list is unomved
+      coot::minimol::molecule mol(water_list, "DUM", " DUM", "W", ele);
+      mol.set_cell(xmap_masked.cell());
+      std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
+      mol.set_spacegroup(spg);
+      mol.write_file("pre-filter.pdb", 12);
+   }
+
    // move these waters to around protein:
    // 
    std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
@@ -818,16 +828,43 @@ coot::ligand::flood2(float n_sigma) {
 	     << sampled_protein_coords.size() << std::endl;
 
    std::vector<clipper::Coord_orth> moved_waters;   
-   if (sampled_protein_coords.size())
+   if (sampled_protein_coords.size()) {
+      std::cout << "DEBUG:: moving dummy atoms around the protein.." << std::endl;
       moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
-   else 
+   } else {
       moved_waters = water_list; // unomved waters
+   }
+
+   // 20230516-PE One more pass throught the close-to-another check, because we have
+   // made symmetry adjustment and a peak could have been close to a symmetry related
+   // peak of another and we wouldn't have yet noticed.
+   //
+   std::vector<clipper::Coord_orth> post_filter_water_list;
+   for (unsigned int iat=0; iat<moved_waters.size(); iat++) {
+      const auto &test_position = moved_waters[iat];
+      if (close_to_another(test_position, post_filter_water_list, map_atom_mask_radius)) {
+         // do nothing
+         // std::cout << "DEBUG::not adding " << iat << " " << water_list[iat].format() << std::endl;
+      } else {
+         post_filter_water_list.push_back(test_position);
+      }
+   }
+
+   if (false) { // hacking test
+      std::string ele = "NA";
+      // water_list is unomved
+      coot::minimol::molecule mol(post_filter_water_list, "DUM", " DUM", "W", ele);
+      mol.set_cell(xmap_masked.cell());
+      std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
+      mol.set_spacegroup(spg);
+      mol.write_file("post-filter.pdb", 12);
+   }
 
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
    std::string ele = "NA";
-   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch, ele);
+   coot::minimol::molecule mol(post_filter_water_list, "DUM", " DUM", ch, ele);
    mol.set_cell(xmap_masked.cell());
    std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
    mol.set_spacegroup(spg);
@@ -896,7 +933,7 @@ coot::ligand::close_to_another(const clipper::Coord_orth &p1,
 			       const double &d_crit) const {
 
    // fast distance check
-   bool is_close = 0; 
+   bool is_close = false;
    for (unsigned int i=0; i<ref.size(); i++) {
       double d1 = ref[i].x() - p1.x();
       if (d1 < d_crit) {
@@ -904,8 +941,8 @@ coot::ligand::close_to_another(const clipper::Coord_orth &p1,
 	 if (d2 < d_crit) {
 	    double d3 = ref[i].z() - p1.z();
 	    if (d3 < d_crit) {
-	       if ((d1*d1 + d2*d2 +d3*d3) < d_crit*d_crit) { 
-		  is_close = 1;
+	       if ((d1*d1 + d2*d2 + d3*d3) < d_crit*d_crit) {
+		  is_close = true;
 		  break;
 	       }
 	    }
