@@ -113,7 +113,7 @@ graphics_info_t::init() {
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
-      geom_p->set_verbose(false); // was true
+      geom_p->set_verbose(true); // was false
 
       cif_dictionary_read_number = geom_p->init_standard();
 

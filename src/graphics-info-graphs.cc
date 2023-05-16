@@ -220,15 +220,15 @@ void remove_validation_graph(GtkWidget* graph) {
    GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
    //g_debug("Removing %p from the validation graph box.",graph);
    gtk_box_remove(GTK_BOX(target_box), graph);
-   if(! gtk_widget_get_first_child(target_box)) {
+   if (! gtk_widget_get_first_child(target_box)) {
       // If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
       GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
       gtk_widget_set_visible(frame, FALSE);
    }
 }
 
-#include "test-validation/validation-information.hh"
-#include "test-validation/validation-graph-widget.hh"
+#include "validation-graphs/validation-information.hh"
+#include "validation-graphs/validation-graph-widget.hh"
 
 coot::validation_information_t
 get_validation_data_for_density_fit_analysis(int imol) {

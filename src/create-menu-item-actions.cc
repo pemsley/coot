@@ -1153,9 +1153,11 @@ void
 bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
@@ -1613,6 +1615,18 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       show_select_map_dialog();
 
 }
+
+void
+difference_map_peaks_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *dialog = wrapped_create_generate_diff_map_peaks_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
+}
+
 
 void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G_GNUC_UNUSED GVariant *parameter, G_GNUC_UNUSED gpointer user_data) {
 
@@ -2319,9 +2333,9 @@ create_actions(GtkApplication *application) {
 
    // Validate
 
-   add_action(                  "unmodelled_blobs_action",                   unmodelled_blobs_action);
-   add_action(               "check_delete_waters_action",                check_delete_waters_action);
-
+   add_action(                "unmodelled_blobs_action",                 unmodelled_blobs_action);
+   add_action(             "check_delete_waters_action",              check_delete_waters_action);
+   add_action(            "difference_map_peaks_action",             difference_map_peaks_action);
    add_action(          "show_validation_graphs_dialog",           show_validation_graphs_dialog);
    add_action(               "ramachandran_plot_action",                ramachandran_plot_action);
    add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);

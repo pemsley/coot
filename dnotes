@@ -10744,7 +10744,7 @@ Sat 13 Aug 08:42:27 BST 2022
 
    how to iterate through a widget's children in GTK4:
 
-   GtkWidget *item_widget = gtk_widget_get_first_child(scrolled_window);
+   GtkWidget *item_widget = gtk_widget_get_first_child(box);
    while (item_widget) {
       if (some_test) {
          some assignment
@@ -10933,3 +10933,42 @@ void graphics_info_t::remove_data_glob_extension(const std::string &extension)
 void graphics_info_t::remove_map_glob_extension(const std::string &extension)
 void graphics_info_t::remove_dictionary_glob_extension(const std::string &extension)
 
+
+---
+Mon  8 May 2023 03:33:30 BST
+
+   Make a macro for this function:
+         g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
+
+
+---
+Tue  9 May 2023 20:35:05 BST
+
+   New Style combobox
+
+   GtkWidget *model_combobox = widget_from_builder("generate_diff_map_peaks_molecule_combobox");
+   GtkWidget   *map_combobox = widget_from_builder("generate_diff_map_peaks_map_combobox");
+
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   graphics_info_t g;
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
+
+Here is how you read the imol:
+
+   int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+   int imol_map    = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+
+
+---

@@ -1347,6 +1347,8 @@ namespace coot {
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
       void set_fixed_during_refinement_udd(); // uses fixed_atom_indices
+      // the unset function is public - there is no destructor of simple_restraint (hmm)
+      // void unset_fixed_during_refinement_udd(); // unsets atoms that were maked as fixed using FixedDuringRefinement
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
       void add_fixed_atoms_from_non_bonded_neighbours(); // use non_bonded_neighbour_residues
@@ -2326,6 +2328,9 @@ namespace coot {
       };
 
       ~restraints_container_t();
+
+      void unset_fixed_during_refinement_udd(); // unsets atoms that were maked as fixed using FixedDuringRefinement
+                                                // now called in the destructor
 
       mmdb::Atom *get_atom(int i) const {
          if (atom)

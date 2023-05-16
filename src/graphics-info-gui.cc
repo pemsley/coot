@@ -1660,8 +1660,6 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *dialog, int imol,
 						 const std::string residue_name,
 						 mmdb::PPAtom atoms, int n_atoms) {
 
-   std::cout << "==================== fill_output_residue_info_widget() " << n_atoms << std::endl;
-
    // first do the label of the dialog
    // GtkWidget *label_widget = lookup_widget(widget, "residue_info_residue_label");
    // GtkWidget *residue_name_widget = lookup_widget(widget, "residue_info_residue_name_label");
@@ -2888,17 +2886,16 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
 }
 
 void
-graphics_info_t::clear_out_container(GtkWidget *vbox) {
+graphics_info_t::clear_out_container(GtkWidget *box) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "FIXME in clear_out_container()" << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
-
-   if (GTK_IS_BOX(vbox))
-      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   if (box) {
+      GtkWidget *item_widget = gtk_widget_get_first_child(box);
+      while (item_widget) {
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         gtk_box_remove(GTK_BOX(box), w);
+      };
+   }
 }
 
 
@@ -4335,33 +4332,32 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 
    // First the (global) step adjustment:
    GtkScale *hscale = GTK_SCALE(widget_from_builder("bond_parameters_colour_rotation_hscale"));
-   GtkAdjustment *adjustment = GTK_ADJUSTMENT
-      (gtk_adjustment_new(rotate_colour_map_on_read_pdb, 0.0, 370.0, 1.0, 20.0, 10.1));
+   std::cout << "in fill_bond_colours_dialog_internal() hscale " << hscale << std::endl;
+   GtkAdjustment *adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(rotate_colour_map_on_read_pdb, 0.0, 370.0, 1.0, 20.0, 10.1));
+   std::cout << "in fill_bond_colours_dialog_internal() adjustment " << adjustment << std::endl;
    gtk_range_set_adjustment(GTK_RANGE(hscale), adjustment);
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
-		      G_CALLBACK(bond_parameters_colour_rotation_adjustment_changed), NULL);
+                    G_CALLBACK(bond_parameters_colour_rotation_adjustment_changed), NULL);
 
 
+   // Dead now.
+   //
    // Now the "C only" checkbutton:
-   GtkWidget *checkbutton = widget_from_builder("bond_parameters_rotate_colour_map_c_only_checkbutton");
-   if (rotate_colour_map_on_read_pdb_c_only_flag) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   }
+   // GtkWidget *checkbutton = widget_from_builder("bond_parameters_rotate_colour_map_c_only_checkbutton");
+   // n   if (rotate_colour_map_on_read_pdb_c_only_flag)
+   // gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
    // 20220315-PE  but it doesn't work and who wants this mode anyway? Pink nitrogens?
    //
-   GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
-   gtk_widget_hide(frame_c_only);
+   // GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
+   // gtk_widget_hide(frame_c_only);
+
 
    // Now the tricky bit, fill the scrolled vbox of molecule colour rotation step sliders:
-
-   GtkWidget *frame_molecule_N;
-   GtkWidget *coords_colour_control_dialog = w;
+   //
    GtkWidget *coords_colours_vbox = widget_from_builder("coords_colours_vbox");
-   GtkWidget *hbox136;
    GtkWidget *label269;
    GtkWidget *label270;
-   GtkWidget *coords_colour_hscale_mol_N;
 
    clear_out_container(coords_colours_vbox);
 
@@ -4372,71 +4368,53 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 m += coot::util::int_to_string(imol);
 	 m += " ";
 	 m += molecules[imol].name_for_display_manager();
-	 frame_molecule_N = gtk_frame_new (m.c_str());
+         GtkWidget *frame_molecule_N = gtk_frame_new(m.c_str());
+         gtk_widget_set_hexpand(frame_molecule_N, TRUE);
+         gtk_widget_set_margin_top(frame_molecule_N, 2);
+         gtk_widget_set_margin_bottom(frame_molecule_N, 2);
+         gtk_widget_set_margin_start(frame_molecule_N, 6);
+         gtk_widget_set_margin_end(frame_molecule_N, 6);
+
 	 // gtk_widget_ref (frame_molecule_N);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog),
-				"frame_molecule_N", frame_molecule_N,
-				NULL);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "frame_molecule_N", frame_molecule_N, NULL);
+
 	 gtk_box_append(GTK_BOX(coords_colours_vbox), frame_molecule_N);
 	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
-#else
-	 gtk_box_pack_start (GTK_BOX (coords_colours_vbox), frame_molecule_N, TRUE, TRUE, 0);
-	 gtk_widget_set_size_request(frame_molecule_N, 171, -1);
-	 gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
-#endif
 
-	 hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+         GtkWidget *hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+         gtk_widget_set_hexpand(hbox136, TRUE);
+
 	 // gtk_widget_ref (hbox136);
-	 g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136,
-				 NULL);
+	 // g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136, NULL);
+
 	 gtk_widget_show (hbox136);
 	 gtk_frame_set_child(GTK_FRAME(frame_molecule_N), hbox136);
 
-	 label269 = gtk_label_new (_("    "));
-	 // gtk_widget_ref (label269);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269,
-				NULL);
-	 gtk_widget_show (label269);
-#if (GTK_MAJOR_VERSION == 4)
-	 gtk_box_append(GTK_BOX (hbox136), label269);
-#else
-	 gtk_box_pack_start (GTK_BOX (hbox136), label269, FALSE, FALSE, 0);
-#endif
+	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269, NULL);
 
-	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT
-	    (gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
-				0.0, 370.0, 1.0, 20.0, 10.1));
-	 coords_colour_hscale_mol_N = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment_mol);
+	 label269 = gtk_label_new (_("    ")); // what does this do?
+	 gtk_box_append(GTK_BOX(hbox136), label269);
+
+	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT(gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
+                                                                           0.0, 370.0, 1.0, 20.0, 10.1));
+         GtkWidget *coords_colour_hscale_mol_N = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL, adjustment_mol);
+         gtk_widget_set_hexpand(coords_colour_hscale_mol_N, TRUE);
+
 	 gtk_range_set_adjustment(GTK_RANGE(coords_colour_hscale_mol_N), adjustment_mol);
 	 g_signal_connect(G_OBJECT(adjustment_mol), "value_changed",
 			  G_CALLBACK(bonds_colour_rotation_adjustment_changed), NULL);
 	 g_object_set_data(G_OBJECT(adjustment_mol), "imol", GINT_TO_POINTER(imol));
 
-	 // gtk_widget_ref (coords_colour_hscale_mol_N);
-	 g_object_set_data_full(G_OBJECT (coords_colour_control_dialog),
-				"coords_colour_hscale_mol_N",
-				coords_colour_hscale_mol_N,
-				NULL);
 	 gtk_widget_show (coords_colour_hscale_mol_N);
 
-#if (GTK_MAJOR_VERSION == 4)
 	 gtk_box_append(GTK_BOX (hbox136), coords_colour_hscale_mol_N);
-#else
-	 gtk_box_pack_start (GTK_BOX (hbox136), coords_colour_hscale_mol_N, TRUE, TRUE, 0);
-#endif
 
 	 label270 = gtk_label_new (_("  degrees  "));
-	 // gtk_widget_ref (label270);
-	 g_object_set_data_full (G_OBJECT(coords_colour_control_dialog), "label270", label270,
-				 NULL);
+
 	 gtk_widget_show (label270);
-#if (GTK_MAJOR_VERSION == 4)
 	 gtk_box_append(GTK_BOX(hbox136), label270);
-#else
-	 gtk_box_pack_start(GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
-#endif
-	 // gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
+
+         // needed?
          gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
          gtk_label_set_yalign(GTK_LABEL(label270), 0.56);
 
@@ -4729,6 +4707,8 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
 
    // does nothing if the diff map peaks dialog is not realized.
 
+   std::cout << "fill_difference_map_peaks_button_box() --- start ---" << std::endl;
+
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                          float map_sigma) {
 
@@ -4754,36 +4734,33 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-                                                  clear_out_container(button_vbox);
-                                                  // a cutn'paste jobby from fill_rotamer_selection_buttons().
-                                                  for (unsigned int i=0; i<centres.size(); i++) {
-                                                     std::string label = make_label(i, centres, map_sigma);
-#if (GTK_MAJOR_VERSION >= 4)
-                                                     // 20220528-PE FIXME radio buttons
-                                                     std::cout << "in fill_difference_map_button_box_inner() FIXME " << std::endl;
-#else
-                                                     GtkWidget *radio_button = gtk_radio_button_new_with_label(diff_map_group, label.c_str());
-                                                     std::string button_name = "difference_map_peaks_button_";
-                                                     button_name += int_to_string(i);
+                                                   std::cout << "------ there are " << centres.size() << " centres" << std::endl;
+                                                   clear_out_container(button_vbox);
+                                                   // a cutn'paste jobby from fill_rotamer_selection_buttons().
+                                                   GtkWidget *group = nullptr; // initially
+                                                   for (unsigned int i=0; i<centres.size(); i++) {
+                                                      std::string label = make_label(i, centres, map_sigma);
+                                                      GtkWidget *radio_button = gtk_toggle_button_new_with_label(label.c_str());
+                                                      std::string button_name = "difference_map_peaks_button_";
+                                                      button_name += int_to_string(i);
+                                                      if (group)
+                                                         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(radio_button), GTK_TOGGLE_BUTTON(group));
+                                                      else
+                                                         group = radio_button;
 
-                                                     diff_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (radio_button));
+                                                      gtk_widget_set_margin_bottom(radio_button, 4);
+                                                      gtk_widget_set_margin_top(radio_button, 4);
+                                                      gtk_widget_set_margin_start(radio_button, 6);
+                                                      gtk_widget_set_margin_end(radio_button, 6);
 
-                                                     g_object_set_data_full(G_OBJECT(dialog), button_name.c_str(), radio_button, NULL);
-
-                                                     coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
+                                                      coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
                                                      hd->ipeak = i;
                                                      hd->pos = centres[i].first;
 
                                                      g_signal_connect(G_OBJECT (radio_button), "toggled",
                                                                       G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
+                                                     gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
-                                                     gtk_widget_show(radio_button);
-                                                     GtkWidget *frame = gtk_frame_new(NULL);
-                                                     gtk_container_add(GTK_CONTAINER(frame), radio_button);
-                                                     gtk_box_pack_start(GTK_BOX (button_vbox), frame, FALSE, FALSE, 0);
-                                                     gtk_container_set_border_width (GTK_CONTAINER (frame), 2);
-                                                     gtk_widget_show(frame);
-#endif
                                                   }
                                                };
 
@@ -4808,12 +4785,14 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                  coot::peak_search ps(molecules[imol_map].xmap);
                                  ps.set_max_closeness(difference_map_peaks_max_closeness);
                                  std::vector<std::pair<clipper::Coord_orth, float> > centres;
-                                 if (is_valid_model_molecule(imol_coords))
-                                    if (is_valid_map_molecule(imol_map))
+                                 if (is_valid_model_molecule(imol_coords)) {
+                                    if (is_valid_map_molecule(imol_map)) {
                                        centres = ps.get_peaks(molecules[imol_map].xmap,
                                                               molecules[imol_coords].atom_sel.mol,
                                                               n_sigma, do_positive_level_flag, do_negative_level_flag,
                                                               around_model_only_flag);
+                                    }
+                                 }
                                  return centres;
                               };
 
@@ -4822,6 +4801,7 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
    if (gtk_widget_get_realized(dialog) || force_fill) {
       std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(dialog);
+      std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
       GSList *diff_map_group = NULL;  // Hmm.
       float map_sigma = 0.5;
       int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));
@@ -4848,7 +4828,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    std::vector<std::pair<clipper::Coord_orth, float> > centres = centres_in;
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
-   GtkWidget *dialog        = widget_from_builder("diff_map_peaks_dialog");
+   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
 
    gtk_window_set_title(GTK_WINDOW(dialog), dialog_title.c_str());
 
@@ -4880,6 +4860,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    diff_map_peaks->clear();
    for (unsigned int i=0; i<centres.size(); i++)
       diff_map_peaks->push_back(centres[i].first);
+
    max_diff_map_peaks = centres.size();
 
    if (! centres.empty()) {
@@ -4895,8 +4876,8 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
 
 // static
 void
-graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
-							    gpointer         user_data) {
+graphics_info_t::on_diff_map_peak_button_selection_toggled(GtkToggleButton  *button,
+							   gpointer         user_data) {
 
    coot::diff_map_peak_helper_data *hd = static_cast<coot::diff_map_peak_helper_data *>(user_data);
 

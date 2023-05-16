@@ -6,6 +6,10 @@ Ligand Builder
 Validation Plots
 Ramachandran Plot
 
+coot_gui.smiles_gui() - is this a thing now?
+Not without --enhanced-ligand-gui it isn't
+Note that biscu-it needs to be ported to Python 3.
+
 --- Widgets that have changed in GTK ---
 
 Padding is gone, margins and layout are in.
@@ -15,61 +19,81 @@ HBoxes and VBoxes are gone, use generic Box
 Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
 Canvas is gone, use widget lists instead (how?)
 
+Have a look at adding thing this:
+<style>
+   <class name="suggested-action"/>
+</style>
+after a buttons's properties
+Here are other styles:
+
+    .image-button: used when the button contains only an image
+    .text-button: used when the button contains only a label
+    .flat: used for buttons with no border or background
+    .keyboard-activating: used when the button is activated by keyboard input
+    .suggested-action: used for buttons that are recommended or suggested actions
+    .destructive-action: used for buttons that perform a destructive action, such as deleting data
+    .circular: used for circular buttons
+
+
 ----
+
+File -> Delete Molecules dialog ::: 1
+
+Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
+
+Background colour ::: 1
+
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
+ Other Solvent Molecules"? ::: 1
+
+Click on symmetry atoms ::: 1
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
 
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
    // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
-   Turn this on and do a RSR, see  that the Button Texture meshes have a new vao for each draw!  ::: 1
+   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
+
+Add back the icons in the info dialog ::: 1
+
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
 
-Restart the refinement on button-release when dragging an atom ::: 1
-call poke_the_refinement().
+Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
-"All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
-
-Coot Points in updating maps ::: 4
-
-Merge Molecules gui ::: 1
-
-Find Waters gui ::: 1
-
-Find Ligands gui ::: 1
-
-Difference Map Peaks ::: 2
-
-Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+Enable the command line (e.g. --pdb and others) ::: 2
 
 Start up from Saved state. ::: 1
-
-Ctrl Arrow keys for ligand rotation and translation ::: 2
+For now I can start by passing startup.py on the command line.
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
-
-coot_gui.smiles_gui() - is this a thing now? ::: 1
-Not without --enhanced-ligand-gui it isn't
-Note that biscu-it needs to be ported to python 3.
-
-Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
-(pressing "G" on the keyboard is not intuitive). ::: 2
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
 Curlew: ::: 4
 
+Bring Python command history and completion into GTK4: ::: 2
+   a9d101aa69a767583a085de9e3c8ae2449fe71fa
+   3fc6cfe003683ab1180c0045387036068cc32294
+
 rename draw-2.cc as tick-function.cc or some such
+
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
 Get rid of "Other Modelling Tools" ::: 1
 
-Double-click to recentre (G: go to blob) ::: 1
+When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
+on the atom that is blocking. ::: 1
 
-How do I add a single water? ::: 1
+Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
@@ -83,11 +107,10 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
 
-Enable the command line (e.g. --pdb and others) ::: 2
-
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
+Validation graphs colours
 
 Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
 
@@ -126,13 +149,7 @@ Why? Because it's looked up and not new? ::: 2
 
 Fullscreen - maybe not possible in gtk4 ::: 0.2
 
-Low Priority: think how to put the "Display Manager" into the main window ::: 6
-
 Low Priority: history searching on python window up-arrow ::: 1
-
-Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me a nice progress bar ::: 4
-
-Low Priority: How can I make a flatpak for Coot?
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
@@ -151,6 +168,16 @@ User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 
 CA Baton Mode
+
+New Mesh algorithms:
+https://swiftcoder.wordpress.com/planets/isosurface-extraction/
+https://www.sciencedirect.com/topics/engineering/isosurface-extraction
+
+Low Priority: think how to put the "Display Manager" into the main window :::- 6
+
+Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me a nice progress bar :::- 4
+
+Low Priority: How can I make a flatpak for Coot?
 
 --- Done Items ---
 
@@ -288,3 +315,41 @@ Key-binding for "clear all atom labels" ::: 0.25
 
 Key-bindings in general ::: 1
 May need revisiting.
+
+Merge Molecules gui ::: 1.0
+
+Find Waters gui ::: 1.0
+
+Ctrl Arrow keys for ligand rotation and translation ::: 1
+
+"All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+
+Find Ligands gui ::: 3
+
+Coot Points in updating maps ::: 4
+
+Restart the refinement on button-release when dragging an atom ::: 0.5
+call poke_the_refinement().
+
+Difference Map Peaks ::: 2.5
+* Done. Nice
+
+Cell and Symmetry looks ugly - make it dynamic so the only button is "Close" ::: 1
+* Done - good enough for now
+
+Enable basic files on the command line ::: 4
+
+Consider using double-click to do go to blob.  Where does "label atom" go then? Or how about middle-mouse on blob?
+(pressing "G" on the keyboard is not intuitive). ::: 0.2
+Double-click to recentre (G: go to blob) ::: 0.3
+* Done. Let's see if I like it.
+
+Draw -> Molecule -> Bond colours ::: 1
+* A lot better.
+
+How do I add a single water? ::: 0.5
+* Added to key-bindings for now.  Take care to add it to the correct molecule though
+
+When I am adding waters, don't let me add to the molecule if it is not displayed. ::: 0.2
+
+

@@ -37,6 +37,9 @@
 
 #include "coot-simple-molecule.hh"
 
+#include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
+#include "api-cell.hh"
+
 namespace coot {
 
    // give this a type
@@ -401,6 +404,8 @@ namespace coot {
 
       // public access to the lock (from threads)
       static std::atomic<bool> draw_vector_sets_lock;
+
+      util::map_molecule_centre_info_t get_map_molecule_centre() const;
 
       // ----------------------- utils
 

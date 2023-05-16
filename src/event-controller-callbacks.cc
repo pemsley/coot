@@ -54,7 +54,6 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          move_atom_pull_target_position(x, y);
       }
    }
-
 }
 
 
@@ -63,9 +62,14 @@ graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gestur
 
    double xx = drag_begin_x + x;
    double yy = drag_begin_y + y;
-   bool clicked = check_if_hud_button_clicked(xx, yy);
+   bool hud_clicked = check_if_hud_button_clicked(xx, yy);
 
-   std::cout << "hud_button was clicked: " << clicked << std::endl;
+   if (!hud_clicked) {
+      if (last_restraints_size() > 0) {
+         moving_atoms_currently_dragged_atom_index = -1; // because we have dropped it now.
+         poke_the_refinement(); // this will remove the pull restraint if the pulled atom position was close to its target.
+      }
+   }
 
 }
 
@@ -236,7 +240,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
       // the action has occured in above function
    } else {
 
-      // std::cout << "n_press " << n_press << std::endl;
+      std::cout << "n_press " << n_press << std::endl;
+
       // n_press can go up to 20, 30...
       //
       if (n_press == 2) { // otherwise triple clicking would toggle the label off, we don't want that.
@@ -256,8 +261,13 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                int imol = naii.imol;
                molecules[imol].add_to_labelled_atom_list(naii.atom_index);
                add_picked_atom_info_to_status_bar(imol, naii.atom_index);
+               handled = true;
                graphics_draw();
             }
+         }
+
+         if (! handled) {
+            blob_under_pointer_to_screen_centre();
          }
       }
 

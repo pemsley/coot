@@ -1168,3 +1168,11 @@ coot::molecule_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
    coot::minimol::molecule moved_mol = lig.get_solution(isol, iclust);
    return moved_mol;
 }
+
+
+coot::util::map_molecule_centre_info_t
+coot::molecule_t::get_map_molecule_centre() const {
+
+   util::map_molecule_centre_info_t mc = util::map_molecule_centre(xmap);
+   return mc;
+}

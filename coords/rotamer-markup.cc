@@ -50,7 +50,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
                         atom_p->GetUDData(udd_fixed_during_refinement_handle,
                                           udd_is_fixed_during_refinement);
                         if (udd_is_fixed_during_refinement == 1) {
-                           if (false) // quite a few of them are fixed in sphere refine
+                           if (true) // quite a few of them are fixed in sphere refine
                               std::cout << "rotamers: ignore this fixed residue "
                                         << coot::residue_spec_t(residue_p) << std::endl;
                         } else {
@@ -79,6 +79,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
       }
    }
 #endif // HAVE_CXX_THREAD
+   std::cout << ":::::: in get_rotamer_dodecs() returning docecs which has size " << dodecs.size() << std::endl;
    return dodecs;
 }
 

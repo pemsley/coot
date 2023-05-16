@@ -60,30 +60,25 @@ graphics_info_t::rail_points_total() const { // the sum of all the rail points a
 int
 graphics_info_t::calculate_new_rail_points(const updating_model_molecule_parameters_t &ummp) {
 
-   std::cout << ":::::::::: calculate_new_rail_points() history size: " << rail_point_history.size() << std::endl;
+   // std::cout << ":::::::::: calculate_new_rail_points() history size: " << rail_point_history.size() << std::endl;
 
    if (is_valid_map_molecule(ummp.imol_fofc_map)) {
 
       float rmsd = molecules[ummp.imol_fofc_map].get_map_sigma_current();
       if (rail_point_history.empty()) {
-         std::cout << ":::::::::: calculate_new_rail_points() A "<< std::endl;
          api::rail_points_t prev = api::rail_points_t(rmsd);
-         std::cout << "...... prev and rmsd " << prev.rmsd_of_difference_map << " " << rmsd
-                   << " 2Cooooot-Points " << 100000 * (prev.rmsd_of_difference_map - rmsd)
-                   << std::endl;
+         if (false)
+            std::cout << "...... prev and rmsd " << prev.rmsd_of_difference_map << " " << rmsd
+                      << " 2Cooooot-Points " << 100000 * (prev.rmsd_of_difference_map - rmsd)
+                      << std::endl;
          api::rail_points_t new_points(rmsd, prev);
          rail_point_history.push_back(new_points);
          return new_points.map_rail_points_delta;
       } else {
-         std::cout << ":::::::::: calculate_new_rail_points() B "<< std::endl;
+         // std::cout << ":::::::::: calculate_new_rail_points() B "<< std::endl;
          const api::rail_points_t &prev = rail_point_history.back();
-         std::cout << "...... prev and rmsd " << prev.rmsd_of_difference_map << " " << rmsd
-                   << " 3Cooooot-Points " << 100000 * (prev.rmsd_of_difference_map - rmsd) << std::endl;
          api::rail_points_t new_points(rmsd, prev);
          rail_point_history.push_back(new_points);
-         std::cout << ":::::::::: calculate_new_rail_points() B map_rail_points_delta: "
-                   << new_points.map_rail_points_delta << " " << rail_point_history.back().map_rail_points_delta
-                   << std::endl;
          return new_points.map_rail_points_delta;
       }
    } else {
@@ -94,24 +89,38 @@ graphics_info_t::calculate_new_rail_points(const updating_model_molecule_paramet
 void
 graphics_info_t::updating_maps_update_the_coot_points_overlay() {
 
-   std::cout << "------------- update the overlay!" << std::endl;
-
    GtkWidget *label_1 = get_widget_from_builder("coot-points-frame-points-label");
-   GtkWidget *label_2 = get_widget_from_builder("coot-points-frame-r-factor-label");
-   GtkWidget *label_3 = get_widget_from_builder("coot-points-frame-free-r-factor-label");
+   GtkWidget *label_2 = get_widget_from_builder("coot-points-frame-r-factor-label"); // now total
+   GtkWidget *label_3 = get_widget_from_builder("coot-points-frame-free-r-factor-label"); // R-factors
 
    if (rail_point_history.empty()) {
-      std::cout << "------------- update the overlay! A" << std::endl;
+      // std::cout << "------------- update the overlay! A" << std::endl;
       gtk_label_set_text(GTK_LABEL(label_1), "-----");
+      gtk_label_set_text(GTK_LABEL(label_2), "-----");
+      gtk_label_set_text(GTK_LABEL(label_3), "-----");
    } else {
       int d = rail_point_history.back().map_rail_points_delta;
-      std::cout << "------------- update the overlay! B" << std::endl;
+      // std::cout << "------------- update the overlay! B" << std::endl;
       std::string plus;
       if (d > 0) plus = "+";
-      std::string l_1 = "New Coot Points:   " + plus + std::to_string(d);
+      std::string colour = "#dddddd";
+      if (d < 0) colour = "#ff3333";
+      if (d > 0) colour = "#33ff33";
+      std::string l_1 = std::string("<span foreground='");
+      l_1 += colour;
+      l_1 += std::string("'>");
+      l_1 += "New Coot Points:   " + plus + std::to_string(d);
+      l_1 += std::string("</span>");
+      // std::cout << l_1 << std::endl;
       std::string l_2 = "Total Coot Points: " + std::to_string(api::rail_points_t::total(rail_point_history));
-      gtk_label_set_text(GTK_LABEL(label_1), l_1.c_str());
+      std::string l_3 = "R-factors: ";
+      l_3 += coot::util::float_to_string_using_dec_pl(100.0f * latest_sfcalc_stats.r_factor, 2);
+      l_3 += "%, ";
+      l_3 += coot::util::float_to_string_using_dec_pl(100.0f * latest_sfcalc_stats.free_r_factor, 2);
+      l_3 += "%";
+      gtk_label_set_markup(GTK_LABEL(label_1), l_1.c_str());
       gtk_label_set_text(GTK_LABEL(label_2), l_2.c_str());
+      gtk_label_set_text(GTK_LABEL(label_3), l_3.c_str());
    }
 
    auto coot_points_frame_callback = +[] (gpointer user_data) {

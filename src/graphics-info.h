@@ -113,7 +113,7 @@
 // #include "geometry-graphs.hh"
 // #endif
 
-#include "test-validation/validation-information.hh"
+#include "validation-graphs/validation-information.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -973,10 +973,20 @@ public:
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
+   static void graphics_grab_focus() {
+
+      if (use_graphics_interface_flag) {
+         if (! glareas.empty()) {
+            GtkWidget *glarea = glareas[0];
+            gtk_widget_grab_focus(glarea);
+         }
+      }
+   }
+
    static void graphics_draw() {
 
       // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
-      if (true) {
+      if (use_graphics_interface_flag) {
          if (! glareas.empty()) {
             for (unsigned int i=0; i<glareas.size(); i++) {
                GtkWidget *glarea = glareas[i];
@@ -3813,7 +3823,7 @@ public:
                                                           bool around_model_only_flag,
                                                           const std::string &dialog_title);
    // the buttons callback for above:
-   static void on_diff_map_peak_button_selection_toggled (GtkButton       *button,
+   static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);
 
    static std::vector<clipper::Coord_orth> *diff_map_peaks;
@@ -4683,6 +4693,7 @@ string   static std::string sessionid;
                                      int imol_map_with_data_attached,
                                      clipper::Xmap<float> *xmap_2fofc_p,
                                      clipper::Xmap<float> *xmap_fofc_p);
+   static coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
 
    static bool refinement_has_finished_moving_atoms_representation_update_needed_flag;
 

@@ -1025,6 +1025,37 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 }
 
 
+#ifdef USE_GUILE
+/*! \brief - get the name state of the input model. Return false if there was an erro with the molecule index */
+SCM get_input_model_was_cif_state_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.molecules[imol].get_input_molecule_was_in_mmcif_state())
+         r = SCM_BOOL_T;
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief - get the name state of the input model */
+PyObject *get_input_molecule_was_in_mmcif_state_py(int imol) {
+
+   PyObject *r = PyBool_FromLong(false);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      if (g.molecules[imol].get_input_molecule_was_in_mmcif_state())
+         r = PyBool_FromLong(true);
+   }
+   Py_INCREF(r);
+   return r;
+}
+#endif
+
+
+
 void set_draw_zero_occ_markers(int status) {
 
    graphics_info_t g;
@@ -2766,6 +2797,8 @@ get_symmetry_bonds_colour(int idummy) {
 // will use that.
 //
 void set_show_symmetry_master(short int state) {
+
+   std::cout << "set_show_symmetry_master() " << state << std::endl;
 
    //
    graphics_info_t g;
@@ -5743,13 +5776,13 @@ post_display_control_window() {
 
 }
 
+// add the calling function here.
 void
 clear_out_container(GtkWidget *vbox) {
 
 #if (GTK_MAJOR_VERSION >= 4)
    std::cout << "in clear_out_container() FIXME" << std::endl;
 #else
-   
    auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
                                     gtk_container_remove(GTK_CONTAINER(data), widget); };
 
@@ -5825,7 +5858,7 @@ void set_map_displayed(int imol, int state) {
    if (is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].set_map_is_displayed(state);
       if (g.display_control_window())
-	 set_display_control_button_state(imol, "Displayed", state);
+	      set_display_control_button_state(imol, "Displayed", state);
       graphics_draw();
    }
 }
@@ -5909,46 +5942,67 @@ void display_maps_py(PyObject *pyo) {
 // button_type is "Displayed" or "Active"
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
+
    //   button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
                 << " new_state: " << state << std::endl;
 
-   GtkWidget *display_control_vbox = nullptr;
-   if (is_valid_model_molecule(imol))
-      display_control_vbox = widget_from_builder("display_molecule_vbox");
-   if (is_valid_map_molecule(imol))
-      display_control_vbox = widget_from_builder("display_map_vbox");
+   if (is_valid_model_molecule(imol)) {
 
-   if (GTK_IS_BOX(display_control_vbox)) {
- 
-#if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "in set_display_control_button_state() FIXME container children" << std::endl;
-#else
-      GList *dlist = gtk_container_get_children(GTK_CONTAINER(display_control_vbox));
-      GList *free_list = dlist;
+      GtkWidget *display_control_vbox = nullptr;
+      if (is_valid_model_molecule(imol))
+         display_control_vbox = widget_from_builder("display_molecule_vbox");
 
-      while (dlist) {
-         GtkWidget *list_item = GTK_WIDGET(dlist->data);
-         if (true) {
-            int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+
+      if (GTK_IS_BOX(display_control_vbox)) {
+
+         GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
+         while (item_widget) {
+            GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
+            GtkWidget *child_1 = gtk_widget_get_next_sibling(child_0);
+            GtkWidget *child_2 = gtk_widget_get_next_sibling(child_1);
+            GtkWidget *child_3 = gtk_widget_get_next_sibling(child_2);
+            GtkWidget *display_check_button = child_2;
+            GtkWidget *active_check_button  = child_3;
+            // std::cout << "child_2 " << child_2 << " child_3 " << child_3 << std::endl;
+            int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
             if (imol_widget == imol) {
-               if (is_valid_model_molecule(imol)) {
-                  if (button_type == "Active") {
-                     GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "active_toggle_button"));
-                     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
-                  }
+               if (button_type == "Displayed") {
+                  // actually I need only set the state if the state is not the current
+                  // state of the check button.
+                  gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
                }
-               if (button_type == "Displayed") { // molecule and map types
-                  GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(list_item), "display_toggle_button"));
-                  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), state);
+               if (button_type == "Active") {
+                  gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), state);
                }
             }
-         }
-         dlist = dlist->next;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+         };
       }
-      g_list_free(free_list);
-#endif
+   }
+
+   if (is_valid_map_molecule(imol)) {
+      GtkWidget *display_control_vbox = nullptr;
+      if (is_valid_map_molecule(imol))
+         display_control_vbox = widget_from_builder("display_map_vbox");
+      if (GTK_IS_BOX(display_control_vbox)) {
+         GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
+         while (item_widget) {
+            GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
+            GtkWidget *child_1 = gtk_widget_get_next_sibling(child_0);
+            GtkWidget *child_2 = gtk_widget_get_next_sibling(child_1);
+            GtkWidget *display_check_button = child_2;
+            // std::cout << "child_2 " << child_2 << std::endl;
+            int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+            if (imol_widget == imol) {
+               if (button_type == "Displayed") {
+                  gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
+               }
+            }
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+         };
+      }
    }
 }
 
@@ -6028,34 +6082,36 @@ int map_is_displayed(int imol) {
   values of on_or_off turn on all maps */
 void set_all_maps_displayed(int on_or_off) {
 
-   graphics_info_t g;
-   g.mol_displayed_toggle_do_redraw = false;
-   int nm = graphics_info_t::n_molecules();
-   for (int imol=0; imol<nm; imol++) {
-      if (is_valid_map_molecule(imol)) {
-	 if (g.display_control_window()) {
-	    set_display_control_button_state(imol, "Displayed", on_or_off);
+   if (graphics_info_t::use_graphics_interface_flag) {
+      graphics_info_t g;
+      g.mol_displayed_toggle_do_redraw = false;
+      int nm = graphics_info_t::n_molecules();
+      for (int imol=0; imol<nm; imol++) {
+         if (is_valid_map_molecule(imol)) {
+            graphics_info_t::molecules[imol].set_map_is_displayed(on_or_off);
+            set_display_control_button_state(imol, "Displayed", on_or_off);
          }
       }
+      g.mol_displayed_toggle_do_redraw = true;
+      graphics_draw();
    }
-   g.mol_displayed_toggle_do_redraw = true;
-   graphics_draw();
 }
 
 /*! \brief if on_or_off is 0 turn off all models displayed and active,
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off) {
 
+   // this could/should be moved into graphics_info_t.
+
    graphics_info_t g;
    g.mol_displayed_toggle_do_redraw = false;
    int nm = graphics_info_t::n_molecules();
    for (int imol=0; imol<nm; imol++) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
-	 if (g.display_control_window())
-	    set_display_control_button_state(imol, "Active", on_or_off);
-	 if (g.display_control_window())
-	    set_display_control_button_state(imol, "Displayed", on_or_off);
+	      graphics_info_t::molecules[imol].set_mol_is_active(on_or_off);
+	      graphics_info_t::molecules[imol].set_mol_is_displayed(on_or_off);
+	      set_display_control_button_state(imol, "Active",    on_or_off);
+	      set_display_control_button_state(imol, "Displayed", on_or_off);
       }
    }
    g.mol_displayed_toggle_do_redraw = true;
@@ -6110,18 +6166,18 @@ void set_only_last_model_molecule_displayed() {
    for (unsigned int j=0; j<turn_these_off.size(); j++) {
       if (turn_these_off[j] != imol_last) {
 
-	 // These do a redraw
-	 // set_mol_displayed(turn_these_off[j], 0);
-	 // set_mol_active(turn_these_off[j], 0);
+         // These do a redraw
+         // set_mol_displayed(turn_these_off[j], 0);
+         // set_mol_active(turn_these_off[j], 0);
 
-         std::cout << ".....  turning off " << turn_these_off[j] << std::endl;
+               std::cout << ".....  turning off " << turn_these_off[j] << std::endl;
 
-	 g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
-	 g.molecules[turn_these_off[j]].set_mol_is_active(0);
-	 if (g.display_control_window())
-	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
-	 if (g.display_control_window())
-	    set_display_control_button_state(turn_these_off[j], "Active", 0);
+         g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
+         g.molecules[turn_these_off[j]].set_mol_is_active(0);
+         if (g.display_control_window())
+            set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+         if (g.display_control_window())
+            set_display_control_button_state(turn_these_off[j], "Active", 0);
       }
    }
    if (is_valid_model_molecule(imol_last)) {
@@ -7051,6 +7107,9 @@ void post_scheme_scripting_window() {
 void
 run_command_line_scripts() {
 
+   std::cout << "---------------------------------------- run_command_line_scripts() ----------------"
+             << std::endl;
+
    if (graphics_info_t::command_line_scripts.size()) {
       std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
 		<< " command line scripts to run\n";
@@ -7453,11 +7512,11 @@ import_python_module(const char *module_name, int use_namespace) {
 }
 
 
-// 20230501-PE during merge, not sure this is a thing now.
-void add_on_rama_choices() {  // the the menu
-   GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
-   add_on_validation_graph_mol_options(menu_item, "ramachandran");
-}
+// // 20230501-PE during merge, not sure this is a thing now.
+// void add_on_rama_choices() {  // the the menu
+//    GtkWidget* menu_item = widget_from_builder("ramachandran_plot1");
+//    add_on_validation_graph_mol_options(menu_item, "ramachandran");
+// }
 
 
 void destroy_edit_backbone_rama_plot() {
@@ -9347,10 +9406,11 @@ void load_tutorial_model_and_data() {
    int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
    int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
 
-   std::cout << "--------- imol: " << imol << std::endl;
-   std::cout << "--------- imol_map: " << imol_map << std::endl;
-   std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
-
+   if (false) {
+      std::cout << "--------- imol: " << imol << std::endl;
+      std::cout << "--------- imol_map: " << imol_map << std::endl;
+      std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
+   }
 
 }
 

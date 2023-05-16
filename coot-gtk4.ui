@@ -720,6 +720,10 @@
           <attribute name="action">app.check_delete_waters_action</attribute>
         </item>
         <item>
+          <attribute name="label">Difference Map Peaks...</attribute>
+          <attribute name="action">app.difference_map_peaks_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Highly Coordinated Waters</attribute>
           <attribute name="action">app.highly_coordinates_waters_action</attribute>
         </item>
@@ -1216,7 +1220,6 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                   <object class="GtkLabel" id="label198">
                     <property name="label" translatable="yes">Add OXT to Chain:</property>
                     <property name="justify">center</property>
-                    <property name="xalign">0.05999999865889549</property>
                   </object>
                 </child>
                 <child>
@@ -1300,34 +1303,37 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
           </object>
         </child>
         <child type="action">
-              <object class="GtkBox" id="hbox99">
-                <property name="homogeneous">1</property>
-                <property name="spacing">4</property>
-                <child>
-                  <object class="GtkButton" id="add_OXT_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="add_OXT_ok_button">
-                    <property name="label" translatable="yes">  Add it  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                  </object>
-                </child>
+          <object class="GtkBox" id="hbox99">
+            <property name="homogeneous">1</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkButton" id="add_OXT_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="add_OXT_ok_button">
+                <property name="label" translatable="yes">  Add it  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -2450,6 +2456,10 @@ Calculate a skeleton now?
                 </child>
                 <child>
                   <object class="GtkComboBoxText" id="change_chain_id_molecule_combobox">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                   </object>
                 </child>
                 <child>
@@ -2589,6 +2599,10 @@ Calculate a skeleton now?
                 <property name="label" translatable="yes">  Cancel  </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_change_chain_cancel_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -2597,6 +2611,13 @@ Calculate a skeleton now?
                 <property name="label" translatable="yes">  Apply New Chain ID  </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_change_chains_rechain_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -3443,22 +3464,14 @@ the Ctrl key when moving the mouse.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="coords_colour_control_dialog">
     <property name="width-request">380</property>
     <property name="height-request">380</property>
-    <property name="title" translatable="yes">Molecule Colours</property>
-    <signal name="destroy" handler="on_coords_colour_control_dialog_destroy" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Molecule Colours</property>
     <child>
       <object class="GtkBox" id="dialog-vbox93">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="coord_colour_control_ok_button">
-                <property name="label" translatable="yes">   OK   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_coord_colour_control_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox178">
             <property name="orientation">vertical</property>
@@ -3470,6 +3483,8 @@ the Ctrl key when moving the mouse.</property>
             </child>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow26">
+                <property name="vexpand">1</property>
+                <property name="hexpand">1</property>
                 <child>
                   <object class="GtkViewport" id="viewport20">
                     <child>
@@ -3487,7 +3502,7 @@ the Ctrl key when moving the mouse.</property>
                                 </child>
                                 <child>
                                   <object class="GtkScale">
-                                    <property name="can-focus">1</property>
+                                    <property name="vexpand">1</property>
                                     <property name="round-digits">1</property>
                                   </object>
                                 </child>
@@ -3495,12 +3510,12 @@ the Ctrl key when moving the mouse.</property>
                                   <object class="GtkLabel" id="label270">
                                     <property name="label" translatable="yes">  degrees  </property>
                                     <property name="justify">center</property>
-                                    <property name="yalign">0.5600000023841858</property>
+                                    <property name="yalign">0.56</property>
                                   </object>
                                 </child>
                               </object>
                             </child>
-                            <child type="label">
+                            <child>
                               <object class="GtkLabel" id="label323">
                                 <property name="label" translatable="yes">Molecule N</property>
                               </object>
@@ -3541,20 +3556,21 @@ the Ctrl key when moving the mouse.</property>
                                   <object class="GtkLabel" id="label237">
                                     <property name="label" translatable="yes">   by  </property>
                                     <property name="justify">center</property>
-                                    <property name="yalign">0.949999988079071</property>
+                                    <property name="yalign">0.95</property>
                                   </object>
                                 </child>
+
                                 <child>
-                                  <object class="GtkScale">
-                                    <property name="can-focus">1</property>
-                                    <property name="round-digits">1</property>
+                                  <object class="GtkScale" id="bond_parameters_colour_rotation_hscale">
+                                    <property name="width-request">350</property>
                                   </object>
                                 </child>
+
                                 <child>
                                   <object class="GtkLabel" id="label238">
                                     <property name="label" translatable="yes">  degrees   </property>
                                     <property name="justify">center</property>
-                                    <property name="yalign">0.949999988079071</property>
+                                    <property name="yalign">0.95</property>
                                   </object>
                                 </child>
                               </object>
@@ -3563,18 +3579,20 @@ the Ctrl key when moving the mouse.</property>
                         </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkFrame" id="bond_parameters_rotate_colour_map_c_only_frame">
-                        <child>
-                          <object class="GtkCheckButton" id="bond_parameters_rotate_colour_map_c_only_checkbutton">
-                            <property name="label" translatable="yes"> Change colour for Carbons only</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
-                            <signal name="toggled" handler="on_bond_parameters_rotate_colour_map_c_only_checkbutton_toggled" swapped="no"/>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
+
+                    <!-- <child> -->  <!-- because it's always C-only -->
+                    <!--   <object class="GtkFrame" id="bond_parameters_rotate_colour_map_c_only_frame"> -->
+                    <!--     <child> -->
+                    <!--       <object class="GtkCheckButton" id="bond_parameters_rotate_colour_map_c_only_checkbutton"> -->
+                    <!--         <property name="label" translatable="yes"> Change colour for Carbons only</property> -->
+                    <!--         <property name="can-focus">1</property> -->
+                    <!--         <property name="use-underline">1</property> -->
+                    <!--         <signal name="toggled" handler="on_bond_parameters_rotate_colour_map_c_only_checkbutton_toggled" swapped="no"/> -->
+                    <!--       </object> -->
+                    <!--     </child> -->
+                    <!--   </object> -->
+                    <!-- </child> -->
+
                   </object>
                 </child>
                 <child type="label">
@@ -3586,6 +3604,18 @@ the Ctrl key when moving the mouse.</property>
             </child>
           </object>
         </child>
+
+        <child type="action">
+          <object class="GtkButton" id="coord_colour_control_ok_button">
+            <property name="label" translatable="yes">   OK   </property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <signal name="clicked" handler="on_coord_colour_control_ok_button_clicked" swapped="no"/>
+          </object>
+        </child>
+
       </object>
     </child>
     <action-widgets>
@@ -3792,38 +3822,28 @@ that you wish to delete.               </property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="diff_map_peaks_dialog">
-    <property name="width-request">380</property>
-    <property name="height-request">240</property>
-    <property name="title" translatable="yes">Difference Map Peaks</property>
-    <signal name="destroy" handler="on_diff_map_peaks_dialog_destroy" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Difference Map Peaks</property>
+    <!-- <signal name="destroy" handler="on_diff_map_peaks_dialog_destroy" swapped="no"/> -->
     <child>
       <object class="GtkBox" id="dialog-vbox78">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="diff_map_peaks_dialog_ok_button">
-                <property name="label" translatable="yes">   Close   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_diff_map_peaks_dialog_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow18">
+            <property name="vexpand">1</property>
+            <property name="hexpand">1</property>
+            <property name="height-request">180</property>
+            <property name="width-request">360</property>
             <child>
               <object class="GtkViewport" id="diff_map_peaks_dialog_peaks_viewport">
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkBox" id="diff_map_peaks_vbox">
-                        <property name="width-request">300</property>
-                        <property name="height-request">200</property>
+                        <property name="vexpand">1</property>
+                        <property name="hexpand">1</property>
                         <property name="orientation">vertical</property>
                       </object>
                     </child>
-                  </object>
-                </child>
               </object>
             </child>
           </object>
@@ -3833,14 +3853,28 @@ that you wish to delete.               </property>
             <property name="label" translatable="yes">  Update  </property>
             <property name="can-focus">1</property>
             <property name="receives-default">1</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
             <signal name="clicked" handler="on_diff_map_peaks_dialog_update_button_clicked" swapped="no"/>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkButton" id="diff_map_peaks_dialog_ok_button">
+            <property name="label" translatable="yes">   Close   </property>
+            <property name="can-focus">1</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <signal name="clicked" handler="on_diff_map_peaks_dialog_ok_button_clicked" swapped="no"/>
           </object>
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkWindow" id="display_control_window_glade">
     <property name="width-request">420</property>
     <property name="height-request">380</property>
@@ -3917,6 +3951,16 @@ that you wish to delete.               </property>
                         <property name="margin-bottom">4</property>
                         <property name="active">1</property>
                         <signal name="toggled" handler="on_display_control_all_models_togglebutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="display_control_last_model_only_button">
+                        <property name="label" translatable="yes"> Last Only </property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <signal name="clicked" handler="on_display_control_last_model_only_button_clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -4397,7 +4441,7 @@ that you wish to delete.               </property>
   </object>
 
   <object class="GtkDialog" id="find_ligand_dialog">
-    <property name="title" translatable="yes">Coot Find Ligands</property>
+    <property name="title" translatable="yes">Coot: Find Ligands</property>
     <child>
       <object class="GtkBox" id="dialog-vbox2">
         <property name="orientation">vertical</property>
@@ -4407,26 +4451,35 @@ that you wish to delete.               </property>
             <property name="orientation">vertical</property>
             <property name="spacing">4</property>
             <child>
-              <object class="GtkBox" id="vbox45">
+              <object class="GtkBox" id="vbox47">
                 <property name="orientation">vertical</property>
-                <property name="spacing">4</property>
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label75"> -->
+                <!--     <property name="label" translatable="yes">Select Ligands to Search for:</property> -->
+                <!--     <property name="justify">center</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
                 <child>
-                  <object class="GtkLabel" id="label73">
-                    <property name="label" translatable="yes">Select Map:</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame35">
+                  <object class="GtkFrame" id="frame37">
+                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_map_scrolledwindow">
-                        <property name="vexpand">1</property>
+                      <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
                         <child>
-                          <object class="GtkViewport" id="viewport17">
+                          <object class="GtkViewport" id="viewport16">
+                            <!-- <child> -->
+                            <!--   <object class="GtkBox" id="find_ligand_ligands_vbox"> -->
+                            <!--     <property name="orientation">vertical</property> -->
+                            <!--   </object> -->
+                            <!-- </child> -->
                             <child>
-                              <object class="GtkBox" id="find_ligand_map_vbox">
-                                <property name="orientation">vertical</property>
+                              <object class="GtkGrid" id="find_ligands_select_ligands_grid">
                               </object>
                             </child>
+
                           </object>
                         </child>
                       </object>
@@ -4436,33 +4489,57 @@ that you wish to delete.               </property>
               </object>
             </child>
             <child>
+              <object class="GtkBox" id="vbox45">
+                <property name="orientation">vertical</property>
+                <property name="spacing">4</property>
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label73"> -->
+                <!--     <property name="label" translatable="yes">Select Map:</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
+                <child>
+                  <object class="GtkFrame" id="frame35">
+                    <property name="label" translatable="yes">Select Map:</property>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="find_ligands_map_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="GtkBox" id="vbox46">
                 <property name="orientation">vertical</property>
                 <property name="spacing">4</property>
+
+                <!-- <child> -->
+                <!--   <object class="GtkLabel" id="label74"> -->
+                <!--     <property name="label" translatable="yes">Select Protein (Masks Map):</property> -->
+                <!--     <property name="justify">center</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
                 <child>
-                  <object class="GtkLabel" id="label74">
+                  <object class="GtkFrame">
                     <property name="label" translatable="yes">Select Protein (Masks Map):</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame36">
                     <property name="margin-start">8</property>
                     <property name="margin-end">8</property>
                     <property name="margin-top">4</property>
                     <property name="margin-bottom">4</property>
+
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_coords_scrolledwindow">
-                        <property name="vexpand">1</property>
-                        <child>
-                          <object class="GtkViewport" id="viewport15">
-                            <child>
-                              <object class="GtkBox" id="find_ligand_protein_vbox">
-                                <property name="orientation">vertical</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                      <object class="GtkComboBoxText" id="find_ligands_coords_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                       </object>
                     </child>
                   </object>
@@ -4475,6 +4552,11 @@ that you wish to delete.               </property>
                 <property name="margin-end">8</property>
                 <property name="margin-top">4</property>
                 <property name="margin-bottom">4</property>
+                <child type="label">
+                  <object class="GtkLabel" id="label279">
+                    <property name="label" translatable="yes">Mask Waters?</property>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox" id="vbox112">
                     <property name="orientation">vertical</property>
@@ -4482,55 +4564,48 @@ that you wish to delete.               </property>
                     <child>
                       <object class="GtkCheckButton" id="find_ligand_mask_waters_yes_radiobutton">
                         <property name="label" translatable="yes">Treat waters like protein (mask) atoms</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
+                        <property name="active">1</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="find_ligand_mask_waters_no_radiobutton">
                         <property name="label" translatable="yes">Ignore waters for mask</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
+                        <property name="active">0</property>
                         <property name="group">find_ligand_mask_waters_yes_radiobutton</property>
                       </object>
                     </child>
                   </object>
                 </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label279">
-                    <property name="label" translatable="yes">Mask Waters?</property>
-                  </object>
-                </child>
               </object>
             </child>
             <child>
-              <object class="GtkBox" id="vbox47">
-                <property name="orientation">vertical</property>
+              <object class="GtkFrame">
+                <property name="label" translatable="yes">Where to Search?</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <child>
-                  <object class="GtkLabel" id="label75">
-                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame37">
-                    <property name="margin-start">8</property>
-                    <property name="margin-end">8</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
+                  <object class="GtkBox">
                     <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
-                        <child>
-                          <object class="GtkViewport" id="viewport16">
-                            <child>
-                              <object class="GtkBox" id="find_ligand_ligands_vbox">
-                                <property name="orientation">vertical</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                      <object class="GtkCheckButton" id="find_ligands_search_all_radiobutton">
+                        <property name="label" translatable="yes">Everywhere</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="active">0</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkCheckButton" id="find_ligands_search_here_radiobutton">
+                        <property name="label" translatable="yes">Right Here</property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="active">1</property>
+                        <property name="group">find_ligands_search_all_radiobutton</property>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -4566,6 +4641,133 @@ that you wish to delete.               </property>
                 </child>
               </object>
             </child>
+
+            <child>
+              <object class="GtkFrame" id="ligand_conformers_frame">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="label">Conformer Options</property>
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkLabel" id="label261">
+                        <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkEntry" id="ligand_n_samples_entry">
+                        <property name="width-request">5</property>
+                        <property name="can-focus">1</property>
+                      </object>
+                    </child>
+                    
+                  </object>
+                </child>
+              </object>
+            </child>
+
+
+            <child>
+              <object class="GtkFrame" id="ligand_multi_solution_frame">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="label">Multi-Solution Options</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkCheckButton" id="find_ligand_multi_solution_checkbutton">
+                        <property name="label" translatable="yes">Multi-Solutions</property>
+                        <property name="active">0</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkGrid">
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Fraction for Scoring </property>
+                            <property name="justify">right</property>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_1">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <layout>
+                              <property name="row">0</property>
+                              <property name="column">1</property>
+                            </layout>
+                          </object>
+                        </child>
+                        
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Fraction for Correlation </property>
+                            <property name="justify">right</property>
+                            <layout>
+                              <property name="row">1</property>
+                              <property name="column">0</property>
+                            </layout>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_2">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <layout>
+                              <property name="row">1</property>
+                              <property name="column">1</property>
+                            </layout>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
+                   </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkFrame" id="ligand_fitting_post_fit_options">
+                <property name="label">Post-Fit Options</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+
+                <child>
+                  <object class="GtkCheckButton" id="find_ligand_real_space_refine_solutions_checkbutton">
+                    <property name="label" translatable="yes">Real Space Refine Solutions</property>
+                    <property name="can-focus">1</property>
+                    <property name="use-underline">1</property>
+                    <property name="active">1</property>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+            
             <child>
               <object class="GtkFrame" id="ligand_expert_frame">
                 <property name="margin-start">8</property>
@@ -4578,34 +4780,12 @@ that you wish to delete.               </property>
                     <child>
                       <object class="GtkGrid">
                         <child>
-                          <object class="GtkLabel" id="label261">
-                            <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
-                            <property name="justify">center</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkLabel" id="label262">
                             <property name="label" translatable="yes">  Search Number of Top Sites:        </property>
                             <property name="justify">center</property>
                             <layout>
                               <property name="column">0</property>
                               <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="ligand_n_samples_entry">
-                            <property name="width-request">5</property>
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">0</property>
                             </layout>
                           </object>
                         </child>
@@ -4642,39 +4822,42 @@ that you wish to delete.               </property>
             </child>
           </object>
         </child>
-         <child type="action">
-              <object class="GtkBox" id="hbox35">
+        <child type="action">
+          <object class="GtkBox" id="hbox35">
+            <property name="homogeneous">1</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkBox" id="hbox36">
                 <property name="homogeneous">1</property>
                 <property name="spacing">4</property>
                 <child>
-                  <object class="GtkBox" id="hbox36">
-                    <property name="homogeneous">1</property>
-                    <property name="spacing">4</property>
-                    <child>
-                      <object class="GtkButton" id="button4">
-                        <property name="label" translatable="yes">Cancel</property>
-                        <property name="can-focus">1</property>
-                        <signal name="clicked" handler="on_find_ligand_cancel_button_clicked" swapped="no"/>
-                        <property name="margin-start">4</property>
-                        <property name="margin-end">4</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="find_ligand_ok_button">
-                        <property name="label" translatable="yes">Find Ligands</property>
-                        <property name="can-focus">1</property>
-                        <signal name="clicked" handler="on_find_ligand_ok_button_clicked" swapped="no"/>
-                        <property name="margin-start">4</property>
-                        <property name="margin-end">4</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
+                  <object class="GtkButton" id="button4">
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_find_ligand_cancel_button_clicked" swapped="no"/>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">8</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="find_ligand_ok_button">
+                    <property name="label" translatable="yes">Find Ligands</property>
+                    <property name="can-focus">1</property>
+                    <signal name="clicked" handler="on_find_ligand_ok_button_clicked" swapped="no"/>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">8</property>
+                    <style>
+                      <class name="suggested-action"/>
+                    </style>
                   </object>
                 </child>
               </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -4732,31 +4915,12 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="find_waters_dialog">
     <property name="title" translatable="yes">Coot: Find Waters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox10">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox43">
-                <property name="spacing">10</property>
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="find_waters_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_find_waters_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="find_waters_ok_button">
-                    <property name="label" translatable="yes">Find Waters</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox54">
             <property name="orientation">vertical</property>
@@ -4765,11 +4929,25 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="find_waters_map_vbox">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label85">
                         <property name="label" translatable="yes">Select Map:</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="find_waters_map_combobox">
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -4784,6 +4962,16 @@ Do you want to continue?
                         <property name="label" translatable="yes">Select Protein (which Masks Map):</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="find_waters_molecule_combobox">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -4793,10 +4981,18 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox57">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label87">
                         <property name="label" translatable="yes">Find Peaks above:</property>
                         <property name="justify">center</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
                       </object>
                     </child>
                     <child>
@@ -4810,7 +5006,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel" id="label88">
-                            <property name="label" translatable="yes"> sigma </property>
+                            <property name="label" translatable="yes"> r.m.s.d. </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -4825,11 +5021,15 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox80">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
                     <child>
                       <object class="GtkLabel" id="label108">
                         <property name="label" translatable="yes">Waters should be:</property>
                         <property name="justify">center</property>
-                        <property name="xalign">0.029999999329447746</property>
+                        <property name="xalign">0.03</property>
                       </object>
                     </child>
                     <child>
@@ -4854,11 +5054,47 @@ Do you want to continue?
             </child>
           </object>
         </child>
+
+        <child type="action">
+          <object class="GtkBox" id="hbox43">
+            <property name="spacing">10</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkButton" id="find_waters_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_find_waters_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="find_waters_ok_button">
+                <property name="label" translatable="yes">Find Waters</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
+
   <object class="GtkDialog" id="fixed_atom_dialog">
     <property name="title" translatable="yes">Fixed Atoms for Refinement</property>
     <signal name="close" handler="on_fixed_atom_dialog_close" swapped="no"/>
@@ -5015,6 +5251,7 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="general_coot_molecule_chooser_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_dialog_response" swapped="no"/>
@@ -5044,6 +5281,7 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="general_coot_molecule_chooser_with_entry_and_checkbutton_dialog">
     <signal name="close" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_close" swapped="no"/>
     <signal name="response" handler="on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response" swapped="no"/>
@@ -5091,31 +5329,16 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="generate_diff_map_peaks_dialog">
-    <property name="title" translatable="yes">Difference Map Peak Analysis</property>
+    <property name="title" translatable="yes">Coot: Difference Map Peak Analysis</property>
     <child>
       <object class="GtkBox" id="dialog-vbox79">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox116">
-                <child>
-                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
-                    <property name="label" translatable="yes">     OK     </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkFrame" id="frame138">
             <child>
@@ -5126,6 +5349,7 @@ Do you want to continue?
                     <child>
                       <object class="GtkBox" id="generate_diff_map_peaks_map_vbox">
                         <property name="orientation">vertical</property>
+
                         <child>
                           <object class="GtkFrame" id="no_difference_maps_frame1">
                             <child>
@@ -5136,6 +5360,12 @@ Do you want to continue?
                             </child>
                           </object>
                         </child>
+
+                        <child>
+                           <object class="GtkComboBoxText" id="generate_diff_map_peaks_map_combobox">
+                           </object>
+                        </child>
+
                       </object>
                     </child>
                     <child type="label">
@@ -5146,12 +5376,13 @@ Do you want to continue?
                   </object>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame140">
+                  <object class="GtkFrame" id="generate_diff_map_peaks_model_frame">
                     <child>
                       <object class="GtkBox" id="generate_diff_map_peaks_model_vbox">
                         <property name="orientation">vertical</property>
+
                         <child>
-                          <object class="GtkFrame" id="no_models_frame">
+                          <object class="GtkFrame" id="generate_diff_maps_peaks_no_models_frame">
                             <child>
                               <object class="GtkLabel" id="label228">
                                 <property name="label" translatable="yes">WARNING:: No Models Available</property>
@@ -5160,6 +5391,12 @@ Do you want to continue?
                             </child>
                           </object>
                         </child>
+
+                        <child>
+                           <object class="GtkComboBoxText" id="generate_diff_map_peaks_molecule_combobox">
+                          </object>
+                        </child>
+
                       </object>
                     </child>
                     <child type="label">
@@ -5188,8 +5425,10 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel" id="label230">
-                            <property name="label" translatable="yes">  sigma  </property>
+                            <property name="label" translatable="yes">  sigma    </property>
                             <property name="justify">center</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
                           </object>
                         </child>
                       </object>
@@ -5203,6 +5442,10 @@ Do you want to continue?
                 </child>
                 <child>
                   <object class="GtkFrame" id="negative_level_frame">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="vbox165">
                         <property name="orientation">vertical</property>
@@ -5235,13 +5478,52 @@ Do you want to continue?
             </child>
           </object>
         </child>
+        <child>
+           <object class="GtkSeparator">
+           </object>
+        </child>
+        <child type="action">
+              <object class="GtkBox" id="hbox116">
+                 <property name="margin-start">4</property>
+                 <property name="margin-end">4</property>
+                 <property name="margin-top">4</property>
+                 <property name="margin-bottom">4</property>
+                <child>
+                  <object class="GtkButton" id="generate_diff_map_peaks_cancel_button">
+                     <property name="label" translatable="yes">  Cancel  </property>
+                     <property name="can-focus">1</property>
+                     <property name="margin-start">6</property>
+                     <property name="margin-end">6</property>
+                     <property name="margin-top">4</property>
+                     <property name="margin-bottom">4</property>
+                     <signal name="clicked" handler="on_generate_diff_map_peaks_cancel_button_clicked" swapped="no"/>
+                     <!-- <style> -->
+                     <!--    <class name="custom-button"/> -->
+                     <!-- </style> -->
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="generate_diff_map_peaks_ok_button">
+                     <property name="label" translatable="yes">      OK      </property>
+                     <property name="can-focus">1</property>
+                     <property name="margin-start">6</property>
+                     <property name="margin-end">6</property>
+                     <property name="margin-top">4</property>
+                     <property name="margin-bottom">4</property>
+                     <signal name="clicked" handler="on_generate_diff_map_peaks_ok_button_clicked" swapped="no"/>
+                     <style>
+                        <class name="suggested-action"/>
+                     </style>
+                  </object>
+                </child>
+              </object>
+        </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="generic_objects_dialog">
-    <property name="title" translatable="yes">Coot Generic Objects</property>
+    <property name="title" translatable="yes">Coot: Generic Objects</property>
     <property name="default-width">400</property>
     <property name="default-height">360</property>
     <signal name="response" handler="on_generic_objects_dialog_response" swapped="no"/>
@@ -5860,6 +6142,15 @@ Do you want to continue?
                   <property name="can-focus">0</property>
                   <property name="icon-name">go-to-ligand</property>
                   <signal name="clicked" handler="on_go_to_ligand_button_clicked" swapped="no"/>
+                </object>
+              </child>
+
+
+              <child>
+                <object class="GtkButton" id="graphics-grab-focus-button">
+                  <property name="label" translatable="yes">Graphics Grab Focus</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_graphics_grab_focus_button_clicked" swapped="no"/>
                 </object>
               </child>
 
@@ -6834,6 +7125,9 @@ Do you want to continue?
                 <property name="margin-end">4</property>
                 <property name="margin-bottom">4</property>
                 <property name="margin-top">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
@@ -7527,6 +7821,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_updating_maps_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -7685,6 +7982,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_mask_map_by_atom_selection_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -7873,12 +8173,17 @@ density (too big to be waters):
                   </object>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="merge_molecuoes_scrolledwindow">
+                  <object class="GtkScrolledWindow" id="merge_molecules_scrolledwindow">
+                    <property name="height-request">280</property>
                     <child>
-                      <object class="GtkViewport" id="viewport7">
+                      <object class="GtkViewport">
                         <child>
                           <object class="GtkBox" id="merge_molecules_vbox">
                             <property name="orientation">vertical</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
                           </object>
                         </child>
                       </object>
@@ -7931,6 +8236,9 @@ density (too big to be waters):
                 <property name="margin-end">4</property>
                 <property name="margin-bottom">4</property>
                 <property name="margin-top">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
@@ -8344,6 +8652,7 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="ncs_control_dialog">
     <property name="width-request">400</property>
     <property name="height-request">340</property>
@@ -8495,9 +8804,8 @@ density (too big to be waters):
     <action-widgets>
       <action-widget response="0">ncs_control_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="ncs_maps_dialog">
     <property name="title" translatable="yes">NCS Maps Dialog</property>
     <child>
@@ -8880,7 +9188,7 @@ If you need symmetry, setup ccp4 before starting coot
     </child>
   </object>
   <object class="GtkDialog" id="nothing_bad_dialog">
-    <property name="title" translatable="yes">Info:</property>
+    <property name="title" translatable="yes">Coot: Info</property>
     <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="orientation">vertical</property>
@@ -8916,6 +9224,7 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nothing_to_recover_dialog">
     <property name="title" translatable="yes">Nothing to Recover</property>
     <child>
@@ -9154,7 +9463,7 @@ Nucleotide Builder
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="cis_trans_conversion_toggle_button">
-                    <property name="label" translatable="yes">   Cis &lt;-&gt; Trans   </property>
+                    <property name="label" translatable="yes">   Cis ↔ Trans  </property>
                     <property name="can-focus">1</property>
                     <property name="use-underline">1</property>
                     <signal name="toggled" handler="on_cis_trans_conversion_toggle_button_toggled" swapped="no"/>
@@ -10198,16 +10507,14 @@ just the cell and symmetry)
                           <object class="GtkEntry" id="residue_info_master_atom_occ_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
+                            <signal name="changed" handler="on_residue_info_master_atom_occ_entry_changed" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="residue_info_master_atom_b_factor_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
+                            <signal name="changed" handler="on_residue_info_master_atom_b_factor_entry_changed" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -10216,7 +10523,6 @@ just the cell and symmetry)
                       <object class="GtkCheckButton" id="residue_info_occ_apply_all_checkbutton">
                         <property name="label" translatable="yes">Apply Occupancy to all atoms in residue?</property>
                         <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <signal name="toggled" handler="on_residue_info_occ_apply_all_checkbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -10224,7 +10530,6 @@ just the cell and symmetry)
                       <object class="GtkCheckButton" id="residue_info_b_factor_apply_all_checkbutton">
                         <property name="label" translatable="yes">Apply Temperature Factor to all atoms in residue?</property>
                         <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <signal name="toggled" handler="on_residue_info_b_factor_apply_all_checkbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -10322,6 +10627,9 @@ just the cell and symmetry)
                 <property name="label" translatable="yes">Apply</property>
                 <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
@@ -11711,8 +12019,9 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Show Symmetry?</property>
+    <property name="title" translatable="yes">Coot: Show Symmetry?</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
@@ -11724,26 +12033,32 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkFrame" id="frame163">
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkBox" id="vbox169">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame" id="frame7">
+                    <child type="label">
+                      <object class="GtkLabel" id="label45">
+                        <property name="label" translatable="yes">Master Switch: Show Symmetry Atoms?</property>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkBox" id="vbox11">
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton">
                             <property name="label" translatable="yes">Yes</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
+                            <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/>
                           </object>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="show_symmetry_no_radiobutton">
                             <property name="label" translatable="yes">No</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
                             <property name="active">1</property>
                             <property name="group">show_symmetry_yes_radiobutton</property>
                           </object>
@@ -11757,18 +12072,15 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                       </object>
                     </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label45">
-                        <property name="label" translatable="yes">Master Switch: Show Symmetry Atoms?</property>
-                      </object>
-                    </child>
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="show_symmetry_molecule_control_button">
                     <property name="label" translatable="yes">Symmetry by Molecule...</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                     <signal name="clicked" handler="on_show_symmetry_molecule_control_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -11785,22 +12097,27 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                         <child>
                           <object class="GtkBox" id="hbox7">
+                            <property name="margin-top">6</property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-end">6</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkLabel" id="label47">
-                                <property name="label" translatable="yes">Radius:</property>
+                                <property name="label" translatable="yes"> Radius: </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkEntry" id="symmetry_radius_entry">
-                                <property name="can-focus">1</property>
-                                <property name="primary-icon-activatable">0</property>
-                                <property name="secondary-icon-activatable">0</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <signal name="activate" handler="on_symmetry_radius_entry_activate" swapped="no"/>
                               </object>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label48">
-                                <property name="label" translatable="yes">A</property>
+                                <property name="label" translatable="yes">Å </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
@@ -11812,69 +12129,90 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame9">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="vbox13">
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox" id="hbox8">
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-end">6</property>
                             <child>
                               <object class="GtkLabel" id="label49">
-                                <property name="label" translatable="yes">Symmetry Colour</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-end">6</property>
+                                <property name="label" translatable="yes">Symmetry Colour </property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
+                            <!-- <child> -->
+                            <!--   <object class="GtkButton" id="symmetry_colour_patch_button"> -->
+                            <!--     <property name="can-focus">1</property> -->
+                            <!--     <signal name="clicked" handler="on_symmetry_colour_patch_button_clicked" swapped="no"/> -->
+                            <!--     <child> -->
+                            <!--       <object class="GtkBox" id="hbox33"> -->
+                            <!--         <child> -->
+                            <!--           <object class="GtkFrame" id="frame33"> -->
+                            <!--             <child> -->
+                            <!--               <object class="GtkColorButton" id="symmetry_colorbutton"> -->
+                            <!--                 <signal name="color-set" handler="on_symmetry_colorbutton_color_set" swapped="no"/> -->
+                            <!--               </object> -->
+                            <!--             </child> -->
+                            <!--           </object> -->
+                            <!--         </child> -->
+                            <!--         <child> -->
+                            <!--           <object class="GtkLabel" id="label68"> -->
+                            <!--             <property name="label" translatable="yes"> Sym Colour</property> -->
+                            <!--             <property name="justify">center</property> -->
+                            <!--           </object> -->
+                            <!--         </child> -->
+                            <!--       </object> -->
+                            <!--     </child> -->
+                            <!--   </object> -->
+                            <!-- </child> -->
+
                             <child>
-                              <object class="GtkButton" id="symmetry_colour_patch_button">
-                                <property name="can-focus">1</property>
-                                <signal name="clicked" handler="on_symmetry_colour_patch_button_clicked" swapped="no"/>
-                                <child>
-                                  <object class="GtkBox" id="hbox33">
-                                    <child>
-                                      <object class="GtkFrame" id="frame33">
-                                        <child>
-                                          <object class="GtkColorButton" id="symmetry_colorbutton">
-                                            <property name="can-focus">1</property>
-                                            <signal name="color-set" handler="on_symmetry_colorbutton_color_set" swapped="no"/>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label68">
-                                        <property name="label" translatable="yes">Sym Colour</property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
+                              <object class="GtkBox" id="hbox_for_colour_button">
+                                <property name="orientation">horizontal</property>
                               </object>
                             </child>
-                          </object>
+
+                          </object> <!-- vertical box -->
                         </child>
-                        <child>
-                          <object class="GtkBox" id="hbox9">
-                            <child>
-                              <object class="GtkFrame" id="frame10">
-                                <child>
-                                  <object class="GtkBox" id="hbox10">
-                                    <child>
-                                      <object class="GtkLabel" id="label53">
-                                        <property name="label" translatable="yes">Colour Merge:</property>
-                                        <property name="justify">center</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkScale">
-                                        <property name="can-focus">1</property>
-                                        <property name="round-digits">1</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+
+                        <!-- No colour merge for now -->
+                        <!-- <child> -->
+                        <!--   <object class="GtkBox" id="hbox9"> -->
+                        <!--     <child> -->
+                        <!--       <object class="GtkFrame" id="frame10"> -->
+                        <!--         <child> -->
+                        <!--           <object class="GtkBox" id="hbox10"> -->
+                        <!--             <property name="margin-start">6</property> -->
+                        <!--             <property name="margin-end">6</property> -->
+                        <!--             <child> -->
+                        <!--               <object class="GtkLabel" id="label53"> -->
+                        <!--                 <property name="label" translatable="yes"> Colour Merge: </property> -->
+                        <!--                 <property name="justify">center</property> -->
+                        <!--               </object> -->
+                        <!--             </child> -->
+                        <!--             <child> -->
+                        <!--               <object class="GtkScale"> -->
+                        <!--                 <property name="can-focus">1</property> -->
+                        <!--                 <property name="round-digits">1</property> -->
+                        <!--               </object> -->
+                        <!--             </child> -->
+                        <!--           </object> -->
+                        <!--         </child> -->
+                        <!--       </object> -->
+                        <!--     </child> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+
                       </object>
                     </child>
                   </object>
@@ -11882,8 +12220,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkCheckButton" id="show_symmetry_expanded_labels_checkbutton">
                     <property name="label" translatable="yes">Expanded Symmetry Atom Labels?</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
               </object>
@@ -11897,14 +12237,17 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkFrame" id="frame11">
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkBox" id="vbox15">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkCheckButton" id="unit_cell_yes_radiobutton">
                     <property name="label" translatable="yes">Yes</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="active">0</property>
                     <signal name="toggled" handler="on_unit_cell_yes_radiobutton_toggled" swapped="no"/>
                   </object>
                 </child>
@@ -11912,7 +12255,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   <object class="GtkCheckButton" id="unit_cell_no_radiobutton">
                     <property name="label" translatable="yes">No</property>
                     <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
                     <property name="active">1</property>
                     <property name="group">unit_cell_yes_radiobutton</property>
                     <signal name="toggled" handler="on_unit_cell_no_radiobutton_toggled" swapped="no"/>
@@ -11929,17 +12271,25 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkBox" id="hbox133">
+
+            <!-- there is only one button now "Close" - because the widget act when changed -->
+
+            <!-- <child> -->
+            <!--   <object class="GtkButton" id="show_symmetry_apply_button"> -->
+            <!--     <property name="label" translatable="yes">Apply</property> -->
+            <!--     <property name="can-focus">1</property> -->
+            <!--     <signal name="clicked" handler="on_show_symmetry_apply_button_clicked" swapped="no"/> -->
+            <!--   </object> -->
+            <!-- </child> -->
+
             <child>
-              <object class="GtkButton" id="show_symmetry_apply_button">
-                <property name="label" translatable="yes">Apply</property>
+              <object class="GtkButton" id="show_symmetry_ok_button">  <!-- change the id? -->
+                <property name="label" translatable="yes">Close</property>
                 <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_show_symmetry_apply_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="show_symmetry_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_show_symmetry_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -11950,6 +12300,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
+
   <object class="GtkDialog" id="simple_refmac_dialog">
     <property name="title" translatable="yes">Coot: Refine with Refmac</property>
     <signal name="response" handler="on_simple_refmac_dialog_response" swapped="no"/>
@@ -12954,6 +13306,9 @@ Move a copy?</property>
                 <property name="margin-bottom">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
                 <signal name="clicked" handler="on_find_blobs_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -13010,29 +13365,31 @@ Move a copy?</property>
           </object>
         </child>
 
-         <child type="action">
-              <object class="GtkBox" id="hbox51">
-                <property name="spacing">12</property>
-                <property name="homogeneous">1</property>
-                <property name="margin-top">6</property>
-                <property name="margin-bottom">6</property>
-                <property name="margin-start">6</property>
-                <property name="margin-end">6</property>
-                <child>
-                  <object class="GtkButton" id="unsaved_changes_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="unsaved_changes_continue_button">
-                    <property name="label" translatable="yes">Continue Exit</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
-                  </object>
-                </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox51">
+            <property name="spacing">12</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <child>
+              <object class="GtkButton" id="unsaved_changes_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked" swapped="no"/>
               </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="unsaved_changes_continue_button">
+                <property name="label" translatable="yes">Continue Exit</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
+                <style>
+                  <class name="destructive-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
         </child>
 
       </object>

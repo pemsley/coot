@@ -2891,6 +2891,50 @@ int test_number_of_hydrogen_atoms(molecules_container_t &mc) {
    return status;
 }
 
+int test_cell(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto print_cell = [] (const api::cell_t &c) {
+      std::cout << c.a << " " << c.b << " " << c.c << " " << c.alpha << " " << c.beta << " " << c.gamma
+                << std::endl;
+   };
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   api::cell_t c1 = mc.get_cell(imol);
+   api::cell_t c2 = mc.get_cell(imol_map);
+
+   print_cell(c1);
+   print_cell(c2);
+
+   if (c1.a > 10) status = 1;
+
+   return status;
+}
+
+int test_map_centre(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   std::cout << "in test_map_centre() imol_map is " << imol_map << std::endl;
+   coot::util::map_molecule_centre_info_t mci = mc.get_map_molecule_centre(imol_map);
+   std::cout << "new centre: " << mci.updated_centre.format() << std::endl;
+
+   if (mci.success == true) {
+      std::cout << "map centre success " << std::endl;
+      if (mci.updated_centre.x() > 10.0)
+         status = 1;
+   }
+
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3067,7 +3111,11 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
 
-   status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+   // status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+
+   status += run_test(test_cell, "cell", mc);
+
+   status += run_test(test_map_centre, "map centre", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 

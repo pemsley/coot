@@ -310,8 +310,8 @@ namespace coot {
       }
 #endif // SWIG
       
-#ifndef SWIG
-      bool operator<(const residue_spec_t &matcher) const{
+#ifndef SWIGxx
+      bool operator<(const residue_spec_t &matcher) const {
 	 if (matcher.chain_id == chain_id) {
 	    if (matcher.res_no == res_no) {
 	       if (matcher.ins_code == ins_code) {

@@ -821,7 +821,7 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          std::vector<coot::atom_spec_t> specs_for_removed_restraints =
 	    last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
          if (specs_for_removed_restraints.size()) {
-            if (true) {
+            if (false) {
                for (unsigned int i=0; i<specs_for_removed_restraints.size(); i++) {
                   std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i]
                             << std::endl;
@@ -5012,9 +5012,16 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
    }
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
-      update_environment_distances_by_rotation_centre_maybe(imol);
-      graphics_draw();
+      if (molecules[imol].is_displayed_p()) {
+         molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+         update_environment_distances_by_rotation_centre_maybe(imol);
+         graphics_draw();
+      } else {
+         std::string message = "WARNING:: disallowed addition of ";
+         message += type;
+         message += "\nas the target molecule is not displayed";
+         info_dialog(message);
+      }
    }
 }
 

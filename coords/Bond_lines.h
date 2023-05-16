@@ -608,13 +608,13 @@ public:
    // Used by various CA-mode bonds
    //
    explicit Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+      init();
       verbose_reporting = false;
       do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
       do_disulfide_bonds_flag = true;
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;
-      init();
       udd_has_ca_handle = -1;
       if (protein_geom)
          have_dictionary = true;
@@ -631,14 +631,14 @@ public:
    //
    Bond_lines_container(coot::protein_geometry *protein_geom,
                         const std::set<int> &no_bonds_to_these_atoms_in,
-                        bool do_bonds_to_hydrogens_in=true) : geom(protein_geom),
-                                                              no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+                        bool do_bonds_to_hydrogens_in=true) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
       verbose_reporting = false;
       do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
       do_disulfide_bonds_flag = true;
       b_factor_scale = 1.0;
       have_dictionary = false;
       init();
+      geom = protein_geom;
       udd_has_ca_handle = -1;
       if (protein_geom)
          have_dictionary = true;

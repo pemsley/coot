@@ -670,10 +670,10 @@ std::vector<int> auto_read_make_and_draw_maps(const char *mtz_file_name) {
    if (! coot::file_exists(mtz_file_name)) {
       std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
    } else {
-      if ( is_mtz_file_p(mtz_file_name) ) {
-    imol_vec = auto_read_make_and_draw_maps_from_mtz(mtz_file_name);
+      if (is_mtz_file_p(mtz_file_name)) {
+         imol_vec = auto_read_make_and_draw_maps_from_mtz(mtz_file_name);
       } else {
-    imol_vec = auto_read_make_and_draw_maps_from_cns(mtz_file_name);
+         imol_vec = auto_read_make_and_draw_maps_from_cns(mtz_file_name);
       }
    }
    return imol_vec;
@@ -740,10 +740,10 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
 
    // Built-ins
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",          "PHWT",      false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT",      "PH2FOFCWT", false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",       "PHDELWT",   true ));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",       "PHFOFCWT",  true ));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",          "PHWT",      false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));

@@ -458,7 +458,9 @@ class molecule_class_info_t {
    void insert_coords_atoms_into_residue_internal(const atom_selection_container_t &asc,
 						  int shelx_occ_fvar_number);
 
-   short int is_mmcif(const std::string &filename) const;
+   bool input_molecule_was_in_mmcif;
+   // public acces to this is below
+
    void unalt_conf_residue_atoms(mmdb::Residue *residue_p);
 
    // return status and a chain id [status = 0 when there are 26 chains...]
@@ -1332,29 +1334,19 @@ public:        //                      public
    short int contour_by_sigma_flag;
    float contour_sigma_step;
    //
-#ifndef EMSCRIPTEN
    GdkRGBA map_colour;
    GdkRGBA map_colour_negative_level;
    GdkRGBA previous_map_colour;
-#else
-   coot::colour_holder map_colour;
-   coot::colour_holder map_colour_negative_level;
-   coot::colour_holder previous_map_colour;
-#endif
    void save_previous_map_colour();
    void restore_previous_map_colour();
-#ifndef EMSCRIPTEN
    GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
    GdkRGBA fraction_to_colour(float fraction);
-#endif
 
    float other_map_for_colouring_min_value;
    float other_map_for_colouring_max_value;
    std::vector<coot::colour_t> other_map_for_colouring_colour_table;
    // use the above values to generate a colour given a value (typically, a correlation)
-#ifndef EMSCRIPTEN
    GdkRGBA value_to_colour_using_colour_table(float value);
-#endif
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
@@ -1366,12 +1358,10 @@ public:        //                      public
    bool has_display_list_objects();
    int draw_display_list_objects(int GL_context); // return number of display list objects drawn
    // return the display list object index
-#ifndef EMSCRIPTEN
    int make_ball_and_stick(const std::string &atom_selection_str,
  			   float bond_thickness, float sphere_size,
  			   bool do_spheres_flag, gl_context_info_t gl_info,
 			   const coot::protein_geometry *geom);
-#endif
    // return the display list object info
    coot::display_list_object_info
    make_ball_and_stick(const std::string &atom_selection_str,
@@ -3043,6 +3033,11 @@ public:        //                      public
    // from HETATM molecule before merging with this one
    //
    bool molecule_has_hydrogens() const;
+
+   bool get_input_molecule_was_in_mmcif_state() const {
+      return input_molecule_was_in_mmcif;
+   }
+
 
    // -------- simply print it (at the moment) --------------
    void print_secondary_structure_info();
