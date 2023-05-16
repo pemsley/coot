@@ -4027,14 +4027,23 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
    /* The Show Symmetry RadioButtons */
 
-   GtkCheckButton *button = nullptr;
-   if (get_show_symmetry() == 1) {
-      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
-   } else {
-      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
-   }
+   // GtkCheckButton *button = nullptr;
+   // if (get_show_symmetry() == 1) {
+   //    button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
+   // } else {
+   //    button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
+   // }
 
-   gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+   // gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+
+   // 20230516-PE now we use a switch
+
+   GtkWidget *switch_button = widget_from_builder("show_symmetry_switch");
+   if (get_show_symmetry() == 1) {
+      gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
+   } else {
+      gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
+   }
 
 #if 0 // 20230513-PE not now
 
@@ -4056,16 +4065,25 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     gtk_editable_set_text(GTK_EDITABLE(entry), text);
     free (text);
 
-    /* The Unit Cell Radiobuttons */
+    /* The Unit Cell Radiobuttons - pre GtkSwitch*/
+
+    // If (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+    //    GtkWidget *check_button = nullptr;
+    //    if (get_show_unit_cell(imol) == 1) {
+    //       check_button = widget_from_builder("unit_cell_yes_radiobutton");
+    //    } else {
+    //       check_button = widget_from_builder("unit_cell_no_radiobutton");
+    //    }
+    //    gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), TRUE);
+    // }
+
 
     if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
-       GtkWidget *check_button = nullptr;
-       if (get_show_unit_cell(imol) == 1) {
-	  check_button = widget_from_builder("unit_cell_yes_radiobutton");
-       } else {
-	  check_button = widget_from_builder("unit_cell_no_radiobutton");
-       }
-       gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), TRUE);
+       GtkWidget *switch_button = widget_from_builder("show_unit_cell_switch");
+       if (get_show_unit_cell(imol) == 1)
+          gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
+       else 
+          gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
     }
 
 

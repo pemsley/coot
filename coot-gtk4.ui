@@ -6234,7 +6234,7 @@ Do you want to continue?
                       <!-- <property name="valign">end</property> -->
                       <property name="hexpand">True</property>
                       <property name="vexpand">True</property>
-                      <property name="visible">True</property>
+                      <property name="visible">False</property>
                       <property name="margin-bottom">5</property>
                       <property name="margin-end">5</property>
                       <property name="margin-start">5</property>
@@ -9050,6 +9050,7 @@ in this molecule.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="no_cif_dictionary_bonds_dialog">
     <property name="title" translatable="yes">No Restraints in Dictionary!</property>
     <child>
@@ -9081,6 +9082,7 @@ in this molecule.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="no_new_ligands_info_dialog">
     <property name="title" translatable="yes">No New Ligands</property>
     <child>
@@ -12047,7 +12049,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Coot: Show Symmetry?</property>
+    <property name="title" translatable="yes">Coot: Show Symmetry</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
@@ -12076,19 +12078,61 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                     <child>
                       <object class="GtkBox" id="vbox11">
                         <property name="orientation">vertical</property>
+
+                        <!-- <child> -->
+                        <!--   <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton"> -->
+                        <!--     <property name="label" translatable="yes">Yes</property> -->
+                        <!--     <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+                        <!-- <child> -->
+                        <!--   <object class="GtkCheckButton" id="show_symmetry_no_radiobutton"> -->
+                        <!--     <property name="label" translatable="yes">No</property> -->
+                        <!--     <property name="active">1</property> -->
+                        <!--     <property name="group">show_symmetry_yes_radiobutton</property> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+
                         <child>
-                          <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton">
-                            <property name="label" translatable="yes">Yes</property>
-                            <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Off</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkSwitch" id="show_symmetry_switch">
+                                <property name="active">False</property>
+                                <property name="width-request">40</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <signal name="state-set" handler="show_symmetry_switch_state_set"/>
+                              </object>
+                            </child>
+                            
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">On</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkCheckButton" id="show_symmetry_no_radiobutton">
-                            <property name="label" translatable="yes">No</property>
-                            <property name="active">1</property>
-                            <property name="group">show_symmetry_yes_radiobutton</property>
-                          </object>
-                        </child>
+                        
+
                         <child>
                           <object class="GtkCheckButton" id="symmetry_always_on_checkbutton">
                             <property name="label" translatable="yes"> Symmetry Always On</property>
@@ -12267,32 +12311,52 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
             <property name="margin-end">6</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
-            <child>
-              <object class="GtkBox" id="vbox15">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkCheckButton" id="unit_cell_yes_radiobutton">
-                    <property name="label" translatable="yes">Yes</property>
-                    <property name="active">0</property>
-                    <signal name="toggled" handler="on_unit_cell_yes_radiobutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="unit_cell_no_radiobutton">
-                    <property name="label" translatable="yes">No</property>
-                    <property name="can-focus">1</property>
-                    <property name="active">1</property>
-                    <property name="group">unit_cell_yes_radiobutton</property>
-                    <signal name="toggled" handler="on_unit_cell_no_radiobutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-            </child>
+
             <child type="label">
               <object class="GtkLabel" id="label55">
                 <property name="label" translatable="yes">Show Unit Cells?</property>
               </object>
             </child>
+
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Hide</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkSwitch" id="show_unit_cell_switch">
+                    <property name="active">False</property>
+                    <property name="width-request">40</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <signal name="state-set" handler="show_unit_cell_switch_state_set"/>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Show</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
           </object>
         </child>
         <child>

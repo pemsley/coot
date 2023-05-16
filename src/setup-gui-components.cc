@@ -117,6 +117,7 @@ void setup_ramachandran_plot_chooser_dialog() {
 }
 
 void setup_get_monomer() {
+
    GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
    g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
@@ -200,6 +201,7 @@ void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
 }
 
 void setup_python_scripting_entry() {
+
    GtkWidget *entry = widget_from_builder("python_scripting_entry");
    if(entry == NULL) {
       g_error("'python_scripting_entry' from builder is NULL");
@@ -216,6 +218,8 @@ void setup_python_scripting_entry() {
    g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
 
    gtk_widget_add_controller(entry, key_controller_entry);
+
+   // add_python_scripting_entry_completion(entry);
 }
 
 void setup_gui_components() {

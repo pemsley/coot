@@ -7730,27 +7730,39 @@ on_ideal_rna_cancel_button_clicked     (GtkButton       *button,
 }
 
 
+// extern "C" G_MODULE_EXPORT
+// void
+// on_unit_cell_yes_radiobutton_toggled   (GtkCheckButton *checkbutton,
+//                                         gpointer        user_data)
+// {
+//    if (gtk_check_button_get_active(checkbutton))
+//       set_show_unit_cells_all(1);
+//   else
+//       set_show_unit_cells_all(0);
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_unit_cell_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+//                                     gpointer        user_data) {
+
+//    if (gtk_check_button_get_active(checkbutton))
+//       set_show_unit_cells_all(0);
+//    else
+//       set_show_unit_cells_all(1);
+// }
+
 extern "C" G_MODULE_EXPORT
 void
-on_unit_cell_yes_radiobutton_toggled   (GtkCheckButton *checkbutton,
-                                        gpointer        user_data)
-{
-   if (gtk_check_button_get_active(checkbutton))
+show_unit_cell_switch_state_set(GtkSwitch *switch_widget,
+                                gboolean   state,
+                                gpointer   user_data) {
+
+   if (state)
       set_show_unit_cells_all(1);
   else
-      set_show_unit_cells_all(0);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_unit_cell_no_radiobutton_toggled(GtkCheckButton *checkbutton,
-                                    gpointer        user_data) {
-
-   if (gtk_check_button_get_active(checkbutton))
-      set_show_unit_cells_all(0);
-   else
-      set_show_unit_cells_all(1);
+     set_show_unit_cells_all(0);
 }
 
 
@@ -11490,7 +11502,18 @@ on_symmetry_radius_entry_activate(GtkEntry* self,
          std::cout << "WARNING::" << e.what() << std::endl;
       }
    }
+}
 
+extern "C" G_MODULE_EXPORT
+void
+show_symmetry_switch_state_set(GtkSwitch *switch_widget,
+                               gboolean   state,
+                               gpointer   user_data) {
+
+   if (state)
+      set_show_symmetry_master(1);
+  else
+      set_show_symmetry_master(0);
 }
 
 // #ifdef FIX_THE_KEY_PRESS_EVENTS

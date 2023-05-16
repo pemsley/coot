@@ -1356,8 +1356,10 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
-   if (show_symm_window)
+   if (show_symm_window) {
+      set_transient_for_main_window(show_symm_window);
       gtk_widget_show(show_symm_window);
+   }
 }
 
 
