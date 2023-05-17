@@ -4,67 +4,6 @@
 # sorted by header files:
 
 # c-interface.h:
-
-# 20230513-PE merge: Hmm.. these functions from c-interface were not in gtk3 branch but were in refinement
-#                    Why were they omitted/deleted? I have restored them for now
-chain_id               = chain_id_py
-remarks                = remarks_py
-residue_centre         = residue_centre_py
-coot_sys_build_type    = coot_sys_build_type_py
-accept_moving_atoms    = accept_moving_atoms_py
-molecule_name_stub     = molecule_name_stub_py
-run_clear_backups      = run_clear_backups_py
-het_group_residues     = het_group_residues_py
-replace_residues_from_mol = replace_residues_from_mol_py
-test_internal          = test_internal_py
-test_internal_single   = test_internal_single_py
-select_atom_under_pointer = select_atom_under_pointer_py
-get_map_colour         = get_map_colour_py
-average_map            = average_map_py
-refmac_parameters      = refmac_parameters_py
-map_parameters         = map_parameters_py
-cell                   = cell_py
-map_cell               = cell_py
-get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
-origin_pre_shift       = origin_pre_shift_py
-save_coords_name_suggestion = save_coords_name_suggestion_py
-save_state_file        = save_state_file_py
-save_state_file_name   = save_state_file_name_py
-run_state_file         = run_state_file_py
-go_to_ligand           = go_to_ligand_py
-centre_of_mass_string  = centre_of_mass_string_py
-set_atom_attributes    = set_atom_attributes_py
-test_function          = test_function_py
-glyco_tree             = glyco_tree_py
-glyco_tree_residues    = glyco_tree_residues_py
-glyco_tree_residue_id  = glyco_tree_residue_id_py
-glyco_tree_compare_trees = glyco_tree_compare_trees_py
-glyco_tree_matched_residue_pairs = glyco_tree_matched_residue_pairs_py
-display_maps           = display_maps_py
-space_group            = space_group_py
-symmetry_operators     = symmetry_operators_py
-symmetry_operators_to_xHM = symmetry_operators_to_xHM_py
-merge_molecules        = merge_molecules_py
-set_merge_molecules_ligand_spec = set_merge_molecules_ligand_spec_py
-alignment_results      = alignment_results_py
-nearest_residue_by_sequence = nearest_residue_by_sequence_py
-change_chain_id_with_result        = change_chain_id_with_result_py
-probe_available_p      = probe_available_p_py
-get_input_molecule_was_in_mmcif_state = get_input_molecule_was_in_mmcif_state_py
-# to be renamed later
-matching_compound_names_from_dictionary = matching_compound_names_from_dictionary_py
-# keep for compatibility reasons
-comp_id2name           = comp_id_to_name_py
-comp_id_to_name           = comp_id_to_name_py
-refine_residues        = refine_residues_py
-refine_residues_with_modes_with_alt_conf = refine_residues_with_modes_with_alt_conf_py
-refine_residues_with_alt_conf        = refine_residues_with_alt_conf_py
-regularize_residues    = regularize_residues_py
-regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
-refine_zone_with_score = refine_zone_with_score_py
-regularize_zone_with_score = regularize_zone_with_score_py
-
-# c-interface.h:
 chain_id               = coot.chain_id_py
 remarks                = coot.remarks_py
 residue_centre         = coot.residue_centre_py
