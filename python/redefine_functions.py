@@ -3,6 +3,8 @@
 ############
 # sorted by header files:
 
+import coot
+
 # c-interface.h:
 chain_id               = coot.chain_id_py
 remarks                = coot.remarks_py
