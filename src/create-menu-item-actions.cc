@@ -1143,13 +1143,41 @@ calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
-background_colour_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                         G_GNUC_UNUSED GVariant *parameter,
-                         G_GNUC_UNUSED gpointer user_data) {
-   // black or white options
-   std::cout << "black or white options here" << std::endl;
+background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0,0,0);
+   graphics_info_t::graphics_draw();
+   
 }
 
+void
+background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.13f,0.13f,0.13f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_light_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.83f, 0.83f, 0.83f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_white_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(1,1,1);
+   graphics_info_t::graphics_draw();
+}
 
 void
 bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2294,8 +2322,11 @@ create_actions(GtkApplication *application) {
 
    // Draw
 
+   add_action(       "background_black_action",        background_black_action);
+   add_action(  "background_light_grey_action",   background_light_grey_action);
+   add_action(   "background_dark_grey_action",    background_dark_grey_action);
+   add_action(       "background_white_action",        background_white_action);
    add_action(    "display_only_active_action",     display_only_active_action);
-   add_action(      "background_colour_action",       background_colour_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);

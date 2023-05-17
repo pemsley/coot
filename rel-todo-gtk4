@@ -37,8 +37,6 @@ Here are other styles:
 
 ----
 
-Background colour ::: 1
-
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
  Other Solvent Molecules"? ::: 1
 
@@ -359,4 +357,10 @@ File -> Delete Molecules dialog ::: 1
 
 Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 2.5
 * Done. What a grind. At least a 2.
+
+Better/more completions and history in python scripting. ::: 3
+* Done. What a grind!
+
+Background colour ::: 0.4
+* Done. Trivial
 

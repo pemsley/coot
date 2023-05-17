@@ -493,10 +493,33 @@
       <submenu>
         <attribute name="label">View</attribute>
         <section>
-          <item>
+
+          <!-- <item> -->
+          <!--   <attribute name="label">Background Colour...</attribute> -->
+          <!--   <attribute name="action">app.background_colour_action</attribute> -->
+          <!-- </item> -->
+ 
+          <submenu>
             <attribute name="label">Background Colour...</attribute>
-            <attribute name="action">app.background_colour_action</attribute>
-          </item>
+            <item>
+              <attribute name="label">Black</attribute>
+              <attribute name="action">app.background_black_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Dark Grey</attribute>
+              <attribute name="action">app.background_dark_grey_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Light Grey</attribute>
+              <attribute name="action">app.background_light_grey_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">White</attribute>
+              <attribute name="action">app.background_white_action</attribute>
+            </item>
+          </submenu>
+         
+
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
