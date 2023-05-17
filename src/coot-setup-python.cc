@@ -48,6 +48,105 @@
 #include <glob.h>
 
 
+
+void
+add_python_scripting_entry_completion(GtkWidget *entry) {
+
+   // call this *after* python has been setup!
+
+   // std::cout << "======================= add_python_scripting_entry_completion() " << std::endl;
+
+   graphics_info_t g; // for history
+
+   GtkEntryCompletion *completion = gtk_entry_completion_new();
+   gtk_entry_completion_set_popup_completion(completion, TRUE);
+   gtk_entry_completion_set_text_column(completion, 0);
+   gtk_entry_completion_set_minimum_key_length(completion, 2);
+   gtk_entry_set_completion(GTK_ENTRY(entry), completion);
+
+   std::vector<std::string> completions;
+   std::vector<std::string> module_coot_completions;
+   std::vector<std::string> module_coot_utils_completions;
+
+   PyErr_Clear();
+   // I'd like to do the dir(coot) using the API, something like:
+   // PyObject *object = PyObject_Dir(module_py);
+   // but I don't know how to get the module_py
+   // PyObject *PyState_FindModule(PyModuleDef *def) - what is def?
+   //
+   PyObject *object = safe_python_command_with_return("dir(coot)");
+   std::cout << "object " << object << std::endl;
+   if (object) {
+      std::string module_name = "coot";
+      module_coot_completions.reserve(2000);
+
+      // auto tp_0 = std::chrono::high_resolution_clock::now();
+      if (PyList_Check(object)) {
+         Py_ssize_t n = PyList_Size(object);
+         for (Py_ssize_t i=0; i<n; i++) {
+            PyObject *item = PyList_GetItem(object, i);
+            if (PyUnicode_Check(item)) {
+               std::string str = module_name + std::string(".") +
+                  PyBytes_AS_STRING(PyUnicode_AsUTF8String(item)) + std::string("(");
+               std::cout << "in add_python_scripting_entry_completion() adding " << str << std::endl;
+               module_coot_completions.push_back(str);
+            }
+         }
+      }
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+      // std::cout << "Timings: dir coot " << d10 << " microseconds" << std::endl;
+   }
+
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
+   object = safe_python_command_with_return("dir(coot_utils)");
+   if (object) {
+      if (PyList_Check(object)) {
+         std::string module_name = "coot_utils";
+         Py_ssize_t n = PyList_Size(object);
+         for (Py_ssize_t i=0; i<n; i++) {
+            PyObject *item = PyList_GetItem(object, i);
+            if (PyUnicode_Check(item)) {
+               std::string str = module_name + std::string(".") +
+                  PyBytes_AS_STRING(PyUnicode_AsUTF8String(item)) + std::string("(");
+               module_coot_utils_completions.push_back(str);
+            }
+         }
+      }
+      // auto tp_3 = std::chrono::high_resolution_clock::now();
+      // auto d32 = std::chrono::duration_cast<std::chrono::microseconds>(tp_3 - tp_2).count();
+      // std::cout << "Timings: dir coot_utils " << d32 << " microseconds" << std::endl;
+   }
+
+   // command history
+   std::vector<std::string> chv = g.command_history.commands;
+
+   chv = g.command_history.unique_commands(); // there *were* unique already
+
+   if (true) chv.clear(); // 20230516-PE while testing.
+
+   // add together the completions
+   completions.push_back("import coot");
+   completions.push_back("import coot_utils");
+   completions.insert(completions.end(), chv.begin(),                           chv.end());
+   completions.insert(completions.end(), module_coot_completions.begin(),       module_coot_completions.end());
+   completions.insert(completions.end(), module_coot_utils_completions.begin(), module_coot_utils_completions.end());
+
+   // maybe only once!
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   GtkTreeIter iter;
+
+   for (unsigned int i=0; i<completions.size(); i++) {
+      gtk_list_store_append( store, &iter );
+      std::string c = completions[i];
+      std::cout << "adding to gtk-completion: " << c << std::endl;
+      gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
+   }
+
+   gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
+
+}
+
 void setup_python_basic(int argc, char **argv) {
 
 #ifdef USE_PYTHON
@@ -119,7 +218,10 @@ void setup_python_coot_module() {
 }
 
 void setup_python_with_coot_modules(int argc, char **argv) {
+
 #ifdef USE_PYTHON
+
+   std::cout << "------------------------  starting setup_python_with_coot_modules() " << std::endl;
 
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
@@ -172,7 +274,7 @@ void setup_python_with_coot_modules(int argc, char **argv) {
                                     // the status-bar, menu-bar etc. i.e. coot_python_api
          PyObject *io = PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
 
-         // std::cout << "@@@@@@@@@@@@@@ coot_utils was imported " << io << std::endl;
+         std::cout << "PyImport_ImportModule() coot_utils was imported " << io << std::endl;
          
          // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
          // idioms.
@@ -182,7 +284,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
          // it without that test
          //
          PyObject *gui_module = PyImport_ImportModule("coot_gui");
-         // std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
+
+         std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
       }
    }
 
@@ -193,6 +296,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
 
    // std::string home_directory = coot::get_home_dir();
    // try_load_dot_coot_py_and_python_scripts(home_directory);
+
+   std::cout << "------------------------  done setup_python_with_coot_modules() " << std::endl;
 
 #endif // USE_PYTHON
 

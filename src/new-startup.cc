@@ -715,10 +715,11 @@ new_startup_application_activate(GtkApplication *application,
       setup_gestures_for_opengl_widget_in_main_window(gl_area);
 
       create_actions(application);
-      setup_gui_components();
-      setup_go_to_residue_keyboarding_mode_entry_signals();
 
       setup_python_with_coot_modules(argc, argv);
+
+      setup_gui_components();
+      setup_go_to_residue_keyboarding_mode_entry_signals();
 
       // if there is no command line arguments, the the function that sets this data is not run
       // so cld is null

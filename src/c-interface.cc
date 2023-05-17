@@ -6669,6 +6669,8 @@ int pyrun_simple_string(const char *python_command) {
 // returns NULL for failed run
 PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
+   std::cout << "--------------- start safe_python_command_with_return() " << python_cmd << std::endl;
+
    // 20220330-PE I think that this is super ricketty now!
    // Does it only find things in dynamic_atom_overlaps_and_other_outliers module?
    // this function was empty before today, returning NULL.
@@ -6688,6 +6690,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
    if (!result)
       PyErr_Print();
 
+   std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << std::endl;
    return result;
 }
 #endif //PYTHON

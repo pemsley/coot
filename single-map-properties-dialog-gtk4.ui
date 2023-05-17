@@ -447,15 +447,10 @@
     <child internal-child="action_area">
       <object class="GtkBox">
         <property name="valign">center</property>
-        <property name="can_focus">False</property>
-        <child>
-          <placeholder/>
-        </child>
         <child>
           <object class="GtkButton" id="test_multiple_use_dialog_ok_button">
             <property name="label" translatable="yes">OK</property>
             <property name="focusable">1</property>
-            <property name="receives_default">1</property>
           </object>
         </child>
       </object>

@@ -42,6 +42,8 @@ Background colour ::: 1
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
  Other Solvent Molecules"? ::: 1
 
+Pointer distances ::: 4
+
 Click on symmetry atoms ::: 1
 
 Wed  3 May 2023 14:43:36 BST
@@ -108,8 +110,6 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 Do the tutorial from time to time - what's missing? ::: 6
 Validation graphs colours
 
-Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
-
 Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
 
 Find Somewhere for "Choose Undo Molecule" ::: 1
@@ -117,6 +117,8 @@ Find Somewhere for "Choose Undo Molecule" ::: 1
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
+
+Put a bar/cyclnder under Diego so I can see the atoms.
 
 Dotted Surface ::: 1
 
@@ -159,6 +161,8 @@ it looks like the sea.  Or use texture background while Refmac is running.
 
 ---- "Do they need to work?" items -----
 
+How to represent a "Both" chirial (ambiguous) (are they the same thing?)
+
 User-defined menus in Python - connected via coot_main_menumodel.
 
 Comboboxes with entries for old molecule, or duplicated entries.
@@ -174,6 +178,8 @@ Low Priority: think how to put the "Display Manager" into the main window :::- 6
 Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me a nice progress bar :::- 4
 
 Low Priority: How can I make a flatpak for Coot?
+
+Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement()
 
 --- Done Items ---
 

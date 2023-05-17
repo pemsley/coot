@@ -1898,7 +1898,7 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *m
       for (int iat=1; iat<10000; iat++) {
          GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
          if (!w) {
-            std::cout << "not editable at iat " << iat << std::endl;
+            // std::cout << "null editable at iat " << iat << std::endl;
             break;
          } else {
             gtk_editable_set_text(GTK_EDITABLE(w), txt);
@@ -5115,7 +5115,6 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
 
    GtkWidget *frame = widget_from_builder("main_window_meshes_frame");
    GtkWidget *vbox  = widget_from_builder("main_window_meshes_vbox");
-      gtk_widget_show(frame);
 
    unsigned int n_mesh = 0;
    for (unsigned int i=0; i<molecules.size(); i++)

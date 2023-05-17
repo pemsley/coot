@@ -1262,8 +1262,7 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                             <child>
                               <object class="GtkCheckButton" id="add_OXT_c_terminus_radiobutton">
                                 <property name="label" translatable="yes">  At C terminus</property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
+                                <property name="active">1</property>
                                 <signal name="toggled" handler="on_add_OXT_c_terminus_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
@@ -1279,17 +1278,12 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                             <child>
                               <object class="GtkCheckButton" id="add_OXT_residue_radiobutton">
                                 <property name="label" translatable="yes">At Residue: </property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
                                 <property name="group">add_OXT_c_terminus_radiobutton</property>
                                 <signal name="toggled" handler="on_add_OXT_residue_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
                             <child>
                               <object class="GtkEntry" id="add_OXT_residue_entry">
-                                <property name="can-focus">1</property>
-                                <property name="primary-icon-activatable">0</property>
-                                <property name="secondary-icon-activatable">0</property>
                               </object>
                             </child>
                           </object>
@@ -12049,16 +12043,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Coot: Show Symmetry</property>
+    <property name="title" translatable="yes">Coot: Show Symmetry &amp; Unit Cell</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkLabel" id="label44">
-            <property name="label" translatable="yes">Symmetry &amp; Unit Cell</property>
-            <property name="justify">center</property>
-          </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame163">
             <property name="margin-start">6</property>
