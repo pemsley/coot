@@ -60,6 +60,8 @@
 #include "hb-types.hh"
 #include "mini-mol/atom-quads.hh"
 
+#include "metal-ligand.hh"
+
 namespace coot {
 
    std::string atom_id_mmdb_expand(const std::string &atomname);
@@ -2091,6 +2093,15 @@ namespace coot {
       // extract values from these sets - return 0.0 on failure
       double get_metal_O_distance(const std::string &metal) const;
       double get_metal_N_distance(const std::string &metal) const;
+
+      // 20230517-PE
+      // New style metal distances from Keitaro
+      //
+      void read_metal_distances(const std::string &file_name);
+      // Here is where those distances are stored:
+      std::map<std::string, std::vector<metal_ligand_t> > metals_store;
+      // debugging:
+      void print_metal_store() const; 
 
       // Find the non-bonded contact distance
       // 
