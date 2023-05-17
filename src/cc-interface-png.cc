@@ -172,13 +172,9 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    if (npx.first == false) {
       npx.second = text.length() * font_size * 0.7; // fudge factor
    }
-#ifdef HAVE_CXX11
+
    if (npy.first == false)
       npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
-#else
-   if (npy.first == false)
-      npy.second = lround(std::floor(float(font_size)*1.3)) + 1;
-#endif
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx.second, npy.second);
    cairo_t *cr = cairo_create(surface);

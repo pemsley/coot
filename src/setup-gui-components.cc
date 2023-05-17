@@ -156,7 +156,28 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
                                                       GtkEntry              *entry) {
    gboolean handled = TRUE;
 
-   std::cout << "on_python_scripting_entry_key_pressed() " << keyval << " " << keycode << std::endl;
+   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval << " keycode: " << keycode << std::endl;
+
+   switch(keyval) {
+      case GDK_KEY_Up: {
+      }
+      case GDK_KEY_Down: {
+      }
+      case GDK_KEY_Escape: {
+         auto func = +[] (gpointer data) {
+            GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
+            gtk_revealer_set_reveal_child(revealer,FALSE);
+            return gboolean(G_SOURCE_REMOVE);
+         };
+         g_idle_add(func, NULL);
+         break;
+      }
+      default: {
+         handled = FALSE;
+         g_debug("Python scripting entry: Unhandled key: %s",gdk_keyval_name(keyval));
+      }
+   }
+
 #if 0
    switch(keyval) {
       case GDK_KEY_Up: {
@@ -201,8 +222,6 @@ void add_python_scripting_entry_completion(GtkWidget *entry);
 
 
 void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
-
-   std::cout << "on_python_scripting_entry_activated() " << std::endl;
 
    const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    g_info("Running python command: '%s'",entry_txt);
