@@ -9887,21 +9887,14 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="pointer_distances_dialog">
     <property name="title" translatable="yes">Pointer Distances</property>
     <child>
       <object class="GtkBox" id="dialog-vbox81">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="pointer_distances_ok_button">
-                <property name="label" translatable="yes">   OK   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_pointer_distances_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
-          <object class="GtkFrame" id="frame148">
+          <object class="GtkFrame" id="pointer_distances_frame">
             <child>
               <object class="GtkBox" id="vbox150">
                 <property name="orientation">vertical</property>
@@ -9920,6 +9913,10 @@ just the cell and symmetry)
                         <property name="label" translatable="yes">  Min Distance  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
@@ -9927,40 +9924,71 @@ just the cell and symmetry)
                         <property name="label" translatable="yes">  Max Distance</property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_min_dist_entry">
-                        <property name="can-focus">1</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
+                        <property name="xalign">0</property>
+                        <signal name="activate" handler="on_pointer_distances_min_dist_entry_activate"/>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_max_dist_entry">
-                        <property name="can-focus">1</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
+                        <property name="xalign">0</property>
+                        <signal name="activate" handler="on_pointer_distances_max_dist_entry_activate"/>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label235">
-                        <property name="label" translatable="yes"> Ångströms </property>
+                        <property name="label" translatable="yes"> Ångströms  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label236">
-                        <property name="label" translatable="yes"> Ångströms </property>
+                        <property name="label" translatable="yes"> Ångströms  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkButton" id="pointer_distances_ok_button">
+            <property name="label" translatable="yes">   OK   </property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <signal name="clicked" handler="on_pointer_distances_ok_button_clicked" swapped="no"/>
           </object>
         </child>
       </object>

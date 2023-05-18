@@ -40,12 +40,12 @@ Here are other styles:
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
  Other Solvent Molecules"? ::: 1
 
-Pointer distances ::: 4
-
 Click on symmetry atoms ::: 1
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
+Restore ^C interrupt (python-related?) ::: 1
 
 Sun 23 Apr 21:33:42 BST 2023
 
@@ -157,7 +157,7 @@ would allow the manipulation of the phases so that the background could morph (t
 a number of textures and interpolating between them). Also consider a blurred textured blue background so that
 it looks like the sea.  Or use texture background while Refmac is running.
 
----- "Do they need to work?" items -----
+---- "Do they need to work?"/"Nice to have one day" items -----
 
 How to represent a "Both" chirial (ambiguous) (are they the same thing?)
 
@@ -178,6 +178,8 @@ Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me 
 Low Priority: How can I make a flatpak for Coot?
 
 Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement()
+
+Pointer distances:  It should be an overlay one day
 
 --- Done Items ---
 
@@ -364,3 +366,6 @@ Better/more completions and history in python scripting. ::: 3
 Background colour ::: 0.4
 * Done. Trivial
 
+Pointer distances ::: 0.5
+* They were mostly done already. Just the dialog needed cleaning up.
+  It should be an overlay one day

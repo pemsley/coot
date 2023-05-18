@@ -5558,7 +5558,7 @@ graphics_info_t::make_pointer_distance_objects() {
       }
 
       // Now add to the meshed-generic-display-object
-#ifndef EMSCRIPTEN
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
       mesh_for_pointer_distances.clear();
       labels_for_pointer_distances.clear();
@@ -5576,7 +5576,6 @@ graphics_info_t::make_pointer_distance_objects() {
          double bl = std::sqrt((cen - distances[id]).lengthsq());
          add_pointer_distance_label(coord_pair, bl, glm_colour);
       }
-#endif
    }
 }
 

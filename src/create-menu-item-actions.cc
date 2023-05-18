@@ -1620,6 +1620,7 @@ pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

@@ -2573,65 +2573,74 @@ void fill_pointer_distances_widget(GtkWidget *widget) {
    GtkWidget *max_entry   = widget_from_builder("pointer_distances_max_dist_entry");
    GtkWidget *checkbutton = widget_from_builder("pointer_distances_checkbutton");
    GtkWidget *frame       = widget_from_builder("pointer_distances_frame");
+   GtkWidget *grid        = widget_from_builder("show_pointer_distances_grid");
 
    float min_dist = graphics_info_t::pointer_min_dist;
    float max_dist = graphics_info_t::pointer_max_dist;
+
+   std::cout << "here A with min_entry "   << min_entry << std::endl;
+   std::cout << "here A with max_entry "   << max_entry << std::endl;
+   std::cout << "here A with checkbutton " << checkbutton << std::endl;
+   std::cout << "here A with frame "       << frame << std::endl;
+   std::cout << "here A with grid "        << grid << std::endl;
 
    gtk_editable_set_text(GTK_EDITABLE(min_entry), graphics_info_t::float_to_string(min_dist).c_str());
    gtk_editable_set_text(GTK_EDITABLE(max_entry), graphics_info_t::float_to_string(max_dist).c_str());
 
    if (graphics_info_t::show_pointer_distances_flag) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-      gtk_widget_set_sensitive(frame, TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+      gtk_widget_set_sensitive(grid, TRUE);
    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-      gtk_widget_set_sensitive(frame, FALSE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), FALSE);
+      gtk_widget_set_sensitive(grid, FALSE);
    }
 
 }
 
 void execute_pointer_distances_settings(GtkWidget *widget) {
 
-   // GtkWidget *min_entry   = lookup_widget(widget, "pointer_distances_min_dist_entry");
-   // GtkWidget *max_entry   = lookup_widget(widget, "pointer_distances_max_dist_entry");
    GtkWidget *min_entry   = widget_from_builder("pointer_distances_min_dist_entry");
    GtkWidget *max_entry   = widget_from_builder("pointer_distances_max_dist_entry");
-   // GtkWidget *checkbutton = lookup_widget(widget, "pointer_distances_checkbutton");
 
    float min_dist = 0.0;
    float max_dist = 0.0;
 
-   float t;
+   try {
 
-   const gchar *tt = gtk_editable_get_text(GTK_EDITABLE(min_entry));
-   t = atof(tt);
+      const gchar *tt = gtk_editable_get_text(GTK_EDITABLE(min_entry));
+      float t = coot::util::string_to_float(std::string(tt));
+      if ((t >= 0.0) && (t < 999.9))
+         min_dist = t;
 
-   if ((t >= 0.0) && (t < 999.9))
-      min_dist = t;
+      tt = gtk_editable_get_text(GTK_EDITABLE(max_entry));
+      t = coot::util::string_to_float(std::string(tt));
+      if ((t >= 0.0) && (t < 999.9))
+         max_dist = t;
 
-   tt = gtk_editable_get_text(GTK_EDITABLE(max_entry));
-   t = atof(tt);
+      graphics_info_t::pointer_max_dist = max_dist;
+      graphics_info_t::pointer_min_dist = min_dist;
 
-   if ((t >= 0.0) && (t < 999.9))
-      max_dist = t;
-
-   graphics_info_t::pointer_max_dist = max_dist;
-   graphics_info_t::pointer_min_dist = min_dist;
+      graphics_info_t g;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 
 }
 
 
-void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
+void toggle_pointer_distances_show_distances(GtkCheckButton *checkbutton) {
 
-   // GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "pointer_distances_frame");
-   GtkWidget *frame = widget_from_builder("pointer_distances_frame");
+   GtkWidget *grid = widget_from_builder("show_pointer_distances_grid");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_show_pointer_distances(1);
-      gtk_widget_set_sensitive(frame, TRUE);
+      gtk_widget_set_sensitive(grid, TRUE);
    } else {
       set_show_pointer_distances(0);
-      gtk_widget_set_sensitive(frame, FALSE);
+      gtk_widget_set_sensitive(grid, FALSE);
    }
 
 }

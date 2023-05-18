@@ -6422,26 +6422,65 @@ on_rotamer_selection_dialog_destroy    (GtkWidget       *object,
 
 extern "C" G_MODULE_EXPORT
 void
-on_pointer_distances_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
+on_pointer_distances_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                         gpointer        user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
       printf("pointer distances toggle button toggled on\n");
    } else {
       printf("pointer distances toggle button toggled off\n");
    }
-   toggle_pointer_distances_show_distances(togglebutton);
+   toggle_pointer_distances_show_distances(checkbutton);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_pointer_distances_min_dist_entry_activate(GtkEntry        *entry,
+                                             gpointer         user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      graphics_info_t g;
+      g.pointer_min_dist = f;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+}
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_pointer_distances_max_dist_entry_activate(GtkEntry        *entry,
+                                             gpointer         user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      graphics_info_t g;
+      g.pointer_max_dist = f;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_pointer_distances_ok_button_clicked (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    GtkWidget *dialog = widget_from_builder("pointer_distances_dialog");
-   execute_pointer_distances_settings(dialog);
+   execute_pointer_distances_settings(dialog); // upadte and graphics_draw()
    gtk_widget_hide(dialog);
 }
 
@@ -6512,13 +6551,11 @@ on_ramachandran_plot_differences_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_ramachandran_differences_plot1_activate
-                                        (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_ramachandran_differences_plot1_activate(GMenuItem     *menuitem,
+                                           gpointer         user_data) {
+
    GtkWidget *w = wrapped_ramachandran_plot_differences_dialog();
    gtk_widget_show(w);
-
 }
 
 
