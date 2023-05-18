@@ -1645,6 +1645,19 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *dialog, int imol,
 						 const std::string residue_name,
 						 mmdb::PPAtom atoms, int n_atoms) {
 
+   auto clear_the_grid = [] (GtkWidget *grid) {
+      GtkWidget *child = gtk_widget_get_first_child(GTK_WIDGET(grid));
+      unsigned int child_count = 0;
+      while (child) {
+         child_count += 1;
+         GtkWidget *next = gtk_widget_get_next_sibling(child);
+         // gtk_grid_remove_row(GTK_GRID(grid), 0);
+         gtk_grid_remove(GTK_GRID(grid), child);
+         child = next; // for next round
+      };
+      // std::cout << "There were " << child_count << " children in the grid" << std::endl;
+   };
+
    // first do the label of the dialog
    // GtkWidget *label_widget = lookup_widget(widget, "residue_info_residue_label");
    // GtkWidget *residue_name_widget = lookup_widget(widget, "residue_info_residue_name_label");
@@ -1655,6 +1668,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *dialog, int imol,
    // GtkWidget *table = lookup_widget(widget, "residue_info_atom_table");
    GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
    g_object_set_data(G_OBJECT(grid), "imol", GINT_TO_POINTER(imol));
+   clear_the_grid(grid);
 
    std::cout << "::::::::::::::::: fill_output_residue_info_widget() grid " << grid << std::endl;
 
