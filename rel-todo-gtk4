@@ -39,6 +39,23 @@ Here are other styles:
 
 "Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
+Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
+Check the links in all representation types ::: 4
+
+Add highly-coordinated waters
+
+Add contact dots
+
+Add molprobity contact dots
+
+Key binding for update Coot contact dots
+
+It would be nice if the coot contact dots updated on model modification
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+Generic Display Objects is a mess ::: 3
+
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
 
@@ -69,9 +86,9 @@ Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-GtkGrid in Residue Info doesn't get cleared before a new residue widgets are added.
-
 Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 1
+
+Caps lock key indicator ::: 2
 
 Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.

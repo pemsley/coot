@@ -1719,11 +1719,22 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
 }
 
 void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
                            G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_all_atom_contact_dots(imol);
+   }
 
 }
 
@@ -1731,6 +1742,19 @@ void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple
                                              G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+     int imol = pp.second.first;
+
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "generic_objects";
+      std::string function = "probe";
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import generic_objects");
+      safe_python_command(sc);
+   }
 }
 
 void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
