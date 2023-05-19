@@ -6493,11 +6493,12 @@ molecule_class_info_t::close_yourself() {
          if (GTK_IS_BOX(map_vbox)) {
             GtkWidget *item_widget = gtk_widget_get_first_child(map_vbox);
             while (item_widget) {
+               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
                int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
                if (imol_this == imol_no) {
                   gtk_box_remove(GTK_BOX(map_vbox), item_widget);
                }
-               item_widget = gtk_widget_get_next_sibling(item_widget);
+               item_widget = next_item;
             };
          }
       }
@@ -6509,11 +6510,12 @@ molecule_class_info_t::close_yourself() {
 
             GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
             while (item_widget) {
+               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
                int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
                if (imol_this == imol_no) {
                   gtk_box_remove(GTK_BOX(coords_vbox), item_widget);
                }
-               item_widget = gtk_widget_get_next_sibling(item_widget);
+               item_widget = next_item;
             };
             
          }

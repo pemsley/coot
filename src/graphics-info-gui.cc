@@ -4144,9 +4144,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
       if (imol_active < n_molecules()) {
 	 if (molecules[imol_active].has_model()) {
 	    if (molecules[imol_active].draw_hydrogens()) {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
 	    } else {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_no_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_hydrogens_no_radiobutton), TRUE);
 	    }
 	 }
       }
@@ -4159,12 +4159,12 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
 	 if (molecules[imol_active].has_model()) {
 	    if (molecules[imol_active].draw_ncs_ghosts_p()) {
 	       if (molecules[imol_active].ncs_ghosts_have_rtops_p()) {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
+		  gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
 	       } else {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
+		  gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
 	       }
 	    } else {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
 	    }
 	 }
       }

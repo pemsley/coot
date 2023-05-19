@@ -1199,6 +1199,7 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_bond_parameters_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

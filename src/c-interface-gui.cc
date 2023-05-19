@@ -4339,6 +4339,7 @@ void set_scroll_wheel_map(int imap) {
    }
 }
 
+void clear_out_container(GtkWidget *vbox); // in c-interface.cc
 
 GtkWidget *wrapped_create_bond_parameters_dialog() {
 
@@ -4354,24 +4355,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    GtkWidget *vbox = widget_from_builder("bond_parameters_hbox_for_molecule_combobox");
 
-#if (GTK_MAJOR_VERSION >= 4)
-
-   // 20220602-PE FIXME - removing existing child widgets from a widget:
-   //
-   // read this: https://blog.gtk.org/2017/04/25/widget-hierarchies-in-gtk-4-0/
-   // Use gtk_widget_get_first_child() and gtk_widget_get_next_sibling()
-
-#else
-   // clear the old molecule combox boxes from that vbox (if it exists)
-   //
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-
-      if (GTK_IS_COMBO_BOX(widget)) {
-         gtk_container_remove(GTK_CONTAINER(data), widget);
-      }
-   };
-   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   clear_out_container(vbox);
 
    GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
 
@@ -4452,8 +4436,8 @@ void apply_bond_parameters(GtkWidget *w) {
 
 	    // draw hydrogens?
 
-	    GtkWidget *toggle_button = widget_from_builder("draw_hydrogens_yes_radiobutton");
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
+	    GtkWidget *check_button = widget_from_builder("draw_hydrogens_yes_radiobutton");
+	    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) {
 	       set_draw_hydrogens(imol, 1);
 	    } else {
 	       set_draw_hydrogens(imol, 0);

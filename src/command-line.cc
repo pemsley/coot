@@ -484,6 +484,8 @@ command_line_data::add(const std::string &file_name) {
    std::string extension = coot::util::file_name_extension(file_name);
    if (extension == ".pdb")
       coords.push_back(file_name);
+   if (extension == ".ent")
+      coords.push_back(file_name);
    if (extension == ".map")
       maps.push_back(file_name);
    if (extension == ".mrc")

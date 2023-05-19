@@ -37,30 +37,6 @@ Here are other styles:
 
 ----
 
-Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
-Check the links in all representation types ::: 4
-
-Add highly-coordinated waters
-
-Add contact dots
-
-Add molprobity contact dots
-
-Put a bar/cyclnder under Diego so I can see the atoms. ::: 2
-
-Key binding for update Coot contact dots - built it?
-
-It would be nice if the coot contact dots updated on model modification
-
-Update Dynamic validation on making links (the NBC clashes should disappear)
-
-Generic Display Objects is a mess ::: 3
-
-Wed  3 May 2023 14:43:36 BST
-check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
-
-Restore ^C interrupt (python-related?) ::: 1
-
 Sun 23 Apr 21:33:42 BST 2023
 
    void HUDTextureMesh::setup_buffers() { ...
@@ -68,9 +44,35 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
+Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
+Check the links in all representation types ::: 4
 
-Fix "Edit Chi Angles" button ::: 1
+7a0l.cif doesn't load (related to 7a0l-assembly.cif non-load, I guess).
+Now, should this be "nice to have" or "must have"?
+
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 5
+Also, waters are too big. Also waters are too big in colour by molecule.
+Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
+(also affects gtk3 coot - so think about fixing it there?).
+Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
+H and or D all missing except A 127 in "Bonds Colour by Chain".
+See "fat atom" commits.
+
+Add highly-coordinated waters ::: 2
+
+Add contact dots ::; 1
+
+Add molprobity contact dots ::: 1
+
+Key binding for update Coot contact dots - built it? ::: 0.2
+
+Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+Generic Display Objects is a mess ::: 3
+
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
@@ -84,8 +86,6 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
-
-Caps lock key indicator?
 
 Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
@@ -175,6 +175,12 @@ it looks like the sea.  Or use texture background while Refmac is running.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
+7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
+
+Caps lock key indicator?
+
+Coot contact dots updated on model modification
+
 How to represent a "Both" chirial (ambiguous) (are they the same thing?)
 
 User-defined menus in Python - connected via coot_main_menumodel.
@@ -198,6 +204,8 @@ Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement(
 Pointer distances:  It should be an overlay one day
 
 Coot Info dialog:  It should be an overlay one day
+
+Note: 7UMH is beasty that would look good rendered with colour-by-NCS-related chains (and vdw balls).
 
 --- Done Items ---
 
@@ -404,4 +412,11 @@ GtkGrid in Residue Info doesn't get cleared before a new residue widgets are add
 Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 0.2
 
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
+
+Fix "Edit Chi Angles" button ::: 1
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
+Restore ^C interrupt (python-related?) ::: 1
 

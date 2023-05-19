@@ -2333,8 +2333,6 @@ Calculate a skeleton now?
                     <child>
                       <object class="GtkCheckButton" id="draw_ncs_ghosts_yes_radiobutton">
                         <property name="label" translatable="yes">Yes</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <property name="active">1</property>
                         <signal name="toggled" handler="on_draw_ncs_ghosts_yes_radiobutton_toggled" swapped="no"/>
                       </object>
@@ -2342,8 +2340,6 @@ Calculate a skeleton now?
                     <child>
                       <object class="GtkCheckButton" id="draw_ncs_ghosts_no_radiobutton">
                         <property name="label" translatable="yes">No</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
                         <property name="group">draw_ncs_ghosts_yes_radiobutton</property>
                         <signal name="toggled" handler="on_draw_ncs_ghosts_no_radiobutton_toggled" swapped="no"/>
                       </object>
@@ -2362,27 +2358,36 @@ Calculate a skeleton now?
             <child type="action">
               <object class="GtkBox" id="hbox105">
                 <property name="spacing">6</property>
-                <child>
-                  <object class="GtkButton" id="bond_parameters_apply_button">
-                    <property name="label" translatable="yes">  Apply  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_bond_parameters_apply_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="bond_parameters_ok_button">
-                    <property name="label" translatable="yes">       OK       </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_bond_parameters_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+
+                <!-- this dialog is dynamic now (or should be) - no need for "Apply" buton -->
+                <!-- <child> -->
+                <!--   <object class="GtkButton" id="bond_parameters_apply_button"> -->
+                <!--     <property name="label" translatable="yes">  Apply  </property> -->
+                <!--     <property name="can-focus">1</property> -->
+                <!--     <property name="use-underline">1</property> -->
+                <!--     <signal name="clicked" handler="on_bond_parameters_apply_button_clicked" swapped="no"/> -->
+                <!--   </object> -->
+                <!-- </child> -->
+                <!-- <child> -->
+                <!--   <object class="GtkButton" id="bond_parameters_ok_button"> -->
+                <!--     <property name="label" translatable="yes">       OK       </property> -->
+                <!--     <property name="can-focus">1</property> -->
+                <!--     <property name="use-underline">1</property> -->
+                <!--     <signal name="clicked" handler="on_bond_parameters_ok_button_clicked" swapped="no"/> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
                 <child>
                   <object class="GtkButton" id="bond_parameters_close_button">
                     <property name="label" translatable="yes">  Close  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">2</property>
+                    <property name="margin-end">2</property>
                     <signal name="clicked" handler="on_bond_parameters_close_button_clicked" swapped="no"/>
                   </object>
                 </child>
