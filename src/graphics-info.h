@@ -3749,7 +3749,7 @@ public:
    static void add_OXT_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    //
-   static GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
+   static GtkWidget *wrapped_nothing_bad_dialog(const std::string &label, bool use_markup=false);
 
    static std::string add_OXT_chain;
 

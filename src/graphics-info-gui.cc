@@ -423,38 +423,7 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
 // 20230218-PE webassembly merge: make this void
 void
 graphics_info_t::info_dialog(const std::string &s, bool use_markup) {
-
-   GtkWidget *w = NULL;
-   if (graphics_info_t::use_graphics_interface_flag) {
-      w = wrapped_nothing_bad_dialog(s);
-
-      if (use_markup) {
-	 GtkWidget *label = widget_from_builder("nothing_bad_label");
-	 gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-	 gtk_label_set_markup(GTK_LABEL(label), s.c_str());
-      }
-
-      // Handle the info icon
-      //
-      bool warning = false;
-      if (s.find(std::string("WARNING")) != std::string::npos) warning = true;
-      if (s.find(std::string("warning")) != std::string::npos) warning = true;
-      if (s.find(std::string("Warning")) != std::string::npos) warning = true;
-      if (s.find(std::string("Oops!"))   != std::string::npos) warning = true;
-      if (warning) {
-	 // GtkWidget *info_image = lookup_widget(GTK_WIDGET(w), "info_dialog_info_image");
-	 // GtkWidget *warn_image = lookup_widget(GTK_WIDGET(w), "info_dialog_warning_image");
-	 GtkWidget *info_image = widget_from_builder("info_dialog_info_image");
-	 GtkWidget *warn_image = widget_from_builder("info_dialog_warning_image");
-	 if (info_image) {
-	    if (warn_image) {
-	       gtk_widget_hide(GTK_WIDGET(info_image));
-	       gtk_widget_show(GTK_WIDGET(warn_image));
-	    }
-	 }
-      }
-      gtk_widget_show(w);
-   }
+   wrapped_nothing_bad_dialog(s, use_markup);
 }
 
 void

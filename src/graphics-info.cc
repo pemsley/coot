@@ -322,30 +322,75 @@ void graphics_info_t::SetMouseClicked(double x, double y) {
    mouse_clicked_begin.second = y;
 }
 
-#ifndef EMSCRIPTEN
+
 // static
-GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label) {
+GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label, bool use_markup) {
+
+   auto add_image_widgets_if_needed = [] (GtkWidget *box) {
+      GtkWidget *ch = gtk_widget_get_first_child(box);
+      if (ch) {
+         // already added - so do nothing
+      } else {
+         std::string pdd = coot::package_data_dir();
+         std::string dir = coot::util::append_dir_dir(pdd, "icons/hicolor/scalable/actions");
+         std::string fn_1 = coot::util::append_dir_file(dir, "Stock-dialog-information.svg");
+         std::string fn_2 = coot::util::append_dir_file(dir, "Stock-dialog-warning.svg");
+         GtkWidget *image_1 = gtk_image_new_from_file(fn_1.c_str());
+         GtkWidget *image_2 = gtk_image_new_from_file(fn_2.c_str());
+         gtk_box_append(GTK_BOX(box), image_1);
+         gtk_box_append(GTK_BOX(box), image_2);
+         g_object_set_data(G_OBJECT(box), "information", image_1);
+         g_object_set_data(G_OBJECT(box), "warning",     image_2);
+         gtk_widget_set_size_request(image_1, 80, 80);
+         gtk_widget_set_size_request(image_2, 80, 80);
+      }
+   };
 
    GtkWidget *dialog = NULL;
    if (use_graphics_interface_flag) {
-      // w = create_nothing_bad_dialog();
+
       dialog = widget_from_builder("nothing_bad_dialog");
+      GtkWidget *box = widget_from_builder("nothing_bad_image_box");
+      add_image_widgets_if_needed(box);
+
       GtkWidget *label_widget = widget_from_builder("nothing_bad_label");
+
       gtk_widget_show(label_widget);
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
-      // for gtk2
-      // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
-      // for gtk3
+      // are these correct?
       gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE);
 
+      if (use_markup) {
+	 gtk_label_set_justify(GTK_LABEL(label_widget), GTK_JUSTIFY_LEFT);
+	 gtk_label_set_markup(GTK_LABEL(label_widget), label.c_str());
+      }
+
       GtkWidget *main_window = graphics_info_t::get_main_window();
       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+      gtk_widget_set_visible(dialog, TRUE);
+
+
+      // Handle the info and warning icon
+      //
+      bool warning = false;
+      if (label.find(std::string("WARNING")) != std::string::npos) warning = true;
+      if (label.find(std::string("warning")) != std::string::npos) warning = true;
+      if (label.find(std::string("Warning")) != std::string::npos) warning = true;
+      if (label.find(std::string("Oops!"))   != std::string::npos) warning = true;
+      GtkWidget *info_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "information"));
+      GtkWidget *warn_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "warning"));
+      if (warning) {
+         gtk_widget_hide(GTK_WIDGET(info_image));
+         gtk_widget_show(GTK_WIDGET(warn_image));
+      } else {
+         gtk_widget_show(GTK_WIDGET(info_image));
+         gtk_widget_hide(GTK_WIDGET(warn_image));
+      }
    }
    return dialog;
 }
-#endif
 
 void
 graphics_info_t::set_do_anti_aliasing(int state) {

@@ -216,6 +216,17 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
                               nearest_atom_index_info.imol);
             add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
                                                nearest_atom_index_info.atom_index);
+         } else {
+            coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
+            if (sap.success == GL_TRUE) {
+               if (is_valid_model_molecule(sap.imol)) {
+
+                  std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(sap.symm_trans, sap.pre_shift_to_origin);
+                  setRotationCentre(translate_atom_with_pre_shift(molecules[sap.imol].atom_sel,
+                                                                  sap.atom_index, symtransshiftinfo));
+                  graphics_draw();
+               }
+            }
          }
       }
    }
@@ -234,13 +245,13 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
    bool clicked = check_if_hud_bar_clicked(x,y);
 
-   std::cout << "status for HUD bar clicked: " << clicked << " x " << x << " y " << y << std::endl;
+   // std::cout << "status for HUD bar clicked: " << clicked << " x " << x << " y " << y << std::endl;
 
    if (clicked) {
       // the action has occured in above function
    } else {
 
-      std::cout << "n_press " << n_press << std::endl;
+      // std::cout << "n_press " << n_press << std::endl;
 
       // n_press can go up to 20, 30...
       //
@@ -318,6 +329,13 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                   moving_atoms_currently_dragged_atom_index = naii.atom_index;
                   std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
                }
+            }
+
+            if (! handled) {
+
+               // does this ever run?
+               std::cout << "Symmetry atom pick here B " << std::endl;
+               coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }
       }
