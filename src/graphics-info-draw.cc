@@ -1518,6 +1518,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 void
 graphics_info_t::draw_hud_colour_bar() {
 
+   // this is the colour bar for Alphafold pLDDTs and the like
+
    // I think that all the draw_hud_*() functions should be passed h, w.
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
@@ -3566,11 +3568,13 @@ graphics_info_t::draw_hud_geometry_bars() {
       // but now rr.sorted_nbc_baddies is std::vector<refinement_results_nbc_baddie_t>
       // so now I need to convert
 
-      std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
+      std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size() * 2); // 20230519-PE both ways
       for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
          const auto &bip = rr.sorted_nbc_baddies[i];
-         std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
-         converted_baddies[i] = p;
+         std::pair<coot::atom_spec_t, float> p_1(bip.atom_spec_1, bip.score);
+         std::pair<coot::atom_spec_t, float> p_2(bip.atom_spec_2, bip.score);
+         converted_baddies[2*i  ] = p_1;
+         converted_baddies[2*i+1] = p_2;
       }
       add_bars(converted_baddies, 1, &new_bars, moving_atoms_active_residue,
                x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,

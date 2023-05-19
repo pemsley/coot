@@ -37,11 +37,6 @@ Here are other styles:
 
 ----
 
-"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
-
-Wed  3 May 2023 14:43:36 BST
-check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
-
 Restore ^C interrupt (python-related?) ::: 1
 
 Sun 23 Apr 21:33:42 BST 2023
@@ -381,3 +376,10 @@ Pointer distances ::: 0.5
 Click on symmetry atoms ::: 1
 
 Add back the icons in the info dialog ::: 1
+
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 0.4
+* Done. Now both atoms are added for the same NBC.
+
