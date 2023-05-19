@@ -5407,6 +5407,9 @@ float auto_fit_best_rotamer(int imol_coords,
 			    const char *altloc,
 			    int imol_map, int clash_flag, float lowest_probability);
 
+/*! auto-fit the rotamer for the active residue */
+float auto_fit_rotamer_active_residue();
+
 /*! \brief set the clash flag for rotamer search
 
    And this functions for [pre-setting] the variables for

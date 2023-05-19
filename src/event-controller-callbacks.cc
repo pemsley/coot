@@ -53,6 +53,10 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          // move an already picked atom
          move_atom_pull_target_position(x, y);
       }
+   } else {
+      int x_as_int = static_cast<int>(x);
+      int y_as_int = static_cast<int>(y);
+      rotate_chi(x_as_int, y_as_int);
    }
 }
 

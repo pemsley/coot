@@ -64,8 +64,6 @@ Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-GtkGrid in Residue Info doesn't get cleared before a new residue widgets are added.
-
 Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 1
 
 Start up from Saved state. ::: 1
@@ -382,4 +380,8 @@ Add back the icons in the info dialog ::: 1
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 0.4
 * Done. Now both atoms are added for the same NBC.
+
+GtkGrid in Residue Info doesn't get cleared before a new residue widgets are added. ::: 0.4
+* Delete all the children: clear_the_grid():
+
 

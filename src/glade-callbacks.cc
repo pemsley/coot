@@ -4610,8 +4610,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_edit_chi_angles_dialog_ok_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   accept_regularizement();
@@ -4624,10 +4623,8 @@ on_edit_chi_angles_dialog_ok_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_chi_angles_cancel_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_edit_chi_angles_cancel_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
 
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   clear_up_moving_atoms();	/* and remove the graphics object */
@@ -4640,12 +4637,12 @@ on_edit_chi_angles_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_ok_button_clicked      (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget = widget_from_builder("check_waters_dialog");
-  do_check_waters_by_widget(widget);
-  gtk_widget_hide(widget);
+on_check_waters_ok_button_clicked(GtkButton       *button,
+                                  gpointer         user_data) {
+
+   GtkWidget *widget = widget_from_builder("check_waters_dialog");
+   do_check_waters_by_widget(widget);
+   gtk_widget_hide(widget);
 }
 
 
@@ -9893,13 +9890,12 @@ on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                             gpointer        user_data) {
+
    GtkWidget *vbox = widget_from_builder("edit_chi_angles_vbox");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_find_hydrogen_torsions(1);
    } else {
       set_find_hydrogen_torsions(0);

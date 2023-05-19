@@ -306,6 +306,26 @@ graphics_info_t::get_latest_model_molecule() {
    return imol;
 }
 
+//static
+int
+graphics_info_t::get_biggest_model_molecule() {
+
+   int imol = -1;
+   int n_atoms_max = -1;
+   int n = n_molecules();
+   for(int ii=0; ii<n; ii++) {
+      if (is_valid_model_molecule(ii)) {
+         int n_atoms_mol = molecules[imol].atom_sel.n_selected_atoms;
+         if (n_atoms_mol > n_atoms_max) {
+            imol = ii;
+            n_atoms_max = n_atoms_mol;
+         }
+      }
+   }
+   return imol;
+}
+
+
 
 
 double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };

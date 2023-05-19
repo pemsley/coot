@@ -2756,7 +2756,9 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    //
    GtkWidget *vbox = widget_from_builder("edit_chi_angles_vbox");
 
-   std::cout << "calling fill_chi_angles_vbox() with mode " << mode << std::endl;
+   clear_out_container(vbox);
+
+   std::cout << "debug:: calling fill_chi_angles_vbox() with mode " << mode << std::endl;
    int n_boxes = fill_chi_angles_vbox(vbox, res_type, mode);
 
    // this needs to be deleted when dialog is destroyed, I think,
@@ -2771,10 +2773,10 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    gtk_widget_show(dialog);
 
    // and now the hydrogen torsion checkbutton:
-   GtkWidget *togglebutton = widget_from_builder("edit_chi_angles_add_hydrogen_torsions_checkbutton");
+   GtkWidget *checkbutton = widget_from_builder("edit_chi_angles_add_hydrogen_torsions_checkbutton");
 
    if (find_hydrogen_torsions_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
    // "Reverse Fragment" button
    edit_chi_angles_reverse_fragment = 0; // reset the static
@@ -2837,6 +2839,11 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    label += "  per: ";
 	    label += coot::util::int_to_string(torsion_restraints[i].periodicity());
 	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
+            gtk_widget_set_margin_top(button, 2);
+            gtk_widget_set_margin_bottom(button, 2);
+            gtk_widget_set_margin_start(button, 6);
+            gtk_widget_set_margin_end(button, 6);
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
             // 20220528-PE FIXME events
 #else
@@ -2854,6 +2861,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    g_signal_connect(G_OBJECT(button), "enter",
 			     G_CALLBACK(on_change_current_chi_button_entered),
 			     GINT_TO_POINTER(ichi));
+
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 	    g_signal_connect(G_OBJECT(button), "motion_notify_event",
 			     G_CALLBACK(on_change_current_chi_motion_notify),
@@ -2865,6 +2873,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    g_object_set_data(G_OBJECT(button), "chi_edit_mode", GINT_TO_POINTER(int_mode));
 
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 	    gtk_box_append(GTK_BOX(vbox), button);
 #else

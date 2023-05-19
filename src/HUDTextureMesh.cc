@@ -96,7 +96,7 @@ HUDTextureMesh::setup_buffers() {
    if (first_time)
       glGenVertexArrays(1, &vao);
 
-   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+   std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
    glBindVertexArray(vao);
    GLenum err = glGetError();

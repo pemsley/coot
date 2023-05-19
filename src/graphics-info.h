@@ -1180,6 +1180,8 @@ public:
 
    static int get_latest_model_molecule();
 
+   static int get_biggest_model_molecule();
+
    static bool use_graphics_interface_flag; // 20220409-PE now defaults is false!
 
    // Display size
