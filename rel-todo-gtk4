@@ -37,6 +37,28 @@ Here are other styles:
 
 ----
 
+Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
+Check the links in all representation types ::: 4
+
+Add highly-coordinated waters
+
+Add contact dots
+
+Add molprobity contact dots
+
+Put a bar/cyclnder under Diego so I can see the atoms. ::: 2
+
+Key binding for update Coot contact dots - built it?
+
+It would be nice if the coot contact dots updated on model modification
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+Generic Display Objects is a mess ::: 3
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
 Restore ^C interrupt (python-related?) ::: 1
 
 Sun 23 Apr 21:33:42 BST 2023
@@ -46,8 +68,7 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
- Other Solvent Molecules"? ::: 1
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
 
@@ -64,7 +85,7 @@ Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 1
+Caps lock key indicator?
 
 Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
@@ -87,8 +108,6 @@ When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a
 on the atom that is blocking. ::: 1
 
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
-
-Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
 Map Skeletonization ::: 2
 
@@ -114,8 +133,6 @@ Find Somewhere for "Choose Undo Molecule" ::: 1
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
-
-Put a bar/cyclnder under Diego so I can see the atoms.
 
 Dotted Surface ::: 1
 
@@ -384,4 +401,7 @@ check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "th
 GtkGrid in Residue Info doesn't get cleared before a new residue widgets are added. ::: 0.4
 * Delete all the children: clear_the_grid():
 
+Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 0.2
+
+Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
