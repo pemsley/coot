@@ -37,7 +37,7 @@ Here are other styles:
 
 ----
 
-Click on symmetry atoms ::: 1
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
@@ -55,8 +55,6 @@ Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added usin
  Other Solvent Molecules"? ::: 1
 
 Fix "Edit Chi Angles" button ::: 1
-
-Add back the icons in the info dialog ::: 1
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
@@ -89,8 +87,6 @@ Bring Python command history and completion into GTK4: ::: 2
    3fc6cfe003683ab1180c0045387036068cc32294
 
 rename draw-2.cc as tick-function.cc or some such
-
-"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
 Get rid of "Other Modelling Tools" ::: 1
 
@@ -381,3 +377,7 @@ Background colour ::: 0.4
 Pointer distances ::: 0.5
 * They were mostly done already. Just the dialog needed cleaning up.
   It should be an overlay one day
+
+Click on symmetry atoms ::: 1
+
+Add back the icons in the info dialog ::: 1
