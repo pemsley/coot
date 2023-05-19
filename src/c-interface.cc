@@ -1769,7 +1769,7 @@ void info_dialog(const char *txt) {
    add_to_history_typed(cmd, args);
 }
 
-// As info_dialog, but print to console too. Usefull for error and
+// As info_dialog, but print to console too. Useful for error and
 // warning messages.
 //
 void info_dialog_and_text(const char *txt) {

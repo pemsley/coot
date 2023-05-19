@@ -83,7 +83,6 @@ graphics_info_t::symmetry_atom_pick() const {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const {
 
-   
    coot::Cartesian screen_centre = RotationCentre();
 
    // Cartesian centre_unproj = unproject(0.5); // not needed, use midpoint of front and back.
