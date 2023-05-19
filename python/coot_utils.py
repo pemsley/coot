@@ -40,6 +40,11 @@ use_gui_qm = False
 global annotations
 annotations = []
 
+# thank you ebassi!
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
 # used in Extensions -> Representation -> Ball & Stick
 global default_ball_and_stick_selection
 default_ball_and_stick_selection = "//A/1-2"
