@@ -3230,11 +3230,13 @@ the Ctrl key when moving the mouse.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkFileChooserDialog" id="cif_dictionary_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select mmCIF Dictionary Filename</property>
     <signal name="response" handler="on_cif_dictionary_filechooser_dialog_response" swapped="no"/>
   </object>
+
   <object class="GtkDialog" id="close_molecule_dialog">
     <property name="title" translatable="yes">Choose Molecule to Close:</property>
     <child>
@@ -13471,7 +13473,7 @@ Move a copy?</property>
   </object>
 
   <object class="GtkDialog" id="undo_molecule_chooser_dialog">
-    <property name="title" translatable="yes">Choose molecule to Undo:</property>
+    <property name="title" translatable="yes">Coot: Choose Molecule for Undoing:</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox24">
@@ -13480,16 +13482,20 @@ Move a copy?</property>
           <object class="GtkBox" id="vbox83">
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkLabel" id="label116">
-                <property name="label" translatable="yes">Choose Molecule to Undo:</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame70">
+              <object class="GtkFrame">
                 <child>
                   <object class="GtkBox" id="undo_molecule_chooser_vbox">
                     <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="undo_molecule_chooser_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -13498,9 +13504,11 @@ Move a copy?</property>
         </child>
          <child type="action">
               <object class="GtkButton" id="undo_molecule_chooser_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
+                <property name="label" translatable="yes">Close</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_undo_molecule_chooser_ok_button_clicked" swapped="no"/>
               </object>
         </child>

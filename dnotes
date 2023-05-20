@@ -10970,9 +10970,12 @@ Tue  9 May 2023 20:35:05 BST
 
    graphics_info_t g;
    int imol_active = -1;
-   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   GCallback func_combobox_changed = G_CALLBACK(nullptr); // we don't care until this dialog is read
    auto model_list = get_model_molecule_vector();
    g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
+
+   if func_combobox_changed is needed for direct action, the signature is:
+   void func_combobox_changed(GtkWidget *combobox, gpointer data);
 
 Here is how you read the imol:
 

@@ -330,20 +330,40 @@ std::string menu_item_label(GtkWidget *menu_item) {
 void show_set_undo_molecule_chooser() {
 
    GtkWidget *w = wrapped_create_undo_molecule_chooser_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
 
 GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 
-   // GtkWidget *w = create_undo_molecule_chooser_dialog();
-   // GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
-   GtkWidget *w = widget_from_builder("undo_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("undo_molecule_comboboxtext");
+   GtkWidget *dialog         = widget_from_builder("undo_molecule_chooser_dialog");
+   GtkWidget *model_combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
    graphics_info_t g;
 
-   g.fill_combobox_with_undo_options(combobox);
-   return w;
+   // g.fill_combobox_with_undo_options(combobox);
+
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto combobox_changed_func = +[] (GtkWidget *combobox, gpointer user_data) {
+      graphics_info_t g;
+      int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+      g.set_undo_molecule_number(imol_coords);
+   };
+
+   int imol_active = g.Undo_molecule(coot::UNDO);
+   GCallback func = G_CALLBACK(combobox_changed_func);
+   auto model_list = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
+   return dialog;
 }
 
 

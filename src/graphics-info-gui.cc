@@ -3933,8 +3933,8 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 			  atom_spec);
 
 	 gtk_box_append(GTK_BOX(vbox), toggle_button);
-         gtk_widget_set_margin_top(toggle_button, 12);
-         gtk_widget_set_margin_bottom(toggle_button, 12);
+         gtk_widget_set_margin_top(toggle_button, 2);
+         gtk_widget_set_margin_bottom(toggle_button, 2);
          gtk_widget_set_margin_start(toggle_button, 6);
          gtk_widget_set_margin_end(toggle_button, 6);
       }

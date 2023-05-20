@@ -61,10 +61,6 @@ Now, should this be "nice to have" or "must have"?
 
 Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
 
-Map Skeletonization ::: 2
-
-Undo molecule chooser ::: 0.5
-
 Update Dynamic validation on making links (the NBC clashes should disappear)
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
@@ -84,14 +80,15 @@ Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+No longer. But make the startup window wider.
 
-Add base paring: on_other_tools_base_pair_toggle_button_toggled()
+Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
 
-Curlew: ::: 4
+Curlew: speed-run and CaBLAM ::: 4
 
 rename draw-2.cc as tick-function.cc or some such
 
@@ -99,6 +96,8 @@ When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a
 on the atom that is blocking. ::: 1
 
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
+
+Map Skeletonization ::: 2
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
@@ -108,11 +107,10 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
-Validation graphs colours
+Validation graphs colours, updates of rama, graphs, clash dots on model change.
 
 Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
-
-Find Somewhere for "Choose Undo Molecule" ::: 1
+Put this in preferences.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
@@ -124,18 +122,12 @@ HOLE ::: 2
 
 Views ::: 2
 
-RCrane - Make this a Module ::: 2
-
 Find a home for New molecule by sphere ::: 1
 
 Find a home for New molecule by symmetry op ::: 1
 
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
-
-Low Priority: 3D Annotations ::: 3
-
-Other Modelling tools should be in the menu ::: 2
 
 rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
 
@@ -144,19 +136,11 @@ Think of a way to start-up with certain modules on (in Preferences) ::: 2
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
-Fullscreen - maybe not possible in gtk4 ::: 0.2
-
 Low Priority: history searching on python window up-arrow ::: 1
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
 Rework the namespace of the python modules to be more cannonical ::: 4
-
-"Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
-and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
-would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
-a number of textures and interpolating between them). Also consider a blurred textured blue background so that
-it looks like the sea.  Or use texture background while Refmac is running.
 
 
 
@@ -177,6 +161,8 @@ User-defined menus in Python - connected via coot_main_menumodel.
 Comboboxes with entries for old molecule, or duplicated entries.
 
 CA Baton Mode
+
+Fullscreen - maybe not possible in gtk4 :::- 0.2
 
 New Mesh algorithms:
 https://swiftcoder.wordpress.com/planets/isosurface-extraction/
@@ -201,7 +187,19 @@ void HUDTextureMesh::setup_buffers() { ...
 Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  :::- 1
 * It will do for now these are HUD text. One day rewrite, but not today.
 
+Undo molecule chooser should be an overlay.
 
+"Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
+and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
+would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
+a number of textures and interpolating between them). Also consider a blurred textured blue background so that
+it looks like the sea.  Or use texture background while Refmac is running.
+
+Low Priority: 3D Annotations :::- 3
+Nice to have: 3D text - related to model bulding last time. Or markers in 3D which give us a nice overlay
+text annotations.
+
+RCrane - Make this a Module. Fixing this will take a long time. :::- 20
 
 --- Done Items ---
 
@@ -450,4 +448,12 @@ Add highly-coordinated waters ::: 0.7
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.4
 * Done. Trivial.
 
+Other Modelling tools should be in the menu ::: 2
 Get rid of "Other Modelling Tools" ::: 1
+* Done.
+
+Undo molecule chooser ::: 0.5
+Find Somewhere for "Choose Undo Molecule" ::: 0.5
+* Done. Hooray.
+
+
