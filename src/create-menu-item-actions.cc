@@ -2203,8 +2203,11 @@ delete_item(GSimpleAction *simple_action,
             delete_sidechains_for_chain(imol, atom_spec.chain_id);
          }
          if (par == "water") {
+
+            std::cout << "....................... delete water! " << atom_spec << std::endl;
             auto &m = g.molecules[imol];
             m.delete_water(atom_spec);
+            graphics_draw();
          }
       }
    }
