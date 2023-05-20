@@ -4736,31 +4736,6 @@ int residue_info_dialog_is_displayed() {
    return r;
 }
 
-GtkWidget *wrapped_nucleotide_builder_dialog() {
-
-   // GtkWidget *w = create_nucleotide_builder_dialog();
-   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
-
-   GtkWidget *type_combobox   = widget_from_builder("nucleotide_builder_type_combobox");
-   GtkWidget *form_combobox   = widget_from_builder("nucleotide_builder_form_combobox");
-   GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(type_combobox), "RNA");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(type_combobox), "DNA");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(form_combobox), "A");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(form_combobox), "B");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(strand_combobox), "Single Stranded");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(strand_combobox), "Double Stranded");
-
-   gtk_combo_box_set_active(GTK_COMBO_BOX(type_combobox),   0);
-   gtk_combo_box_set_active(GTK_COMBO_BOX(form_combobox),   0);
-   gtk_combo_box_set_active(GTK_COMBO_BOX(strand_combobox), 0);
-
-   return w;
-}
-
 // #include "c-interface-gui.hh"
 
 void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {

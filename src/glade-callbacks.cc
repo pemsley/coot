@@ -7733,8 +7733,9 @@ void
 on_other_tools_RNA_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_nucleotide_builder_dialog();
-  gtk_widget_show(w);
+   // non-run function
+  // GtkWidget *w = wrapped_nucleotide_builder_dialog();
+  // gtk_widget_show(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -8182,8 +8183,7 @@ on_residue_type_chooser_stub_checkbutton_toggled (GtkToggleButton *togglebutton,
 extern "C" G_MODULE_EXPORT
 void
 on_set_undo_molecule_button_clicked    (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
   show_set_undo_molecule_chooser();
 }
 

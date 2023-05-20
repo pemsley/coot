@@ -641,6 +641,13 @@ renumber_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+undo_molecule_chooser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+   show_set_undo_molecule_chooser();
+}
+
+void
 residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
@@ -1253,11 +1260,69 @@ void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+}
+
+
+void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   place_helix_here();
+}
+
+
+
 void find_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
 
    do_find_ligands_dialog();
+
+}
+
+void cis_trans_convert_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at =  aa.second;
+      std::string atom_name = at->name;
+      cis_trans_convert(imol, at->GetChainID(), at->GetSeqNum(), at->GetInsCode());
+   }
+}
+
+void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+
+}
+
+void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         // 20230520-PE pass a std::string here.
+	 reverse_direction_of_fragment(imol, pp.second.second.chain_id.c_str(), pp.second.second.res_no);
+      }
+   }
 
 }
 
@@ -2276,6 +2341,7 @@ create_actions(GtkApplication *application) {
    add_action(            "edit_restraints_action",             edit_restraints_action);
    add_action(           "show_preferences_action",            show_preferences_action);
    add_action(       "merge_solvent_chains_action",        merge_solvent_chains_action);
+   add_action(      "undo_molecule_chooser_action",       undo_molecule_chooser_action);
    add_action(    "show_shader_preferences_action",     show_shader_preferences_action);
    add_action(    "fix_nomenclature_errors_action",     fix_nomenclature_errors_action);
    add_action(  "invert_this_chiral_centre_action",    invert_this_chiral_centre_action);
@@ -2341,6 +2407,11 @@ create_actions(GtkApplication *application) {
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
+   add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
+   add_action(               "place_helix_here_action",                place_helix_here_action);
+   add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
+   add_action(             "add_OXT_to_residue_action",              add_OXT_to_residue_action);
+   add_action(        "reverse_chain_direction_action",         reverse_chain_direction_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
    add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);

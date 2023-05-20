@@ -175,12 +175,16 @@
           <attribute name="action">app.renumber_waters_action</attribute>
         </item>
         <item>
-          <attribute name="label">Residue Info...</attribute>
+          <attribute name="label">Residue Info</attribute>
           <attribute name="action">app.residue_info_action</attribute>
         </item>
         <item>
           <attribute name="label">Restraints...</attribute>
           <attribute name="action">app.edit_restraints_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Undo Molecule Chooser...</attribute>
+          <attribute name="action">app.undo_molecule_chooser_action</attribute>
         </item>
       </section>
       <section>
@@ -376,8 +380,12 @@
           <attribute name="action">app.add_hydrogen_atoms_using_refmac_action</attribute>
         </item>
         <item>
-          <attribute name="label">Add Other Solvent Molecules</attribute>
+          <attribute name="label">Add Other Solvent Molecules...</attribute>
           <attribute name="action">app.add_other_solvent_molecules_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Add OXT to residue...</attribute>
+          <attribute name="action">app.add_OXT_to_residue_action</attribute>
         </item>
         <item>
           <attribute name="label">Arrange Waters Around Protein</attribute>
@@ -394,6 +402,14 @@
         <item>
           <attribute name="label">Backrub Rotamers for Chain</attribute>
           <attribute name="action">app.backrub_rotamers_for_chain_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">cis ↔ trans</attribute>
+          <attribute name="action">app.cis_trans_convert_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">DNA/RNA Models...</attribute>
+          <attribute name="action">app.dna_rna_models_action</attribute>
         </item>
         <item>
           <attribute name="label">Find Ligands...</attribute>
@@ -442,15 +458,13 @@
             <attribute name="action">app.ncs_ligands_action</attribute>
           </item>
         </submenu>
-
-        <item>
-          <attribute name="label">Other Modelling Tools...</attribute>
-          <attribute name="action">app.other_modelling_tools_action</attribute>
-        </item>
-
         <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
           <attribute name="action">app.phosphorylate_this_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Place Helix Here</attribute>
+          <attribute name="action">app.place_helix_here_action</attribute>
         </item>
         <item>
           <attribute name="label">Rebuild Fragment using DBLoop (Small)</attribute>
@@ -465,6 +479,10 @@
         <item>
           <attribute name="label">Replace Residue</attribute>
           <attribute name="action">app.replace_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Reverse Chain Direction</attribute>
+          <attribute name="action">app.reverse_chain_direction_action</attribute>
         </item>
         <item>
           <attribute name="label">Rigid-Body Fit Residue Ranges</attribute>
@@ -9504,38 +9522,18 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nucleotide_builder_dialog">
     <property name="title" translatable="yes">Nucleotide Builder</property>
     <child>
       <object class="GtkBox" id="dialog-vbox94">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox142">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="ideal_rna_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_ideal_rna_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="ideal_rna_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_ideal_rna_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox179">
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkLabel" id="label282">
-                <property name="label" translatable="yes">
-Nucleotide Builder
-</property>
+                <property name="label" translatable="yes">Nucleotide Builder</property>
                 <property name="justify">center</property>
               </object>
             </child>
@@ -9551,6 +9549,21 @@ Nucleotide Builder
                         <property name="xalign">0</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="nucleotide_builder_type_combobox">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item translatable="yes">RNA</item>
+                          <item translatable="yes">DNA</item>
+                        </items>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>
@@ -9567,6 +9580,21 @@ Nucleotide Builder
                         <property name="xalign">0</property>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="nucleotide_builder_form_combobox">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item translatable="yes">A</item>
+                          <item translatable="yes">B</item>
+                        </items>
+                      </object>
+                    </child>
+                    
                   </object>
                 </child>
               </object>
@@ -9581,6 +9609,19 @@ Nucleotide Builder
                         <property name="label" translatable="yes">  Strandedness:</property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="nucleotide_builder_strand_combobox">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="active">0</property>
+                        <items>
+                          <item translatable="yes">Single Stranded</item>
+                          <item translatable="yes">Double Stranded</item>
+                        </items>
                       </object>
                     </child>
                   </object>
@@ -9602,8 +9643,6 @@ Nucleotide Builder
                     <child>
                       <object class="GtkEntry" id="nucleotide_sequence">
                         <property name="can-focus">1</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
                       </object>
                     </child>
                   </object>
@@ -9612,11 +9651,35 @@ Nucleotide Builder
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox142">
+            <property name="homogeneous">1</property>
+            <child>
+              <object class="GtkButton" id="ideal_rna_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_ideal_rna_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="ideal_rna_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_ideal_rna_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="other_model_tools_dialog">
     <property name="title" translatable="yes">Other Modelling Tools</property>
     <signal name="destroy" handler="on_other_model_tools_dialog_destroy" swapped="no"/>
@@ -9872,9 +9935,8 @@ just the cell and symmetry)
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="pointer_atom_type_dialog">
     <property name="title" translatable="yes">Pointer atom type</property>
     <child>
@@ -13407,20 +13469,13 @@ Move a copy?</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="undo_molecule_chooser_dialog">
     <property name="title" translatable="yes">Choose molecule to Undo:</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="dialog-vbox24">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="undo_molecule_chooser_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_undo_molecule_chooser_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox83">
             <property name="orientation">vertical</property>
@@ -13432,9 +13487,22 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkFrame" id="frame70">
+                <child>
+                  <object class="GtkBox" id="undo_molecule_chooser_vbox">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="undo_molecule_chooser_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_undo_molecule_chooser_ok_button_clicked" swapped="no"/>
+              </object>
         </child>
       </object>
     </child>

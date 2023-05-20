@@ -63,7 +63,7 @@ Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
 
 Map Skeletonization ::: 2
 
-Get rid of "Other Modelling Tools" ::: 1
+Undo molecule chooser ::: 0.5
 
 Update Dynamic validation on making links (the NBC clashes should disappear)
 
@@ -84,6 +84,8 @@ Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+
+Add base paring: on_other_tools_base_pair_toggle_button_toggled()
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
@@ -129,6 +131,7 @@ Find a home for New molecule by sphere ::: 1
 Find a home for New molecule by symmetry op ::: 1
 
 Make the Ligand Menu a module ::: 1
+Not much to do until we turn on RDKit.
 
 Low Priority: 3D Annotations ::: 3
 
@@ -164,6 +167,8 @@ it looks like the sea.  Or use texture background while Refmac is running.
 Caps lock key indicator?
 
 Coot contact dots updated on model modification
+
+residue spec -> rdkit python object at the coot api
 
 How to represent a "Both" chirial (ambiguous) (are they the same thing?)
 
@@ -437,10 +442,12 @@ Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
 
 Check/Delete Waters needs testing ::: 1
-* Don.
+* Done.
 
 Add highly-coordinated waters ::: 0.7
 * Done. Nice
 
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.4
 * Done. Trivial.
+
+Get rid of "Other Modelling Tools" ::: 1
