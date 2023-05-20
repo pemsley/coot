@@ -126,7 +126,7 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // Opps - this (logical OR) should be on by default:
    GtkWidget *check_waters_OR_radiobutton  = widget_from_builder("check_waters_OR_radiobutton");
 
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(check_waters_OR_radiobutton), TRUE);
 
    GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_combobox");
 

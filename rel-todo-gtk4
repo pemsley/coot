@@ -39,15 +39,14 @@ Here are other styles:
 
 Sun 23 Apr 21:33:42 BST 2023
 
-   void HUDTextureMesh::setup_buffers() { ...
-   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
-
-   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
-
 Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
 Check the links in all representation types ::: 4
+OK, but this is a mmdb problem not a GTK4 Coot problem.
+"Nice to have" - or change to scope to 10.
 
-7a0l.cif doesn't load (related to 7a0l-assembly.cif non-load, I guess).
+7a0l.cif doesn't load from the command line (related to 7a0l-assembly.cif non-load, I guess).
+It's a molecule not a dictionary. The command_line::add() function needs to detect the difference.
+All molecule .cif files fail to load on the command line? e.g. 7uv7
 Now, should this be "nice to have" or "must have"?
 
 7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 5
@@ -55,24 +54,23 @@ Also, waters are too big. Also waters are too big in colour by molecule.
 Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
 (also affects gtk3 coot - so think about fixing it there?).
 Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
+In PDB format, why are the links to the NA (around A 91?) half drawn in "Colour by Atom" mode?
 H and or D all missing except A 127 in "Bonds Colour by Chain".
 See "fat atom" commits.
 
 Add highly-coordinated waters ::: 2
 
-Add contact dots ::; 1
+Check/Delete Waters needs testing ::: 1
 
-Add molprobity contact dots ::: 1
-
-Key binding for update Coot contact dots - built it? ::: 0.2
+Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 
 Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
 
+Map Skeletonization ::: 2
+
+Get rid of "Other Modelling Tools" ::: 1
+
 Update Dynamic validation on making links (the NBC clashes should disappear)
-
-Generic Display Objects is a mess ::: 3
-
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
@@ -94,27 +92,16 @@ Making the window larger exposes more of the validation pane - even without vali
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
+
 Curlew: ::: 4
 
-Bring Python command history and completion into GTK4: ::: 2
-   a9d101aa69a767583a085de9e3c8ae2449fe71fa
-   3fc6cfe003683ab1180c0045387036068cc32294
-
 rename draw-2.cc as tick-function.cc or some such
-
-Get rid of "Other Modelling Tools" ::: 1
 
 When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
 on the atom that is blocking. ::: 1
 
-Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
-
-Map Skeletonization ::: 2
-
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
-
-Enable splash screen: ::: 1
-* I don't know how to make the window the right size! The image is display in 16 pixels width
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
@@ -173,6 +160,8 @@ would allow the manipulation of the phases so that the background could morph (t
 a number of textures and interpolating between them). Also consider a blurred textured blue background so that
 it looks like the sea.  Or use texture background while Refmac is running.
 
+
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
@@ -206,6 +195,13 @@ Pointer distances:  It should be an overlay one day
 Coot Info dialog:  It should be an overlay one day
 
 Note: 7UMH is beasty that would look good rendered with colour-by-NCS-related chains (and vdw balls).
+
+void HUDTextureMesh::setup_buffers() { ...
+// std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  :::- 1
+* It will do for now these are HUD text. One day rewrite, but not today.
+
+
 
 --- Done Items ---
 
@@ -345,16 +341,22 @@ Key-bindings in general ::: 1
 May need revisiting.
 
 Merge Molecules gui ::: 1.0
+* Done.
 
 Find Waters gui ::: 1.0
+* Done.
 
 Ctrl Arrow keys for ligand rotation and translation ::: 1
+* Done.
 
 "All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+* Done.
 
 Find Ligands gui ::: 3
+* Done.
 
 Coot Points in updating maps ::: 4
+* Done.
 
 Restart the refinement on button-release when dragging an atom ::: 0.5
 call poke_the_refinement().
@@ -419,4 +421,23 @@ Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
 
 Restore ^C interrupt (python-related?) ::: 1
+
+Add contact dots ::; 1
+* Done.
+
+Add molprobity contact dots ::: 1
+* After one frame the lights get brighter. Strange.
+
+Key binding for update Coot contact dots - built it? ::: 0.2
+* Added to my key_bindings.py for now
+
+Bring Python command history and completion into GTK4: ::: 2
+   a9d101aa69a767583a085de9e3c8ae2449fe71fa
+   3fc6cfe003683ab1180c0045387036068cc32294
+
+Generic Display Objects is a mess ::: 2
+* Much better now!
+
+Enable splash screen: ::: 1
+* I don't know how to make the window the right size! The image is display in 16 pixels width
 

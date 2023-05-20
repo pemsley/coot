@@ -5587,13 +5587,6 @@ Do you want to continue?
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="generic_objects_dialog_close_button">
-                <property name="label">gtk-close</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -5604,6 +5597,10 @@ Do you want to continue?
                     <property name="label" translatable="yes">Display/Undisplay All</property>
                     <property name="can-focus">1</property>
                     <property name="receives-default">1</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
                     <signal name="toggled" handler="on_generic_objects_display_all_togglebutton_toggled" swapped="no"/>
                   </object>
                 </child>
@@ -5612,6 +5609,8 @@ Do you want to continue?
             <child>
               <object class="GtkScrolledWindow" id="generic_objects_scrolledwindow">
                 <property name="can-focus">1</property>
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
                 <property name="propagate-natural-width">1</property>
                 <child>
                   <object class="GtkViewport">
@@ -5636,8 +5635,10 @@ Do you want to continue?
                 <child>
                   <object class="GtkButton" id="generic_objects_close_all_button">
                     <property name="label" translatable="yes">Delete All Generic Display Objects</property>
-                    <property name="can-focus">1</property>
-                    <property name="receives-default">1</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
                     <signal name="clicked" handler="on_generic_objects_close_all_button_clicked" swapped="no"/>
                   </object>
                 </child>
@@ -5645,9 +5646,17 @@ Do you want to continue?
             </child>
           </object>
         </child>
+        <child type="action">
+          <object class="GtkButton" id="generic_objects_dialog_close_button">
+            <property name="label">Close</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <signal name="clicked" handler="on_generic_objects_dialog_close_button_clicked"/>
+          </object>
+        </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 

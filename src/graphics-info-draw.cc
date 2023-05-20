@@ -1631,6 +1631,8 @@ graphics_info_t::draw_molecules() {
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
 
+   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
+
    draw_instanced_meshes();
 
    draw_map_molecules(false); // transparency
@@ -1786,6 +1788,8 @@ graphics_info_t::draw_molecules_with_shadows() {
    draw_atom_pull_restraints();
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+
+   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
 
    draw_instanced_meshes();
 
@@ -1971,6 +1975,35 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
+   if (!generic_display_objects.empty()) {
+      bool generic_display_objects_to_draw = false;
+      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+         if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
+            generic_display_objects_to_draw = true;
+            break;
+         }
+      }
+
+      if (generic_display_objects_to_draw) {
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::vec4 bg_col(background_colour, 1.0);
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
+                                                 mvp, model_rotation, lights, eye_position, opacity,
+                                                 bg_col, wireframe_mode, false, show_just_shadows);
+         }
+      }
+   }
+}
+
+
+
+void
+graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
+
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots wide-contact
@@ -2006,6 +2039,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
+
 
    if (draw_meshes) { //local, debugging
       bool have_meshes_to_draw = false;
@@ -2102,20 +2136,20 @@ graphics_info_t::draw_instanced_meshes() {
 
    // presumes opaque-only
 
-   bool have_meshes_to_draw = false;
+   // ---------------------- Draw molecule instanced_meshes
+
+   bool have_mol_meshes_to_draw = false;
    for (int i=n_molecules()-1; i>=0; i--) {
       if (! molecules[i].instanced_meshes.empty()) {
          if (! is_valid_model_molecule(i)) continue;
          if (molecules[i].draw_it) {
-            have_meshes_to_draw = true;
+            have_mol_meshes_to_draw = true;
             break;
          }
       }
    }
-   if (! instanced_meshes.empty())
-      have_meshes_to_draw = true;
 
-   if (have_meshes_to_draw) {
+   if (have_mol_meshes_to_draw) {
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 model_rotation = get_model_rotation();
@@ -2133,16 +2167,20 @@ graphics_info_t::draw_instanced_meshes() {
             }
          }
       }
+   }
 
-      // And draw our own
+   // ---------------------- And draw our own
 
-      if (! instanced_meshes.empty()) {
-         for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
-            // std::cout << "   graphics_info_t::draw_instanced_meshes() our own " << jj << " "
-            // << instanced_meshes[jj].get_name() << std::endl;
-            instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
-                                      model_rotation, lights, eye_position, bg_col, do_depth_fog);
-         }
+   if (! instanced_meshes.empty()) {
+      glm::mat4 model_rotation = get_model_rotation();
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::vec4 bg_col(background_colour, 1.0);
+      bool do_depth_fog = shader_do_depth_fog_flag;
+      for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
+         // std::cout << "   graphics_info_t::draw_instanced_meshes() our own " << jj << " "
+         // << instanced_meshes[jj].get_name() << std::endl;
+         instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
+                                   model_rotation, lights, eye_position, bg_col, do_depth_fog);
       }
    }
 }
@@ -3168,6 +3206,9 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
 
 void
 graphics_info_t::show_accept_reject_hud_buttons() {
+
+
+   std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
 
    // add some HUD buttons
 

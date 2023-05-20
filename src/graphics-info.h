@@ -4646,6 +4646,7 @@ string   static std::string sessionid;
    static void draw_molecules();
    static void draw_meshes();
    static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
+   static void draw_molecules_other_meshes(unsigned int pass_type);
    static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);

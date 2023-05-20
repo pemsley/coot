@@ -5839,29 +5839,29 @@ void handle_go_to_residue_keyboarding_mode(const char *text) {
 
 
 void
-on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
+on_generic_objects_dialog_object_check_button_toggled(GtkButton       *button,
 						       gpointer         user_data)
 {
 
    int generic_object_number = GPOINTER_TO_INT(user_data);
    int state = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
    set_display_generic_object(generic_object_number, state);
 }
 
 void
-on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleButton *button,
-                                                                      gpointer user_data) {
+on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckButton *button,
+                                                                     gpointer user_data) {
 
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
    int obj_no = combo_ints - 1000 * imol;
    bool state = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
 
-   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled() imol " << imol
+   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
              << " obj_no " << obj_no << std::endl;
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
@@ -5899,10 +5899,10 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
       gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
 
       if (gdo.mesh.get_draw_this_mesh())
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
+		       G_CALLBACK(on_generic_objects_dialog_object_check_button_toggled),
 		       GINT_TO_POINTER(io));
 
       gtk_widget_show (label);
@@ -5929,7 +5929,7 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       int i_row = grid_row_offset;
 
       std::string stub = "generic_object_" + std::to_string(i_row);
-      std::string toggle_button_name = stub + "_toggle_button";
+      std::string toggle_button_name = stub + "_toggle_button"; // is it a toggle button?
       std::string label_name = stub + "_label";
 
       // set the names of these widgets so that they can be
@@ -5945,10 +5945,10 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_row, 1, 1);
 
       if (imm.get_draw_status())
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled),
+		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_check_button_toggled),
 		       GINT_TO_POINTER(imol * 1000 + mesh_index));
 
       gtk_widget_show (label);

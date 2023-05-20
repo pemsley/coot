@@ -6517,7 +6517,6 @@ molecule_class_info_t::close_yourself() {
                }
                item_widget = next_item;
             };
-            
          }
       }
    }

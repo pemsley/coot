@@ -7586,8 +7586,7 @@ on_bond_parameters_rotate_colour_map_c_only_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_generic_display_objects1_activate   (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   generic_objects_gui_wrapper();
 
@@ -7613,6 +7612,15 @@ on_generic_objects_dialog_delete_event(GtkWidget       *widget,
    return TRUE;
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_generic_objects_dialog_close_button_clicked(GtkButton       *button,
+                                               gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
+   gtk_widget_hide(dialog);
+
+}
 
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
@@ -10626,7 +10634,7 @@ on_generic_objects_dialog_destroy      (GtkWidget       *object,
 extern "C" G_MODULE_EXPORT
 void
 on_generic_objects_display_all_togglebutton_toggled(GtkToggleButton *togglebutton,
-                                                                        gpointer         user_data) {
+                                                    gpointer         user_data) {
 
   int state = 0;
   if (gtk_toggle_button_get_active(togglebutton))

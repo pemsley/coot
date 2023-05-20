@@ -96,7 +96,8 @@ HUDTextureMesh::setup_buffers() {
    if (first_time)
       glGenVertexArrays(1, &vao);
 
-   std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+   // 20230520-PE for text, that the VAO keeps changing is OK for now.
+   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 
    glBindVertexArray(vao);
    GLenum err = glGetError();

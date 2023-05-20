@@ -338,7 +338,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             if (! handled) {
 
                // does this ever run?
-               std::cout << "Symmetry atom pick here B " << std::endl;
+               std::cout << "Symmetry atom pick here B - does this run? When? " << std::endl;
                coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }
