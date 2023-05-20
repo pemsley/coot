@@ -203,8 +203,9 @@ graphics_info_t::init() {
 /*       for (int i=0; i<n_molecules_max; i++) */
 /* 	 sequence_view_is_displayed[i] = NULL; */
 
+      // 20230515-PE this is no longer a pointer
       // residue edits
-      residue_info_edits = new std::vector<coot::select_atom_info>;
+      // residue_info_edits = new std::vector<coot::select_atom_info>;
 
       // display distances
       // distance_object_vec = new std::vector<coot::simple_distance_object_t>;

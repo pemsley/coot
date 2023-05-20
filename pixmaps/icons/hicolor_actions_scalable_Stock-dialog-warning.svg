@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="48" width="48" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+<dc:creator>
+<cc:Agent>
+<dc:title>Jakub Steiner</dc:title>
+</cc:Agent>
+</dc:creator>
+<cc:license rdf:resource="http://creativecommons.org/licenses/LGPL/2.1/"/>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/licenses/LGPL/2.1/">
+<cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+<cc:permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+<cc:requires rdf:resource="http://web.resource.org/cc/Notice"/>
+<cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/>
+<cc:requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+<cc:requires rdf:resource="http://web.resource.org/cc/SourceCode"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+<defs>
+<radialGradient id="a" gradientUnits="userSpaceOnUse" cy="24" cx="24.01" gradientTransform="matrix(2.17 0 0 2.06 -28.1 -25.45)" r="19.95">
+<stop stop-color="#fff" offset="0"/>
+<stop stop-color="#fff" stop-opacity="0" offset="1"/>
+</radialGradient>
+<filter id="b" y="-.386" x="-.055" height="1.772" width="1.11">
+<feGaussianBlur stdDeviation="0.9655"/>
+</filter>
+</defs>
+<rect opacity=".408" rx="3" height="6" filter="url(#b)" width="42" y="39.88" x="3.375"/>
+<g stroke-linejoin="round" stroke-linecap="square">
+<path stroke="#2e3436" d="m9.406 43.5h29.88c4.31 0 6.56-3.83 4.35-7.78l-15.29-28.21c-1.9-4.099-7.01-3.885-8.61-.125l-15.16 28.08c-2.585 3.72-.353 8.04 4.826 8.04z" fill="#555753"/>
+<path opacity=".408" stroke="url(#a)" d="m23.94 5.562c-1.32.009-2.58.707-3.22 2.219-.01.032-.02.063-.03.094l-15.16 28.1c-.018.02-.039.05-.061.08-1.101 1.58-1.137 3.11-.469 4.28.668 1.18 2.112 2.1 4.406 2.1h29.87c1.84 0 3.09-.78 3.72-1.88s.67-2.59-.28-4.31v-.03l-15.31-28.22c-.01-.020-.03-.041-.03-.062-.80-1.718-2.13-2.384-3.44-2.376z" fill="none"/>
+</g>
+<path fill="#fcaf3e" d="m23.97 8.188c-.32.002-.59.020-.85.624-.03.107-.07.211-.12.313l-15.16 28.1c-.063.12-.136.23-.215.34-.628.90-.489 1.25-.344 1.5.145.26.560.75 2.125.75h29.87c1.06 0 1.3-.32 1.44-.56.13-.24.31-.68-.28-1.75l-.03-.03-15.32-28.22c-.03-.062-.06-.124-.09-.188-.42-.897-.71-.877-1.03-.874z" transform="matrix(.8227 0 0 .822 4.111 5.299)"/>
+<path transform="scale(-1 1)" d="m-26.15 21h4.15v3.19l-.80 5.78h-2.57l-.78-5.78v-3.19m.14 11.01h4v2.99h-4v-2.99"/>
+</svg>

@@ -170,6 +170,8 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       auto close_callback = +[] (GtkWidget *close_button, gpointer user_data) {
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
+         graphics_info_t g;
+         g.remove_plot_from_rama_plots(box_for_this_plot);
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
       };
 
@@ -186,12 +188,24 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       gtk_widget_show(gl_area);
 
    }
+}
 
+// static
+void
+graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
+
+   std::vector<widgeted_rama_plot_t>::const_iterator it;
+   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
+      GtkWidget *this_plot_box = it->box;
+      if (this_plot_box == plot_box) {
+         rama_plot_boxes.erase(it);
+         break;
+      }
+   }
 }
 
 
 
-// draw the rama plots in the above vector
 //
 //  static
 void
@@ -199,17 +213,21 @@ graphics_info_t::draw_rama_plots() {
 
    for (unsigned int i=0; i<rama_plot_boxes.size(); i++) {
       GtkGLArea *gl_area = GTK_GL_AREA(rama_plot_boxes[i].gtk_gl_area);
-      GdkGLContext *context = gtk_gl_area_get_context(gl_area); // needed?
-      gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
+      if (GTK_IS_GL_AREA(gl_area)) {
+         GdkGLContext *context = gtk_gl_area_get_context(gl_area); // needed?
+         gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
 
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
-      rama_plot_boxes[i].rama.draw(&shader_for_rama_plot_axes_and_ticks,
-                                   &shader_for_rama_plot_phi_phis_markers, // instanced
-                                   &shader_for_hud_image_texture,
-                                   w, h, w, h);
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+         rama_plot_boxes[i].rama.draw(&shader_for_rama_plot_axes_and_ticks,
+                                      &shader_for_rama_plot_phi_phis_markers, // instanced
+                                      &shader_for_hud_image_texture,
+                                      w, h, w, h);
+      } else {
+         std::cout << "ERROR:: ploting rama plot " << i << " which hash gl_area that has gone out of scope!"
+                   << std::endl;
+      }
    }
-
 }

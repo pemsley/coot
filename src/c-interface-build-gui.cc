@@ -489,14 +489,13 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
    GtkWidget *terminal_checkbutton = widget_from_builder("add_OXT_c_terminus_radiobutton");
    GtkWidget *residue_number_entry = widget_from_builder("add_OXT_residue_entry");
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(terminal_checkbutton))) {
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(terminal_checkbutton))) {
       std::cout << "DEBUG:: auto determine C terminus for imol " << imol << std::endl;
       // we need to determine the last residue in this chain:
       if (is_valid_model_molecule(imol)) {
 	 std::cout << "in apply_add_OXT_from_widget() here with chain_id :" << chain_id <<  ":" << std::endl;
 	 graphics_info_t g;
 	 std::pair<bool, int> p = g.molecules[imol].last_protein_residue_in_chain(chain_id);
-	 std::cout << "here with last_residue_in_chain " << p.first << " " << p.second << std::endl;
 	 if (p.first) {
 	    resno = p.second;
 	 }

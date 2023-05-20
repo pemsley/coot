@@ -715,10 +715,11 @@ new_startup_application_activate(GtkApplication *application,
       setup_gestures_for_opengl_widget_in_main_window(gl_area);
 
       create_actions(application);
-      setup_gui_components();
-      setup_go_to_residue_keyboarding_mode_entry_signals();
 
       setup_python_with_coot_modules(argc, argv);
+
+      setup_gui_components();
+      setup_go_to_residue_keyboarding_mode_entry_signals();
 
       // if there is no command line arguments, the the function that sets this data is not run
       // so cld is null
@@ -741,8 +742,6 @@ new_startup_application_activate(GtkApplication *application,
    }, activate_data);
 
    // delete activate_data; // 20230515-PE restore this when other command line stuff is working OK
-
-   std::cout << "new_startup_application_activate() --- returns --- " << std::endl;
 
 }
 
@@ -897,7 +896,7 @@ int new_startup(int argc, char **argv) {
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_show(splash_screen);
 
-   // g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
    GError *error = NULL;
    // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);

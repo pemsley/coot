@@ -161,10 +161,9 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
         handle_go_function(smiles_entry.get_text())
         delete_event()
 
-    def key_press_event(widget, event, smiles_entry, *args):
-        if (event.keyval == 65293):
-            handle_go_function(smiles_entry.get_text())
-            delete_event()
+    def smiles_entry_activate(entry):
+        txt = entry.get_text()
+        handle_go_function(txt)
 
     window = Gtk.Window()
     window.set_title('Coot')
@@ -176,12 +175,32 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     smiles_entry = Gtk.Entry()
     cancel_button = Gtk.Button(label="  Cancel  ")
     go_button = Gtk.Button(label=go_button_label)
+    h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+
+    function_label.set_margin_start(10)
+    function_label.set_margin_end(10)
+    function_label.set_margin_top(6)
+    function_label.set_margin_bottom(6)
+
+    smiles_entry.set_margin_start(6)
+    smiles_entry.set_margin_end(6)
+    smiles_entry.set_margin_top(2)
+    smiles_entry.set_margin_bottom(2)
+
+    cancel_button.set_margin_start(6)
+    cancel_button.set_margin_end(6)
+    cancel_button.set_margin_top(2)
+    cancel_button.set_margin_bottom(2)
+
+    h_sep.set_margin_top(4)
+    h_sep.set_margin_bottom(4)
 
     vbox.append(hbox1)
     vbox.append(hbox2)
+    vbox.append(h_sep)
     vbox.append(hbox3)
-    hbox3.append(go_button)
     hbox3.append(cancel_button)
+    hbox3.append(go_button)
     hbox1.append(function_label)
     hbox2.append(smiles_entry)
     window.set_child(vbox)
@@ -196,7 +215,8 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
 
     go_button.connect("clicked", go_function_event, smiles_entry)
 
-    smiles_entry.connect("key_press_event", key_press_event, smiles_entry)
+    # old: smiles_entry.connect("key_press_event", key_press_event, smiles_entry)
+    smiles_entry.connect("activate", smiles_entry_activate, smiles_entry)
 
     window.show()
 
@@ -856,7 +876,7 @@ def make_store_for_diff_map_molecule_combobox():
 
 def make_store_for_model_molecule_combobox():
     mol_store = Gtk.ListStore(int, str)
-    for imol in coot_utils.molecule_number_list():
+    for imol in coot_utils.model_molecule_number_list():
         if coot.is_valid_model_molecule(imol) == 1:
             label_str = coot.molecule_name(imol)
             m_label_str = str(imol) + ' ' + label_str
@@ -4394,9 +4414,9 @@ def solvent_ligands_gui():
         def add_button_func(txt):
             additional_solvent_ligands.append(txt)
             add_solvent_button(txt, comp_id_to_button_label(txt), inside_vbox, combobox)
+
         generic_single_entry("Add new 3-letter-code/comp-id", "", "  Add  ",
-                             lambda txt:
-                             add_button_func(txt))
+                             lambda txt: add_button_func(txt))
 
     def comp_id_to_button_label(comp_id):
         coot.auto_load_dictionary(comp_id)

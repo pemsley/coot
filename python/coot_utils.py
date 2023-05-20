@@ -40,6 +40,11 @@ use_gui_qm = False
 global annotations
 annotations = []
 
+# thank you ebassi!
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
 # used in Extensions -> Representation -> Ball & Stick
 global default_ball_and_stick_selection
 default_ball_and_stick_selection = "//A/1-2"
@@ -458,8 +463,7 @@ def molecule_list(molecule_filter_function):
 def molecule_number_list():
     ret = []
     for mol_no in range(coot.graphics_n_molecules()):
-        if (valid_map_molecule_qm(mol_no) or
-                valid_model_molecule_qm(mol_no)):
+        if valid_map_molecule_qm(mol_no) or valid_model_molecule_qm(mol_no):
             ret.append(mol_no)
     return ret
 

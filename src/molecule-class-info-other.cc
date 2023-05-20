@@ -3323,21 +3323,28 @@ molecule_class_info_t::apply_atom_edit(const coot::select_atom_info &sai) {
 void
 molecule_class_info_t::apply_atom_edits(const std::vector<coot::select_atom_info> &saiv) {
 
-   short int made_edit = 0;
+   std::cout << "in mci::apply_atom_edits() " << saiv.size() << std::endl;
+
+   bool made_edit = false;
    make_backup();
 
    for (unsigned int i=0; i<saiv.size(); i++) {
+      std::cout << "mci::apply_atom_edits() " << i << std::endl;
       mmdb::Atom *at = saiv[i].get_atom(atom_sel.mol);
       if (at) {
+         std::cout << "mci::apply_atom_edits() B " << i << std::endl;
          if (saiv[i].has_b_factor_edit()) {
+            std::cout << "mci::apply_atom_edits() c " << i << std::endl;
             at->tempFactor = saiv[i].b_factor;
             made_edit = 1;
          }
          if (saiv[i].has_occ_edit()) {
+            std::cout << "mci::apply_atom_edits() d " << i << std::endl;
             at->occupancy = saiv[i].occ;
             made_edit = 1;
          }
          if (saiv[i].has_altloc_edit()) {
+            std::cout << "mci::apply_atom_edits() e " << i << std::endl;
             strncpy(at->altLoc, saiv[i].altloc_new.c_str(), 2);
             made_edit = 1;
          }

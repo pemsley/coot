@@ -37,19 +37,29 @@ Here are other styles:
 
 ----
 
-File -> Delete Molecules dialog ::: 1
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
 
-Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 1
+Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
+Check the links in all representation types ::: 4
 
-Background colour ::: 1
+Add highly-coordinated waters
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
- Other Solvent Molecules"? ::: 1
+Add contact dots
 
-Click on symmetry atoms ::: 1
+Add molprobity contact dots
+
+Key binding for update Coot contact dots
+
+It would be nice if the coot contact dots updated on model modification
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+Generic Display Objects is a mess ::: 3
 
 Wed  3 May 2023 14:43:36 BST
 check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
+Restore ^C interrupt (python-related?) ::: 1
 
 Sun 23 Apr 21:33:42 BST 2023
 
@@ -58,9 +68,14 @@ Sun 23 Apr 21:33:42 BST 2023
 
    Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
 
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
+ Other Solvent Molecules"? ::: 1
+
 Fix "Edit Chi Angles" button ::: 1
 
-Add back the icons in the info dialog ::: 1
+Update the Ramachandran Plot after RSR or other model edits ::: 1
+
+Update the Validation Graphs after RSR or other model edits ::: 1
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
@@ -70,6 +85,10 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
+
+Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 1
+
+Caps lock key indicator ::: 2
 
 Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
@@ -86,8 +105,6 @@ Bring Python command history and completion into GTK4: ::: 2
 
 rename draw-2.cc as tick-function.cc or some such
 
-"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
-
 Get rid of "Other Modelling Tools" ::: 1
 
 When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
@@ -98,6 +115,8 @@ Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
 
 Map Skeletonization ::: 2
+
+Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
 
 Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
@@ -112,8 +131,6 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 Do the tutorial from time to time - what's missing? ::: 6
 Validation graphs colours
 
-Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement() ::: 1
-
 Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
 
 Find Somewhere for "Choose Undo Molecule" ::: 1
@@ -121,6 +138,8 @@ Find Somewhere for "Choose Undo Molecule" ::: 1
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
+
+Put a bar/cyclnder under Diego so I can see the atoms.
 
 Dotted Surface ::: 1
 
@@ -161,7 +180,9 @@ would allow the manipulation of the phases so that the background could morph (t
 a number of textures and interpolating between them). Also consider a blurred textured blue background so that
 it looks like the sea.  Or use texture background while Refmac is running.
 
----- "Do they need to work?" items -----
+---- "Do they need to work?"/"Nice to have one day" items -----
+
+How to represent a "Both" chirial (ambiguous) (are they the same thing?)
 
 User-defined menus in Python - connected via coot_main_menumodel.
 
@@ -178,6 +199,12 @@ Low Priority: think how to put the "Display Manager" into the main window :::- 6
 Low Priority: "Add hydrogens using Refmac" should not cause a lock up - give me a nice progress bar :::- 4
 
 Low Priority: How can I make a flatpak for Coot?
+
+Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement()
+
+Pointer distances:  It should be an overlay one day
+
+Coot Info dialog:  It should be an overlay one day
 
 --- Done Items ---
 
@@ -352,4 +379,22 @@ How do I add a single water? ::: 0.5
 
 When I am adding waters, don't let me add to the molecule if it is not displayed. ::: 0.2
 
+File -> Delete Molecules dialog ::: 1
+* Done. Nice.
 
+Edit -> Residue Info: Fix up the dialog and toggle buttons ::: 2.5
+* Done. What a grind. At least a 2.
+
+Better/more completions and history in python scripting. ::: 3
+* Done. What a grind!
+
+Background colour ::: 0.4
+* Done. Trivial
+
+Pointer distances ::: 0.5
+* They were mostly done already. Just the dialog needed cleaning up.
+  It should be an overlay one day
+
+Click on symmetry atoms ::: 1
+
+Add back the icons in the info dialog ::: 1

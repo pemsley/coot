@@ -1083,7 +1083,7 @@ std::string graphics_info_t::directory_for_saving_for_filechooser = "";
 short int graphics_info_t::residue_info_pending_edit_b_factor = 0;
 short int graphics_info_t::residue_info_pending_edit_occ = 0;
 int       graphics_info_t::residue_info_n_atoms = -1;
-std::vector<coot::select_atom_info> *graphics_info_t::residue_info_edits = NULL;
+std::vector<coot::select_atom_info> graphics_info_t::residue_info_edits; // used to be static (written in the very olden days)
 
 //  Backbone torsions:
 clipper::Coord_orth graphics_info_t::backbone_torsion_end_ca_1;
@@ -1696,7 +1696,7 @@ Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
 float graphics_info_t::shadow_box_size = 66.0;
 
-float graphics_info_t::SSAO_bias = 0.1;
+float graphics_info_t::SSAO_bias = 0.02;
 float graphics_info_t::SSAO_radius = 30.0;
 float graphics_info_t::ssao_strength = 0.4;
 bool graphics_info_t::use_ssao  = true;  // in the effects filter, adds (or not) the SSAO effects

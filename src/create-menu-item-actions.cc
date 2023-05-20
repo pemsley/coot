@@ -505,7 +505,9 @@ void
 close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
+   set_transient_for_main_window(widget);
    gtk_widget_show(widget);
 }
 
@@ -1141,13 +1143,41 @@ calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
-background_colour_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                         G_GNUC_UNUSED GVariant *parameter,
-                         G_GNUC_UNUSED gpointer user_data) {
-   // black or white options
-   std::cout << "black or white options here" << std::endl;
+background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0,0,0);
+   graphics_info_t::graphics_draw();
+   
 }
 
+void
+background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.13f,0.13f,0.13f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_light_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.83f, 0.83f, 0.83f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_white_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(1,1,1);
+   graphics_info_t::graphics_draw();
+}
 
 void
 bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1354,8 +1384,10 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
-   if (show_symm_window)
+   if (show_symm_window) {
+      set_transient_for_main_window(show_symm_window);
       gtk_widget_show(show_symm_window);
+   }
 }
 
 
@@ -1588,6 +1620,7 @@ pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1686,11 +1719,22 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
 }
 
 void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
                            G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_all_atom_contact_dots(imol);
+   }
 
 }
 
@@ -1698,6 +1742,19 @@ void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple
                                              G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+     int imol = pp.second.first;
+
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "generic_objects";
+      std::string function = "probe";
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import generic_objects");
+      safe_python_command(sc);
+   }
 }
 
 void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2290,8 +2347,11 @@ create_actions(GtkApplication *application) {
 
    // Draw
 
+   add_action(       "background_black_action",        background_black_action);
+   add_action(  "background_light_grey_action",   background_light_grey_action);
+   add_action(   "background_dark_grey_action",    background_dark_grey_action);
+   add_action(       "background_white_action",        background_white_action);
    add_action(    "display_only_active_action",     display_only_active_action);
-   add_action(      "background_colour_action",       background_colour_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);

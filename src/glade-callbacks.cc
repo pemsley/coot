@@ -3031,14 +3031,12 @@ on_hints1_activate                     (GMenuItem     *menuitem,
 /* this is the Apply button now */
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_ok_button_clicked      (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   apply_residue_info_changes(widget);
-   /*    gtk_widget_hide(widget); not now that it's the Apply button*/
+on_residue_info_apply_button_clicked(GtkButton       *button,
+                                     gpointer         user_data) {
 
+   apply_residue_info_changes();
+   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
+   // gtk_widget_hide(widget); maybe, maybe not. 20230515-PE
 }
 
 
@@ -3047,56 +3045,55 @@ void
 on_residue_info_cancel_button_clicked  (GtkButton       *button,
                                         gpointer         user_data) {
 
-   // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
 
    residue_info_release_memory(widget);  // Hmmm! that seems dangerous
-
-   // gtk_widget_hide(widget); not now we use builder
    gtk_widget_hide(widget);
-   unset_residue_info_widget();
+   unset_residue_info_widget(); // 20230515-PE seems an ancient thing to do. Needed?
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_master_atom_occ_entry_changed (GtkEditable     *editable,
-                                               gpointer         user_data) {
+on_residue_info_master_atom_occ_entry_changed (GtkEntry     *entry,
+                                               gpointer      user_data) {
 
-   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    if (txt) {
       std::string s(txt);
       std::cout << "master atom occ changed to " << s << std::endl;
+      graphics_info_t g;
+      g.residue_info_edit_occ_apply_to_other_entries_maybe(GTK_WIDGET(entry));
    }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_master_atom_occ_entry_activate(GtkWidget *entry, gpointer user_data) {
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_master_atom_b_factor_entry_changed(GtkEditable     *editable,
-                                                   gpointer         user_data) {
+on_residue_info_master_atom_b_factor_entry_changed(GtkEntry     *entry,
+                                                   gpointer      user_data) {
 
-   const char *txt = gtk_editable_get_text(GTK_EDITABLE(editable));
+   const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    if (txt) {
       std::string s(txt);
-      std::cout << "master atom b-factor changed to " << s << std::endl;
+      std::cout << "master atom B-factor changed to " << s << std::endl;
+      graphics_info_t g;
+      g.residue_info_edit_b_factor_apply_to_other_entries_maybe(GTK_WIDGET(entry));
    }
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_info_dialog_destroy         (GtkWidget       *object,
-                                        gpointer         user_data) {
-
-   std::cout << "---------------------- this should not happen! on_residue_info_dialog_destroy()" << std::endl;
-   GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   residue_info_release_memory(widget);
-   clear_residue_info_edit_list();
-   unset_residue_info_widget();
+on_residue_info_master_atom_b_factor_entry_activate(GtkWidget *entry, gpointer user_data) {
 
 }
-
 
 
 extern "C" G_MODULE_EXPORT
@@ -5660,16 +5657,12 @@ on_ligand_no_blobs_OK_button_clicked   (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_new_delete_molecules_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_new_delete_molecules_ok_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
 
-   // GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
-   new_close_molecules(w);
-
-  /*   gtk_widget_hide(w); */
+   close_molecules_gtk4(w);
+   gtk_widget_hide(w);
 }
 
 
@@ -5679,7 +5672,6 @@ on_new_delete_molecules_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   // GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    gtk_widget_hide(w);
 
@@ -6430,26 +6422,65 @@ on_rotamer_selection_dialog_destroy    (GtkWidget       *object,
 
 extern "C" G_MODULE_EXPORT
 void
-on_pointer_distances_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
+on_pointer_distances_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                         gpointer        user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
       printf("pointer distances toggle button toggled on\n");
    } else {
       printf("pointer distances toggle button toggled off\n");
    }
-   toggle_pointer_distances_show_distances(togglebutton);
+   toggle_pointer_distances_show_distances(checkbutton);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_pointer_distances_min_dist_entry_activate(GtkEntry        *entry,
+                                             gpointer         user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      graphics_info_t g;
+      g.pointer_min_dist = f;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+}
+
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_pointer_distances_max_dist_entry_activate(GtkEntry        *entry,
+                                             gpointer         user_data) {
+
+   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      graphics_info_t g;
+      g.pointer_max_dist = f;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_pointer_distances_ok_button_clicked (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    GtkWidget *dialog = widget_from_builder("pointer_distances_dialog");
-   execute_pointer_distances_settings(dialog);
+   execute_pointer_distances_settings(dialog); // upadte and graphics_draw()
    gtk_widget_hide(dialog);
 }
 
@@ -6520,13 +6551,11 @@ on_ramachandran_plot_differences_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_ramachandran_differences_plot1_activate
-                                        (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+on_ramachandran_differences_plot1_activate(GMenuItem     *menuitem,
+                                           gpointer         user_data) {
+
    GtkWidget *w = wrapped_ramachandran_plot_differences_dialog();
    gtk_widget_show(w);
-
 }
 
 
@@ -7738,27 +7767,39 @@ on_ideal_rna_cancel_button_clicked     (GtkButton       *button,
 }
 
 
+// extern "C" G_MODULE_EXPORT
+// void
+// on_unit_cell_yes_radiobutton_toggled   (GtkCheckButton *checkbutton,
+//                                         gpointer        user_data)
+// {
+//    if (gtk_check_button_get_active(checkbutton))
+//       set_show_unit_cells_all(1);
+//   else
+//       set_show_unit_cells_all(0);
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_unit_cell_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+//                                     gpointer        user_data) {
+
+//    if (gtk_check_button_get_active(checkbutton))
+//       set_show_unit_cells_all(0);
+//    else
+//       set_show_unit_cells_all(1);
+// }
+
 extern "C" G_MODULE_EXPORT
 void
-on_unit_cell_yes_radiobutton_toggled   (GtkCheckButton *checkbutton,
-                                        gpointer        user_data)
-{
-   if (gtk_check_button_get_active(checkbutton))
+show_unit_cell_switch_state_set(GtkSwitch *switch_widget,
+                                gboolean   state,
+                                gpointer   user_data) {
+
+   if (state)
       set_show_unit_cells_all(1);
   else
-      set_show_unit_cells_all(0);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_unit_cell_no_radiobutton_toggled(GtkCheckButton *checkbutton,
-                                    gpointer        user_data) {
-
-   if (gtk_check_button_get_active(checkbutton))
-      set_show_unit_cells_all(0);
-   else
-      set_show_unit_cells_all(1);
+     set_show_unit_cells_all(0);
 }
 
 
@@ -11498,7 +11539,18 @@ on_symmetry_radius_entry_activate(GtkEntry* self,
          std::cout << "WARNING::" << e.what() << std::endl;
       }
    }
+}
 
+extern "C" G_MODULE_EXPORT
+void
+show_symmetry_switch_state_set(GtkSwitch *switch_widget,
+                               gboolean   state,
+                               gpointer   user_data) {
+
+   if (state)
+      set_show_symmetry_master(1);
+  else
+      set_show_symmetry_master(0);
 }
 
 // #ifdef FIX_THE_KEY_PRESS_EVENTS

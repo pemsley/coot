@@ -2573,65 +2573,74 @@ void fill_pointer_distances_widget(GtkWidget *widget) {
    GtkWidget *max_entry   = widget_from_builder("pointer_distances_max_dist_entry");
    GtkWidget *checkbutton = widget_from_builder("pointer_distances_checkbutton");
    GtkWidget *frame       = widget_from_builder("pointer_distances_frame");
+   GtkWidget *grid        = widget_from_builder("show_pointer_distances_grid");
 
    float min_dist = graphics_info_t::pointer_min_dist;
    float max_dist = graphics_info_t::pointer_max_dist;
+
+   std::cout << "here A with min_entry "   << min_entry << std::endl;
+   std::cout << "here A with max_entry "   << max_entry << std::endl;
+   std::cout << "here A with checkbutton " << checkbutton << std::endl;
+   std::cout << "here A with frame "       << frame << std::endl;
+   std::cout << "here A with grid "        << grid << std::endl;
 
    gtk_editable_set_text(GTK_EDITABLE(min_entry), graphics_info_t::float_to_string(min_dist).c_str());
    gtk_editable_set_text(GTK_EDITABLE(max_entry), graphics_info_t::float_to_string(max_dist).c_str());
 
    if (graphics_info_t::show_pointer_distances_flag) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-      gtk_widget_set_sensitive(frame, TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+      gtk_widget_set_sensitive(grid, TRUE);
    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-      gtk_widget_set_sensitive(frame, FALSE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), FALSE);
+      gtk_widget_set_sensitive(grid, FALSE);
    }
 
 }
 
 void execute_pointer_distances_settings(GtkWidget *widget) {
 
-   // GtkWidget *min_entry   = lookup_widget(widget, "pointer_distances_min_dist_entry");
-   // GtkWidget *max_entry   = lookup_widget(widget, "pointer_distances_max_dist_entry");
    GtkWidget *min_entry   = widget_from_builder("pointer_distances_min_dist_entry");
    GtkWidget *max_entry   = widget_from_builder("pointer_distances_max_dist_entry");
-   // GtkWidget *checkbutton = lookup_widget(widget, "pointer_distances_checkbutton");
 
    float min_dist = 0.0;
    float max_dist = 0.0;
 
-   float t;
+   try {
 
-   const gchar *tt = gtk_editable_get_text(GTK_EDITABLE(min_entry));
-   t = atof(tt);
+      const gchar *tt = gtk_editable_get_text(GTK_EDITABLE(min_entry));
+      float t = coot::util::string_to_float(std::string(tt));
+      if ((t >= 0.0) && (t < 999.9))
+         min_dist = t;
 
-   if ((t >= 0.0) && (t < 999.9))
-      min_dist = t;
+      tt = gtk_editable_get_text(GTK_EDITABLE(max_entry));
+      t = coot::util::string_to_float(std::string(tt));
+      if ((t >= 0.0) && (t < 999.9))
+         max_dist = t;
 
-   tt = gtk_editable_get_text(GTK_EDITABLE(max_entry));
-   t = atof(tt);
+      graphics_info_t::pointer_max_dist = max_dist;
+      graphics_info_t::pointer_min_dist = min_dist;
 
-   if ((t >= 0.0) && (t < 999.9))
-      max_dist = t;
-
-   graphics_info_t::pointer_max_dist = max_dist;
-   graphics_info_t::pointer_min_dist = min_dist;
+      graphics_info_t g;
+      g.make_pointer_distance_objects();
+      g.graphics_draw();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 
 }
 
 
-void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
+void toggle_pointer_distances_show_distances(GtkCheckButton *checkbutton) {
 
-   // GtkWidget *frame = lookup_widget(GTK_WIDGET(togglebutton), "pointer_distances_frame");
-   GtkWidget *frame = widget_from_builder("pointer_distances_frame");
+   GtkWidget *grid = widget_from_builder("show_pointer_distances_grid");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_show_pointer_distances(1);
-      gtk_widget_set_sensitive(frame, TRUE);
+      gtk_widget_set_sensitive(grid, TRUE);
    } else {
       set_show_pointer_distances(0);
-      gtk_widget_set_sensitive(frame, FALSE);
+      gtk_widget_set_sensitive(grid, FALSE);
    }
 
 }
@@ -3697,87 +3706,117 @@ void fill_combobox_with_coordinates_options(GtkWidget *combobox,
 /*              new close molecule                                          */
 /*  ----------------------------------------------------------------------- */
 void
-new_close_molecules(GtkWidget *window) {
+old_new_close_molecules(GtkWidget *window) {
 
-   // GtkWidget *vbox = lookup_widget(window, "new_delete_molecules_vbox");
+//    // GtkWidget *vbox = lookup_widget(window, "new_delete_molecules_vbox");
+//    GtkWidget *vbox = widget_from_builder("new_delete_molecules_vbox");
+//    short int closed_something_flag = 0;
+//    std::vector<int> closed_molecules;
+
+//    if (GTK_IS_BOX(vbox)) {
+
+// #if (GTK_MAJOR_VERSION >= 4)
+
+//       // 20220602-PE
+//       std::cout << "in new_close_molecules() FIXME deleting marked molecules" << std::endl;
+// #else
+//       GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
+//       GList *free_list = dlist;
+
+//       while (dlist) {
+//          GtkWidget *list_item = GTK_WIDGET(dlist->data);
+//          if (GTK_IS_TOGGLE_BUTTON(list_item)) {
+//             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
+//                int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
+//                closed_molecules.push_back(imol);
+//             }
+//          } else {
+//             std::cout << "not a toggle button" << std::endl;
+//          }
+//          dlist = dlist->next;
+//       }
+//       g_list_free(free_list);
+// #endif
+
+//    }
+
+//    if (! closed_molecules.empty()) {
+//       for (const auto &imol : closed_molecules) {
+//          graphics_info_t::molecules[imol].close_yourself();
+//       }
+//    }
+
+//    // update go to atom molecule now that we may have deleted the
+//    // currently set one.
+//    if (! closed_molecules.empty()) {
+//       graphics_info_t g;
+//       for (unsigned int i=0; i<closed_molecules.size(); i++) {
+// 	 if (closed_molecules[i] == g.go_to_atom_molecule()) {
+// 	    // set it to the bottom model molecule:
+// 	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
+// 	       if (is_valid_model_molecule(imol)) {
+// 	          g.set_go_to_atom_molecule(imol);
+// 	          break;
+//                }
+//             }
+//          }
+//       }
+//       closed_something_flag = true;
+//    }
+
+//    // ------ here ----- if there is a sequence view of a closed molecule being displayed then
+//    // hide it. - that should be done in close_yourself().
+
+
+//    if (closed_something_flag) {
+//       if (graphics_info_t::go_to_atom_window) {
+// 	 graphics_info_t g;
+// 	 // GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, "go_to_atom_molecule_combobox");
+// 	 GtkWidget *combobox = widget_from_builder("go_to_atom_molecule_combobox");
+// 	 int gimol = g.go_to_atom_molecule();
+
+// 	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
+// 	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
+//       }
+//       graphics_draw();
+//    }
+}
+
+
+void
+close_molecules_gtk4(GtkWidget *dialog) {
+
    GtkWidget *vbox = widget_from_builder("new_delete_molecules_vbox");
-   short int closed_something_flag = 0;
-   std::vector<int> closed_molecules;
+   if (vbox) {
 
-   if (GTK_IS_BOX(vbox)) {
+      std::vector<int> closed_molecules;
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      while (item_widget) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-
-      // 20220602-PE 
-      std::cout << "in new_close_molecules() FIXME deleting marked molecules" << std::endl;
-#else
-      GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
-      GList *free_list = dlist;
-
-      while (dlist) {
-         GtkWidget *list_item = GTK_WIDGET(dlist->data);
-         if (GTK_IS_TOGGLE_BUTTON(list_item)) {
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
-               int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
-               closed_molecules.push_back(imol);
-            }
-         } else {
-            std::cout << "not a toggle button" << std::endl;
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(item_widget))) {
+            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+            closed_molecules.push_back(imol);
          }
-         dlist = dlist->next;
-      }
-      g_list_free(free_list);
-#endif
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+      };
 
-   }
-
-   if (! closed_molecules.empty()) {
-      for (const auto &imol : closed_molecules) {
-         graphics_info_t::molecules[imol].close_yourself();
-      }
-   }
-
-   // update go to atom molecule now that we may have deleted the
-   // currently set one.
-   if (! closed_molecules.empty()) {
-      graphics_info_t g;
-      for (unsigned int i=0; i<closed_molecules.size(); i++) {
-	 if (closed_molecules[i] == g.go_to_atom_molecule()) {
-	    // set it to the bottom model molecule:
-	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
-	       if (is_valid_model_molecule(imol)) {
-	          g.set_go_to_atom_molecule(imol);
-	          break;
-               }
-            }
+      if (! closed_molecules.empty()) {
+         for (const auto &imol : closed_molecules) {
+            graphics_info_t::molecules[imol].close_yourself();
          }
       }
-      closed_something_flag = true;
    }
-
-   // ------ here ----- if there is a sequence view of a closed molecule being displayed then
-   // hide it. - that should be done in close_yourself().
-
-
-   if (closed_something_flag) {
-      if (graphics_info_t::go_to_atom_window) {
-	 graphics_info_t g;
-	 // GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, "go_to_atom_molecule_combobox");
-	 GtkWidget *combobox = widget_from_builder("go_to_atom_molecule_combobox");
-	 int gimol = g.go_to_atom_molecule();
-
-	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
-	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
-
-      }
-      graphics_draw();
-   }
+   graphics_draw();
 }
 
 GtkWidget *wrapped_create_new_close_molecules_dialog() {
 
    GtkWidget *dialog = widget_from_builder("new_close_molecules_dialog");
    GtkWidget *vbox   = widget_from_builder("new_delete_molecules_vbox"); // nice and consistent...
+
+   graphics_info_t::clear_out_container(vbox);
+
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model() ||
 	  graphics_info_t::molecules[imol].has_xmap() ||
@@ -3789,18 +3828,11 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
 	 mol_name += graphics_info_t::molecules[imol].name_for_display_manager();
 	 button_name += graphics_info_t::int_to_string(imol);
          GtkWidget *checkbutton = gtk_check_button_new_with_label(mol_name.c_str());
-	 // gtk_widget_ref (checkbutton);
-	 // g_object_set_data(G_OBJECT(w), button_name.c_str(), (gpointer)checkbutton);
          g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
 	 gtk_widget_show(checkbutton);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
          gtk_box_append(GTK_BOX(vbox), checkbutton);
-#else
-	 gtk_box_pack_start(GTK_BOX(vbox), checkbutton, FALSE, FALSE, 0);
-#endif
       }
    }
-
    return dialog;
 }
 
@@ -4004,14 +4036,23 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
    /* The Show Symmetry RadioButtons */
 
-   GtkCheckButton *button = nullptr;
-   if (get_show_symmetry() == 1) {
-      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
-   } else {
-      button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
-   }
+   // GtkCheckButton *button = nullptr;
+   // if (get_show_symmetry() == 1) {
+   //    button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_yes_radiobutton"));
+   // } else {
+   //    button = GTK_CHECK_BUTTON(widget_from_builder("show_symmetry_no_radiobutton"));
+   // }
 
-   gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+   // gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+
+   // 20230516-PE now we use a switch
+
+   GtkWidget *switch_button = widget_from_builder("show_symmetry_switch");
+   if (get_show_symmetry() == 1) {
+      gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
+   } else {
+      gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
+   }
 
 #if 0 // 20230513-PE not now
 
@@ -4033,16 +4074,25 @@ GtkWidget *wrapped_create_show_symmetry_window() {
     gtk_editable_set_text(GTK_EDITABLE(entry), text);
     free (text);
 
-    /* The Unit Cell Radiobuttons */
+    /* The Unit Cell Radiobuttons - pre GtkSwitch*/
+
+    // If (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+    //    GtkWidget *check_button = nullptr;
+    //    if (get_show_unit_cell(imol) == 1) {
+    //       check_button = widget_from_builder("unit_cell_yes_radiobutton");
+    //    } else {
+    //       check_button = widget_from_builder("unit_cell_no_radiobutton");
+    //    }
+    //    gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), TRUE);
+    // }
+
 
     if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
-       GtkWidget *check_button = nullptr;
-       if (get_show_unit_cell(imol) == 1) {
-	  check_button = widget_from_builder("unit_cell_yes_radiobutton");
-       } else {
-	  check_button = widget_from_builder("unit_cell_no_radiobutton");
-       }
-       gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), TRUE);
+       GtkWidget *switch_button = widget_from_builder("show_unit_cell_switch");
+       if (get_show_unit_cell(imol) == 1)
+          gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
+       else 
+          gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
     }
 
 

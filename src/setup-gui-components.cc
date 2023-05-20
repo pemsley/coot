@@ -117,6 +117,7 @@ void setup_ramachandran_plot_chooser_dialog() {
 }
 
 void setup_get_monomer() {
+
    GtkWidget* frame = widget_from_builder("get_monomer_frame");
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
    g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
@@ -154,7 +155,30 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
                                                       GdkModifierType        modifiers,
                                                       GtkEntry              *entry) {
    gboolean handled = TRUE;
-   
+
+   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval << " keycode: " << keycode << std::endl;
+
+   switch(keyval) {
+      case GDK_KEY_Up: {
+      }
+      case GDK_KEY_Down: {
+      }
+      case GDK_KEY_Escape: {
+         auto func = +[] (gpointer data) {
+            GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
+            gtk_revealer_set_reveal_child(revealer,FALSE);
+            return gboolean(G_SOURCE_REMOVE);
+         };
+         g_idle_add(func, NULL);
+         break;
+      }
+      default: {
+         handled = FALSE;
+         g_debug("Python scripting entry: Unhandled key: %s",gdk_keyval_name(keyval));
+      }
+   }
+
+#if 0
    switch(keyval) {
       case GDK_KEY_Up: {
          const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
@@ -184,11 +208,21 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
          g_debug("Python scripting entry: Unhandled key: %s",gdk_keyval_name(keyval));
       }
    }
+#endif
+
    return gboolean(handled);
 }
 
+// 20230516-PE trying to add back the python completion and history that was in
+// gtk3 coot into gtk4 coot.
+//
+// 20230516-PE I am, for the moment, not adding the header coot-setup-python.hh here because
+// it doesn't include gtk stuff (for now).
+void add_python_scripting_entry_completion(GtkWidget *entry);
+
 
 void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
+
    const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    g_info("Running python command: '%s'",entry_txt);
    PyRun_SimpleString(entry_txt);
@@ -200,6 +234,7 @@ void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
 }
 
 void setup_python_scripting_entry() {
+
    GtkWidget *entry = widget_from_builder("python_scripting_entry");
    if(entry == NULL) {
       g_error("'python_scripting_entry' from builder is NULL");
@@ -209,16 +244,20 @@ void setup_python_scripting_entry() {
 
    // for 'Up' and 'Down' keys, i.e. history lookup
    // and for 'Esc' key to hide the revealer
-   g_signal_connect(key_controller_entry, "key-pressed",
-                    G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
+
+   g_signal_connect(key_controller_entry, "key-pressed", G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
 
    // for executing Python commands
-   g_signal_connect(entry, "activate",G_CALLBACK(on_python_scripting_entry_activated), entry);
+   g_signal_connect(entry, "activate", G_CALLBACK(on_python_scripting_entry_activated), entry);
 
    gtk_widget_add_controller(entry, key_controller_entry);
+
+   // PE adds history and completions (in coot-setup-python.cc)
+   add_python_scripting_entry_completion(entry);
 }
 
 void setup_gui_components() {
+
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_validation_graph_dialog();

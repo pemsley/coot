@@ -493,10 +493,33 @@
       <submenu>
         <attribute name="label">View</attribute>
         <section>
-          <item>
+
+          <!-- <item> -->
+          <!--   <attribute name="label">Background Colour...</attribute> -->
+          <!--   <attribute name="action">app.background_colour_action</attribute> -->
+          <!-- </item> -->
+ 
+          <submenu>
             <attribute name="label">Background Colour...</attribute>
-            <attribute name="action">app.background_colour_action</attribute>
-          </item>
+            <item>
+              <attribute name="label">Black</attribute>
+              <attribute name="action">app.background_black_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Dark Grey</attribute>
+              <attribute name="action">app.background_dark_grey_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Light Grey</attribute>
+              <attribute name="action">app.background_light_grey_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">White</attribute>
+              <attribute name="action">app.background_white_action</attribute>
+            </item>
+          </submenu>
+         
+
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
@@ -1262,8 +1285,7 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                             <child>
                               <object class="GtkCheckButton" id="add_OXT_c_terminus_radiobutton">
                                 <property name="label" translatable="yes">  At C terminus</property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
+                                <property name="active">1</property>
                                 <signal name="toggled" handler="on_add_OXT_c_terminus_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
@@ -1279,17 +1301,12 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
                             <child>
                               <object class="GtkCheckButton" id="add_OXT_residue_radiobutton">
                                 <property name="label" translatable="yes">At Residue: </property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
                                 <property name="group">add_OXT_c_terminus_radiobutton</property>
                                 <signal name="toggled" handler="on_add_OXT_residue_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
                             <child>
                               <object class="GtkEntry" id="add_OXT_residue_entry">
-                                <property name="can-focus">1</property>
-                                <property name="primary-icon-activatable">0</property>
-                                <property name="secondary-icon-activatable">0</property>
                               </object>
                             </child>
                           </object>
@@ -6234,7 +6251,7 @@ Do you want to continue?
                       <!-- <property name="valign">end</property> -->
                       <property name="hexpand">True</property>
                       <property name="vexpand">True</property>
-                      <property name="visible">True</property>
+                      <property name="visible">False</property>
                       <property name="margin-bottom">5</property>
                       <property name="margin-end">5</property>
                       <property name="margin-start">5</property>
@@ -8903,31 +8920,12 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="new_close_molecules_dialog">
-    <property name="title" translatable="yes">Delete Molecules:</property>
+    <property name="title" translatable="yes">Coot: Delete Molecules</property>
     <child>
       <object class="GtkBox" id="dialog-vbox67">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox108">
-                <child>
-                  <object class="GtkButton" id="new_delete_molecules_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_new_delete_molecules_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="new_delete_molecules_ok_button">
-                    <property name="label" translatable="yes">  Delete Marked Molecules &amp; Maps  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_new_delete_molecules_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame121">
             <child>
@@ -8937,13 +8935,7 @@ density (too big to be waters):
                   <object class="GtkBox" id="hbox107">
                     <child>
                       <object class="GtkLabel" id="label209">
-                        <property name="label" translatable="yes">      Delete?    </property>
-                        <property name="justify">center</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label210">
-                        <property name="label" translatable="yes">     Name</property>
+                        <property name="label" translatable="yes">     Delete Checked Molecules:   </property>
                         <property name="justify">center</property>
                       </object>
                     </child>
@@ -8951,11 +8943,17 @@ density (too big to be waters):
                 </child>
                 <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow16">
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
+                    <property name="height-request">200</property>
                     <child>
                       <object class="GtkViewport" id="viewport9">
                         <child>
+                          <!-- dynamically add checkbuttons -->
                           <object class="GtkBox" id="new_delete_molecules_vbox">
                             <property name="orientation">vertical</property>
+                            <property name="hexpand">1</property>
+                            <property name="vexpand">1</property>
                           </object>
                         </child>
                       </object>
@@ -8966,11 +8964,37 @@ density (too big to be waters):
             </child>
           </object>
         </child>
+         <child type="action">
+              <object class="GtkBox" id="hbox108">
+                <child>
+                  <object class="GtkButton" id="new_delete_molecules_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <signal name="clicked" handler="on_new_delete_molecules_cancel_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="new_delete_molecules_ok_button">
+                    <property name="label" translatable="yes">  Delete Marked Molecules &amp; Maps  </property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <signal name="clicked" handler="on_new_delete_molecules_ok_button_clicked" swapped="no"/>
+                    <style>
+                      <class name="destructive-action"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+        </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="new_ligands_info_dialog">
     <property name="title" translatable="yes">New Ligands</property>
     <child>
@@ -9043,6 +9067,7 @@ in this molecule.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="no_cif_dictionary_bonds_dialog">
     <property name="title" translatable="yes">No Restraints in Dictionary!</property>
     <child>
@@ -9074,6 +9099,7 @@ in this molecule.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="no_new_ligands_info_dialog">
     <property name="title" translatable="yes">No New Ligands</property>
     <child>
@@ -9187,42 +9213,97 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nothing_bad_dialog">
     <property name="title" translatable="yes">Coot: Info</property>
     <child>
       <object class="GtkBox" id="nothing_bad_dialog_vbox">
         <property name="orientation">vertical</property>
+
         <child>
           <object class="GtkFrame" id="nothing_bad_frame">
             <property name="name">nothing_bad_frame</property>
+
             <child>
-              <object class="GtkLabel" id="nothing_bad_label">
-                <property name="margin-start">50</property>
-                <property name="margin-end">50</property>
-                <property name="margin-top">50</property>
-                <property name="margin-bottom">50</property>
-                <property name="label" translatable="yes">Nothing Bad</property>
-                <property name="use-markup">1</property>
-                <property name="justify">center</property>
+              <object class="GtkBox" id="nothing_bad_hbox">
+                <property name="orientation">horizontal</property>
+                <property name="margin-start">20</property>
+                <property name="margin-end">20</property>
+                <property name="margin-top">20</property>
+                <property name="margin-bottom">20</property>
+
+	        <!-- <child> -->
+	        <!--   <object class="GtkImage" id="info_dialog_info_image"> -->
+	        <!--     <property name="visible">True</property> -->
+	        <!--     <property name="file">Stock-dialog-information.svg</property> -->
+                <!--     <property name="width-request">80</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
+	        <!-- <child> -->
+	        <!--   <object class="GtkImage" id="info_dialog_warning_image"> -->
+	        <!--     <property name="visible">True</property> -->
+	        <!--     <property name="file">Stock-dialog-warning.svg</property> -->
+                <!--     <property name="width-request">80</property> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
+                <child>
+                  <object class="GtkBox" id="nothing_bad_image_box">
+                    <property name="orientation">horizontal</property>
+                  </object>
+                </child>
+
+
+                <child>
+                  <object class="GtkLabel" id="nothing_bad_label">
+                    <property name="margin-start">30</property>
+                    <property name="margin-end">30</property>
+                    <property name="margin-top">30</property>
+                    <property name="margin-bottom">30</property>
+                    <property name="label" translatable="yes">Nothing Bad</property>
+                    <property name="use-markup">1</property>
+                    <property name="justify">center</property>
+                  </object>
+                </child>
+
               </object>
             </child>
+
           </object>
         </child>
-         <child type="action">
-              <object class="GtkButton" id="nothing_bad_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_nothing_bad_ok_button_clicked" swapped="no"/>
-              </object>
+
+        <child type="action">
+          <object class="GtkButton" id="nothing_bad_ok_button">
+            <property name="label" translatable="yes">  OK  </property>
+            <property name="can-focus">1</property>
+            <property name="use-underline">1</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <signal name="clicked" handler="on_nothing_bad_ok_button_clicked" swapped="no"/>
+          </object>
         </child>
+
+
       </object>
     </child>
+
+    <!-- <child> -->  <!-- something like this - not this though -->
+    <!--     <object class="GtkImage" id="info_dialog_warning_image"> -->
+    <!--       <property name="stock">gtk-dialog-warning</property> -->
+    <!--       <property name="icon_size">6</property> -->
+    <!--       <property name="xalign">0.5</property> -->
+    <!--       <property name="yalign">0.5</property> -->
+    <!--       <property name="xpad">0</property> -->
+    <!--       <property name="ypad">0</property> -->
+    <!--     </object> -->
+    <!-- </child> -->
+
     <action-widgets>
       <action-widget response="0">nothing_bad_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="nothing_to_recover_dialog">
@@ -9850,21 +9931,14 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="pointer_distances_dialog">
     <property name="title" translatable="yes">Pointer Distances</property>
     <child>
       <object class="GtkBox" id="dialog-vbox81">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="pointer_distances_ok_button">
-                <property name="label" translatable="yes">   OK   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_pointer_distances_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
-          <object class="GtkFrame" id="frame148">
+          <object class="GtkFrame" id="pointer_distances_frame">
             <child>
               <object class="GtkBox" id="vbox150">
                 <property name="orientation">vertical</property>
@@ -9883,6 +9957,10 @@ just the cell and symmetry)
                         <property name="label" translatable="yes">  Min Distance  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
@@ -9890,40 +9968,71 @@ just the cell and symmetry)
                         <property name="label" translatable="yes">  Max Distance</property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_min_dist_entry">
-                        <property name="can-focus">1</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
+                        <property name="xalign">0</property>
+                        <signal name="activate" handler="on_pointer_distances_min_dist_entry_activate"/>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkEntry" id="pointer_distances_max_dist_entry">
-                        <property name="can-focus">1</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
+                        <property name="xalign">0</property>
+                        <signal name="activate" handler="on_pointer_distances_max_dist_entry_activate"/>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label235">
-                        <property name="label" translatable="yes"> Ångströms </property>
+                        <property name="label" translatable="yes"> Ångströms  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label236">
-                        <property name="label" translatable="yes"> Ångströms </property>
+                        <property name="label" translatable="yes"> Ångströms  </property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkButton" id="pointer_distances_ok_button">
+            <property name="label" translatable="yes">   OK   </property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <signal name="clicked" handler="on_pointer_distances_ok_button_clicked" swapped="no"/>
           </object>
         </child>
       </object>
@@ -10470,8 +10579,7 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="residue_info_dialog">
-    <property name="title" translatable="yes">Coot Residue Info</property>
-    <signal name="destroy" handler="on_residue_info_dialog_destroy" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Residue Info</property>
     <child>
       <object class="GtkBox" id="dialog-vbox14">
         <property name="orientation">vertical</property>
@@ -10507,6 +10615,8 @@ just the cell and symmetry)
                           <object class="GtkEntry" id="residue_info_master_atom_occ_entry">
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
+                            <signal name="activate" handler="on_residue_info_master_atom_occ_entry_activate" swapped="no"/>
+                            <!-- not used now? -->
                             <signal name="changed" handler="on_residue_info_master_atom_occ_entry_changed" swapped="no"/>
                           </object>
                         </child>
@@ -10515,6 +10625,7 @@ just the cell and symmetry)
                             <property name="sensitive">0</property>
                             <property name="can-focus">1</property>
                             <signal name="changed" handler="on_residue_info_master_atom_b_factor_entry_changed" swapped="no"/>
+                            <signal name="activate" handler="on_residue_info_master_atom_b_factor_entry_activate" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -10609,7 +10720,6 @@ just the cell and symmetry)
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox49">
-            <property name="halign">GTK_ALIGN_END</property>
             <property name="spacing">4</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
@@ -10618,15 +10728,21 @@ just the cell and symmetry)
             <child>
               <object class="GtkButton" id="residue_info_cancel_button">
                 <property name="label" translatable="yes">Close</property>
-                <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_residue_info_cancel_button_clicked" swapped="no"/>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="residue_info_ok_button">
+              <object class="GtkButton" id="residue_info_apply_button">
                 <property name="label" translatable="yes">Apply</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_residue_info_ok_button_clicked" swapped="no"/>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_residue_info_apply_button_clicked" swapped="no"/>
                 <style>
                   <class name="suggested-action"/>
                 </style>
@@ -10640,8 +10756,9 @@ just the cell and symmetry)
     </child>
   </object>
 
+  <!-- is this still a thing? needs checking -->
   <object class="GtkWindow" id="residue_type_chooser_window">
-    <property name="title" translatable="yes">Residu Type</property>
+    <property name="title" translatable="yes">Coot: Residue Type</property>
     <child>
       <object class="GtkFrame" id="frame50">
         <child>
@@ -12021,16 +12138,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
 
   <object class="GtkWindow" id="show_symmetry_window">
-    <property name="title" translatable="yes">Coot: Show Symmetry?</property>
+    <property name="title" translatable="yes">Coot: Show Symmetry &amp; Unit Cell</property>
     <child>
       <object class="GtkBox" id="vbox10">
         <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkLabel" id="label44">
-            <property name="label" translatable="yes">Symmetry &amp; Unit Cell</property>
-            <property name="justify">center</property>
-          </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame163">
             <property name="margin-start">6</property>
@@ -12050,19 +12161,61 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                     <child>
                       <object class="GtkBox" id="vbox11">
                         <property name="orientation">vertical</property>
+
+                        <!-- <child> -->
+                        <!--   <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton"> -->
+                        <!--     <property name="label" translatable="yes">Yes</property> -->
+                        <!--     <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+                        <!-- <child> -->
+                        <!--   <object class="GtkCheckButton" id="show_symmetry_no_radiobutton"> -->
+                        <!--     <property name="label" translatable="yes">No</property> -->
+                        <!--     <property name="active">1</property> -->
+                        <!--     <property name="group">show_symmetry_yes_radiobutton</property> -->
+                        <!--   </object> -->
+                        <!-- </child> -->
+
                         <child>
-                          <object class="GtkCheckButton" id="show_symmetry_yes_radiobutton">
-                            <property name="label" translatable="yes">Yes</property>
-                            <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" swapped="no"/>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Off</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkSwitch" id="show_symmetry_switch">
+                                <property name="active">False</property>
+                                <property name="width-request">40</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <signal name="state-set" handler="show_symmetry_switch_state_set"/>
+                              </object>
+                            </child>
+                            
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">On</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-bottom">2</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                              </object>
+                            </child>
+
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkCheckButton" id="show_symmetry_no_radiobutton">
-                            <property name="label" translatable="yes">No</property>
-                            <property name="active">1</property>
-                            <property name="group">show_symmetry_yes_radiobutton</property>
-                          </object>
-                        </child>
+                        
+
                         <child>
                           <object class="GtkCheckButton" id="symmetry_always_on_checkbutton">
                             <property name="label" translatable="yes"> Symmetry Always On</property>
@@ -12241,32 +12394,52 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
             <property name="margin-end">6</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
-            <child>
-              <object class="GtkBox" id="vbox15">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkCheckButton" id="unit_cell_yes_radiobutton">
-                    <property name="label" translatable="yes">Yes</property>
-                    <property name="active">0</property>
-                    <signal name="toggled" handler="on_unit_cell_yes_radiobutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="unit_cell_no_radiobutton">
-                    <property name="label" translatable="yes">No</property>
-                    <property name="can-focus">1</property>
-                    <property name="active">1</property>
-                    <property name="group">unit_cell_yes_radiobutton</property>
-                    <signal name="toggled" handler="on_unit_cell_no_radiobutton_toggled" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-            </child>
+
             <child type="label">
               <object class="GtkLabel" id="label55">
                 <property name="label" translatable="yes">Show Unit Cells?</property>
               </object>
             </child>
+
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Hide</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkSwitch" id="show_unit_cell_switch">
+                    <property name="active">False</property>
+                    <property name="width-request">40</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <signal name="state-set" handler="show_unit_cell_switch_state_set"/>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Show</property>
+                    <property name="margin-top">2</property>
+                    <property name="margin-bottom">2</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
           </object>
         </child>
         <child>

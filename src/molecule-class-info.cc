@@ -6487,30 +6487,35 @@ molecule_class_info_t::close_yourself() {
    //
    graphics_info_t g;
    GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
-   //
-
-   auto delete_mol_hbox_func = [] (GtkWidget *item, void *data) {
-                                  int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
-                                  int imol_this = *static_cast<int *>(data);
-                                  if (imol_widget == imol_this) {
-                                     gtk_widget_hide(item); // destroying may do bad things to the foreach loop variable
-                                  }
-                               };
-
    if (display_control_window) {
       if (was_map) {
          GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
          if (GTK_IS_BOX(map_vbox)) {
-            int imol_this = imol_no;
-            std::cout << "in close_yourself() fix container A foreach" << std::endl;
+            GtkWidget *item_widget = gtk_widget_get_first_child(map_vbox);
+            while (item_widget) {
+               int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+               if (imol_this == imol_no) {
+                  gtk_box_remove(GTK_BOX(map_vbox), item_widget);
+               }
+               item_widget = gtk_widget_get_next_sibling(item_widget);
+            };
          }
       }
 
       if (was_coords) {
          GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
          if (GTK_IS_BOX(coords_vbox)) {
-            int imol_this = imol_no;
             std::cout << "in close_yourself() fix container B foreach" << std::endl;
+
+            GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
+            while (item_widget) {
+               int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+               if (imol_this == imol_no) {
+                  gtk_box_remove(GTK_BOX(coords_vbox), item_widget);
+               }
+               item_widget = gtk_widget_get_next_sibling(item_widget);
+            };
+            
          }
       }
    }

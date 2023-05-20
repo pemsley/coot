@@ -3,7 +3,9 @@ EXTRA_DIST = hicolor_apps_48x48_coot.png   \
 	     hicolor_apps_64x64_coot.png   \
 	     hicolor_apps_96x96_coot.png   \
 	     hicolor_apps_256x256_coot.png \
-	     hicolor_apps_scalable_coot.svg
+	     hicolor_apps_scalable_coot.svg \
+             hicolor_actions_scalable_Stock-dialog-warning.svg \
+             hicolor_actions_scalable_Stock-dialog-information.svg
 
 # is this install-data-local thing needed now? Check with other software that install
 # desktop icons.
