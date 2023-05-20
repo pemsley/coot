@@ -58,10 +58,6 @@ In PDB format, why are the links to the NA (around A 91?) half drawn in "Colour 
 H and or D all missing except A 127 in "Bonds Colour by Chain".
 See "fat atom" commits.
 
-Add highly-coordinated waters ::: 2
-
-Check/Delete Waters needs testing ::: 1
-
 Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
 
 Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
@@ -440,4 +436,10 @@ Generic Display Objects is a mess ::: 2
 
 Enable splash screen: ::: 1
 * I don't know how to make the window the right size! The image is display in 16 pixels width
+
+Check/Delete Waters needs testing ::: 1
+* Don.
+
+Add highly-coordinated waters ::: 0.7
+* Done. Nice
 

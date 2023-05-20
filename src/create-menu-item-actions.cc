@@ -1762,6 +1762,16 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
+   
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::string module = "coot_gui";
+   std::string function = "water_coordination_gui";
+   std::vector<coot::command_arg_t> args;
+   std::string sc = g.state_command(module, function, args, lang);
+   safe_python_command("import coot_gui");
+   safe_python_command(sc);
+
 }
 
 void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
