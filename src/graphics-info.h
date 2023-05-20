@@ -1731,6 +1731,11 @@ public:
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 					       int resno, const char *atom_name, const char *altLoc);
 
+   // 20230520-PE why isn't this here?
+   // void set_go_to_atom(const coot::atom_spec_t &atom_spec);
+   // I think it should be. Next time you come here, make it so and use it in
+   // on_generic_atom_spec_toggle_button_toggled().
+
    void set_go_to_residue_intelligent(const std::string &chain_id, int resno,
 				      const std::string &ins_code);
 
@@ -3661,9 +3666,15 @@ public:
 
    // and a gui wrapper for that:
    GtkWidget *wrapped_create_checked_waters_by_variance_dialog(const std::vector <coot::atom_spec_t> &v, int imol);
+
    // and its buttons callbacks:
-   static void on_generic_atom_spec_button_clicked (GtkButton *button,
-						    gpointer user_data);
+   // static void on_generic_atom_spec_button_clicked (GtkButton *button,
+   //                                                  gpointer user_data);
+   //
+   // 20230520-PE the above should be toggle buttons (shouldn't they?) - they have the "toggled" signal,
+   // not the "clicked" signal.
+   //
+   static void on_generic_atom_spec_toggle_button_toggled(GtkToggleButton *toggle_button, gpointer user_data);
 
    // ----- chiral volumes: ----
 

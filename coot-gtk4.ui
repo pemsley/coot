@@ -2699,31 +2699,12 @@ Calculate a skeleton now?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="check_waters_dialog">
-    <property name="title" translatable="yes">Checking Waters:</property>
+    <property name="title" translatable="yes">Coot: Check Waters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox38">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox78">
-                <child>
-                  <object class="GtkButton" id="check_waters_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_check_waters_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="check_waters_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_check_waters_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox100">
             <property name="orientation">vertical</property>
@@ -2731,12 +2712,24 @@ Calculate a skeleton now?
               <object class="GtkBox" id="hbox73">
                 <child>
                   <object class="GtkLabel" id="label136">
-                    <property name="label" translatable="yes">  Molecule Number:  </property>
+                    <property name="label" translatable="yes">  Molecule: </property>
                     <property name="justify">center</property>
                   </object>
                 </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="check_waters_molecule_comboboxtext">
+                    <property name="active">0</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                  </object>
+                </child>
+
               </object>
             </child>
+
             <child>
               <object class="GtkBox" id="hbox72">
                 <child>
@@ -2745,6 +2738,20 @@ Calculate a skeleton now?
                     <property name="justify">center</property>
                   </object>
                 </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="check_waters_action_comboboxtext">
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <items>
+                      <item translatable="yes">Check</item>
+                      <item translatable="yes">Delete</item>
+                    </items>
+                  </object>
+                </child>
+
               </object>
             </child>
             <child>
@@ -2950,11 +2957,39 @@ Calculate a skeleton now?
             </child>
           </object>
         </child>
+         <child type="action">
+              <object class="GtkBox" id="hbox78">
+                <child>
+                  <object class="GtkButton" id="check_waters_cancel_button">
+                    <property name="label" translatable="yes">  Cancel  </property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <signal name="clicked" handler="on_check_waters_cancel_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="check_waters_ok_button">
+                    <property name="label" translatable="yes">  OK  </property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <signal name="clicked" handler="on_check_waters_ok_button_clicked" swapped="no"/>
+                    <style>
+                      <class name="suggested-action"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+        </child>
       </object>
     </child>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="check_waters_diff_map_dialog">
     <property name="title" translatable="yes">Check waters by difference map</property>
     <child>
@@ -3047,19 +3082,13 @@ WARNING:: No Models with Waters Available!
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="checked_waters_baddies_dialog">
-    <property name="title" translatable="yes">Questionable Waters</property>
+    <property name="title" translatable="yes">Coot: Questionable Waters</property>
     <property name="default-width">420</property>
     <child>
       <object class="GtkBox" id="dialog-vbox84">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="checked_waters_baddies_cancel_button">
-                <property name="label" translatable="yes">   Cancel   </property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_checked_waters_baddies_cancel_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow20">
             <property name="width-request">190</property>
@@ -3068,14 +3097,28 @@ WARNING:: No Models with Waters Available!
               <object class="GtkViewport" id="viewport12">
                 <child>
                   <object class="GtkBox" id="checked_waters_baddies_vbox">
-                    <property name="margin-top">1</property>
-                    <property name="margin-bottom">1</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
                     <property name="orientation">vertical</property>
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
                   </object>
                 </child>
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="checked_waters_baddies_cancel_button">
+                <property name="label" translatable="yes">  Close  </property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_checked_waters_baddies_cancel_button_clicked" swapped="no"/>
+              </object>
         </child>
       </object>
     </child>
@@ -7388,6 +7431,7 @@ Do you want to continue?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="interesting_waters_by_difference_map_check_dialog">
     <property name="height-request">200</property>
     <property name="title" translatable="yes">Interesting/Strange Waters:</property>
@@ -7404,11 +7448,15 @@ Do you want to continue?
         </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow17">
+            <property name="hexpand">1</property>
+            <property name="vexpand">1</property>
             <child>
               <object class="GtkViewport" id="viewport10">
                 <child>
                   <object class="GtkBox" id="interesting_waters_by_difference_map_check_vbox">
                     <property name="orientation">vertical</property>
+                    <property name="hexpand">1</property>
+                    <property name="vexpand">1</property>
                   </object>
                 </child>
               </object>
