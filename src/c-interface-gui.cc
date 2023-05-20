@@ -2515,14 +2515,11 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
 
    graphics_info_t g;
 
-   // GtkWidget *hbox = lookup_widget(GTK_WIDGET(button), "environment_distance_distances_frame");
-   // GtkWidget *distance_type_frame = lookup_widget(GTK_WIDGET(button), "environment_distances_type_selection");
-   // GtkWidget *label_atom_check_button = lookup_widget(GTK_WIDGET(button), "environment_distance_label_atom_checkbutton");
-   GtkWidget *hbox = widget_from_builder("environment_distance_distances_frame");
-   GtkWidget *distance_type_frame = widget_from_builder("environment_distances_type_selection");
+   GtkWidget *hbox                    = widget_from_builder("environment_distance_distances_frame");
+   GtkWidget *distance_type_frame     = widget_from_builder("environment_distances_type_selection");
    GtkWidget *label_atom_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
 
-   if (gtk_toggle_button_get_active(button)) {
+   if (gtk_check_button_get_active(button)) {
 
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
