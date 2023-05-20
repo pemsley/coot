@@ -2511,7 +2511,7 @@ void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_differe
 //
 
 
-void toggle_environment_show_distances(GtkToggleButton *button) {
+void toggle_environment_show_distances(GtkCheckButton *button) {
 
    graphics_info_t g;
 

@@ -3395,11 +3395,9 @@ on_use_weights_checkbutton_toggled     (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_environment_distance_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   toggle_environment_show_distances(togglebutton);
+on_environment_distance_checkbutton_toggled (GtkCheckButton *checkbutton,
+                                             gpointer         user_data) {
+   toggle_environment_show_distances(checkbutton);
 }
 
 
