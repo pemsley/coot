@@ -875,6 +875,10 @@
         <attribute name="action">app.add_cryo_em_module_action</attribute>
       </item>
       <item>
+        <attribute name="label">HOLE</attribute>
+        <attribute name="action">app.add_HOLE_module_action</attribute>
+      </item>
+      <item>
         <attribute name="label">ProSMART</attribute>
         <attribute name="action">app.add_prosmart_module_action</attribute>
       </item>
