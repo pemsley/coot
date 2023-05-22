@@ -52,15 +52,11 @@ See "fat atom" commits.
 Where are the rotating hydrogen bonds? ::: 0.5
 Calculate -> Hydrogen Bonds?
 
-Built-in key-binding for [,]. ::: 0.2
-
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
 Open, close, reopen Bond Parameters, An extra molecule combobox is added. ::: 0.5
 
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
-
-Sharpen/Blur (mtz) map is missing ::: 1
 
 Fix the double reading of the monomer library ::: 0.5
 
@@ -491,3 +487,8 @@ It's a molecule not a dictionary. The command_line::add() function needs to dete
 All molecule .cif files fail to load on the command line? e.g. 7uv7
 Now, should this be "nice to have" or "must have"?
 * Done.
+
+Sharpen/Blur (mtz) map is missing ::: 1
+
+Built-in key-binding for [,]. ::: 0.2
+
