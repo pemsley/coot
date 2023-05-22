@@ -59,16 +59,14 @@ It's a molecule not a dictionary. The command_line::add() function needs to dete
 All molecule .cif files fail to load on the command line? e.g. 7uv7
 Now, should this be "nice to have" or "must have"?
 
-Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
-
-Find somewhere in refinement module for "Contact dots during refinement" ::: 0.5
-
 Where are the rotating hydrogen bonds? ::: 0.5
 Draw -> Hydrogen Bonds?
 
-Update Dynamic validation on making links (the NBC clashes should disappear)
+HOLE ::: 2
 
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
@@ -93,7 +91,7 @@ Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add  Other Solvent Molecules"? ::: 1
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
 Curlew: speed-run and CaBLAM ::: 4
 
@@ -103,8 +101,6 @@ When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a
 on the atom that is blocking. ::: 1
 
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
-
-Map Skeletonization ::: 2
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
@@ -116,16 +112,11 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 Do the tutorial from time to time - what's missing? ::: 6
 Validation graphs colours, updates of rama, graphs, clash dots on model change.
 
-Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
-Put this in preferences.
-
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
 Dotted Surface ::: 1
-
-HOLE ::: 2
 
 Views ::: 2
 
@@ -169,7 +160,9 @@ User-defined menus in Python - connected via coot_main_menumodel.
 
 Comboboxes with entries for old molecule, or duplicated entries.
 
-CA Baton Mode
+Map Skeletonization :::- 4
+
+CA Baton Mode :::- 4
 
 Fullscreen - maybe not possible in gtk4 :::- 0.2
 
@@ -209,6 +202,9 @@ Nice to have: 3D text - related to model bulding last time. Or markers in 3D whi
 text annotations.
 
 RCrane - Make this a Module. Fixing this will take a long time. :::- 20
+
+Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
+Put this in preferences.
 
 --- Done Items ---
 
@@ -465,4 +461,9 @@ Undo molecule chooser ::: 0.5
 Find Somewhere for "Choose Undo Molecule" ::: 0.5
 * Done. Hooray.
 
+Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
+* Lovely interactive contact dots will do.
+
+Find somewhere in refinement module for "Contact dots during refinement" ::: 0.0
+* Already exists in the "Refine" module!
 

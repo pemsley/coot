@@ -613,11 +613,10 @@ GdkRGBA remark_number_to_colour(int remark_number) {
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 						 GtkWidget *dialog) {
 
-   // What is this?
-   std::cout << "on_simple_text_dialog_close_button_pressed() FIXME" << std::endl;
-   // gtk_widget_destroy(dialog);
+   gtk_widget_hide(dialog);
 }
 
+#include "c-interface-gui.hh"
 
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			int geom_x, int geom_y) {
@@ -653,10 +652,11 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(d), "Close", 2);
       gtk_widget_show(close_button);
 
-       g_signal_connect(G_OBJECT(close_button), "clicked",
+      g_signal_connect(G_OBJECT(close_button), "clicked",
  		       G_CALLBACK(on_simple_text_dialog_close_button_pressed),
  		       (gpointer) d);
 
+      set_transient_for_main_window(d);
       gtk_widget_show(d);
 
    }
