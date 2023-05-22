@@ -79,7 +79,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
       }
    }
 #endif // HAVE_CXX_THREAD
-   std::cout << ":::::: in get_rotamer_dodecs() returning docecs which has size " << dodecs.size() << std::endl;
+   // std::cout << ":::::: in get_rotamer_dodecs() returning docecs which has size " << dodecs.size() << std::endl;
    return dodecs;
 }
 

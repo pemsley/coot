@@ -4971,22 +4971,22 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 
       std::string res_type(molecules[imol].atom_sel.atom_selection[atom_index]->residue->GetResName());
       chi_angles_clicked_atom_spec =
-    coot::atom_spec_t(molecules[imol].atom_sel.atom_selection[atom_index]);
+         coot::atom_spec_t(molecules[imol].atom_sel.atom_selection[atom_index]);
       chi_angles_clicked_atom_spec.int_user_data = 1; // not magic "don't use" value
 
       // Make Phil Evans happy (well, slightly happier.. :-)
       if (res_type == "MSE")
-    chi_angles_clicked_atom_spec.atom_name = " C  ";
+         chi_angles_clicked_atom_spec.atom_name = " C  ";
       if (res_type == "ARG")
-    chi_angles_clicked_atom_spec.atom_name = " C  ";
+         chi_angles_clicked_atom_spec.atom_name = " C  ";
       if (res_type == "PHE")
-    chi_angles_clicked_atom_spec.atom_name = " C  ";
+         chi_angles_clicked_atom_spec.atom_name = " C  ";
       if (res_type == "TYR")
-    chi_angles_clicked_atom_spec.atom_name = " C  ";
+         chi_angles_clicked_atom_spec.atom_name = " C  ";
 
       // belt and braces:
       if ( (res_type == "GLY") || (res_type == "ALA") ) {
-    std::cout << "This residue does not have chi angles (GLY/ALA)." << std::endl;
+         std::cout << "This residue does not have chi angles (GLY/ALA)." << std::endl;
       } else {
 
     // copy the residue, just like we do in execute_edit_phi_psi:
@@ -4999,8 +4999,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
           // includes atoms with altconf
           // "").
     atom_selection_container_t residue_asc =
-       graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index,
-          whole_res_flag);
+       graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index, whole_res_flag);
 
     regularize_object_bonds_box.clear_up();
 
