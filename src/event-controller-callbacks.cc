@@ -485,7 +485,7 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    }
 
    if (! found)
-      std::cout << "on_glarea_key_controller_key_pressed() key not found in map: " << keyval << std::endl;
+      std::cout << "on_glarea_key_controller_key_pressed() key not found in map: " << keyval << " " << GDK_KEY_bracketleft << std::endl;
 
    graphics_draw();
    return gboolean(handled);

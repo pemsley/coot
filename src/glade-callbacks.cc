@@ -202,11 +202,9 @@ on_clipping_button_clicked             (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_density_ok_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkEntry      *entry;
+                                        gpointer         user_data) {
 
-/*    entry_char_type *text; */
+   GtkEntry      *entry;
    const char *text;
 
    GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_xray_radius_entry"));
