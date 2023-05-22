@@ -1104,6 +1104,45 @@ ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
+sharpen_blur_for_xray_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "sharpen/blur for x-ray" << std::endl;
+
+#if 0
+   GtkWidget *dialog   = widget_from_builder("map_sharpening_dialog");
+   GtkWidget *combobox = widget_from_builder("map_sharpening_molecule_combobox");
+   GtkWidget *scale    = widget_from_builder("map_sharpening_hscale");
+
+   auto get_map_molecule_vector = [] () {
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++)
+         if (g.is_valid_map_molecule(i))
+            vec.push_back(i);
+      return vec;
+   };
+
+   graphics_info_t g;
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_map_molecule_vector();
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+#endif
+
+   GtkWidget *dialog = wrapped_create_map_sharpening_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+}
+
+void
 calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
@@ -2376,6 +2415,7 @@ create_actions(GtkApplication *application) {
    add_action(             "run_script_action",              run_script_action);
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
+   add_action(  "sharpen_blur_for_xray_action",   sharpen_blur_for_xray_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
 

@@ -213,6 +213,7 @@ Instanced_Markup_Mesh::update_instancing_buffers(const std::vector<Instanced_Mar
 
 }
 
+
 #include "utils/coot-utils.hh"
 
 void

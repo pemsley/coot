@@ -4004,7 +4004,6 @@ molecule_class_info_t::make_colour_table() const {
    return colour_table;
 }
 
-#ifndef EMSCRIPTEN
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
@@ -4087,9 +4086,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // instanced meshes, that is - clever but I couldn't get it to work - there's a branch
 // where I tried.
 void
@@ -4124,7 +4121,6 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
    }
 }
-#endif
 
 
 

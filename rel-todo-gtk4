@@ -1,23 +1,23 @@
 
 ## --- Big Ticket Items that are not listed here ---
 
-RDKit
-Ligand Builder
-Validation Plots
-Ramachandran Plot
+ - RDKit
+ - Ligand Builder
+ - Validation Plots
+ - Ramachandran Plot
 
-coot_gui.smiles_gui() - is this a thing now?
-Not without --enhanced-ligand-gui it isn't
-Note that biscu-it needs to be ported to Python 3.
+ - coot_gui.smiles_gui() - is this a thing now?
+Not without --enhanced-ligand-gui it isn't.
+Check QED is now part of RDKit.
 
 ## --- Widgets that have changed in GTK ---
 
-Padding is gone, margins and layout are in.
-Tables are out, Grids are in.
-Radio buttons are gone, use check buttons instead.
-HBoxes and VBoxes are gone, use generic Box
-Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
-Canvas is gone, use widget lists instead (how?)
+ - Padding is gone, margins and layout are in.
+ - Tables are out, Grids are in.
+ - Radio buttons are gone, use check buttons instead.
+ - HBoxes and VBoxes are gone, use generic Box
+ - Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
+ - Canvas is gone, use widget lists instead (how?)
 
 Have a look at adding thing this:
 <style>
@@ -34,14 +34,9 @@ Here are other styles:
     .destructive-action: used for buttons that perform a destructive action, such as deleting data
     .circular: used for circular buttons
 
-
 ----
 
 Sun 23 Apr 21:33:42 BST 2023
-
-Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
-OK, but this is a mmdb problem not a GTK4 Coot problem.
-"Nice to have" - or change to scope to 10.
 
 Check the links in all representation types (use PDB files) ::: 4
 
@@ -54,25 +49,28 @@ In PDB format, why are the links to the NA (around A 91?) half drawn in "Colour 
 H and or D all missing except A 127 in "Bonds Colour by Chain".
 See "fat atom" commits.
 
-7a0l.cif doesn't load from the command line (related to 7a0l-assembly.cif non-load, I guess).
-It's a molecule not a dictionary. The command_line::add() function needs to detect the difference.
-All molecule .cif files fail to load on the command line? e.g. 7uv7
-Now, should this be "nice to have" or "must have"?
-
 Where are the rotating hydrogen bonds? ::: 0.5
-Draw -> Hydrogen Bonds?
+Calculate -> Hydrogen Bonds?
 
-HOLE ::: 2
+Built-in key-binding for [,]. ::: 0.2
+
+Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
+
+Open, close, reopen Bond Parameters, An extra molecule combobox is added. ::: 0.5
 
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+
+Sharpen/Blur (mtz) map is missing ::: 1
+
+Fix the double reading of the monomer library ::: 0.5
+
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
 Update Dynamic validation on making links (the NBC clashes should disappear)
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
 Update the Validation Graphs after RSR or other model edits ::: 1
-
-Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
 Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
 * It works on the PC.
@@ -84,10 +82,9 @@ Enable the command line (e.g. --pdb and others) ::: 2
 Start up from Saved state. ::: 1
 For now I can start by passing startup.py on the command line.
 
-Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
-No longer. But make the startup window wider.
-
 Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
+
+Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
@@ -117,6 +114,9 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
 Dotted Surface ::: 1
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
 
 Views ::: 2
 
@@ -143,6 +143,10 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
+OK, but this is a mmdb problem not a GTK4 Coot problem.
+"Nice to have" - or change to scope to 10.
 
 7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
 
@@ -205,6 +209,11 @@ RCrane - Make this a Module. Fixing this will take a long time. :::- 20
 
 Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
 Put this in preferences.
+
+Change the colour of the Dotted Surface
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
 
 --- Done Items ---
 
@@ -467,3 +476,18 @@ Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
 Find somewhere in refinement module for "Contact dots during refinement" ::: 0.0
 * Already exists in the "Refine" module!
 
+HOLE ::: 1
+
+Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+No longer. But make the startup window wider. now app window is 1000x900.
+
+Dotted Surface ::: 1
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
+
+7a0l.cif doesn't load from the command line (related to 7a0l-assembly.cif non-load, I guess).
+It's a molecule not a dictionary. The command_line::add() function needs to detect the difference.
+All molecule .cif files fail to load on the command line? e.g. 7uv7
+Now, should this be "nice to have" or "must have"?
+* Done.
