@@ -2483,7 +2483,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
 
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
-   glBindVertexArray(vao); // needed?
+   glBindVertexArray(vao);
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);

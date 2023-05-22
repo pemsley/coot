@@ -443,7 +443,8 @@ void set_display_generic_object_simple(int object_number, short int istate) {
                 << object_number << std::endl;
    }
 
-#if 0
+#if 0 // 20230521-PE a modern version of this would useful. FIXME.
+
    if (g.generic_objects_dialog) {
 
       // get the togglebutton and set its state

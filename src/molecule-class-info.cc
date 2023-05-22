@@ -4065,7 +4065,11 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
-         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
+
+         if (false)
+         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode "
+                   << model_representation_mode << std::endl;
+
          bool draw_cis_peptide_markups = true; //
          int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
          if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
@@ -4146,12 +4150,13 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
-   std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
+   if (false)
+      std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
 
 
    GLenum err = glGetError();

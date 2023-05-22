@@ -1,5 +1,5 @@
 
---- Big Ticket Items that are not listed here ---
+## --- Big Ticket Items that are not listed here ---
 
 RDKit
 Ligand Builder
@@ -10,7 +10,7 @@ coot_gui.smiles_gui() - is this a thing now?
 Not without --enhanced-ligand-gui it isn't
 Note that biscu-it needs to be ported to Python 3.
 
---- Widgets that have changed in GTK ---
+## --- Widgets that have changed in GTK ---
 
 Padding is gone, margins and layout are in.
 Tables are out, Grids are in.
@@ -61,7 +61,14 @@ Now, should this be "nice to have" or "must have"?
 
 Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
 
+Find somewhere in refinement module for "Contact dots during refinement" ::: 0.5
+
+Where are the rotating hydrogen bonds? ::: 0.5
+Draw -> Hydrogen Bonds?
+
 Update Dynamic validation on making links (the NBC clashes should disappear)
+
+Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
@@ -147,6 +154,8 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
+
+A benchmark in Curlew? Or built-in would be better.
 
 Caps lock key indicator?
 

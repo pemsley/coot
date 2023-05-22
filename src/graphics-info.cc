@@ -2604,7 +2604,6 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 #include "utils/dodec.hh"
 
-#ifndef EMSCRIPTEN
 // delete this function?
 std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
@@ -2635,7 +2634,6 @@ graphics_info_t::get_rotamer_dodecs() {
    }
    return dodecs;
 }
-#endif
 
 
 // Merge weirdness

@@ -302,7 +302,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             bool handled = false;
 
-            std::cout << "Here with in_range_define " << in_range_define << std::endl;
+            // std::cout << "Here with in_range_define " << in_range_define << std::endl;
             if (in_range_define == 1 || in_range_define == 2) {
                bool intermediate_atoms_only_flag = false;
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);

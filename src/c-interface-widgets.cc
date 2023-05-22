@@ -634,13 +634,12 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
       // GTK_WIDGET(vbox_inner));
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
       gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
-#endif
       gtk_widget_show(scrolled_window);
       gtk_widget_show(vbox_inner);
+      gtk_widget_set_hexpand(vbox_inner, TRUE);
+      gtk_widget_set_vexpand(vbox_inner, TRUE);
 
       GtkWidget *text_widget = gtk_text_view_new ();
       gtk_widget_show (text_widget);

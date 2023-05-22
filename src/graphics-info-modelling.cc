@@ -1316,7 +1316,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
-   std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
+   // std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
+
+   bool verbose_refinement_geometry_reporting = false; // make this user-setable
+   if (! verbose_refinement_geometry_reporting)
+      last_restraints->set_quiet_reporting();
 
    last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
 
