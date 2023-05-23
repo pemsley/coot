@@ -5505,10 +5505,12 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       extra_distance_restraints_markup_data.push_back(edrmid);
    }
 
-   std::cout << "in make_extra_distance_restraints_objects() bond size "
-             << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
-   std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
-             << extra_distance_restraints_markup_data.size() << std::endl;
+   if (false) { // 20230519-PE come back to this.
+      std::cout << "in make_extra_distance_restraints_objects() bond size "
+                << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
+      std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
+                << extra_distance_restraints_markup_data.size() << std::endl;
+   }
    mesh_for_extra_distance_restraints.update_instancing_buffer_data_for_extra_distance_restraints(extra_distance_restraints_markup_data);
 
 }
