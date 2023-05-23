@@ -5505,10 +5505,12 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       extra_distance_restraints_markup_data.push_back(edrmid);
    }
 
-   std::cout << "in make_extra_distance_restraints_objects() bond size "
-             << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
-   std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
-             << extra_distance_restraints_markup_data.size() << std::endl;
+   if (false) { // 20230519-PE come back to this.
+      std::cout << "in make_extra_distance_restraints_objects() bond size "
+                << moving_atoms_extra_restraints_representation.bonds.size() << std::endl;
+      std::cout << "in make_extra_distance_restraints_objects() extra_distance_restraints_markup_data size "
+                << extra_distance_restraints_markup_data.size() << std::endl;
+   }
    mesh_for_extra_distance_restraints.update_instancing_buffer_data_for_extra_distance_restraints(extra_distance_restraints_markup_data);
 
 }
@@ -5940,18 +5942,19 @@ graphics_info_t::setup_key_bindings() {
 
    auto l29 = [] () {
 
-                 graphics_info_t g;
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-                 if (pp.first) {
-                    g.update_mesh_for_outline_of_active_residue(pp.second.first, pp.second.second);
-                    if (! tick_function_is_active()) {
-                       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-                    }
-                    outline_for_active_residue_frame_count = 30;
-                    do_tick_outline_for_active_residue = true;
-                 }
-                 return gboolean(TRUE);
-              };
+      std::cout << "highlighting active residue" << std::endl;
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         g.update_mesh_for_outline_of_active_residue(pp.second.first, pp.second.second);
+         if (! tick_function_is_active()) {
+            int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+         }
+         outline_for_active_residue_frame_count = 30;
+         do_tick_outline_for_active_residue = true;
+      }
+      return gboolean(TRUE);
+   };
 
    auto l31 = [] () {
                  graphics_info_t g;
@@ -5991,6 +5994,25 @@ graphics_info_t::setup_key_bindings() {
 
    auto l40 = [] () {
       rsr_sphere_refine_plus();
+      return gboolean(TRUE);
+   };
+
+   auto l41 = [] () {
+      box_radius_xray *= (1.0/1.15);
+      // is there an "update maps" function?
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii))
+            molecules[ii].update_map(true);
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l42 = [] () {
+      box_radius_xray *= 1.15;
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii))
+            molecules[ii].update_map(true);
+      }
       return gboolean(TRUE);
    };
 
@@ -6036,10 +6058,15 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_4,      key_bindings_t(l34, "Clipping Back Expand")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_F8,     key_bindings_t(l35, "Show Display Manager")));
 
+   // map radius
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketleft,  key_bindings_t(l41, "Decrease Map Radius")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketright, key_bindings_t(l42, "Increase Map Radius")));
+
    // control
    // meh - ugly and almost useless. Try again.
-
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l29, "Highlight Active Residue")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_asciitilde, key_bindings_t(l29, "Highlight Active Residue")));
+   // try backtick:
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_quoteleft, key_bindings_t(l29, "Highlight Active Residue")));
 
    // control keys
 

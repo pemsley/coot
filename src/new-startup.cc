@@ -705,9 +705,9 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_show(gl_area);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 300);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_size_request(gl_area, 900, 500); // Hmm
+      gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
       gtk_widget_show(app_window);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 

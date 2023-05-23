@@ -1775,9 +1775,10 @@ void hole(int imol,
 // 20220723-PE MOVE-ME!
 void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
 
-void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// 20230521-PE restore these when I understand how to make a graph in GTK4.
+// void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 
 /* ------------------------------------------------------------------------- */
 /*                      Gaussian Surface                                     */

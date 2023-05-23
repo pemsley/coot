@@ -2445,8 +2445,7 @@ void fill_environment_widget(GtkWidget *widget) {
    gtk_editable_set_text(GTK_EDITABLE(entry), text);
    free(text);
 
-   GtkWidget *toggle_button;
-   toggle_button = widget_from_builder("environment_distance_checkbutton");
+   GtkWidget *check_button = widget_from_builder("environment_distance_checkbutton");
 
    if (g.environment_show_distances == 1) {
       // we have to (temporarily) set the flag to 0 because the
@@ -2455,18 +2454,18 @@ void fill_environment_widget(GtkWidget *widget) {
       // distances if they were allowed to remain here at 1 (on).
       // Strange but true.
       g.environment_show_distances = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
       // std::cout << "filling: button is active" << std::endl;
    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 0);
       // std::cout << "filling: button is inactive" << std::endl;
    }
    // set the label button
-   toggle_button = widget_from_builder("environment_distance_label_atom_checkbutton");
+   check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
    if (g.environment_distance_label_atom) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
    } else {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 0);
    }
 }
 

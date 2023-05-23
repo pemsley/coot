@@ -671,7 +671,7 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
          }
       }
    }
-   std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
+   // std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
 }
 
 

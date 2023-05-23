@@ -4128,8 +4128,8 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
    GCallback combobox_changed_func = G_CALLBACK(bond_parameters_bond_width_combobox_changed);
    g_signal_connect(bond_width_combobox, "changed", combobox_changed_func, NULL);
 
-   std::cout << "debug:: g_object set data on bond_width_combobox " << bond_width_combobox
-             << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
+   // std::cout << "debug:: g_object set data on bond_width_combobox " << bond_width_combobox
+   //              << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
    g_object_set_data(G_OBJECT(bond_width_combobox), "bond_parameters_molecule_combobox", combobox_for_molecule);
 
 
@@ -4214,9 +4214,9 @@ graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *bond_wid
                 << " for molecule_combobox " << molecule_combobox << std::endl;
 
       if (GTK_IS_COMBO_BOX(molecule_combobox)) {
-         std::cout << "debug:: " << molecule_combobox << " IS a combobox" << std::endl;
+         // std::cout << "debug:: " << molecule_combobox << " IS a combobox" << std::endl;
          int imol = g.combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
-         std::cout << "debug:: imol  from " << molecule_combobox << " is " << imol << std::endl;
+         // std::cout << "debug:: imol  from " << molecule_combobox << " is " << imol << std::endl;
          g.set_bond_thickness(imol, bw);
       } else {
          std::cout << "debug:: " << molecule_combobox << " is NOT a combobox" << std::endl;

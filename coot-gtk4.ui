@@ -328,10 +328,13 @@
 
         <item>
           <attribute name="label">x-ray Map Sharpening/Blurring...</attribute>
+          <attribute name="action">app.sharpen_blur_for_xray_action</attribute>
         </item>
-        <item>
-          <attribute name="label">Map Skeleton...</attribute>
-        </item>
+
+        <!-- remove skeleton for now -->
+        <!-- <item> -->
+        <!--   <attribute name="label">Map Skeleton...</attribute> -->
+        <!-- </item> -->
 
         <item>
           <attribute name="label">Run Script...</attribute>
@@ -2256,6 +2259,7 @@ Calculate a skeleton now?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="bond_parameters_dialog">
     <property name="title" translatable="yes">Coot Bond Parameters</property>
     <child>
@@ -2279,6 +2283,16 @@ Calculate a skeleton now?
                     <property name="justify">center</property>
                   </object>
                 </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="bond_parameters_molecule_comboboxtext">
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                  </object>
+                </child>
+
                 <child>
                   <object class="GtkLabel" id="label190">
                     <property name="label" translatable="yes">   </property>
@@ -8240,20 +8254,15 @@ density (too big to be waters):
     <!--   </object> -->
     <!-- </child> -->
   </object>
+
   <object class="GtkDialog" id="map_sharpening_dialog">
+    <property name="title" translatable="yes">Coot: Sharpen/Blur Map</property>
     <property name="default-width">500</property>
     <signal name="response" handler="on_map_sharpening_dialog_response" swapped="no"/>
     <child>
       <object class="GtkBox" id="map_sharpening_dialog_vbox_internal">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="map_sharpening_dialog_ok_button">
-                <property name="label">gtk-ok</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -8264,6 +8273,10 @@ density (too big to be waters):
             </child>
             <child>
               <object class="GtkComboBoxText" id="map_sharpening_molecule_combobox">
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
               </object>
             </child>
             <child>
@@ -8276,17 +8289,24 @@ density (too big to be waters):
             </child>
           </object>
         </child>
+         <child type="action">
+              <object class="GtkButton" id="map_sharpening_dialog_ok_button">
+                <property name="label">OK</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+              </object>
+        </child>
       </object>
     </child>
     <action-widgets>
       <action-widget response="-5">map_sharpening_dialog_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="merge_molecules_dialog">
-    <property name="title" translatable="yes">Merge Molecules</property>
+    <property name="title" translatable="yes">Coot: Merge Molecules</property>
     <child>
       <object class="GtkBox" id="dialog-vbox57">
         <property name="orientation">vertical</property>

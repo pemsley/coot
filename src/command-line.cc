@@ -481,6 +481,26 @@ command_line_data::add(const std::string &file_name) {
    // so that it behaves like it did before GtkApplication usage
    //
 
+   auto is_dictionary = [] (const std::string &file_name) {
+      bool state = false;
+      if (coot::file_exists(file_name)) {
+         std::ifstream f(file_name);
+         if (f) {
+            unsigned int line_count = 0;
+            std::string line;
+            while (std::getline(f, line)) {
+               if (line.find("_chem_comp_atom.x") != std::string::npos) {
+                  state = true;
+                  break;
+               }
+               line_count++;
+               if (line_count> 1000) break;
+            };
+         }
+      }
+      return state;
+   };
+
    std::string extension = coot::util::file_name_extension(file_name);
    if (extension == ".pdb")
       coords.push_back(file_name);
@@ -492,11 +512,20 @@ command_line_data::add(const std::string &file_name) {
       maps.push_back(file_name);
    if (extension == ".mtz")
       auto_datasets.push_back(file_name);
-   if (extension == ".cif")
-      dictionaries.push_back(file_name);
    if (extension == ".py")
       script.push_back(file_name);
    if (extension == ".scm")
       script.push_back(file_name);
+
+   std::cout << ":::::::::::::::::::::::::: is_dictionary " << file_name
+             << " " << is_dictionary(file_name) << std::endl;
+
+   if (extension == ".cif") {
+      if (is_dictionary(file_name))
+         dictionaries.push_back(file_name);
+      else
+         coords.push_back(file_name);
+   }
+
 }
 

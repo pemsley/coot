@@ -4366,15 +4366,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    // GtkWidget *widget = create_bond_parameters_dialog();
    GtkWidget *dialog = widget_from_builder("bond_parameters_dialog");
-
-      // old way 20211018-PE
-   // GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_combobox");
-
-   GtkWidget *vbox = widget_from_builder("bond_parameters_hbox_for_molecule_combobox");
-
-   clear_out_container(vbox);
-
-   GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
+   GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_comboboxtext");
 
    // fill the colour map rotation entry
 
@@ -4400,20 +4392,20 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
       // g.bond_parameters_molecule not set yet.
       g.bond_parameters_molecule = imol;
 
-   // g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+   int imol_active = g.bond_parameters_molecule;
+   auto model_list = get_model_molecule_vector();
+   GCallback callback_func = G_CALLBACK(nullptr);
+   g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, model_list);
 
-   GtkWidget *combobox = gtk_combo_box_new();
-   gtk_widget_show(combobox);
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME reordering child
-   gtk_box_append(GTK_BOX(vbox), combobox);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
-#endif
-
-   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    g.fill_bond_parameters_internals(combobox, imol);
 
    return dialog;

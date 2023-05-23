@@ -202,11 +202,9 @@ on_clipping_button_clicked             (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_density_ok_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkEntry      *entry;
+                                        gpointer         user_data) {
 
-/*    entry_char_type *text; */
+   GtkEntry      *entry;
    const char *text;
 
    GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_xray_radius_entry"));
@@ -10086,8 +10084,7 @@ on_map_sharpening_optimize_button_clicked ( GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_map_sharpening_reset_button_clicked(GtkButton       *button,
-                                                           gpointer         user_data)
-{
+                                       gpointer         user_data) {
     // reset to zero!?
     GtkWidget *h_scale = widget_from_builder("map_sharpening_hscale");
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));

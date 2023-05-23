@@ -216,7 +216,9 @@ graphics_info_t::do_interactive_coot_probe() {
             // the contact dots have been found (but before the contact dots meshes have
             // been generated).
             // auto tp_0 = std::chrono::high_resolution_clock::now();
-            coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+            int imol_moving = -1; // sets up that these dots should be drawn only when
+                                  // intermediate atoms exist.
+            coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving); //  do_interactive_coot_probe()
             // auto tp_1 = std::chrono::high_resolution_clock::now();
             // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
             // 30 ms for chain refine.

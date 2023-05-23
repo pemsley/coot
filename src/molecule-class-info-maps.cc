@@ -323,9 +323,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	 }
       }
 
-      std::cout << "DEBUG:: sharpen() init fphis with " << original_fphis_p->spacegroup().symbol_xhm() << " "
-                << original_fphis_p->cell().format() << " "
-                << std::endl;
+      if (false)
+         std::cout << "DEBUG:: sharpen() init fphis with " << original_fphis_p->spacegroup().symbol_xhm() << " "
+                   << original_fphis_p->cell().format() << " "
+                   << std::endl;
 
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis_p->spacegroup(),
 								  original_fphis_p->cell(),
