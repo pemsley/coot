@@ -500,7 +500,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 		     bool bond_het_residue_by_dictionary =
 			add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
-		     if (0)
+		     if (false)
 			std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
 				  << bond_het_residue_by_dictionary << std::endl;
 
@@ -615,7 +615,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       if (! done_h_bond) {
 					  if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
 					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-					     addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos, cc, imodel,
+                                             int H_col = HYDROGEN_GREY_BOND;
+                                             if (is_deuterium(element_2)) H_col = DEUTERIUM_PINK;
+					     addBond(H_col, atom_1_pos, atom_2_pos, cc, imodel,
                                                      atom_index_1, atom_index_2, false, false);
 					  } else {
 					     add_half_bonds(atom_1_pos, atom_2_pos,
@@ -4195,9 +4197,12 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
       for (int j=0; j<bonds[idx_col].size(); j++) {
 	 box.bonds_[idx_col].pair_list[j] = bonds[idx_col][j];
       }
-      if (do_thinning_flag)
+      if (do_thinning_flag) {
 	 if (idx_col == HYDROGEN_GREY_BOND)
 	    box.bonds_[idx_col].thin_lines_flag = 1;
+	 if (idx_col == DEUTERIUM_PINK)
+	    box.bonds_[idx_col].thin_lines_flag = 1;
+      }
    }
    box.add_zero_occ_spots(zero_occ_spots);
    box.add_deuterium_spots(deuterium_spots);
@@ -4235,10 +4240,13 @@ Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
       box.bonds_[i].pair_list = new graphics_line_t[bonds[i].size()];
       for (int j=0; j<bonds[i].size(); j++)
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
-      if (thinning_flag)
-	 if (i == HYDROGEN_GREY_BOND) {
+      if (thinning_flag) {
+	 if (i == HYDROGEN_GREY_BOND)
 	    box.bonds_[i].thin_lines_flag = 1;
+         if (i == DEUTERIUM_PINK) {
+            box.bonds_[i].thin_lines_flag = 1;
 	 }
+      }
    }
    box.add_zero_occ_spots(zero_occ_spots);
    box.add_deuterium_spots(deuterium_spots);
