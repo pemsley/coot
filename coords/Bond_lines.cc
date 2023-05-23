@@ -1949,6 +1949,7 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
 				    int atom_colour_type,
 				    mmdb::Link *link) {
 
+   if (false)
       std::cout << "calling add_link_bond with LINK "
 		<< "\"" << link->chainID1 << "\""
 		<< " "  << link->seqNum1   << " "
@@ -1960,7 +1961,7 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
 		<< "\"" << link->atName2  << "\""
 		<< std::endl;
 
-      add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, link);
+   add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, link);
 }
 
 void
@@ -1989,7 +1990,7 @@ template<class T>
 void
 Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link) {
 
-   std::cout << "----- add_link_bond_templ() " << atom_colour_type << std::endl;
+   // std::cout << "----- add_link_bond_templ() " << atom_colour_type << std::endl;
 
    mmdb::PAtom atom_1 = NULL;
    mmdb::PAtom atom_2 = NULL;
@@ -2029,12 +2030,6 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
    }
 
    if (atom_1) {
-      std::cout << "here with atom_1 " << atom_1 << std::endl;
-   } else {
-      std::cout << "here with atom_1 null " << std::endl;
-   }
-
-   if (atom_1) {
       for (int ich=0; ich<n_chains; ich++) {
 	 mmdb::Chain *chain_p = model_p->GetChain(ich);
 	 if (chain_p) {
@@ -2071,12 +2066,6 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	    if (atom_2) break;
 	 } // chain_p test
       }
-   }
-
-   if (atom_1) {
-      std::cout << "here with atom_2 " << atom_2 << std::endl;
-   } else {
-      std::cout << "here with atom_2 null " << std::endl;
    }
 
    // OK, make the link bond then!
@@ -2130,12 +2119,8 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	 coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
 	 int col = atom_colour(atom_1, atom_colour_type);
 	 // if the atom indices are -1, then the bond doesn't get drawn
-	 std::cout << "debug::    calling add_dashed_bond() with atom_index_1 " << atom_index_1
-                   << " and atom_index_2 " << atom_index_2 << std::endl;
-         std::cout << "   debug:: add_dashed_bond " << pos_1 << " " << bond_mid_point << std::endl;
 	 add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
 	 col = atom_colour(atom_2, atom_colour_type);
-         std::cout << "   debug:: add_dashed_bond " << bond_mid_point << " " << pos_2 << std::endl;
 	 add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
       }
    }
@@ -4463,7 +4448,7 @@ Bond_lines_container::add_dashed_bond(int col,
 				      int imodel_number,
 				      int atom_index_1, int atom_index_2) {
 
-   if (true) // debugging.
+   if (false) // debugging.
       std::cout << "   .... in add_dashed_bond() col is " << col
 		<< " and bonds.size() " << bonds.size()
 		<< " and half_bond_type_flag is " << half_bond_type_flag
@@ -4498,8 +4483,6 @@ Bond_lines_container::add_dashed_bond(int col,
    //  X--__--__--__--__--_:_--__--__--__--__--X 19
    //
 
-   std::cout << "   still here A " << dash_start << " " << dash_end << " col " << col << " bonds.size() " << bonds.size() << std::endl;
-
    // dash is, for example, in the range 0 to 9.5
    //
    if (col < int(bonds.size())) {
@@ -4510,7 +4493,6 @@ Bond_lines_container::add_dashed_bond(int col,
    }
    for (float dash=dash_start; dash<=dash_end; dash+=2) {
 
-      std::cout << "   still here B " << dash_start << " " << dash_end << std::endl;
       float frac_1 = dash/n_dash;              // frac_1 in the range 0 to 1
       float frac_2 = (dash+1)/n_dash;
       coot::Cartesian f_s(start + delta * frac_1);
@@ -8127,13 +8109,22 @@ Bond_lines_container::add_atom_centres(int imol,
          p.set_radius_scale_for_atom(at, make_fat_atom);
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
-               if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
-               if (is_H_flag) p.is_hydrogen_atom = true;
-	       p.atom_p = at;
-	       atom_centres.push_back(p);
-	       int icol = atom_colour(at, atom_colour_type, atom_colour_map_p);
-               bonds_size_colour_check(icol);
-	       atom_centres_colour.push_back(icol);
+
+            // No small atoms (H) in COLOUR_BY_B_FACTOR or COLOUR_BY_OCCUPANCY
+            // because the add_bond function doesn't take a "thin" flag
+            // (thinning is only currently done by bond colour)
+            //
+            if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
+            if (is_H_flag) p.is_hydrogen_atom = true;
+            p.atom_p = at;
+            if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)
+               p.is_hydrogen_atom = false;
+            if (atom_colour_type == coot::COLOUR_BY_OCCUPANCY)
+               p.is_hydrogen_atom = false;
+            atom_centres.push_back(p);
+            int icol = atom_colour(at, atom_colour_type, atom_colour_map_p);
+            bonds_size_colour_check(icol);
+            atom_centres_colour.push_back(icol);
          }
       }
    }
