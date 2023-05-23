@@ -1947,7 +1947,18 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
 				    int atom_colour_type,
 				    mmdb::Link *link) {
 
-   add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, link);
+      std::cout << "calling add_link_bond with LINK "
+		<< "\"" << link->chainID1 << "\""
+		<< " "  << link->seqNum1   << " "
+		<< "\"" << link->seqNum1  << "\""
+		<< "\"" << link->atName1  << "\""
+		<< " to "
+		<< "\"" << link->chainID2 << "\""
+		<< " "  << link->seqNum2  << " "
+		<< "\"" << link->atName2  << "\""
+		<< std::endl;
+
+      add_link_bond_templ(model_p, udd_atom_index_handle, atom_colour_type, link);
 }
 
 void
@@ -1976,6 +1987,8 @@ template<class T>
 void
 Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link) {
 
+   std::cout << "----- add_link_bond_templ() " << atom_colour_type << std::endl;
+
    mmdb::PAtom atom_1 = NULL;
    mmdb::PAtom atom_2 = NULL;
    int model_number = model_p->GetSerNum();
@@ -1983,23 +1996,19 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
    for (int ich=0; ich<n_chains; ich++) {
       mmdb::Chain *chain_p = model_p->GetChain(ich);
       if (chain_p) {
-	 if (std::string(chain_p->GetChainID()) ==
-	     std::string(link->chainID1)) {
+	 if (std::string(chain_p->GetChainID()) == std::string(link->chainID1)) {
 	    int n_residues = model_p->GetNumberOfResidues();
 	    for (int i_res=0; i_res<n_residues; i_res++) {
 	       mmdb::Residue *res_p = chain_p->GetResidue(i_res);
 	       if (res_p) {
 		  if (res_p->GetSeqNum() == link->seqNum1) {
-		     if (std::string(res_p->GetInsCode()) ==
-			 std::string(link->insCode1)) {
+		     if (std::string(res_p->GetInsCode()) == std::string(link->insCode1)) {
 			int n_atoms = res_p->GetNumberOfAtoms();
 			for (int iat=0; iat<n_atoms; iat++) {
 			   mmdb::Atom *at = res_p->GetAtom(iat);
 			   if (! at->isTer()) {
-			      if (std::string(at->name) ==
-				  std::string(link->atName1)) {
-				 if (std::string(at->altLoc) ==
-				     std::string(link->aloc1)) {
+			      if (std::string(at->name) == std::string(link->atName1)) {
+				 if (std::string(at->altLoc) == std::string(link->aloc1)) {
 				    atom_1 = at;
 				    break;
 				 }
@@ -2015,6 +2024,12 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	 }
       } // chain_p test
       if (atom_1) break;
+   }
+
+   if (atom_1) {
+      std::cout << "here with atom_1 " << atom_1 << std::endl;
+   } else {
+      std::cout << "here with atom_1 null " << std::endl;
    }
 
    if (atom_1) {
@@ -2054,6 +2069,12 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	    if (atom_2) break;
 	 } // chain_p test
       }
+   }
+
+   if (atom_1) {
+      std::cout << "here with atom_2 " << atom_2 << std::endl;
+   } else {
+      std::cout << "here with atom_2 null " << std::endl;
    }
 
    // OK, make the link bond then!
@@ -2107,10 +2128,12 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	 coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
 	 int col = atom_colour(atom_1, atom_colour_type);
 	 // if the atom indices are -1, then the bond doesn't get drawn
-	 // std::cout << "debug:: calling add_dashed_bond() with atom_index_1 " << atom_index_1
-	 // << " and atom_index_2 " << atom_index_2 << std::endl;
+	 std::cout << "debug::    calling add_dashed_bond() with atom_index_1 " << atom_index_1
+                   << " and atom_index_2 " << atom_index_2 << std::endl;
+         std::cout << "   debug:: add_dashed_bond " << pos_1 << " " << bond_mid_point << std::endl;
 	 add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
 	 col = atom_colour(atom_2, atom_colour_type);
+         std::cout << "   debug:: add_dashed_bond " << bond_mid_point << " " << pos_2 << std::endl;
 	 add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
       }
    }
@@ -4432,8 +4455,8 @@ Bond_lines_container::add_dashed_bond(int col,
 				      int imodel_number,
 				      int atom_index_1, int atom_index_2) {
 
-   if (false) // debugging.
-      std::cout << ".... in add_dashed_bond() col is " << col
+   if (true) // debugging.
+      std::cout << "   .... in add_dashed_bond() col is " << col
 		<< " and bonds.size() " << bonds.size()
 		<< " and half_bond_type_flag is " << half_bond_type_flag
 		<< std::endl;
@@ -4467,19 +4490,26 @@ Bond_lines_container::add_dashed_bond(int col,
    //  X--__--__--__--__--_:_--__--__--__--__--X 19
    //
 
+   std::cout << "   still here A " << dash_start << " " << dash_end << " col " << col << " bonds.size() " << bonds.size() << std::endl;
+
    // dash is, for example, in the range 0 to 9.5
    //
+   if (col < int(bonds.size())) {
+   } else {
+      // 20230523-PE is this safe!? (Well, we do it elsewhere, so I guess so).
+      // Anyway, why are we here with out of range colour? Aren't links drawn after metals?
+      bonds.resize(col+1);
+   }
    for (float dash=dash_start; dash<=dash_end; dash+=2) {
 
-      if (col < int(bonds.size())) {
-	 float frac_1 = dash/n_dash;              // frac_1 in the range 0 to 1
-	 float frac_2 = (dash+1)/n_dash;
-	 coot::Cartesian f_s(start + delta * frac_1);
-	 coot::Cartesian f_e(start + delta * frac_2);
-	 coot::CartesianPair pair(f_s, f_e);
-	 graphics_line_t::cylinder_class_t cc = graphics_line_t::DOUBLE;
-	 bonds[col].add_bond(pair, cc, true, true, imodel_number, atom_index_1, atom_index_2);
-      }
+      std::cout << "   still here B " << dash_start << " " << dash_end << std::endl;
+      float frac_1 = dash/n_dash;              // frac_1 in the range 0 to 1
+      float frac_2 = (dash+1)/n_dash;
+      coot::Cartesian f_s(start + delta * frac_1);
+      coot::Cartesian f_e(start + delta * frac_2);
+      coot::CartesianPair pair(f_s, f_e);
+      graphics_line_t::cylinder_class_t cc = graphics_line_t::DOUBLE;
+      bonds[col].add_bond(pair, cc, true, true, imodel_number, atom_index_1, atom_index_2);
    }
 }
 
