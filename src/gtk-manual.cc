@@ -745,8 +745,6 @@ void render_as_occupancy_representation_button_select(int imol) {
 void
 display_control_map_combo_box(const std::string &name, int imol) {
 
-   std::cout << "------------------------------------------------ display_control_map_combo_box() "
-             << name << " " << imol << std::endl;
    if (! graphics_info_t::use_graphics_interface_flag) return;
 
    GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
