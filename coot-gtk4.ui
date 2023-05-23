@@ -2259,6 +2259,7 @@ Calculate a skeleton now?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="bond_parameters_dialog">
     <property name="title" translatable="yes">Coot Bond Parameters</property>
     <child>
@@ -2282,6 +2283,16 @@ Calculate a skeleton now?
                     <property name="justify">center</property>
                   </object>
                 </child>
+
+                <child>
+                  <object class="GtkComboBoxText" id="bond_parameters_molecule_comboboxtext">
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                  </object>
+                </child>
+
                 <child>
                   <object class="GtkLabel" id="label190">
                     <property name="label" translatable="yes">   </property>
