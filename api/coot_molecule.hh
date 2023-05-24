@@ -112,8 +112,8 @@ namespace coot {
             mmdb::Manager *get_mol();
          };
       private:
-         void init() {
-         }
+         void init() {};
+         void print_save_info() const;
       public:
          modification_info_t() : backup_dir("coot-backup"), mol_name("placeholder"), is_mmcif_flag(false),
                                  modification_index(0), max_modification_index(0) {}
@@ -133,7 +133,7 @@ namespace coot {
          //! @return a string that when non-empty is the error message
          std::string make_backup(mmdb::Manager *mol, const std::string &modification_info_string);
          //! @return non-null on success
-         mmdb::Manager *undo();
+         mmdb::Manager *undo(mmdb::Manager *mol);
          //! @return success status
          mmdb::Manager *redo();
 
