@@ -82,8 +82,8 @@ namespace coot {
          bool have_unsaved_changes() const {
             return modification_index > last_saved.second;
          }
-         std::string index_string() const {
-            return std::to_string(modification_index);
+         std::string index_string(int idx) const {
+            return std::to_string(idx);
          }
          void set_modification_index(int idx) {
             // undo() and redo() (acutally restore_from_backup()) use this.
@@ -99,7 +99,47 @@ namespace coot {
          }
       };
 
-      molecule_save_info_t save_info;
+      // molecule_save_info_t save_info;
+
+
+      class modification_info_t {
+      public:
+         class save_info_t {
+         public:
+            save_info_t(const std::string &file_name, const std::string &mis) : file_name(file_name), modification_info_string(mis) {}
+            std::string file_name;
+            std::string modification_info_string;
+            mmdb::Manager *get_mol();
+         };
+      private:
+         void init() {
+         }
+      public:
+         modification_info_t() : backup_dir("coot-backup"), mol_name("placeholder"), is_mmcif_flag(false),
+                                 modification_index(0), max_modification_index(0) {}
+         modification_info_t(const std::string &mol_name_for_backup, bool is_mmcif) :
+            backup_dir("coot-backup"), mol_name(mol_name_for_backup), is_mmcif_flag(is_mmcif),
+            modification_index(0), max_modification_index(0) {}
+         std::string backup_dir;
+         std::string mol_name; // used in construction of filename, it is a stub to which we add an extension
+         bool is_mmcif_flag;
+         std::vector<save_info_t> save_info;
+         int modification_index;
+         int max_modification_index;
+         bool have_unsaved_changes() const;
+         void set_molecule_name(const std::string &molecule_name, bool is_mmcif) { mol_name = molecule_name; is_mmcif_flag = is_mmcif; }
+         std::string get_index_string(int idx) const { return std::to_string(idx); }
+         std::string get_backup_file_name_from_index(int idx) const;
+         //! @return a string that when non-empty is the error message
+         std::string make_backup(mmdb::Manager *mol, const std::string &modification_info_string);
+         //! @return non-null on success
+         mmdb::Manager *undo();
+         //! @return success status
+         mmdb::Manager *redo();
+
+      };
+
+      modification_info_t modification_info;
 
       int imol_no; // this molecule's index in the container vector
       int ligand_flip_number;
@@ -203,8 +243,8 @@ namespace coot {
 
       std::string name_for_display_manager() const;
       std::string dotted_chopped_name() const;
-      std::string get_save_molecule_filename(const std::string &dir);
-      std::string make_backup(); // returns warning message, otherwise empty string
+      // std::string get_save_molecule_filename(const std::string &dir);
+      std::string make_backup(const std::string &modification_type); // returns warning message, otherwise empty string
       void save_history_file_name(const std::string &file);
       std::vector<std::string> history_filename_vec;
       std::string save_time_string;
@@ -252,7 +292,9 @@ namespace coot {
       void update_symmetry();
       bool show_symmetry;
 
+      //! this doesn't do a backup - the calling function is in charge of that
       void delete_any_link_containing_residue(const residue_spec_t &res_spec);
+      // this doesn't do a backup - the calling function is in charge of that
       void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
       bool sanity_check_atoms(mmdb::Manager *mol) const; // sfcalc_genmap crashes after merge of ligand.
@@ -435,7 +477,7 @@ namespace coot {
       // returns either the specified residue or null if not found
       mmdb::Residue *get_residue(const residue_spec_t &residue_spec) const;
 
-      bool have_unsaved_changes() const { return save_info.have_unsaved_changes(); }
+      bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure

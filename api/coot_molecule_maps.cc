@@ -1044,7 +1044,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    //
    if (bested) {
-      make_backup();
+      make_backup("fit to map by random jiggle");
       std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
 
       v = best_score;
@@ -1139,7 +1139,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       } else {
          std::cout << "ERROR:: fit_to_map_by_random_jiggle(): best_molecule is empty!" << std::endl;
       }
-      save_info.new_modification("fit_to_map_by_random_jiggle");
+      // save_info.new_modification("fit_to_map_by_random_jiggle");
    } else {
       std::cout << " nothing better found " << std::endl;
    }

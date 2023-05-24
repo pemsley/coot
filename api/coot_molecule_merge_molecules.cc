@@ -28,7 +28,7 @@ coot::molecule_t::merge_molecules(const std::vector<atom_selection_container_t> 
    const coot::residue_spec_t &spec = merge_molecules_ligand_spec;
 
    int istat = 0;
-   make_backup(); // could be more clever, by doing this only when needed.
+   make_backup("merge_molecules"); // could be more clever, by doing this only when needed.
    std::vector<merge_molecule_results_info_t> resulting_merge_info;
    std::pair<bool, coot::residue_spec_t> done_merge_ligand_to_near_chain;
    done_merge_ligand_to_near_chain.first = false;
@@ -273,7 +273,7 @@ coot::molecule_t::merge_molecules_just_one_residue_at_given_spec(atom_selection_
             }
             mmdb::Residue *r = coot::util::get_first_residue(molecule_to_add.mol);
             if (r) {
-               make_backup();
+               make_backup("merge_molecules_just_one_residue_at_given_spec");
                mmdb::Residue *new_residue_p = copy_and_add_residue_to_chain(this_chain_p, r);
                new_residue_p->seqNum = target_spec.res_no;
                status = true;
