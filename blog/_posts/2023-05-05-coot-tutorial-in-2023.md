@@ -16,7 +16,9 @@ Load the tutorial:
 
  - **Calculate** &rarr; **Load Tutorial Model and Data**
 
-The map is quite nice looking - the resolution of the data is 1.8 A. Let's turn on "Updating Maps"
+The map is quite nice looking - the resolution of the data is 1.8 A.
+
+Let's turn on "Updating Maps" (so that the maps track the current model):
 
   - **Calculate** &rarr; **Updating Maps**
   - Check the **Auto-Update** button
@@ -37,7 +39,7 @@ _[A dialog is presented with Interesting/Outliers listed by chain-id and residue
 
 - Click on the first button (for A 2)
 - Take a look at what is interacting with this VAL
-    - It's actually the PHE at A 89 that's wrong.
+    - See that it's actually the PHE at A 89 that's wrong.
     - Recentre on that residue (middle-mouse click on the CB)
 
 Fix the rotamer:
@@ -48,7 +50,7 @@ If things have gone to plan, the sidechain will jump into the density and the ma
  - `Shift R` to tidy up the geometry
  - **Accept**
 
-Next problem is at A 32. The density here is not very good and there may be a number of differrent conformers/rotamers. Let's, for now just choose one of them that has higher probability than the current model
+Next problem in the dialog is at A 32. The density here is not very good and there may be a number of differrent conformers/rotamers. Let's, for now just choose one of them that has higher probability than the current model
 
  - `J`
  - `Shift R`
@@ -105,7 +107,7 @@ One problem left!
 - Click on the rotamer outlier button for A91
 - `J`
 
-Now the **Interesting/Outliers/Problems** dialog is empty
+Now the **Interesting/Outliers/Problems** dialog is empty. Yay.
 
 Let's find parts of the map that are as yet not modelled, _i.e._ find unmodelled blobs:
 
@@ -136,7 +138,7 @@ Blob 2 is the ligand. Let's build a ligand into that:
  - **OK**
  - Check the chemistry (yes the phosphate is on the 3' end)
  - Undisplay the new 3GP using the Display Manager
- - **Ligand** &rarr; **Find Ligands..**
+ - **Ligand** &rarr; **Find Ligands...**
  - In the following dialog, check the button for the `3GP_from_dict` ligand (no need to make it flexible)
  - In **Where to Search?** choose "**Right Here**"
  - **Find Ligands**
