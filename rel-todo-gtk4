@@ -38,38 +38,19 @@ Here are other styles:
 
 Sun 23 Apr 21:33:42 BST 2023
 
-Check the links in all representation types (use PDB files) ::: 4
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
-7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 5
-Also, waters are too big. Also waters are too big in colour by molecule.
-Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
-(also affects gtk3 coot - so think about fixing it there?).
-Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
-In PDB format, why are the links to the NA (around A 91?) half drawn in "Colour by Atom" mode?
-H and or D all missing except A 127 in "Bonds Colour by Chain".
-See "fat atom" commits.
-
-Where are the rotating hydrogen bonds? ::: 0.5
-Calculate -> Hydrogen Bonds?
+Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
-
-Open, close, reopen Bond Parameters, An extra molecule combobox is added. ::: 0.5
 
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
 
 Fix the double reading of the monomer library ::: 0.5
 
-Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
-
-Update Dynamic validation on making links (the NBC clashes should disappear)
-
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
 Update the Validation Graphs after RSR or other model edits ::: 1
-
-Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
-* It works on the PC.
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -164,6 +145,8 @@ Map Skeletonization :::- 4
 
 CA Baton Mode :::- 4
 
+End-caps on the O half bonds on the HOHs in 7a0l.
+
 Fullscreen - maybe not possible in gtk4 :::- 0.2
 
 New Mesh algorithms:
@@ -210,6 +193,15 @@ Change the colour of the Dotted Surface
 * This exits and it draws OK, but I don't see how to change the colour yet.
   Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
   class. Perhaps it should be? (see add_dots()).
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. :::- 5
+Also, waters are too big. Also waters are too big in colour by molecule.
+Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
+Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
+(also affects gtk3 coot - so think about fixing it there?).
+See "fat atom" commits.
 
 --- Done Items ---
 
@@ -492,3 +484,17 @@ Sharpen/Blur (mtz) map is missing ::: 1
 
 Built-in key-binding for [,]. ::: 0.2
 
+Open, close, reopen Bond Parameters, An extra molecule combobox is added. ::: 0.5
+
+Check the links in all representation types (use PDB files) ::: 2
+* 7a0l not perfect in colour-by-B and occ. Good enough for now.
+
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
+* It works on the PC.
+* Error in the shader.
+
+Where are the rotating hydrogen bonds? ::: 0.5
+Calculate -> Hydrogen Bonds?
+
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 2
+* Fat bonds partial fix for B-factor and Occ modes.

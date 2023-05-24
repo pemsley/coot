@@ -258,6 +258,18 @@ void exit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    coot_checked_exit(0);
 }
 
+void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      calculate_hydrogen_bonds(imol);
+   }
+}
+
 #include "curlew.h" // 20220628-PE why does this exist? why is curlew() not in the .hh file?
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2419,6 +2431,7 @@ create_actions(GtkApplication *application) {
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
 
+   add_action("calculate_hydrogen_bonds_action", calculate_hydrogen_bonds_action);
    add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);
    add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
 

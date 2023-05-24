@@ -2,8 +2,10 @@
 ylim=120 # was 105
 xlim=480 # was 105
 
-prediction_text_x_placement = 68
-prediction_text_y_placement = 18
+# prediction_text_x_placement = 68
+# prediction_text_y_placement = 18
+prediction_text_x_placement = 140
+prediction_text_y_placement = 0
 
 legend_x = 340
 legend_y = 10
@@ -63,7 +65,7 @@ predict = function(x_pos, y_pos) {
       today_t = Sys.Date()
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
-      t = paste('Projected Menu Items Completion Day:\n', date_s)
+      t = paste('Projected Completion Day:\n', date_s)
       text(x_pos, y_pos, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim, 3 is good when xlim is 200
       # the ratio between s_x and s_y is the ratio of

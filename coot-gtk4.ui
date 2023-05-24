@@ -261,6 +261,10 @@
           </item>
         </submenu>
         <item>
+          <attribute name="label">Hydrogen Bonds</attribute>
+          <attribute name="action">app.calculate_hydrogen_bonds_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Load Tutorial Model &amp; Data</attribute>
           <attribute name="action">app.load_tutorial_model_and_data_action</attribute>
         </item>

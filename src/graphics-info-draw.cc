@@ -5173,8 +5173,6 @@ graphics_info_t::draw_boids() {
 void
 graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 
-#ifndef EMSCRIPTEN
-
    // caller fills static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs
    // before this function
 
@@ -5201,17 +5199,17 @@ graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
    mesh_for_hydrogen_bonds.update_instancing_buffer_data_standard(mats);
    add_a_tick();
    do_tick_hydrogen_bonds_mesh = true;
-#endif
+
 }
 
 void
 graphics_info_t::draw_hydrogen_bonds_mesh() {
 
-#ifndef EMSCRIPTEN
    // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
    // Fix that later.
 
    if (mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
+
       glm::mat4 mvp = get_molecule_mvp();
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation_matrix = get_model_rotation();
@@ -5221,7 +5219,7 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
    }
-#endif
+
 }
 
 

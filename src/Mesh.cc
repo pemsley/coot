@@ -3028,6 +3028,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
    float height = glm::distance(start_pos, end_pos);
    float radius = 0.03;
+   radius = 0.1;
    cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
    c.add_spiral(); // take 2 colours
 

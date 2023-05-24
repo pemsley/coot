@@ -61,8 +61,7 @@ void main() {
    gl_Position = mvp * frag_pos;
 
    normal_transfer = model_rotation * n_dir;
-   // colour_transfer = colour;
-   colour_transfer = colour_instanced;
+   colour_transfer = colour;
    frag_pos_transfer = frag_pos;
 }
 
