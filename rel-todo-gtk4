@@ -38,8 +38,6 @@ Here are other styles:
 
 Sun 23 Apr 21:33:42 BST 2023
 
-Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
-
 Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
@@ -117,6 +115,28 @@ Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Res
 
 Rework the namespace of the python modules to be more cannonical ::: 4
 
+Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
+
+This function needs an extra arg: "bool transfered_colour_is_instanced"
+void
+Mesh::draw_instanced(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &view_rotation_matrix,
+                     const std::map<unsigned int, lights_info_t> &lights,
+                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                     const glm::vec4 &background_colour,
+                     bool do_depth_fog,
+                     bool do_pulse,
+                     bool do_rotate_z,
+                     float pulsing_amplitude,
+                     float pulsing_frequency,
+                     float pulsing_phase_distribution,
+                     float z_rotation_angle)
+
+which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
+(what else uses that shader?)   ::: 1
+
+Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -498,3 +518,6 @@ Calculate -> Hydrogen Bonds?
 
 7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 2
 * Fat bonds partial fix for B-factor and Occ modes.
+
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
+* Done. At last. 2 attempts. Looks nice.

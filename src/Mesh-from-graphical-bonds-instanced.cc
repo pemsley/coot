@@ -434,17 +434,24 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
 
 // this is not instanced and should not be in this file
 void
-Mesh::make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symm_boxes) {
+Mesh::make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symm_boxes,
+                                     const glm::vec4 &symmetry_colour, double symmetry_colour_weight) {
+
+   // symmetry_colour is the user-define colour  from the selector
 
    // this function doesn't use setup_buffers() because all it is making is unindexed lines
 
-   auto get_colour = [] (int icol, int isymop) {
-                        glm::vec4 c(0.5, 0.5, 0.5, 1.0);
-                        if (icol == 1) { c.x = 0.7; c.y = 0.7; }
-                        if (icol == 2) { c.x = 0.8; c.y = 0.4; c.z = 0.4; }
-                        if (icol == 3) { c.z = 0.8; c.x = 0.4; c.y = 0.4; }
-                        return c;
-                     };
+   auto get_colour = [] (int icol, int isymop, const glm::vec4 &symmetry_colour, double symmetry_colour_weight) {
+      glm::vec4 c(0.5, 0.5, 0.5, 1.0);
+      if (icol == 1) { c.x = 0.7; c.y = 0.7; }
+      if (icol == 2) { c.x = 0.8; c.y = 0.4; c.z = 0.4; }
+      if (icol == 3) { c.x = 0.4; c.y = 0.4; c.z = 0.8; }
+      glm::vec4 d = symmetry_colour;
+      float a = symmetry_colour_weight;
+      float b = 1.0 - a;
+      glm::vec4 r = b * c + a * d;
+      return r;
+   };
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
@@ -478,7 +485,7 @@ Mesh::make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds
       if (gbc.symmetry_has_been_created == 1) {
          for (int icol=0; icol<gbc.num_colours; icol++) {
             // set the colour using icol and isymop
-            glm::vec4 col = get_colour(icol, isymop);
+            glm::vec4 col = get_colour(icol, isymop, symmetry_colour, symmetry_colour_weight);
             graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
             for (int j=0; j<ll.num_lines; j++) {
                glm::vec3 pos_1(ll.pair_list[j].positions.getStart().get_x(),

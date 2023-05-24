@@ -6841,7 +6841,6 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
    }
 }
 
-#ifndef EMSCRIPTEN
 // static
 void
 graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
@@ -6883,9 +6882,7 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
       }
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 GtkWidget *
 graphics_info_t::wrapped_create_display_control_window() {
 
@@ -6893,4 +6890,49 @@ graphics_info_t::wrapped_create_display_control_window() {
    // 20220808-PE unhide the dialog here maybe.
    return widget;
 }
-#endif
+
+//static
+void
+graphics_info_t::update_symmetry() { // of models
+
+   for (int i=0; i<n_molecules(); i++) {
+      if (is_valid_model_molecule(i)) {
+         molecules[i].update_symmetry();
+      }
+   }
+}
+
+
+//static
+GdkRGBA
+graphics_info_t::symmetry_colour_to_rgba() {
+
+   GdkRGBA rgba;
+   rgba.red   = symmetry_colour.r;
+   rgba.green = symmetry_colour.g;
+   rgba.blue  = symmetry_colour.b;
+   rgba.alpha = symmetry_colour.a;
+
+   if (rgba.red   < 0.0) rgba.red   = 0.0;
+   if (rgba.green < 0.0) rgba.green = 0.0;
+   if (rgba.blue  < 0.0) rgba.blue  = 0.0;
+   if (rgba.alpha < 0.0) rgba.alpha = 0.0;
+
+   if (rgba.red   > 1.0) rgba.red   = 1.0;
+   if (rgba.green > 1.0) rgba.green = 1.0;
+   if (rgba.blue  > 1.0) rgba.blue  = 1.0;
+   if (rgba.alpha > 1.0) rgba.alpha = 1.0;
+
+   return rgba;
+}
+
+//static
+void
+graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
+
+   symmetry_colour.r = rgba.red;
+   symmetry_colour.g = rgba.green;
+   symmetry_colour.b = rgba.blue;
+   symmetry_colour.a = rgba.alpha;
+
+}

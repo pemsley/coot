@@ -155,11 +155,6 @@ graphics_info_t::init() {
 
       symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
 
-      symmetry_colour = std::vector<double> (4, 0.5);
-      symmetry_colour[0] = 0.1;
-      symmetry_colour[1] = 0.2;
-      symmetry_colour[2] = 0.8;
-
       // use_graphics_interface_flag = 1;  don't (re)set this here,
       // it is set as a static and possibly modified by immediate
       // handling of command line data in main.cc

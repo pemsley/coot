@@ -332,7 +332,8 @@ public:
                                                      unsigned int n_stacks,
                                                      glm::vec4 (*get_glm_colour_for_bonds) (int, int));
 
-   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes);
+   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes,
+                                       const glm::vec4 &symmetry_colour, double symmetry_colour_weight);
 #endif
 
    // update vertices

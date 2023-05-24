@@ -1345,8 +1345,11 @@ public:
    //
 
    // symm colour is a part of the molecule now
-    static double  symmetry_colour_merge_weight;
-    static std::vector<double> symmetry_colour;
+   static double symmetry_colour_merge_weight;
+   // this is merged with the colour from standard atom colours
+   static glm::vec4 symmetry_colour;
+   static GdkRGBA symmetry_colour_to_rgba();
+   static void rgba_to_symmetry_colour(GdkRGBA rgba);
 
    // Rotate colour map?
    static short int rotate_colour_map_on_read_pdb_flag;
@@ -1373,6 +1376,7 @@ public:
 
    //
    static short int show_symmetry;
+   static void update_symmetry(); // of models
 
    // Clipping Planes:
    static float clipping_front;
