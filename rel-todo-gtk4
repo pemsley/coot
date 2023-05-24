@@ -40,8 +40,7 @@ Sun 23 Apr 21:33:42 BST 2023
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 
-Where are the rotating hydrogen bonds? ::: 0.5
-Calculate -> Hydrogen Bonds?
+Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
@@ -197,7 +196,7 @@ Change the colour of the Dotted Surface
 
 Update Dynamic validation on making links (the NBC clashes should disappear)
 
-7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 5
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. :::- 5
 Also, waters are too big. Also waters are too big in colour by molecule.
 Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
 Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
@@ -494,4 +493,8 @@ Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missi
 * It works on the PC.
 * Error in the shader.
 
+Where are the rotating hydrogen bonds? ::: 0.5
+Calculate -> Hydrogen Bonds?
 
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 2
+* Fat bonds partial fix for B-factor and Occ modes.
