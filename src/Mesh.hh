@@ -195,6 +195,7 @@ public:
                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                        const glm::vec4 &background_colour,
                        bool do_depth_fog,
+                       bool transferred_colour_is_instanced,
                        bool do_pulse = false,
                        bool do_rotate_z = false,
                        float pulsing_amplitude = 0.0f,

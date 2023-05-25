@@ -2069,9 +2069,10 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 
                if (mesh.is_instanced) {
 
+                  bool transferred_colour_is_instanced = false;
                   mesh.draw_instanced(&shader_for_moleculestotriangles, mvp,
-                                              model_rotation, lights, eye_position,
-                                              bg_col, do_depth_fog);
+                                      model_rotation, lights, eye_position,
+                                      bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
                   if (pass_type == PASS_TYPE_STANDARD) {
                      bool show_just_shadows = false;
@@ -5217,7 +5218,7 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
 
       mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
-                                             shader_do_depth_fog_flag, false, true, 0, 0, 0, 0.2);
+                                             shader_do_depth_fog_flag, false, false, true, 0, 0, 0, 0.2);
    }
 
 }
@@ -5995,6 +5996,11 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l40c = [] () {
+      rsr_refine_chain();
+      return gboolean(TRUE);
+   };
+
    auto l41 = [] () {
       box_radius_xray *= (1.0/1.15);
       // is there an "update maps" function?
@@ -6046,6 +6052,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
 
