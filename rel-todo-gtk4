@@ -36,8 +36,6 @@ Here are other styles:
 
 ----
 
-Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
-
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
@@ -521,3 +519,5 @@ Calculate -> Hydrogen Bonds?
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 * Done. At last. 2 attempts. Looks nice.
+
+Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1

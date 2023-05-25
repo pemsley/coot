@@ -441,9 +441,10 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
-      GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
    int imol = first_coords_imol();
    int imol_unsaved = first_unsaved_coords_imol();
    if (imol_unsaved != -1)
@@ -469,11 +470,30 @@ G_GNUC_UNUSED gpointer user_data) {
 
 void
 save_symmetry_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
 
    setup_save_symmetry_coords();
 
+}
+
+void
+on_save_state_dialog_response(GtkDialog *dialog,
+                              int response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      char *file_name = g_file_get_path(file);
+      std::cout << "Now save state script to file " << file_name << std::endl;
+      short int il = coot::PYTHON_SCRIPT;
+      graphics_info_t g;
+      g.save_state_file(file_name, il);
+   }
+
+   // maybe save the dialog in graphics_info_t, and just hide it?
+   // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+   gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
@@ -481,11 +501,23 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *file_chooser = coot_save_state_chooser();
-   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
-   add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
-   set_file_selection_dialog_size(file_chooser);
-   gtk_widget_show(file_chooser);
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Save State",
+                                                   parent_window,
+                                                   action,
+                                                   _("Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   _("Save"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.py");
+   gtk_file_filter_add_pattern(filterselect, "*.scm");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_set_size_request(dialog, 800, 700);
+   g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_save_state_dialog_response), NULL);
+   gtk_widget_show(dialog);
 }
 
 void

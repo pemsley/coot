@@ -1430,15 +1430,10 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_chooser_dialog_x_size > 0) {
-
-#if (GTK_MAJOR_VERSION >= 4)
       graphics_info_t g;
+      std::cout << "DEBUG:: set size request for dialog "
+                << g.file_chooser_dialog_x_size << " " << g.file_chooser_dialog_y_size << std::endl;
       gtk_widget_set_size_request(dialog, g.file_chooser_dialog_x_size, g.file_chooser_dialog_y_size);
-#else
-      gtk_window_resize(GTK_WINDOW(dialog),
-                        graphics_info_t::file_chooser_dialog_x_size,
-                        graphics_info_t::file_chooser_dialog_y_size);
-#endif
    }
 }
 

@@ -6800,6 +6800,8 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 void
 graphics_info_t::quick_save() {
 
+   std::cout << "Quick Save!" << std::endl;
+
    for (int imol=0; imol<n_molecules(); imol++) {
       molecules[imol].quick_save();
    }
