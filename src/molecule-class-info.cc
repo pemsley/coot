@@ -4607,8 +4607,11 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
+   std::cout << "here we are in update_extra_restraints_representation()"  << std::endl;
+
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();
+   update_extra_restraints_representation_geman_mcclure();
    update_extra_restraints_representation_parallel_planes();
 
 }
@@ -4620,8 +4623,13 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
    // make things redraw fast - this is a hack for morph-and-refine.
 
-   if (! draw_it_for_extra_restraints || ! draw_it)
-      return;
+   std::cout << "here with extra_restraints_representation.bond_restraints size "
+             << extra_restraints.bond_restraints.size() << " " << draw_it_for_extra_restraints
+             << std::endl;
+
+   // I want  to update them even if they are not drawn, I think.
+   // if (! draw_it_for_extra_restraints || ! draw_it)
+   //      return;
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       mmdb::Atom *at_1 = NULL;
@@ -4632,32 +4640,110 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       bool ifound_2 = false;
       int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
       int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
-      const coot::extra_restraints_t::extra_bond_restraint_t &res =
-    extra_restraints.bond_restraints[i];
+      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.bond_restraints[i];
 
       // set p1 from ifast_index_1 (if possible)
       //
       if (ifast_index_1 != -1) {
-    if (ifast_index_1 < atom_sel.n_selected_atoms) {
-       at_1 = atom_sel.atom_selection[ifast_index_1];
-       if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-          p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-          ifound_1 = true;
-       }
-    }
+         if (ifast_index_1 < atom_sel.n_selected_atoms) {
+            at_1 = atom_sel.atom_selection[ifast_index_1];
+            if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
       }
       if (! ifound_1) {
-    int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
-    if (idx != -1) {
-       at_1 = atom_sel.atom_selection[idx];
-       if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-          p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-          ifound_1 = true;
-       }
-    }
-  }
+         int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+   }
+
 }
 
+void
+molecule_class_info_t::update_extra_restraints_representation_geman_mcclure() {
+
+   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+      const coot::extra_restraints_t::extra_geman_mcclure_restraint_t &rest = extra_restraints.geman_mcclure_restraints[i];
+      mmdb::Atom *at_1 = NULL;
+      mmdb::Atom *at_2 = NULL;
+      clipper::Coord_orth p1(0,0,0);
+      clipper::Coord_orth p2(0,0,0);
+      bool ifound_1 = false;
+      bool ifound_2 = false;
+      int ifast_index_1 = rest.atom_1.int_user_data;
+      int ifast_index_2 = rest.atom_2.int_user_data;
+
+      if (ifast_index_1 != -1) {
+         if (ifast_index_1 < atom_sel.n_selected_atoms) {
+            at_1 = atom_sel.atom_selection[ifast_index_1];
+            if (rest.atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+      if (! ifound_1) {
+         int idx = full_atom_spec_to_atom_index(rest.atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (rest.atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+      if (ifast_index_2 != -1) {
+         if (ifast_index_2 < atom_sel.n_selected_atoms) {
+            at_2 = atom_sel.atom_selection[ifast_index_2];
+            if (rest.atom_2.matches_spec(at_2)) {
+               p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               ifound_2 = true;
+            }
+         }
+      }
+      if (! ifound_2) {
+         int idx = full_atom_spec_to_atom_index(rest.atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (rest.atom_2.matches_spec(at_2)) {
+               p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               ifound_2 = true;
+            }
+         }
+      }
+
+      if (ifound_1 && ifound_2) {
+
+         // if the distance (actually, n-sigma) is within limits, draw it.
+         //
+         double dist_sq = (p1-p2).lengthsq();
+         double dist = sqrt(dist_sq);
+         double this_n_sigma = (dist - rest.bond_dist)/rest.esd;
+
+         // std::cout << "dist " << dist << " rest.bond_dist " << rest.bond_dist << std::endl;
+
+         if (false)
+            std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
+                      << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
+                      << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
+                      << extra_restraints_representation_for_bonds_go_to_CA
+                      << "\n";
+
+         if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
+             this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) {
+
+            extra_restraints_representation.add_bond(p1, p2, rest.bond_dist, rest.esd);
+         }
+      }
+   }
 }
 
 
@@ -4783,42 +4869,6 @@ molecule_class_info_t::update_extra_restraints_representation_bonds_internal(con
       }
    }
 }
-
-
-
-
-// redefinition - delete after merge is clean
-// void
-// molecule_class_info_t::update_extra_restraints_representation() {
-//
-//    extra_restraints_representation.clear();
-//    update_extra_restraints_representation_bonds();
-//    update_extra_restraints_representation_parallel_planes();
-//
-// }
-
-// redefinition - delete on clean merge
-#if 0
-void
-molecule_class_info_t::update_extra_restraints_representation_bonds() {
-
-   // extra_restraints_representation.clear() should be called before calling this function.
-
-   // make things redraw fast - this is a hack for morph-and-refine.
-
-   if (! draw_it_for_extra_restraints || ! draw_it)
-      return;
-
-   for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
-      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.bond_restraints[i];
-      update_extra_restraints_representation_bonds_internal(res);
-   }
-   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
-      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.geman_mcclure_restraints[i];
-      update_extra_restraints_representation_bonds_internal(res);
-   }
-}
-#endif
 
 void
 molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {

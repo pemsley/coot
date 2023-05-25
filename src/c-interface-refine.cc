@@ -645,8 +645,10 @@ int  get_auto_clear_atom_pull_restraint_state() {
    return g.auto_clear_atom_pull_restraint_flag;
 }
 
-
-
+void set_show_extra_distance_restraints(short int state) {
+   graphics_info_t::show_extra_distance_restraints_flag = state;
+   graphics_info_t::graphics_draw();
+}
 
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
@@ -797,6 +799,7 @@ int add_extra_geman_mcclure_restraint(int imol, const char *chain_id_1, int res_
    }
    return r;
 }
+
 
 
 #ifdef USE_GUILE

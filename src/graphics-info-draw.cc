@@ -4134,6 +4134,8 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 
    draw_measure_distance_and_angles(); // maybe in draw_molecules()?
 
+   draw_extra_distance_restraints(PASS_TYPE_STANDARD); // GM_restraints
+
    draw_pointer_distances_objects();
 
    draw_texture_meshes();
@@ -5445,6 +5447,8 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
+   std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
+
    double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
                              // Make this user-setable.
 
@@ -5535,18 +5539,20 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
-
-      Shader &shader = shader_for_extra_distance_restraints; // wrong shader - needs a new one.
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
-      bool do_orthographic_projection = ! perspective_projection_flag;
-      auto model_matrix = get_model_matrix();
-      auto view_matrix = get_view_matrix();
-      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
-      mesh_for_extra_distance_restraints.draw_instances_for_ssao(&shader,
-                                                                 model_matrix, view_matrix, projection_matrix);
+      if (show_extra_distance_restraints_flag) {
+         if (! extra_distance_restraints_markup_data.empty()) {
+            Shader &shader = shader_for_extra_distance_restraints; // wrong shader - needs a new one.
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
+            bool do_orthographic_projection = ! perspective_projection_flag;
+            auto model_matrix = get_model_matrix();
+            auto view_matrix = get_view_matrix();
+            auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+            mesh_for_extra_distance_restraints.draw_instances_for_ssao(&shader, model_matrix, view_matrix, projection_matrix);
+         }
+      }
    }
 
 }

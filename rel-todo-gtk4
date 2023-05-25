@@ -36,9 +36,9 @@ Here are other styles:
 
 ----
 
-Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
-
 Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+
+Connect up the distances and angles dialog ::: 1
 
 Fix the double reading of the monomer library ::: 0.5
 
@@ -46,12 +46,13 @@ Update the Ramachandran Plot after RSR or other model edits ::: 1
 
 Update the Validation Graphs after RSR or other model edits ::: 1
 
+Validation graph colours ::: 0.5
+
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-Start up from Saved state. ::: 1
-For now I can start by passing startup.py on the command line.
+Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
 Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
@@ -64,9 +65,6 @@ Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added usin
 Curlew: speed-run and CaBLAM ::: 4
 
 rename draw-2.cc as tick-function.cc or some such
-
-When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
-on the atom that is blocking. ::: 1
 
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
 
@@ -113,27 +111,6 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 
 Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
 
-This function needs an extra arg: "bool transfered_colour_is_instanced"
-void
-Mesh::draw_instanced(Shader *shader_p,
-                     const glm::mat4 &mvp,
-                     const glm::mat4 &view_rotation_matrix,
-                     const std::map<unsigned int, lights_info_t> &lights,
-                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
-                     const glm::vec4 &background_colour,
-                     bool do_depth_fog,
-                     bool do_pulse,
-                     bool do_rotate_z,
-                     float pulsing_amplitude,
-                     float pulsing_frequency,
-                     float pulsing_phase_distribution,
-                     float z_rotation_angle)
-
-which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
-(what else uses that shader?)   ::: 1
-
-Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
-
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -142,8 +119,6 @@ struct_conn in mmdb for links : how  does it work and can they be displayed?
 Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
 OK, but this is a mmdb problem not a GTK4 Coot problem.
 "Nice to have" - or change to scope to 10.
-
-7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
 
 A benchmark in Curlew? Or built-in would be better.
 
@@ -203,6 +178,9 @@ Nice to have: 3D text - related to model bulding last time. Or markers in 3D whi
 text annotations.
 
 RCrane - Make this a Module. Fixing this will take a long time. :::- 20
+
+When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
+on the atom that is blocking. :::- 1
 
 Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
 Put this in preferences.
@@ -521,3 +499,33 @@ Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 * Done. At last. 2 attempts. Looks nice.
 
 Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
+* Done.
+
+This function needs an extra arg: "bool transfered_colour_is_instanced"
+void
+Mesh::draw_instanced(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &view_rotation_matrix,
+                     const std::map<unsigned int, lights_info_t> &lights,
+                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                     const glm::vec4 &background_colour,
+                     bool do_depth_fog,
+                     bool do_pulse,
+                     bool do_rotate_z,
+                     float pulsing_amplitude,
+                     float pulsing_frequency,
+                     float pulsing_phase_distribution,
+                     float z_rotation_angle)
+
+which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
+(what else uses that shader?)   ::: 1
+* Done.
+
+7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
+* Done.
+
+Start up from Saved state. ::: 1
+For now I can start by passing startup.py on the command line.
+
+Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
+* Done.
