@@ -4668,10 +4668,8 @@ on_edit_chi_angles_normal_rotation_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_geometry_distance_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_geometry_distance_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                          gpointer         user_data) {
   if (gtk_toggle_button_get_active(togglebutton))
     do_distance_define();
 
@@ -4738,13 +4736,21 @@ on_geometry_dialog_close_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
-    do_angle_define();
+                                        gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton))
+      do_angle_define();
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                         gpointer         user_data)
+{
+  if (gtk_toggle_button_get_active(togglebutton))
+    do_torsion_define();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6682,14 +6688,6 @@ on_save_state1_activate                (GMenuItem     *menuitem,
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
-                                         gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
-    do_torsion_define();
-}
 
 extern "C" G_MODULE_EXPORT
 void

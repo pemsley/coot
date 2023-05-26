@@ -36,10 +36,6 @@ Here are other styles:
 
 ----
 
-Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
-
-Connect up the distances and angles dialog ::: 1
-
 Fix the double reading of the monomer library ::: 0.5
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
@@ -529,3 +525,10 @@ For now I can start by passing startup.py on the command line.
 
 Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
 * Done.
+
+Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+* Done.
+
+Connect up the distances and angles dialog ::: 1
+* It was easy. I could improve the position of the angle label.
+

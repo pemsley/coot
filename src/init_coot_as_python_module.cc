@@ -103,6 +103,8 @@ void setup_symm_lib() {
 void
 init_coot_as_python_module() {
 
+   // 20230526-PE this is called by coot_wrap_python() SWIG_init().
+
    // graphics_info_t::coot_is_a_python_module is set true initially,
    // in main() it is set to false.
    // when we import coot from python, main() is not executed, so we come here
@@ -114,6 +116,7 @@ init_coot_as_python_module() {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
+   mmdb::InitMatType();
    setup_symm_lib();
    check_reference_structures_dir();
    graphics_info_t g;
@@ -121,4 +124,3 @@ init_coot_as_python_module() {
    g.init();
 
 }
-   
