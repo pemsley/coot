@@ -171,7 +171,8 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
          graphics_info_t g;
-         g.remove_plot_from_rama_plots(box_for_this_plot);
+         g.remove_plot_from_rama_plots(box_for_this_plot); // hides the rama pane in main_window_graphics_rama_vs_graphics_pane 
+                                                           // if there are no plots left.
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
       };
 
@@ -201,6 +202,14 @@ graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
          rama_plot_boxes.erase(it);
          break;
       }
+   }
+
+   if (rama_plot_boxes.empty()) {
+      GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+      if (GTK_IS_SCROLLED_WINDOW(scrolled))
+         gtk_widget_set_visible(scrolled, FALSE);
+      else
+         std::cout << "Not a scrolled window " << scrolled << std::endl;
    }
 }
 

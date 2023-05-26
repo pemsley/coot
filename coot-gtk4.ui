@@ -6357,8 +6357,9 @@ Do you want to continue?
               <object class="GtkPaned" id="main_window_graphics_rama_vs_graphics_pane">
                 <property name="position">1</property>
                 <property name="orientation">horizontal</property>
+
                 <child>
-                  <object class="GtkScrolledWindow" id="ramachdran_plots_scrolled_window">
+                  <object class="GtkScrolledWindow" id="ramachandran_plots_scrolled_window">
                     <child>
                       <object class="GtkBox" id="ramachandran_plots_vbox">
                         <property name="orientation">vertical</property>
@@ -7176,20 +7177,6 @@ Do you want to continue?
         <property name="margin-start">10</property>
         <property name="margin-end">10</property>
         <property name="spacing">5</property>
-        <child>
-          <object class="GtkLabel">
-            <property name="label">Ramachandran Plot</property>
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkSeparator">
-            <property name="margin-top">5</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-start">2</property>
-            <property name="margin-end">2</property>
-          </object>
-        </child>
 
         <child>
           <object class="GtkGrid">

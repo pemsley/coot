@@ -36,11 +36,10 @@ Here are other styles:
 
 ----
 
-Fix the double reading of the monomer library ::: 0.5
-
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 
 Update the Validation Graphs after RSR or other model edits ::: 1
+what is this?update_active_validation_graph_model()
 
 Validation graph colours ::: 0.5
 
@@ -59,6 +58,10 @@ Full-fat render path - i.e. framebuffer need to be set up correctly (at the righ
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
 Curlew: speed-run and CaBLAM ::: 4
+
+Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 1
+
+On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
 
 rename draw-2.cc as tick-function.cc or some such
 
@@ -532,3 +535,5 @@ Sort out whatever is going wrong with the display of the extra distance restrain
 Connect up the distances and angles dialog ::: 1
 * It was easy. I could improve the position of the angle label.
 
+Fix the double reading of the monomer library ::: 0.3
+* Hopefully this won't break things.
