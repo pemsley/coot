@@ -195,6 +195,7 @@ public:
                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                        const glm::vec4 &background_colour,
                        bool do_depth_fog,
+                       bool transferred_colour_is_instanced,
                        bool do_pulse = false,
                        bool do_rotate_z = false,
                        float pulsing_amplitude = 0.0f,
@@ -332,7 +333,8 @@ public:
                                                      unsigned int n_stacks,
                                                      glm::vec4 (*get_glm_colour_for_bonds) (int, int));
 
-   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes);
+   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes,
+                                       const glm::vec4 &symmetry_colour, double symmetry_colour_weight);
 #endif
 
    // update vertices

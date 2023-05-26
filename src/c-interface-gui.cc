@@ -4149,14 +4149,20 @@ GtkWidget *wrapped_create_show_symmetry_window() {
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button_dialog);
 #endif
 
-          GdkRGBA rgba;
-          rgba.red   = (graphics_info_t::symmetry_colour[0]);
-          rgba.green = (graphics_info_t::symmetry_colour[1]);
-          rgba.blue  = (graphics_info_t::symmetry_colour[2]);
-          rgba.alpha = 1.0f;
-          // std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
+          auto on_color_set_func = +[] (GtkColorButton *self, gpointer user_data) {
+             GdkRGBA rgba;
+             gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(self), &rgba);
+             std::cout << "Selected color: " << gdk_rgba_to_string(&rgba) << std::endl;
+             graphics_info_t::rgba_to_symmetry_colour(rgba);
+             graphics_info_t::update_symmetry();
+             graphics_info_t::graphics_draw();
+          };
+
+          GdkRGBA rgba = graphics_info_t::symmetry_colour_to_rgba();
+          std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
           GtkWidget *colour_button = gtk_color_button_new_with_rgba(&rgba);
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button);
+          g_signal_connect(G_OBJECT(colour_button), "color-set", G_CALLBACK(on_color_set_func), nullptr);
        }
     }
 

@@ -5666,11 +5666,11 @@ def add_module_refine():
 
         add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
 
-        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-        add_simple_action_to_menu(menu, "Contact Dots On","contact_dots_on",  lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
-        add_simple_action_to_menu(menu, "Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",  lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
         add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
         add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)

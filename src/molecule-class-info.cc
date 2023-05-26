@@ -4176,7 +4176,9 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    graphics_info_t::attach_buffers();
-   mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box); // boxes
+   mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box, // boxes
+                                                          graphics_info_t::symmetry_colour,
+                                                          graphics_info_t::symmetry_colour_merge_weight);
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4210,7 +4212,6 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
 
 
-#ifndef EMSCRIPTEN
 // draw molecule as instanced meshes.
 void
 molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
@@ -4221,14 +4222,15 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
                                                const glm::vec4 &background_colour,
                                                bool do_depth_fog) {
 
-   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
-   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
-   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   bool transferred_colour_is_instanced = false;
+   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
 
 }
-#endif
 
-#ifndef EMSCRIPTEN
+
+
 void
 molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::mat4 &mvp,
@@ -4244,7 +4246,7 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
             mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
                                                   eye_position, background_colour, do_depth_fog);
 }
-#endif
+
 
 
 void
