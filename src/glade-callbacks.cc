@@ -11901,6 +11901,7 @@ on_validation_graph_chain_id_combobox_changed(GtkComboBoxText* self, gpointer us
 
 void
 on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
+
    if (gtk_check_button_get_active(self)) {
       graphics_info_t g;
       // read imol from the widget, but now now, let's use active_validation_graph_model_idx

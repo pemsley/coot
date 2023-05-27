@@ -5192,7 +5192,11 @@ string   static std::string sessionid;
    static std::vector<widgeted_rama_plot_t> rama_plot_boxes;
    static void draw_rama_plots(); // draw the rama plots in the above vector
    static void remove_plot_from_rama_plots(GtkWidget *rama_plot);
-
+   static void rama_plot_boxes_handle_close_molecule(int imol);
+   static void rama_plot_boxes_handle_molecule_update(int imol);
+   static void rama_plot_boxes_handle_molecule_update(GtkWidget *box);
+   static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
+                                                                                                        // entry change callback
 };
 
 

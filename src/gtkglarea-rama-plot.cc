@@ -18,10 +18,10 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
    if (!g.rama_plot_boxes.empty()) {
       GtkWidget *paned = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
       int position = gtk_paned_get_position(GTK_PANED(paned));
-      std::cout << ":::::::::::: in gtkgl_rama_realize() the paned had position " << position << std::endl;
+      // std::cout << ":::::::::::: in gtkgl_rama_realize() the paned had position " << position << std::endl;
       if (position < 10) {
          gtk_paned_set_position(GTK_PANED(paned), 400);
-         std::cout << ":::::::::::: gtk_paned_set_position 400 here " << std::endl;
+         // std::cout << ":::::::::::: gtk_paned_set_position 400 here " << std::endl;
       }
    }
 
@@ -101,7 +101,7 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
                                    gpointer user_data) {
 
       GtkWidget *gl_area = GTK_WIDGET(user_data);
-      
+
       GtkAllocation allocation;
       gtk_widget_get_allocation(gl_area, &allocation);
       int w = allocation.width;
@@ -163,15 +163,18 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       auto selection_entry_activate_callback = +[] (GtkWidget *entry, gpointer user_data) {
          std::string entry_string = gtk_editable_get_text(GTK_EDITABLE(entry));
          std::cout << "Now do something with " << entry_string << std::endl;
+         GtkWidget *box_for_this_rama_plot = GTK_WIDGET(user_data);
+         graphics_info_t::rama_plot_boxes_handle_molecule_update(box_for_this_rama_plot, entry_string);
+         graphics_info_t::draw_rama_plots();
       };
 
-      g_signal_connect(G_OBJECT(selection_entry), "activate", G_CALLBACK(selection_entry_activate_callback), selection_entry);
+      g_signal_connect(G_OBJECT(selection_entry), "activate", G_CALLBACK(selection_entry_activate_callback), box_for_this_plot);
 
-      auto close_callback = +[] (GtkWidget *close_button, gpointer user_data) {
+      auto close_callback = +[] (G_GNUC_UNUSED GtkWidget *close_button, gpointer user_data) {
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
          graphics_info_t g;
-         g.remove_plot_from_rama_plots(box_for_this_plot); // hides the rama pane in main_window_graphics_rama_vs_graphics_pane 
+         g.remove_plot_from_rama_plots(box_for_this_plot); // hides the rama pane in main_window_graphics_rama_vs_graphics_pane
                                                            // if there are no plots left.
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
       };
@@ -213,6 +216,76 @@ graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
    }
 }
 
+// static
+void
+graphics_info_t::rama_plot_boxes_handle_close_molecule(int imol) {
+
+   // date this needs to be called by close_molecule/close_yourself().
+
+   std::vector<widgeted_rama_plot_t>::const_iterator it;
+   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
+      auto &rama_plot_box = *it;
+      if (rama_plot_box.imol == imol) {
+         remove_plot_from_rama_plots(rama_plot_box.box);
+      }
+   }
+}
+
+// static
+void
+graphics_info_t::rama_plot_boxes_handle_molecule_update(int imol) {
+
+   std::vector<widgeted_rama_plot_t>::iterator it;
+   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
+      auto &rama_plot_box = *it;
+      if (rama_plot_box.imol == imol) {
+         auto &m = graphics_info_t::molecules[imol];
+         rama_plot_box.rama.setup_from(imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+      }
+   }
+}
+
+
+// static
+void
+graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box, const std::string &residue_selection) {
+
+   std::cout << "Here in rama_plot_boxes_handle_molecule_update() " << rama_box << " " << residue_selection << std::endl;
+   std::vector<widgeted_rama_plot_t>::iterator it;
+   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
+      auto &rama_plot_box = *it;
+      rama_plot_box.residue_selection = residue_selection;
+      std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-1 " << std::endl;
+      if (rama_plot_box.box == rama_box) {
+         std::cout << "in rama_plot_boxes_handle_molecule_update() beta-1 calling setu_from() "
+                   << rama_plot_box.imol << " " << rama_plot_box.residue_selection << std::endl;
+         auto &m = graphics_info_t::molecules[rama_plot_box.imol];
+         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+      }
+   }
+}
+
+// static
+void
+graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box) {
+
+   // called from accept_moving_atoms();
+
+   std::vector<widgeted_rama_plot_t>::iterator it;
+   for (it=rama_plot_boxes.begin(); it!=rama_plot_boxes.end(); ++it) {
+      auto &rama_plot_box = *it;
+      std::cout << "in rama_plot_boxes_handle_molecule_update() alpha-2 " << std::endl;
+      if (rama_plot_box.box == rama_box) {
+         std::cout << "in rama_plot_boxes_handle_molecule_update() beta-2 " << rama_plot_box.imol << " " << rama_plot_box.residue_selection
+                   << std::endl;
+         auto &m = graphics_info_t::molecules[rama_plot_box.imol];
+         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+      }
+   }
+}
+
+
+
 
 
 //
@@ -234,6 +307,7 @@ graphics_info_t::draw_rama_plots() {
                                       &shader_for_rama_plot_phi_phis_markers, // instanced
                                       &shader_for_hud_image_texture,
                                       w, h, w, h);
+         gtk_widget_queue_draw(GTK_WIDGET(gl_area));
       } else {
          std::cout << "ERROR:: ploting rama plot " << i << " which hash gl_area that has gone out of scope!"
                    << std::endl;

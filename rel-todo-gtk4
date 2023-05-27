@@ -36,10 +36,12 @@ Here are other styles:
 
 ----
 
-Update the Ramachandran Plot after RSR or other model edits ::: 1
-
 Update the Validation Graphs after RSR or other model edits ::: 1
-what is this?update_active_validation_graph_model()
+what is this: update_active_validation_graph_model()?
+It is the function that gets called when the user changes the molecule in the validation graph dialog.
+It is not the function to update the graphs when the model changes.
+
+Replace Residue A72 with CSO - dialogs messed up ::: 1
 
 Validation graph colours ::: 0.5
 
@@ -112,6 +114,8 @@ Recompile molecule-class-info-widget-work.cc and remove the compilation warnings
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui, fitting etc.
 
 struct_conn in mmdb for links : how  does it work and can they be displayed?
 
@@ -197,6 +201,9 @@ Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-
 Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
 (also affects gtk3 coot - so think about fixing it there?).
 See "fat atom" commits.
+
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 
 --- Done Items ---
 
@@ -537,3 +544,6 @@ Connect up the distances and angles dialog ::: 1
 
 Fix the double reading of the monomer library ::: 0.3
 * Hopefully this won't break things.
+
+Update the Ramachandran Plot after RSR or other model edits ::: 1
+* Done. Nice.
