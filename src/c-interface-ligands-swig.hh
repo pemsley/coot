@@ -155,6 +155,9 @@ bool comprised_of_organic_set_p(const std::string &rn);
 //! remove contact dots objects using the Generic Display Objects dialog
 void coot_all_atom_contact_dots(int imol);
 
+//! \brief as above, but use the active molecule
+void coot_all_atom_contact_dots_active_molecule();
+
 //! \brief set if all atom contact should ignore water-water interactions (default off)
 void set_all_atom_contact_dots_ignore_water(short int state);
 

@@ -148,20 +148,115 @@ void attach_css_style_class_to_overlays() {
    }
 }
 
+
+void
+add_python_scripting_entry_completion(GtkWidget *entry) {
+
+   // call this *after* python has been setup!
+
+   graphics_info_t g; // for history
+
+   GtkEntryCompletion *completion = gtk_entry_completion_new();
+   gtk_entry_completion_set_popup_completion(completion, TRUE);
+   gtk_entry_completion_set_text_column(completion, 0);
+   gtk_entry_completion_set_minimum_key_length(completion, 2);
+   gtk_entry_set_completion(GTK_ENTRY(entry), completion);
+
+   std::vector<std::string> completions;
+   std::vector<std::string> module_coot_completions;
+   std::vector<std::string> module_coot_utils_completions;
+
+   PyErr_Clear();
+
+   Py_ssize_t pos = 0;
+   PyObject *key;
+   PyObject *value;
+
+   // Get the module object for the `sys` module.
+   PyObject *module = PyImport_ImportModule("coot");
+   // Get the dictionary object for the `sys` module.
+   PyObject *dict = PyModule_GetDict(module);
+  // Iterate over the keys and values in the dictionary.
+   while (PyDict_Next(dict, &pos, &key, &value)) {
+      // Do something interesting with the key and value.
+      // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
+      std::string key_c = std::string("coot.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
+      module_coot_completions.push_back(key_c);
+   }
+   // Get the module object for the `sys` module.
+   module = PyImport_ImportModule("coot_utils");
+   // Get the dictionary object for the `sys` module.
+   dict = PyModule_GetDict(module);
+  // Iterate over the keys and values in the dictionary.
+   while (PyDict_Next(dict, &pos, &key, &value)) {
+      // Do something interesting with the key and value.
+      // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
+      std::string key_c = std::string("coot_utils.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
+      module_coot_utils_completions.push_back(key_c);
+   }
+
+   // command history
+   std::vector<std::string> chv = g.command_history.commands;
+
+   chv = g.command_history.unique_commands(); // there *were* unique already
+
+   if (false) chv.clear(); // 20230516-PE while testing.
+
+   // add together the completions
+   completions.push_back("import coot");
+   completions.push_back("import coot_utils");
+   completions.insert(completions.end(), chv.begin(),                           chv.end());
+   completions.insert(completions.end(), module_coot_completions.begin(),       module_coot_completions.end());
+   completions.insert(completions.end(), module_coot_utils_completions.begin(), module_coot_utils_completions.end());
+
+   // maybe only once!
+   GtkListStore *store = gtk_list_store_new(1, G_TYPE_STRING);
+   GtkTreeIter iter;
+
+   for (unsigned int i=0; i<completions.size(); i++) {
+      gtk_list_store_append( store, &iter );
+      std::string c = completions[i];
+      // std::cout << "adding to gtk-completion: " << c << std::endl;
+      gtk_list_store_set( store, &iter, 0, c.c_str(), -1 );
+   }
+
+   gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
+
+}
+
+
 gboolean
 on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
-                                                      guint                  keyval,
-                                                      guint                  keycode,
-                                                      GdkModifierType        modifiers,
-                                                      GtkEntry              *entry) {
+                                      guint                  keyval,
+                                      guint                  keycode,
+                                      GdkModifierType        modifiers,
+                                      GtkEntry              *entry) {
+
+   // This function is called on Ctrl and Shift, and Arrowkey Up and Down key presses
+
    gboolean handled = TRUE;
+   bool control_is_pressed = (modifiers & GDK_CONTROL_MASK);
 
    std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval << " keycode: " << keycode << std::endl;
 
    switch(keyval) {
       case GDK_KEY_Up: {
+         handled = TRUE;
+         if (control_is_pressed) {
+            graphics_info_t g;
+            std::string t = g.command_history.get_previous_command();
+            gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         }
+         break;
       }
       case GDK_KEY_Down: {
+         handled = TRUE;
+         if (control_is_pressed) {
+            graphics_info_t g;
+            std::string t = g.command_history.get_next_command();
+            gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
+         }
+         break;
       }
       case GDK_KEY_Escape: {
          auto func = +[] (gpointer data) {
@@ -178,40 +273,21 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
       }
    }
 
-#if 0
-   switch(keyval) {
-      case GDK_KEY_Up: {
-         const char *entry_txt = gtk_editable_get_text(GTK_EDITABLE(entry));
-         if (entry_txt) {
-            std::string t = graphics_info_t::command_history.get_previous_command();
-            gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
-            g_debug("Setting command entry text to '%s'",t.c_str());
-         }
-         break;
-      }
-      case GDK_KEY_Down: {
-         std::string t = graphics_info_t::command_history.get_next_command();
-         gtk_editable_set_text(GTK_EDITABLE(entry), t.c_str());
-         g_debug("Setting command entry text to '%s'",t.c_str());
-         break;
-      }
-      case GDK_KEY_Escape: {
-          g_idle_add(+[](gpointer data)-> gboolean {
-            GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-            gtk_revealer_set_reveal_child(revealer,FALSE);
-            return G_SOURCE_REMOVE;
-         },NULL);
-         break;
-      }
-      default: {
-         handled = FALSE;
-         g_debug("Python scripting entry: Unhandled key: %s",gdk_keyval_name(keyval));
-      }
-   }
-#endif
-
    return gboolean(handled);
 }
+
+void
+on_python_scripting_entry_key_released(GtkEventControllerKey *controller,
+                                       guint                  keyval,
+                                       guint                  keycode,
+                                       guint                  modifiers,
+                                       GtkButton             *button) {
+
+   graphics_info_t g;
+   std::cout << "on_python_scripting_entry_key_released() keyval: " << keyval << " keycode: " << keycode << std::endl;
+
+}
+
 
 // 20230516-PE trying to add back the python completion and history that was in
 // gtk3 coot into gtk4 coot.
@@ -219,7 +295,6 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
 // 20230516-PE I am, for the moment, not adding the header coot-setup-python.hh here because
 // it doesn't include gtk stuff (for now).
 void add_python_scripting_entry_completion(GtkWidget *entry);
-
 
 void on_python_scripting_entry_activated(GtkEntry* entry, gpointer user_data) {
 
@@ -245,12 +320,13 @@ void setup_python_scripting_entry() {
    // for 'Up' and 'Down' keys, i.e. history lookup
    // and for 'Esc' key to hide the revealer
 
-   g_signal_connect(key_controller_entry, "key-pressed", G_CALLBACK(on_python_scripting_entry_key_pressed), entry);
+   g_signal_connect(key_controller_entry, "key-pressed",  G_CALLBACK(on_python_scripting_entry_key_pressed),  entry);
+   // g_signal_connect(key_controller_entry, "key-released", G_CALLBACK(on_python_scripting_entry_key_released), entry);
+
+   gtk_widget_add_controller(entry, key_controller_entry);
 
    // for executing Python commands
    g_signal_connect(entry, "activate", G_CALLBACK(on_python_scripting_entry_activated), entry);
-
-   gtk_widget_add_controller(entry, key_controller_entry);
 
    // PE adds history and completions (in coot-setup-python.cc)
    add_python_scripting_entry_completion(entry);

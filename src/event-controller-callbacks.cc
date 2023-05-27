@@ -53,6 +53,10 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          // move an already picked atom
          move_atom_pull_target_position(x, y);
       }
+   } else {
+      int x_as_int = static_cast<int>(x);
+      int y_as_int = static_cast<int>(y);
+      rotate_chi(x_as_int, y_as_int);
    }
 }
 
@@ -298,7 +302,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             bool handled = false;
 
-            std::cout << "Here with in_range_define " << in_range_define << std::endl;
+            // std::cout << "Here with in_range_define " << in_range_define << std::endl;
             if (in_range_define == 1 || in_range_define == 2) {
                bool intermediate_atoms_only_flag = false;
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
@@ -334,7 +338,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             if (! handled) {
 
                // does this ever run?
-               std::cout << "Symmetry atom pick here B " << std::endl;
+               std::cout << "Symmetry atom pick here B - does this run? When? " << std::endl;
                coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }

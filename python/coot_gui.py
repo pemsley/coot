@@ -4824,6 +4824,13 @@ def water_coordination_gui():
             if d:
                 update_water_results(imol, n, d)
 
+    def entry_activate_event(entry, user_data):
+        n = get_number()
+        imol = get_molecule()
+        d = get_distance()
+        if d:
+            update_water_results(imol, n, d)
+
     def atom_spec_to_text(atom_spec):
         # remove the leading element (user_int, I think)
         # return " ".join(map(str, atom_spec))
@@ -4869,7 +4876,7 @@ def water_coordination_gui():
         return name_store
 
     window = Gtk.Window()
-    window.set_title("Coot Highly-Coordinated Waters")
+    window.set_title("Coot: Highly-Coordinated Waters")
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     results_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     water_results_label = Gtk.Label(label="Other Coordinated Waters")
@@ -4896,6 +4903,10 @@ def water_coordination_gui():
                                       # should use to get strings from to be text_column
     combobox_molecule.pack_start(renderer_text, True)
     combobox_molecule.add_attribute(renderer_text, "text", 1)
+    combobox_molecule.set_margin_start(6)
+    combobox_molecule.set_margin_end(6)
+    combobox_molecule.set_margin_top(4)
+    combobox_molecule.set_margin_bottom(4)
 
     print("debug:: water_coordination_gui(): combobox_mol_items:", combobox_mol_items)
     print("debug:: water_coordination_gui(): combobox_molecule:",  combobox_molecule)
@@ -4915,12 +4926,28 @@ def water_coordination_gui():
         combobox_coordination.append_text(str(i))
 
     combobox_coordination.set_active(2)
+    combobox_coordination.set_margin_start(6)
+    combobox_coordination.set_margin_end(6)
+    combobox_coordination.set_margin_top(4)
+    combobox_coordination.set_margin_bottom(4)
 
     dist_label = Gtk.Label(label="Max Dist: ")
     dist_entry = Gtk.Entry()
     close_button = Gtk.Button(label="  Close  ")
     apply_button = Gtk.Button(label="  Apply  ")
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    apply_button.set_margin_start(6)
+    apply_button.set_margin_end(6)
+    apply_button.set_margin_top(4)
+    apply_button.set_margin_bottom(4)
+    close_button.set_margin_start(6)
+    close_button.set_margin_end(6)
+    close_button.set_margin_top(4)
+    close_button.set_margin_bottom(4)
+    hbox_buttons.set_margin_start(6)
+    hbox_buttons.set_margin_end(6)
+    hbox_buttons.set_margin_top(4)
+    hbox_buttons.set_margin_bottom(4)
 
     def get_molecule():
         tree_iter = combobox_molecule.get_active_iter()
@@ -4946,13 +4973,12 @@ def water_coordination_gui():
 
     def clear_previous_results():
         for this_vbox in [results_vbox, metal_results_vbox]:
-            children = this_vbox.get_children()
-            res = [widget.destroy() for widget in children]
-            # for child in children:
-            #   print "BL DEBUG:: now destroy child", child
-            #   child.destroy()
-            # this_vbox.hide()
-            # this_vbox.show()
+            child = this_vbox.get_first_child()
+            while child is not None:
+                next_child = child.get_next_sibling()
+                this_vbox.remove(child)
+                child = next_child
+
 
     def update_water_results(imol, n, d):
         results = coot.highly_coordinated_waters_py(imol, n, d)
@@ -5005,12 +5031,13 @@ def water_coordination_gui():
 
     # fill_option_menu_with_number_options(number_menu, coot_utils.number_list, 5)
 
-    scrolled_win.add_with_viewport(results_vbox)
+    # 20230520-PE old scrolled_win.add_with_viewport(results_vbox)
+    scrolled_win.set_child(results_vbox)
 
-    metal_results_scrolled_win.add_with_viewport(metal_results_frame)
-    metal_results_frame.add(metal_results_vbox)
+    metal_results_scrolled_win.set_child(metal_results_frame)
+    # metal_results_frame.add(metal_results_vbox)
+    metal_results_frame.set_child(metal_results_vbox)
     # metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
-    
 
     vbox.append(combobox_molecule)
 
@@ -5035,8 +5062,8 @@ def water_coordination_gui():
     vbox.append(water_results_label)
     vbox.append(scrolled_win)
     vbox.append(h_sep)
-    hbox_buttons.append(apply_button)
     hbox_buttons.append(close_button)
+    hbox_buttons.append(apply_button)
     vbox.append(hbox_buttons)
 
     # From the Nayal and Di Cera (1996) paper, it seems that 2.7
@@ -5048,7 +5075,9 @@ def water_coordination_gui():
 
     close_button.connect("clicked", delete_event)
 
-    dist_entry.connect("key_press_event", key_press_event)
+    # dist_entry.connect("key_press_event", key_press_event)
+
+    dist_entry.connect("activate", entry_activate_event)
 
     apply_button.connect("clicked", apply_cb)
 
@@ -5637,11 +5666,11 @@ def add_module_refine():
 
         add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
 
-        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-        add_simple_action_to_menu(menu, "Contact Dots On","contact_dots_on",  lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
-        add_simple_action_to_menu(menu, "Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",  lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
         add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
         add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)

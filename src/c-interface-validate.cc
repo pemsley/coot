@@ -126,15 +126,16 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // Opps - this (logical OR) should be on by default:
    GtkWidget *check_waters_OR_radiobutton  = widget_from_builder("check_waters_OR_radiobutton");
 
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(check_waters_OR_radiobutton), TRUE);
 
-   GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_combobox");
+   GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_comboboxtext");
 
-   gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
+   if (check_waters_action_combobox)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
 
-   GCallback callback_func = G_CALLBACK(check_waters_molecule_combobox_changed);
+   GCallback callback_func = G_CALLBACK(nullptr);
 
-   GtkWidget *combobox = widget_from_builder("check_waters_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("check_waters_molecule_comboboxtext");
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -144,9 +145,8 @@ GtkWidget *wrapped_create_check_waters_dialog() {
       }
    }
    graphics_info_t g;
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
-
-   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+   if (combobox)
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
 
    GtkWidget *entry;
    // char text[100];
@@ -250,27 +250,19 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    GtkWidget *hbox3 = widget_from_builder("check_waters_min_dist_hbox");
    GtkWidget *hbox4 = widget_from_builder("check_waters_max_dist_hbox");
 
-   GtkToggleButton *checkbutton1 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_b_factor_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton2 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_map_sigma_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton3 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_min_dist_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton4 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_max_dist_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton5 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_by_difference_map_active_checkbutton"));
+   GtkCheckButton *checkbutton1 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_b_factor_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton2 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_map_sigma_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton3 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_min_dist_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton4 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_max_dist_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton5 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_by_difference_map_active_checkbutton"));
 
-   if (! gtk_toggle_button_get_active(checkbutton1))
-      use_b_factor_limit_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton2))
-      use_map_sigma_limit_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton3))
-      use_min_dist_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton4))
-      use_max_dist_test = 0;
+   if (! gtk_check_button_get_active(checkbutton1)) use_b_factor_limit_test  = 0;
+   if (! gtk_check_button_get_active(checkbutton2)) use_map_sigma_limit_test = 0;
+   if (! gtk_check_button_get_active(checkbutton3)) use_min_dist_test        = 0;
+   if (! gtk_check_button_get_active(checkbutton4)) use_max_dist_test        = 0;
+
    if (checkbutton5)
-      if (! gtk_toggle_button_get_active(checkbutton5))
+      if (! gtk_check_button_get_active(checkbutton5))
 	 use_difference_map_test = 0;
 
    GtkWidget *zero_occ_checkbutton = widget_from_builder("check_waters_zero_occ_checkbutton");
@@ -279,19 +271,19 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 
    short int zero_occ_flag = 0;
    short int part_occ_dist_flag = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(zero_occ_checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(zero_occ_checkbutton)))
       zero_occ_flag = 1;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(partial_occ_close_contact_checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(partial_occ_close_contact_checkbutton)))
       part_occ_dist_flag = 1;
 
    //
    short int logical_operator_and_or_flag = 0; // logical AND
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checklogic_OR_radiobutton))) {
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checklogic_OR_radiobutton))) {
       logical_operator_and_or_flag = 1;
    }
 
    // Check or Delete?
-   GtkWidget *action_combobox = widget_from_builder("check_waters_action_combobox");
+   GtkWidget *action_combobox = widget_from_builder("check_waters_action_comboboxtext");
    std::string action_string;
    gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(action_combobox));
    if (at) action_string = at;
@@ -304,6 +296,9 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       check_waters_by_difference_map(graphics_info_t::check_waters_molecule, imol_diff_map, 1);
    }
 
+   GtkWidget *model_combobox = widget_from_builder("check_waters_molecule_comboboxtext");
+   int imol_check_waters = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+
    if (use_b_factor_limit_test == 0)
       b_factor_lim = -100.0;
    if (use_map_sigma_limit_test == 0)
@@ -313,7 +308,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    if (use_max_dist_test == 0)
       max_dist = -100.0;  // sets a flag in find_water_baddies_OR
    if (action_string == "Check") {
-      GtkWidget *w = wrapped_checked_waters_baddies_dialog(graphics_info_t::check_waters_molecule,
+      GtkWidget *w = wrapped_checked_waters_baddies_dialog(imol_check_waters,
 							   b_factor_lim,
 							   map_sigma_lim,
 							   min_dist,
@@ -321,6 +316,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 							   part_occ_dist_flag,
 							   zero_occ_flag,
 							   logical_operator_and_or_flag);
+      set_transient_for_main_window(w);
       gtk_widget_show(w);
    }
 
@@ -328,7 +324,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    if (action_string == "Delete") {
 
       // delete those baddies:
-      delete_checked_waters_baddies(graphics_info_t::check_waters_molecule,
+      delete_checked_waters_baddies(imol_check_waters,
 				    b_factor_lim,
 				    map_sigma_lim,
 				    min_dist,
@@ -380,7 +376,10 @@ check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float mi
 
 // On check OK, we fire up this widget which is a vbox of baddy radio buttons.
 //
-GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
+GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim,
+                                                 float min_dist, float max_dist,
+                                                 short int part_occ_contact_flag, short int zero_occ_flag,
+                                                 short int logical_operator_and_or_flag) {
 
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
@@ -392,6 +391,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
       graphics_info_t g;
       int imol_for_map = g.Imol_Refinement_Map();
 
+      GtkWidget *button_group = nullptr;
       if (is_valid_model_molecule(imol)) {
 	 if (!is_valid_map_molecule(imol_for_map)) {
 	    std::cout << "WARNING:: Not a valid map for density testing "
@@ -405,9 +405,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	    // list (in graphics_info_t::checked_waters_next_baddie).
 	    g_object_set_data(G_OBJECT(w), "baddies_size", GINT_TO_POINTER(baddies.size()));
 
-	    GtkWidget *button;
 	    GtkWidget *vbox = widget_from_builder("checked_waters_baddies_vbox");
-	    GSList *gr_group = NULL;
 
 	    if (baddies.size() > 0 ) {
 	       for (int i=0; i<int(baddies.size()); i++) {
@@ -433,38 +431,28 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  button_label += baddies[i].string_user_data;
 		  button_label += " " ;
 
-#if (GTK_MAJOR_VERSION >= 4)
-		  button = gtk_check_button_new_with_label(button_label.c_str());
-		  // gr_group = gtk_check_button_get_group(GTK_RADIO_BUTTON(button)); // or something
-#else
-		  button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
-		  gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
-#endif
+		  GtkWidget *toggle_button = gtk_toggle_button_new_with_label(button_label.c_str());
+                  gtk_widget_set_margin_top(toggle_button, 2);
+                  gtk_widget_set_margin_bottom(toggle_button, 2);
+                  gtk_widget_set_margin_start(toggle_button, 6);
+                  gtk_widget_set_margin_end(toggle_button, 6);
+
+                  // set the group here.
+                  if (button_group)
+                     gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(toggle_button), GTK_TOGGLE_BUTTON(button_group));
+                  else
+                     button_group = toggle_button;
+
 		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
 		  atom_spec->int_user_data = imol;
 
 		  std::string button_name = "checked_waters_baddie_button_";
 		  button_name += coot::util::int_to_string(i);
 
- 		  g_object_set_data_full(G_OBJECT(w),
-					 button_name.c_str(), button,
-					 NULL);
-
-		  g_signal_connect(G_OBJECT(button), "clicked",
-				   G_CALLBACK(graphics_info_t::on_generic_atom_spec_button_clicked),
+		  g_signal_connect(G_OBJECT(toggle_button), "toggled",
+				   G_CALLBACK(graphics_info_t::on_generic_atom_spec_toggle_button_toggled),
 				   atom_spec);
-
-		  GtkWidget *frame = gtk_frame_new(NULL);
-		  gtk_frame_set_child(GTK_FRAME(frame), button);
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-		  gtk_box_append(GTK_BOX(vbox), frame);
-#else
-		  gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
-		  gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
-#endif
-		  gtk_widget_show(button);
-		  gtk_widget_show(frame);
+		  gtk_box_append(GTK_BOX(vbox), toggle_button);
 	       }
 	    } else {
 

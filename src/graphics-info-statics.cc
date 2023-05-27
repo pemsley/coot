@@ -294,7 +294,7 @@ float graphics_info_t::place_helix_here_fudge_factor = 1.0; // (it's multiplicat
 
 double graphics_info_t::symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
 
-std::vector<double> graphics_info_t::symmetry_colour = std::vector<double> (4, 0.5);
+glm::vec4 graphics_info_t::symmetry_colour = glm::vec4(0.4, 0.4, 0.4, 1.0);
 
 double*  graphics_info_t::skeleton_colour = new double[4];
 int      graphics_info_t::map_for_skeletonize = -1;

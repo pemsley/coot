@@ -3866,10 +3866,19 @@ void coot_all_atom_contact_dots_instanced(int imol) {
 
 void coot_all_atom_contact_dots(int imol) {
 
-   std::cout << "coot_all_atom_contact_dots() for imol " << imol << std::endl;
-
    coot_all_atom_contact_dots_instanced(imol);
 }
+
+//! \brief as above, but use the active molecule
+void coot_all_atom_contact_dots_active_molecule() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_all_atom_contact_dots_instanced(imol);
+   }
+}
+
 
 #ifdef USE_GUILE
 SCM linked_residues_scm(SCM residue_centre_scm, int imol, float close_dist_max) {

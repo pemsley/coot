@@ -241,8 +241,8 @@ on_model_toolbar_auto_fit_rotamer_button_clicked(GtkButton *button,
 //
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_rotamers_button_clicked(GtkButton *toggletoolbutton,
-                                         gpointer         user_data) {
+on_model_toolbar_rotamers_button_clicked(GtkButton *button,
+                                         gpointer  user_data) {
 
    // Find rotamers for the residue at the centre of the screen
    graphics_info_t g;
@@ -250,6 +250,24 @@ on_model_toolbar_rotamers_button_clicked(GtkButton *toggletoolbutton,
    int imol = aa.first;
    if (is_valid_model_molecule(imol)) {
       g.do_rotamers(imol, aa.second);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_edit_chi_angles_button_clicked(GtkButton *button,
+                                         gpointer         user_data) {
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *atom = aa.second;
+      int atom_index = -1;
+      atom->GetUDData(g.molecules[imol].atom_sel.UDDAtomIndexHandle, atom_index);
+      std::cout << "now atom_index is " << atom_index << std::endl;
+      g.execute_edit_chi_angles(atom_index, imol); // put these the other way around?
+                                                   // or make a residue-base argument API?
    }
 
 }
@@ -836,7 +854,8 @@ on_menubar_regularize_residue_activate(GMenuItem *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_menubar_regularize_tandem_3_activate(GMenuItem *menuitem,
-                                                            gpointer     user_data) {
+                                        gpointer     user_data) {
+
    regularize_tandem_3();
 }
 

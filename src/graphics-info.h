@@ -1180,6 +1180,8 @@ public:
 
    static int get_latest_model_molecule();
 
+   static int get_biggest_model_molecule();
+
    static bool use_graphics_interface_flag; // 20220409-PE now defaults is false!
 
    // Display size
@@ -1343,8 +1345,11 @@ public:
    //
 
    // symm colour is a part of the molecule now
-    static double  symmetry_colour_merge_weight;
-    static std::vector<double> symmetry_colour;
+   static double symmetry_colour_merge_weight;
+   // this is merged with the colour from standard atom colours
+   static glm::vec4 symmetry_colour;
+   static GdkRGBA symmetry_colour_to_rgba();
+   static void rgba_to_symmetry_colour(GdkRGBA rgba);
 
    // Rotate colour map?
    static short int rotate_colour_map_on_read_pdb_flag;
@@ -1371,6 +1376,7 @@ public:
 
    //
    static short int show_symmetry;
+   static void update_symmetry(); // of models
 
    // Clipping Planes:
    static float clipping_front;
@@ -1728,6 +1734,11 @@ public:
 					       int it2, const char *t3);
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 					       int resno, const char *atom_name, const char *altLoc);
+
+   // 20230520-PE why isn't this here?
+   // void set_go_to_atom(const coot::atom_spec_t &atom_spec);
+   // I think it should be. Next time you come here, make it so and use it in
+   // on_generic_atom_spec_toggle_button_toggled().
 
    void set_go_to_residue_intelligent(const std::string &chain_id, int resno,
 				      const std::string &ins_code);
@@ -3659,9 +3670,15 @@ public:
 
    // and a gui wrapper for that:
    GtkWidget *wrapped_create_checked_waters_by_variance_dialog(const std::vector <coot::atom_spec_t> &v, int imol);
+
    // and its buttons callbacks:
-   static void on_generic_atom_spec_button_clicked (GtkButton *button,
-						    gpointer user_data);
+   // static void on_generic_atom_spec_button_clicked (GtkButton *button,
+   //                                                  gpointer user_data);
+   //
+   // 20230520-PE the above should be toggle buttons (shouldn't they?) - they have the "toggled" signal,
+   // not the "clicked" signal.
+   //
+   static void on_generic_atom_spec_toggle_button_toggled(GtkToggleButton *toggle_button, gpointer user_data);
 
    // ----- chiral volumes: ----
 
@@ -4644,6 +4661,7 @@ string   static std::string sessionid;
    static void draw_molecules();
    static void draw_meshes();
    static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
+   static void draw_molecules_other_meshes(unsigned int pass_type);
    static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
@@ -5174,7 +5192,11 @@ string   static std::string sessionid;
    static std::vector<widgeted_rama_plot_t> rama_plot_boxes;
    static void draw_rama_plots(); // draw the rama plots in the above vector
    static void remove_plot_from_rama_plots(GtkWidget *rama_plot);
-
+   static void rama_plot_boxes_handle_close_molecule(int imol);
+   static void rama_plot_boxes_handle_molecule_update(int imol);
+   static void rama_plot_boxes_handle_molecule_update(GtkWidget *box);
+   static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
+                                                                                                        // entry change callback
 };
 
 

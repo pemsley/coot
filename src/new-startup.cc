@@ -602,8 +602,6 @@ void
 new_startup_application_activate(GtkApplication *application,
                                  gpointer user_data) {
 
-   std::cout << "!!!!!!!!!!!!!!!! new_startup_application_activate() " << std::endl;
-
    application_activate_data* activate_data = (application_activate_data*) user_data;
 
    activate_data->application = application;
@@ -643,7 +641,9 @@ new_startup_application_activate(GtkApplication *application,
 
       graphics_info.application = application;
 
-      graphics_info.init();
+      // 20230526-PE this now happens i init_coot_as_python_module()
+      // Let's not do it (including geom.init_standard()) twice.
+      // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
       if (GTK_IS_BUILDER(builder)) {
@@ -705,9 +705,9 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_show(gl_area);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 300);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_size_request(gl_area, 900, 500); // Hmm
+      gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
       gtk_widget_show(app_window);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 
@@ -887,8 +887,10 @@ int new_startup(int argc, char **argv) {
 #endif
 
    mmdb::InitMatType();
-   setup_symm_lib();
-   check_reference_structures_dir();
+
+   // setup_symm_lib();
+   // check_reference_structures_dir();
+
    gtk_init();
 
    load_css();

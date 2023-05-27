@@ -1,23 +1,23 @@
 
---- Big Ticket Items that are not listed here ---
+## --- Big Ticket Items that are not listed here ---
 
-RDKit
-Ligand Builder
-Validation Plots
-Ramachandran Plot
+ - RDKit
+ - Ligand Builder
+ - Validation Plots
+ - Ramachandran Plot
 
-coot_gui.smiles_gui() - is this a thing now?
-Not without --enhanced-ligand-gui it isn't
-Note that biscu-it needs to be ported to Python 3.
+ - coot_gui.smiles_gui() - is this a thing now?
+Not without --enhanced-ligand-gui it isn't.
+Check QED is now part of RDKit.
 
---- Widgets that have changed in GTK ---
+## --- Widgets that have changed in GTK ---
 
-Padding is gone, margins and layout are in.
-Tables are out, Grids are in.
-Radio buttons are gone, use check buttons instead.
-HBoxes and VBoxes are gone, use generic Box
-Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
-Canvas is gone, use widget lists instead (how?)
+ - Padding is gone, margins and layout are in.
+ - Tables are out, Grids are in.
+ - Radio buttons are gone, use check buttons instead.
+ - HBoxes and VBoxes are gone, use generic Box
+ - Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
+ - Canvas is gone, use widget lists instead (how?)
 
 Have a look at adding thing this:
 <style>
@@ -34,92 +34,40 @@ Here are other styles:
     .destructive-action: used for buttons that perform a destructive action, such as deleting data
     .circular: used for circular buttons
 
-
 ----
 
-"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
-
-Download 7a0l (or anything) doesn't have (doensn't display) links when reading from an mmcif!
-Check the links in all representation types ::: 4
-
-Add highly-coordinated waters
-
-Add contact dots
-
-Add molprobity contact dots
-
-Key binding for update Coot contact dots
-
-It would be nice if the coot contact dots updated on model modification
-
-Update Dynamic validation on making links (the NBC clashes should disappear)
-
-Generic Display Objects is a mess ::: 3
-
-Wed  3 May 2023 14:43:36 BST
-check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
-
-Restore ^C interrupt (python-related?) ::: 1
-
-Sun 23 Apr 21:33:42 BST 2023
-
-   void HUDTextureMesh::setup_buffers() { ...
-   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
-
-   Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  ::: 1
-
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add
- Other Solvent Molecules"? ::: 1
-
-Fix "Edit Chi Angles" button ::: 1
-
-Update the Ramachandran Plot after RSR or other model edits ::: 1
-
 Update the Validation Graphs after RSR or other model edits ::: 1
+what is this: update_active_validation_graph_model()?
+It is the function that gets called when the user changes the molecule in the validation graph dialog.
+It is not the function to update the graphs when the model changes.
 
-Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
+Replace Residue A72 with CSO - dialogs messed up ::: 1
 
-Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
-* It works on the PC.
+Validation graph colours ::: 0.5
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 1
+Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
-Caps lock key indicator ::: 2
+Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
-Start up from Saved state. ::: 1
-For now I can start by passing startup.py on the command line.
-
-Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 
-Curlew: ::: 4
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
-Bring Python command history and completion into GTK4: ::: 2
-   a9d101aa69a767583a085de9e3c8ae2449fe71fa
-   3fc6cfe003683ab1180c0045387036068cc32294
+Curlew: speed-run and CaBLAM ::: 4
+
+Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 1
+
+On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
 
 rename draw-2.cc as tick-function.cc or some such
 
-Get rid of "Other Modelling Tools" ::: 1
-
-When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
-on the atom that is blocking. ::: 1
-
-Delete on a Water fails (it works if "Residue" is selected) ::: 0.5
-
-Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
-
-Map Skeletonization ::: 2
-
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
-
-Enable splash screen: ::: 1
-* I don't know how to make the window the right size! The image is display in 16 pixels width
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
@@ -129,35 +77,25 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
-Validation graphs colours
-
-Light Mode, Dark Mode, Automatic (tracks background colour) ::: 1
-
-Find Somewhere for "Choose Undo Molecule" ::: 1
+Validation graphs colours, updates of rama, graphs, clash dots on model change.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
-Put a bar/cyclnder under Diego so I can see the atoms.
-
 Dotted Surface ::: 1
-
-HOLE ::: 2
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
 
 Views ::: 2
-
-RCrane - Make this a Module ::: 2
 
 Find a home for New molecule by sphere ::: 1
 
 Find a home for New molecule by symmetry op ::: 1
 
 Make the Ligand Menu a module ::: 1
-
-Low Priority: 3D Annotations ::: 3
-
-Other Modelling tools should be in the menu ::: 2
+Not much to do until we turn on RDKit.
 
 rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
 
@@ -166,21 +104,32 @@ Think of a way to start-up with certain modules on (in Preferences) ::: 2
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
-Fullscreen - maybe not possible in gtk4 ::: 0.2
-
 Low Priority: history searching on python window up-arrow ::: 1
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
 Rework the namespace of the python modules to be more cannonical ::: 4
 
-"Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
-and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
-would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
-a number of textures and interpolating between them). Also consider a blurred textured blue background so that
-it looks like the sea.  Or use texture background while Refmac is running.
+Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui, fitting etc.
+
+struct_conn in mmdb for links : how  does it work and can they be displayed?
+
+Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
+OK, but this is a mmdb problem not a GTK4 Coot problem.
+"Nice to have" - or change to scope to 10.
+
+A benchmark in Curlew? Or built-in would be better.
+
+Caps lock key indicator?
+
+Coot contact dots updated on model modification
+
+residue spec -> rdkit python object at the coot api
 
 How to represent a "Both" chirial (ambiguous) (are they the same thing?)
 
@@ -188,7 +137,13 @@ User-defined menus in Python - connected via coot_main_menumodel.
 
 Comboboxes with entries for old molecule, or duplicated entries.
 
-CA Baton Mode
+Map Skeletonization :::- 4
+
+CA Baton Mode :::- 4
+
+End-caps on the O half bonds on the HOHs in 7a0l.
+
+Fullscreen - maybe not possible in gtk4 :::- 0.2
 
 New Mesh algorithms:
 https://swiftcoder.wordpress.com/planets/isosurface-extraction/
@@ -205,6 +160,50 @@ Find somewhere for auto-weight refinement coot_utils.auto_weight_for_refinement(
 Pointer distances:  It should be an overlay one day
 
 Coot Info dialog:  It should be an overlay one day
+
+Note: 7UMH is beasty that would look good rendered with colour-by-NCS-related chains (and vdw balls).
+
+void HUDTextureMesh::setup_buffers() { ...
+// std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  :::- 1
+* It will do for now these are HUD text. One day rewrite, but not today.
+
+Undo molecule chooser should be an overlay.
+
+"Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
+and blur it either using a framebuffer or by FFTing the image, truncating it and back transforming it (that
+would allow the manipulation of the phases so that the background could morph (that might involve pre-generating
+a number of textures and interpolating between them). Also consider a blurred textured blue background so that
+it looks like the sea.  Or use texture background while Refmac is running.
+
+Low Priority: 3D Annotations :::- 3
+Nice to have: 3D text - related to model bulding last time. Or markers in 3D which give us a nice overlay
+text annotations.
+
+RCrane - Make this a Module. Fixing this will take a long time. :::- 20
+
+When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
+on the atom that is blocking. :::- 1
+
+Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
+Put this in preferences.
+
+Change the colour of the Dotted Surface
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
+
+Update Dynamic validation on making links (the NBC clashes should disappear)
+
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. :::- 5
+Also, waters are too big. Also waters are too big in colour by molecule.
+Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-factor all".
+Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
+(also affects gtk3 coot - so think about fixing it there?).
+See "fat atom" commits.
+
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 
 --- Done Items ---
 
@@ -344,16 +343,22 @@ Key-bindings in general ::: 1
 May need revisiting.
 
 Merge Molecules gui ::: 1.0
+* Done.
 
 Find Waters gui ::: 1.0
+* Done.
 
 Ctrl Arrow keys for ligand rotation and translation ::: 1
+* Done.
 
 "All" button in the Display Manager. Also the "Last Only" button. Maybe done in gtk3 merge? ::: 1
+* Done.
 
 Find Ligands gui ::: 3
+* Done.
 
 Coot Points in updating maps ::: 4
+* Done.
 
 Restart the refinement on button-release when dragging an atom ::: 0.5
 call poke_the_refinement().
@@ -398,3 +403,147 @@ Pointer distances ::: 0.5
 Click on symmetry atoms ::: 1
 
 Add back the icons in the info dialog ::: 1
+
+"Add New Residue Type" in the "Add Other Solvent Molecules" dialog doesn't work ::: 0.5
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 0.4
+* Done. Now both atoms are added for the same NBC.
+
+GtkGrid in Residue Info doesn't get cleared before a new residue widgets are added. ::: 0.4
+* Delete all the children: clear_the_grid():
+
+Make a better descision about which molecule is the one used for "place typed atom at pointer (water)" ::: 0.2
+
+Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for now. ::: 0.5
+
+Fix "Edit Chi Angles" button ::: 1
+
+Wed  3 May 2023 14:43:36 BST
+check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
+
+Restore ^C interrupt (python-related?) ::: 1
+
+Add contact dots ::; 1
+* Done.
+
+Add molprobity contact dots ::: 1
+* After one frame the lights get brighter. Strange.
+
+Key binding for update Coot contact dots - built it? ::: 0.2
+* Added to my key_bindings.py for now
+
+Bring Python command history and completion into GTK4: ::: 2
+   a9d101aa69a767583a085de9e3c8ae2449fe71fa
+   3fc6cfe003683ab1180c0045387036068cc32294
+
+Generic Display Objects is a mess ::: 2
+* Much better now!
+
+Enable splash screen: ::: 1
+* I don't know how to make the window the right size! The image is display in 16 pixels width
+
+Check/Delete Waters needs testing ::: 1
+* Done.
+
+Add highly-coordinated waters ::: 0.7
+* Done. Nice
+
+Delete on a Water fails (it works if "Residue" is selected) ::: 0.4
+* Done. Trivial.
+
+Other Modelling tools should be in the menu ::: 2
+Get rid of "Other Modelling Tools" ::: 1
+* Done.
+
+Undo molecule chooser ::: 0.5
+Find Somewhere for "Choose Undo Molecule" ::: 0.5
+* Done. Hooray.
+
+Put a bar/cyclinder under Diego so I can see the atoms. ::: 2
+* Lovely interactive contact dots will do.
+
+Find somewhere in refinement module for "Contact dots during refinement" ::: 0.0
+* Already exists in the "Refine" module!
+
+HOLE ::: 1
+
+Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
+No longer. But make the startup window wider. now app window is 1000x900.
+
+Dotted Surface ::: 1
+* This exits and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
+
+7a0l.cif doesn't load from the command line (related to 7a0l-assembly.cif non-load, I guess).
+It's a molecule not a dictionary. The command_line::add() function needs to detect the difference.
+All molecule .cif files fail to load on the command line? e.g. 7uv7
+Now, should this be "nice to have" or "must have"?
+* Done.
+
+Sharpen/Blur (mtz) map is missing ::: 1
+
+Built-in key-binding for [,]. ::: 0.2
+
+Open, close, reopen Bond Parameters, An extra molecule combobox is added. ::: 0.5
+
+Check the links in all representation types (use PDB files) ::: 2
+* 7a0l not perfect in colour-by-B and occ. Good enough for now.
+
+Draw fixed atoms - anchors seems not to be working. Also, Angry Diegos are missing. Is this only on MacOS? ::: 1.0
+* It works on the PC.
+* Error in the shader.
+
+Where are the rotating hydrogen bonds? ::: 0.5
+Calculate -> Hydrogen Bonds?
+
+7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. ::: 2
+* Fat bonds partial fix for B-factor and Occ modes.
+
+Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
+* Done. At last. 2 attempts. Looks nice.
+
+Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
+* Done.
+
+This function needs an extra arg: "bool transfered_colour_is_instanced"
+void
+Mesh::draw_instanced(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &view_rotation_matrix,
+                     const std::map<unsigned int, lights_info_t> &lights,
+                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                     const glm::vec4 &background_colour,
+                     bool do_depth_fog,
+                     bool do_pulse,
+                     bool do_rotate_z,
+                     float pulsing_amplitude,
+                     float pulsing_frequency,
+                     float pulsing_phase_distribution,
+                     float z_rotation_angle)
+
+which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
+(what else uses that shader?)   ::: 1
+* Done.
+
+7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
+* Done.
+
+Start up from Saved state. ::: 1
+For now I can start by passing startup.py on the command line.
+
+Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
+* Done.
+
+Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+* Done.
+
+Connect up the distances and angles dialog ::: 1
+* It was easy. I could improve the position of the angle label.
+
+Fix the double reading of the monomer library ::: 0.3
+* Hopefully this won't break things.
+
+Update the Ramachandran Plot after RSR or other model edits ::: 1
+* Done. Nice.

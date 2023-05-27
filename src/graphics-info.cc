@@ -306,6 +306,26 @@ graphics_info_t::get_latest_model_molecule() {
    return imol;
 }
 
+//static
+int
+graphics_info_t::get_biggest_model_molecule() {
+
+   int imol = -1;
+   int n_atoms_max = -1;
+   int n = n_molecules();
+   for(int ii=0; ii<n; ii++) {
+      if (is_valid_model_molecule(ii)) {
+         int n_atoms_mol = molecules[imol].atom_sel.n_selected_atoms;
+         if (n_atoms_mol > n_atoms_max) {
+            imol = ii;
+            n_atoms_max = n_atoms_mol;
+         }
+      }
+   }
+   return imol;
+}
+
+
 
 
 double graphics_info_t::GetMouseBeginX() const { return mouse_begin.first; };
@@ -1788,6 +1808,13 @@ graphics_info_t::accept_moving_atoms() {
    // I need to hook into the end of a difference map update.
    // fill_difference_map_peaks_button_box(); // update the difference map peaks if the dialog is open
 
+   rama_plot_boxes_handle_molecule_update(imol_moving_atoms);
+   //    draw_rama_plots(); // 20230526-PE should this be here or elsewhere? Don't rama graphs now
+                            //  get drawn in graphics_draw()?
+
+   // 20230527-PE does this belong here? - lets see....
+   // refresh_validation_graph_model_list();
+
    int mode = MOVINGATOMS;
 
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1894,9 +1921,10 @@ graphics_info_t::run_post_manipulation_hook_scm(int imol,
 void
 graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
-   std::cout << "FIXME:: ----- due to python setup problems not running run_post_manipulation_hook_py()"
-             << std::endl;
-   return;
+   // 20230527-PE exiciting dangerous times - turning this on again:
+   // std::cout << "FIXME:: ----- due to python setup problems not running run_post_manipulation_hook_py()"
+   //           << std::endl;
+   // return;
 
    std::string pms = "coot_utils.post_manipulation_script";
    // pms = "print";
@@ -2466,38 +2494,40 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
 }
 
+#if 0
 void
 graphics_info_t::draw_moving_atoms_peptide_markup() {
 
    if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
       for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
-    const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
+         const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
 
-    glColor3f(0.7, 0.7, 0.8);
-    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+         glColor3f(0.7, 0.7, 0.8);
+         coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
-    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-    coot::Cartesian v2 = fan_centre - m.pt_c_1;
-    coot::Cartesian v3 = fan_centre - m.pt_n_2;
-    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+         coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+         coot::Cartesian v2 = fan_centre - m.pt_c_1;
+         coot::Cartesian v3 = fan_centre - m.pt_n_2;
+         coot::Cartesian v4 = fan_centre - m.pt_ca_2;
 
-    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+         coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+         coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+         coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+         coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
 
-    glBegin(GL_TRIANGLE_FAN);
+         glBegin(GL_TRIANGLE_FAN);
 
-    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+         glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+         glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+         glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+         glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+         glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
 
-    glEnd();
+         glEnd();
       }
    }
 }
+#endif
 
 
 // Display the graphical object of the regularization.
@@ -2584,7 +2614,6 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 #include "utils/dodec.hh"
 
-#ifndef EMSCRIPTEN
 // delete this function?
 std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
@@ -2615,7 +2644,6 @@ graphics_info_t::get_rotamer_dodecs() {
    }
    return dodecs;
 }
-#endif
 
 
 // Merge weirdness
@@ -4568,13 +4596,13 @@ graphics_info_t::apply_undo() {
    // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
    if (umol == -2) {
       if (use_graphics_interface_flag) {
-#ifndef EMSCRIPTEN
+
          // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
          GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
          fill_combobox_with_undo_options(combobox);
          gtk_widget_show(dialog);
-#endif
+
       }
    } else {
       if (umol == -1) {
@@ -4594,14 +4622,9 @@ graphics_info_t::apply_undo() {
                   update_go_to_atom_window_on_changed_mol(umol);
 
                   // update the ramachandran, if there was one
+                  rama_plot_boxes_handle_molecule_update(umol);
+                  draw_rama_plots();
 
-#ifdef HAVE_GOOCANVAS
-                  GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-                  if (w) {
-                     coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-                     handle_rama_plot_update(plot);
-                  }
-#endif
                   // now update the geometry graphs, so get the asc
                   atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
@@ -4665,13 +4688,10 @@ graphics_info_t::apply_redo() {
             // BL says:: from undo, maybe more should be updated!?!
             // update the ramachandran, if there was one
 
-#ifdef HAVE_GOOCANVAS
-            GtkWidget *w = coot::get_validation_graph(umol, coot::RAMACHANDRAN_PLOT);
-            if (w) {
-               coot::rama_plot *plot = (coot::rama_plot *) g_object_get_data(G_OBJECT(w), "rama_plot");
-               handle_rama_plot_update(plot);
-            }
-#endif
+            // update the ramachandran, if there was one
+            rama_plot_boxes_handle_molecule_update(umol);
+            draw_rama_plots();
+
             // now update the geometry graphs, so get the asc
             atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
@@ -6782,6 +6802,8 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 void
 graphics_info_t::quick_save() {
 
+   std::cout << "Quick Save!" << std::endl;
+
    for (int imol=0; imol<n_molecules(); imol++) {
       molecules[imol].quick_save();
    }
@@ -6823,7 +6845,6 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
    }
 }
 
-#ifndef EMSCRIPTEN
 // static
 void
 graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
@@ -6865,9 +6886,7 @@ graphics_info_t::check_keyboard_history_for_easter_egg_codes() {
       }
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 GtkWidget *
 graphics_info_t::wrapped_create_display_control_window() {
 
@@ -6875,4 +6894,49 @@ graphics_info_t::wrapped_create_display_control_window() {
    // 20220808-PE unhide the dialog here maybe.
    return widget;
 }
-#endif
+
+//static
+void
+graphics_info_t::update_symmetry() { // of models
+
+   for (int i=0; i<n_molecules(); i++) {
+      if (is_valid_model_molecule(i)) {
+         molecules[i].update_symmetry();
+      }
+   }
+}
+
+
+//static
+GdkRGBA
+graphics_info_t::symmetry_colour_to_rgba() {
+
+   GdkRGBA rgba;
+   rgba.red   = symmetry_colour.r;
+   rgba.green = symmetry_colour.g;
+   rgba.blue  = symmetry_colour.b;
+   rgba.alpha = symmetry_colour.a;
+
+   if (rgba.red   < 0.0) rgba.red   = 0.0;
+   if (rgba.green < 0.0) rgba.green = 0.0;
+   if (rgba.blue  < 0.0) rgba.blue  = 0.0;
+   if (rgba.alpha < 0.0) rgba.alpha = 0.0;
+
+   if (rgba.red   > 1.0) rgba.red   = 1.0;
+   if (rgba.green > 1.0) rgba.green = 1.0;
+   if (rgba.blue  > 1.0) rgba.blue  = 1.0;
+   if (rgba.alpha > 1.0) rgba.alpha = 1.0;
+
+   return rgba;
+}
+
+//static
+void
+graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
+
+   symmetry_colour.r = rgba.red;
+   symmetry_colour.g = rgba.green;
+   symmetry_colour.b = rgba.blue;
+   symmetry_colour.a = rgba.alpha;
+
+}

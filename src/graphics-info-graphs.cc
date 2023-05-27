@@ -118,43 +118,48 @@ void graphics_info_t::refresh_validation_graph_model_list() {
    // 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
    // }
    if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
-      std::cout << "Destroy graphs for model " << active_validation_graph_model_idx << " here..." << std::endl;
+      std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                << active_validation_graph_model_idx << " here..." << std::endl;
       // destroy_validation_graph(coot::validation_graph_type type);
    }
 }
 
-void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
+void graphics_info_t::update_active_validation_graph_model(int model_idx) {
+
+   // this happens when the user changes the active model in the model combobox in the validation graph dialog
 
    // 1. Update the model active model variable
-   active_validation_graph_model_idx = new_model_idx;
+   active_validation_graph_model_idx = model_idx;
    std::cout << "update_active_validation_graph_model() active_validation graph model idx"
              << active_validation_graph_model_idx << std::endl;
    // 2. Handle chains
    g_warning("todo: update_active_validation_graph_model(): handle chains");
    // 3. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
-   for(const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+   for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
       g_warning("Todo: Display/rebuild validation graph data for: %s [model index changed to %i]",
-                coot::validation_graph_type_to_human_name(i.first).c_str(),
-                new_model_idx);
+                coot::validation_graph_type_to_human_name(i.first).c_str(), model_idx);
    }
 }
 
 void graphics_info_t::change_validation_graph_chain(const std::string& chain_id) {
-	g_debug("Todo: change_validation_graph_chain");
+
+   // 20230527-PE It will be a while before this gets filled I think!
+   g_debug("Todo: change_validation_graph_chain");
 }
 
 
 void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
+   // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
+
    std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
-   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list),
-                          +[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
-                             GtkListStore* list = GTK_LIST_STORE(model);
-                             return ! gtk_list_store_remove(list,iter);
-                          },
-                          NULL
-                          );
+   auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
+      GtkListStore* list = GTK_LIST_STORE(model);
+      return gboolean(!gtk_list_store_remove(list,iter));
+   };
+
+   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list), fn, NULL);
 
    for(int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
@@ -584,6 +589,8 @@ get_validation_data(int imol, coot::validation_graph_type type) {
 // static
 void
 graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
+
+   std::cout << "Yes! create_validation_graph() for " << imol << " " << std::endl;
 
    if (imol != -1) {
       // 1. instantiate the validation graph

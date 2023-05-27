@@ -258,6 +258,18 @@ void exit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    coot_checked_exit(0);
 }
 
+void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      calculate_hydrogen_bonds(imol);
+   }
+}
+
 #include "curlew.h" // 20220628-PE why does this exist? why is curlew() not in the .hh file?
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -429,9 +441,10 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
-      GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
    int imol = first_coords_imol();
    int imol_unsaved = first_unsaved_coords_imol();
    if (imol_unsaved != -1)
@@ -457,11 +470,30 @@ G_GNUC_UNUSED gpointer user_data) {
 
 void
 save_symmetry_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
 
    setup_save_symmetry_coords();
 
+}
+
+void
+on_save_state_dialog_response(GtkDialog *dialog,
+                              int response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      char *file_name = g_file_get_path(file);
+      std::cout << "Now save state script to file " << file_name << std::endl;
+      short int il = coot::PYTHON_SCRIPT;
+      graphics_info_t g;
+      g.save_state_file(file_name, il);
+   }
+
+   // maybe save the dialog in graphics_info_t, and just hide it?
+   // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+   gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
@@ -469,11 +501,23 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *file_chooser = coot_save_state_chooser();
-   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
-   add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
-   set_file_selection_dialog_size(file_chooser);
-   gtk_widget_show(file_chooser);
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Save State",
+                                                   parent_window,
+                                                   action,
+                                                   _("Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   _("Save"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.py");
+   gtk_file_filter_add_pattern(filterselect, "*.scm");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_set_size_request(dialog, 800, 700);
+   g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_save_state_dialog_response), NULL);
+   gtk_widget_show(dialog);
 }
 
 void
@@ -638,6 +682,13 @@ renumber_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       renumber_waters(imol);
    }
+}
+
+void
+undo_molecule_chooser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+   show_set_undo_molecule_chooser();
 }
 
 void
@@ -948,6 +999,25 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED gpointer user_data) {
 }
 
+void add_HOLE_module_action(GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "............................................... add_HOLE_module_action ............." << std::endl;
+
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::vector<coot::command_arg_t> args = {};
+   std::string sc = g.state_command("coot_hole", "hole_ify", args, lang);
+   safe_python_command("import coot_gui");
+   safe_python_command("import coot_hole");
+   std::cout << "calling this: " << sc << std::endl;
+   safe_python_command(sc);
+
+   // needed?
+   // g_simple_action_set_enabled(simple_action,FALSE);
+}
+
 void add_ccp4_module_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
@@ -1078,6 +1148,45 @@ ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
+sharpen_blur_for_xray_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "sharpen/blur for x-ray" << std::endl;
+
+#if 0
+   GtkWidget *dialog   = widget_from_builder("map_sharpening_dialog");
+   GtkWidget *combobox = widget_from_builder("map_sharpening_molecule_combobox");
+   GtkWidget *scale    = widget_from_builder("map_sharpening_hscale");
+
+   auto get_map_molecule_vector = [] () {
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++)
+         if (g.is_valid_map_molecule(i))
+            vec.push_back(i);
+      return vec;
+   };
+
+   graphics_info_t g;
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_map_molecule_vector();
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+#endif
+
+   GtkWidget *dialog = wrapped_create_map_sharpening_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+}
+
+void
 calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
@@ -1199,6 +1308,7 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_bond_parameters_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1252,11 +1362,69 @@ void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+}
+
+
+void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   place_helix_here();
+}
+
+
+
 void find_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
 
    do_find_ligands_dialog();
+
+}
+
+void cis_trans_convert_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at =  aa.second;
+      std::string atom_name = at->name;
+      cis_trans_convert(imol, at->GetChainID(), at->GetSeqNum(), at->GetInsCode());
+   }
+}
+
+void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+
+}
+
+void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         // 20230520-PE pass a std::string here.
+	 reverse_direction_of_fragment(imol, pp.second.second.chain_id.c_str(), pp.second.second.res_no);
+      }
+   }
 
 }
 
@@ -1761,6 +1929,16 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
+   
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::string module = "coot_gui";
+   std::string function = "water_coordination_gui";
+   std::vector<coot::command_arg_t> args;
+   std::string sc = g.state_command(module, function, args, lang);
+   safe_python_command("import coot_gui");
+   safe_python_command(sc);
+
 }
 
 void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2192,8 +2370,11 @@ delete_item(GSimpleAction *simple_action,
             delete_sidechains_for_chain(imol, atom_spec.chain_id);
          }
          if (par == "water") {
+
+            std::cout << "....................... delete water! " << atom_spec << std::endl;
             auto &m = g.molecules[imol];
             m.delete_water(atom_spec);
+            graphics_draw();
          }
       }
    }
@@ -2262,6 +2443,7 @@ create_actions(GtkApplication *application) {
    add_action(            "edit_restraints_action",             edit_restraints_action);
    add_action(           "show_preferences_action",            show_preferences_action);
    add_action(       "merge_solvent_chains_action",        merge_solvent_chains_action);
+   add_action(      "undo_molecule_chooser_action",       undo_molecule_chooser_action);
    add_action(    "show_shader_preferences_action",     show_shader_preferences_action);
    add_action(    "fix_nomenclature_errors_action",     fix_nomenclature_errors_action);
    add_action(  "invert_this_chiral_centre_action",    invert_this_chiral_centre_action);
@@ -2277,9 +2459,11 @@ create_actions(GtkApplication *application) {
    add_action(             "run_script_action",              run_script_action);
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
+   add_action(  "sharpen_blur_for_xray_action",   sharpen_blur_for_xray_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
 
+   add_action("calculate_hydrogen_bonds_action", calculate_hydrogen_bonds_action);
    add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);
    add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
 
@@ -2299,6 +2483,7 @@ create_actions(GtkApplication *application) {
 
    // Calculate -> Modules
 
+   add_action(        "add_HOLE_module_action",         add_HOLE_module_action);
    add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
    add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
    add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
@@ -2327,6 +2512,11 @@ create_actions(GtkApplication *application) {
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
+   add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
+   add_action(               "place_helix_here_action",                place_helix_here_action);
+   add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
+   add_action(             "add_OXT_to_residue_action",              add_OXT_to_residue_action);
+   add_action(        "reverse_chain_direction_action",         reverse_chain_direction_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
    add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);

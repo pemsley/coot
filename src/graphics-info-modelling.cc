@@ -1316,7 +1316,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
-   std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
+   // std::cout << "debug:: on creation last_restraints is " << last_restraints << std::endl;
+
+   bool verbose_refinement_geometry_reporting = false; // make this user-setable
+   if (! verbose_refinement_geometry_reporting)
+      last_restraints->set_quiet_reporting();
 
    last_restraints->set_torsion_restraints_weight(torsion_restraints_weight);
 
@@ -5008,7 +5012,9 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
    int imol = user_pointer_atom_molecule;
    if (! is_valid_model_molecule(imol)) {
       // try to find one
-      imol = get_latest_model_molecule();
+      // imol = get_latest_model_molecule(); 20230519-PE
+      // 20230519-PE that's not good - let's try somethign else.
+      imol = get_biggest_model_molecule();
    }
 
    if (is_valid_model_molecule(imol)) {
@@ -5140,6 +5146,9 @@ graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
 void
 graphics_info_t::rotate_chi(double x, double y) {
 
+   // the displacement of the mouse is the change in speed of the rotation
+   // it's fun. Maybe tricky and conter-intuitive.
+
    // real values start at 1:
    int chi = edit_chi_current_chi;
 
@@ -5150,7 +5159,8 @@ graphics_info_t::rotate_chi(double x, double y) {
    diff  = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
 
-   diff *= 15;
+   // diff *= 15;
+   diff *= 7; // 20230519-PE slow it down, because it's acceleration
 
    // std::cout << "graphics_info_t::rotate_chi " << chi << " by "
    // << diff << std::endl;

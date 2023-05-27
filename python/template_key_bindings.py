@@ -100,8 +100,9 @@ def key_binding_func_21():
             alt_conf  = active_atom[5]
 
             rc_spec = [chain_id, res_no, ins_code]
-            ls = residues_near_residue(imol, rc_spec, 1.9)
+            ls = coot.residues_near_residue_py(imol, rc_spec, 1.9)
             coot_utils.with_auto_accept([refine_residues, imol, [rc_spec] + ls])
+
 add_key_binding("Neighbours Refine", "h", lambda: key_binding_func_21())
 
 add_key_binding("Regularize Residues in sphere", "B",

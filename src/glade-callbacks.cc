@@ -202,11 +202,9 @@ on_clipping_button_clicked             (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_density_ok_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkEntry      *entry;
+                                        gpointer         user_data) {
 
-/*    entry_char_type *text; */
+   GtkEntry      *entry;
    const char *text;
 
    GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_xray_radius_entry"));
@@ -3395,11 +3393,9 @@ on_use_weights_checkbutton_toggled     (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_environment_distance_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   toggle_environment_show_distances(togglebutton);
+on_environment_distance_checkbutton_toggled (GtkCheckButton *checkbutton,
+                                             gpointer         user_data) {
+   toggle_environment_show_distances(checkbutton);
 }
 
 
@@ -4610,8 +4606,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_edit_chi_angles_dialog_ok_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   accept_regularizement();
@@ -4624,10 +4619,8 @@ on_edit_chi_angles_dialog_ok_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_chi_angles_cancel_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_edit_chi_angles_cancel_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
 
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   clear_up_moving_atoms();	/* and remove the graphics object */
@@ -4640,12 +4633,12 @@ on_edit_chi_angles_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_ok_button_clicked      (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget = widget_from_builder("check_waters_dialog");
-  do_check_waters_by_widget(widget);
-  gtk_widget_hide(widget);
+on_check_waters_ok_button_clicked(GtkButton       *button,
+                                  gpointer         user_data) {
+
+   GtkWidget *widget = widget_from_builder("check_waters_dialog");
+   do_check_waters_by_widget(widget);
+   gtk_widget_hide(widget);
 }
 
 
@@ -4675,10 +4668,8 @@ on_edit_chi_angles_normal_rotation_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_geometry_distance_togglebutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_geometry_distance_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                          gpointer         user_data) {
   if (gtk_toggle_button_get_active(togglebutton))
     do_distance_define();
 
@@ -4745,13 +4736,21 @@ on_geometry_dialog_close_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
-    do_angle_define();
+                                        gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton))
+      do_angle_define();
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
+                                         gpointer         user_data)
+{
+  if (gtk_toggle_button_get_active(togglebutton))
+    do_torsion_define();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6525,10 +6524,9 @@ on_align_and_mutate_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_ramachandran_plot_differences_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_ramachandran_plot_differences_ok_button_clicked(GtkButton       *button,
+                                                   gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
    int istat = do_ramachandran_plot_differences_by_widget(w);
    if (istat) 			/* the plot was drawn (i.e. no chain selection funnies) */
@@ -6689,14 +6687,6 @@ on_save_state1_activate                (GMenuItem     *menuitem,
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
-                                         gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton))
-    do_torsion_define();
-}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -7589,8 +7579,7 @@ on_bond_parameters_rotate_colour_map_c_only_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_generic_display_objects1_activate   (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   generic_objects_gui_wrapper();
 
@@ -7616,6 +7605,15 @@ on_generic_objects_dialog_delete_event(GtkWidget       *widget,
    return TRUE;
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_generic_objects_dialog_close_button_clicked(GtkButton       *button,
+                                               gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
+   gtk_widget_hide(dialog);
+
+}
 
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
@@ -7730,8 +7728,9 @@ void
 on_other_tools_RNA_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *w = wrapped_nucleotide_builder_dialog();
-  gtk_widget_show(w);
+   // non-run function
+  // GtkWidget *w = wrapped_nucleotide_builder_dialog();
+  // gtk_widget_show(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -8179,8 +8178,7 @@ on_residue_type_chooser_stub_checkbutton_toggled (GtkToggleButton *togglebutton,
 extern "C" G_MODULE_EXPORT
 void
 on_set_undo_molecule_button_clicked    (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
   show_set_undo_molecule_chooser();
 }
 
@@ -9893,13 +9891,12 @@ on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                             gpointer        user_data) {
+
    GtkWidget *vbox = widget_from_builder("edit_chi_angles_vbox");
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_find_hydrogen_torsions(1);
    } else {
       set_find_hydrogen_torsions(0);
@@ -10084,8 +10081,7 @@ on_map_sharpening_optimize_button_clicked ( GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_map_sharpening_reset_button_clicked(GtkButton       *button,
-                                                           gpointer         user_data)
-{
+                                       gpointer         user_data) {
     // reset to zero!?
     GtkWidget *h_scale = widget_from_builder("map_sharpening_hscale");
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(h_scale));
@@ -10630,7 +10626,7 @@ on_generic_objects_dialog_destroy      (GtkWidget       *object,
 extern "C" G_MODULE_EXPORT
 void
 on_generic_objects_display_all_togglebutton_toggled(GtkToggleButton *togglebutton,
-                                                                        gpointer         user_data) {
+                                                    gpointer         user_data) {
 
   int state = 0;
   if (gtk_toggle_button_get_active(togglebutton))
@@ -11905,6 +11901,7 @@ on_validation_graph_chain_id_combobox_changed(GtkComboBoxText* self, gpointer us
 
 void
 on_validation_graph_checkbutton_toggled(GtkCheckButton* self, coot::validation_graph_type graph_type) {
+
    if (gtk_check_button_get_active(self)) {
       graphics_info_t g;
       // read imol from the widget, but now now, let's use active_validation_graph_model_idx
@@ -11973,12 +11970,14 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *dialog = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
    GtkWidget *combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
+   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
    int imol = 0; //get imol from the combobox
-   // imol = combobox_get_imol(GTK_COMBO_BOX(combobox)); // using Jakub-style comboboxes
+   // imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox)); // using Jakub-style comboboxes
    show_opengl_ramachandran_plot(imol, residue_selection_string);
    gtk_widget_set_visible(dialog, FALSE);
+   gtk_widget_set_visible(scrolled, TRUE);
 }
 
 

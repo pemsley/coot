@@ -2046,8 +2046,7 @@ def auto_weight_for_refinement():
         else:
             centred_residue = active_atom[1:4]
             imol = active_atom[0]
-            other_residues = residues_near_residue(
-                imol, centred_residue, radius)
+            other_residues = coot.residues_near_residue_py(imol, centred_residue, radius)
             all_residues = [centred_residue]
             if (isinstance(other_residues, list)):
                 all_residues += other_residues
@@ -3238,10 +3237,8 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
 
     if (valid_model_molecule_qm(imol)):
 
-        other_residues = residues_near_residue(
-            imol, centre_residue_spec, radius)
-        atom_sel_str = residue_spec_to_atom_selection_string(
-            centre_residue_spec)
+        other_residues = coot.residues_near_residue_py(imol, centre_residue_spec, radius)
+        atom_sel_str = residue_spec_to_atom_selection_string(centre_residue_spec)
 
         imol_new = coot.new_molecule_by_atom_selection(imol, atom_sel_str)
         bb_type = 1
@@ -4395,7 +4392,7 @@ def merge_solvent_chains(imol):
         for res in residue_ls:
             res_spec = [chain_id, res[0], res[1]]
             if residue_exists_qm(imol, *res_spec):
-                near_residues = residues_near_residue(imol, res_spec, 0.05)
+                near_residues = coot.residues_near_residue_py(imol, res_spec, 0.05)
                 if near_residues:
                     # delete
                     for del_res in near_residues:

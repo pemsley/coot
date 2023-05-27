@@ -4004,7 +4004,6 @@ molecule_class_info_t::make_colour_table() const {
    return colour_table;
 }
 
-#ifndef EMSCRIPTEN
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
@@ -4065,7 +4064,11 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
       } else {
-         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode " << model_representation_mode << std::endl;
+
+         if (false)
+         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode "
+                   << model_representation_mode << std::endl;
+
          bool draw_cis_peptide_markups = true; //
          int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
          if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
@@ -4083,9 +4086,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
    }
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // instanced meshes, that is - clever but I couldn't get it to work - there's a branch
 // where I tried.
 void
@@ -4120,7 +4121,6 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
    }
 }
-#endif
 
 
 
@@ -4146,12 +4146,13 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
-   std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
+   if (false)
+      std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
 
 
    GLenum err = glGetError();
@@ -4175,7 +4176,9 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    graphics_info_t::attach_buffers();
-   mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box); // boxes
+   mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box, // boxes
+                                                          graphics_info_t::symmetry_colour,
+                                                          graphics_info_t::symmetry_colour_merge_weight);
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4209,7 +4212,6 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
 
 
-#ifndef EMSCRIPTEN
 // draw molecule as instanced meshes.
 void
 molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
@@ -4220,14 +4222,15 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
                                                const glm::vec4 &background_colour,
                                                bool do_depth_fog) {
 
-   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
-   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
-   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   bool transferred_colour_is_instanced = false;
+   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
 
 }
-#endif
 
-#ifndef EMSCRIPTEN
+
+
 void
 molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::mat4 &mvp,
@@ -4243,7 +4246,7 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
             mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
                                                   eye_position, background_colour, do_depth_fog);
 }
-#endif
+
 
 
 void
@@ -4604,8 +4607,11 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
+   std::cout << "here we are in update_extra_restraints_representation()"  << std::endl;
+
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();
+   update_extra_restraints_representation_geman_mcclure();
    update_extra_restraints_representation_parallel_planes();
 
 }
@@ -4617,8 +4623,13 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
    // make things redraw fast - this is a hack for morph-and-refine.
 
-   if (! draw_it_for_extra_restraints || ! draw_it)
-      return;
+   std::cout << "here with extra_restraints_representation.bond_restraints size "
+             << extra_restraints.bond_restraints.size() << " " << draw_it_for_extra_restraints
+             << std::endl;
+
+   // I want  to update them even if they are not drawn, I think.
+   // if (! draw_it_for_extra_restraints || ! draw_it)
+   //      return;
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       mmdb::Atom *at_1 = NULL;
@@ -4629,32 +4640,110 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       bool ifound_2 = false;
       int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
       int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
-      const coot::extra_restraints_t::extra_bond_restraint_t &res =
-    extra_restraints.bond_restraints[i];
+      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.bond_restraints[i];
 
       // set p1 from ifast_index_1 (if possible)
       //
       if (ifast_index_1 != -1) {
-    if (ifast_index_1 < atom_sel.n_selected_atoms) {
-       at_1 = atom_sel.atom_selection[ifast_index_1];
-       if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-          p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-          ifound_1 = true;
-       }
-    }
+         if (ifast_index_1 < atom_sel.n_selected_atoms) {
+            at_1 = atom_sel.atom_selection[ifast_index_1];
+            if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
       }
       if (! ifound_1) {
-    int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
-    if (idx != -1) {
-       at_1 = atom_sel.atom_selection[idx];
-       if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-          p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-          ifound_1 = true;
-       }
-    }
-  }
+         int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+   }
+
 }
 
+void
+molecule_class_info_t::update_extra_restraints_representation_geman_mcclure() {
+
+   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+      const coot::extra_restraints_t::extra_geman_mcclure_restraint_t &rest = extra_restraints.geman_mcclure_restraints[i];
+      mmdb::Atom *at_1 = NULL;
+      mmdb::Atom *at_2 = NULL;
+      clipper::Coord_orth p1(0,0,0);
+      clipper::Coord_orth p2(0,0,0);
+      bool ifound_1 = false;
+      bool ifound_2 = false;
+      int ifast_index_1 = rest.atom_1.int_user_data;
+      int ifast_index_2 = rest.atom_2.int_user_data;
+
+      if (ifast_index_1 != -1) {
+         if (ifast_index_1 < atom_sel.n_selected_atoms) {
+            at_1 = atom_sel.atom_selection[ifast_index_1];
+            if (rest.atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+      if (! ifound_1) {
+         int idx = full_atom_spec_to_atom_index(rest.atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (rest.atom_1.matches_spec(at_1)) {
+               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               ifound_1 = true;
+            }
+         }
+      }
+      if (ifast_index_2 != -1) {
+         if (ifast_index_2 < atom_sel.n_selected_atoms) {
+            at_2 = atom_sel.atom_selection[ifast_index_2];
+            if (rest.atom_2.matches_spec(at_2)) {
+               p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               ifound_2 = true;
+            }
+         }
+      }
+      if (! ifound_2) {
+         int idx = full_atom_spec_to_atom_index(rest.atom_1);
+         if (idx != -1) {
+            at_1 = atom_sel.atom_selection[idx];
+            if (rest.atom_2.matches_spec(at_2)) {
+               p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               ifound_2 = true;
+            }
+         }
+      }
+
+      if (ifound_1 && ifound_2) {
+
+         // if the distance (actually, n-sigma) is within limits, draw it.
+         //
+         double dist_sq = (p1-p2).lengthsq();
+         double dist = sqrt(dist_sq);
+         double this_n_sigma = (dist - rest.bond_dist)/rest.esd;
+
+         // std::cout << "dist " << dist << " rest.bond_dist " << rest.bond_dist << std::endl;
+
+         if (false)
+            std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
+                      << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
+                      << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
+                      << extra_restraints_representation_for_bonds_go_to_CA
+                      << "\n";
+
+         if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
+             this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) {
+
+            extra_restraints_representation.add_bond(p1, p2, rest.bond_dist, rest.esd);
+         }
+      }
+   }
 }
 
 
@@ -4780,42 +4869,6 @@ molecule_class_info_t::update_extra_restraints_representation_bonds_internal(con
       }
    }
 }
-
-
-
-
-// redefinition - delete after merge is clean
-// void
-// molecule_class_info_t::update_extra_restraints_representation() {
-//
-//    extra_restraints_representation.clear();
-//    update_extra_restraints_representation_bonds();
-//    update_extra_restraints_representation_parallel_planes();
-//
-// }
-
-// redefinition - delete on clean merge
-#if 0
-void
-molecule_class_info_t::update_extra_restraints_representation_bonds() {
-
-   // extra_restraints_representation.clear() should be called before calling this function.
-
-   // make things redraw fast - this is a hack for morph-and-refine.
-
-   if (! draw_it_for_extra_restraints || ! draw_it)
-      return;
-
-   for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
-      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.bond_restraints[i];
-      update_extra_restraints_representation_bonds_internal(res);
-   }
-   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
-      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.geman_mcclure_restraints[i];
-      update_extra_restraints_representation_bonds_internal(res);
-   }
-}
-#endif
 
 void
 molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
@@ -6493,11 +6546,12 @@ molecule_class_info_t::close_yourself() {
          if (GTK_IS_BOX(map_vbox)) {
             GtkWidget *item_widget = gtk_widget_get_first_child(map_vbox);
             while (item_widget) {
+               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
                int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
                if (imol_this == imol_no) {
                   gtk_box_remove(GTK_BOX(map_vbox), item_widget);
                }
-               item_widget = gtk_widget_get_next_sibling(item_widget);
+               item_widget = next_item;
             };
          }
       }
@@ -6509,13 +6563,13 @@ molecule_class_info_t::close_yourself() {
 
             GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
             while (item_widget) {
+               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
                int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
                if (imol_this == imol_no) {
                   gtk_box_remove(GTK_BOX(coords_vbox), item_widget);
                }
-               item_widget = gtk_widget_get_next_sibling(item_widget);
+               item_widget = next_item;
             };
-            
          }
       }
    }

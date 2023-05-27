@@ -583,6 +583,8 @@ void
 molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_dist_max,
 						      const coot::protein_geometry &geom) {
 
+   std::cout << "here we are in mci::generate_local_self_restraints()! " << local_dist_max << std::endl;
+
    // clear what's already there - if anything
    extra_restraints.bond_restraints.clear();
 
@@ -590,6 +592,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
    mmdb::PPAtom SelAtom;
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
+   std::cout << "here we are in mci::generate_local_self_restraints()! nSelAtoms " << nSelAtoms << std::endl;
    // bonded_neighbours in this case, means bonded or angle-related
    // bonded_neighbours["ALA"] -> all bond pairs and 1-3 angles
    std::map<std::string, std::vector<std::pair<std::string, std::string> > > bonded_neighbours;

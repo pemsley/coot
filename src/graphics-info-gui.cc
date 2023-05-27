@@ -2756,7 +2756,9 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    //
    GtkWidget *vbox = widget_from_builder("edit_chi_angles_vbox");
 
-   std::cout << "calling fill_chi_angles_vbox() with mode " << mode << std::endl;
+   clear_out_container(vbox);
+
+   std::cout << "debug:: calling fill_chi_angles_vbox() with mode " << mode << std::endl;
    int n_boxes = fill_chi_angles_vbox(vbox, res_type, mode);
 
    // this needs to be deleted when dialog is destroyed, I think,
@@ -2771,10 +2773,10 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    gtk_widget_show(dialog);
 
    // and now the hydrogen torsion checkbutton:
-   GtkWidget *togglebutton = widget_from_builder("edit_chi_angles_add_hydrogen_torsions_checkbutton");
+   GtkWidget *checkbutton = widget_from_builder("edit_chi_angles_add_hydrogen_torsions_checkbutton");
 
    if (find_hydrogen_torsions_flag)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
    // "Reverse Fragment" button
    edit_chi_angles_reverse_fragment = 0; // reset the static
@@ -2837,6 +2839,11 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    label += "  per: ";
 	    label += coot::util::int_to_string(torsion_restraints[i].periodicity());
 	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
+            gtk_widget_set_margin_top(button, 2);
+            gtk_widget_set_margin_bottom(button, 2);
+            gtk_widget_set_margin_start(button, 6);
+            gtk_widget_set_margin_end(button, 6);
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
             // 20220528-PE FIXME events
 #else
@@ -2854,6 +2861,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    g_signal_connect(G_OBJECT(button), "enter",
 			     G_CALLBACK(on_change_current_chi_button_entered),
 			     GINT_TO_POINTER(ichi));
+
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 	    g_signal_connect(G_OBJECT(button), "motion_notify_event",
 			     G_CALLBACK(on_change_current_chi_motion_notify),
@@ -2865,6 +2873,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    g_object_set_data(G_OBJECT(button), "chi_edit_mode", GINT_TO_POINTER(int_mode));
 
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 	    gtk_box_append(GTK_BOX(vbox), button);
 #else
@@ -3887,11 +3896,12 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
       GtkWidget *vbox = widget_from_builder("interesting_waters_by_difference_map_check_vbox");
       GtkWidget *button = 0;
       coot::atom_spec_t *atom_spec;
-      GSList *gr_group = NULL;
+      // GSList *gr_group = NULL;
+      GtkWidget *toggle_button_group = nullptr;
 
       for (unsigned int i=0; i<v.size(); i++) {
 
-	 std::cout << "Suspicious water: "
+	 std::cout << "INFO:: Suspicious water: "
 		   << v[i].atom_name
 		   << v[i].alt_conf << " "
 		   << v[i].res_no << " "
@@ -3908,33 +3918,28 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 	 button_label += v[i].alt_conf;
 	 button_label += " " ;
 
-#if (GTK_MAJOR_VERSION == 4)
-         // 20220602-PE FIXME radio buttons
-         std::cout << "in wrapped_create_checked_waters_by_variance_dialog()" << std::endl;
-#else
-	 button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
-	 gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON (button));
-#endif
+         GtkWidget *toggle_button = gtk_toggle_button_new_with_label(button_label.c_str());
+
+         if (toggle_button_group)
+            gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(toggle_button), GTK_TOGGLE_BUTTON(toggle_button_group));
+         else
+            toggle_button_group = toggle_button;
+
 	 atom_spec = new coot::atom_spec_t(v[i]);
 	 atom_spec->int_user_data = imol;
 
-	 g_signal_connect(G_OBJECT(button), "clicked",
-			  G_CALLBACK(on_generic_atom_spec_button_clicked),
+	 g_signal_connect(G_OBJECT(button), "toggled",
+			  G_CALLBACK(on_generic_atom_spec_toggle_button_toggled),
 			  atom_spec);
 
-	 GtkWidget *frame = gtk_frame_new(NULL);
-	 gtk_frame_set_child(GTK_FRAME(frame), button);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-	 gtk_box_append(GTK_BOX(vbox), frame);
-#else
-	 gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
-	 gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
-#endif
-	 gtk_widget_show(button);
-	 gtk_widget_show(frame);
+	 gtk_box_append(GTK_BOX(vbox), toggle_button);
+         gtk_widget_set_margin_top(toggle_button, 2);
+         gtk_widget_set_margin_bottom(toggle_button, 2);
+         gtk_widget_set_margin_start(toggle_button, 6);
+         gtk_widget_set_margin_end(toggle_button, 6);
       }
    } else {
-      std::cout << "There are no unusual waters\n";
+      std::cout << "INFO:: There are no unusual waters\n";
       std::string s = "There were no strange/anomalous waters\n";
       s += "(in relation to the difference map).";
       w = wrapped_nothing_bad_dialog(s);
@@ -3945,26 +3950,24 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 
 // static
 void
-graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
-						      gpointer user_data) {
+   graphics_info_t::on_generic_atom_spec_toggle_button_toggled(GtkToggleButton *toggle_button, gpointer user_data) {
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-
+   if (gtk_toggle_button_get_active(toggle_button)) {
       graphics_info_t g;
-      coot::atom_spec_t *atom_spec = (coot::atom_spec_t *) user_data;
-//       std::cout << "atom_spec: "
-// 		<< atom_spec->chain << " " << atom_spec->resno << " " << atom_spec->atom_name
-// 		<< std::endl;
-
-      g.set_go_to_atom_molecule(atom_spec->int_user_data);
-      g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain_id.c_str(),
-					       atom_spec->res_no,
-					       atom_spec->atom_name.c_str(),
-					       atom_spec->alt_conf.c_str());
+      coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
+      const auto &atom_spec(*atom_spec_p);
+      
+      g.set_go_to_atom_molecule(atom_spec.int_user_data);
+      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain_id.c_str(),
+					       atom_spec.res_no,
+					       atom_spec.atom_name.c_str(),
+					       atom_spec.alt_conf.c_str());
       g.try_centre_from_new_go_to_atom();
       g.update_things_on_move_and_redraw();
    }
+
 }
+
 
 GtkWidget *
 graphics_info_t::wrapped_create_chiral_restraints_problem_dialog(const std::vector<std::string> &sv) const {
@@ -4125,8 +4128,8 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
    GCallback combobox_changed_func = G_CALLBACK(bond_parameters_bond_width_combobox_changed);
    g_signal_connect(bond_width_combobox, "changed", combobox_changed_func, NULL);
 
-   std::cout << "debug:: g_object set data on bond_width_combobox " << bond_width_combobox
-             << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
+   // std::cout << "debug:: g_object set data on bond_width_combobox " << bond_width_combobox
+   //              << " to  combobox_for_molecule " << combobox_for_molecule << std::endl;
    g_object_set_data(G_OBJECT(bond_width_combobox), "bond_parameters_molecule_combobox", combobox_for_molecule);
 
 
@@ -4135,9 +4138,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
       if (imol_active < n_molecules()) {
 	 if (molecules[imol_active].has_model()) {
 	    if (molecules[imol_active].draw_hydrogens()) {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_hydrogens_yes_radiobutton), TRUE);
 	    } else {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_hydrogens_no_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_hydrogens_no_radiobutton), TRUE);
 	    }
 	 }
       }
@@ -4150,12 +4153,12 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
 	 if (molecules[imol_active].has_model()) {
 	    if (molecules[imol_active].draw_ncs_ghosts_p()) {
 	       if (molecules[imol_active].ncs_ghosts_have_rtops_p()) {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
+		  gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_yes_radiobutton), TRUE);
 	       } else {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
+		  gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
 	       }
 	    } else {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
+	       gtk_check_button_set_active(GTK_CHECK_BUTTON(draw_ncs_ghosts_no_radiobutton), TRUE);
 	    }
 	 }
       }
@@ -4211,9 +4214,9 @@ graphics_info_t::bond_parameters_bond_width_combobox_changed(GtkWidget *bond_wid
                 << " for molecule_combobox " << molecule_combobox << std::endl;
 
       if (GTK_IS_COMBO_BOX(molecule_combobox)) {
-         std::cout << "debug:: " << molecule_combobox << " IS a combobox" << std::endl;
+         // std::cout << "debug:: " << molecule_combobox << " IS a combobox" << std::endl;
          int imol = g.combobox_get_imol(GTK_COMBO_BOX(molecule_combobox));
-         std::cout << "debug:: imol  from " << molecule_combobox << " is " << imol << std::endl;
+         // std::cout << "debug:: imol  from " << molecule_combobox << " is " << imol << std::endl;
          g.set_bond_thickness(imol, bw);
       } else {
          std::cout << "debug:: " << molecule_combobox << " is NOT a combobox" << std::endl;

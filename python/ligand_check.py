@@ -25,7 +25,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
     def local_refmac(stub_name):
 
         ligand_spec = [chain_id, res_no, ins_code]
-        neighbs = residues_near_residue(imol, ligand_spec, 4)
+        neighbs = coot.residues_near_residue_py(imol, ligand_spec, 4)
 
         rn = coot.residue_name(imol, chain_id, res_no, ins_code)
         n_ligand_atoms = coot.het_group_n_atoms(rn)
@@ -74,12 +74,10 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             return False
         else:
             # happy path
-            imol_map = coot.make_and_draw_map(refmac_out_sfs_file_name,
-                                         "FWT", "PHWT", "", 0, 0)
-            neighbs = residues_near_residue(imol, ligand_spec, 4)
+            imol_map = coot.make_and_draw_map(refmac_out_sfs_file_name, "FWT", "PHWT", "", 0, 0)
+            neighbs = coot.residues_near_residue_py(imol, ligand_spec, 4)
 
-            c = coot.map_to_model_correlation(imol, [ligand_spec],
-                                         neighbs, 0, imol_map)
+            c = coot.map_to_model_correlation(imol, [ligand_spec], neighbs, 0, imol_map)
             coot.close_molecule(imol_map)
             return c
 
@@ -93,7 +91,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
 
         refmac_out_sfs_file_name = local_refmac(stub_name + "-for-ligand-diff-map")
         ligand_spec = [chain_id, res_no, ins_code]
-        neighbs = residues_near_residue(imol, ligand_spec, 4)
+        neighbs = coot.residues_near_residue_py(imol, ligand_spec, 4)
 
         if not refmac_out_sfs_file_name:
             return False
@@ -194,12 +192,12 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                  res_spec_utils.residue_spec_to_chain_id(ligand_spec),
                                  res_spec_utils.residue_spec_to_res_no(ligand_spec),
                                  coot_utils.residue_spec_to_ins_code(ligand_spec))
-            env_residues = residues_near_residue(imol, ligand_spec, radius)
+            env_residues = coot.residues_near_residue_py(imol, ligand_spec, radius)
             non_water_env_residues = filter_out_waters(imol, env_residues)
             env_residues = [residue_info(imol,
-                                                             res_spec_utils.residue_spec_to_chain_id(res_spec),
-                                                             res_spec_utils.residue_spec_to_res_no(res_spec),
-                                                             coot_utils.residue_spec_to_ins_code(res_spec)) for res_spec in non_water_env_residues]
+                                         res_spec_utils.residue_spec_to_chain_id(res_spec),
+                                         res_spec_utils.residue_spec_to_res_no(res_spec),
+                                         coot_utils.residue_spec_to_ins_code(res_spec)) for res_spec in non_water_env_residues]
             # this is a list of residue info not atoms, so flatten
             env_atoms = []
             list(map(env_atoms.extend, env_residues))

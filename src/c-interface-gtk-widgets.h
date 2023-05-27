@@ -578,7 +578,7 @@ void store_geometry_dialog(GtkWidget *w);
 
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
-void toggle_environment_show_distances(GtkToggleButton *button);
+void toggle_environment_show_distances(GtkCheckButton *button);
 
 void fill_pointer_distances_widget(GtkWidget *widget);
 void execute_pointer_distances_settings(GtkWidget *widget);

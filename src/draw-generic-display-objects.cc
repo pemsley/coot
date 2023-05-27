@@ -118,11 +118,17 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
          meshed_generic_display_object &obj = generic_display_objects.at(i);
 	 if (obj.mesh.get_draw_this_mesh()) {
             bool draw_it = true;
-            if (! obj.is_intermediate_atoms_object()) {
+
+            if (obj.is_intermediate_atoms_object()) {
+               // don't draw objects for intermediate atom if there are no intermediate atoms
+               if (!moving_atoms_asc)
+                  draw_it = false;
+            } else {
                int imol_for_mesh = obj.get_imol();
                if (is_valid_model_molecule(imol_for_mesh))
                   if (! molecules[imol_for_mesh].draw_it)
                      draw_it = false;
+
                if (is_valid_map_molecule(imol_for_mesh))
                   if (! molecules[imol_for_mesh].draw_it_for_map)
                      draw_it = false;
@@ -139,11 +145,17 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
 
             if (pass_type == PASS_TYPE_STANDARD) {
                if (draw_it) {
+                  if (false)
+                     std::cout << "draw_generic_objects() " << obj.mesh.name << " is_instanced: " << obj.mesh.is_instanced
+                               << std::endl;
                   if (obj.mesh.is_instanced) {
-                     // std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name << std::endl;
+                     if (false)
+                        std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name
+                                  << " with shader " << shader_for_instanced_objects.name
+                                  << " and pulsing should be on" << std::endl;
                      obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, model_rotation,
-                                             lights, eye_position, bg_col, do_depth_fog,
-                                             true, false, 0.25f, 3.0f, 0.2f, 0.0f);
+                                             lights, eye_position, bg_col,
+                                             do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {
                      // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
                      bool show_just_shadows = false;

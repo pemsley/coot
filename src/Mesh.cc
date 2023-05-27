@@ -1395,14 +1395,17 @@ Mesh::draw_instanced(Shader *shader_p,
                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                      const glm::vec4 &background_colour,
                      bool do_depth_fog,
-                     bool do_pulse,
+                     bool transferred_colour_is_instanced,
+                     bool do_pulse,                    // optional args
                      bool do_rotate_z,
                      float pulsing_amplitude,
                      float pulsing_frequency,
                      float pulsing_phase_distribution,
                      float z_rotation_angle) {
 
-   // std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name << std::endl;
+   if (false)
+      std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
+                << " and do_pulse " << do_pulse << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -1444,6 +1447,8 @@ Mesh::draw_instanced(Shader *shader_p,
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
+
+   shader_p->set_bool_for_uniform("transferred_colour_is_instanced", transferred_colour_is_instanced);
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: draw_instanced() pre-setting material " << err << std::endl;
@@ -2483,7 +2488,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
 
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
-   glBindVertexArray(vao); // needed?
+   glBindVertexArray(vao);
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
@@ -3028,6 +3033,7 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
    std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
    float height = glm::distance(start_pos, end_pos);
    float radius = 0.03;
+   radius = 0.1;
    cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
    c.add_spiral(); // take 2 colours
 

@@ -10865,6 +10865,15 @@ Thu 27 Apr 07:15:04 BST 2023
          gtk_box_remove(GTK_BOX(vbox_for_molecules), child);
          break; // child no longer valid
    }
+
+   Python:
+
+            child = box.get_first_child()
+            while child is not None:
+                next_child = child.get_next_sibling()
+                box.remove(child)
+                child = next_child
+
 ----
 Sun 25 Sep 14:06:27 BST 2022
 
@@ -10961,9 +10970,12 @@ Tue  9 May 2023 20:35:05 BST
 
    graphics_info_t g;
    int imol_active = -1;
-   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   GCallback func_combobox_changed = G_CALLBACK(nullptr); // we don't care until this dialog is read
    auto model_list = get_model_molecule_vector();
    g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
+
+   if func_combobox_changed is needed for direct action, the signature is:
+   void func_combobox_changed(GtkWidget *combobox, gpointer data);
 
 Here is how you read the imol:
 

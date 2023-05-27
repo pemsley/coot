@@ -443,7 +443,8 @@ void set_display_generic_object_simple(int object_number, short int istate) {
                 << object_number << std::endl;
    }
 
-#if 0
+#if 0 // 20230521-PE a modern version of this would useful. FIXME.
+
    if (g.generic_objects_dialog) {
 
       // get the togglebutton and set its state
@@ -483,9 +484,9 @@ void set_display_all_generic_objects(int state) {
          // which changes the draw state of the mesh. I don't need to do
          // that explicitly in this function.
          if (state) {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
          } else {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), FALSE);
          }
       }
    }
@@ -704,10 +705,13 @@ void close_all_generic_objects() {
    graphics_draw();
 }
 
+#include "c-interface-gui.hh" // for set_transient_for_main_window()
+
 void generic_objects_gui_wrapper() {
 
    graphics_info_t g;
    g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
+   set_transient_for_main_window(g.generic_objects_dialog);
    gtk_widget_show(g.generic_objects_dialog);
 }
 
@@ -873,6 +877,8 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 					     int show_clash_gui_flag) {
+
+   std::cout << "in handle_read_draw_probe_dots_unformatted() " << std::endl;
 
    int dot_size_scale_factor = 1; // user param?
 
@@ -1168,6 +1174,12 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
          std::set<int>::const_iterator it;
          for (it=mgdos_needing_a_setup.begin(); it!=mgdos_needing_a_setup.end(); ++it) {
             g.generic_display_objects[*it].mesh.setup(material);
+         }
+
+         if (false) { // debugging
+            for (it=mgdos_needing_a_setup.begin(); it!=mgdos_needing_a_setup.end(); ++it) {
+               g.generic_display_objects[*it].mesh.debug();
+            }
          }
 
 	 if (show_clash_gui_flag) {

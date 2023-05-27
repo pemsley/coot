@@ -330,20 +330,40 @@ std::string menu_item_label(GtkWidget *menu_item) {
 void show_set_undo_molecule_chooser() {
 
    GtkWidget *w = wrapped_create_undo_molecule_chooser_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
 
 GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 
-   // GtkWidget *w = create_undo_molecule_chooser_dialog();
-   // GtkWidget *combobox = lookup_widget(w, "undo_molecule_chooser_combobox");
-   GtkWidget *w = widget_from_builder("undo_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("undo_molecule_comboboxtext");
+   GtkWidget *dialog         = widget_from_builder("undo_molecule_chooser_dialog");
+   GtkWidget *model_combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
    graphics_info_t g;
 
-   g.fill_combobox_with_undo_options(combobox);
-   return w;
+   // g.fill_combobox_with_undo_options(combobox);
+
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto combobox_changed_func = +[] (GtkWidget *combobox, gpointer user_data) {
+      graphics_info_t g;
+      int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+      g.set_undo_molecule_number(imol_coords);
+   };
+
+   int imol_active = g.Undo_molecule(coot::UNDO);
+   GCallback func = G_CALLBACK(combobox_changed_func);
+   auto model_list = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_active, model_list);
+   return dialog;
 }
 
 
@@ -1410,15 +1430,10 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_chooser_dialog_x_size > 0) {
-
-#if (GTK_MAJOR_VERSION >= 4)
       graphics_info_t g;
+      std::cout << "DEBUG:: set size request for dialog "
+                << g.file_chooser_dialog_x_size << " " << g.file_chooser_dialog_y_size << std::endl;
       gtk_widget_set_size_request(dialog, g.file_chooser_dialog_x_size, g.file_chooser_dialog_y_size);
-#else
-      gtk_window_resize(GTK_WINDOW(dialog),
-                        graphics_info_t::file_chooser_dialog_x_size,
-                        graphics_info_t::file_chooser_dialog_y_size);
-#endif
    }
 }
 
@@ -2511,18 +2526,15 @@ void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_differe
 //
 
 
-void toggle_environment_show_distances(GtkToggleButton *button) {
+void toggle_environment_show_distances(GtkCheckButton *button) {
 
    graphics_info_t g;
 
-   // GtkWidget *hbox = lookup_widget(GTK_WIDGET(button), "environment_distance_distances_frame");
-   // GtkWidget *distance_type_frame = lookup_widget(GTK_WIDGET(button), "environment_distances_type_selection");
-   // GtkWidget *label_atom_check_button = lookup_widget(GTK_WIDGET(button), "environment_distance_label_atom_checkbutton");
-   GtkWidget *hbox = widget_from_builder("environment_distance_distances_frame");
-   GtkWidget *distance_type_frame = widget_from_builder("environment_distances_type_selection");
+   GtkWidget *hbox                    = widget_from_builder("environment_distance_distances_frame");
+   GtkWidget *distance_type_frame     = widget_from_builder("environment_distances_type_selection");
    GtkWidget *label_atom_check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
 
-   if (gtk_toggle_button_get_active(button)) {
+   if (gtk_check_button_get_active(button)) {
 
       g.environment_show_distances = 1;
       gtk_widget_set_sensitive(hbox, TRUE);
@@ -4132,14 +4144,20 @@ GtkWidget *wrapped_create_show_symmetry_window() {
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button_dialog);
 #endif
 
-          GdkRGBA rgba;
-          rgba.red   = (graphics_info_t::symmetry_colour[0]);
-          rgba.green = (graphics_info_t::symmetry_colour[1]);
-          rgba.blue  = (graphics_info_t::symmetry_colour[2]);
-          rgba.alpha = 1.0f;
-          // std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
+          auto on_color_set_func = +[] (GtkColorButton *self, gpointer user_data) {
+             GdkRGBA rgba;
+             gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(self), &rgba);
+             std::cout << "Selected color: " << gdk_rgba_to_string(&rgba) << std::endl;
+             graphics_info_t::rgba_to_symmetry_colour(rgba);
+             graphics_info_t::update_symmetry();
+             graphics_info_t::graphics_draw();
+          };
+
+          GdkRGBA rgba = graphics_info_t::symmetry_colour_to_rgba();
+          std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
           GtkWidget *colour_button = gtk_color_button_new_with_rgba(&rgba);
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button);
+          g_signal_connect(G_OBJECT(colour_button), "color-set", G_CALLBACK(on_color_set_func), nullptr);
        }
     }
 
@@ -4339,6 +4357,7 @@ void set_scroll_wheel_map(int imap) {
    }
 }
 
+void clear_out_container(GtkWidget *vbox); // in c-interface.cc
 
 GtkWidget *wrapped_create_bond_parameters_dialog() {
 
@@ -4348,32 +4367,7 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
    // GtkWidget *widget = create_bond_parameters_dialog();
    GtkWidget *dialog = widget_from_builder("bond_parameters_dialog");
-
-      // old way 20211018-PE
-   // GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_combobox");
-
-   GtkWidget *vbox = widget_from_builder("bond_parameters_hbox_for_molecule_combobox");
-
-#if (GTK_MAJOR_VERSION >= 4)
-
-   // 20220602-PE FIXME - removing existing child widgets from a widget:
-   //
-   // read this: https://blog.gtk.org/2017/04/25/widget-hierarchies-in-gtk-4-0/
-   // Use gtk_widget_get_first_child() and gtk_widget_get_next_sibling()
-
-#else
-   // clear the old molecule combox boxes from that vbox (if it exists)
-   //
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-
-      if (GTK_IS_COMBO_BOX(widget)) {
-         gtk_container_remove(GTK_CONTAINER(data), widget);
-      }
-   };
-   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
-
-   GCallback callback_func = G_CALLBACK(g.bond_parameters_molecule_combobox_changed);
+   GtkWidget *combobox = widget_from_builder("bond_parameters_molecule_comboboxtext");
 
    // fill the colour map rotation entry
 
@@ -4399,20 +4393,20 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
       // g.bond_parameters_molecule not set yet.
       g.bond_parameters_molecule = imol;
 
-   // g.fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+   int imol_active = g.bond_parameters_molecule;
+   auto model_list = get_model_molecule_vector();
+   GCallback callback_func = G_CALLBACK(nullptr);
+   g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, model_list);
 
-   GtkWidget *combobox = gtk_combo_box_new();
-   gtk_widget_show(combobox);
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME reordering child
-   gtk_box_append(GTK_BOX(vbox), combobox);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
-#endif
-
-   g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    g.fill_bond_parameters_internals(combobox, imol);
 
    return dialog;
@@ -4452,8 +4446,8 @@ void apply_bond_parameters(GtkWidget *w) {
 
 	    // draw hydrogens?
 
-	    GtkWidget *toggle_button = widget_from_builder("draw_hydrogens_yes_radiobutton");
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
+	    GtkWidget *check_button = widget_from_builder("draw_hydrogens_yes_radiobutton");
+	    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) {
 	       set_draw_hydrogens(imol, 1);
 	    } else {
 	       set_draw_hydrogens(imol, 0);
@@ -4753,31 +4747,6 @@ int residue_info_dialog_is_displayed() {
    if (graphics_info_t::residue_info_dialog)
       r = 1;
    return r;
-}
-
-GtkWidget *wrapped_nucleotide_builder_dialog() {
-
-   // GtkWidget *w = create_nucleotide_builder_dialog();
-   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
-
-   GtkWidget *type_combobox   = widget_from_builder("nucleotide_builder_type_combobox");
-   GtkWidget *form_combobox   = widget_from_builder("nucleotide_builder_form_combobox");
-   GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(type_combobox), "RNA");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(type_combobox), "DNA");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(form_combobox), "A");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(form_combobox), "B");
-
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(strand_combobox), "Single Stranded");
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(strand_combobox), "Double Stranded");
-
-   gtk_combo_box_set_active(GTK_COMBO_BOX(type_combobox),   0);
-   gtk_combo_box_set_active(GTK_COMBO_BOX(form_combobox),   0);
-   gtk_combo_box_set_active(GTK_COMBO_BOX(strand_combobox), 0);
-
-   return w;
 }
 
 // #include "c-interface-gui.hh"
@@ -5855,29 +5824,29 @@ void handle_go_to_residue_keyboarding_mode(const char *text) {
 
 
 void
-on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
+on_generic_objects_dialog_object_check_button_toggled(GtkButton       *button,
 						       gpointer         user_data)
 {
 
    int generic_object_number = GPOINTER_TO_INT(user_data);
    int state = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
    set_display_generic_object(generic_object_number, state);
 }
 
 void
-on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleButton *button,
-                                                                      gpointer user_data) {
+on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckButton *button,
+                                                                     gpointer user_data) {
 
    int combo_ints = GPOINTER_TO_INT(user_data);
    int imol = combo_ints/1000;
    int obj_no = combo_ints - 1000 * imol;
    bool state = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
       state = 1;
 
-   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled() imol " << imol
+   std::cout << "debug:: on_instanced_mesh_generic_objects_dialog_object_check_button_toggled() imol " << imol
              << " obj_no " << obj_no << std::endl;
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
@@ -5915,10 +5884,10 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
       gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
 
       if (gdo.mesh.get_draw_this_mesh())
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
+		       G_CALLBACK(on_generic_objects_dialog_object_check_button_toggled),
 		       GINT_TO_POINTER(io));
 
       gtk_widget_show (label);
@@ -5945,7 +5914,7 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       int i_row = grid_row_offset;
 
       std::string stub = "generic_object_" + std::to_string(i_row);
-      std::string toggle_button_name = stub + "_toggle_button";
+      std::string toggle_button_name = stub + "_toggle_button"; // is it a toggle button?
       std::string label_name = stub + "_label";
 
       // set the names of these widgets so that they can be
@@ -5961,10 +5930,10 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
       gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_row, 1, 1);
 
       if (imm.get_draw_status())
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled),
+		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_check_button_toggled),
 		       GINT_TO_POINTER(imol * 1000 + mesh_index));
 
       gtk_widget_show (label);

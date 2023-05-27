@@ -1846,8 +1846,8 @@ molecule_class_info_t::delete_water(const coot::atom_spec_t &atom_spec) {
    mmdb::Residue *residue_p = get_residue(res_spec);
    if (residue_p) {
       std::string type = residue_p->GetResName();
-      if (type != "HOH")
-         status = delete_atom(atom_spec);
+      if (type == "HOH")
+         status = delete_residue(res_spec);
    }
    return status;
 }

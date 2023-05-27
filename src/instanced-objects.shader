@@ -121,7 +121,7 @@ void main() {
 
    vec4 ct = colour_transfer;
    // ct = vec4(1,1,1,1);
-   outputColor = vec4(0,0,0,0);
+   vec4 running_col = vec4(0,0,0,0);
 
    float fog_amount = get_fog_amount(gl_FragCoord.z);
 
@@ -161,24 +161,24 @@ void main() {
          vec4 specular = spec * light_sources[i].specular;
 
          // final
-         outputColor += ambient + diffuse + specular;
+         running_col += ambient + diffuse + specular;
 
          // if (dp_view_reflect > 0.98) outputColor = vec4(1,0,0,1);
-         if (dp > 1.0) outputColor = vec4(1,1,0,1);
-         if (spec < 0.0) outputColor = vec4(0,1,1,1);
-         if (dp_view_reflect < 0.0) outputColor = vec4(0,1,1,1);
+         if (dp > 1.0) running_col = vec4(1,1,0,1);
+         if (spec < 0.0) running_col = vec4(0,1,1,1);
+         if (dp_view_reflect < 0.0) running_col = vec4(0,1,1,1);
 
          vec4 o = vec4(max(norm_2, 0.0), 1.0);
          o = vec4(0.95 * (light_dir.x),
                   0.95 * (light_dir.y),
                   0.95 * (light_dir.z),
                   1.0);
-         // outputColor = o;
-
+         // outputColor = o; // testing
       }
    }
 
-   outputColor = mix(outputColor, background_colour, fog_amount);
+   outputColor = mix(running_col, background_colour, fog_amount);
+   // outputColor = vec4(0.4, 0.8, 0.4, 1.0);
 
 
 }
