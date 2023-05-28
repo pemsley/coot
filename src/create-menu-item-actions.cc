@@ -1266,7 +1266,7 @@ background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-   graphics_info_t::background_colour = glm::vec3(0.13f,0.13f,0.13f);
+   graphics_info_t::background_colour = glm::vec3(0.07f,0.07f,0.07f);
    graphics_info_t::graphics_draw();
 }
 

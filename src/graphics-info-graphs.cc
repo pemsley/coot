@@ -138,6 +138,13 @@ void graphics_info_t::update_active_validation_graph_model(int model_idx) {
    for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
       g_warning("Todo: Display/rebuild validation graph data for: %s [model index changed to %i]",
                 coot::validation_graph_type_to_human_name(i.first).c_str(), model_idx);
+      coot::validation_graph_type graph_type = i.first;
+      GtkWidget *graph = i.second;
+      if (graph_type == coot::validation_graph_type::density_fit) { }
+      if (graph_type == coot::validation_graph_type::omega) { }
+      if (graph_type == coot::validation_graph_type::rama) { }
+      if (graph_type == coot::validation_graph_type::rota) { }
+
    }
 }
 
@@ -590,7 +597,8 @@ get_validation_data(int imol, coot::validation_graph_type type) {
 void
 graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
 
-   std::cout << "Yes! create_validation_graph() for " << imol << " " << std::endl;
+   std::cout << "Yes! create_validation_graph() for " << imol << " type: "
+             << coot::validation_graph_type_to_human_name(type) << std::endl;
 
    if (imol != -1) {
       // 1. instantiate the validation graph
@@ -607,9 +615,10 @@ graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type t
       // 6. Show the graph
       insert_validation_graph(this_is_the_graph);
 
-      auto callback = +[] (CootValidationGraph* self,
+      auto callback = +[] (G_GNUC_UNUSED CootValidationGraph* self,
                            const coot::residue_validation_information_t* residue_vip,
-                           gpointer userdata) {
+                           G_GNUC_UNUSED gpointer user_data) {
+
          std::cout << "residue-clicked handler " << residue_vip->label << " " << residue_vip->residue_spec << std::endl;
          int imol = residue_vip->residue_spec.int_user_data; // set by constructor of the validation information
          graphics_info_t g;
@@ -622,6 +631,9 @@ graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type t
       g_warning("graphics_info_t::create_validation_graph(): There is no valid active validation graph model.");
    }
 }
+
+// see update_validation_graphs(imol) below
+
 
 void
 graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
@@ -924,15 +936,33 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 }
 
 void
-graphics_info_t::update_validation_graphs(int imol) {
+graphics_info_t::update_validation_graphs(int imol_changed_model) {
+
+   std::cout << "***************************************** update_validation_graphs() called "
+             << imol_changed_model << std::endl;
+
+   // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
+   // for that molecule if they are displayed.
 
    g_debug("update_validation_graphs() called");
    g_warning("Reimplement update_validation_graphs(). "
              "The function should iterate over the std::map holding validation data for each active graph "
              "and recompute it, then trigger a redraw.");
 
-   update_ramachandran_plot(imol);
+   // 20230527-PE maybe this is the right wasy to do it. But I think that I have done it a different way for now.
+   //
+   // update_ramachandran_plot(imol);
 
+   if (active_validation_graph_model_idx == imol_changed_model) {
+      for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+         coot::validation_graph_type graph_type = i.first;
+         GtkWidget *graph = i.second;
+         coot::validation_information_t vi = get_validation_data(imol_changed_model, graph_type);
+         std::shared_ptr<coot::validation_information_t> vip = std::make_shared<coot::validation_information_t>(vi);
+         CootValidationGraph *cvg = (CootValidationGraph *)(graph);
+         coot_validation_graph_set_validation_information(cvg, vip);
+      }
+   }
 
 // #ifdef HAVE_GOOCANVAS
 //    update_ramachandran_plot(imol);

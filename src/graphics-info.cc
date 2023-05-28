@@ -1813,7 +1813,8 @@ graphics_info_t::accept_moving_atoms() {
                             //  get drawn in graphics_draw()?
 
    // 20230527-PE does this belong here? - lets see....
-   // refresh_validation_graph_model_list();
+   // update_active_validation_graph_model(imol_moving_atoms);
+   update_validation_graphs(imol_moving_atoms);
 
    int mode = MOVINGATOMS;
 

@@ -41,13 +41,15 @@ what is this: update_active_validation_graph_model()?
 It is the function that gets called when the user changes the molecule in the validation graph dialog.
 It is not the function to update the graphs when the model changes.
 
-Replace Residue A72 with CSO - dialogs messed up ::: 1
+Edit Restraints, Select Monomer type - dialogs messed up ::: 1
 
-Validation graph colours ::: 0.5
+Validation graph colours ::: 1.0
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
+
+Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
@@ -56,6 +58,7 @@ Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
+set_framebuffer_scale_factor().
 
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
@@ -112,6 +115,8 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 
 Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
 
+Clicking on Green left arrow doesn't open the refinement overlay
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -119,9 +124,13 @@ I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui,
 
 struct_conn in mmdb for links : how  does it work and can they be displayed?
 
+Sort the triangles so that the difference map looks OK in plain mode. Maybe this should go
+above the line?
+
+How about "Both" surface and lines for maps? Extra "Both" radio button.
+
 Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
 OK, but this is a mmdb problem not a GTK4 Coot problem.
-"Nice to have" - or change to scope to 10.
 
 A benchmark in Curlew? Or built-in would be better.
 
