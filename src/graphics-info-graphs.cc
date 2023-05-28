@@ -249,6 +249,7 @@ get_validation_data_for_density_fit_analysis(int imol) {
 
    coot::validation_information_t r;
    r.name = "Density fit analysis";
+   r.type = coot::graph_data_type::Score;
 
    int imol_map = g.Imol_Refinement_Map();
    if (! g.is_valid_model_molecule(imol))   return r;
@@ -423,9 +424,9 @@ get_validation_data_for_rotamer_analysis(int imol) {
 
                coot::rotamer rot(residue_p);
                coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
-               double prob = rpi.probability;
+               double prob = rpi.probability * 0.01; // to range 0->1
 
-               std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
+               std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
                std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
                const std::string &chain_id = res_spec.chain_id;
                int this_resno = res_spec.res_no;
@@ -940,9 +941,6 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 
 void
 graphics_info_t::update_validation_graphs(int imol_changed_model) {
-
-   std::cout << "***************************************** update_validation_graphs() called "
-             << imol_changed_model << std::endl;
 
    // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
    // for that molecule if they are displayed.

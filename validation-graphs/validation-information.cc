@@ -13,11 +13,12 @@ unsigned int coot::validation_information_t::get_index_for_chain(const std::stri
 }
 
 bool coot::should_hang_down(coot::graph_data_type type) {
+
     using ty = coot::graph_data_type;
     switch (type) {
-        case ty::Correlation: {
-            return true;
-        }
+        // case ty::Correlation: {
+        //     return true;
+        // }
         default: {
             return false;
         }

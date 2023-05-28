@@ -36,24 +36,15 @@ Here are other styles:
 
 ----
 
-Update the Validation Graphs after RSR or other model edits ::: 1
-what is this: update_active_validation_graph_model()?
-It is the function that gets called when the user changes the molecule in the validation graph dialog.
-It is not the function to update the graphs when the model changes.
+Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Edit Restraints, Select Monomer type - dialogs messed up ::: 1
 
-Validation graph colours ::: 1.0
-
-Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
+Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
-Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
-
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
-
-Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
 Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
 
@@ -96,6 +87,8 @@ Views ::: 2
 Find a home for New molecule by sphere ::: 1
 
 Find a home for New molecule by symmetry op ::: 1
+
+Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
@@ -556,3 +549,12 @@ Fix the double reading of the monomer library ::: 0.3
 
 Update the Ramachandran Plot after RSR or other model edits ::: 1
 * Done. Nice.
+
+Update the Validation Graphs after RSR or other model edits ::: 2.5
+what is this: update_active_validation_graph_model()?
+It is the function that gets called when the user changes the molecule in the validation graph dialog.
+It is not the function to update the graphs when the model changes.
+
+Validation graph colours ::: 1.0
+* Mostly done. Needs some tweaking (e.g. in Density Correlation there needs to be some improved range).
+

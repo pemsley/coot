@@ -156,7 +156,7 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
    graphics_info_t g;
