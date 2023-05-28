@@ -470,7 +470,7 @@ void find_waters(int imol_for_map,
 	    // waters added to masking molecule
 	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
-            g.update_geometry_graphs(imol_for_protein);
+            g.update_validation_graphs(imol_for_protein);
 	 }
       }
    }

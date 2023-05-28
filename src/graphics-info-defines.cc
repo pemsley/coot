@@ -1794,7 +1794,7 @@ graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
                                                                     alt_conf, chain_id, 0);
                atom_selection_container_t asc = make_asc(mp.first);
                asc.UDDOldAtomIndexHandle = mp.second;
-               update_geometry_graphs(asc, naii.imol);
+               update_validation_graphs(naii.imol);
                graphics_draw();
             } else {
                s = "Problem flipping chi angle on residue ";

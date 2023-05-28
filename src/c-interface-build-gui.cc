@@ -1032,7 +1032,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
                   mutate_residue_range(imol, chain_id.c_str(), res1, res2, sequence.c_str());
                }
                update_go_to_atom_window_on_changed_mol(imol);
-               g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+               g.update_validation_graphs(imol);
 
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
@@ -1211,7 +1211,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	       std::cout << "debug:: calling mutate_chain " << imol << " chain-id: " << chain_id << " "
 			 << sequence << " " << do_auto_fit << std::endl;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
-	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       g.update_validation_graphs(imol);
 	       graphics_draw();
 
 	    }
@@ -1383,7 +1383,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 	    gtk_widget_show(ws);
 	 }
 	 graphics_info_t g;
-	 g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	 g.update_validation_graphs(imol);
       }
    } else {
       std::cout << "ERROR: Couldn't get txt in change_chain_id_by_widget\n";

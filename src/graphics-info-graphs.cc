@@ -781,6 +781,8 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
       }
    }
 #endif
+
+   update_validation_graphs(imol);
 }
 
 #include "nsv.hh"
@@ -790,6 +792,7 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
+   update_validation_graphs(imol_moving_atoms);
 
 #ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
@@ -978,42 +981,13 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
-#ifdef HAVE_GOOCANVAS
-   std::vector<coot::geometry_graph_type> graph_types;
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_GEOMETRY);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_B_FACTOR);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_ROTAMER);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_NCS_DIFFS);
-
-   for (unsigned int igt=0; igt<graph_types.size(); igt++) {
-      GtkWidget *graph =
-	 coot::get_validation_graph(imol_moving_atoms, graph_types[igt]);
-      if (graph) {
-	 coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
-	 if (gr) {
-	    gr->delete_block(res_spec.chain_id, res_spec.res_no);
-	 }
-      }
-   }
-
-   // and the sequence view!
-   //
-   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
-   if (graph) {
-      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
-      if (sequence_view) {
-	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
-	 sequence_view->regenerate(mol);
-      }
-   }
-#endif
+   update_validation_graphs(imol); // 20230528-PE we are not so clever (to be specific about what gets updated) now
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
+
+   update_validation_graphs(imol); // 20230528-PE again we are not so clever (to be specific about what gets updated) now
 
 #ifdef HAVE_GOOCANVAS
 
