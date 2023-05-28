@@ -709,7 +709,10 @@ void
 edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
+
+   // fills residue types in the combobox
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 

@@ -10723,9 +10723,9 @@ just the cell and symmetry)
     </child>
   </object>
 
+  <!-- this should be an overlay, I think -->
   <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
-    <signal name="close" handler="on_residue_editor_select_monomer_type_dialog_close" swapped="no"/>
-    <signal name="response" handler="on_residue_editor_select_monomer_type_dialog_response" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Select Monomer Type</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -10744,18 +10744,33 @@ just the cell and symmetry)
             </child>
           </object>
         </child>
-
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
+
             <child>
               <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_residue_editor_select_monomer_type_cancel_button_clicked" />
               </object>
             </child>
+            <child>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_residue_editor_select_monomer_type_ok_button_clicked" />
+              </object>
+            </child>
+
           </object>
         </child>
-
       </object>
     </child>
   </object>

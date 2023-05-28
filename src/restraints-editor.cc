@@ -56,27 +56,59 @@
 std::vector<coot::restraints_editor> graphics_info_t::restraints_editors;
 
 void
-coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
+coot::restraints_editor::setup_builder() {
 
-   // dialog = create_restraints_editor_dialog(); // defined in interface.h
-   dialog = widget_from_builder("restraints_editor_dialog");
+   builder = gtk_builder_new();
+   std::string data_dir = package_data_dir();
+   std::string dir_glade = util::append_dir_dir(data_dir, "glade"); // rename this to ui one day
+   std::string glade_file_name = "restraints-editor.ui";
+   std::string glade_file_full = util::append_dir_file(dir_glade, glade_file_name);
+   if (file_exists(glade_file_name))
+      glade_file_full = glade_file_name;
 
-   //    std::cout << "restraints editor saving "
-   // 	     << dialog << std::endl;
-   fill_info_tree_data   (dialog, restraints);
-   fill_atom_tree_data   (dialog, restraints);
-   fill_bond_tree_data   (dialog, restraints);
-   fill_angle_tree_data  (dialog, restraints);
-   fill_torsion_tree_data(dialog, restraints);
-   fill_chiral_tree_data (dialog, restraints);
-   fill_plane_tree_data  (dialog, restraints);
-   gtk_widget_show (dialog);
-   gtk_window_present(GTK_WINDOW(dialog));
-   is_valid_flag = 1;
+   GError *error = NULL;
+   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+   if (add_from_file_status) {
+      // fine
+      dialog = widget_from_builder("restraints_editor_dialog");
+   } else {
+      std::cout << "ERROR:: coot::restraints_editor::setup_builder(): " << error->message << std::endl;
+   }
+}
+
+GtkWidget *
+coot::restraints_editor::widget_from_builder(const std::string &widget_name) {
+
+   GtkWidget *w = nullptr;
+   if (builder)
+      w = GTK_WIDGET(gtk_builder_get_object(builder, widget_name.c_str()));
+   return w;
 }
 
 void
-coot::restraints_editor::fill_atom_tree_data(GtkWidget *restraints_editor_dialog,
+coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
+
+   // dialog = create_restraints_editor_dialog(); // defined in interface.h
+   // dialog = widget_from_builder("restraints_editor_dialog");
+   // Now restraints_editor reads from restraints-editor.ui - similar to the single-map-properties dialog
+
+   GtkWidget *dialog = widget_from_builder("restraints_editor_dialog");
+   if (dialog) {
+      fill_info_tree_data   (dialog, restraints);
+      fill_atom_tree_data   (dialog, restraints);
+      fill_bond_tree_data   (dialog, restraints);
+      fill_angle_tree_data  (dialog, restraints);
+      fill_torsion_tree_data(dialog, restraints);
+      fill_chiral_tree_data (dialog, restraints);
+      fill_plane_tree_data  (dialog, restraints);
+      gtk_widget_show (dialog);
+      gtk_window_present(GTK_WINDOW(dialog));
+      is_valid_flag = true;
+   }
+}
+
+void
+coot::restraints_editor::fill_atom_tree_data(G_GNUC_UNUSED GtkWidget *restraints_editor_dialog,
 					     const coot::dictionary_residue_restraints_t &restraints) { 
 
    // GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");

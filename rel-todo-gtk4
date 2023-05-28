@@ -40,6 +40,8 @@ Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Edit Restraints, Select Monomer type - dialogs messed up ::: 1
 
+Resstraints Editor ::: 2
+
 Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 
 Enable the command line (e.g. --pdb and others) ::: 2
@@ -71,7 +73,9 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
-Validation graphs colours, updates of rama, graphs, clash dots on model change.
+graphs, validation graphs colours, updates of rama, clash dots on model change.
+change the function name update_validation_graphs() to update_validation() and after that change the name back and call
+the dot updates and update_validation_graphs() from there.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
@@ -81,6 +85,11 @@ Dotted Surface ::: 1
 * This exits and it draws OK, but I don't see how to change the colour yet.
   Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
   class. Perhaps it should be? (see add_dots()).
+
+Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
+
+Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
+Needs a check before adding a combobox?
 
 Views ::: 2
 

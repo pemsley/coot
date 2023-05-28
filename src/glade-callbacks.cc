@@ -9539,10 +9539,19 @@ on_all2_activate                       (GMenuItem     *menuitem,
 
 }
 
-// extern "C" G_MODULE_EXPORT
-// void
-// on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
-//                                                          gpointer         user_data) {
+extern "C" G_MODULE_EXPORT
+void
+on_residue_editor_select_monomer_type_ok_button_clicked (G_GNUC_UNUSED GtkButton       *button,
+                                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
+   GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
+   std::cout << "-------- now show restraints editor for " << t << std::endl;
+   show_restraints_editor(t);
+   gtk_widget_hide(dialog);
+
+}
 
 
 //   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
@@ -9555,19 +9564,18 @@ on_all2_activate                       (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *button,
-							gpointer         user_data) {
+on_residue_editor_select_monomer_type_cancel_button_clicked (G_GNUC_UNUSED GtkButton       *button,
+                                                             G_GNUC_UNUSED gpointer         user_data) {
 
-  GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
-  gtk_widget_hide(dialog);
+   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
+   gtk_widget_hide(dialog);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_restraints1_activate                (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);
@@ -9578,24 +9586,24 @@ extern "C" G_MODULE_EXPORT
 void
 on_restraint_editor_add_restraint_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  restraints_editor_add_restraint_by_widget(w);
+                                        gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   restraints_editor_add_restraint_by_widget(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraints_editor_close_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  if (w) {
-    clear_restraints_editor_by_dialog(w);
-    gtk_widget_hide(w);
-  }
+on_restraints_editor_close_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
+   std::cout << "Close" << std::endl;
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   if (w) {
+      clear_restraints_editor_by_dialog(w);
+      gtk_widget_hide(w);
+   }
 
 }
 
@@ -9613,11 +9621,11 @@ extern "C" G_MODULE_EXPORT
 void
 on_restraints_editor_apply_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  apply_restraint_by_widget(w);
+   std::cout << "Apply" << std::endl;
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   apply_restraint_by_widget(w);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10994,8 +11002,8 @@ on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response (Gtk
 extern "C" G_MODULE_EXPORT
 void
 on_edit_restraints_activate(GMenuItem     *menuitem,
-                                                gpointer         user_data)
-{
+                            gpointer         user_data) {
+
    std::cout << "on_edit_restraints_activate() " << std::endl;
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);

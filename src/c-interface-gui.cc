@@ -5259,20 +5259,17 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
 
-   std::cout << "---------------- in wrapped_create_residue_editor_select_monomer_type_dialog()"
-             << std::endl;
-
    // GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
    GtkWidget *w = widget_from_builder("residue_editor_select_monomer_type_dialog");
    GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
 
-   std::cout << "debug::  in wrapped_create_residue_editor_select_monomer_type_dialog() w " << w
-             << " and combobox " << combo_box << std::endl;
+   if (combo_box)
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combo_box));
 
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
-   // remove the 2 items that are already there from the glade interface (I suppose).
+   // fill the combobox
 
    for (unsigned int i=0; i<v.size(); i++) {
       std::string s = v[i];
@@ -5300,10 +5297,6 @@ void clear_restraints_editor_by_dialog(GtkWidget *dialog) { /* close button pres
    g.clear_restraints_editor_by_dialog(dialog);
 }
 
-
-
-
-
 void show_restraints_editor(std::string monomer_type) {
 
    int imol = 0; // maybe this should be passed? Pretty esoteric though.
@@ -5323,7 +5316,9 @@ void show_restraints_editor(std::string monomer_type) {
 	    coot::dictionary_residue_restraints_t restraints = p.second;
 	    coot::restraints_editor r;
 	    r.fill_dialog(restraints);
-	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, r.get_dialog());
+            GtkWidget *dialog = r.get_dialog();
+            std::cout << "DEBUG:: show_restraints_editor(): here with dialog " << dialog << std::endl;
+	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, dialog);
 	    g.restraints_editors.push_back(r);
 	 }
       }
