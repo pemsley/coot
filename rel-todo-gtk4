@@ -51,12 +51,6 @@ Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added usin
 
 Curlew: speed-run and CaBLAM ::: 4
 
-Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 1
-
-On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
-
-rename draw-2.cc as tick-function.cc or some such
-
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
@@ -75,17 +69,10 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
-Dotted Surface ::: 1
-* This exits and it draws OK, but I don't see how to change the colour yet.
-  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
-  class. Perhaps it should be? (see add_dots()).
-
 Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
 
 Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
 Needs a check before adding a combobox?
-
-Map Properties window close button ::: 0.5
 
 Missing main-chain C atom in colour-by-chain. ::: 1
 
@@ -120,6 +107,7 @@ Clicking on Green left arrow doesn't open the refinement overlay
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -158,6 +146,9 @@ End-caps on the O half bonds on the HOHs in 7a0l.
 
 Fullscreen - maybe not possible in gtk4 :::- 0.2
 
+Map Properties window close button :::- 0.5
+* I had a look. Not sure what internal-child="action_area" means.
+
 New Mesh algorithms:
 https://swiftcoder.wordpress.com/planets/isosurface-extraction/
 https://www.sciencedirect.com/topics/engineering/isosurface-extraction
@@ -180,6 +171,11 @@ void HUDTextureMesh::setup_buffers() { ...
 // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
 Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  :::- 1
 * It will do for now these are HUD text. One day rewrite, but not today.
+
+Dotted Surface :::- 1
+* This exists and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
 
 Undo molecule chooser should be an overlay.
 
@@ -580,3 +576,9 @@ Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 
 Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily ::: 1
 * Grindy finding the bug (was not editing the correct dictionary).
+
+rename draw-2.cc as tick-function.cc or some such
+
+On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
+
+Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 0.1

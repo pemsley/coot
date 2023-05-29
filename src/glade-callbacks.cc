@@ -6537,10 +6537,9 @@ on_ramachandran_plot_differences_ok_button_clicked(GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_ramachandran_plot_differences_cancel_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_ramachandran_plot_differences_cancel_button_clicked (GtkButton       *button,
+                                                        gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
    gtk_widget_hide(w);
 
@@ -11978,11 +11977,19 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
-   int imol = 0; //get imol from the combobox
-   // imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox)); // using Jakub-style comboboxes
-   show_opengl_ramachandran_plot(imol, residue_selection_string);
-   gtk_widget_set_visible(dialog, FALSE);
-   gtk_widget_set_visible(scrolled, TRUE);
+
+   GtkTreeIter iter;
+   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter)) {
+      int imol_active;
+      gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(combobox)),&iter,1,&imol_active,-1);
+      // imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox)); // but use Jakub-style comboboxes
+      show_opengl_ramachandran_plot(imol_active, residue_selection_string);
+      gtk_widget_set_visible(dialog, FALSE);
+      gtk_widget_set_visible(scrolled, TRUE);
+   } else {
+      std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
+                << std::endl;
+   }
 }
 
 
