@@ -504,8 +504,7 @@ libcootsumo_la_SOURCES = \
 	density-results-container-t.hh \
 	dots-representation.hh   \
 	draw.cc                  \
-	draw-2.cc                \
-	draw-2.hh                \
+	graphics-info-tick-function.cc \
 	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
