@@ -922,18 +922,32 @@ void
 copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                 G_GNUC_UNUSED GVariant *parameter,
                 G_GNUC_UNUSED gpointer user_data) {
+
+   // not modern but works
+   std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   safe_python_command(cmd);
+
 }
 
 void
 make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
+   safe_python_command(sc);
+
 }
 
 void
 make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 2.0))";
+   safe_python_command(sc);
 }
 
 void

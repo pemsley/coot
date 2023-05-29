@@ -1880,10 +1880,9 @@ coot::protein_geometry::init_standard() {
 
    bool debug = false;
 
-   std::string dir = DATADIR;
-   std::string hardwired_default_place;
-   hardwired_default_place = util::append_dir_dir(dir, "coot");
-   hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
+   // std::string dir = DATADIR;
+   std::string pkg_data_dir = package_data_dir(); // xxx/share/coot
+   std::string hardwired_default_place = util::append_dir_dir(pkg_data_dir, "lib");
    bool using_clibd_mon = false;
 
    std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;

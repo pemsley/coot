@@ -36,19 +36,13 @@ Here are other styles:
 
 ----
 
+Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
+
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Edit Restraints, Select Monomer type - dialogs messed up ::: 1
-
-Resstraints Editor ::: 2
-
-Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 
 Enable the command line (e.g. --pdb and others) ::: 2
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
-
-Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 set_framebuffer_scale_factor().
@@ -126,6 +120,9 @@ Recompile molecule-class-info-widget-work.cc and remove the compilation warnings
 Clicking on Green left arrow doesn't open the refinement overlay
 
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
+
+Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -573,4 +570,13 @@ It is not the function to update the graphs when the model changes.
 
 Validation graph colours ::: 1.0
 * Mostly done. Needs some tweaking (e.g. in Density Correlation there needs to be some improved range).
+
+Edit Restraints, Select Monomer type - dialogs messed up ::: 1
+* Done.
+
+Restraints Editor ::: 2
+* Done.
+
+Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
+* Done. And smoother versions.
 
