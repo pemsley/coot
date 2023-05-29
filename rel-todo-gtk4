@@ -36,8 +36,6 @@ Here are other styles:
 
 ----
 
-Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
-
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
@@ -580,3 +578,5 @@ Restraints Editor ::: 2
 Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
 * Done. And smoother versions.
 
+Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily ::: 1
+* Grindy finding the bug (was not editing the correct dictionary).

@@ -35,6 +35,15 @@
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 
+glm::vec3
+get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
+
+   glm::vec4 z_p(0.0f, 1.0f, 0.0f, 1.0f);
+   glm::vec4 r = z_p * mouse_quat_mat;
+   glm::vec3 r3(r);
+   return r3;
+}
+
 float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
       // positions   // texCoords
       -1.0f,  1.0f,  0.0f, 1.0f,

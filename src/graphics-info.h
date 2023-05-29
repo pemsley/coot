@@ -4924,8 +4924,12 @@ string   static std::string sessionid;
    static void add_a_tick() {
       // needs glarea-tick-func.hh
       if (! tick_function_is_active())
-         tick_function_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+         tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
    }
+
+   static gboolean glarea_tick_func(GtkWidget *widget,
+                                    G_GNUC_UNUSED GdkFrameClock *frame_clock,
+                                    G_GNUC_UNUSED gpointer data);
 
    static gboolean tick_function_is_active();
 
