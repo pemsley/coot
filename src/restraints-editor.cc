@@ -94,6 +94,16 @@ coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t
 
    GtkWidget *dialog = widget_from_builder("restraints_editor_dialog");
    if (dialog) {
+
+      GtkWidget *close_button       = widget_from_builder("restraints_editor_close_button");
+      GtkWidget *apply_button       = widget_from_builder("restraints_editor_apply_button");
+      GtkWidget *add_rest_button    = widget_from_builder("restraints_editor_add_restraint_button");
+      GtkWidget *delete_rest_button = widget_from_builder("restraints_editor_delete_restraint_button");
+
+      // so that the clicked callback can close/hide this dialog:
+      g_object_set_data(G_OBJECT(close_button),       "restraints_editor_dialog", dialog);
+      g_object_set_data(G_OBJECT(apply_button),       "restraints_editor_dialog", dialog);
+
       fill_info_tree_data   (dialog, restraints);
       fill_atom_tree_data   (dialog, restraints);
       fill_bond_tree_data   (dialog, restraints);

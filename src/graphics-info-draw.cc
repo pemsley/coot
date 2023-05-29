@@ -4269,6 +4269,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    } else {
 
+      // this works! Nice framebuffer scaling with screendump_tga().
+
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -4292,7 +4294,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
          // screendump
          glDisable(GL_DEPTH_TEST);
-         unsigned int sf = framebuffer_scale;
+         const unsigned int &sf = framebuffer_scale;
          glViewport(0, 0, sf * w, sf * h);
          framebuffer screendump_framebuffer;
          unsigned int index_offset = 0;
@@ -4416,7 +4418,7 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: reset_frame_buffers() " << window_width << " " << window_height
                 << " use_framebuffers: " << use_framebuffers << std::endl;
 
@@ -4429,9 +4431,10 @@ graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
       // width  = width;
       // height = height;
-      if (false)
+      if (true)
          std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
                    << window_width << " x " << window_height << std::endl;
+
       screen_framebuffer.init(sf * window_width, sf * window_height, index_offset, "screen");
       GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 

@@ -52,6 +52,8 @@ Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that 
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 set_framebuffer_scale_factor().
+Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
+shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
@@ -91,6 +93,10 @@ Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
 Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
 Needs a check before adding a combobox?
 
+Map Properties window close button ::: 0.5
+
+Missing main-chain C atom in colour-by-chain. ::: 1
+
 Views ::: 2
 
 Find a home for New molecule by sphere ::: 1
@@ -119,6 +125,7 @@ Recompile molecule-class-info-widget-work.cc and remove the compilation warnings
 
 Clicking on Green left arrow doesn't open the refinement overlay
 
+Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
