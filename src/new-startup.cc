@@ -879,6 +879,17 @@ void application_command_line_callback(GtkApplication *app, GVariant *parameters
   
 }
 
+void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) {
+
+   // this is not needed because closing the main window using the window manager
+   // causes g_application_run() in the function below to return. Hence we
+   // just fall out at the end of main().
+   //
+   // Or that's what *should* happen.
+
+   // std::cout << "quit here" << std::endl;
+   // g_application_quit();
+}
 
 int new_startup(int argc, char **argv) {
 
@@ -916,6 +927,10 @@ int new_startup(int argc, char **argv) {
    g_signal_connect(app, "open",     G_CALLBACK(application_open_callback), activate_data); // passed on
    // this destroys active_data
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
+
+   // how about this - needed for Bernie/Windows?
+   // void window_removed ( GtkApplication* self, GtkWindow* window, gpointer user_data )
+   g_signal_connect(app, "window-removed", G_CALLBACK(window_removed), nullptr);
 
    // delete activate_data; Nope. This is used in new_startup_application_activate.
    // Delete it there if you want to delete it.
