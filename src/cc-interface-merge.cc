@@ -32,7 +32,7 @@ int merge_fragments(int imol) {
       status = graphics_info_t::molecules[imol].merge_fragments();
       graphics_draw();
       graphics_info_t g;
-      g.update_validation_graphs(imol);
+      g.update_validation(imol);
    }
 
    return status;

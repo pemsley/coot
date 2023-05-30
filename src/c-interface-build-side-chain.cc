@@ -679,7 +679,7 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
          std::string ins_code = atom_spec.ins_code;
          std::string chain_id = atom_spec.chain_id;
          g.molecules[imol].mutate(ires, ins_code, std::string(chain_id), res_type);
-         g.update_validation_graphs(imol);
+         g.update_validation(imol);
          graphics_draw();
       }
    }
@@ -722,7 +722,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
-      g.update_validation_graphs(imol);
+      g.update_validation(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";

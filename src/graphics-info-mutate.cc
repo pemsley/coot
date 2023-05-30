@@ -287,7 +287,7 @@ graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
          // This is the wrong function, isn't it?
          update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
 
-         update_validation_graphs(mutate_auto_fit_residue_imol);
+         update_validation(mutate_auto_fit_residue_imol);
 
          run_post_manipulation_hook(mutate_auto_fit_residue_imol, MUTATED);
 
@@ -309,7 +309,7 @@ graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
          if (residue_p) {
             m.mutate(residue_p, residue_type, true);
             update_go_to_atom_window_on_changed_mol(mutate_residue_imol);
-            update_validation_graphs(mutate_auto_fit_residue_imol);
+            update_validation(mutate_auto_fit_residue_imol);
             run_post_manipulation_hook(mutate_residue_imol, MUTATED);
          }
       } else {

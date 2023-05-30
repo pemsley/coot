@@ -1419,7 +1419,7 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm
 
 	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
 								    &g.static_thread_pool, n_threads);
-	 g.update_validation_graphs(imol);
+	 g.update_validation(imol);
 	 graphics_draw();
       }
    }
@@ -1444,7 +1444,7 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
 	 if (n_threads < 1) n_threads = 1;
 	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
 								    &g.static_thread_pool, n_threads);
-	 g.update_validation_graphs(imol);
+	 g.update_validation(imol);
 	 graphics_draw();
       }
    }

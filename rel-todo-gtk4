@@ -45,16 +45,10 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
-
-Do the tutorial from time to time - what's missing? ::: 6
-graphs, validation graphs colours, updates of rama, clash dots on model change.
-change the function name update_validation_graphs() to update_validation() and after that change the name back and call
-the dot updates and update_validation_graphs() from there.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
@@ -85,6 +79,10 @@ Clicking on Green left arrow doesn't open the refinement overlay
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
+on a grey background, atom labels work well, but the distance labels do not.
+
+Do the tutorial from time to time - what's missing? ::: 1
 
 Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
@@ -604,3 +602,9 @@ Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added usin
 
 rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
 * Done ages ago.
+
+Do the tutorial from time to time - what's missing? ::: 6
+graphs, validation graphs colours, updates of rama, clash dots on model change.
+change the function name update_validation_graphs() to update_validation() and after that change the name back and call
+the dot updates and update_validation_graphs() from there.
+

@@ -2245,8 +2245,11 @@ public:
    // geometry graphs
    void update_geometry_graphs(const atom_selection_container_t &asc, int imol_moving_atoms);
    void update_geometry_graphs(int imol_moving_atoms); // convenience function - includes sequence view too!
-   void update_validation_graphs(int imol);  // and ramachandran
-   // 20211201-PE currently upadte_geometry
+
+   void update_validation(int imol);
+   // which wraps:
+   void update_validation_graphs(int imol);
+   // 20211201-PE currently update_geometry
    void update_ramachandran_plot(int imol);
 
 
@@ -4430,6 +4433,7 @@ string   static std::string sessionid;
 
    static unsigned int bond_smoothness_factor; // default 1, changes num_subdivisions and n_slices
 
+   bool coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const;
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
    static float contact_dot_sphere_subdivisions;

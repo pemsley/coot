@@ -1749,14 +1749,14 @@ graphics_info_t::accept_moving_atoms() {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) {
          molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
-         update_validation_graphs(imol_moving_atoms);
+         update_validation(imol_moving_atoms);
       } else {
          if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 
             molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
             // debug
             // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
-            update_validation_graphs(imol_moving_atoms);
+            update_validation(imol_moving_atoms);
          } else {
             if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
                molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
@@ -1814,7 +1814,7 @@ graphics_info_t::accept_moving_atoms() {
 
    // 20230527-PE does this belong here? - lets see....
    // update_active_validation_graph_model(imol_moving_atoms);
-   update_validation_graphs(imol_moving_atoms);
+   update_validation(imol_moving_atoms);
 
    int mode = MOVINGATOMS;
 
@@ -4629,7 +4629,7 @@ graphics_info_t::apply_undo() {
                   // now update the geometry graphs, so get the asc
                   atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-                  update_validation_graphs(umol);
+                  update_validation(umol);
 
                   run_post_manipulation_hook(umol, 0);
                }
@@ -4696,7 +4696,7 @@ graphics_info_t::apply_redo() {
             // now update the geometry graphs, so get the asc
             atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-            update_validation_graphs(umol);
+            update_validation(umol);
 
             run_post_manipulation_hook(umol, 0);
 

@@ -404,6 +404,7 @@ public:
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
    bool have_instances() const { return (n_instances > 0); }
+   unsigned int get_n_instances() const { return n_instances; }
    void translate_by(const glm::vec3 &t);
    bool export_as_obj_via_assimp(const std::string &file_name) const;
    bool export_as_obj_internal(const std::string &file_name) const;

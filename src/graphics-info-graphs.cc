@@ -783,7 +783,7 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
    }
 #endif
 
-   update_validation_graphs(imol);
+   update_validation(imol);
 }
 
 #include "nsv.hh"
@@ -793,7 +793,7 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
-   update_validation_graphs(imol_moving_atoms);
+   update_validation(imol_moving_atoms);
 
 #ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
@@ -940,13 +940,26 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 }
 
 void
+graphics_info_t::update_validation(int imol_changed_model) {
+
+   update_validation_graphs(imol_changed_model);
+   update_ramachandran_plot(imol_changed_model);
+
+   if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
+      mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
+      coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
+   }
+
+}
+
+void
 graphics_info_t::update_validation_graphs(int imol_changed_model) {
 
    // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
    // for that molecule if they are displayed.
 
-   g_debug("update_validation_graphs() called");
-   g_warning("Reimplement update_validation_graphs(). "
+   g_debug("update_validation() called");
+   g_warning("Reimplement update_validation(). "
              "The function should iterate over the std::map holding validation data for each active graph "
              "and recompute it, then trigger a redraw.");
 
@@ -979,13 +992,13 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
-   update_validation_graphs(imol); // 20230528-PE we are not so clever (to be specific about what gets updated) now
+   update_validation(imol); // 20230528-PE we are not so clever (to be specific about what gets updated) now
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
 
-   update_validation_graphs(imol); // 20230528-PE again we are not so clever (to be specific about what gets updated) now
+   update_validation(imol); // 20230528-PE again we are not so clever (to be specific about what gets updated) now
 
 #ifdef HAVE_GOOCANVAS
 
