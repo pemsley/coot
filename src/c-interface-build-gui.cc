@@ -244,6 +244,8 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    int imol_active = first_coords_imol();
 
    g.move_molecule_here_molecule_number = imol_active;
+
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
    g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }

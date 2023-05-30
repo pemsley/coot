@@ -36,11 +36,6 @@ Here are other styles:
 
 ----
 
-Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
-
-Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
-Needs a check before adding a combobox?
-
 Missing main-chain C atom in colour-by-chain. ::: 1
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
@@ -597,4 +592,8 @@ Go into perspective project and with left-mouse pressed wave around the mouse wi
 Curlew: Goodsell, speed-run and CaBLAM ::: 5
 * Monster effort - rewrite from scratch.
 
+Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 0.5
+
+Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 0.5
+Needs a check before adding a combobox?
 
