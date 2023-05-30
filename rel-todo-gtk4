@@ -36,6 +36,13 @@ Here are other styles:
 
 ----
 
+Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
+
+Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
+Needs a check before adding a combobox?
+
+Missing main-chain C atom in colour-by-chain. ::: 1
+
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Enable the command line (e.g. --pdb and others) ::: 2
@@ -47,9 +54,8 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
-
-Curlew: Goodsell, speed-run and CaBLAM ::: 4
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other
+ Solvent Molecules"? No. Modelling -> Add an Atom: Then can be Water, or anions and cations ::: 1
 
 Add a window-removed signal callback for Bernie? ::: 1
 void
@@ -76,19 +82,14 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
-Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 1
-
-Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 1
-Needs a check before adding a combobox?
-
-Missing main-chain C atom in colour-by-chain. ::: 1
-
 Views ::: 2
 
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
 
 rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
+
+Contact dots should be oriented so that when they pulse, they move along the line between the atoms. ::: 1
 
 Think of a way to start-up with certain modules on (in Preferences) ::: 2
 
@@ -592,3 +593,8 @@ Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_but
 
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.2
 *Done. Added stabilization in mouse_zoom().
+
+Curlew: Goodsell, speed-run and CaBLAM ::: 5
+* Monster effort - rewrite from scratch.
+
+

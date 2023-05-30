@@ -35,27 +35,22 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
 #endif
 
-      GtkWidget *recentre_combobox = nullptr;
-      // 20230402-PE reactivate this when the combobox is in place - for now it crashes
-      // when creash-on-gtk-critical is enabled.
-      // recentre_combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
       bool move_molecule_here_flag = false;
       bool recentre_on_read_pdb_flag = true; // was false;
-      if (recentre_combobox) {
-         int active_item_index = gtk_combo_box_get_active(GTK_COMBO_BOX(recentre_combobox));
-         if (active_item_index == 0)
-            recentre_on_read_pdb_flag = true;
-         if (active_item_index == 1)
+
+      const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
+      if (r) {
+         std::string sr(r);
+         std::cout << "................... sr: " << sr << std::endl;
+         if (sr == "No Recentre")
             recentre_on_read_pdb_flag = false;
-         if (active_item_index == 2)
+         if (sr == "Move Molecule Here")
             move_molecule_here_flag = true;
       }
 
-      // open_file (file);
       if (file_name) {
-         std::cout << "info: " << file_name << " " << move_molecule_here_flag << " " << recentre_on_read_pdb_flag
-                   << std::endl;
-
+         std::cout << "INFO: " << file_name << " move_molecule_here_flag: " << move_molecule_here_flag
+                   << " recentre_on_read_pdb_flag " << recentre_on_read_pdb_flag << std::endl;
          if (move_molecule_here_flag) {
             handle_read_draw_molecule_and_move_molecule_here(file_name);
          } else {
@@ -128,7 +123,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    parent_window,
                                                    action,
                                                    _("_Cancel"),
-                                                   GTK_RESPONSE_CANCEL,
+                                                  GTK_RESPONSE_CANCEL,
                                                    _("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
@@ -140,9 +135,16 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    //                                   const char** option_labels)
 
 
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+
+   const gchar *labels[]  = {"Centre on New Molecule", "No Recentre",      "Move Molecule Here", NULL};
+   const gchar *options[] = {"recentre-view",          "no-recentre-view", "move-mol-here",      NULL};
+
+   // I don't follow the options and labels, but this works strangely.
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
+
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);

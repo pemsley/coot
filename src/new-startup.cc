@@ -888,7 +888,8 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
    // Or that's what *should* happen.
 
    // std::cout << "quit here" << std::endl;
-   // g_application_quit();
+   // g_application_quit(self);
+
 }
 
 int new_startup(int argc, char **argv) {
