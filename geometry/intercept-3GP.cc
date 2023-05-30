@@ -60,18 +60,21 @@ coot::dictionary_residue_restraints_t::move_3GP_atoms() {
          auto prev_2 = atom.model_Cartn.second;
          atom.pdbx_model_Cartn_ideal.second = it->second;
          atom.model_Cartn.second = it->second;
-         std::cout << "replacing " << atom_name << " " << atom.pdbx_model_Cartn_ideal.second.format()
-                   << " was " << prev_1.format() << " " << prev_2.format() << std::endl;
+         if (false)
+            std::cout << "replacing " << atom_name << " " << atom.pdbx_model_Cartn_ideal.second.format()
+                      << " was " << prev_1.format() << " " << prev_2.format() << std::endl;
       } else {
          std::cout << "3GP move fail! " << atom_name << std::endl;
       }
    }
 
+#if 0 // testing
    for (unsigned int i=0; i<atom_info.size(); i++) {
       auto &atom = atom_info[i];
       const std::string &atom_name = atom.atom_id_4c;
-      std::cout << "After move: " << atom_name << " " << atom.model_Cartn.first << " " << atom.model_Cartn.second.format()
-                << std::endl;
+      std::cout << "After move: " << atom_name << " " << atom.model_Cartn.first << " "
+                << atom.model_Cartn.second.format() << std::endl;
    }
+#endif
 
 }
