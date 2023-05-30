@@ -2608,7 +2608,7 @@ fi
 if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       (
-      ${WGET} htpps://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+      ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
       ./configure $generic_prefix
