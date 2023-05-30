@@ -81,8 +81,8 @@ class symm_trans_t {
  public:
    //! symmetry as symm
    std::string symm_as_string;
-   symm_trans_t(int n, int x, int y, int z) 
-      { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
+   symm_trans_t(int n, int x, int y, int z) {
+      symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z; mmdb::Mat4Init(mat); };
    explicit symm_trans_t(int idx) { symm_no = idx; x_shift_ = 0; y_shift_ = 0; z_shift_ = 0; }
    symm_trans_t() {};
    mmdb::mat44 mat;
