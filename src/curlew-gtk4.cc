@@ -13,7 +13,6 @@ using json = nlohmann::json;
 int coot_get_url(const std::string &url, const std::string &file_name);
 // in c-interface.h
 void run_script(const char *filename);
-void info_dialog(const char *txt);
 
 // return a status and a failure message.
 // return bool true on success.
@@ -220,7 +219,7 @@ curlew_dialog() {
             gtk_widget_set_visible(install_button, TRUE);
          } else {
             std::string m = "WARNING:: failed to uninstall " + file_name;
-            info_dialog(m.c_str());
+            graphics_info_t::info_dialog(m);
          }
       };
 
@@ -251,7 +250,7 @@ curlew_dialog() {
             } else {
                std::string m = std::string("WARNING:: checksums do not match ") + file_name_here
                   + std::string("\n") + checksum_result.second;
-               info_dialog(m.c_str());
+               graphics_info_t::info_dialog(m);
             }
          }
       };

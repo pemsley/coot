@@ -1361,6 +1361,19 @@ void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_
    }
 }
 
+void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   // GtkWidget *dialog = widget_from_builder("add_an_atom_dialog");
+   // set_transient_for_main_window(dialog);
+   // gtk_widget_show(dialog);
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   gtk_widget_set_visible(box, TRUE);
+
+}
+
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
@@ -2529,6 +2542,7 @@ create_actions(GtkApplication *application) {
 
    // Modelling
 
+   add_action(                    "add_an_atom_action",                     add_an_atom_action);
    add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
    add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);

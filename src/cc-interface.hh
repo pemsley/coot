@@ -406,6 +406,15 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
+/*  ------------------------------------------------------------------------ */
+/*                             Add an Atom                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Add an Atom
+//! \{
+//! \brief add an atom. element can be "Water", "Na", "K", "I" etc.
+void add_an_atom(const std::string &element);
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */

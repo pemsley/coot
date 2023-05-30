@@ -2159,6 +2159,17 @@ place_typed_atom_at_pointer(const char *type) {
    add_to_history_typed(cmd, args);
 }
 
+void add_an_atom(const std::string &element) {
+   // same as above? but modern?
+   graphics_info_t g;
+   g.place_typed_atom_at_pointer(element);
+   std::string cmd = "add-an-atom";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(element));
+   add_to_history_typed(cmd, args);
+}
+
+
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;
    std::string cmd = "set-pointer-atom-is-dummy";

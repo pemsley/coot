@@ -2004,7 +2004,7 @@ on_refinement_and_regularization_vbox_close_button_clicked(GtkButton       *butt
 
    // pressing the button means that the focus goes elsewhere (not sure where). So bring it back to the graphics
    // widget;
-   
+
    GtkWidget *glarea = graphics_info_t::glareas[0];
    gtk_widget_grab_focus(glarea);
 }

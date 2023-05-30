@@ -1181,7 +1181,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.9; rgb[1] =  0.0; rgb[2] =  0.0;
                break;
             case GREEN_BOND:
-               rgb[0] = 0.1; rgb[1] =  0.8; rgb[2] =  0.1;
+               rgb[0] = 0.2; rgb[1] =  0.9; rgb[2] =  0.2;
                break;
             case GREY_BOND:
                rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
@@ -1206,7 +1206,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
                break;
             case DARK_GREEN_BOND:
-               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               rgb[0] = 0.05; rgb[1] =  0.5; rgb[2] =  0.05;
                break;
             case DARK_ORANGE_BOND:
                rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;

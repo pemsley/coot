@@ -379,6 +379,10 @@
     <submenu>
       <attribute name="label">Modelling</attribute>
         <item>
+          <attribute name="label">Add An Atom</attribute>
+          <attribute name="action">app.add_an_atom_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Add Hydrogen Atoms</attribute>
           <attribute name="action">app.add_hydrogen_atoms_action</attribute>
         </item>
@@ -7000,6 +7004,243 @@ Do you want to continue?
                       <object class="GtkBox" id="validation_graph_box">
                         <property name="orientation">vertical</property>
                         
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkBox" id="add_an_atom_box">
+                <property name="visible">False</property>
+                <property name="orientation">vertical</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <child>
+                  <object class="GtkGrid" id="add_an_atom_grid">
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_water_button">
+                        <property name="label">Water</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_water_button_clicked" />
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_lithium_button">
+                        <property name="label">Li</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_lithium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_magnesium_button">
+                        <property name="label">Mg</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_magnesium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_nickel_button">
+                        <property name="label">Ni</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_nickel_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_chlorine_button">
+                        <property name="label">Cl</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_chlorine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_cancel_button">
+                        <property name="label">Cancel</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-top">4</property>
+                        <signal name="clicked" handler="on_add_an_atom_cancel_button_clicked" />
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_sodium_button">
+                        <property name="label">Na</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_sodium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_potasium_button">
+                        <property name="label">K</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_potasium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_calcium_button">
+                        <property name="label">Ca</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_calcium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_copper_button">
+                        <property name="label">Cu</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_copper_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_strontium_button">
+                        <property name="label">Sr</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_strontium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_bromine_button">
+                        <property name="label">Br</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_bromine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_zinc_button">
+                        <property name="label">Zn</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_zinc_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_iodine_button">
+                        <property name="label">I</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_iodine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
@@ -13983,6 +14224,5 @@ Move a copy?</property>
       </object>
     </child>
   </object>
-
 
 </interface>
