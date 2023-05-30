@@ -133,7 +133,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 
       // WriteCIFASCII() seems to duplicate the atoms (maybe related to aniso?)
       // So let's copy the molecule and throw away the copy, that way we don't
-      // duplicate teh atoms in the original molecule.
+      // duplicate the atoms in the original molecule.
 
       mmdb::Manager *mol_copy  = new mmdb::Manager;
       mol_copy->Copy(mol, mmdb::MMDBFCM_All);

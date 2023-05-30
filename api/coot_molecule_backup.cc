@@ -1,145 +1,224 @@
 
 #include <sys/stat.h>
 
+#include "utils/coot-utils.hh"
 #include "coot_molecule.hh"
 #include "molecules_container.hh" // for the 
 
 #include "coords/mmdb.hh" // for write_atom_selection_file()
 
 std::string
-coot::molecule_t::make_backup() {
+coot::molecule_t::make_backup(const std::string &modification_info_string) {
 
-   if (false) {
-      std::cout << "start make_backup() for molecule " << imol_no << std::endl;
-      std::cout << "start make_backup() for molecule with " << atom_sel.n_selected_atoms << " atoms " << std::endl;
+   std::string info_message; // non-empty on failture
+   info_message = modification_info.make_backup(atom_sel.mol, modification_info_string);
+   return info_message;
+}
+
+
+int
+coot::molecule_t::undo() {
+
+   int status = 0;
+   mmdb::Manager *mol_new = modification_info.undo(atom_sel.mol);
+   if (! mol_new) {
+      std::cout << "ERROR:: undo failed" << std::endl;
+   } else {
+      atom_sel.clear_up();
+      atom_sel = make_asc(mol_new);
    }
+   return status;
+}
 
-   if (molecules_container_t::make_backups_flag == false)
-      return std::string("No Backups");
+int
+coot::molecule_t::redo() {
 
-   std::string info_message;
+   int status = 0;
+   mmdb::Manager *mol_new = modification_info.redo();
+   if (! mol_new) {
+      std::cout << "ERROR:: undo failed" << std::endl;
+   } else {
+      atom_sel.clear_up();
+      atom_sel = make_asc(mol_new);
+   }
+   return status;
 
-   auto make_maybe_backup_dir = [] (const std::string &backup_dir) {
-      return util::create_directory(backup_dir);
+}
+
+
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+//                    modification_info_t
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+
+std::string
+coot::molecule_t::modification_info_t::get_backup_file_name_from_index(int idx) const {
+
+   std::string s;
+
+   auto get_extension = [this] () {
+      std::string ext = ".pdb";
+      if (this->is_mmcif_flag)
+         ext = ".cif";
+      return ext;
    };
 
-   bool backup_this_molecule = true; // if needed, give user control later
-   bool backup_compress_files_flag = false;
+   std::string fn = mol_name + "-" + get_index_string(idx) + get_extension();
+   if (backup_dir.empty()) {
+      s = fn;
+   } else {
+      util::create_directory(backup_dir); // maybe
+      s = util::append_dir_file(backup_dir, fn);
+   }
+   return s;
+}
 
-   if (backup_this_molecule) {
-      std::string backup_dir("coot-backup");
+bool
+coot::molecule_t::modification_info_t::have_unsaved_changes() const {
 
-      //shall we use the environment variable instead?
-      char *env_var = getenv("COOT_BACKUP_DIR");
+   return true;
 
-#ifdef EMSCRIPTEN
+}
 
-#else
+std::string
+coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std::string &modification_info_string) {
 
-      if (env_var) {
-         struct stat buf;
+   std::cout << "INFO:: make_backup " << modification_info_string << std::endl;
+   if (!mol) {
+      std::cout << "ERROR:: null mol in make_backup() " << std::endl;
+      return std::string("null molecule");
+   }
 
-         // we better debackslash the directory (for windows)
-         std::string tmp_dir = env_var;
-         tmp_dir = coot::util::intelligent_debackslash(tmp_dir);
-         int err = stat(tmp_dir.c_str(), &buf);
+   std::string message;
+   int index = save_info.size();
+   std::string fn = get_backup_file_name_from_index(index);
 
-         if (!err) {
-            if (! S_ISDIR(buf.st_mode)) {
-               env_var = NULL;
-            }
-         } else {
-            env_var = NULL;
-         }
+   if (is_mmcif_flag) {
+
+      // from write_atom_selection_file():
+
+      // WriteCIFASCII() seems to duplicate the atoms (maybe related to aniso?)
+      // So let's copy the molecule and throw away the copy, that way we don't
+      // duplicate the atoms in the original molecule.
+      
+      mmdb::Manager *mol_copy  = new mmdb::Manager;
+      mol_copy->Copy(mol, mmdb::MMDBFCM_All);
+      int ierr = mol_copy->WriteCIFASCII(fn.c_str());
+      delete mol_copy;
+
+      if (ierr != mmdb::Error_NoError) {
+         std::cout << "get the error message " << fn << std::endl;
       }
-#endif
+      save_info.push_back(save_info_t(fn, modification_info_string));
+      modification_index = save_info.size();
+      std::cout << "INFO:: modification_index is now " << modification_index << std::endl;
 
-      if (env_var)
-         backup_dir = env_var;
+   } else {
 
-      if (atom_sel.mol) {
-         int dirstat = make_maybe_backup_dir(backup_dir);
+      mmdb::ERROR_CODE ierr = mol->WritePDBASCII(fn.c_str());
 
-         if (dirstat != 0) {
-            // fallback to making a directory in $HOME
-            std::string home_dir = coot::get_home_dir();
-            if (! home_dir.empty()) {
-               backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
-               dirstat = make_maybe_backup_dir(backup_dir);
-               if (dirstat != 0) {
-                  std::cout << "WARNING:: backup directory "<< backup_dir
-                            << " failure to exist or create" << std::endl;
-               } else {
-                  std::cout << "INFO using backup directory " << backup_dir << std::endl;
-               }
-            } else {
-               std::cout << "WARNING:: backup directory "<< backup_dir
-                         << " failure to exist or create" << std::endl;
-            }
-         }
+      if (ierr != mmdb::Error_NoError) {
+         int  error_count;
+         char error_buf[500];
+         std::cout << "ERROR::" << fn << " " << mmdb::GetErrorDescription(ierr) << std::endl;
+         mol->GetInputBuffer(error_buf, error_count);
+         if (error_count >= 0)
+            std::cout << "ERROR:: LINE #" << error_count << "\n     " << error_buf << std::endl;
+      }
+      save_info.push_back(save_info_t(fn, modification_info_string));
+      modification_index = save_info.size();
+      std::cout << "INFO:: modification_index is now " << modification_index << std::endl;
+   }
 
-         if (dirstat == 0) {
-            // all is hunkey-dorey.  Directory exists.
+   return message;
 
-            std::string backup_file_name = get_save_molecule_filename(backup_dir);
-            std::cout << "INFO:: make_backup() backup file name " << backup_file_name << std::endl;
+}
 
-            mmdb::byte gz;
-            if (backup_compress_files_flag) {
-               gz = mmdb::io::GZM_ENFORCE;
-            } else {
-               gz = mmdb::io::GZM_NONE;
-            }
+void
+coot::molecule_t::modification_info_t::print_save_info() const {
 
-            // Writing out a modified binary mmdb like this results in the
-            // file being unreadable (crash in mmdb read).
-            //
-            int istat;
-            if (! is_from_shelx_ins_flag) {
-               bool write_as_cif = false;
-               if (coot::is_mmcif_filename(name))
-                  write_as_cif = true;
+   std::cout << "::::: unodo() save_info is of size " << save_info.size() << std::endl;
+   for (unsigned int i=0; i<this->save_info.size(); i++) {
+      std::cout << "save_info " << i << " "
+                << this->save_info[i].file_name << " "
+                << this->save_info[i].modification_info_string
+                << std::endl;
+   }
+};
 
-               istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+mmdb::Manager *
+coot::molecule_t::modification_info_t::save_info_t::get_mol() {
 
-               if (true) { // 20221021-PE this should not be needed
-                  struct stat buf;
-                  int err = stat(backup_file_name.c_str(), &buf);
-                  if (err == 0) {
-                     std::cout << "DEBUG:: in make_backup() " << backup_file_name << " confirmed as existing" << std::endl;
-                  } else {
-                     std::cout << "DEBUG:: in make_backup() " << backup_file_name << " does not exist!" << std::endl;
-                  }
-               }
+   mmdb::Manager *MMDBManager = nullptr;
+   MMDBManager = new mmdb::Manager;
+   MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+                          mmdb::MMDBF_IgnoreDuplSeqNum |
+                          mmdb::MMDBF_IgnoreNonCoorPDBErrors |
+                          mmdb::MMDBF_IgnoreHash |
+                          mmdb::MMDBF_IgnoreRemarks);
+   mmdb::ERROR_CODE err = MMDBManager->ReadCoorFile(file_name.c_str());
+   if (err != mmdb::Error_NoError) {
+      int  error_count;
+      char error_buf[500];
+      std::cout << "ERROR::" << file_name << " " << mmdb::GetErrorDescription(err) << std::endl;
+      MMDBManager->GetInputBuffer(error_buf, error_count);
+      if (error_count >= 0)
+         std::cout << "ERROR:: LINE #" << error_count << "\n     " << error_buf << std::endl;
+   }
+   return MMDBManager;
+}
 
-               // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
-               if (istat) {
-                  std::string warn;
-                  warn = "WARNING:: WritePDBASCII failed! Return status ";
-                  warn += istat;
-                  // g.info_dialog_and_text(warn);
-                  info_message = warn;
-               }
-            } else {
-               std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
-               istat = p.first;
-            }
 
-            save_history_file_name(backup_file_name);
-            // 20221016-PE old history counting - now use save_info.
-            // if (history_index == max_history_index)
-            // max_history_index++;
-            // history_index++;
-         }
-      } else {
-         std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
-                   << std::endl;
+mmdb::Manager *
+coot::molecule_t::modification_info_t::undo(mmdb::Manager *mol) {
+
+
+   int idx = modification_index - 1;
+
+   // make a backup here first under normal circumstances.
+   if (modification_index == int(save_info.size()))
+      make_backup(mol, "undo"); // changes modification_index
+
+   modification_index = idx;
+   if (modification_index < 0)
+      modification_index = 0;
+
+   mmdb::Manager *MMDBManager = nullptr;
+   std::cout << "coot::molecule_t::modification_info_t::undo()" << std::endl;
+   if (idx >= 0) {
+      if (idx < int(save_info.size())) {
+         std::cout << "coot::molecule_t::modification_info_t::undo() changing to index "
+                   << idx << std::endl;
+         MMDBManager = save_info[idx].get_mol();
+      }
+   }
+   return MMDBManager;
+}
+
+
+mmdb::Manager *
+coot::molecule_t::modification_info_t::redo() {
+
+   mmdb::Manager *MMDBManager = nullptr;
+   std::cout << "coot::molecule_t::modification_info_t::redo()" << std::endl;
+
+   int idx = modification_index + 1;
+   if (idx > int(save_info.size()))
+      idx = save_info.size();
+   std::cout << ":::::::::::: in redo() modification_index: " << modification_index
+             << " idx of molecule to change to: " << idx << std::endl;
+   print_save_info();
+   if (idx >= 0) {
+      if (idx < int(save_info.size())) {
+         MMDBManager = save_info[idx].get_mol();
+         modification_index = idx;
       }
    } else {
-      // Occasionally useful but mostly tedious...
-      // std::cout << "INFO:: backups turned off on this molecule"
-      // << std::endl;
+      
    }
-   return info_message;
+   return MMDBManager;
 }
 
