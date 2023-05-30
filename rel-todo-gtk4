@@ -36,11 +36,7 @@ Here are other styles:
 
 ----
 
-Missing main-chain C atom in colour-by-chain. ::: 1
-
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Enable the command line (e.g. --pdb and others) ::: 2
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
@@ -49,24 +45,11 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other
- Solvent Molecules"? No. Modelling -> Add an Atom: Then can be Water, or anions and cations ::: 1
-
-Add a window-removed signal callback for Bernie? ::: 1
-void
-window_removed (
-  GtkApplication* self,
-  GtkWindow* window,
-  gpointer user_data
-)
-
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
-
-How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
 
 Do the tutorial from time to time - what's missing? ::: 6
 graphs, validation graphs colours, updates of rama, clash dots on model change.
@@ -74,6 +57,7 @@ change the function name update_validation_graphs() to update_validation() and a
 the dot updates and update_validation_graphs() from there.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+* Preferences, surely.
 
 Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
@@ -82,11 +66,8 @@ Views ::: 2
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
 
-rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
-
 Contact dots should be oriented so that when they pulse, they move along the line between the atoms. ::: 1
-
-Think of a way to start-up with certain modules on (in Preferences) ::: 2
+Also, elongate them? Not vdw dots though.
 
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
@@ -105,9 +86,17 @@ Write a script that finds functions in glade-callbacks that are no longer used (
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Think of a way to start-up with certain modules on (in Preferences) :::- 2
+* Nice to have, not vital. Use the command line in the meantime.
+
+Enable the command line (e.g. --pdb and others) :::- 2
+* It's actually not clear that I need it!
 
 Find a home for New molecule by sphere :::- 1
 
@@ -214,8 +203,8 @@ Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
 (also affects gtk3 coot - so think about fixing it there?).
 See "fat atom" commits.
 
-Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
-It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+How should the "model representation change" work? Ctrl Shift 2-finger scroll? :::- 0.5
+* This is too complicated and estoeric to fix now. I don't even know how to fix it.
 
 --- Done Items ---
 
@@ -596,4 +585,22 @@ Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 0.5
 
 Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 0.5
 Needs a check before adding a combobox?
+* Done.
 
+Add a window-removed signal callback for Bernie? ::: 0.2
+void
+window_removed (
+  GtkApplication* self,
+  GtkWindow* window,
+  gpointer user_data
+)
+* I added a note:
+
+Missing main-chain C atom in colour-by-chain. ::: 0.5
+* Done. Commented out a big hunk of code. Make instancing work.
+
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other
+ Solvent Molecules"? No. Modelling -> Add an Atom: Then can be Water, or anions and cations ::: 1
+
+rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
+* Done ages ago.
