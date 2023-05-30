@@ -270,12 +270,15 @@ void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "curlew.h" // 20220628-PE why does this exist? why is curlew() not in the .hh file?
+#include "curlew-gtk4.hh"
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
                    G_GNUC_UNUSED gpointer user_data) {
-   curlew();
+   GtkWidget *dialog = curlew_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
 }
 
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,

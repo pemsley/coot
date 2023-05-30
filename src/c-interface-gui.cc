@@ -6020,7 +6020,7 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
       // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
       boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
       crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
-      std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      // std::cout << "DEBUG:: checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
       std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
       if (s == checksum)
 	 state = true;

@@ -320,7 +320,10 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
          delta_x = delta_y;
       float sf = 1.0 - delta_x * 0.003;
 
-      std::cout << "delta_x " << delta_x << " sf" << sf << std::endl;
+      // stabilize sf:
+      if (sf < 0.1) sf = 0.1;
+      if (sf > 2.0) sf = 2.0;
+      // std::cout << "mouse_zoom(): delta_x " << delta_x << " sf " << sf << std::endl;
       graphics_info_t::eye_position.z *= sf;
 
       { // own graphics_info_t function - c.f. adjust clipping

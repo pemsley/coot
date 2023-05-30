@@ -49,9 +49,16 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 
 Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
 
-Curlew: speed-run and CaBLAM ::: 4
+Curlew: Goodsell, speed-run and CaBLAM ::: 4
 
-Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
+Add a window-removed signal callback for Bernie? ::: 1
+void
+window_removed (
+  GtkApplication* self,
+  GtkWindow* window,
+  gpointer user_data
+)
+
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
@@ -77,12 +84,6 @@ Needs a check before adding a combobox?
 Missing main-chain C atom in colour-by-chain. ::: 1
 
 Views ::: 2
-
-Find a home for New molecule by sphere ::: 1
-
-Find a home for New molecule by symmetry op ::: 1
-
-Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
 
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
@@ -111,6 +112,12 @@ Nice to have: Unmodelled blobs are labelled with the residue to which they are c
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Find a home for New molecule by sphere :::- 1
+
+Find a home for New molecule by symmetry op :::- 1
+
+Add base paring: on_other_tools_base_pair_toggle_button_toggled() :::- 0.5
 
 I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui, fitting etc.
 
@@ -582,3 +589,6 @@ rename draw-2.cc as tick-function.cc or some such
 On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
 
 Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 0.1
+
+Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.2
+*Done. Added stabilization in mouse_zoom().

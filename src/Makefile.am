@@ -500,6 +500,8 @@ libcootsumo_la_SOURCES = \
 	coot_wrap_guile.cc       \
 	curlew.h                 \
 	curlew.hh                \
+	curlew-gtk4.cc           \
+	curlew-gtk4.hh           \
 	data-pair-remover.hh     \
 	density-results-container-t.hh \
 	dots-representation.hh   \
