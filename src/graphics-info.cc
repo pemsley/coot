@@ -98,14 +98,11 @@
 
 #include "geometry/dict-utils.hh"
 
-#ifndef EMSCRIPTEN
 #include "interface.h"
 #include "widget-from-builder.hh"
 #include "draw-2.hh"
 #include "pick.hh"
-#endif
 
-#ifndef EMSCRIPTEN
 // static
 GtkWidget *
 graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
@@ -113,9 +110,7 @@ graphics_info_t::get_widget_from_builder(const std::string &w_name) { // use gtk
    GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(gtkbuilder, w_name.c_str()));
    return w;
 }
-#endif
 
-#ifndef EMSCRIPTEN
 // static
 GObject *
 graphics_info_t::get_gobject_from_builder(const std::string &w_name) { // use gtkbuilder but return a gobject (for menus)
@@ -129,10 +124,10 @@ graphics_info_t::get_gobject_from_builder(const std::string &w_name) { // use gt
 GtkWidget *
 graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
 
+   std::cout << "debug:: in get_widget_from_preferences_builder() using builder " << preferences_gtkbuilder << " to lookup " << w_name << std::endl;
    GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(preferences_gtkbuilder, w_name.c_str()));
    return w;
 }
-#endif
 
 // return a vector of the current valid map molecules
 std::vector<int>
