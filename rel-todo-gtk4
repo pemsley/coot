@@ -47,15 +47,11 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
-Clear the box of results in Unmodelled Blobs ::: 0.4
-
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
-
-Key-binding/function to bump the B-factors up or down or match the neighbourhood.
 
 Views ::: 2
 
@@ -82,7 +78,7 @@ Write a script that finds functions in glade-callbacks that are no longer used (
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
-on a grey background, atom labels work well, but the distance labels do not.
+Nice to have: on a grey background, atom labels work well, but the distance labels do not.
 
 What's up with the Preferences? ::: 3
 
@@ -93,6 +89,9 @@ It would be good if you could make them nucleus hydrogens if that's what was del
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Sort the triangles so that the difference map looks OK in plain mode. Maybe this should go
+above the line?
 
 Think of a way to start-up with certain modules on (in Preferences) :::- 2
 * Nice to have, not vital. Use the command line in the meantime.
@@ -110,15 +109,14 @@ I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui,
 
 struct_conn in mmdb for links : how  does it work and can they be displayed?
 
-Sort the triangles so that the difference map looks OK in plain mode. Maybe this should go
-above the line?
-
 How about "Both" surface and lines for maps? Extra "Both" radio button.
 
 Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
 OK, but this is a mmdb problem not a GTK4 Coot problem.
 
 A benchmark in Curlew? Or built-in would be better.
+
+Unmodelled blobs should have an "Update" button :::- 1
 
 Caps lock key indicator?
 
@@ -611,4 +609,9 @@ Do the tutorial from time to time - what's missing? ::: 6
 graphs, validation graphs colours, updates of rama, clash dots on model change.
 change the function name update_validation_graphs() to update_validation() and after that change the name back and call
 the dot updates and update_validation_graphs() from there.
+
+Key-binding/function to bump the B-factors up or down or match the neighbourhood. ::: 0.2
+* Done
+
+Clear the box of results in Unmodelled Blobs ::: 0.4
 
