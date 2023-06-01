@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.36.0 -->
 <interface>
-  <requires lib="gtk+" version="4.0"/>
+  <requires lib="gtk" version="4.0"/>
 
   <menu id="menubar">
     <submenu>
@@ -378,6 +378,10 @@
 
     <submenu>
       <attribute name="label">Modelling</attribute>
+        <item>
+          <attribute name="label">Add An Atom</attribute>
+          <attribute name="action">app.add_an_atom_action</attribute>
+        </item>
         <item>
           <attribute name="label">Add Hydrogen Atoms</attribute>
           <attribute name="action">app.add_hydrogen_atoms_action</attribute>
@@ -1382,8 +1386,6 @@ Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
   <object class="GtkDialog" id="add_alt_conf_dialog">
@@ -5682,9 +5684,9 @@ Do you want to continue?
                     <property name="label" translatable="yes">Display/Undisplay All</property>
                     <property name="can-focus">1</property>
                     <property name="receives-default">1</property>
-                    <property name="margin-start">4</property>
+                    <property name="margin-start">8</property>
                     <property name="margin-end">4</property>
-                    <property name="margin-top">2</property>
+                    <property name="margin-top">8</property>
                     <property name="margin-bottom">2</property>
                     <signal name="toggled" handler="on_generic_objects_display_all_togglebutton_toggled" swapped="no"/>
                   </object>
@@ -7002,6 +7004,243 @@ Do you want to continue?
                       <object class="GtkBox" id="validation_graph_box">
                         <property name="orientation">vertical</property>
                         
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkBox" id="add_an_atom_box">
+                <property name="visible">False</property>
+                <property name="orientation">vertical</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <child>
+                  <object class="GtkGrid" id="add_an_atom_grid">
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_water_button">
+                        <property name="label">Water</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_water_button_clicked" />
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_lithium_button">
+                        <property name="label">Li</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_lithium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_magnesium_button">
+                        <property name="label">Mg</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_magnesium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_nickel_button">
+                        <property name="label">Ni</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_nickel_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_chlorine_button">
+                        <property name="label">Cl</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_chlorine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_cancel_button">
+                        <property name="label">Cancel</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-top">4</property>
+                        <signal name="clicked" handler="on_add_an_atom_cancel_button_clicked" />
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_sodium_button">
+                        <property name="label">Na</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_sodium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_potasium_button">
+                        <property name="label">K</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_potasium_button_clicked" />
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_calcium_button">
+                        <property name="label">Ca</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_calcium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_copper_button">
+                        <property name="label">Cu</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_copper_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_strontium_button">
+                        <property name="label">Sr</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_strontium_button_clicked" />
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_bromine_button">
+                        <property name="label">Br</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_bromine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_zinc_button">
+                        <property name="label">Zn</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_zinc_button_clicked" />
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="add_an_atom_iodine_button">
+                        <property name="label">I</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+                        <signal name="clicked" handler="on_add_an_atom_iodine_button_clicked" />
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
@@ -10723,20 +10962,13 @@ just the cell and symmetry)
     </child>
   </object>
 
+  <!-- this should be an overlay, I think -->
   <object class="GtkDialog" id="residue_editor_select_monomer_type_dialog">
-    <signal name="close" handler="on_residue_editor_select_monomer_type_dialog_close" swapped="no"/>
-    <signal name="response" handler="on_residue_editor_select_monomer_type_dialog_response" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Select Monomer Type</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -10751,9 +10983,34 @@ just the cell and symmetry)
             </child>
           </object>
         </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+
+            <child>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_residue_editor_select_monomer_type_cancel_button_clicked" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="clicked" handler="on_residue_editor_select_monomer_type_ok_button_clicked" />
+              </object>
+            </child>
+
+          </object>
+        </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -11619,6 +11876,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Saving Coordinates</property>
@@ -13927,300 +14185,41 @@ Move a copy?</property>
 
   <object class="GtkDialog" id="curlew_dialog">
     <property name="title" translatable="yes">Coot Curlew</property>
-    <property name="deletable">False</property>
-    <property name="modal">False</property>
-    <property name="default_width">950</property>
-    <property name="default_height">550</property>
+    <!-- <property name="default_width">850</property> -->
+    <!-- <property name="default_height">450</property> -->
     <property name="resizable">True</property>
-    <property name="destroy_with_parent">False</property>
-    <property name="decorated">True</property>
-    <signal name="close" handler="on_curlew_dialog_close" last_modification_time="Tue, 08 May 2018 23:36:34 GMT"/>
-    <signal name="response" handler="on_curlew_dialog_response" last_modification_time="Wed, 09 May 2018 11:21:50 GMT"/>
-
-    <action-widgets>
-      <action-widget response="-7">curlew_dialog_closebutton</action-widget>
-    </action-widgets>
 
     <child>
-      <object class="GtkBox" id="dialog-vbox135">
+      <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="visible">True</property>
-        <property name="homogeneous">False</property>
-        <property name="spacing">0</property>
-
-        <child internal-child="action_area">
-	  <object class="GtkBox" id="dialog-action_area134">
-            <property name="orientation">horizontal</property>
-	    <property name="visible">True</property>
-
-	    <child>
-	      <object class="GtkButton" id="curlew_dialog_closebutton">
-	        <property name="visible">True</property>
-	        <property name="can_focus">True</property>
-	        <property name="label">gtk-close</property>
-	        <property name="focus_on_click">True</property>
-	      </object>
-	    </child>
-	  </object>
-        </child>
-
         <child>
-	  <object class="GtkBox" id="hbox450">
-            <property name="orientation">horizontal</property>
-	    <property name="visible">True</property>
-	    <property name="homogeneous">False</property>
-	    <property name="spacing">0</property>
-
-	    <child>
-	      <placeholder/>
-	    </child>
-
-	    <child>
-	      <object class="GtkImage" id="image12118">
-	        <property name="visible">True</property>
-	      </object>
-	    </child>
-
-	    <child>
-	      <placeholder/>
-	    </child>
-	  </object>
+          <object class="GtkGrid" id="curlew_grid">
+            <property name="margin-bottom">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-start">8</property>
+            <property name="margin-top">8</property>
+          </object>
         </child>
-
         <child>
-	  <object class="GtkBox" id="hbox445">
-            <property name="orientation">horizontal</property>
-	    <property name="visible">True</property>
-	    <property name="homogeneous">False</property>
-	    <property name="spacing">0</property>
-
-	    <child>
-	      <object class="GtkBox" id="vbox328">
-                <property name="orientation">vertical</property>
-	        <property name="visible">True</property>
-	        <property name="homogeneous">False</property>
-	        <property name="spacing">0</property>
-
-	      </object>
-	    </child>
-
-	    <child>
-	      <object class="GtkBox" id="vbox329">
-                <property name="orientation">vertical</property>
-	        <property name="visible">True</property>
-	        <property name="homogeneous">False</property>
-	        <property name="spacing">0</property>
-
-	        <child>
-		  <object class="GtkBox" id="hbox446">
-                    <property name="orientation">horizontal</property>
-		    <property name="visible">True</property>
-		    <property name="homogeneous">False</property>
-		    <property name="spacing">0</property>
-
-		    <child>
-		      <object class="GtkLabel" id="label814">
-		        <property name="visible">True</property>
-		        <property name="label" translatable="yes"> </property>
-		        <property name="use_underline">False</property>
-		        <property name="use_markup">False</property>
-		        <property name="justify">GTK_JUSTIFY_CENTER</property>
-		        <property name="wrap">False</property>
-		        <property name="selectable">False</property>
-		        <property name="xalign">0.5</property>
-		        <property name="yalign">0.5</property>
-		        <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		        <property name="width_chars">-1</property>
-		        <property name="single_line_mode">False</property>
-		      </object>
-		    </child>
-
-		    <child>
-		      <object class="GtkLabel" id="label811">
-		        <property name="visible">True</property>
-		        <property name="label" translatable="yes">Description</property>
-		        <property name="use_underline">False</property>
-		        <property name="use_markup">False</property>
-		        <property name="justify">GTK_JUSTIFY_LEFT</property>
-		        <property name="wrap">False</property>
-		        <property name="selectable">False</property>
-		        <property name="xalign">0.5</property>
-		        <property name="yalign">0.5</property>
-		        <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		        <property name="width_chars">-1</property>
-		        <property name="single_line_mode">False</property>
-		      </object>
-		    </child>
-
-		    <child>
-		      <object class="GtkLabel" id="label812">
-		        <property name="visible">True</property>
-		        <property name="label" translatable="yes">  Version  </property>
-		        <property name="use_underline">False</property>
-		        <property name="use_markup">False</property>
-		        <property name="justify">GTK_JUSTIFY_LEFT</property>
-		        <property name="wrap">False</property>
-		        <property name="selectable">False</property>
-		        <property name="xalign">0.5</property>
-		        <property name="yalign">0.5</property>
-		        <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		        <property name="width_chars">-1</property>
-		        <property name="single_line_mode">False</property>
-		      </object>
-		    </child>
-
-		    <child>
-		      <object class="GtkLabel" id="label813">
-		        <property name="visible">True</property>
-		        <property name="label" translatable="yes">       Date     </property>
-		        <property name="use_underline">False</property>
-		        <property name="use_markup">False</property>
-		        <property name="justify">GTK_JUSTIFY_CENTER</property>
-		        <property name="wrap">False</property>
-		        <property name="selectable">False</property>
-		        <property name="xalign">0.5</property>
-		        <property name="yalign">0.5</property>
-		        <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		        <property name="width_chars">-1</property>
-		        <property name="single_line_mode">False</property>
-		      </object>
-		    </child>
-
-		    <child>
-		      <object class="GtkLabel" id="label817">
-		        <property name="visible">True</property>
-		        <property name="label" translatable="yes">  Select  </property>
-		        <property name="use_underline">False</property>
-		        <property name="use_markup">False</property>
-		        <property name="justify">GTK_JUSTIFY_LEFT</property>
-		        <property name="wrap">False</property>
-		        <property name="selectable">False</property>
-		        <property name="xalign">0.5</property>
-		        <property name="yalign">0.5</property>
-		        <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		        <property name="width_chars">-1</property>
-		        <property name="single_line_mode">False</property>
-		      </object>
-		    </child>
-
-		  </object>
-	        </child>
-
-	        <child>
-		  <object class="GtkScrolledWindow" id="scrolledwindow42">
-		    <property name="visible">True</property>
-		    <property name="can_focus">True</property>
-		    <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
-		    <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
-		    <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
-
-		    <child>
-		      <object class="GtkViewport" id="viewport29">
-		        <property name="visible">True</property>
-
-		        <child>
-			  <object class="GtkBox" id="curlew_vbox_for_extensions">
-                            <property name="orientation">vertical</property>
-			    <property name="visible">True</property>
-			    <property name="homogeneous">False</property>
-			    <property name="spacing">0</property>
-
-			    <child>
-			      <placeholder/>
-			    </child>
-
-			    <child>
-			      <placeholder/>
-			    </child>
-
-			    <child>
-			      <placeholder/>
-			    </child>
-			  </object>
-		        </child>
-		      </object>
-		    </child>
-		  </object>
-	        </child>
-
-	        <child>
-		  <object class="GtkLabel" id="curlew_already_installed_label">
-		    <property name="visible">True</property>
-		    <property name="label" translatable="yes">Already installed</property>
-		    <property name="use_underline">False</property>
-		    <property name="use_markup">False</property>
-		    <property name="justify">GTK_JUSTIFY_LEFT</property>
-		    <property name="wrap">False</property>
-		    <property name="selectable">False</property>
-		    <property name="xalign">0.00999999977648</property>
-		    <property name="yalign">0.5</property>
-		    <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		    <property name="width_chars">-1</property>
-		    <property name="single_line_mode">False</property>
-		  </object>
-	        </child>
-
-	        <child>
-		  <object class="GtkBox" id="hbox448">
-                    <property name="orientation">horizontal</property>
-		    <property name="visible">True</property>
-		    <property name="homogeneous">False</property>
-		    <property name="spacing">0</property>
-
-		    <child>
-		      <placeholder/>
-		    </child>
-
-		    <child>
-		      <object class="GtkButton" id="curlew_install_button">
-		        <property name="visible">True</property>
-		        <property name="can_focus">True</property>
-		        <property name="focus_on_click">True</property>
-		        <signal name="clicked" handler="on_curlew_install_button_clicked" last_modification_time="Sun, 06 May 2018 11:52:10 GMT"/>
-
-		        <child>
-			  <object class="GtkBox" id="box-alignment">
-			    <property name="visible">True</property>
-
-			    <child>
-			      <object class="GtkBox" id="hbox449">
-                                <property name="orientation">horizontal</property>
-			        <property name="visible">True</property>
-			        <property name="homogeneous">False</property>
-			        <property name="spacing">2</property>
-
-			        <child>
-				  <object class="GtkImage" id="image12117">
-				    <property name="visible">True</property>
-				    <!-- <property name="icon_size">4</property> -->
-				  </object>
-			        </child>
-
-			        <child>
-				  <object class="GtkLabel" id="label816">
-				    <property name="visible">True</property>
-				    <property name="label" translatable="yes">  Install Selected  </property>
-				    <property name="use_underline">True</property>
-				    <property name="use_markup">False</property>
-				    <property name="justify">GTK_JUSTIFY_LEFT</property>
-				    <property name="wrap">False</property>
-				    <property name="selectable">False</property>
-				    <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				    <property name="width_chars">-1</property>
-				    <property name="single_line_mode">False</property>
-				  </object>
-			        </child>
-			      </object>
-			    </child>
-			  </object>
-		        </child>
-		      </object>
-		    </child>
-		  </object>
-	        </child>
-	      </object>
-	    </child>
-	  </object>
+          <object class="GtkSeparator">
+            <property name="margin-bottom">4</property>
+            <property name="margin-top">4</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkButton" id="curlew_dialog_close_button">
+                <property name="accessible-role">menu-item-radio</property>
+                <property name="label"> Close </property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-end">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-top">4</property>
+                <signal name="clicked" handler="on_curlew_close_button_clicked"/>
+              </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>

@@ -486,7 +486,7 @@ void pepflip(int imol, const char *chain_id, int resno,
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
       g.molecules[imol].pepflip_residue(chain_id, resno, inscode, alt_conf);
-      g.update_validation_graphs(imol);
+      g.update_validation(imol);
       graphics_draw();
    } 
 } 

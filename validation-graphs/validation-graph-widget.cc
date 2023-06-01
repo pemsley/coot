@@ -155,10 +155,11 @@ double map_value_to_bar_proportion(double residue_value, double amplitude, coot:
     double base_proportion = (residue_value - floor) / amplitude;
     switch (type) {
         case ty::LogProbability: { 
-            return std::log10(base_proportion * 9.f + 1.f);
+           return std::log10(base_proportion * 9.f + 1.f);
         }
         default: {
-            return base_proportion;
+           if (base_proportion > 1.0) base_proportion = 1.0;
+           return base_proportion;
         }
     }
 }
@@ -186,8 +187,8 @@ G_DEFINE_TYPE(CootValidationGraph, coot_validation_graph, GTK_TYPE_WIDGET)
 //     GObjectClass parent_class;
 // };
 
-void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
-{
+void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
+
     CootValidationGraph* self = COOT_COOT_VALIDATION_GRAPH(widget);
     self->coordinate_cache->clear();
 
@@ -203,8 +204,8 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
     GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
     gtk_style_context_get_color(style_context,&attribute_color);
 
-    float w = (float) gtk_widget_get_width (widget);
-    float h = (float) gtk_widget_get_height (widget);
+    float w = static_cast<float>(gtk_widget_get_width(widget));
+    float h = static_cast<float>(gtk_widget_get_height(widget));
     
     // 1. Draw title
     graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w, h);
@@ -317,35 +318,56 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
                 self->coordinate_cache->push_back(std::pair<graphene_rect_t,const coot::residue_validation_information_t*>{m_graphene_rect,&residue});
                 float border_thickness[] = {RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH,RESIDUE_BORDER_WIDTH};
                 GskRoundedRect outline;
-                gsk_rounded_rect_init_from_rect(
-                    &outline,
-                    &m_graphene_rect,
-                    0
-                );
+                gsk_rounded_rect_init_from_rect(&outline,
+                                                &m_graphene_rect,
+                                                0
+                                                );
                 GdkRGBA residue_color_computed = residue_color;
                 GdkRGBA border_color_computed = border_color;
                 auto green_to_red = [&] (double bar_proportion) {
                     // border_color_computed.red = 0.6 * bar_proportion;
                     // border_color_computed.green = (1.f - bar_proportion) * residue_color.green;
                     // border_color_computed.blue = 0; // std::pow(0.9 * bar_proportion,5);
-                    residue_color_computed.red   = 1.0 - 0.5 * bar_proportion;
-                    residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
-                    residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
 
+                   // residue_color_computed.red   = 1.0 - 0.5 * bar_proportion;
+                   // residue_color_computed.green = 1.0 - (1.f - std::pow(bar_proportion,3)) * residue_color.green;
+                   // residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
+
+                   residue_color_computed.red   = bar_proportion;
+                   residue_color_computed.green = 1.0 - bar_proportion;
+                   residue_color_computed.blue  = 0.2; //std::pow(bar_proportion,5);
                 };
-                auto red_to_green = [&](double bar_proportion){
+                auto red_to_green = [&](double bar_proportion) {
                     // dirty trick
                     green_to_red(1.0 - bar_proportion);
                 };
+
+                // debugging
+                std::string graph_type_str = "unknown";
+                if (self->_vi->type == coot::graph_data_type::LogProbability) graph_type_str = "LogProb";
+                if (self->_vi->type == coot::graph_data_type::Probability)    graph_type_str = "Prob";
+                if (self->_vi->type == coot::graph_data_type::Distortion)     graph_type_str = "Distortion";
+                if (self->_vi->type == coot::graph_data_type::Correlation)    graph_type_str = "Correlation";
+                if (self->_vi->type == coot::graph_data_type::Energy)         graph_type_str = "Energy";
+
                 switch (self->_vi->type) {
-                    case coot::graph_data_type::Distortion:
                     case coot::graph_data_type::LogProbability:
-                    case coot::graph_data_type::Probability: {
-                        red_to_green(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type));
+                    case coot::graph_data_type::Probability:
+                    case coot::graph_data_type::Score:
+                    case coot::graph_data_type::Correlation:
+                    {
+                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                       // std::cout << "................. red_to_green " << residue.function_value << " "
+                       // << graph_type_str << " " << prop << std::endl;
+                        red_to_green(prop);
                         break;
                     }
+                    case coot::graph_data_type::Distortion:
                     default: {
-                        green_to_red(map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type));
+                       double prop = map_value_to_bar_proportion(residue.function_value, amplitude, self->_vi->type);
+                       // std::cout << "................. green_to_red " << residue.function_value << " "
+                       // << graph_type_str << " " << prop << std::endl;
+                        green_to_red(prop);
                     }
                 }
                 GdkRGBA border_colors[] = {border_color_computed,border_color_computed,border_color_computed,border_color_computed};

@@ -272,9 +272,8 @@ auto_fit_best_rotamer(int imol_coords,
 
          // get the residue so that it can update the geometry graph
          mmdb::Residue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
-         if (residue_p) {
-            g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
-         }
+         if (residue_p)
+            g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map); // in auto_fit_best_rotamer
          std::cout << "Fitting score for best rotamer: " << f << std::endl;
       }
       g.run_post_manipulation_hook(imol_coords, 0);
@@ -680,7 +679,7 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
          std::string ins_code = atom_spec.ins_code;
          std::string chain_id = atom_spec.chain_id;
          g.molecules[imol].mutate(ires, ins_code, std::string(chain_id), res_type);
-         g.update_geometry_graphs(imol);
+         g.update_validation(imol);
          graphics_draw();
       }
    }
@@ -723,7 +722,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
-      g.update_geometry_graphs(imol);
+      g.update_validation(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";

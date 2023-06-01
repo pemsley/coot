@@ -105,6 +105,9 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
       glm::vec4 col = colour_table[icol];
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+
+#if 0    // 20230530-PE just draw eveything with spheres. If you try to fix this, try to get the
+         // instanced version working first before fixing this (in the bond generation part, not here).
          bool do_it = atoms_have_bigger_radius_than_bonds;
          mmdb::Atom *at = at_info.atom_p;
 
@@ -117,6 +120,9 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
                }
             }
          }
+#endif
+
+         bool do_it = true;
 
          if (do_it) {
             unsigned int idx_base = vertices.size();
@@ -171,6 +177,12 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
+   // 20230530-PE this is such a kludge.
+   // Mainchain C atoms are missing in colour-by-chain/dictionary mode.
+   // Let's fix that...
+   // Draw everything with spheres.
+
+#if 0
 
    // BONDED_WITH_HETATM_BOND.
 
@@ -344,6 +356,8 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
    // for (unsigned int i = 0; i < vertices.size(); i++) {
    //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
    // }
+
+#endif
 }
 
 void

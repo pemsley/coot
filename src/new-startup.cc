@@ -156,7 +156,7 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
    graphics_info_t g;
@@ -653,20 +653,39 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
+      // the main application builder
+
+      // change "glade" to "ui" one day.
       std::string dir = coot::package_data_dir();
       std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-      std::string glade_file_name = "coot-gtk4.ui";
-      std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
-      if (coot::file_exists(glade_file_name))
-         glade_file_full = glade_file_name;
+      std::string ui_file_name = "coot-gtk4.ui";
+      std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
+      if (coot::file_exists(ui_file_name))
+         ui_file_full = ui_file_name;
 
       GError* error = NULL;
-      gboolean status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+      gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
       if (status == FALSE) {
-         std::cout << "ERROR:: Failure to read or parse " << glade_file_full << std::endl;
+         std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
          std::cout << error->message << std::endl;
          exit(0);
       }
+
+      // the preferences builder:
+      std::string preferences_ui_file_name = "preferences-gtk4.ui";
+      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_glade, preferences_ui_file_name);
+      if (coot::file_exists(preferences_ui_file_name))
+         preferences_ui_file_name_full = preferences_ui_file_name;
+      GtkBuilder *preferences_builder = gtk_builder_new();
+      std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
+      std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      if (status == FALSE) {
+         std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
+         std::cout << error->message << std::endl;
+         exit(0);
+      }
+      graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
       python_init();
 
@@ -879,6 +898,18 @@ void application_command_line_callback(GtkApplication *app, GVariant *parameters
   
 }
 
+void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) {
+
+   // this is not needed because closing the main window using the window manager
+   // causes g_application_run() in the function below to return. Hence we
+   // just fall out at the end of main().
+   //
+   // Or that's what *should* happen.
+
+   // std::cout << "quit here" << std::endl;
+   // g_application_quit(self);
+
+}
 
 int new_startup(int argc, char **argv) {
 
@@ -916,6 +947,10 @@ int new_startup(int argc, char **argv) {
    g_signal_connect(app, "open",     G_CALLBACK(application_open_callback), activate_data); // passed on
    // this destroys active_data
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
+
+   // how about this - needed for Bernie/Windows?
+   // void window_removed ( GtkApplication* self, GtkWindow* window, gpointer user_data )
+   g_signal_connect(app, "window-removed", G_CALLBACK(window_removed), nullptr);
 
    // delete activate_data; Nope. This is used in new_startup_application_activate.
    // Delete it there if you want to delete it.

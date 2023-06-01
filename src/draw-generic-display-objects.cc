@@ -123,6 +123,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                // don't draw objects for intermediate atom if there are no intermediate atoms
                if (!moving_atoms_asc)
                   draw_it = false;
+
             } else {
                int imol_for_mesh = obj.get_imol();
                if (is_valid_model_molecule(imol_for_mesh))

@@ -406,6 +406,15 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
+/*  ------------------------------------------------------------------------ */
+/*                             Add an Atom                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Add an Atom
+//! \{
+//! \brief add an atom. element can be "Water", "Na", "K", "I" etc.
+void add_an_atom(const std::string &element);
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */
@@ -1424,8 +1433,8 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 #ifdef USE_LIBCURL
 // return 0 on success.
-int coot_get_url(const char *url, const char *file_name);
-int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name, short int do_hook_flag);
+int coot_get_url(const std::string &url, const std::string &file_name);
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag);
 #ifdef USE_GUILE
 // this handles URLs that are strings, not binaries.
 SCM coot_get_url_as_string(const char *url);

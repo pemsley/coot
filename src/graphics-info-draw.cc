@@ -35,6 +35,15 @@
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 
+glm::vec3
+get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
+
+   glm::vec4 z_p(0.0f, 1.0f, 0.0f, 1.0f);
+   glm::vec4 r = z_p * mouse_quat_mat;
+   glm::vec3 r3(r);
+   return r3;
+}
+
 float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
       // positions   // texCoords
       -1.0f,  1.0f,  0.0f, 1.0f,
@@ -311,7 +320,10 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
          delta_x = delta_y;
       float sf = 1.0 - delta_x * 0.003;
 
-      std::cout << "delta_x " << delta_x << " sf" << sf << std::endl;
+      // stabilize sf:
+      if (sf < 0.1) sf = 0.1;
+      if (sf > 2.0) sf = 2.0;
+      // std::cout << "mouse_zoom(): delta_x " << delta_x << " sf " << sf << std::endl;
       graphics_info_t::eye_position.z *= sf;
 
       { // own graphics_info_t function - c.f. adjust clipping
@@ -4269,6 +4281,8 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
    } else {
 
+      // this works! Nice framebuffer scaling with screendump_tga().
+
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -4292,7 +4306,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
          // screendump
          glDisable(GL_DEPTH_TEST);
-         unsigned int sf = framebuffer_scale;
+         const unsigned int &sf = framebuffer_scale;
          glViewport(0, 0, sf * w, sf * h);
          framebuffer screendump_framebuffer;
          unsigned int index_offset = 0;
@@ -4416,7 +4430,7 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: reset_frame_buffers() " << window_width << " " << window_height
                 << " use_framebuffers: " << use_framebuffers << std::endl;
 
@@ -4429,9 +4443,10 @@ graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
       // width  = width;
       // height = height;
-      if (false)
+      if (true)
          std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
                    << window_width << " x " << window_height << std::endl;
+
       screen_framebuffer.init(sf * window_width, sf * window_height, index_offset, "screen");
       GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 

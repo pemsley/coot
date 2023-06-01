@@ -53,20 +53,18 @@
 
 // return 0 on success
 #ifdef USE_LIBCURL
-int coot_get_url(const char *url, const char *file_name) {
+int coot_get_url(const std::string &url, const std::string  &file_name) {
    return coot_get_url_and_activate_curl_hook(url, file_name, 0);
 }
 #endif /* USE_LIBCURL */
 
 
 #ifdef USE_LIBCURL
-int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name,
 					short int activate_curl_hook_flag) {
 
    std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
-	     << url << " " << file_name
-             << std::endl;
-
+	     << url << " " << file_name << std::endl;
 
    // This can take a while to download files - i.e. can block.  If
    // this is called in a guile thread, then that is bad because it
@@ -80,7 +78,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    // Thanks to Andy Wingo for help here.
 
    // write binary
-   FILE *f = fopen(file_name, "wb");
+   FILE *f = fopen(file_name.c_str(), "wb");
 
    if (f) {
 
@@ -98,7 +96,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       }
 
       std::pair<FILE *, CURL *> p_for_write(f,c);
-      curl_easy_setopt(c, CURLOPT_URL, url);
+      curl_easy_setopt(c, CURLOPT_URL, url.c_str());
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
       curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take

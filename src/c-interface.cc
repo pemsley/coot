@@ -1648,7 +1648,7 @@ void toggle_idle_spin_function() {
 
    if (g.do_tick_spin) {
       if (g.glareas[0]) {
-         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], g.glarea_tick_func, 0, 0);
          g.idle_function_spin_rock_token = new_tick_id;
       }
    }
@@ -1670,7 +1670,7 @@ void toggle_idle_rock_function() {
    if (g.do_tick_rock) {
       g.time_holder_for_rocking = std::chrono::high_resolution_clock::now();
       if (g.glareas[0]) {
-         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], g.glarea_tick_func, 0, 0);
          g.idle_function_spin_rock_token = new_tick_id;
       }
    }

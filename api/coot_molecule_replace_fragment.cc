@@ -75,7 +75,7 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
 
    // replace an atom if you can, otherwise create a new atom (and a new residue and chain if needed)
 
-   // make_backup();
+   make_backup("replace_fragment");
 
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int idx = -1;
@@ -166,7 +166,7 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
 
    atom_sel = make_asc(atom_sel.mol);
 
-   save_info.new_modification("replace_fragment");
+   // save_info.new_modification("replace_fragment");
    // have_unsaved_changes_flag = 1;
    // if (show_symmetry)
    //    update_symmetry();

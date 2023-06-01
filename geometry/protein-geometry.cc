@@ -698,6 +698,19 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // delete it, it was a fail.
    // 
    std::pair<bool, dictionary_residue_restraints_t> p = get_monomer_restraints(resname, IMOL_ENC_ANY);
+
+   if (p.first) {
+      if (resname == "3GP") {
+         for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+            if (dict_res_restraints[i].second.residue_info.comp_id == resname) {
+               auto &dict = dict_res_restraints[i].second;
+               dict.move_3GP_atoms();
+               break;
+            }
+         }
+      }
+   }
+
    if (! p.first) {
       success = 0;
    } else {
@@ -716,7 +729,7 @@ coot::protein_geometry::is_non_auto_load_ligand(const std::string &resname) cons
 
    bool r = false;
    std::vector<std::string>::const_iterator it;
-   for (it=non_auto_load_residue_names.begin(); it!=non_auto_load_residue_names.end(); it++) {
+   for (it=non_auto_load_residue_names.begin(); it!=non_auto_load_residue_names.end(); ++it) {
       if (*it == resname) {
 	 r = true;
 	 break;
@@ -1121,7 +1134,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 							 int read_number_in,
 							 bool try_autoload_if_needed) {
 
-   bool ifound = 0;
+   bool ifound = false;
    int ndict = dict_res_restraints.size();
    read_number = read_number_in;
 
@@ -1134,7 +1147,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    // check synonyms before checking three-letter-codes
-   
+
    if (! ifound) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
@@ -1169,8 +1182,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (! ifound) {
       if (try_autoload_if_needed) {
 	 ifound = try_dynamic_add(monomer_type, read_number);
-	 // std::cout << "here in have_dictionary_for_residue_type() try_dynamic_add returned "
-	 // << ifound << std::endl;
+	 // std::cout << "DEBUG:: here in have_dictionary_for_residue_type() try_dynamic_add returned "
+         // << ifound << std::endl;
       }
    }
 
@@ -2232,13 +2245,28 @@ coot::protein_geometry::read_extra_dictionaries_for_molecule(mmdb::Manager *mol,
 mmdb::Residue *
 coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
 				    bool idealised_flag,
-				    bool try_autoload_if_needed, float b_factor) {
+				    bool try_autoload_if_needed, // default true
+                                    float b_factor // default 20
+                                    ) {
+
+   auto debug_residue = [] (mmdb::Residue *residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::cout << "debug:: in get_residue(): atom " << iat << " " << at-> name
+                      << " at " << at->x << " " << at->y << " " << at->z << std::endl;
+         }
+      }
+   };
 
    // std::cout << "in get_residue() idealised_flag is " << idealised_flag << std::endl;
 
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
-   
+
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
@@ -2248,6 +2276,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
 	 if (rest.residue_info.comp_id == comp_id) {
 	    residue_p = rest.GetResidue(idealised_flag, b_factor);
+            // debug_residue(residue_p);
 	    break;
 	 }
       }
@@ -2262,6 +2291,33 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 					    int imol_enc,
 					    bool idealised_flag) {
 
+   auto debug_mol = [] (mmdb::Manager *mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::cout << "pg::mol_from_dictionary(): atom " << iat << " " << at->name
+                                     << " at " << at->x << " "  << at->y << " " << at->z
+                                     << std::endl;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
    mmdb::Manager *mol = NULL;
    mmdb::Residue *residue_p = get_residue(three_letter_code, imol_enc, idealised_flag);
    if (residue_p) { 
@@ -2275,6 +2331,7 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
    } else {
       std::cout << "WARNING:: Null residue in mol_from_dictionary() for " << three_letter_code << std::endl;
    }
+   // debug_mol(mol);
    return mol;
 }
 
@@ -2316,7 +2373,7 @@ coot::protein_geometry::delete_mon_lib(const std::string &comp_id, int imol_enc)
 
    bool deleted = false;
    std::vector<std::pair<int, coot::dictionary_residue_restraints_t> >::iterator it;
-   for (it=dict_res_restraints.begin(); it!=dict_res_restraints.end(); it++) {
+   for (it=dict_res_restraints.begin(); it!=dict_res_restraints.end(); ++it) {
       if (it->second.residue_info.comp_id == comp_id) {
 	 if (it->first == imol_enc) {
 	    dict_res_restraints.erase(it);

@@ -938,6 +938,7 @@ namespace coot {
       void remove_sulphate_hydrogens();
       void remove_PO4_SO4_hydrogens(const std::string &P_or_S);
       void remove_carboxylate_hydrogens();
+      void move_3GP_atoms();
 
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 

@@ -244,6 +244,8 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    int imol_active = first_coords_imol();
 
    g.move_molecule_here_molecule_number = imol_active;
+
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
    g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }
@@ -1032,7 +1034,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
                   mutate_residue_range(imol, chain_id.c_str(), res1, res2, sequence.c_str());
                }
                update_go_to_atom_window_on_changed_mol(imol);
-               g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+               g.update_validation(imol);
 
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
@@ -1211,7 +1213,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	       std::cout << "debug:: calling mutate_chain " << imol << " chain-id: " << chain_id << " "
 			 << sequence << " " << do_auto_fit << std::endl;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
-	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       g.update_validation(imol);
 	       graphics_draw();
 
 	    }
@@ -1383,7 +1385,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 	    gtk_widget_show(ws);
 	 }
 	 graphics_info_t g;
-	 g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	 g.update_validation(imol);
       }
    } else {
       std::cout << "ERROR: Couldn't get txt in change_chain_id_by_widget\n";

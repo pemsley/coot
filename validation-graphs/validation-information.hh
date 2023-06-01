@@ -19,7 +19,9 @@ namespace coot {
       /// Hanging down
       Correlation, 
       /// Values from 0.0 - 1.0, (negative) log scale
-      LogProbability
+      LogProbability,
+      /// score is like probablity, but no cap
+      Score
    };
    
    bool should_hang_down(graph_data_type type);

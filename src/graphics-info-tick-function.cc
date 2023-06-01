@@ -28,15 +28,6 @@
 gint idle_contour_function(gpointer data);
 
 
-glm::vec3
-get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
-
-   glm::vec4 z_p(0.0f, 1.0f, 0.0f, 1.0f);
-   glm::vec4 r = z_p * mouse_quat_mat;
-   glm::vec3 r3(r);
-   return r3;
-}
-
 // static
 gboolean
 graphics_info_t::tick_function_is_active() {
@@ -62,9 +53,9 @@ graphics_info_t::tick_function_is_active() {
 // Put this and the above into graphics_info_t. And in it's own file.
 
 gboolean
-glarea_tick_func(GtkWidget *widget,
-                 GdkFrameClock *frame_clock,
-                 gpointer data) {
+graphics_info_t::glarea_tick_func(GtkWidget *widget,
+                                  G_GNUC_UNUSED GdkFrameClock *frame_clock,
+                                  G_GNUC_UNUSED gpointer data) {
 
    graphics_info_t::tick_function_is_active();
 
@@ -157,94 +148,4 @@ glarea_tick_func(GtkWidget *widget,
    gtk_widget_queue_draw(widget); // needed? 20210904-PE yeah... I  think so
 
    return graphics_info_t::tick_function_is_active();
-}
-
-
-// void on_glarea_drag_begin(GtkGestureDrag *gesture,
-//                           double          x,
-//                           double          y,
-//                           GtkWidget      *area) {
-
-//    std::cout << "drag begin" << std::endl;
-// }
-
-// void on_glarea_drag_update(GtkGestureDrag *gesture,
-//                           double          x,
-//                           double          y,
-//                           GtkWidget      *area) {
-
-//    std::cout << "drag update" << std::endl;
-// }
-
-void
-on_glarea_swipe(GtkGestureSwipe *gesture,
-                gdouble          velocity_x,
-                gdouble          velocity_y,
-                GtkWidget        *widget) {
-   std::cout << "swipe" << std::endl;
-}
-
-void
-my_glarea_add_signals_and_events(GtkWidget *glarea) {
-
-// #if (GTK_MAJOR_VERSION == 4)
-
-//    // 20220528-PE FIXME events
-//    std::cout << "-------------------- signal-connect realize" << std::endl;
-//    std::cout << "-------------------- signal-connect render" << std::endl;
-//    std::cout << "-------------------- signal-connect resize" << std::endl;
-//    g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
-//    g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
-//    g_signal_connect(glarea, "resize",  G_CALLBACK(on_glarea_resize),  NULL);
-
-// #else
-
-//    gtk_widget_add_events(glarea, GDK_SCROLL_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON_RELEASE_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON2_MOTION_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON3_MOTION_MASK);
-//    gtk_widget_add_events(glarea, GDK_POINTER_MOTION_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON1_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON2_MASK);
-//    gtk_widget_add_events(glarea, GDK_BUTTON3_MASK);
-//    gtk_widget_add_events(glarea, GDK_KEY_PRESS_MASK);
-
-//    // key presses for the glarea:
-
-//    gtk_widget_set_can_focus(glarea, TRUE);
-//    gtk_widget_grab_focus(glarea);
-
-//    g_signal_connect(glarea, "realize", G_CALLBACK(on_glarea_realize), NULL);
-//    g_signal_connect(glarea, "render",  G_CALLBACK(on_glarea_render),  NULL);
-//    g_signal_connect(glarea, "resize",  G_CALLBACK(on_glarea_resize),  NULL);
-//    g_signal_connect(glarea, "scroll-event",          G_CALLBACK(on_glarea_scroll),             NULL);
-//    g_signal_connect(glarea, "button-press-event",    G_CALLBACK(on_glarea_button_press),       NULL);
-//    g_signal_connect(glarea, "button-release-event",  G_CALLBACK(on_glarea_button_release),     NULL);
-//    g_signal_connect(glarea, "motion-notify-event",   G_CALLBACK(on_glarea_motion_notify),      NULL);
-//    g_signal_connect(glarea, "key-press-event",       G_CALLBACK(on_glarea_key_press_notify),   NULL);
-//    g_signal_connect(glarea, "key-release-event",     G_CALLBACK(on_glarea_key_release_notify), NULL);
-
-//    // testing
-//    GtkGesture *swipe = gtk_gesture_swipe_new(glarea);
-//    g_signal_connect(swipe, "swipe", G_CALLBACK(on_glarea_swipe), NULL);
-
-// #if 0
-//    // 20220415-PE new event controllers - this means turning off the motion and button press event callbacks above.
-//    //             Another time.
-
-// #if (GTK_MAJOR_VERSION >= 4)
-//    GtkGesture *drag = gtk_gesture_drag_new();
-// #else
-//    GtkGesture *drag = gtk_gesture_drag_new(glarea);
-// #endif
-
-//    g_signal_connect(drag, "drag-begin",  G_CALLBACK(on_glarea_drag_begin),  glarea);
-//    g_signal_connect(drag, "drag-update", G_CALLBACK(on_glarea_drag_update), glarea);
-
-// #endif // commented code
-
-// #endif // GTK VERSION
-
 }

@@ -197,7 +197,7 @@ int test_function(int i, int j) {
       Shader &shader = graphics_info_t::shader_for_instanced_objects;
       graphics_info_t::mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
       graphics_info_t::do_tick_hydrogen_bonds_mesh = true;
-      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
+      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], g.glarea_tick_func, 0, 0);
    }
 
 #ifdef USE_ASSIMP

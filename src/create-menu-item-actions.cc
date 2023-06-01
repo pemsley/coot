@@ -35,27 +35,22 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
 #endif
 
-      GtkWidget *recentre_combobox = nullptr;
-      // 20230402-PE reactivate this when the combobox is in place - for now it crashes
-      // when creash-on-gtk-critical is enabled.
-      // recentre_combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
       bool move_molecule_here_flag = false;
       bool recentre_on_read_pdb_flag = true; // was false;
-      if (recentre_combobox) {
-         int active_item_index = gtk_combo_box_get_active(GTK_COMBO_BOX(recentre_combobox));
-         if (active_item_index == 0)
-            recentre_on_read_pdb_flag = true;
-         if (active_item_index == 1)
+
+      const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
+      if (r) {
+         std::string sr(r);
+         std::cout << "................... sr: " << sr << std::endl;
+         if (sr == "No Recentre")
             recentre_on_read_pdb_flag = false;
-         if (active_item_index == 2)
+         if (sr == "Move Molecule Here")
             move_molecule_here_flag = true;
       }
 
-      // open_file (file);
       if (file_name) {
-         std::cout << "info: " << file_name << " " << move_molecule_here_flag << " " << recentre_on_read_pdb_flag
-                   << std::endl;
-
+         std::cout << "INFO: " << file_name << " move_molecule_here_flag: " << move_molecule_here_flag
+                   << " recentre_on_read_pdb_flag " << recentre_on_read_pdb_flag << std::endl;
          if (move_molecule_here_flag) {
             handle_read_draw_molecule_and_move_molecule_here(file_name);
          } else {
@@ -128,7 +123,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    parent_window,
                                                    action,
                                                    _("_Cancel"),
-                                                   GTK_RESPONSE_CANCEL,
+                                                  GTK_RESPONSE_CANCEL,
                                                    _("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
@@ -140,9 +135,16 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    //                                   const char** option_labels)
 
 
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+
+   const gchar *labels[]  = {"Centre on New Molecule", "No Recentre",      "Move Molecule Here", NULL};
+   const gchar *options[] = {"recentre-view",          "no-recentre-view", "move-mol-here",      NULL};
+
+   // I don't follow the options and labels, but this works strangely.
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
+
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
@@ -270,12 +272,15 @@ void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "curlew.h" // 20220628-PE why does this exist? why is curlew() not in the .hh file?
+#include "curlew-gtk4.hh"
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
                    G_GNUC_UNUSED gpointer user_data) {
-   curlew();
+   GtkWidget *dialog = curlew_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
 }
 
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -709,7 +714,10 @@ void
 edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
+
+   // fills residue types in the combobox
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -919,18 +927,32 @@ void
 copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                 G_GNUC_UNUSED GVariant *parameter,
                 G_GNUC_UNUSED gpointer user_data) {
+
+   // not modern but works
+   std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   safe_python_command(cmd);
+
 }
 
 void
 make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
+   safe_python_command(sc);
+
 }
 
 void
 make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 2.0))";
+   safe_python_command(sc);
 }
 
 void
@@ -1266,7 +1288,7 @@ background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-   graphics_info_t::background_colour = glm::vec3(0.13f,0.13f,0.13f);
+   graphics_info_t::background_colour = glm::vec3(0.07f,0.07f,0.07f);
    graphics_info_t::graphics_draw();
 }
 
@@ -1337,6 +1359,19 @@ void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_
       safe_python_command("import coot_utils");
       safe_python_command(sc);
    }
+}
+
+void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   // GtkWidget *dialog = widget_from_builder("add_an_atom_dialog");
+   // set_transient_for_main_window(dialog);
+   // gtk_widget_show(dialog);
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   gtk_widget_set_visible(box, TRUE);
+
 }
 
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2507,6 +2542,7 @@ create_actions(GtkApplication *application) {
 
    // Modelling
 
+   add_action(                    "add_an_atom_action",                     add_an_atom_action);
    add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
    add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);

@@ -2004,7 +2004,7 @@ on_refinement_and_regularization_vbox_close_button_clicked(GtkButton       *butt
 
    // pressing the button means that the focus goes elsewhere (not sure where). So bring it back to the graphics
    // widget;
-   
+
    GtkWidget *glarea = graphics_info_t::glareas[0];
    gtk_widget_grab_focus(glarea);
 }
@@ -6537,10 +6537,9 @@ on_ramachandran_plot_differences_ok_button_clicked(GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_ramachandran_plot_differences_cancel_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_ramachandran_plot_differences_cancel_button_clicked (GtkButton       *button,
+                                                        gpointer         user_data) {
+
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
    gtk_widget_hide(w);
 
@@ -9539,10 +9538,18 @@ on_all2_activate                       (GMenuItem     *menuitem,
 
 }
 
-// extern "C" G_MODULE_EXPORT
-// void
-// on_residue_editor_select_monomer_type_ok_button_clicked (GtkButton       *button,
-//                                                          gpointer         user_data) {
+extern "C" G_MODULE_EXPORT
+void
+on_residue_editor_select_monomer_type_ok_button_clicked (G_GNUC_UNUSED GtkButton       *button,
+                                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
+   GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
+   show_restraints_editor(t);
+   gtk_widget_hide(dialog);
+
+}
 
 
 //   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
@@ -9555,19 +9562,18 @@ on_all2_activate                       (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_residue_editor_select_monomer_type_cancel_button_clicked (GtkButton       *button,
-							gpointer         user_data) {
+on_residue_editor_select_monomer_type_cancel_button_clicked (G_GNUC_UNUSED GtkButton       *button,
+                                                             G_GNUC_UNUSED gpointer         user_data) {
 
-  GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
-  gtk_widget_hide(dialog);
+   GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
+   gtk_widget_hide(dialog);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
 on_restraints1_activate                (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);
@@ -9576,58 +9582,57 @@ on_restraints1_activate                (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraint_editor_add_restraint_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  restraints_editor_add_restraint_by_widget(w);
+on_restraints_editor_add_restraint_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
+
+   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   restraints_editor_add_restraint_by_widget(w);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraints_editor_close_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  if (w) {
-    clear_restraints_editor_by_dialog(w);
-    gtk_widget_hide(w);
-  }
+on_restraints_editor_close_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
+
+   std::cout << "Close" << std::endl;
+   // GtkWidget *w = widget_from_builder("restraints_editor_dialog"); wrong builder
+   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   if (w) {
+      clear_restraints_editor_by_dialog(w);
+      gtk_widget_hide(w);
+   } else {
+      std::cout << "ERROR:: null dialog restraints_editor_dialog " << std::endl;
+   }
+      
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraints_editor_save_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  restraints_editor_save_restraint_by_widget(w);
+on_restraints_editor_save_button_clicked(GtkButton       *button,
+                                         gpointer         user_data) {
+   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   restraints_editor_save_restraint_by_widget(w);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraints_editor_apply_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_restraints_editor_apply_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
 
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  apply_restraint_by_widget(w);
+   std::cout << "Apply" << std::endl;
+   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   apply_restraint_by_widget(w);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_restraint_editor_delete_restraint_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-  restraints_editor_delete_restraint_by_widget(w);
+on_restraints_editor_delete_restraint_button_clicked(GtkButton       *button,
+                                                     gpointer         user_data) {
+
+   GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   restraints_editor_delete_restraint_by_widget(w);
 }
 
 
@@ -9667,8 +9672,8 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 /* This is not the way. */
 extern "C" G_MODULE_EXPORT
 void
-on_save_restraint_chooserdialog_close  (GtkDialog       *dialog,
-                                                            gpointer         user_data) {
+on_save_restraint_chooserdialog_close(GtkDialog       *dialog,
+                                      gpointer         user_data) {
 }
 
 
@@ -10847,10 +10852,10 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_copy_molecule_activate        (GMenuItem     *menuitem,
-                                                           gpointer         user_data)
-{
-  do_edit_copy_molecule();
+on_edit_copy_molecule_activate(GMenuItem     *menuitem,
+                               gpointer         user_data) {
+
+   do_edit_copy_molecule();
 }
 
 
@@ -10865,8 +10870,8 @@ on_edit_copy_fragment_activate        (GMenuItem     *menuitem,
 extern "C" G_MODULE_EXPORT
 void
 on_copy_fragment_dialog_response(GtkDialog *dialog,
-                                                     gint response_id,
-                                                     gpointer user_data) {
+                                 gint response_id,
+                                 gpointer user_data) {
 
    if (response_id == GTK_RESPONSE_OK) {
       graphics_info_t g;
@@ -10919,8 +10924,8 @@ on_edit_renumber_residues_activate    (GMenuItem     *menuitem,
 
 extern "C" G_MODULE_EXPORT
 void
-on_edit_change_chain_ids1_activate (GMenuItem     *menuitem,
-                                                        gpointer         user_data) {
+on_edit_change_chain_ids1_activate(GMenuItem     *menuitem,
+                                   gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
    gtk_widget_show(w);
@@ -10937,8 +10942,8 @@ on_residue_editor_select_monomer_type_dialog_close (GtkDialog       *dialog,
 extern "C" G_MODULE_EXPORT
 void
 on_residue_editor_select_monomer_type_dialog_response (GtkDialog       *dialog,
-                                                                           gint response_id,
-                                                                           gpointer         user_data) {
+                                                       gint response_id,
+                                                       gpointer         user_data) {
 
    // need to add a "Response ID" to the button in glade
 
@@ -10952,8 +10957,7 @@ on_residue_editor_select_monomer_type_dialog_response (GtkDialog       *dialog,
   if (response_id == GTK_RESPONSE_CANCEL) {
   }
   gtk_widget_hide(GTK_WIDGET(dialog));
-  
-  
+
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10994,8 +10998,8 @@ on_general_coot_molecule_chooser_with_entry_and_checkbutton_dialog_response (Gtk
 extern "C" G_MODULE_EXPORT
 void
 on_edit_restraints_activate(GMenuItem     *menuitem,
-                                                gpointer         user_data)
-{
+                            gpointer         user_data) {
+
    std::cout << "on_edit_restraints_activate() " << std::endl;
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
    gtk_widget_show(w);
@@ -11122,47 +11126,57 @@ on_display_control_align_labels_checkbutton_toggled (GtkToggleButton *togglebutt
 
 }
 
-
-
 extern "C" G_MODULE_EXPORT
 void
-on_curlew_install_button_clicked(GtkButton *button,
-                                 gpointer   user_data) {
+on_curlew_close_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *dialog = widget_from_builder("curlew_dialog");
-   if (dialog) {
-      int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
-      curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
-   }
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_curlew_dialog_close(GtkDialog       *dialog,
-                       gpointer         user_data) {
-  gtk_widget_hide(GTK_WIDGET(dialog)); /* or maybe hide */
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_curlew_dialog_response (GtkDialog       *dialog,
-                           gint             response_id,
-                           gpointer         user_data) {
-
-  /*
-  printf("in on_curlew_dialog_response with response_id %d\n", response_id);
-  printf("   cf response_id %d\n", GTK_RESPONSE_CLOSE);
-  printf("   cf response_id %d\n", GTK_RESPONSE_OK);
-  printf("   cf response_id %d\n", GTK_RESPONSE_CANCEL);
-  */
-
-  if (response_id == GTK_RESPONSE_CLOSE)
-    gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
+
+
+
+// 20230529-PE old curlew stuff
+// extern "C" G_MODULE_EXPORT
+// void
+// on_curlew_install_button_clicked(GtkButton *button,
+//                                  gpointer   user_data) {
+
+//    GtkWidget *dialog = widget_from_builder("curlew_dialog");
+//    if (dialog) {
+//       int n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+//       curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
+//    }
+// }
+
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_curlew_dialog_close(GtkDialog       *dialog,
+//                        gpointer         user_data) {
+//   gtk_widget_hide(GTK_WIDGET(dialog)); /* or maybe hide */
+// }
+
+
+// extern "C" G_MODULE_EXPORT
+// void
+// on_curlew_dialog_response (GtkDialog       *dialog,
+//                            gint             response_id,
+//                            gpointer         user_data) {
+
+//   /*
+//   printf("in on_curlew_dialog_response with response_id %d\n", response_id);
+//   printf("   cf response_id %d\n", GTK_RESPONSE_CLOSE);
+//   printf("   cf response_id %d\n", GTK_RESPONSE_OK);
+//   printf("   cf response_id %d\n", GTK_RESPONSE_CANCEL);
+//   */
+
+//   if (response_id == GTK_RESPONSE_CLOSE)
+//     gtk_widget_hide(GTK_WIDGET(dialog));
+
+// }
 
 
 extern "C" G_MODULE_EXPORT
@@ -11973,11 +11987,19 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
    GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
-   int imol = 0; //get imol from the combobox
-   // imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox)); // using Jakub-style comboboxes
-   show_opengl_ramachandran_plot(imol, residue_selection_string);
-   gtk_widget_set_visible(dialog, FALSE);
-   gtk_widget_set_visible(scrolled, TRUE);
+
+   GtkTreeIter iter;
+   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter)) {
+      int imol_active;
+      gtk_tree_model_get(gtk_combo_box_get_model(GTK_COMBO_BOX(combobox)),&iter,1,&imol_active,-1);
+      // imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox)); // but use Jakub-style comboboxes
+      show_opengl_ramachandran_plot(imol_active, residue_selection_string);
+      gtk_widget_set_visible(dialog, FALSE);
+      gtk_widget_set_visible(scrolled, TRUE);
+   } else {
+      std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
+                << std::endl;
+   }
 }
 
 

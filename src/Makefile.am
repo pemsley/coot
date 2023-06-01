@@ -500,12 +500,13 @@ libcootsumo_la_SOURCES = \
 	coot_wrap_guile.cc       \
 	curlew.h                 \
 	curlew.hh                \
+	curlew-gtk4.cc           \
+	curlew-gtk4.hh           \
 	data-pair-remover.hh     \
 	density-results-container-t.hh \
 	dots-representation.hh   \
 	draw.cc                  \
-	draw-2.cc                \
-	draw-2.hh                \
+	graphics-info-tick-function.cc \
 	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
@@ -782,14 +783,14 @@ endif
 # 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 # 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 # 	$(top_builddir)/ideal/libcoot-ideal.la    		\
-#         $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
+#       $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
 # 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 # 	$(top_builddir)/coords/libcoot-coords.la      		\
 # 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 # 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 # 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
 # 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-#         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+#       $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 # 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 # 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 # 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
