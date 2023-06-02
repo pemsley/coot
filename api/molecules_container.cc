@@ -4265,3 +4265,25 @@ molecules_container_t::set_bespoke_carbon_atom_colour(int imol, const coot::colo
    }
 }
 
+
+void
+molecules_container_t::add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].add_position_restraint(atom_cid, pos_x, pos_y, pos_z);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+coot::instanced_mesh_t
+molecules_container_t::wrapped_add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      m = molecules[imol].wrapped_add_position_restraint(atom_cid, pos_x, pos_y, pos_z, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+}
+

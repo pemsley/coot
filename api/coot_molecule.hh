@@ -835,6 +835,13 @@ namespace coot {
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
                         float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
+      // add or update.
+      void add_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+      std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atoms_with_position_restraints;
+
+      instanced_mesh_t wrapped_add_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                      coot::protein_geometry *geom_p);
 
       // make them yourself - easy as pie.
       void generate_self_restraints(float local_dist_max,

@@ -2,11 +2,12 @@
 #ifndef MOLECULES_CONTAINER_HH
 #define MOLECULES_CONTAINER_HH
 
-#include <vector>
 
 #ifdef SWIG
 #include "Python.h"
 #endif
+
+#include <vector>
 
 #ifdef HAVE_SSMLIB
 #include <ssm/ssm_align.h>
@@ -190,6 +191,10 @@ class molecules_container_t {
    //! this is like mini-rsr:
    //! @return success status
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
+
+   // add or update (if it has a pull restraint already)
+   void add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+   coot::instanced_mesh_t wrapped_add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
@@ -1276,7 +1281,7 @@ public:
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale);
-   
+
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:
    //!
