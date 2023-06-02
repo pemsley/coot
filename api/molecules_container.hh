@@ -960,14 +960,23 @@ public:
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
 
+   //! fix atoms during refinement
+   void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
+
    //! add or update (if it has a pull restraint already)
    void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref);
 
    //! Create a new position for the given atom and create a new bonds mesh based on that.
    //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
    //! of an internally-stored mesh).
-   coot::instanced_mesh_t wrapped_add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
-
+   //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
+   //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
+   //! @return a `coot::instanced_mesh_t`
+   coot::instanced_mesh_t wrapped_add_target_position_restraint(int imol, const std::string &atom_cid,
+                                                                float pos_x, float pos_y, float pos_z,
+                                                                int n_cycles);
    //! clear any and all drag-atom target position restraints
    void clear_target_position_restraints(int imol);
 

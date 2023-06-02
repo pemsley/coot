@@ -49,6 +49,10 @@ Fri 19 May 17:40:33 BST 2023
    A check for git server,
    B check how much pyrogen is transferable
 
+Fri  2 Jun 16:02:06 BST 2023
+
+   o function for fix atom at position (and refine for n cycles)
+
 --- Done Items ---
 
    o add a status flag to simple_mesh_t - used for "did we run out of memory/bad alloc"? (say) ::: 1

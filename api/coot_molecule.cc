@@ -2227,6 +2227,16 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    return status;
 }
 
+void
+coot::molecule_t::refine_using_last_restraints(int n_steps) {
+
+   if (! last_restraints) return;
+
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   flags = coot::TYPICAL_RESTRAINTS; // Add GM here?
+   last_restraints->minimize(flags, n_steps, 0);
+}
+
 
 #include "add-terminal-residue.hh"
 
@@ -3761,7 +3771,7 @@ coot::molecule_t::add_target_position_restraint(const std::string &atom_cid, flo
 // add or update.
 coot::instanced_mesh_t
 coot::molecule_t::wrapped_add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
-                                                        coot::protein_geometry *geom_p) {
+                                                        int n_cycles, coot::protein_geometry *geom_p) {
 
    coot::instanced_mesh_t m;
    add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z);
@@ -3771,6 +3781,23 @@ coot::molecule_t::wrapped_add_target_position_restraint(const std::string &atom_
       clipper::Coord_orth p = pp.second;
       mmdb::Atom *at = pp.first;
       at->x = p.x(); at->y = p.y(); at->z = p.z();
+   }
+
+   if (n_cycles < 0) {
+      // simple communication test.
+   } else {
+      // acutally do some refinement then
+      if (last_restraints) {
+         clipper::Coord_orth pos(pos_x, pos_y, pos_z);
+         mmdb::Atom *at = cid_to_atom(atom_cid);
+         if (at) {
+            coot::atom_spec_t spec(at);
+            last_restraints->add_atom_pull_restraint(spec, pos);
+            refine_using_last_restraints(n_cycles);
+         } else {
+            std::cout << "wrapped_add_target_position_restraint() failed to find atom given " << atom_cid << std::endl;
+         }
+      }
    }
 
    std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
@@ -3784,4 +3811,58 @@ void
 coot::molecule_t::clear_target_position_restraints() {
    atoms_with_position_restraints.clear();
    // now actually remove them from the refinement...
+   if (last_restraints)
+      last_restraints->clear_all_atom_pull_restraints();
 }
+
+
+void
+coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid) {
+
+   // get atoms in atom selection.
+   // match those with thatom in the refinement and mark them as fixed. c.f. fixe (anchor) atom
+
+}
+
+// refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
+void
+coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom, float map_weight) {
+
+   bool make_trans_peptide_restraints = true;
+   bool do_rama_plot_restraints = false;
+   bool refinement_is_quiet = true;
+
+   std::vector<mmdb::Residue *> rv; // what is this?
+
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
+   for (const auto &r : rv)
+      local_residues.push_back(std::make_pair(false, r));
+
+   make_backup("init_all_moelcule_refinement");
+   mmdb::Manager *mol = atom_sel.mol;
+   std::vector<mmdb::Link> links;
+   coot::restraints_container_t restraints(local_residues,
+                                           links,
+                                           geom,
+                                           mol,
+                                           fixed_atom_specs, &xmap);
+
+   if (refinement_is_quiet)
+      restraints.set_quiet_reporting();
+
+   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   restraints.add_map(map_weight);
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   flags = coot::TYPICAL_RESTRAINTS;
+   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+   int n_threads = 4; // coot::get_max_number_of_threads();
+   ctpl::thread_pool thread_pool(n_threads);
+   restraints.thread_pool(&thread_pool, n_threads);
+
+   int imol = 0; // dummy
+   restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+                              1.0, do_rama_plot_restraints, true, true, false, pseudos);
+}
+

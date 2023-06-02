@@ -4275,12 +4275,29 @@ molecules_container_t::add_target_position_restraint(int imol, const std::string
    }
 }
 
+void
+molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref) {
+
+   // make last_restraints
+   if (is_valid_model_molecule(imol_frag)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
+         // this is a fragment molecule - a few residues. mol_ref is used for the NBC an peptide links
+         // a the end of the fragment
+         molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, map_weight);
+      }
+   }
+}
+
+
 coot::instanced_mesh_t
-molecules_container_t::wrapped_add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+molecules_container_t::wrapped_add_target_position_restraint(int imol, const std::string &atom_cid,
+                                                             float pos_x, float pos_y, float pos_z,
+                                                             int n_cycles) {
 
    coot::instanced_mesh_t m;
    if (is_valid_model_molecule(imol)) {
-      m = molecules[imol].wrapped_add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z, &geom);
+      m = molecules[imol].wrapped_add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z, n_cycles, &geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -4296,4 +4313,17 @@ molecules_container_t::clear_target_position_restraints(int imol) {
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+}
+
+
+//! fix atoms during refinement
+void
+molecules_container_t::fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].fix_atom_selection_during_refinement(atom_selection_cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
 }

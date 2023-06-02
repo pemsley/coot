@@ -82,7 +82,8 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
-            std::cout << "already there! no double add!" << std::endl;
+            std::cout << "rc: add_target_position_restraint(): already there! no double add!"
+                      << spec.format() << std::endl;
             add_it = false;
             break;
          }

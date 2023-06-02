@@ -323,16 +323,6 @@ namespace coot {
 
       coot::restraints_container_t *last_restraints;
 
-      // return the state of having found restraints.
-      bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,
-                                const std::vector<mmdb::Link> &links,
-                                const coot::protein_geometry &geom,
-                                mmdb::Manager *mol_for_residue_selection,
-                                const std::vector<coot::atom_spec_t> &fixed_atom_specs,
-                                coot::restraint_usage_Flags flags,
-                                bool use_map_flag,
-                                const clipper::Xmap<float> *xmap_p);
-
       // ====================== init ======================================
 
       void init() {
@@ -850,13 +840,21 @@ namespace coot {
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
                         float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
+      void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
+
+      // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
+      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom, float map_weight);
+
       // add or update.
       void add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
       std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atoms_with_position_restraints;
 
       instanced_mesh_t wrapped_add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                             int n_cyles,
                                                              coot::protein_geometry *geom_p);
+
+      void refine_using_last_restraints(int n_steps);
 
       //! clear any and all drag-atom target position restraints
       void clear_target_position_restraints();
