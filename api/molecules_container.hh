@@ -192,12 +192,6 @@ class molecules_container_t {
    //! @return success status
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
 
-   //! add or update (if it has a pull restraint already)
-   void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
-
-   //! clear any and all drag-atom target position restraints
-   void clear_target_position_restraints(int imol);
-
    //! Create a new position for the given atom and create a new bonds mesh based on that.
    //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
    //! of an internally-stored mesh).
@@ -970,6 +964,12 @@ public:
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+
+   //! add or update (if it has a pull restraint already)
+   void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   //! clear any and all drag-atom target position restraints
+   void clear_target_position_restraints(int imol);
 
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
