@@ -319,6 +319,20 @@ namespace coot {
                                              const clipper::Xmap<float> &xmap,
                                              float map_sigma) const;
 
+      // ====================== dragged refinemetn ======================================
+
+      coot::restraints_container_t *last_restraints;
+
+      // return the state of having found restraints.
+      bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,
+                                const std::vector<mmdb::Link> &links,
+                                const coot::protein_geometry &geom,
+                                mmdb::Manager *mol_for_residue_selection,
+                                const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+                                coot::restraint_usage_Flags flags,
+                                bool use_map_flag,
+                                const clipper::Xmap<float> *xmap_p);
+
       // ====================== init ======================================
 
       void init() {
@@ -340,6 +354,7 @@ namespace coot {
          use_bespoke_grey_colour_for_carbon_atoms = false;
 
          map_colour = colour_holder(0.3, 0.3, 0.7);
+         last_restraints = nullptr;
 
          float rotate_colour_map_on_read_pdb = 0.24;
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
