@@ -3733,7 +3733,7 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
 
 // add or update.
 void
-coot::molecule_t::add_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+coot::molecule_t::add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
 
    // make this a class member - and clear it when refinement starts.
 
@@ -3760,11 +3760,11 @@ coot::molecule_t::add_position_restraint(const std::string &atom_cid, float pos_
 
 // add or update.
 coot::instanced_mesh_t
-coot::molecule_t::wrapped_add_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
-                                                 coot::protein_geometry *geom_p) {
+coot::molecule_t::wrapped_add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                        coot::protein_geometry *geom_p) {
 
    coot::instanced_mesh_t m;
-   add_position_restraint(atom_cid, pos_x, pos_y, pos_z);
+   add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z);
 
    for (unsigned int i=0; i<atoms_with_position_restraints.size(); i++) {
       const auto &pp = atoms_with_position_restraints[i];
@@ -3777,4 +3777,11 @@ coot::molecule_t::wrapped_add_position_restraint(const std::string &atom_cid, fl
    m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4, 1, true, true);
    return m;
 
+}
+
+//! clear any and all drag-atom target position restraints
+void
+coot::molecule_t::clear_target_position_restraints() {
+   atoms_with_position_restraints.clear();
+   // now actually remove them from the refinement...
 }

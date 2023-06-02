@@ -193,12 +193,15 @@ class molecules_container_t {
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
 
    //! add or update (if it has a pull restraint already)
-   void add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+   void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   //! clear any and all drag-atom target position restraints
+   void clear_target_position_restraints(int imol);
 
    //! Create a new position for the given atom and create a new bonds mesh based on that.
    //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
    //! of an internally-stored mesh).
-   coot::instanced_mesh_t wrapped_add_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+   coot::instanced_mesh_t wrapped_add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 

@@ -111,7 +111,7 @@ Colour
       :project: libcootapi
 
 Cartesian Coordinates
-====================
+=====================
 
 .. doxygenfile:: coords/Cartesian.h
       :project: libcootapi
