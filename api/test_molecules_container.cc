@@ -2948,7 +2948,7 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
       if (at_1) {
          coot::Cartesian atom_pos = atom_to_cartesian(at_1);
          coot::Cartesian atom_pos_new = atom_pos + coot::Cartesian(2,2,2); // say
-         int imol_new = mc.copy_fragment_using_cid(imol, "//A/265-275"); // make molten molecule
+         int imol_new = mc.copy_fragment_for_refinement_using_cid(imol, "//A/265-275"); // make molten molecule
          mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
 
          int refine_status = 0;

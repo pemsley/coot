@@ -373,6 +373,9 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
+      // for rsr neighbours - they are fixed.
+      std::vector<std::pair<bool, mmdb::Residue *> > neighbouring_residues;
+
       //! constructor
       molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {imol_no = mol_no_in; init(); }
       //! constructor
@@ -391,6 +394,11 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      // ------------------------------- rsr utils
+      // - add in the environment of this fragment molecule
+      // from the residue from which this fragment was copied
+      void add_neighbor_residues_for_refinement_help(mmdb::Manager *mol);
 
       // ----------------------- structure factor stuff ------------------------------------------------------
 

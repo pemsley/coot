@@ -26,6 +26,37 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &cid)
    return imol_new;
 }
 
+//! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
+//! a molecule fragment to make a molten zone for refinement.
+//! That is because this version quietly also copies the residues near the residues of the selection.
+//! so that those residues can be used for links and non-bonded contact restraints.
+//! @return the new molecule number (or -1 on no atoms selected)
+int
+molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const std::string &cid) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = get_mol(imol);
+      int selHnd = mol->NewSelection(); // d
+      mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
+      if (new_manager) {
+
+         // create a new molecule
+         imol_new = molecules.size();
+         atom_selection_container_t asc = make_asc(new_manager);
+         std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
+         molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
+         auto &coot_mol = molecules[imol_new];
+         // add a new molecule of the neigbhoring residues internal to the new molecule
+         coot_mol.add_neighbor_residues_for_refinement_help(cid, mol);
+      }
+      mol->DeleteSelection(selHnd);
+   }
+   return imol_new;
+ }
+
+
 
 //! return the new molecule number (or -1 on no atoms selected)
 

@@ -3838,7 +3838,15 @@ coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_s
 
    // get atoms in atom selection.
    // match those with thatom in the refinement and mark them as fixed. c.f. fixed (anchored) atom
-
+   int selHnd = atom_sel.mol->NewSelection();
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   int nSelAtoms = 0;
+   mmdb::Atom **SelAtom = nullptr;
+   atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+   for (int i=0; i<nSelAtoms; i++) {
+      mmdb::Atom *at = SelAtom[i];
+   }
+   atom_sel.mol->DeleteSelection(selHnd);
 }
 
 // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
@@ -3846,6 +3854,9 @@ void
 coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
                                                const clipper::Xmap<float> &xmap_in, float map_weight,
                                                ctpl::thread_pool *thread_pool) {
+
+   // maybe we can use mol_ref as the molecule to call in add_neighbor_residues_for_refinement_help(mmdb::Manager *mol)
+   // then we don't need a special version of copy_fragment(). Or so it currently seems to me.
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
@@ -3877,6 +3888,10 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
 
+   // neighb_residues are from a different mmdb::Manager - will that work in refinement?
+   if (! neighbouring_residues.empty())
+      local_residues.insert(local_residues.end(), neighbouring_residues.begin(), neighbouring_residues.end());
+
    make_backup("init_all_molecule_refinement");
    mmdb::Manager *mol = atom_sel.mol;
    std::vector<mmdb::Link> links;
@@ -3905,6 +3920,75 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
       last_restraints = nullptr; // failure to setup
    }
 }
+
+// ------------------------------- rsr utils - add in the environment of this fragment molecule
+// from the reidue from which this fragment was copied
+void
+coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) {
+
+   // cid may not be needed because we want the neighbour of all the residues of this new (fragment) molecule
+
+   auto get_residues_in_selection = [] (mmdb::Manager *mol, int selHnd) {
+      std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
+      int nSelResidues = 0;
+      mmdb::Residue **SelResidues = 0;
+      mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      if (nSelResidues > 0) {
+         residues_vec.resize(nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            residues_vec.push_back(std::make_pair(true, SelResidues[i]));
+         }
+      }
+      return residues_vec;
+   };
+
+   auto map_of_sets_to_residue_vec = [] (const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &rnr) {
+
+      std::vector<std::pair<bool, mmdb::Residue *> > neighb_residues;
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+
+      std::set<mmdb::Residue *> keys; // the residues in the molten zone
+      for (it=rnr.begin(); it!=rnr.end(); ++it) {
+         const auto &key = it->first;
+         keys.insert(key);
+      }
+
+      for (it=rnr.begin(); it!=rnr.end(); ++it) {
+         std::set<mmdb::Residue *>::const_iterator it_s;
+         const auto &s = it->second;
+         for (it_s=s.begin(); it_s!=s.end(); ++it_s) {
+            mmdb::Residue *r(*it_s);
+            // because this is a pair, I can't use find()
+            bool found = false;
+            for (unsigned int i=0; i<neighb_residues.size(); i++) {
+               if (neighb_residues[i].second == r) {
+                  found = true;
+                  break;
+               }
+            }
+            if (! found) {
+               // we don't want environment residue to be any of the residues that are in the molten zone
+               if (keys.find(r) == keys.end()) {
+                  auto rp = std::pair<bool, mmdb::Residue *> (false, *it_s);
+                  neighb_residues.push_back(rp);
+               }
+            }
+         }
+      }
+      return neighb_residues;
+   };
+      
+   // now code to save the environment of the residues in the new fragment
+   int selHnd_residues = mol->NewSelection(); // d
+   mol->Select(selHnd_residues, mmdb::STYPE_RESIDUE, "//", mmdb::SKEY_NEW); // all residues. Maybe "/1/"?
+   float dist_crit = 5.0;
+   std::vector<std::pair<bool,mmdb::Residue *> > residues_vec = get_residues_in_selection(mol, selHnd_residues);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
+      coot::residues_near_residues(residues_vec, mol, dist_crit);
+
+   neighbouring_residues = map_of_sets_to_residue_vec(rnr);
+}
+
 
 // ------------------------------ put these functions in coot_molecule_refine.cc --------------
 

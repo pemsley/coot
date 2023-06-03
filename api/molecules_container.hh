@@ -895,6 +895,14 @@ public:
    //! copy a fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &cid);
+
+   //! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
+   //! a molecule fragment to make a molten zone for refinement.
+   //! That is because this version quietly also copies the residues near the residues of the selection.
+   //! so that those residues can be used for links and non-bonded contact restraints.
+   //! @return the new molecule number (or -1 on no atoms selected)
+   int copy_fragment_for_refinement_using_cid(int imol, const std::string &cid);
+
    //! copy a residue-range fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
@@ -966,6 +974,7 @@ public:
    //! add or update (if it has a pull restraint already)
    void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
+   //! initialise the refinement of (all of) molecule `imol_frag`
    void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
 
    //! Run some cycles of refinement and return a mesh.
