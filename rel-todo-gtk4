@@ -36,6 +36,8 @@ Here are other styles:
 
 ----
 
+Edit -> Mutate Residue Range ::: 1
+
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
@@ -53,32 +55,25 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
+Put the curlew banner in the curlew dialog ::: 0.4
+
 Views ::: 2
+
+Alt-B to close the Rama bar.
 
 Make the Ligand Menu a module ::: 1
 Not much to do until we turn on RDKit.
 
-Contact dots should be oriented so that when they pulse, they move along the line between the atoms. ::: 1
-Also, elongate them? Not vdw dots though.
-
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
-Low Priority: history searching on python window up-arrow ::: 1
-
-Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
-
 Rework the namespace of the python modules to be more cannonical ::: 4
-
-Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
 
 Clicking on Green left arrow doesn't open the refinement overlay
 
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
-
-Nice to have: on a grey background, atom labels work well, but the distance labels do not.
 
 What's up with the Preferences? ::: 3
 
@@ -90,8 +85,17 @@ It would be good if you could make them nucleus hydrogens if that's what was del
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
+Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
+
+Contact dots should be oriented so that when they pulse, they move along the line between the atoms. :::- 1
+Also, elongate them? Not vdw dots though.
+
 Sort the triangles so that the difference map looks OK in plain mode. Maybe this should go
 above the line?
+
+Nice to have: on a grey background, atom labels work well, but the distance labels do not.
+
+Low Priority: history searching on python window up-arrow :::- 1
 
 Think of a way to start-up with certain modules on (in Preferences) :::- 2
 * Nice to have, not vital. Use the command line in the meantime.
@@ -133,6 +137,9 @@ Comboboxes with entries for old molecule, or duplicated entries.
 Map Skeletonization :::- 4
 
 CA Baton Mode :::- 4
+
+Recompile molecule-class-info-widget-work.cc and remove the compilation warnings :::- 6
+* There's a lot of symmetry and NCS stuff in there that needs a large reworking.
 
 End-caps on the O half bonds on the HOHs in 7a0l.
 

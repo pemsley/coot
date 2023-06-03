@@ -672,11 +672,12 @@ void clear_generic_objects_dialog_pointer() {
 void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
 					 GtkWidget *text_widget, GtkWidget *label_widget) {
 
-   if (false) {
-      std::cout << "res_no_1_widget " << res_no_1_widget << std::endl;
-      std::cout << "res_no_2_widget " << res_no_2_widget << std::endl;
-      std::cout << "text_widget " << text_widget << std::endl;
-      std::cout << "label_widget " << label_widget << std::endl;
+   if (true) {
+      std::cout << "debug:: mutate_molecule_dialog_check_counts()" << std::endl;
+      std::cout << "   res_no_1_widget " << res_no_1_widget << std::endl;
+      std::cout << "   res_no_2_widget " << res_no_2_widget << std::endl;
+      std::cout << "   text_widget " << text_widget << std::endl;
+      std::cout << "   label_widget " << label_widget << std::endl;
    }
    if (res_no_1_widget && res_no_2_widget) {
       if (text_widget && label_widget) {

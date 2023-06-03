@@ -834,10 +834,15 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
    //    GtkWidget *entry2 = lookup_widget(w, "mutate_molecule_resno_2_entry");
    //    GtkWidget *textwindow = lookup_widget(w, "mutate_molecule_sequence_text");
 
-   GtkWidget *combobox_molecule = widget_from_builder("mutate_molecule_combobox");
-   GtkWidget *combobox_chain    = widget_from_builder("mutate_molecule_chain_combobox");
+   GtkWidget *combobox_molecule = widget_from_builder("mutate_sequence_molecule_combobox");
+   GtkWidget *combobox_chain    = widget_from_builder("mutate_sequence_chain_combobox_text");
    // GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
    GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_combobox_changed);
+
+   GtkWidget *mutate_ok_button   = widget_from_builder("mutate_sequence_ok_button");
+   GtkWidget *fit_loop_ok_button = widget_from_builder("fit_loop_ok_button");
+   gtk_widget_set_visible(  mutate_ok_button, TRUE);
+   gtk_widget_set_visible(fit_loop_ok_button, FALSE);
 
    printf("DEBUG:: wrapped_fit_loop_rama_search_dialog(): -------------------------- combobox_molecule: %p\n", combobox_molecule);
    printf("DEBUG:: wrapped_fit_loop_rama_search_dialog(): -------------------------- combobox_chain   : %p\n", combobox_chain);
@@ -875,7 +880,7 @@ void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer dat
 
    graphics_info_t::mutate_sequence_imol = imol;
    GCallback chain_callback_func = G_CALLBACK(mutate_sequence_chain_combobox_changed);
-   GtkWidget *chain_combobox = widget_from_builder("mutate_molecule_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("mutate_sequence_chain_combobox_text");
    graphics_info_t g;
    std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox, imol, chain_callback_func);
    // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
@@ -998,7 +1003,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
    GtkWidget *checkbutton = widget_from_builder("mutate_sequence_do_autofit_checkbutton");
    short int autofit_flag = 0;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       autofit_flag = 1;
 
    if (imol>= 0) { // redundant
@@ -1067,11 +1072,11 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    GtkWidget *rama_checkbutton   = widget_from_builder("mutate_sequence_use_ramachandran_restraints_checkbutton");
 
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
-   gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
-   gtk_widget_show(fit_loop_ok_button);
+   gtk_widget_set_visible(mutate_ok_button,   FALSE);
+   gtk_widget_set_visible(fit_loop_ok_button, TRUE);
    gtk_widget_show(rama_checkbutton);
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(rama_checkbutton), TRUE);
 
    gtk_widget_show(method_frame);
 
