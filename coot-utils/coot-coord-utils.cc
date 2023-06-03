@@ -4131,7 +4131,7 @@ mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
 
-   std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
+   // std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
 
    mmdb::Manager *atoms_mol = new mmdb::Manager;
 

@@ -16,7 +16,7 @@
 // statics
 std::atomic<bool> molecules_container_t::restraints_lock(false);
 std::atomic<bool> molecules_container_t::on_going_updating_map_lock(false);
-ctpl::thread_pool molecules_container_t::static_thread_pool(4); // or so
+ctpl::thread_pool molecules_container_t::static_thread_pool(8); // or so
 std::string molecules_container_t::restraints_locking_function_name; // I don't know why this needs to be static
 std::vector<atom_pull_info_t> molecules_container_t::atom_pulls;
 // 20221018-PE not sure that this needs to be static.
@@ -4276,15 +4276,18 @@ molecules_container_t::add_target_position_restraint(int imol, const std::string
 }
 
 void
-molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref) {
+molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map) {
 
    // make last_restraints
    if (is_valid_model_molecule(imol_frag)) {
       if (is_valid_model_molecule(imol_ref)) {
-         mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
-         // this is a fragment molecule - a few residues. mol_ref is used for the NBC an peptide links
-         // a the end of the fragment
-         molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, map_weight);
+         if (is_valid_map_molecule(imol_map)) {
+            mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
+            // this is a fragment molecule - a few residues. mol_ref is used for the NBC an peptide links
+            // a the end of the fragment
+            const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+            molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, xmap, map_weight, &static_thread_pool);
+         }
       }
    }
 }
@@ -4308,8 +4311,19 @@ molecules_container_t::wrapped_add_target_position_restraint(int imol, const std
 //! clear any and all drag-atom target position restraints
 void
 molecules_container_t::clear_target_position_restraints(int imol) {
+
    if (is_valid_model_molecule(imol)) {
       molecules[imol].clear_target_position_restraints();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+void
+molecules_container_t::clear_refinement(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_refinement();
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -4326,4 +4340,21 @@ molecules_container_t::fix_atom_selection_during_refinement(int imol, const std:
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 
+}
+
+//! Run some cycles of refinement and return a mesh
+//! That way we can see the molecule animate as it refines
+std::pair<int, coot::instanced_mesh_t>
+molecules_container_t::refine(int imol, int n_cycles) {
+
+   coot::instanced_mesh_t im;
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].refine_using_last_restraints(n_cycles);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.1, 1.4, 1, true, true);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return std::make_pair(status, im);
 }

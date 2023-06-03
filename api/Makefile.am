@@ -1,12 +1,12 @@
 #
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(COOT_GSL_FLAGS)		\
-	$(GSL_CFLAGS)			\
-	$(CLIPPER_CXXFLAGS)             \
-	$(MMDB_CXXFLAGS) \
-	$(PYTHON_CPPFLAGS)  \
+	-I$(top_srcdir)                     \
+	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)   \
+	$(COOT_GSL_FLAGS)		    \
+	$(GSL_CFLAGS)			    \
+	$(CLIPPER_CXXFLAGS)                 \
+	$(MMDB_CXXFLAGS)                    \
+	$(PYTHON_CPPFLAGS)                  \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
 	$(COOT_WINDOWS_CFLAGS)
 

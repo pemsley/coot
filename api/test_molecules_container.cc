@@ -2934,6 +2934,66 @@ int test_map_centre(molecules_container_t &mc) {
    return status;
 }
 
+int test_dragged_atom_refinement(molecules_container_t &mc_in) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   molecules_container_t mc;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+         coot::Cartesian atom_pos_new = atom_pos + coot::Cartesian(2,2,2); // say
+         int imol_new = mc.copy_fragment_using_cid(imol, "//A/265-275"); // make molten molecule
+         mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
+
+         int refine_status = 0;
+         std::pair<int, coot::instanced_mesh_t> im_0 = mc.refine(imol_new, 10);
+         status = im_0.first;
+
+         // keep calling this, and displaying the subsequent mesh again as the mouse moves...
+         coot::instanced_mesh_t im_1 = mc.wrapped_add_target_position_restraint(imol_new, "//A/270/O",
+                                                                                atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(), 100);
+
+         // mouse button release
+         mc.clear_target_position_restraints(imol_new);
+
+         std::pair<int, coot::instanced_mesh_t> im_2 = mc.refine(imol_new, 10);
+         refine_status = im_2.first;
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_3 = mc.refine(imol_new, 10);
+            refine_status = im_3.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_4 = mc.refine(imol_new, 10);
+            refine_status = im_4.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_5 = mc.refine(imol_new, 10);
+            refine_status = im_5.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_6 = mc.refine(imol_new, 100);
+            refine_status = im_6.first;
+         }
+
+         // finished mousing:
+         mc.clear_refinement(imol);
+
+         // Let's say they liked it:
+         mc.replace_fragment(imol, imol_new, "//");
+
+         if (refine_status == GSL_CONTINUE) status = 1; // the atoms still are moving (a bit) (that's what I want
+                                                        // for success of this test).
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -3113,9 +3173,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_molecular_representation, "molecular representation mesh", mc);
 
-   status += run_test(test_cell, "cell", mc);
+   // status += run_test(test_cell, "cell", mc);
 
-   status += run_test(test_map_centre, "map centre", mc);
+   // status += run_test(test_map_centre, "map centre", mc);
+
+   status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 

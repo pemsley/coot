@@ -843,7 +843,9 @@ namespace coot {
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
       // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
-      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom, float map_weight);
+      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+                                        const clipper::Xmap<float> &xmap, float map_weight,
+                                        ctpl::thread_pool *thread_pool);
 
       // add or update.
       void add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
@@ -854,10 +856,20 @@ namespace coot {
                                                              int n_cyles,
                                                              coot::protein_geometry *geom_p);
 
-      void refine_using_last_restraints(int n_steps);
+      //! refine (again).
+      //! @return the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
+      //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
+      int refine_using_last_restraints(int n_steps);
+
+      // something is happening to this pointer - where is it being reset?
+      restraints_container_t *get_last_restraints() { return last_restraints; }
 
       //! clear any and all drag-atom target position restraints
       void clear_target_position_restraints();
+
+      //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+      //! original molecule)
+      void clear_refinement();
 
       // make them yourself - easy as pie.
       void generate_self_restraints(float local_dist_max,

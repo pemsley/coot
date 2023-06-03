@@ -2203,9 +2203,9 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
 
    // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
    restraints.add_map(map_weight);
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS;
-   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
    int n_threads = 4; // coot::get_max_number_of_threads();
    ctpl::thread_pool thread_pool(n_threads);
@@ -2217,7 +2217,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    int nsteps_max = 4000;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
-   coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+   geometry_distortion_info_container_t gd = restraints.geometric_distortions();
    if (! refinement_is_quiet)
       gd.print();
    restraints.unset_fixed_during_refinement_udd();
@@ -2227,14 +2227,18 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    return status;
 }
 
-void
+int
 coot::molecule_t::refine_using_last_restraints(int n_steps) {
 
-   if (! last_restraints) return;
+   if (! last_restraints) return 0; // "success" (hmm)
 
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS; // Add GM here?
-   last_restraints->minimize(flags, n_steps, 0);
+
+   // check here that the refinement hasn't already finished.
+   //
+   coot::refinement_results_t rr = last_restraints->minimize(flags, n_steps, 0);
+   return rr.progress;
 }
 
 
@@ -2248,7 +2252,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
    if (residue_p) {
-      std::string terminus_type = coot::get_term_type(residue_p, atom_sel.mol);
+      std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
       float bf_new = default_temperature_factor_for_new_atoms;
       make_backup("add_terminal_residue_directly");
       r = add_terminal_residue(imol_no, terminus_type, residue_p,
@@ -2257,7 +2261,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
                                bf_new, xmap, geom);
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
-      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
       atom_sel = make_asc(atom_sel.mol);
       // save_info.new_modification("add-terminal-residue");
    } else {
@@ -3815,54 +3819,92 @@ coot::molecule_t::clear_target_position_restraints() {
       last_restraints->clear_all_atom_pull_restraints();
 }
 
+//! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+//! original molecule
+void
+coot::molecule_t::clear_refinement() {
+
+   if (last_restraints) {
+      std::cout << "debug:: ---------- clear_refinement() ---------- " << std::endl;
+      delete last_restraints;
+      last_restraints = nullptr; // clear_refinement();
+   }
+}
+
+
 
 void
 coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid) {
 
    // get atoms in atom selection.
-   // match those with thatom in the refinement and mark them as fixed. c.f. fixe (anchor) atom
+   // match those with thatom in the refinement and mark them as fixed. c.f. fixed (anchored) atom
 
 }
 
 // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
 void
-coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom, float map_weight) {
+coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+                                               const clipper::Xmap<float> &xmap_in, float map_weight,
+                                               ctpl::thread_pool *thread_pool) {
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
-   bool refinement_is_quiet = true;
+   bool refinement_is_quiet = false; // for debugging
 
-   std::vector<mmdb::Residue *> rv; // what is this?
+   auto get_all_residues_in_molecule = [] (mmdb::Manager *mol) {
+      std::vector<mmdb::Residue *> rv;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  rv.push_back(residue_p);
+               }
+            }
+         }
+      }
+      return rv;
+   };
 
+   std::vector<mmdb::Residue *> rv = get_all_residues_in_molecule(atom_sel.mol);
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
 
-   make_backup("init_all_moelcule_refinement");
+   make_backup("init_all_molecule_refinement");
    mmdb::Manager *mol = atom_sel.mol;
    std::vector<mmdb::Link> links;
-   coot::restraints_container_t restraints(local_residues,
-                                           links,
-                                           geom,
-                                           mol,
-                                           fixed_atom_specs, &xmap);
+   last_restraints = new coot::restraints_container_t(local_residues, links, geom, mol, fixed_atom_specs, &xmap_in);
 
    if (refinement_is_quiet)
-      restraints.set_quiet_reporting();
+      last_restraints->set_quiet_reporting();
 
    // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
-   restraints.add_map(map_weight);
+   last_restraints->add_map(map_weight);
    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS;
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
-   int n_threads = 4; // coot::get_max_number_of_threads();
-   ctpl::thread_pool thread_pool(n_threads);
-   restraints.thread_pool(&thread_pool, n_threads);
+   unsigned int n_threads = 8;
+   last_restraints->thread_pool(thread_pool, n_threads);
 
    int imol = 0; // dummy
-   restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-                              1.0, do_rama_plot_restraints, true, true, false, pseudos);
+   last_restraints->make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+                                    1.0, do_rama_plot_restraints, true, true, false, pseudos);
+
+   if (last_restraints->size() == 0) {
+      // Failure.
+      // clear up
+      delete last_restraints;
+      last_restraints = nullptr; // failure to setup
+   }
 }
+
+// ------------------------------ put these functions in coot_molecule_refine.cc --------------
 

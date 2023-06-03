@@ -966,7 +966,14 @@ public:
    //! add or update (if it has a pull restraint already)
    void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
-   void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref);
+   void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
+
+   //! Run some cycles of refinement and return a mesh.
+   //! That way we can see the molecule animate as it refines
+   //! @return a pair: the first of which is the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
+   //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
+   //! The second is a `coot::instanced_mesh_t`
+   std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles);
 
    //! Create a new position for the given atom and create a new bonds mesh based on that.
    //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
@@ -979,6 +986,10 @@ public:
                                                                 int n_cycles);
    //! clear any and all drag-atom target position restraints
    void clear_target_position_restraints(int imol);
+
+   //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+   //! original molecule)
+   void clear_refinement(int imol);
 
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
