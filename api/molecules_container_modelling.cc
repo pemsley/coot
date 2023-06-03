@@ -49,7 +49,7 @@ molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const st
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
          auto &coot_mol = molecules[imol_new];
          // add a new molecule of the neigbhoring residues internal to the new molecule
-         coot_mol.add_neighbor_residues_for_refinement_help(cid, mol);
+         coot_mol.add_neighbor_residues_for_refinement_help(mol);
       }
       mol->DeleteSelection(selHnd);
    }
