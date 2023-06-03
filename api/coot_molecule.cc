@@ -3797,10 +3797,14 @@ coot::molecule_t::wrapped_add_target_position_restraint(const std::string &atom_
          if (at) {
             coot::atom_spec_t spec(at);
             last_restraints->add_atom_pull_restraint(spec, pos);
+            std::cout << "debug:: in wrapped_add_target_position_restraint() calling refine_using_last_restraints() "
+                      << n_cycles << " cycles " << std::endl;
             refine_using_last_restraints(n_cycles);
          } else {
             std::cout << "wrapped_add_target_position_restraint() failed to find atom given " << atom_cid << std::endl;
          }
+      } else {
+         std::cout << "DEBUG:: in wrapped_add_target_position_restraint() last_restraints was empty! " << std::endl;
       }
    }
 

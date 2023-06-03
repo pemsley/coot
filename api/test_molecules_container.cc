@@ -2951,14 +2951,19 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
          int imol_new = mc.copy_fragment_for_refinement_using_cid(imol, "//A/265-275"); // make molten molecule
          mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
 
+         mc.write_coordinates(imol_new, "rtest-0.pdb");
+
          int refine_status = 0;
          std::pair<int, coot::instanced_mesh_t> im_0 = mc.refine(imol_new, 10);
-         status = im_0.first;
+         refine_status = im_0.first;
+         mc.write_coordinates(imol_new, "rtest-1.pdb");
 
          // keep calling this, and displaying the subsequent mesh again as the mouse moves...
          coot::instanced_mesh_t im_1 = mc.wrapped_add_target_position_restraint(imol_new, "//A/270/O",
-                                                                                atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(), 100);
+                                                                                atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(), 1000);
 
+         mc.write_coordinates(imol_new, "rtest-2.pdb");
+#if 0
          // mouse button release
          mc.clear_target_position_restraints(imol_new);
 
@@ -2986,6 +2991,7 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
 
          // Let's say they liked it:
          mc.replace_fragment(imol, imol_new, "//");
+#endif
 
          if (refine_status == GSL_CONTINUE) status = 1; // the atoms still are moving (a bit) (that's what I want
                                                         // for success of this test).
