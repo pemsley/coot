@@ -968,7 +968,7 @@ public:
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
 
-   //! fix atoms during refinement
+   //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
 
    //! add or update (if it has a pull restraint already)
