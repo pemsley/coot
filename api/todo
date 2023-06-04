@@ -53,6 +53,12 @@ Fri  2 Jun 16:02:06 BST 2023
 
    o function for fix atom at position (and refine for n cycles)
 
+Sat  3 Jun 19:33:43 BST 2023
+
+   o in coot-refinement we have move_single_atom_of_moving_atoms(). That doesn't care if the
+     atom has been marked fixed or not!
+
+
 --- Done Items ---
 
    o add a status flag to simple_mesh_t - used for "did we run out of memory/bad alloc"? (say) ::: 1

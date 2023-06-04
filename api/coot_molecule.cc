@@ -2178,7 +2178,7 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                                float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet) {
+                                float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet) {
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
@@ -2214,7 +2214,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    int imol = 0; // dummy
    restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
                               1.0, do_rama_plot_restraints, true, true, false, pseudos);
-   int nsteps_max = 4000;
+   int nsteps_max = n_cycles;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
    geometry_distortion_info_container_t gd = restraints.geometric_distortions();
@@ -3774,8 +3774,8 @@ coot::molecule_t::add_target_position_restraint(const std::string &atom_cid, flo
 
 // add or update.
 coot::instanced_mesh_t
-coot::molecule_t::wrapped_add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
-                                                        int n_cycles, coot::protein_geometry *geom_p) {
+coot::molecule_t::add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                           int n_cycles, coot::protein_geometry *geom_p) {
 
    coot::instanced_mesh_t m;
    add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z);

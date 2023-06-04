@@ -516,8 +516,9 @@ int test_rsr(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
+   int n_cycles = 1000;
    std::string mode = "SPHERE";
-   mc.refine_residues(imol, "A", 14, "", "", mode);
+   mc.refine_residues(imol, "A", 14, "", "", mode, n_cycles);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
    mc.write_coordinates(imol, "refined-with-big-sphere.pdb");
@@ -559,8 +560,9 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
+   int n_cycles = 1000;
    std::string mode = "SPHERE";
-   mc.refine_residues_using_atom_cid(imol, cid, mode);
+   mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
 
@@ -597,7 +599,8 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
    float w = mc.get_map_weight();
    mc.set_map_weight(w * 100.0);
-   mc.refine_residue_range(imol, "A", 131, 136);
+   int n_cycles = 500;
+   mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
    mc.set_map_weight(w); // restore sanity.
    coot::Cartesian atom_pos_N_1_2 = atom_to_cartesian(at_N_1);
    coot::Cartesian atom_pos_N_2_2 = atom_to_cartesian(at_N_2);
@@ -1692,9 +1695,6 @@ int test_add_compound(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          coot::Cartesian atom_pos = atom_to_cartesian(at_1);
-         double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
-         double d = std::sqrt(dd);
-
          coot::Cartesian lig_pos(1,23,3);
          mc.add_compound(imol, "GOL", coot::protein_geometry::IMOL_ENC_ANY, imol_map, lig_pos.x(), lig_pos.y(), lig_pos.z());
 
@@ -2154,7 +2154,7 @@ int test_editing_session_tutorial_4(molecules_container_t &mc) {
       std::cout << "::::::::::::::::::::::::::::::::::: Rail points F: latest_move: " << rpn_6 << " total: " << rpt_6 << std::endl;
       std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
 
-      mc.refine_residues_using_atom_cid(imol, "//A/262/CA", "QUINTUPLE");
+      mc.refine_residues_using_atom_cid(imol, "//A/262/CA", "QUINTUPLE", 400);
       map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
       int rpn_7 = mc.calculate_new_rail_points();
       int rpt_7 = mc.rail_points_total();
@@ -2751,7 +2751,7 @@ int test_alt_conf_and_rotamer(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          mc.imol_refinement_map = imol_map;
-         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE", 400);
          mc.write_coordinates(imol, "alt-conf-and-rotamer-and-refine.pdb");
          status = 1;
       }
@@ -2778,7 +2778,7 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
          coot::Cartesian atom_pos_start_A = atom_to_cartesian(at_A);
          coot::Cartesian atom_pos_start_B = atom_to_cartesian(at_B);
          mc.imol_refinement_map = imol_map;
-         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE", 400);
          mc.change_to_next_rotamer(imol, "//A/131", "A");
          mc.change_to_next_rotamer(imol, "//A/131", "A");
          mc.change_to_next_rotamer(imol, "//A/131", "A");
@@ -2959,11 +2959,13 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
          mc.write_coordinates(imol_new, "rtest-1.pdb");
 
          // keep calling this, and displaying the subsequent mesh again as the mouse moves...
-         coot::instanced_mesh_t im_1 = mc.wrapped_add_target_position_restraint(imol_new, "//A/270/O",
-                                                                                atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(), 1000);
+         coot::instanced_mesh_t im_1 =
+            mc.add_target_position_restraint_and_refine(imol_new, "//A/270/O",
+                                                        atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(),
+                                                        1000);
 
          mc.write_coordinates(imol_new, "rtest-2.pdb");
-#if 0
+
          // mouse button release
          mc.clear_target_position_restraints(imol_new);
 
@@ -2991,7 +2993,6 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
 
          // Let's say they liked it:
          mc.replace_fragment(imol, imol_new, "//");
-#endif
 
          if (refine_status == GSL_CONTINUE) status = 1; // the atoms still are moving (a bit) (that's what I want
                                                         // for success of this test).

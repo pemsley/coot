@@ -188,9 +188,16 @@ class molecules_container_t {
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
-   //! this is like mini-rsr:
-   //! @return success status
-   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
+
+   //! Real space refinement.
+   //!
+   //! the `n_cycles` parameter allows partial refinement - so for an animated representation one would call this
+   //! with a small number (10, 20, 100?) and call it again if the refine status is still yet to reach completion
+   //! GSL_CONTINUE (-2). And then make a call to get the bonds mesh (or other molecular representation).
+   //! If n_cycles is negative, this means "refine to completion."
+   //!
+   //! @return success/progress status
+   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
@@ -959,14 +966,14 @@ public:
    //
    //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
+   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
    //! refine the residues
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                       const std::string &alt_conf, const std::string &mode);
+                       const std::string &alt_conf, const std::string &mode, int n_cycles);
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
 
    //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
@@ -990,9 +997,9 @@ public:
    //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
    //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
    //! @return a `coot::instanced_mesh_t`
-   coot::instanced_mesh_t wrapped_add_target_position_restraint(int imol, const std::string &atom_cid,
-                                                                float pos_x, float pos_y, float pos_z,
-                                                                int n_cycles);
+   coot::instanced_mesh_t add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
+                                                                   float pos_x, float pos_y, float pos_z,
+                                                                   int n_cycles);
    //! clear any and all drag-atom target position restraints
    void clear_target_position_restraints(int imol);
 

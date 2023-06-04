@@ -845,8 +845,9 @@ namespace coot {
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
 
+      //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                        float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
+                        float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
@@ -860,9 +861,9 @@ namespace coot {
 
       std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atoms_with_position_restraints;
 
-      instanced_mesh_t wrapped_add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
-                                                             int n_cyles,
-                                                             coot::protein_geometry *geom_p);
+      instanced_mesh_t add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                                int n_cyles,
+                                                                coot::protein_geometry *geom_p);
 
       //! refine (again).
       //! @return the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
