@@ -1358,7 +1358,90 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                                   mmdb::Residue *second_residue,
                                                   const coot::protein_geometry &geom) const {
 
-  bool debug_links = false;
+   auto SS_filter = [] (mmdb::Residue *first, mmdb::Residue *second) {
+
+      // return either "SS" or "".
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      bool found = false;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " SG ") {
+               found = true;
+               break;
+            }
+         }
+      }
+      if (found) {
+         found = false;
+         n_residue_atoms = 0;
+         residue_atoms = 0;
+         second->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::string name(at->name);
+               if (name == " SG ") {
+                  found = true;
+                  break; // micro-optimiziation!
+               }
+            }
+         }
+      }
+      return found ? "SS" : "";
+   };
+
+   auto AA_RNA_filter = [] (mmdb::Residue *first, mmdb::Residue *second, bool order_switch_flag) {
+
+      // return either "AA-RNA" or "".
+
+      if (order_switch_flag)
+         std::swap(first, second);
+
+      bool found_1 = false;
+      bool found_2 = false;
+      clipper::Coord_orth pt_1(0,0,0);
+      clipper::Coord_orth pt_2(0,0,0);
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " C  ") {
+               found_1 = true;
+               pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      residue_atoms = 0;
+      n_residue_atoms = 0;
+      second->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " O3'") {
+               found_2 = true;
+               pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      bool close = false;
+      if (found_1 && found_2) {
+         double dd = (pt_1 - pt_2).lengthsq();
+         double d = std::sqrt(dd);
+         if (d < 3.0) close = true;
+      }
+      return close ? "AA-RNA" : "";
+   };
+
+   bool debug_links = false;
 
   if (debug_links) {
     std::cout << "####################### find_link_type_2022()   called with first_residue "
@@ -1435,6 +1518,18 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       std::cout << e.what() << std::endl;
       return std::pair<std::string, bool> ("", order_switch_was_needed);
    }
+
+   // 20230605-PE 
+   // the match for SS is:
+   // SS . CYS-SS peptide . CYS-SS peptide SS-bridge
+   // i.e. comp_id_1 and comp_id_2 are "." i.e. the SS link matches all peptides.
+   // We don't want that.
+   // Let's filter them out
+   if (link_type == "SS")
+      link_type = SS_filter(first_residue, second_residue); // return "" if these residues don't contain SG atoms
+
+   if (link_type == "AA-RNA")
+      link_type = AA_RNA_filter(first_residue, second_residue, order_switch_was_needed);
 
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
