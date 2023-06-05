@@ -170,7 +170,9 @@ dnl Check for MMDB.
 AM_PATH_MMDB2(, [echo Error locating necessary mmdb; exit 1],,)
 
 AM_WITH_SSM
-AM_WITH_CCP4SRS
+
+# Let's not think about CCP4SRS. I could never get the beast to work.
+# AM_WITH_CCP4SRS
 
 AM_SINGLE_FFTW2
 
