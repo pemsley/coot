@@ -203,30 +203,27 @@ dnl test for GSL
 AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
 AC_SUBST(COOT_GSL_FLAGS)
 
-#GLM
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
-AC_LANG_POP
+dnl =========================== GLM ================================
 
+PKG_CHECK_MODULES(GLM, glm >= 0.9.9)
 
-dnl =========================== GTK, GOOCANVAS ===========================
+dnl =========================== GTK ===========================
 
-AC_ARG_WITH(gtk4, [  --gtk4 build coot with gtk4 ], with_gtk4="yes", with_gtk4="no")
+PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
-if test $with_gtk4 = yes ; then
-   PKG_CHECK_MODULES(GTK, gtk4 >= 4.1)
-else
-   PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
-fi
+PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
+
+dnl =========================== PyGObject =========================
 
 PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+
+dnl =========================== GLFWw =========================
 
 PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 
 # this needs a rethink
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
-
 
 
 AM_PATH_PYTHON([3.7])

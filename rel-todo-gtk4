@@ -59,6 +59,8 @@ What's up with the Preferences? ::: 3
 
 Put the curlew banner in the curlew dialog ::: 0.4
 
+Put GLM into configure, get rid of --with-gtk4 ::: 1
+
 Views ::: 2
 
 Make the Ligand Menu a module ::: 1
