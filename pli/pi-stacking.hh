@@ -27,6 +27,7 @@
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/coords.h>
 
+#include "lidia-core/use-rdkit.hh"
 #include "geometry/protein-geometry.hh"
 
 namespace coot {

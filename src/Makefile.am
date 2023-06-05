@@ -53,9 +53,10 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
 #
+# we don't have lidia yet.
+#        $(top_builddir)/lbg/libcoot-lidia.la
 
 COOT_EXTRA_LIBS = \
-        $(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\

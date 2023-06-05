@@ -4292,7 +4292,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 
 	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269, NULL);
 
-	 label269 = gtk_label_new (_("    ")); // what does this do?
+	 label269 = gtk_label_new("    ");
 	 gtk_box_append(GTK_BOX(hbox136), label269);
 
 	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT(gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
@@ -4309,7 +4309,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 
 	 gtk_box_append(GTK_BOX (hbox136), coords_colour_hscale_mol_N);
 
-	 label270 = gtk_label_new (_("  degrees  "));
+	 label270 = gtk_label_new("  degrees  ");
 
 	 gtk_widget_show (label270);
 	 gtk_box_append(GTK_BOX(hbox136), label270);

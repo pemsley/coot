@@ -40,6 +40,8 @@
 #include "gtk-manual.h"
 #include "gtk-manual.hh"
 
+#include "support.h" 
+
 #include "interface.h"  /* for create_single_map_properties_dialog() */
 #include "utils/coot-utils.hh"
 

@@ -59,8 +59,6 @@ What's up with the Preferences? ::: 3
 
 Put the curlew banner in the curlew dialog ::: 0.4
 
-Put GLM into configure, get rid of --with-gtk4 ::: 1
-
 Views ::: 2
 
 Make the Ligand Menu a module ::: 1
@@ -623,4 +621,6 @@ Key-binding/function to bump the B-factors up or down or match the neighbourhood
 * Done
 
 Clear the box of results in Unmodelled Blobs ::: 0.4
+
+Put GLM into configure, get rid of --with-gtk4 ::: 0.5
 
