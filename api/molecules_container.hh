@@ -735,6 +735,10 @@ public:
    //! @return the index of the new map - or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
 
+   //! flip the hand of the map.
+   //! @return the molecule index of the new map, or -1 on failure.
+   int flip_hand(int imol_map);
+
    //! Make a vector of maps that are split by chain-id of the input imol
    //! @return a vector of the map molecule indices.
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);

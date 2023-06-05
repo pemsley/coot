@@ -4370,3 +4370,21 @@ molecules_container_t::refine(int imol, int n_cycles) {
    }
    return std::make_pair(status, im);
 }
+
+
+//! flip the hand of the map.
+//! @return the molecule index of the new map, or -1 on failure.
+int
+molecules_container_t::flip_hand(int imol_map) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> xmap = molecules[imol_map].xmap;
+      coot::util::flip_hand(&xmap);
+      std::string name = "Flipped Hand of " + molecules[imol_map].get_name();
+      imol_new = molecules.size();
+      molecules.push_back(coot::molecule_t(name, imol_new, xmap, true));
+   }
+   return imol_new;
+}
+
