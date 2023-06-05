@@ -1,3 +1,9 @@
+
+  Pre-Relese 0.9.8.9
+
+  o BUG-FIX: Change the link-finding algorithm to handle the AA-RNA link in
+             the new monomer library [Keitaro Yamashita].
+
 ----
 
   Release 0.9.8.8
