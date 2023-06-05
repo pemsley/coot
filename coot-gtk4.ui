@@ -1156,12 +1156,13 @@
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="artists">Paul Emsley</property>
     <property name="authors">Paul Emsley
-with support and contributions from
-Kevin Cowtan and Bernhard Lohkamp</property>
+    with support and contributions from Kevin Cowtan,
+    Bernhard Lohkamp, Jakub Smulski and Martin Noble</property>
     <property name="comments">Welcome to Coot</property>
     <property name="copyright">Copyright 2000, 2007, 2012-2022 by Paul Emsley
 Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
-Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
+Copyright 2023 Global Phasing Ltd.</property>
     <property name="documenters">Paul Emsley</property>
     <property name="halign">center</property>
     <property name="license">GNU LGPL version 3</property>
