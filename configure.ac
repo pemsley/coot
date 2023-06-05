@@ -213,21 +213,20 @@ PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
 PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
 
-dnl =========================== PyGObject =========================
-
-PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
-
 dnl =========================== GLFWw =========================
 
 PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 
-# this needs a rethink
-MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
-AC_SUBST(MAKE_COOTRC_CMD)
-
+dnl =========================== Python =========================
 
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
+
+dnl =========================== PyGObject =========================
+
+PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+
+dnl =========================== Boost =========================
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
@@ -264,28 +263,7 @@ fi
 AC_SUBST(L_BOOST_PYTHON)
 
 
-# Goocanvas is no longer optional
-# AM_PATH_GOOCANVAS
-# if test "$GOOCANVAS_CFLAGS" != "" ; then
-#   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-# fi
-
-# this can go away in 2020 - no one will try to use that old RDKit.
-#
-# was RDKIT used and if it was does it have Cairo support (if it does
-# have cairo support, we can use it to generate molecular (chemical)
-# depictions.
-#
-if test -n "$RDKIT_LIBS" ; then
-
-   case "$RDKIT_LIBS" in
-
-     *MolDraw2D*)
-          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
-          ;;
-   esac
-fi
-
+dnl =========================== RDKit =========================
 
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
