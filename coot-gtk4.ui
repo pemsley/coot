@@ -1156,12 +1156,13 @@
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="artists">Paul Emsley</property>
     <property name="authors">Paul Emsley
-with support and contributions from
-Kevin Cowtan and Bernhard Lohkamp</property>
+    with support and contributions from Kevin Cowtan,
+    Bernhard Lohkamp, Jakub Smulski and Martin Noble</property>
     <property name="comments">Welcome to Coot</property>
     <property name="copyright">Copyright 2000, 2007, 2012-2022 by Paul Emsley
 Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
-Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI</property>
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
+Copyright 2023 Global Phasing Ltd.</property>
     <property name="documenters">Paul Emsley</property>
     <property name="halign">center</property>
     <property name="license">GNU LGPL version 3</property>
@@ -6198,8 +6199,6 @@ Do you want to continue?
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
   <object class="GtkImage" id="image1">
   </object>
@@ -8928,6 +8927,19 @@ density (too big to be waters):
                             <property name="justify">center</property>
                           </object>
                         </child>
+
+                        <!-- this widget is for testing - do the insert-at-cursor and move-cursor callbacks work? -->
+                        <!-- No, they don't -->
+                        <child>
+                          <object class="GtkTextView" id="other_text">
+                            <property name="can-focus">1</property>
+                            <property name="wrap-mode">word</property>
+                            <property name="monospace">True</property>
+                            <signal name="insert-at-cursor" handler="on_other_text_insert_at_cursor" swapped="no"/>
+                            <signal name="move-cursor" handler="on_other_text_move_cursor" swapped="no"/>
+                          </object>
+                        </child>
+
                       </object>
                     </child>
                     <child type="label">
@@ -8945,13 +8957,16 @@ density (too big to be waters):
                   </object>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow12">
+                  <object class="GtkScrolledWindow">
                     <property name="hscrollbar-policy">never</property>
+                    <property name="height-request">90</property>
                     <child>
                       <object class="GtkTextView" id="mutate_molecule_sequence_text">
                         <property name="can-focus">1</property>
                         <property name="wrap-mode">word</property>
+                        <property name="monospace">True</property>
                         <signal name="insert-at-cursor" handler="on_mutate_molecule_sequence_text_insert_at_cursor" swapped="no"/>
+                        <signal name="move-cursor" handler="on_mutate_molecule_sequence_text_move_cursor" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -8970,10 +8985,12 @@ density (too big to be waters):
                     </child>
                     <child>
                       <object class="GtkImage" id="mutate_sequence_green_light_image">
+                        <property name="icon-name">gtk-yes</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImage" id="mutate_sequence_red_light_image">
+                        <property name="icon-name">gtk-no</property>
                       </object>
                     </child>
                     <child>
@@ -9026,6 +9043,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_mutate_sequence_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
             <child>
@@ -9034,6 +9054,9 @@ density (too big to be waters):
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_fit_loop_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
@@ -13341,15 +13364,15 @@ distances more than:</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="splash_screen_window">
     <property name="title" translatable="yes">Coot</property>
     <child>
       <object class="GtkImage" id="pixmap1">
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="start_workflow_dialog">
     <property name="title" translatable="yes">What do you want to do?</property>
     <child>

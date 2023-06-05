@@ -415,6 +415,17 @@ void import_bild(const std::string &file_name);
 void add_an_atom(const std::string &element);
 //! \}
 
+/*  ------------------------------------------------------------------------ */
+/*                             Nudge the B-factors                           */
+/*  ------------------------------------------------------------------------ */
+//! \name Nudge the B-factors
+//! \{
+//! \brief change the b-factors of the specified by a (small) amount
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
+#endif
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */

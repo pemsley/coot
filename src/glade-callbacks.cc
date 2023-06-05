@@ -11063,14 +11063,49 @@ void
 on_mutate_molecule_sequence_text_insert_at_cursor
                                         (GtkTextView     *textview,
                                         gchar           *string,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+   std::cout << "on_mutate_molecule_sequence_text_insert_at_cursor()... --- start --- " << std::endl;
    GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
    GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
    GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
    GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
    mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_mutate_molecule_sequence_text_move_cursor(GtkTextView* self,
+                                             GtkMovementStep* step,
+                                             gint count,
+                                             gboolean extend_selection,
+                                             gpointer user_data) {
+
+   std::cout << "-------------------------- move cursor! " << std::endl;
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_other_text_insert_at_cursor(GtkTextView     *textview,
+                               gchar           *string,
+                               gpointer         user_data) {
+
+   std::cout << "on_other_text_insert_at_cursor" << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_other_text_move_cursor(GtkTextView* self,
+                          GtkMovementStep* step,
+                          gint count,
+                          gboolean extend_selection,
+                          gpointer user_data) {
+
+   std::cout << "-------------------------- other text move cursor! " << std::endl;
+
+}
+
 
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS

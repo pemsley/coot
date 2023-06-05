@@ -170,7 +170,9 @@ dnl Check for MMDB.
 AM_PATH_MMDB2(, [echo Error locating necessary mmdb; exit 1],,)
 
 AM_WITH_SSM
-AM_WITH_CCP4SRS
+
+# Let's not think about CCP4SRS. I could never get the beast to work.
+# AM_WITH_CCP4SRS
 
 AM_SINGLE_FFTW2
 
@@ -203,34 +205,30 @@ dnl test for GSL
 AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
 AC_SUBST(COOT_GSL_FLAGS)
 
-#GLM
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
-AC_LANG_POP
+dnl =========================== GLM ================================
 
+PKG_CHECK_MODULES(GLM, glm >= 0.9.9)
 
-dnl =========================== GTK, GOOCANVAS ===========================
+dnl =========================== GTK ===========================
 
-AC_ARG_WITH(gtk4, [  --gtk4 build coot with gtk4 ], with_gtk4="yes", with_gtk4="no")
+PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
-if test $with_gtk4 = yes ; then
-   PKG_CHECK_MODULES(GTK, gtk4 >= 4.1)
-else
-   PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
-fi
+PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
 
-PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+dnl =========================== GLFWw =========================
 
 PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 
-# this needs a rethink
-MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
-AC_SUBST(MAKE_COOTRC_CMD)
-
-
+dnl =========================== Python =========================
 
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
+
+dnl =========================== PyGObject =========================
+
+PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+
+dnl =========================== Boost =========================
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
@@ -267,28 +265,7 @@ fi
 AC_SUBST(L_BOOST_PYTHON)
 
 
-# Goocanvas is no longer optional
-# AM_PATH_GOOCANVAS
-# if test "$GOOCANVAS_CFLAGS" != "" ; then
-#   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-# fi
-
-# this can go away in 2020 - no one will try to use that old RDKit.
-#
-# was RDKIT used and if it was does it have Cairo support (if it does
-# have cairo support, we can use it to generate molecular (chemical)
-# depictions.
-#
-if test -n "$RDKIT_LIBS" ; then
-
-   case "$RDKIT_LIBS" in
-
-     *MolDraw2D*)
-          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
-          ;;
-   esac
-fi
-
+dnl =========================== RDKit =========================
 
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",

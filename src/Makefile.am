@@ -50,29 +50,13 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 ##########################################################################
 
 
-# put these into configure
-GLM_CXXFLAGS = -I$(HOME)/glm/include
-EPOXY_LIBS = -lepoxy
-
-CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
-CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
-
-# MOLECULESTOTRIANGLES=$(install_top_dir)
-# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
-# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
-
-# MOLECULESTOTRIANGLES=$(install_top_dir)
-# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
-# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
-
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
 #
-# add this back one day
-# $(top_builddir)/goograph/libcoot-goograph.la
+# we don't have lidia yet.
+#        $(top_builddir)/lbg/libcoot-lidia.la
 
 COOT_EXTRA_LIBS = \
-        $(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\

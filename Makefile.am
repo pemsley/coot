@@ -45,7 +45,7 @@ else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli api greg-tests \
-	python-tests cootilus fonts pyrogen lbg data \
+	python-tests cootilus fonts pyrogen data \
 	man rama-data doc glTF pixmaps textures validation-graphs src
 endif
 endif

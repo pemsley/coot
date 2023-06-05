@@ -2169,6 +2169,15 @@ void add_an_atom(const std::string &element) {
    add_to_history_typed(cmd, args);
 }
 
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount) {
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].change_b_factors_of_residue_by(residue_spec, amount);
+   }
+}
+#endif
+
 
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;

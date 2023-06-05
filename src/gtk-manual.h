@@ -24,10 +24,11 @@
 #define GTK_MANUAL_H
 
 #include <gtk/gtk.h>
-#ifndef HAVE_SUPPORT_H
-#define HAVE_SUPPORT_H
-#include "support.h"
-#endif /* HAVE_SUPPORT_H */
+
+/* #ifndef HAVE_SUPPORT_H */
+/* #define HAVE_SUPPORT_H */
+/* #include "support.h" */
+/* #endif /\* HAVE_SUPPORT_H *\/ */
 
 #ifndef BEGIN_C_DECLS
 #ifdef __cplusplus

@@ -88,6 +88,7 @@
 #include "c-interface-widgets.hh"
 
 #include "widget-from-builder.hh"
+#include "support.h" // for internationalizations.
 
 // I think this test is wrong. New gtk doesn't have get active text.
 // Use a gtkcomboboxtext for that.

@@ -11,6 +11,8 @@
 #include "cc-interface-scripting.hh"  // move this up
 #include "cc-interface.hh"
 
+#include "support.h" // for internationalizations.
+
 extern "C" { void load_tutorial_model_and_data(); }
 
 extern "C" G_MODULE_EXPORT
