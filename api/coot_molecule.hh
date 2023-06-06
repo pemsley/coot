@@ -859,6 +859,9 @@ namespace coot {
       // add or update.
       void add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
 
+      //
+      void turn_off_when_close_target_position_restraint();
+
       std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atoms_with_position_restraints;
 
       instanced_mesh_t add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,

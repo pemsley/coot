@@ -4342,6 +4342,18 @@ molecules_container_t::clear_target_position_restraint(int imol, const std::stri
    }
 }
 
+//! clear target_position restraint if it is (or they are) close to their target position
+void
+molecules_container_t::turn_off_when_close_target_position_restraint(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].turn_off_when_close_target_position_restraint();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
 
 void
 molecules_container_t::clear_refinement(int imol) {

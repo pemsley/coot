@@ -988,6 +988,9 @@ public:
    //! clear target_position restraint
    void clear_target_position_restraint(int imol, const std::string &atom_cid);
 
+   //! clear target_position restraint if it is (or they are) close to their target position
+   void turn_off_when_close_target_position_restraint(int imol);
+
    //! initialise the refinement of (all of) molecule `imol_frag`
    void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
 

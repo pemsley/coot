@@ -3834,8 +3834,17 @@ coot::molecule_t::clear_target_position_restraint(const std::string &atom_cid) {
          last_restraints->clear_atom_pull_restraint(spec);
       }
    }
-
 }
+
+//
+void
+coot::molecule_t::turn_off_when_close_target_position_restraint() {
+
+   if (last_restraints) {
+      last_restraints->turn_off_when_close_target_position_restraint();
+   }
+}
+
 
 
 //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
