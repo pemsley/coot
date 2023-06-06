@@ -911,8 +911,9 @@ public:
    //! a molecule fragment to make a molten zone for refinement.
    //! That is because this version quietly also copies the residues near the residues of the selection.
    //! so that those residues can be used for links and non-bonded contact restraints.
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
    //! @return the new molecule number (or -1 on no atoms selected)
-   int copy_fragment_for_refinement_using_cid(int imol, const std::string &cid);
+   int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
 
    //! copy a residue-range fragment
    //! @return the new molecule number (or -1 on no atoms selected)

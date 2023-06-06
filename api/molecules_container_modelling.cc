@@ -32,13 +32,21 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &cid)
 //! so that those residues can be used for links and non-bonded contact restraints.
 //! @return the new molecule number (or -1 on no atoms selected)
 int
-molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const std::string &cid) {
+molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cids) {
 
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = get_mol(imol);
       int selHnd = mol->NewSelection(); // d
-      mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+
+      // 20230606-PE old -  simple
+      // mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+
+      std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+      if (! v.empty())
+         for (const auto &cid : v)
+            mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
       if (new_manager) {
 

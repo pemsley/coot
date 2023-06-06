@@ -3578,7 +3578,7 @@ coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::X
          }
       }
 
-      make_backup("rigid_body_fit");
+      make_backup("rigid_body_fit " + multi_cids);
       // update the atoms of atom-sel.mol
       coot::api::rigid_body_fit(atom_sel.mol, udd_atom_selection, xmap);
       status = 1;
