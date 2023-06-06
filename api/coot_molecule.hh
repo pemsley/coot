@@ -864,6 +864,8 @@ namespace coot {
       instanced_mesh_t add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
                                                                 int n_cyles,
                                                                 coot::protein_geometry *geom_p);
+      //! clear
+      void clear_target_position_restraint(const std::string &atom_cid);
 
       //! refine (again).
       //! @return the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).

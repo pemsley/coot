@@ -4331,6 +4331,18 @@ molecules_container_t::clear_target_position_restraints(int imol) {
    }
 }
 
+//! clear target_position restraint
+void
+molecules_container_t::clear_target_position_restraint(int imol, const std::string &atom_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_target_position_restraint(atom_cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
 void
 molecules_container_t::clear_refinement(int imol) {
 

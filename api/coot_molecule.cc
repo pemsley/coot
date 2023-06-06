@@ -3823,6 +3823,21 @@ coot::molecule_t::clear_target_position_restraints() {
       last_restraints->clear_all_atom_pull_restraints();
 }
 
+//! clear
+void
+coot::molecule_t::clear_target_position_restraint(const std::string &atom_cid) {
+
+   mmdb:: Atom *at = cid_to_atom(atom_cid);
+   if (at) {
+      coot::atom_spec_t spec(at);
+      if (last_restraints) {
+         last_restraints->clear_atom_pull_restraint(spec);
+      }
+   }
+
+}
+
+
 //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
 //! original molecule
 void

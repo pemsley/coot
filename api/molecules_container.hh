@@ -735,7 +735,7 @@ public:
    //! @return the index of the new map - or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
 
-   //! flip the hand of the map.
+   //! generate a new map which is the hand-flipped version of the input map.
    //! @return the molecule index of the new map, or -1 on failure.
    int flip_hand(int imol_map);
 
@@ -984,6 +984,9 @@ public:
 
    //! add or update (if it has a pull restraint already)
    void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   //! clear target_position restraint
+   void clear_target_position_restraint(int imol, const std::string &atom_cid);
 
    //! initialise the refinement of (all of) molecule `imol_frag`
    void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
