@@ -2196,7 +2196,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
                   // Returns first (link_type) as "" if not found, second is order switch flag
 
-                  if (true)
+                  if (false)
                      std::cout << "-------- make_other_types_of_link() \"" << lt.first << "\""
                                << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
                                << std::endl;
