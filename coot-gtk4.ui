@@ -7381,7 +7381,7 @@ Do you want to continue?
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
                     <property name="halign">start</property>
-                    <property name="spacing">5</property> 
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
 
@@ -7402,9 +7402,9 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_map_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
+                    <property name="orientation">horizontal</property>
                     <property name="halign">start</property>
-                    <property name="spacing">5</property> 
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
 
@@ -7538,20 +7538,20 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_testbutton_4">
                 <property name="can-focus">0</property>
                 <child>
-                  <object class="GtkBox"> 
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
-                    <child> 
-                      <object class="GtkImage"> 
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
                         <property name="icon-name">auto-fit-rotamer</property>
-                      </object> 
-                    </child> 
-                    <child> 
-                      <object class="GtkLabel"> 
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
                         <property name="label" translatable="yes">AutoFit Rotamer</property>
-                      </object> 
-                    </child> 
-                  </object> 
+                      </object>
+                    </child>
+                  </object>
                 </child>
                 <signal name="clicked" handler="on_model_toolbar_auto_fit_rotamer_button_clicked" />
               </object>
@@ -7560,8 +7560,8 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_testbutton_5">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">rotamers</property>
@@ -7606,8 +7606,8 @@ Do you want to continue?
               <object class="GtkButton" id="flip_peptide_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">flip-peptide</property>
@@ -7628,8 +7628,8 @@ Do you want to continue?
               <object class="GtkButton" id="side_chain_180_flip_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">side-chain-180</property>
@@ -7693,8 +7693,8 @@ Do you want to continue?
               <object class="GtkButton" id="vertical_toolbar_add_terminal_residue_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">add-peptide-1</property>
@@ -7736,8 +7736,8 @@ Do you want to continue?
               <object class="GtkButton" id="undo_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">edit-undo</property>
@@ -7758,8 +7758,8 @@ Do you want to continue?
               <object class="GtkButton" id="redo_button">
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property> 
-                    <property name="spacing">5</property> 
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
                         <property name="icon-name">edit-redo</property>
