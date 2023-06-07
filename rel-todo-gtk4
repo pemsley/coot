@@ -36,6 +36,10 @@ Here are other styles:
 
 ----
 
+Map Parameters dialog needs a refresh ::: 1
+
+"Overlaps" needs an update button - and preferably updates automatically.
+
 Edit -> Mutate Residue Range ::: 2
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
