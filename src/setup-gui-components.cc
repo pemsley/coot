@@ -341,9 +341,12 @@ void set_vertical_toolbar_internal_alignment() {
             g_debug("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
             continue;
          }
-         GtkWidget* target;
+         GtkWidget* target = nullptr;
          if(GTK_IS_MENU_BUTTON(child)) {
-            target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+#if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 6
+            // I don't know how to do this in 4.4
+            //target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+#endif
          } else {
             target = gtk_button_get_child(GTK_BUTTON(child));
          }
