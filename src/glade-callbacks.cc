@@ -4844,31 +4844,6 @@ on_get_monomer1_activate               (GMenuItem     *menuitem,
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_get_monomer_ok_button_clicked(GtkButton       *button,
-                                 gpointer         user_data) {
-
-   GtkWidget *entry = widget_from_builder("get_monomer_entry");
-   if (entry) {
-      handle_get_monomer_code(entry);
-   }
-   GtkWidget *frame = widget_from_builder("get_monomer_frame");
-   gtk_widget_hide(frame);
-}
-
-extern "C" G_MODULE_EXPORT
-void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
-                                          gpointer         user_data) {
-   GtkWidget* frame_widget = GTK_WIDGET(user_data);
-   if(frame_widget) {
-      gtk_widget_hide(frame_widget);
-   } else {
-      g_error("'user_data' is NULL. Cannot hide overlay frame.");
-   }
-   
-}
-
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
 extern "C" G_MODULE_EXPORT
@@ -5085,7 +5060,8 @@ on_single_map_properties_contour_level_entry_activate(GtkWidget *entry, gpointer
       set_contour_by_sigma_step_by_mol(imol, f, 1);
    }
    catch (const std::runtime_error &rte) {
-      std::cout << "ERROR in on_single_map_properties_contour_level_entry_activate() failed to comprehend " << s << std::endl;
+      std::cout << "ERROR in on_single_map_properties_contour_level_entry_activate() failed to comprehend "
+                << s << std::endl;
    }
 
 }

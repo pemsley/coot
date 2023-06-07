@@ -1067,6 +1067,15 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
    g_simple_action_set_enabled(simple_action,FALSE);
 }
 
+void add_ligand_module_action(GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_ligand()");
+   g_simple_action_set_enabled(simple_action,FALSE);
+}
+
 void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
@@ -2378,10 +2387,12 @@ delete_item(GSimpleAction *simple_action,
             m.delete_chain(atom_spec.chain_id);
             g.graphics_draw();
          }
-         if (par == "hydrogen-atoms") {
+         if (par == "hydrogen-atoms-in-residue") {
             auto &m = g.molecules[imol];
             // change this signature to use an residue spec.
+            std::cout << "callign delete_residue_hydrogens()!!!! " << res_spec << std::endl;
             m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
+            graphics_draw();
          }
          if (par == "residue-range") {
             // use old-style "setup"
@@ -2525,6 +2536,7 @@ create_actions(GtkApplication *application) {
    add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
    add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
    add_action(    "add_prosmart_module_action",     add_prosmart_module_action);
+   add_action(      "add_ligand_module_action",       add_ligand_module_action);
    add_action(      "add_rcrane_module_action",       add_rcrane_module_action);
    add_action(  "add_restraints_module_action",   add_restraints_module_action);
    add_action(      "add_refine_module_action",       add_refine_module_action);

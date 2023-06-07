@@ -357,7 +357,7 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
    glm::vec3 start_point = coord_orth_to_glm(arc.start_point); // this is the central atom position
    glm::vec4 col = colour_holder_to_glm(arc.col);
    glm::mat4 rot_mat = glm::orientation(coord_orth_to_glm(arc.normal), glm::vec3(0.0, 0.0, 1.0));
-   std::cout << "rot_mat: " << glm::to_string(rot_mat)<< std::endl;
+   // std::cout << "add_arc: rot_mat: " << glm::to_string(rot_mat)<< std::endl;
 
    const clipper::Mat33<double> &m = arc.orientation_matrix;
    glm::mat3 ori_mat(m(0,0), m(0,1), m(0,2),

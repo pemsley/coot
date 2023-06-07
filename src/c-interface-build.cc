@@ -5310,6 +5310,7 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 /*  ----------------------------------------------------------------------- */
 /*                  SMILES                                                  */
 /*  ----------------------------------------------------------------------- */
+// 20230605-PE Old hideous scripting thing. Delete.
 void do_smiles_gui() {
 
 #if defined USE_GUILE

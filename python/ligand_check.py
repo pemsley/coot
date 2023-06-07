@@ -1,4 +1,5 @@
-mogul_results = mogul_results_py
+import coot
+import coot_utils
 
 def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                            refmac_input_mtz_file_name,
@@ -130,7 +131,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             if use_cache_qm:
                 # return a random mogul_score
                 return [123, run_result]
-            mogul_results_list = mogul_results(run_result)
+            mogul_results_list = coot.mogul_results_py(run_result)
             if (not isinstance(mogul_results_list, list)):
                 return False
             else:
@@ -281,7 +282,7 @@ def filter_out_waters(imol, env_residues):
 def gui_ligand_check_dialog_wrapper(imol, imol_map, ligand_spec):
 
     neighbs = []
-    correl = map_to_model_correlation(imol, [ligand_spec], neighbs, 0, imol_map)
+    correl = coot.map_to_model_correlation(imol, [ligand_spec], neighbs, 0, imol_map)
     cs = contact_score_ligand (imol, ligand_spec)
     n_bumps = -1
     if cs:
@@ -289,15 +290,13 @@ def gui_ligand_check_dialog_wrapper(imol, imol_map, ligand_spec):
     geom_dist_max = 1.1
     ligand_metrics = [correl, geom_dist_max, n_bumps]
     percentile_limit = 0.5 # it's a fraction
-    gui_ligand_metrics(ligand_spec, ligand_metrics, percentile_limit)
+    coot.gui_ligand_metrics_py(ligand_spec, ligand_metrics, percentile_limit)
 
 # the Yes/No tick/cross dialog
 def gui_ligand_check_dialog_active_residue():
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
-                                   aa_ins_code, aa_atom_name, aa_alt_conf,
-                                   aa_res_spec]:
-        gui_ligand_check_dialog_wrapper(aa_imol, imol_refinement_map(),
-                                        aa_res_spec)
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                              aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
+        gui_ligand_check_dialog_wrapper(aa_imol, coot.imol_refinement_map(), aa_res_spec)
 
 def run_mogul(mode, imol, chain_id, res_no, ins_code, prefix_str, use_cache_qm):
     # dummy since I cannot test mogul

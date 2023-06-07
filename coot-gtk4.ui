@@ -877,10 +877,11 @@
         <attribute name="label">CCP4</attribute>
         <attribute name="action">app.add_ccp4_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">Carbohydrate</attribute>
-        <attribute name="action">app.add_carbohydrate_module_action</attribute>
-      </item>
+      <!-- remove the carbohydrate modules for now -->
+      <!-- <item> -->
+      <!--   <attribute name="label">Carbohydrate</attribute> -->
+      <!--   <attribute name="action">app.add_carbohydrate_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Cryo-EM</attribute>
         <attribute name="action">app.add_cryo_em_module_action</attribute>
@@ -888,6 +889,10 @@
       <item>
         <attribute name="label">HOLE</attribute>
         <attribute name="action">app.add_HOLE_module_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Ligand</attribute>
+        <attribute name="action">app.add_ligand_module_action</attribute>
       </item>
       <item>
         <attribute name="label">ProSMART</attribute>
@@ -959,7 +964,7 @@
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Residue</attribute>
         <attribute name="action">app.delete_item</attribute>
-        <attribute name="target">hdyrogen-atoms-in-residue</attribute> <!-- this target was changed -->
+        <attribute name="target">hydrogen-atoms-in-residue</attribute> <!-- this target was changed -->
       </item>
       <item>
         <attribute name="label" translatable="yes">Residue</attribute>
@@ -6477,6 +6482,7 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
             <child type="overlay">
               <object class="GtkFrame" id="accession_code_frame">
                 <property name="halign">center</property>
@@ -6530,6 +6536,60 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="smiles_to_simple_3d_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkBox">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label"> SMILES </property>
+                            <property name="margin-end">5</property>
+                            <property name="margin-start">5</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="smiles_to_simple_3d_entry">
+                            <property name="can-focus">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkButton" id="smiles_to_simple_3d_cancel_button">
+                            <property name="label">Cancel</property>
+                            <signal name="clicked" handler="on_generic_overlay_frame_cancel_button_clicked" swapped="no" object="smiles_to_simple_3d_frame"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="smiles_to_simple_3d_ok_button">
+                            <property name="label">OK</property>
+                            <signal name="clicked" handler="on_smiles_to_simple_3d_ok_button_clicked"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
             <child type="overlay">
               <object class="GtkFrame" id="refinement_and_regularization_parameters_frame">
                 <!-- <property name="title" translatable="yes">(New) Refinement and Regularization Parameters</property> -->
@@ -8813,13 +8873,14 @@ density (too big to be waters):
                 <property name="label" translatable="yes">Move It</property>
                 <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_move_molecule_here_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 

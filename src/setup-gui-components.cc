@@ -23,7 +23,7 @@ void setup_menubuttons() {
    GtkWidget* add_module_menubutton = widget_from_builder("add_module_menubutton");
    GMenuModel *modules_menu = menu_model_from_builder("modules-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
-   
+
    // toolbar button - connect the refine menu to the GtkMenuButton
    GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton");
    GMenuModel *refine_menu = menu_model_from_builder("refine-menu");
@@ -62,12 +62,11 @@ void setup_menubuttons() {
    add_typed_menu_to_mutate_menubutton("PROTEIN");
 }
 
-gboolean generic_hide_on_escape_controller_cb(
-      GtkEventControllerKey  *controller,
-      guint                  keyval,
-      guint                  keycode,
-      GdkModifierType        modifiers,
-      GtkWidget              *to_be_hidden) {
+gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller,
+                                              guint                  keyval,
+                                              guint                  keycode,
+                                              GdkModifierType        modifiers,
+                                              GtkWidget              *to_be_hidden) {
    gboolean handled = TRUE;
    switch (keyval) {
       case GDK_KEY_Escape: {

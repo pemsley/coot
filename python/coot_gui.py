@@ -79,8 +79,7 @@ def handle_smiles_go(tlc_entry, smiles_entry):
     use_libcheck = False
     if coot_utils.is_windows():
         use_libcheck = True
-    coot.generator_3d_import.new_molecule_by_smiles_string(
-        tlc_text, smiles_text, force_libcheck=use_libcheck)
+    generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #
@@ -5431,6 +5430,9 @@ def add_module_ccp4():
     if coot_gui_api.main_menumodel():
         add_module_ccp4_gui()
 
+def add_module_ligand():
+    if coot_gui_api.main_menumodel():
+        add_module_ligand_gui()
 
 def add_module_pdbe():
    if coot_gui_api.main_menumodel():
@@ -5586,6 +5588,75 @@ def add_module_ccp4_gui():
         menu = attach_module_menu_button("CCP4")
 
         add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
+
+def show_chem_func():
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+        coot.show_feats(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+# for quick-ligand-validate:
+import ligand_check
+
+def add_module_ligand_gui():
+
+    def jiggle_fit_active_residue():
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                              aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, 100, 1.0)
+    # from contact_score_isolated_ligand.py (hmm)
+    def coot_contact_dots_ligand_func():
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.coot_contact_dots_for_ligand_py(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
+
+    # from enhanced_ligand.py (hmm)
+    def display_ligand_distortions_func():
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+             coot.display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+    # from enhanced_ligand.py
+    def probe_ligand_func():
+        global probe_command
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                            aa_ins_code, aa_atom_name, aa_alt_conf]:
+            ss = "//" + aa_chain_id + "/" + str(aa_res_no)
+            imol_selection = coot.new_molecule_by_atom_selection(aa_imol, ss)
+            work_dir = coot_utils.get_directory("coot-molprobity")
+            tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir,
+                                                "tmp-selected-ligand-for-probe.pdb")
+            tmp_protein_for_probe_pdb = os.path.join(work_dir,
+                                                 "tmp-protein-for-probe.pdb")
+            generic_objects.probe_dots_file_name = os.path.join(work_dir, "probe.dots")
+
+            coot.set_mol_displayed(imol_selection, 0)
+            coot.set_mol_active(imol_selection, 0)
+            # BL comment: we assume H and view is correct.
+            #set_go_to_atom_molecule(imol)
+            #rc = residue_centre(imol, chain_id, res_no, ins_code)
+            #set_rotation_centre(*rc)
+            #hydrogenate_region(6)
+            coot.write_pdb_file(imol_selection, tmp_selected_ligand_for_probe_pdb)
+            coot.write_pdb_file(imol, tmp_protein_for_probe_pdb)
+            coot_utils.popen_command(probe_command, ["-u", "-once", str(aa_res_no), # -once or -both
+                                             "not " + str(aa_res_no),
+                                             "-density60",
+                                             tmp_selected_ligand_for_probe_pdb,
+                                             tmp_protein_for_probe_pdb],
+                                             [], generic_objects.probe_dots_file_name, False)
+            coot.handle_read_draw_probe_dots_unformatted(dots_file_name, aa_imol, 0)
+            coot.graphics_draw()
+
+    if coot_gui_api.main_menumodel():
+        menu = attach_module_menu_button("Ligand")
+        add_simple_action_to_menu(menu, "Find Ligands", "find_ligands", lambda _one, _two: coot.do_find_ligands_dialog())
+        add_simple_action_to_menu(menu, "Jiggle-fit Ligands", "jiggle_fit_ligands", lambda _one, _two: jiggle_fit_active_residue())
+        add_simple_action_to_menu(menu, "Hydrogenate Region", "hydrogenate_region", lambda _one, _two: coot.hydrogenate_region(6))
+        add_simple_action_to_menu(menu, "Contact Dots for Ligand", "contact_dots_for_ligand", lambda _one, _two: coot_contact_dots_ligand_func())
+        add_simple_action_to_menu(menu, "SMILES -> Simple 3D", "smiles_to_simple_3d", lambda _one, _two: coot.do_smiles_to_simple_3d_overlay_frame())
+        add_simple_action_to_menu(menu, "Show Chemical Features", "show_chemical_features", lambda _one, _two: show_chem_func())
+        add_simple_action_to_menu(menu, "Display Ligand Distortions", "display_ligand_distortions", lambda _one, _two: display_ligand_distortions_func())
+        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: ligand_check.gui_ligand_check_dialog_active_residue())
+        add_simple_action_to_menu(menu, "Isolated Molprobity Dots for ligand", "isolated_molprobity_dots_for_ligand", lambda _one, _two: probe_ligand_func())
 
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():

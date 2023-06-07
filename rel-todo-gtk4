@@ -55,21 +55,44 @@ Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not l
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
-What's up with the Preferences? ::: 3
+What's up with the Preferences? ::: 4
 
 Put the curlew banner in the curlew dialog ::: 0.4
 
 Views ::: 2
 
-Make the Ligand Menu a module ::: 1
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button.
+
+Make contact dots, Open generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
+again. Mess as some box entries are double written. ::: 1
+
+Make the Ligand Menu be a module ::: 0.5
 Not much to do until we turn on RDKit.
+# Some of these are vital, some are nice to have
+Find Ligands ::: 0.1
+Jiggle-fit ligand ::: 0.2
+Hydrogenate region ::: 1
+Contact dots for ligand ::: 0.2
+SMILES -> simple 3D ::: 1
+Show Chemical Features ::: 1
+Display Ligand distorsions ::: 1
+Quick Ligand Validate ::: 2
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm.
+[Ligand Metric Sliders]
+
+Draw the ligand chemical diagram in OpenGL. ::: 3
+
+"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
+(Maybe it does already)
 
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
 Rework the namespace of the python modules to be more cannonical ::: 4
 
-Clicking on Green left arrow doesn't open the refinement overlay
+Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
@@ -79,7 +102,7 @@ Do the tutorial from time to time - what's missing? ::: 1
 
 Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
-
+Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
