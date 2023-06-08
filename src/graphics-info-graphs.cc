@@ -118,43 +118,55 @@ void graphics_info_t::refresh_validation_graph_model_list() {
    // 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
    // }
    if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
-      std::cout << "Destroy graphs for model " << active_validation_graph_model_idx << " here..." << std::endl;
+      std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                << active_validation_graph_model_idx << " here..." << std::endl;
       // destroy_validation_graph(coot::validation_graph_type type);
    }
 }
 
-void graphics_info_t::update_active_validation_graph_model(int new_model_idx) {
+void graphics_info_t::update_active_validation_graph_model(int model_idx) {
+
+   // this happens when the user changes the active model in the model combobox in the validation graph dialog
 
    // 1. Update the model active model variable
-   active_validation_graph_model_idx = new_model_idx;
+   active_validation_graph_model_idx = model_idx;
    std::cout << "update_active_validation_graph_model() active_validation graph model idx"
              << active_validation_graph_model_idx << std::endl;
    // 2. Handle chains
    g_warning("todo: update_active_validation_graph_model(): handle chains");
    // 3. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
-   for(const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+   for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
       g_warning("Todo: Display/rebuild validation graph data for: %s [model index changed to %i]",
-                coot::validation_graph_type_to_human_name(i.first).c_str(),
-                new_model_idx);
+                coot::validation_graph_type_to_human_name(i.first).c_str(), model_idx);
+      coot::validation_graph_type graph_type = i.first;
+      GtkWidget *graph = i.second;
+      if (graph_type == coot::validation_graph_type::density_fit) { }
+      if (graph_type == coot::validation_graph_type::omega) { }
+      if (graph_type == coot::validation_graph_type::rama) { }
+      if (graph_type == coot::validation_graph_type::rota) { }
+
    }
 }
 
 void graphics_info_t::change_validation_graph_chain(const std::string& chain_id) {
-	g_debug("Todo: change_validation_graph_chain");
+
+   // 20230527-PE It will be a while before this gets filled I think!
+   g_debug("Todo: change_validation_graph_chain");
 }
 
 
 void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
+   // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
+
    std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
-   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list),
-                          +[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
-                             GtkListStore* list = GTK_LIST_STORE(model);
-                             return ! gtk_list_store_remove(list,iter);
-                          },
-                          NULL
-                          );
+   auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
+      GtkListStore* list = GTK_LIST_STORE(model);
+      return gboolean(!gtk_list_store_remove(list,iter));
+   };
+
+   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list), fn, NULL);
 
    for(int i=0; i<graphics_info_t::n_molecules(); i++) {
       if (graphics_info_t::molecules[i].has_model()) {
@@ -237,6 +249,7 @@ get_validation_data_for_density_fit_analysis(int imol) {
 
    coot::validation_information_t r;
    r.name = "Density fit analysis";
+   r.type = coot::graph_data_type::Score;
 
    int imol_map = g.Imol_Refinement_Map();
    if (! g.is_valid_model_molecule(imol))   return r;
@@ -411,9 +424,9 @@ get_validation_data_for_rotamer_analysis(int imol) {
 
                coot::rotamer rot(residue_p);
                coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
-               double prob = rpi.probability;
+               double prob = rpi.probability * 0.01; // to range 0->1
 
-               std::string l = "Chain ID: "+res_spec.chain_id+"     Residue number: "+std::to_string(res_spec.res_no);
+               std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
                std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
                const std::string &chain_id = res_spec.chain_id;
                int this_resno = res_spec.res_no;
@@ -585,6 +598,9 @@ get_validation_data(int imol, coot::validation_graph_type type) {
 void
 graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
 
+   std::cout << "Yes! create_validation_graph() for " << imol << " type: "
+             << coot::validation_graph_type_to_human_name(type) << std::endl;
+
    if (imol != -1) {
       // 1. instantiate the validation graph
       CootValidationGraph *cvg = coot_validation_graph_new();
@@ -600,9 +616,10 @@ graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type t
       // 6. Show the graph
       insert_validation_graph(this_is_the_graph);
 
-      auto callback = +[] (CootValidationGraph* self,
+      auto callback = +[] (G_GNUC_UNUSED CootValidationGraph* self,
                            const coot::residue_validation_information_t* residue_vip,
-                           gpointer userdata) {
+                           G_GNUC_UNUSED gpointer user_data) {
+
          std::cout << "residue-clicked handler " << residue_vip->label << " " << residue_vip->residue_spec << std::endl;
          int imol = residue_vip->residue_spec.int_user_data; // set by constructor of the validation information
          graphics_info_t g;
@@ -615,6 +632,9 @@ graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type t
       g_warning("graphics_info_t::create_validation_graph(): There is no valid active validation graph model.");
    }
 }
+
+// see update_validation_graphs(imol) below
+
 
 void
 graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
@@ -762,6 +782,8 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
       }
    }
 #endif
+
+   update_validation(imol);
 }
 
 #include "nsv.hh"
@@ -771,6 +793,7 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
+   update_validation(imol_moving_atoms);
 
 #ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
@@ -917,15 +940,43 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 }
 
 void
-graphics_info_t::update_validation_graphs(int imol) {
+graphics_info_t::update_validation(int imol_changed_model) {
 
-   g_debug("update_validation_graphs() called");
-   g_warning("Reimplement update_validation_graphs(). "
+   update_validation_graphs(imol_changed_model);
+   update_ramachandran_plot(imol_changed_model);
+
+   if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
+      mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
+      coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
+   }
+
+}
+
+void
+graphics_info_t::update_validation_graphs(int imol_changed_model) {
+
+   // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
+   // for that molecule if they are displayed.
+
+   g_debug("update_validation() called");
+   g_warning("Reimplement update_validation(). "
              "The function should iterate over the std::map holding validation data for each active graph "
              "and recompute it, then trigger a redraw.");
 
-   update_ramachandran_plot(imol);
+   // 20230527-PE maybe this is the right wasy to do it. But I think that I have done it a different way for now.
+   //
+   // update_ramachandran_plot(imol);
 
+   if (active_validation_graph_model_idx == imol_changed_model) {
+      for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+         coot::validation_graph_type graph_type = i.first;
+         GtkWidget *graph = i.second;
+         coot::validation_information_t vi = get_validation_data(imol_changed_model, graph_type);
+         std::shared_ptr<coot::validation_information_t> vip = std::make_shared<coot::validation_information_t>(vi);
+         CootValidationGraph *cvg = (CootValidationGraph *)(graph);
+         coot_validation_graph_set_validation_information(cvg, vip);
+      }
+   }
 
 // #ifdef HAVE_GOOCANVAS
 //    update_ramachandran_plot(imol);
@@ -941,42 +992,13 @@ graphics_info_t::update_validation_graphs(int imol) {
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
-#ifdef HAVE_GOOCANVAS
-   std::vector<coot::geometry_graph_type> graph_types;
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_GEOMETRY);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_B_FACTOR);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_ROTAMER);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_NCS_DIFFS);
-
-   for (unsigned int igt=0; igt<graph_types.size(); igt++) {
-      GtkWidget *graph =
-	 coot::get_validation_graph(imol_moving_atoms, graph_types[igt]);
-      if (graph) {
-	 coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
-	 if (gr) {
-	    gr->delete_block(res_spec.chain_id, res_spec.res_no);
-	 }
-      }
-   }
-
-   // and the sequence view!
-   //
-   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
-   if (graph) {
-      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
-      if (sequence_view) {
-	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
-	 sequence_view->regenerate(mol);
-      }
-   }
-#endif
+   update_validation(imol); // 20230528-PE we are not so clever (to be specific about what gets updated) now
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
+
+   update_validation(imol); // 20230528-PE again we are not so clever (to be specific about what gets updated) now
 
 #ifdef HAVE_GOOCANVAS
 

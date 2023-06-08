@@ -7924,6 +7924,7 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
 void
 molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs) {
 
+   make_backup();
    for (unsigned int i=0; i<rbs.size(); i++) {
       const coot::residue_spec_t &spec = rbs[i].first;
       double b = rbs[i].second;
@@ -7947,7 +7948,8 @@ molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::r
 void
 molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf) {
 
-   mmdb::Residue *residue_p = get_residue(spec);
+   make_backup();
+    mmdb::Residue *residue_p = get_residue(spec);
    if (residue_p) {
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms;
@@ -7960,6 +7962,27 @@ molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf)
    atom_sel.mol->FinishStructEdit();
    make_bonds_type_checked(__FUNCTION__);
 }
+
+void
+molecule_class_info_t::change_b_factors_of_residue_by(coot::residue_spec_t spec, float bf) {
+
+   make_backup();
+    mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int j=0; j<n_residue_atoms; j++) {
+         residue_atoms[j]->tempFactor += bf;
+         if (residue_atoms[j]->tempFactor < 2.0)
+            residue_atoms[j]->tempFactor = 2.0;
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(__FUNCTION__);
+}
+
 
 
 
@@ -8025,7 +8048,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 
          if (!target_chain_id_exists) {
 
-            int n_models = atom_sel.mol->GetNumberOfModels();
+            n_models = atom_sel.mol->GetNumberOfModels();
             for (int imod=1; imod<=n_models; imod++) {
 
                mmdb::Model *model_p = atom_sel.mol->GetModel(imod);

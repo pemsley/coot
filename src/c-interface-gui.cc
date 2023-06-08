@@ -88,6 +88,7 @@
 #include "c-interface-widgets.hh"
 
 #include "widget-from-builder.hh"
+#include "support.h" // for internationalizations.
 
 // I think this test is wrong. New gtk doesn't have get active text.
 // Use a gtkcomboboxtext for that.
@@ -1430,15 +1431,10 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_chooser_dialog_x_size > 0) {
-
-#if (GTK_MAJOR_VERSION >= 4)
       graphics_info_t g;
+      std::cout << "DEBUG:: set size request for dialog "
+                << g.file_chooser_dialog_x_size << " " << g.file_chooser_dialog_y_size << std::endl;
       gtk_widget_set_size_request(dialog, g.file_chooser_dialog_x_size, g.file_chooser_dialog_y_size);
-#else
-      gtk_window_resize(GTK_WINDOW(dialog),
-                        graphics_info_t::file_chooser_dialog_x_size,
-                        graphics_info_t::file_chooser_dialog_y_size);
-#endif
    }
 }
 
@@ -5264,20 +5260,17 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
 
-   std::cout << "---------------- in wrapped_create_residue_editor_select_monomer_type_dialog()"
-             << std::endl;
-
    // GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
    GtkWidget *w = widget_from_builder("residue_editor_select_monomer_type_dialog");
    GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
 
-   std::cout << "debug::  in wrapped_create_residue_editor_select_monomer_type_dialog() w " << w
-             << " and combobox " << combo_box << std::endl;
+   if (combo_box)
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combo_box));
 
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
-   // remove the 2 items that are already there from the glade interface (I suppose).
+   // fill the combobox
 
    for (unsigned int i=0; i<v.size(); i++) {
       std::string s = v[i];
@@ -5305,10 +5298,6 @@ void clear_restraints_editor_by_dialog(GtkWidget *dialog) { /* close button pres
    g.clear_restraints_editor_by_dialog(dialog);
 }
 
-
-
-
-
 void show_restraints_editor(std::string monomer_type) {
 
    int imol = 0; // maybe this should be passed? Pretty esoteric though.
@@ -5328,7 +5317,9 @@ void show_restraints_editor(std::string monomer_type) {
 	    coot::dictionary_residue_restraints_t restraints = p.second;
 	    coot::restraints_editor r;
 	    r.fill_dialog(restraints);
-	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, r.get_dialog());
+            GtkWidget *dialog = r.get_dialog();
+            std::cout << "DEBUG:: show_restraints_editor(): here with dialog " << dialog << std::endl;
+	    set_transient_and_position(COOT_EDIT_RESTRAINTS_DIALOG, dialog);
 	    g.restraints_editors.push_back(r);
 	 }
       }
@@ -6030,7 +6021,7 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
       // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
       boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
       crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
-      std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      // std::cout << "DEBUG:: checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
       std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
       if (s == checksum)
 	 state = true;

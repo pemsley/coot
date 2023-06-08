@@ -244,6 +244,8 @@ fill_move_molecule_here_dialog(GtkWidget *w) {
    int imol_active = first_coords_imol();
 
    g.move_molecule_here_molecule_number = imol_active;
+
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
    g.fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);
 
 }
@@ -832,10 +834,15 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
    //    GtkWidget *entry2 = lookup_widget(w, "mutate_molecule_resno_2_entry");
    //    GtkWidget *textwindow = lookup_widget(w, "mutate_molecule_sequence_text");
 
-   GtkWidget *combobox_molecule = widget_from_builder("mutate_molecule_combobox");
-   GtkWidget *combobox_chain    = widget_from_builder("mutate_molecule_chain_combobox");
+   GtkWidget *combobox_molecule = widget_from_builder("mutate_sequence_molecule_combobox");
+   GtkWidget *combobox_chain    = widget_from_builder("mutate_sequence_chain_combobox_text");
    // GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_menu_item_activate);
    GCallback callback_func      = G_CALLBACK(mutate_sequence_molecule_combobox_changed);
+
+   GtkWidget *mutate_ok_button   = widget_from_builder("mutate_sequence_ok_button");
+   GtkWidget *fit_loop_ok_button = widget_from_builder("fit_loop_ok_button");
+   gtk_widget_set_visible(  mutate_ok_button, TRUE);
+   gtk_widget_set_visible(fit_loop_ok_button, FALSE);
 
    printf("DEBUG:: wrapped_fit_loop_rama_search_dialog(): -------------------------- combobox_molecule: %p\n", combobox_molecule);
    printf("DEBUG:: wrapped_fit_loop_rama_search_dialog(): -------------------------- combobox_chain   : %p\n", combobox_chain);
@@ -873,7 +880,7 @@ void mutate_sequence_molecule_combobox_changed(GtkWidget *combobox, gpointer dat
 
    graphics_info_t::mutate_sequence_imol = imol;
    GCallback chain_callback_func = G_CALLBACK(mutate_sequence_chain_combobox_changed);
-   GtkWidget *chain_combobox = widget_from_builder("mutate_molecule_chain_combobox");
+   GtkWidget *chain_combobox = widget_from_builder("mutate_sequence_chain_combobox_text");
    graphics_info_t g;
    std::string set_chain = g.fill_combobox_with_chain_options(chain_combobox, imol, chain_callback_func);
    // graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
@@ -996,7 +1003,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
    GtkWidget *checkbutton = widget_from_builder("mutate_sequence_do_autofit_checkbutton");
    short int autofit_flag = 0;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       autofit_flag = 1;
 
    if (imol>= 0) { // redundant
@@ -1032,7 +1039,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
                   mutate_residue_range(imol, chain_id.c_str(), res1, res2, sequence.c_str());
                }
                update_go_to_atom_window_on_changed_mol(imol);
-               g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+               g.update_validation(imol);
 
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
@@ -1065,11 +1072,11 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    GtkWidget *rama_checkbutton   = widget_from_builder("mutate_sequence_use_ramachandran_restraints_checkbutton");
 
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
-   gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
-   gtk_widget_show(fit_loop_ok_button);
+   gtk_widget_set_visible(mutate_ok_button,   FALSE);
+   gtk_widget_set_visible(fit_loop_ok_button, TRUE);
    gtk_widget_show(rama_checkbutton);
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(rama_checkbutton), TRUE);
 
    gtk_widget_show(method_frame);
 
@@ -1211,7 +1218,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	       std::cout << "debug:: calling mutate_chain " << imol << " chain-id: " << chain_id << " "
 			 << sequence << " " << do_auto_fit << std::endl;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
-	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       g.update_validation(imol);
 	       graphics_draw();
 
 	    }
@@ -1383,7 +1390,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 	    gtk_widget_show(ws);
 	 }
 	 graphics_info_t g;
-	 g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	 g.update_validation(imol);
       }
    } else {
       std::cout << "ERROR: Couldn't get txt in change_chain_id_by_widget\n";

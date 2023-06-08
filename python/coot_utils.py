@@ -1023,10 +1023,11 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
     import sys
     import string
     import os
+    import subprocess
 
     major, minor, micro, releaselevel, serial = sys.version_info
 
-    if (os.path.isfile(cmd)):
+    if os.path.isfile(cmd):
         cmd_execfile = cmd
     else:
         if not(command_in_path_qm(cmd)):
@@ -1034,18 +1035,19 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             print("BL INFO:: Maybe we'll find it somewhere else later...")
         cmd_execfile = find_exe(cmd, "CBIN", "CBIN", "CCP4_BIN", "PATH")
 
-    if (cmd_execfile):
-        # minor = 2
-        if (major >= 2 and minor >= 4):
-            # subprocess
-            import subprocess
-            log = open(log_file, 'w')
+    if cmd_execfile:
+
+        if True:
+
+            print("debug open write", log_file)
+
+            log = open(log_file, 'wb')
+
             cmd_args = [cmd_execfile] + args
 
             # set stdin
             pipe_data=False
-            if (isinstance(data_list, str) and
-                os.path.isfile(data_list)):
+            if isinstance(data_list, str) and os.path.isfile(data_list):
                 stdin_inp = open(data_list)
             else:
                 pipe_data=True
@@ -1057,7 +1059,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             else:
                 stderr_arg = None
 
-            if (screen_flag):
+            if screen_flag:
                 process = subprocess.Popen(cmd_args, stdin=stdin_inp,
                                            stdout=subprocess.PIPE,
                                            stderr=stderr_arg,
@@ -1077,10 +1079,11 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
                 if isinstance(stdin_inp, file):
                     stdin_inp.close()
 
-            if (screen_flag):
+            if screen_flag:
                 for line in process.stdout:
                     # remove trailing whitespace
-                    print("#", line.rstrip(" \n"))
+                    # print("#", line.rstrip(" \n"))
+                    print("#", line)
                     log.write(line)
             process.wait()
             log.close()
@@ -2046,8 +2049,7 @@ def auto_weight_for_refinement():
         else:
             centred_residue = active_atom[1:4]
             imol = active_atom[0]
-            other_residues = residues_near_residue(
-                imol, centred_residue, radius)
+            other_residues = coot.residues_near_residue_py(imol, centred_residue, radius)
             all_residues = [centred_residue]
             if (isinstance(other_residues, list)):
                 all_residues += other_residues
@@ -3238,10 +3240,8 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
 
     if (valid_model_molecule_qm(imol)):
 
-        other_residues = residues_near_residue(
-            imol, centre_residue_spec, radius)
-        atom_sel_str = residue_spec_to_atom_selection_string(
-            centre_residue_spec)
+        other_residues = coot.residues_near_residue_py(imol, centre_residue_spec, radius)
+        atom_sel_str = residue_spec_to_atom_selection_string(centre_residue_spec)
 
         imol_new = coot.new_molecule_by_atom_selection(imol, atom_sel_str)
         bb_type = 1
@@ -4395,7 +4395,7 @@ def merge_solvent_chains(imol):
         for res in residue_ls:
             res_spec = [chain_id, res[0], res[1]]
             if residue_exists_qm(imol, *res_spec):
-                near_residues = residues_near_residue(imol, res_spec, 0.05)
+                near_residues = coot.residues_near_residue_py(imol, res_spec, 0.05)
                 if near_residues:
                     # delete
                     for del_res in near_residues:

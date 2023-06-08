@@ -947,6 +947,7 @@ public:        //                      public
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
    void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
    void set_b_factor_residue(coot::residue_spec_t spec, float bf);
+   void change_b_factors_of_residue_by(coot::residue_spec_t spec, float bf);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -3111,6 +3112,7 @@ public:        //                      public
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
    void update_extra_restraints_representation_bonds();
+   void update_extra_restraints_representation_geman_mcclure();
    void update_extra_restraints_representation_bonds_internal(const coot::extra_restraints_t::extra_bond_restraint_t &res);
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
@@ -3181,10 +3183,8 @@ public:        //                      public
    // GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
    // GLuint m_ColourBufferID; // Likewise.
 
-#ifndef EMSCRIPTEN
    Mesh map_as_mesh;
    Mesh map_as_mesh_gl_lines_version;
-#endif
 
    GLuint m_VertexArray_for_model_ID;
    GLuint n_vertices_for_model_VertexArray;
@@ -3206,12 +3206,9 @@ public:        //                      public
                                                                             // elsewhere in the code, e.g. in
                                                                             // the adjustment handler.
 
-#ifndef EMSCRIPTEN
    Material material_for_maps;
    Material material_for_models;
-#endif
 
-#ifndef EMSCRIPTEN
 void draw_map_molecule(bool draw_transparent_maps,
                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                           const glm::mat4 &mvp,
@@ -3223,7 +3220,6 @@ void draw_map_molecule(bool draw_transparent_maps,
                           bool perspective_projection_flag);
    // A map is not a Mesh at the moment, so this needs a new function
    void draw_map_molecule_for_ssao(Shader *shader_p, const glm::mat4 &model_matrix, const glm::mat4 &view_matrix, const glm::mat4 &proj_matrix);
-#endif
 
    // using current contour level,
    // return world coordinates and normals
@@ -3236,7 +3232,6 @@ void draw_map_molecule(bool draw_transparent_maps,
                 unsigned int n_axis_points,
                 unsigned int y_axis_points) const;
 
-#ifndef EMSCRIPTEN
    void setup_map_cap(Shader *shader_p,
                       const clipper::Coord_orth &base_pt, // Bring it into this class.
                       const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
@@ -3261,7 +3256,6 @@ void draw_map_molecule(bool draw_transparent_maps,
    void mesh_draw_normals(const glm::mat4 &mvp);
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_map_mesh();
-#endif
 
    float shader_shininess;
    float shader_specular_strength;
@@ -3347,13 +3341,12 @@ void draw_map_molecule(bool draw_transparent_maps,
 					   mmdb::Manager *standard_residues_mol);
 
    // --------- Pretty (hopefully) animated ligand interactions -----------
-#ifndef EMSCRIPTEN
+
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
    void add_animated_ligand_interaction(const  coot::fle_ligand_bond_t &lb);
 
    void draw_animated_ligand_interactions(const gl_context_info_t &gl,
 					  const long &start_time) const;
-#endif
 
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);

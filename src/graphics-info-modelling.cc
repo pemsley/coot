@@ -5475,7 +5475,7 @@ graphics_info_t::delete_residue_range(int imol,
       //
       // atom_selection_container_t asc = molecules[imol].atom_sel;
       atom_selection_container_t asc;
-      update_geometry_graphs(asc, imol);
+      update_validation(imol);
    }
    graphics_draw();
 }
@@ -5509,8 +5509,8 @@ graphics_info_t::delete_sidechain_range(int imol,
       // It seems that I have done that now.
       //
       // atom_selection_container_t asc = molecules[imol].atom_sel;
-      atom_selection_container_t asc;
-      update_geometry_graphs(imol);
+      // atom_selection_container_t asc;
+      update_validation(imol);
    }
    graphics_draw();
 

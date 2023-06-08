@@ -406,6 +406,26 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
+/*  ------------------------------------------------------------------------ */
+/*                             Add an Atom                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Add an Atom
+//! \{
+//! \brief add an atom. element can be "Water", "Na", "K", "I" etc.
+void add_an_atom(const std::string &element);
+//! \}
+
+/*  ------------------------------------------------------------------------ */
+/*                             Nudge the B-factors                           */
+/*  ------------------------------------------------------------------------ */
+//! \name Nudge the B-factors
+//! \{
+//! \brief change the b-factors of the specified by a (small) amount
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
+#endif
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */
@@ -1271,10 +1291,10 @@ int mutate_internal(int ires, const char *chain_id,
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
-// \brief mutate active residue to single letter code slc
+//! \brief mutate active residue to single letter code slc
 void mutate_active_residue_to_single_letter_code(const std::string &slc);
 
-// \brief show keyboard mutate dialog
+//! \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog();
 
 /*  ----------------------------------------------------------------------- */
@@ -1283,6 +1303,10 @@ void show_keyboard_mutate_dialog();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
                          int resno_ref, bool apply_rtop_flag);
+
+//! \brief display the SMILES entry. This is the simple version - no dictionary
+//! is generated.
+void do_smiles_to_simple_3d_overlay_frame();
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1424,8 +1448,8 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 #ifdef USE_LIBCURL
 // return 0 on success.
-int coot_get_url(const char *url, const char *file_name);
-int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name, short int do_hook_flag);
+int coot_get_url(const std::string &url, const std::string &file_name);
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag);
 #ifdef USE_GUILE
 // this handles URLs that are strings, not binaries.
 SCM coot_get_url_as_string(const char *url);

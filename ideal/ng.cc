@@ -2154,7 +2154,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                if (residue_pair_link_set.find(test_residue_pair) == residue_pair_link_set.end())  {
                   // it was a new pair.
 
-                  if (true) {
+                  if (false) {
                      std::cout << "                 Here in make_other_types_of_link() A with at_1 at_2 "
                                << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
                      std::cout << "failed to find these residues in the polyer-linked set: "

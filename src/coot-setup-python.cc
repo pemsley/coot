@@ -67,14 +67,14 @@ void setup_python_basic(int argc, char **argv) {
       wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
       _argv[i] = arg;
    }
-   std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Py_InitializeEx(0)" << std::endl;
    Py_InitializeEx(0);
    PySys_SetArgv(argc, _argv);
 
+   // We expect these to be null because we are outside a python script.
    PyObject *globals = PyEval_GetGlobals();
-   std::cout << "in setup_python_basic() globals " << globals << std::endl;
+   // std::cout << "in setup_python_basic() globals " << globals << std::endl;
    PyObject *locals  = PyEval_GetLocals();
-   std::cout << "in setup_python_basic() locals " << locals << std::endl;
+   // std::cout << "in setup_python_basic() locals " << locals << std::endl;
    
 
 #endif // USE_PYMAC_INIT

@@ -69,7 +69,7 @@ typedef const char entry_char_type;
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_refine_control_button_clicked(GtkButton       *button,
-                                                                   gpointer         user_data) {
+                                               gpointer         user_data) {
    graphics_info_t::show_refinement_and_regularization_parameters_frame();
 }
 
@@ -144,7 +144,6 @@ on_model_toolbar_range_define_togglebutton_toggled(GtkToggleButton *togglebutton
    std::cout << "here now with active " << active << " in_range_define " << g.in_range_define << std::endl;
    
 }
-
 
 
 extern "C" G_MODULE_EXPORT
@@ -1204,4 +1203,185 @@ on_main_window_resize_window_right_arrow_clicked(GtkButton       *button,
    gtk_window_resize(GTK_WINDOW(window), w_new, h);
 #endif
    // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_water_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                    G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Water");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_lithium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Li");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_sodium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Na");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_potasium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                       G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("K");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_magnesium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                        G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Mg");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_calcium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Ca");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_strontium_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                        G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Sr");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_nickel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Ni");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_copper_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Cu");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_zinc_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Zn");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_chlorine_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                       G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Cl");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_bromine_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("Br");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_an_atom_iodine_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   add_an_atom("I");
+   gtk_widget_set_visible(box, FALSE);
+}
+
+ 
+extern "C" G_MODULE_EXPORT
+void
+on_get_monomer_ok_button_clicked(GtkButton       *button,
+                                 gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("get_monomer_entry");
+   if (entry) {
+      handle_get_monomer_code(entry);
+   }
+   GtkWidget *frame = widget_from_builder("get_monomer_frame");
+   gtk_widget_hide(frame);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
+                                                    gpointer         user_data) {
+   GtkWidget* frame_widget = GTK_WIDGET(user_data);
+   if(frame_widget) {
+      gtk_widget_set_visible(frame_widget, FALSE);
+   } else {
+      g_error("ERROR:: in on_generic_overlay_frame_cancel_button_clicked() 'user_data' is NULL. Cannot hide overlay frame.");
+   }
+}
+
+#include "c-interface-ligands.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_smiles_to_simple_3d_ok_button_clicked(GtkButton       *button,
+                                         gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("smiles_to_simple_3d_entry");
+   if (entry) {
+      std::string smiles_string = gtk_editable_get_text(GTK_EDITABLE(entry));
+      smiles_to_simple_3d(smiles_string);
+   }
+   GtkWidget *frame = widget_from_builder("smiles_to_simple_3d_frame");
+   gtk_widget_set_visible(frame, FALSE);
 }

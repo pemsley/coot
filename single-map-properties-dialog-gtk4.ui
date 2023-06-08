@@ -441,16 +441,11 @@
     <action-widgets>
       <action-widget response="-5">test_multiple_use_dialog_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child internal-child="action_area">
       <object class="GtkBox">
-        <property name="valign">center</property>
         <child>
           <object class="GtkButton" id="test_multiple_use_dialog_ok_button">
             <property name="label" translatable="yes">OK</property>
-            <property name="focusable">1</property>
           </object>
         </child>
       </object>

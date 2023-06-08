@@ -19,6 +19,7 @@ layout(location = 7) in vec4 colour_instanced;
 uniform mat4 mvp;
 uniform mat4 view_rotation;
 uniform float time;
+uniform bool transferred_colour_is_instanced;
 uniform bool do_pulse;
 uniform bool do_rotate_z;
 uniform float pulsing_amplitude; // = 0.25;  // make these uniforms?
@@ -62,6 +63,7 @@ void main() {
 
    normal_transfer = model_rotation * n_dir;
    colour_transfer = colour;
+   if (transferred_colour_is_instanced) colour_transfer = colour_instanced;
    frag_pos_transfer = frag_pos;
 }
 
@@ -178,7 +180,8 @@ void main() {
    }
 
    outputColor = mix(running_col, background_colour, fog_amount);
-   // outputColor = vec4(0.4, 0.8, 0.4, 1.0);
+
+   // outputColor = vec4(0.8, 0.2, 0.8, 1.0);
 
 
 }

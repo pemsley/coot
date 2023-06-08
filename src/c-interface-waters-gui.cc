@@ -188,7 +188,8 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
 	       // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
 	       GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-	       if (vbox) { 
+	       if (vbox) {
+                  graphics_info_t::clear_out_container(vbox);
 		  std::string label;
 		  for(int i=0; i< n_big_blobs; i++) {
 		     label = "Blob ";
@@ -470,7 +471,7 @@ void find_waters(int imol_for_map,
 	    // waters added to masking molecule
 	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
-            g.update_geometry_graphs(imol_for_protein);
+            g.update_validation(imol_for_protein);
 	 }
       }
    }

@@ -76,34 +76,30 @@ def add_module_restraints():
     menu = attach_module_menu_button("Restraints")
 
     def generate_all_molecule_self_restraints(val):
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
             generate_self_restraints(aa_imol, val)
 
     def generate_self_restraint_func(sig):
-        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+            print("in generate_self_restraint_func()", aa_imol, aa_chain_id, sig)
             coot.generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
     # Generate self restraints for residues around sphere
     def generate_self_restraint_in_sphere_func():
-        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
             centred_residue = [aa_chain_id, aa_res_no, aa_ins_code]
             radius = 10
             local_dist_max = 4.2
-            other_residues = residues_near_residue(aa_imol,
-                                                    centred_residue,
-                                                    radius)
+            other_residues = coot.residues_near_residue_py(aa_imol, centred_residue, radius)
             residue_specs = (centred_residue + other_residues) if isinstance(other_residues, list) else centred_residue
-            coot.generate_local_self_restraints_by_residues_py(aa_imol,
-                                                            residue_specs,
-                                                            local_dist_max)
+            coot.generate_local_self_restraints_by_residues_py(aa_imol, residue_specs, local_dist_max)
 
     def display_extra_restraints_func(state):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
+            # this is a bit confusing
             coot.set_show_extra_restraints(aa_imol, state)
+            coot.set_show_extra_distance_restraints(state)
 
     add_simple_action_to_menu(
         menu, "Generate Self Restraints 3.7 for Chain","generate_self_restraint_37",
@@ -187,8 +183,8 @@ def add_module_prosmart():
         vbox.append(check_button)
         vbox.append(h_sep)
         vbox.append(hbox)
-        hbox.append(go_button)
         hbox.append(cancel_button)
+        hbox.append(go_button)
         window.set_child(vbox)
 
         cancel_button.connect("clicked", lambda _w: window.close())
@@ -197,15 +193,13 @@ def add_module_prosmart():
         window.show()
 
     def generate_self_restraint_func(sig):
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+        # is this used?
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
             generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
     def prosmart_cut_to_func(sig_low, sig_high):
-        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
-            coot.set_extra_restraints_prosmart_sigma_limits(aa_imol,
-                                                        sig_low, sig_high)
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.set_extra_restraints_prosmart_sigma_limits(aa_imol, sig_low, sig_high)
     add_simple_action_to_menu(
         menu, "Show Only Deviant Distances Beyond 6","prosmart_cut_to_6",
         lambda _simple_action, _arg: prosmart_cut_to_func(-6, 6))

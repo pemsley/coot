@@ -1648,7 +1648,7 @@ void toggle_idle_spin_function() {
 
    if (g.do_tick_spin) {
       if (g.glareas[0]) {
-         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], g.glarea_tick_func, 0, 0);
          g.idle_function_spin_rock_token = new_tick_id;
       }
    }
@@ -1670,7 +1670,7 @@ void toggle_idle_rock_function() {
    if (g.do_tick_rock) {
       g.time_holder_for_rocking = std::chrono::high_resolution_clock::now();
       if (g.glareas[0]) {
-         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], glarea_tick_func, 0, 0);
+         int new_tick_id = gtk_widget_add_tick_callback(g.glareas[0], g.glarea_tick_func, 0, 0);
          g.idle_function_spin_rock_token = new_tick_id;
       }
    }
@@ -6677,53 +6677,35 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
    // std::cout << "in safe_python_command_with_return() A " << python_cmd << std::endl;
 
-   std::string command = "print(111111111111111111111111111111111111)";
-
    // command = "import coot; " + python_cmd;
-   command = python_cmd;
+   std::string command = python_cmd;
 
-   PyObject* d = PyModule_GetDict(PyImport_AddModule("__main__"));
+   PyObject* result = nullptr;
+   PyObject *am = PyImport_AddModule("__main__");
 
-   const char *modulename = "coot";
-   PyObject *pName = myPyString_FromString(modulename);
-   PyObject *pModule_coot = PyImport_Import(pName);
+   if (am) {
+      PyObject* d = PyModule_GetDict(am);
 
-   std::cout << "running command: " << command << std::endl;
-   PyObject* result = PyRun_String(command.c_str(), Py_file_input, d, d);
-   std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
-   PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+      const char *modulename = "coot";
+      PyObject *pName = myPyString_FromString(modulename);
+      PyObject *pModule_coot = PyImport_Import(pName);
 
-#if 0
-   std::string munged_cmd = std::string("import coot; ") + python_cmd;
+      std::cout << "running command: " << command << std::endl;
+      result = PyRun_String(command.c_str(), Py_file_input, d, d);
+      std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
+      if (result)
+         std::cout << "--------------- in safe_python_command_with_return() result: "
+                   << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(result))) << std::endl;
+      else
+         std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
 
-   const char *modulename = "__main__";
-   PyObject *pName = myPyString_FromString(modulename);
-   PyObject *pModule_main = PyImport_Import(pName);
+      // debugging
+      // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
 
-   pModule_main = PyModule_GetDict(PyImport_AddModule("__main__"));
-
-   PyObject *pModule = PyImport_AddModule("__main__");
-   std::cout << "pModule  A " << pModule << std::endl;
-   pModule = PyImport_AddModule("coot");
-   PyObject *coot_module = pModule;
-   std::cout << "pModule  B " << pModule << std::endl;
-   pModule = PyImport_AddModule("coot_utils");
-   std::cout << "pModule  C " << pModule << std::endl;
-   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
-   std::cout << "pModule  D " << pModule << std::endl;
-   PyObject *globals = PyEval_GetGlobals();
-   std::cout << "globals " << globals << std::endl;
-   PyObject *locals  = PyEval_GetLocals();
-   std::cout << "locals " << locals << std::endl;
-   // PyDict_SetItemString(pModule_main, "coot", coot_module);
-   std::cout << "globals " << globals << std::endl;
-   PyObject *result = PyRun_String(python_cmd.c_str(), Py_file_input, pModule_main, pModule_main);
-   // PyObject *result = PyRun_String(munged_cmd.c_str(), Py_file_input, globals, locals);
-   std::cout << "in safe_python_command_with_return() J: " << result << std::endl;
-   if (!result)
-      PyErr_Print();
-#endif
-
+   } else {
+      std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
+   }
+   // 20230605-PE frustratingly this is returning None when I hope/expect it to be True.
    std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << std::endl;
    return result;
 }

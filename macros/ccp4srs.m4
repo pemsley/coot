@@ -29,6 +29,8 @@ AC_ARG_WITH(ccp4srs-prefix,
 	[ with_ccp4srs_prefix="$withval" ],
           with_ccp4srs_prefix="")
 
+AC_MSG_CHECKING([for CCP4SRS])
+
 if test x$with_ccp4srs_prefix != x; then
 
    if test -r "$with_ccp4srs_prefix/include/ccp4srs/ccp4srs_types.h"; then

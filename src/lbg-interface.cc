@@ -42,6 +42,7 @@ void
 residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
 			  double weight_for_3d_distances) {
 
+#ifdef COMPILE_WITH_LBG
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    graphics_info_t g;
@@ -116,9 +117,13 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 #else
    std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#endif // COMPILE_WITH_LBG
 }
 
 void smiles_to_ligand_builder(const char *smiles_string) {
+
+#ifdef COMPILE_WITH_LBG // just delete this when needed.
 
    bool debug = false;
 
@@ -198,6 +203,8 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 #else
    std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#endif // COMPILE_WITH_LBG
 } 
 
 

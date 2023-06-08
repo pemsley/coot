@@ -70,7 +70,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
                     # residues_near_residue takes a 3-part spec and makes 3-part specs
                     if new_res_spec:
-                        ls = residues_near_residue(imol, current_residue_spec, 1.9)
+                        ls = coot.residues_near_residue_py(imol, current_residue_spec, 1.9)
 
                         cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
 
@@ -296,7 +296,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
     def well_fitting_qm(res_spec):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
-            neighbs = residues_near_residue(aa_imol, res_spec, 4)
+            neighbs = coot.residues_near_residue_py(aa_imol, res_spec, 4)
             c = coot.map_to_model_correlation(imol, [res_spec], neighbs, 0,
                                          coot.imol_refinement_map())
             print("######## new residue %s density correlation: %s" %(res_spec, c))
@@ -352,7 +352,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
             # 2 = add and link mode
             coot.set_mol_displayed(imol_save, 0)
             coot.set_mol_active(imol_save, 0)
-            ls = residues_near_residue(imol, parent, 1.9)
+            ls = coot.residues_near_residue_py(imol, parent, 1.9)
             local_ls = [parent] + ls
             cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
             coot.rotate_y_scene(100, 0.5)
@@ -502,7 +502,7 @@ def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
             cho_restraints_from_models.add_cho_restraints_for_residue(aa_imol, new_res_spec)
             # refine that
             with AutoAccept():
-                residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
+                residues = [aa_res_spec] + coot.residues_near_residue_py(aa_imol, aa_res_spec, 1.9)
                 coot.refine_residues_py(aa_imol, residues)
     coot.set_matrix(wm)
 

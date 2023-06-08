@@ -742,6 +742,29 @@ graphics_info_t::get_exta_annotation_state() {
 
 glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch); // in meshed-generic-display-objects.cc
 
+
+bool
+graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const {
+
+   bool status = false;
+   for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+      const std::string &mesh_name = generic_display_objects[i].mesh.name;
+      unsigned int n_instances = generic_display_objects[i].mesh.get_n_instances();
+      std::cout << "debug mesh " << i << " has name " << mesh_name
+                << " and " << n_instances << " instances" << std::endl;
+      if (mesh_name.find("Contact Dots for Molecule") != std::string::npos) {
+         status = true;
+         break;
+      }
+      if (mesh_name.find("insta-mesh") != std::string::npos) {
+         status = true;
+         break;
+      }
+   }
+   return status;
+}
+
+
 // probably not the right place for this function
 //
 // This sould be called with imol = -1 for intermediate atoms.
@@ -861,6 +884,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
       std::string mesh_name = molecule_name_stub + type;
       int object_index = get_generic_object_index(mesh_name);
       meshed_generic_display_object &obj = generic_display_objects[object_index];
+      obj.imol = imol;
       if (imol == -1)
          obj.attach_to_intermediate_atoms();
 

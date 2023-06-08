@@ -2777,19 +2777,19 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
 
       std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
       std::vector<coot::cablam_markup_t>::const_iterator it;
-      int idx_cablam = generic_object_index("CaBLAM");
+      int idx_cablam = generic_object_index("xxCaBLAM");
       if (idx_cablam == -1)
-         idx_cablam = new_generic_object_number("CaBLAM");
+         idx_cablam = new_generic_object_number("xxCaBLAM");
       else
          generic_object_clear(idx_cablam);
       set_display_generic_object(idx_cablam, 0); // don't display while we are adding
       if (v.size() > 0) {
-         for (it=v.begin(); it!=v.end(); it++) {
+         for (it=v.begin(); it!=v.end(); ++it) {
             std::pair<coot::residue_spec_t, double> p(coot::residue_spec_t(it->residue), it->score);
             residues_vec.push_back(p);
          }
       }
-      for (it=v.begin(); it!=v.end(); it++) {
+      for (it=v.begin(); it!=v.end(); ++it) {
          const coot::cablam_markup_t &cm(*it);
          to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
          to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
@@ -2801,25 +2801,25 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
             std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
          }
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
-         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
+                                    cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
-         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
+                                    cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
-         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                    cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
-         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                    cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
 
       }
       set_display_generic_object(idx_cablam, 1); // now we can see it

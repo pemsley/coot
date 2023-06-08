@@ -115,6 +115,7 @@ public:
              int glarea_height_at_hud_start,
              int glarea_width_at_hud_start,
              int glarea_current_width, int glarea_current_height);
+   std::string residue_selection;
    float position_hash; // updated and tested in setup_from() so that we don't recalculate if we don't need to
    void clear(); // empty the residue phi,psi map and delete the gl buffers (keep the vao)
    bool is_active() const; // for mouse-overing

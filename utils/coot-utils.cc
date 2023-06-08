@@ -910,11 +910,18 @@ coot::prefix_dir() {
       if (! s.empty())
          if (s.back() == '/')
             s.erase(s.size() - 1);
+
       if (false) {
          std::cout << "dds: " << dds << std::endl;
          std::cout << "ds:  " <<  ds << std::endl;
          std::cout << "s:   " <<   s << std::endl;
       }
+
+      // 20230607-PE Merge conflict
+      // maybe I should have kept Jakub's version:
+      // std::string ds = util::append_dir_dir(dds,"..");
+      // s = util::append_dir_dir(ds,"..");
+
    }
    return s;
 }

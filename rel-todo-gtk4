@@ -36,118 +36,118 @@ Here are other styles:
 
 ----
 
-Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
+Map Parameters dialog needs a refresh ::: 1
 
-Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
+"Overlaps" needs an update button - and preferably updates automatically.
 
-Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
-
-Fix the double reading of the monomer library ::: 0.5
-
-Update the Ramachandran Plot after RSR or other model edits ::: 1
-
-Update the Validation Graphs after RSR or other model edits ::: 1
+Edit -> Mutate Residue Range ::: 2
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
-Enable the command line (e.g. --pdb and others) ::: 2
-
-Start up from Saved state. ::: 1
-For now I can start by passing startup.py on the command line.
-
-Add base paring: on_other_tools_base_pair_toggle_button_toggled() ::: 0.5
-
-Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily
+Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
-
-Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other Solvent Molecules"? ::: 1
-
-Curlew: speed-run and CaBLAM ::: 4
-
-rename draw-2.cc as tick-function.cc or some such
-
-When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
-on the atom that is blocking. ::: 1
-
-Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.5
+set_framebuffer_scale_factor().
+Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
+shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
 
-How should the "model representation change" work? Ctrl Shift 2-finger scroll? ::: 1.0
-
-Do the tutorial from time to time - what's missing? ::: 6
-Validation graphs colours, updates of rama, graphs, clash dots on model change.
-
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+* Preferences, surely.
 
-Key-binding/function to bump the B-factors up or down or match the neighbourhood.
+What's up with the Preferences? ::: 4
 
-Dotted Surface ::: 1
-* This exits and it draws OK, but I don't see how to change the colour yet.
-  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
-  class. Perhaps it should be? (see add_dots()).
+Put the curlew banner in the curlew dialog ::: 0.4
 
 Views ::: 2
 
-Find a home for New molecule by sphere ::: 1
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button.
 
-Find a home for New molecule by symmetry op ::: 1
+Make contact dots, Open generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
+again. Mess as some box entries are double written. ::: 1
 
-Make the Ligand Menu a module ::: 1
+Make the Ligand Menu be a module ::: 0.5
 Not much to do until we turn on RDKit.
+# Some of these are vital, some are nice to have
+Find Ligands ::: 0.1
+Jiggle-fit ligand ::: 0.2
+Hydrogenate region ::: 1
+Contact dots for ligand ::: 0.2
+SMILES -> simple 3D ::: 1
+Show Chemical Features ::: 1
+Display Ligand distorsions ::: 1
+Quick Ligand Validate ::: 2
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm.
+[Ligand Metric Sliders]
 
-rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
+Draw the ligand chemical diagram in OpenGL. ::: 3
 
-Think of a way to start-up with certain modules on (in Preferences) ::: 2
+"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
+(Maybe it does already)
 
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
-Low Priority: history searching on python window up-arrow ::: 1
-
-Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
-
 Rework the namespace of the python modules to be more cannonical ::: 4
 
-Recompile molecule-class-info-widget-work.cc and remove the compilation warnings ::: 0.6
+Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
-This function needs an extra arg: "bool transfered_colour_is_instanced"
-void
-Mesh::draw_instanced(Shader *shader_p,
-                     const glm::mat4 &mvp,
-                     const glm::mat4 &view_rotation_matrix,
-                     const std::map<unsigned int, lights_info_t> &lights,
-                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
-                     const glm::vec4 &background_colour,
-                     bool do_depth_fog,
-                     bool do_pulse,
-                     bool do_rotate_z,
-                     float pulsing_amplitude,
-                     float pulsing_frequency,
-                     float pulsing_phase_distribution,
-                     float z_rotation_angle)
+Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
-which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
-(what else uses that shader?)   ::: 1
+Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
-Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
+Do the tutorial from time to time - what's missing? ::: 1
 
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
+Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
+
+Alt-B to close the Rama bar.
+
+Contact dots should be oriented so that when they pulse, they move along the line between the atoms. :::- 1
+Also, elongate them? Not vdw dots though.
+
+Sort the triangles so that the difference map looks OK in plain mode. Maybe this should go
+above the line?
+
+Nice to have: on a grey background, atom labels work well, but the distance labels do not.
+
+Low Priority: history searching on python window up-arrow :::- 1
+
+Think of a way to start-up with certain modules on (in Preferences) :::- 2
+* Nice to have, not vital. Use the command line in the meantime.
+
+Enable the command line (e.g. --pdb and others) :::- 2
+* It's actually not clear that I need it!
+
+Find a home for New molecule by sphere :::- 1
+
+Find a home for New molecule by symmetry op :::- 1
+
+Add base paring: on_other_tools_base_pair_toggle_button_toggled() :::- 0.5
+
+I'd like to put coot_utils into coot so that it's coot.utils, likewise coot_gui, fitting etc.
+
 struct_conn in mmdb for links : how  does it work and can they be displayed?
+
+How about "Both" surface and lines for maps? Extra "Both" radio button.
 
 Download 7a0l (or anything) doesn't have (doesn't display) links when reading from an mmcif!
 OK, but this is a mmdb problem not a GTK4 Coot problem.
-"Nice to have" - or change to scope to 10.
-
-7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
 
 A benchmark in Curlew? Or built-in would be better.
+
+Unmodelled blobs should have an "Update" button :::- 1
 
 Caps lock key indicator?
 
@@ -165,9 +165,15 @@ Map Skeletonization :::- 4
 
 CA Baton Mode :::- 4
 
+Recompile molecule-class-info-widget-work.cc and remove the compilation warnings :::- 6
+* There's a lot of symmetry and NCS stuff in there that needs a large reworking.
+
 End-caps on the O half bonds on the HOHs in 7a0l.
 
 Fullscreen - maybe not possible in gtk4 :::- 0.2
+
+Map Properties window close button :::- 0.5
+* I had a look. Not sure what internal-child="action_area" means.
 
 New Mesh algorithms:
 https://swiftcoder.wordpress.com/planets/isosurface-extraction/
@@ -192,6 +198,11 @@ void HUDTextureMesh::setup_buffers() { ...
 Turn this on and do a RSR, see that the Button Texture meshes have a new vao for each draw!  :::- 1
 * It will do for now these are HUD text. One day rewrite, but not today.
 
+Dotted Surface :::- 1
+* This exists and it draws OK, but I don't see how to change the colour yet.
+  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
+  class. Perhaps it should be? (see add_dots()).
+
 Undo molecule chooser should be an overlay.
 
 "Accent Background" - 1: replace the blank background with a texture. 2: Make a texture using the current image
@@ -205,6 +216,9 @@ Nice to have: 3D text - related to model bulding last time. Or markers in 3D whi
 text annotations.
 
 RCrane - Make this a Module. Fixing this will take a long time. :::- 20
+
+When adding a water "WARNING:: new atom addition blocked by nearby atom" needs a visual cue (red sonar)
+on the atom that is blocking. :::- 1
 
 Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
 Put this in preferences.
@@ -222,6 +236,9 @@ Bonds to hydrogen/deuteriums are too fat "Colour by Occupancy" and "Colour by B-
 Bonds to deuteriums in HOH are too fat in (default) "colour by atom" mode.
 (also affects gtk3 coot - so think about fixing it there?).
 See "fat atom" commits.
+
+How should the "model representation change" work? Ctrl Shift 2-finger scroll? :::- 0.5
+* This is too complicated and estoeric to fix now. I don't even know how to fix it.
 
 --- Done Items ---
 
@@ -521,3 +538,116 @@ Calculate -> Hydrogen Bonds?
 
 Apply the symmetry colour from the Cell and Symmetry dialog ::: 1
 * Done. At last. 2 attempts. Looks nice.
+
+Save state via a file chooser dialog and Ctrl-S and use on the command line ::: 1
+* Done.
+
+This function needs an extra arg: "bool transfered_colour_is_instanced"
+void
+Mesh::draw_instanced(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &view_rotation_matrix,
+                     const std::map<unsigned int, lights_info_t> &lights,
+                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                     const glm::vec4 &background_colour,
+                     bool do_depth_fog,
+                     bool do_pulse,
+                     bool do_rotate_z,
+                     float pulsing_amplitude,
+                     float pulsing_frequency,
+                     float pulsing_phase_distribution,
+                     float z_rotation_angle)
+
+which gets sent to the shader of course. Check that both interactive atomic comtact dots and hydrogen bonds work.
+(what else uses that shader?)   ::: 1
+* Done.
+
+7a0l-assemby.cif from rscb.org fails to import. Hmm! How to fix that!? Test case for gemmi-based import?
+* Done.
+
+Start up from Saved state. ::: 1
+For now I can start by passing startup.py on the command line.
+
+Change the label on the Refinement module's "Contact Dots on" menu item ::: 0.1
+* Done.
+
+Sort out whatever is going wrong with the display of the extra distance restraints. ::: 1
+* Done.
+
+Connect up the distances and angles dialog ::: 1
+* It was easy. I could improve the position of the angle label.
+
+Fix the double reading of the monomer library ::: 0.3
+* Hopefully this won't break things.
+
+Update the Ramachandran Plot after RSR or other model edits ::: 1
+* Done. Nice.
+
+Update the Validation Graphs after RSR or other model edits ::: 2.5
+what is this: update_active_validation_graph_model()?
+It is the function that gets called when the user changes the molecule in the validation graph dialog.
+It is not the function to update the graphs when the model changes.
+
+Validation graph colours ::: 1.0
+* Mostly done. Needs some tweaking (e.g. in Density Correlation there needs to be some improved range).
+
+Edit Restraints, Select Monomer type - dialogs messed up ::: 1
+* Done.
+
+Restraints Editor ::: 2
+* Done.
+
+Calculate -> Map Tools -> Copy Map doesn't work ::: 0.5
+* Done. And smoother versions.
+
+Intercept "Get Monomer" or "Search Monomer" 3GP and give me a conformation that fits more easily ::: 1
+* Grindy finding the bug (was not editing the correct dictionary).
+
+rename draw-2.cc as tick-function.cc or some such
+
+On changing the selection in the rama plot, it says "now do something with //A". So you should do that. ::: 0.5
+
+Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 0.1
+
+Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.2
+*Done. Added stabilization in mouse_zoom().
+
+Curlew: Goodsell, speed-run and CaBLAM ::: 5
+* Monster effort - rewrite from scratch.
+
+Open Coordinates -> Move Molecule Here -> Open doesn't work  ::: 0.5
+
+Edit->Move Molecule Here... Do it twice and the combobox duplicates ::: 0.5
+Needs a check before adding a combobox?
+* Done.
+
+Add a window-removed signal callback for Bernie? ::: 0.2
+void
+window_removed (
+  GtkApplication* self,
+  GtkWindow* window,
+  gpointer user_data
+)
+* I added a note:
+
+Missing main-chain C atom in colour-by-chain. ::: 0.5
+* Done. Commented out a big hunk of code. Make instancing work.
+
+Where is "Add Atom at Pointer"? Do I mean for waters and metals to be added using "Add Other
+ Solvent Molecules"? No. Modelling -> Add an Atom: Then can be Water, or anions and cations ::: 1
+
+rename residue, renumber waters, reorder chains, replace fragment, use SEGIDs in Edit menu ::: 0.2
+* Done ages ago.
+
+Do the tutorial from time to time - what's missing? ::: 6
+graphs, validation graphs colours, updates of rama, clash dots on model change.
+change the function name update_validation_graphs() to update_validation() and after that change the name back and call
+the dot updates and update_validation_graphs() from there.
+
+Key-binding/function to bump the B-factors up or down or match the neighbourhood. ::: 0.2
+* Done
+
+Clear the box of results in Unmodelled Blobs ::: 0.4
+
+Put GLM into configure, get rid of --with-gtk4 ::: 0.5
+

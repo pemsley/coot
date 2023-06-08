@@ -23,8 +23,7 @@
 # 
 SUBDIRS = icons
 
-# cootpixmapdir = $(pkgdatadir)/glade/pixmaps
-cootpixmapdir = $(pkgdatadir)/icons/hicolor/16x16/actions
+cootpixmapdir = $(pkgdatadir)/pixmaps
 cootsplashscreendir = $(pkgdatadir)/images
 
 dist_cootsplashscreen_DATA = coot-1.png

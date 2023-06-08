@@ -108,6 +108,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    int ssao_blur_size = graphics_info_t::ssao_blur_size;
 
+   // std::cout << "render_scene_sans_depth_blur() " << std::endl;
+
    if (di.displayed_image_type == SHOW_AO_SCENE) {
 
       // std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
@@ -254,7 +256,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          bool show_shadow_map = false;
 
-         if (show_shadow_map) {
+         if (show_shadow_map) { // debugging shadow map
 
             render_to_shadow_map();
 
@@ -276,7 +278,9 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
             {
 
-               glViewport(0,0, width, height);
+
+               // std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
+               glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
                di.framebuffer_for_effects.bind();
 
                // are these needed if the background image is drawn?
@@ -728,6 +732,8 @@ graphics_info_t::render_scene() {
 #ifdef __APPLE__
       sf = 2;
 #endif
+
+      // std::cout << "glViewport " << sf * width << " " << sf * height << std::endl;
       glViewport(0, 0, sf * width, sf * height);
       attach_buffers(); // just GTK things
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
@@ -735,7 +741,6 @@ graphics_info_t::render_scene() {
       glDisable(GL_BLEND);
       glEnable(GL_DEPTH_TEST);
       glDepthFunc(GL_LESS);
-      graphics_info_t g;
 
       if (draw_background_image_flag) {
          // std::cout << "basic render: draw background image " << std::endl;
@@ -743,9 +748,11 @@ graphics_info_t::render_scene() {
          tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
       }
       
+      graphics_info_t g;// needed? Yes.
       g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
       draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
       render_3d_scene(GTK_GL_AREA(gl_area));
+      // HUD things? Not here?
       if (show_fps_flag)
          draw_hud_fps();
    };

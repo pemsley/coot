@@ -50,29 +50,13 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 ##########################################################################
 
 
-# put these into configure
-GLM_CXXFLAGS = -I$(HOME)/glm/include
-EPOXY_LIBS = -lepoxy
-
-CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
-CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)
-
-# MOLECULESTOTRIANGLES=$(install_top_dir)
-# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
-# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
-
-# MOLECULESTOTRIANGLES=$(install_top_dir)
-# MOLECULESTOTRIANGLES_LIBS = -L$(MOLECULESTOTRIANGLES)/lib -lMoleculesToTrianglesCXXClasses
-# MOLECULESTOTRIANGLES_CXXFLAGS = -I$(MOLECULESTOTRIANGLES)/include
-
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la
 #
-# add this back one day
-# $(top_builddir)/goograph/libcoot-goograph.la
+# we don't have lidia yet.
+#        $(top_builddir)/lbg/libcoot-lidia.la
 
 COOT_EXTRA_LIBS = \
-        $(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
@@ -500,12 +484,13 @@ libcootsumo_la_SOURCES = \
 	coot_wrap_guile.cc       \
 	curlew.h                 \
 	curlew.hh                \
+	curlew-gtk4.cc           \
+	curlew-gtk4.hh           \
 	data-pair-remover.hh     \
 	density-results-container-t.hh \
 	dots-representation.hh   \
 	draw.cc                  \
-	draw-2.cc                \
-	draw-2.hh                \
+	graphics-info-tick-function.cc \
 	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
@@ -782,14 +767,14 @@ endif
 # 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 # 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 # 	$(top_builddir)/ideal/libcoot-ideal.la    		\
-#         $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
+#       $(top_builddir)/coot-utils/libcoot-map-heavy.la         \
 # 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 # 	$(top_builddir)/coords/libcoot-coords.la      		\
 # 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 # 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 # 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
 # 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-#         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+#       $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 # 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 # 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 # 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\

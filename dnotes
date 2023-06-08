@@ -10946,7 +10946,7 @@ void graphics_info_t::remove_dictionary_glob_extension(const std::string &extens
 ---
 Mon  8 May 2023 03:33:30 BST
 
-   Make a macro for this function:
+   Make a snippet for this function:
          g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
 
 

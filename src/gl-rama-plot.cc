@@ -7,17 +7,24 @@
 
 
 void
-gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection) {
+gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection_in) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    if (mol) {
+      bool do_the_update = false;
       float position_hash_now = coot::get_position_hash(mol);
-      // std::cout << "comparing hashes " << position_hash_now << " " << position_hash << std::endl;
-      if (position_hash_now != position_hash) {
-         phi_psi_map = generate_phi_psis(imol, residue_selection, mol);
+
+      if (position_hash_now != position_hash)
+         do_the_update = true;
+      if (residue_selection_in != residue_selection)
+         do_the_update = true;
+
+      if (do_the_update) {
+         phi_psi_map = generate_phi_psis(imol, residue_selection_in, mol);
          update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
          position_hash = position_hash_now;
       }
+      residue_selection = residue_selection_in;
    }
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();

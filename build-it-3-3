@@ -2621,7 +2621,7 @@ fi
 if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       (
-      ${WGET} htpps://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+      ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
       ./configure $generic_prefix
@@ -3584,11 +3584,14 @@ rdkit_version=2017_09_3
 rdkit_version=2019_09_1 # python 3
 rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
 rdkit_version=2020_09_3
+rdkit_version=2023_03_1
+# see https://github.com/rdkit/rdkit/releases
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 rdkit_tar_size=54644792
 rdkit_tar_size=58598385 # 2020_09_3
+rdkit_tar_size=79454133 # 2023_03_1
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
@@ -3601,7 +3604,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack
-   # skip_this=false
+   skip_this=false
 
    if [ $skip_this = false ] ;  then
 

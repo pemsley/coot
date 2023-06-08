@@ -737,7 +737,7 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
       std::string ic(inscode);
       short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
 
-      g.update_geometry_graphs(imol);
+      g.update_validation(imol);
 
       if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
@@ -2159,6 +2159,26 @@ place_typed_atom_at_pointer(const char *type) {
    add_to_history_typed(cmd, args);
 }
 
+void add_an_atom(const std::string &element) {
+   // same as above? but modern?
+   graphics_info_t g;
+   g.place_typed_atom_at_pointer(element);
+   std::string cmd = "add-an-atom";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(element));
+   add_to_history_typed(cmd, args);
+}
+
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount) {
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].change_b_factors_of_residue_by(residue_spec, amount);
+   }
+}
+#endif
+
+
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;
    std::string cmd = "set-pointer-atom-is-dummy";
@@ -2611,7 +2631,7 @@ int renumber_residue_range(int imol, const char *chain_id,
 	       graphics_info_t g;
 	       graphics_draw();
 	       g.update_go_to_atom_window_on_changed_mol(imol);
-	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       g.update_validation(imol);
 	    }
 	 }
       }
@@ -2639,7 +2659,7 @@ int change_residue_number(int imol, const char *chain_id, int current_resno, con
       idone = 1;
       graphics_info_t g;
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
    }
    std::string cmd = "change-residue-number";
    std::vector<coot::command_arg_t> args;
@@ -3752,15 +3772,13 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
 
-      mmdb::Manager *mol =
-	 mmdb_manager_from_scheme_expression(molecule_expression);
-
+      mmdb::Manager *mol = mmdb_manager_from_scheme_expression(molecule_expression);
       if (mol) {
 	 state = 1;
 	 graphics_info_t::molecules[molecule_number].replace_molecule(mol);
 	 graphics_draw();
 	 graphics_info_t g;
-	 g.update_geometry_graphs(g.molecules[molecule_number].atom_sel, molecule_number);
+	 g.update_validation(molecule_number);
       }
    } else {
       std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
@@ -3776,12 +3794,12 @@ int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_express
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
 
-      std::deque<mmdb::Model *> model_list =
-         mmdb_models_from_python_expression(molecule_expression);
-
+      std::deque<mmdb::Model *> model_list = mmdb_models_from_python_expression(molecule_expression);
       if (!model_list.empty()) {
          state = 1;
          graphics_info_t::molecules[molecule_number].replace_models(model_list);
+         graphics_info_t g;
+	 g.update_validation(molecule_number);
          graphics_draw();
       }
    }
@@ -3848,7 +3866,7 @@ void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_i
 							  to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
    }
 }
 
@@ -3867,7 +3885,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 					   to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_valiadtion_graphs(imol);
       r = SCM_EOL;
       r = scm_cons(scm_from_locale_string(p.second.c_str()), r);
       r = scm_cons(scm_from_int(p.first), r);
@@ -3893,7 +3911,7 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
       v = PyList_New(2);
       PyList_SetItem(v, 0, PyLong_FromLong(r.first));
       PyList_SetItem(v, 1, myPyString_FromString(r.second.c_str()));
@@ -3935,8 +3953,7 @@ int fix_nomenclature_errors(int imol) {
       std::vector<mmdb::Residue *> vr =
 	 graphics_info_t::molecules[imol].fix_nomenclature_errors(g.Geom_p());
       ifixed = vr.size();
-      g.update_geometry_graphs(graphics_info_t::molecules[imol].atom_sel,
-			       imol);
+      g.update_validation(imol);
       graphics_draw();
    }
    // update geometry graphs (not least rotamer graph).
@@ -5293,6 +5310,7 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 /*  ----------------------------------------------------------------------- */
 /*                  SMILES                                                  */
 /*  ----------------------------------------------------------------------- */
+// 20230605-PE Old hideous scripting thing. Delete.
 void do_smiles_gui() {
 
 #if defined USE_GUILE

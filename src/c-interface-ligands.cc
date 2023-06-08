@@ -1729,8 +1729,7 @@ PyObject *non_standard_residue_names_py(int imol) {
   PyObject *r = PyList_New(0);
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<std::string> resnames =
-	 coot::util::non_standard_residue_types_in_molecule(mol);
+      std::vector<std::string> resnames =  coot::util::non_standard_residue_types_in_molecule(mol);
 
       // remove water if it is there
       std::vector<std::string>::iterator it =
@@ -3162,15 +3161,31 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
 		     double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
 		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_1.x(), bl_1.y(), bl_1.z(),
-						bl_2.x(), bl_2.y(), bl_2.z());
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_1.x(), bl_1.y(), bl_1.z(),
-						bl_3.x(), bl_3.y(), bl_3.z());
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_2.x(), bl_2.y(), bl_2.z(),
-						bl_3.x(), bl_3.y(), bl_3.z());
+                     ch.scale_intensity(0.5);
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_1.x(), bl_1.y(), bl_1.z(),
+		     //    			bl_2.x(), bl_2.y(), bl_2.z());
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_1.x(), bl_1.y(), bl_1.z(),
+		     //    			bl_3.x(), bl_3.y(), bl_3.z());
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_2.x(), bl_2.y(), bl_2.z(),
+		     //    			bl_3.x(), bl_3.y(), bl_3.z());
+                     float line_radius = 0.11f;
+                     const unsigned int n_slices = 16;
+
+                     std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(bl_1)),
+                                                              glm::vec3(coord_orth_to_glm(bl_2)));
+
+                     std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v =
+                        { std::make_pair(bl_1, bl_2), std::make_pair(bl_1, bl_2), std::make_pair(bl_2, bl_3) };
+
+                     std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >::const_iterator it;
+                     for (it=v.begin(); it!=v.end(); ++it)
+                        obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                         meshed_generic_display_object::ROUNDED_CAP,
+                                         meshed_generic_display_object::ROUNDED_CAP);
+
 		     // return (if possible) the atom attached to
 		     // at_c that is not at_1, at_2 or at_3.
 		     mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
@@ -3178,15 +3193,24 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			std::cout << "    " << coot::atom_spec_t(at_4th) << std::endl;
 			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_2.x(), bl_2.y(), bl_2.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_3.x(), bl_3.y(), bl_3.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_1.x(), bl_1.y(), bl_1.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_2.x(), bl_2.y(), bl_2.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_3.x(), bl_3.y(), bl_3.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+
+                        std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v4 =
+                           { std::make_pair(bl_1, bl_4), std::make_pair(bl_2, bl_4), std::make_pair(bl_3, bl_4) };
+
+                        for (it=v4.begin(); it!=v4.end(); ++it)
+                           obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                            meshed_generic_display_object::ROUNDED_CAP,
+                                            meshed_generic_display_object::ROUNDED_CAP);
+
 		     } else {
 			// make 4th tetrahedron point from the others
 			clipper::Coord_orth neighb_sum = p1 + p2 + p3;
@@ -3194,21 +3218,31 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			clipper::Coord_orth dir_unit(clipper::Coord_orth(pc - neighb_average).unit());
 			clipper::Coord_orth p4(pc + 1.2 * dir_unit);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_2.x(), bl_2.y(), bl_2.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_3.x(), bl_3.y(), bl_3.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_1.x(), bl_1.y(), bl_1.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_2.x(), bl_2.y(), bl_2.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_3.x(), bl_3.y(), bl_3.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+
+                        std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v4 =
+                           { std::make_pair(bl_1, bl_4), std::make_pair(bl_2, bl_4), std::make_pair(bl_3, bl_4) };
+
+                        for (it=v4.begin(); it!=v4.end(); ++it)
+                           obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                            meshed_generic_display_object::ROUNDED_CAP,
+                                            meshed_generic_display_object::ROUNDED_CAP);
 		     }
 		  }
 	       }
 	    }
             Material material;
             // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); //date
+            material.do_specularity = true;
+            material.specular_strength = 0.9;
             obj.mesh.setup(material);
 	    set_display_generic_object(new_obj, 1);
 	    graphics_draw();
@@ -3975,4 +4009,20 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
                 << std::endl;
    }
    return 0;
+}
+
+void smiles_to_simple_3d(const std::string &smiles) {
+
+   // 20230605-PE this was done via scripting previously. Hmm
+
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::string tlc = "LIG";
+   std::vector<coot::command_arg_t> args = { coot::command_arg_t(tlc), smiles };
+   std::string sc = g.state_command("generator_3d_import", "new_molecule_by_smiles_string", args, lang);
+   PyObject *r1 = safe_python_command_with_return("import generator_3d_import");
+   std::cout << "smiles_to_simple_3d(): r1: " << r1 << std::endl;
+   std::cout << "smiles_to_simple_3d(): calling this: " << sc << std::endl;
+   PyObject *r2 = safe_python_command_with_return(sc);
+
 }
